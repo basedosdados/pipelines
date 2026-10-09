@@ -1,0 +1,1294 @@
+---
+version: 2
+models:
+  - name: world_openalex__work
+    description: 'Um registro por trabalho acadêmico indexado pelo OpenAlex (artigos,
+      livros, capítulos, teses, conjuntos de dados, preprints), com identificadores,
+      data e tipo de publicação, fonte e tópico principais, situação de acesso aberto
+      e contagens de autores, referências e citações. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [pmid, pmcid, mag_id, apc_list_usd, apc_paid_usd]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_openalex__dicionario')
+          columns_covered_by_dictionary: [language]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: doi
+        description: DOI do trabalho
+      - name: pmid
+        description: Identificador PubMed (PMID)
+      - name: pmcid
+        description: Identificador PubMed Central (PMCID)
+      - name: mag_id
+        description: Identificador no antigo Microsoft Academic Graph
+      - name: title
+        description: Título do trabalho
+      - name: publication_date
+        description: Data de publicação do trabalho
+      - name: type
+        description: 'Tipo do trabalho (ex.: article, book-chapter, dataset, preprint)'
+      - name: language
+        description: Idioma do trabalho (código ISO 639-1)
+      - name: primary_source_id
+        description: Identificador da fonte (periódico, repositório, conferência)
+          no OpenAlex
+      - name: primary_topic_id
+        description: Tópico principal do trabalho no OpenAlex
+      - name: is_open_access
+        description: Se o trabalho tem alguma versão em acesso aberto
+      - name: open_access_status
+        description: Status de acesso aberto (diamond, gold, green, hybrid, bronze,
+          closed)
+      - name: open_access_url
+        description: Melhor URL de acesso aberto ao trabalho
+      - name: any_repository_has_fulltext
+        description: Se alguma cópia em repositório tem o texto completo
+      - name: is_paratext
+        description: Se o registro é paratexto (capa, sumário, expediente) e não um
+          trabalho acadêmico
+      - name: is_retracted
+        description: Se o trabalho foi retratado
+      - name: is_xpac
+        description: Se o trabalho pertence ao conjunto estendido (xpac) do OpenAlex
+      - name: volume
+        description: Volume da publicação
+      - name: issue
+        description: Número (fascículo) da publicação
+      - name: first_page
+        description: Primeira página
+      - name: last_page
+        description: Última página
+      - name: authors_count
+        description: Número de autores
+      - name: institutions_distinct_count
+        description: Número de instituições distintas entre os autores
+      - name: countries_distinct_count
+        description: Número de países distintos entre os autores
+      - name: locations_count
+        description: Número de locais (cópias) em que o trabalho está hospedado
+      - name: referenced_works_count
+        description: Número de trabalhos citados por este trabalho
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: fwci
+        description: Impacto de citação normalizado por área (FWCI)
+      - name: citation_normalized_percentile
+        description: Percentil de citações em relação a trabalhos do mesmo ano e área,
+          de 0 a 1
+      - name: is_in_top_1_percent
+        description: Se está no 1% mais citado do mesmo ano e área
+      - name: is_in_top_10_percent
+        description: Se está nos 10% mais citados do mesmo ano e área
+      - name: apc_list_usd
+        description: Preço de tabela da taxa de publicação (APC) da fonte, em dólares
+          americanos
+      - name: apc_paid_usd
+        description: Taxa de publicação (APC) efetivamente paga, em dólares americanos
+      - name: has_fulltext
+        description: Se o OpenAlex indexou o texto completo
+      - name: has_pdf
+        description: Se o OpenAlex possui o PDF do trabalho
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__work_abstract
+    description: 'Resumo de cada trabalho em texto corrido, reconstruído a partir
+      do índice invertido publicado pelo OpenAlex. Cerca de metade dos trabalhos tem
+      resumo. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: abstract
+        description: Resumo do trabalho em texto corrido
+  - name: world_openalex__work_authorship
+    description: 'Um registro por autor de cada trabalho, na ordem da lista de autoria,
+      com o autor desambiguado pelo OpenAlex, o nome como impresso e a indicação de
+      autor correspondente. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, author_sequence]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [raw_orcid]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+          - relationships:
+              to: ref('world_openalex__work')
+              field: work_id
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: author_sequence
+        description: Ordem do autor na lista de autoria do trabalho
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+      - name: author_position
+        description: 'Posição do autor: first, middle ou last'
+      - name: author_name
+        description: Nome do autor conforme o perfil do OpenAlex
+      - name: orcid
+        description: ORCID do autor
+      - name: raw_author_name
+        description: Nome do autor como impresso no trabalho
+      - name: raw_orcid
+        description: ORCID declarado na fonte, antes da desambiguação
+      - name: is_corresponding
+        description: Se é o autor correspondente
+  - name: world_openalex__work_authorship_institution
+    description: 'Um registro por instituição do OpenAlex associada a cada autor de
+      cada trabalho. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, author_sequence, institution_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: author_sequence
+        description: Ordem do autor na lista de autoria do trabalho
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: institution_id
+        description: Identificador da instituição no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+  - name: world_openalex__work_authorship_affiliation
+    description: 'Um registro por texto de afiliação de cada autor, como impresso
+      no trabalho, com as instituições do OpenAlex identificadas nesse texto. Fonte:
+      snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - work_id
+            - author_sequence
+            - affiliation_sequence
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: author_sequence
+        description: Ordem do autor na lista de autoria do trabalho
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: affiliation_sequence
+        description: Ordem da afiliação na lista do autor
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: raw_affiliation_string
+        description: Texto da afiliação como impresso no trabalho
+      - name: institution_ids
+        description: Instituições do OpenAlex identificadas neste texto de afiliação
+  - name: world_openalex__work_authorship_country
+    description: 'Um registro por país de afiliação de cada autor de cada trabalho,
+      inclusive quando a instituição não foi identificada. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, author_sequence, country_code]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: author_sequence
+        description: Ordem do autor na lista de autoria do trabalho
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: country_code
+        description: País de afiliação do autor (código ISO 3166-1 alfa-2)
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+  - name: world_openalex__work_location
+    description: 'Um registro por local em que um trabalho está hospedado (periódico,
+      repositório, servidor de preprints), com versão, licença, URLs e situação de
+      acesso aberto, marcando o local principal e o melhor local de acesso aberto.
+      Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, location_sequence]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_openalex__dicionario')
+          columns_covered_by_dictionary: [license]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+          - relationships:
+              to: ref('world_openalex__work')
+              field: work_id
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: location_sequence
+        description: Ordem do local na lista do trabalho
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: location_id
+        description: Identificador do local no OpenAlex, estável mesmo quando trabalhos
+          são fundidos
+      - name: source_id
+        description: Identificador da fonte (periódico, repositório, conferência)
+          no OpenAlex
+      - name: is_primary
+        description: Se é o local principal (versão de registro) do trabalho
+      - name: is_best_open_access
+        description: Se é o melhor local de acesso aberto do trabalho
+      - name: is_open_access
+        description: Se o trabalho é de acesso aberto neste local
+      - name: is_published
+        description: Se esta é a versão publicada
+      - name: is_accepted
+        description: Se esta é a versão aceita ou publicada
+      - name: version
+        description: Versão do trabalho neste local (submittedVersion, acceptedVersion,
+          publishedVersion)
+      - name: license
+        description: Licença do trabalho neste local
+      - name: landing_page_url
+        description: URL da página do trabalho neste local
+      - name: pdf_url
+        description: URL do PDF neste local
+      - name: raw_source_name
+        description: Nome da fonte como informado pelo provedor
+      - name: raw_type
+        description: Tipo do trabalho como informado pelo provedor
+      - name: provenance
+        description: 'Provedor de onde o OpenAlex obteve o local (ex.: crossref, pmh,
+          datacite)'
+  - name: world_openalex__work_topic
+    description: 'Até três tópicos atribuídos a cada trabalho pelo classificador do
+      OpenAlex, com o escore de confiança; o tópico de ordem 1 é o principal. Fonte:
+      snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, topic_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: topic_id
+        description: Identificador do tópico no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+          - relationships:
+              to: ref('world_openalex__topic')
+              field: topic_id
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: topic_rank
+        description: Ordem do tópico por escore, 1 = tópico principal
+      - name: score
+        description: Escore de confiança da atribuição, de 0 a 1
+  - name: world_openalex__work_keyword
+    description: 'Palavras-chave atribuídas a cada trabalho pelo OpenAlex, com o escore
+      de confiança. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, keyword_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: keyword_id
+        description: Identificador da palavra-chave no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: score
+        description: Escore de confiança da atribuição, de 0 a 1
+  - name: world_openalex__work_sdg
+    description: 'Objetivos de Desenvolvimento Sustentável da ONU associados a cada
+      trabalho pelo classificador do OpenAlex, com o escore de confiança. Fonte: snapshot
+      do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, sdg_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_openalex__dicionario')
+          columns_covered_by_dictionary: [sdg_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: sdg_id
+        description: Objetivo de Desenvolvimento Sustentável da ONU (1 a 17)
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: score
+        description: Escore de confiança da atribuição, de 0 a 1
+  - name: world_openalex__work_mesh
+    description: 'Descritores e qualificadores do vocabulário MeSH atribuídos pelo
+      PubMed a cada trabalho nele indexado. Fonte: snapshot do OpenAlex (OurResearch),
+      licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, descriptor_id, qualifier_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+      - name: descriptor_id
+        description: Identificador do descritor MeSH
+      - name: descriptor_name
+        description: Nome do descritor MeSH
+      - name: qualifier_id
+        description: Identificador do qualificador MeSH
+      - name: qualifier_name
+        description: Nome do qualificador MeSH
+      - name: is_major_topic
+        description: Se o descritor é assunto principal do trabalho
+  - name: world_openalex__work_award
+    description: 'Um registro por financiamento (award) declarado em cada trabalho,
+      com o financiador e o código atribuído por ele. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, award_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: award_id
+        description: Identificador do financiamento (award) no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: funder_id
+        description: Identificador do financiador no OpenAlex
+      - name: funder_award_id
+        description: Código do financiamento atribuído pelo financiador
+  - name: world_openalex__work_funder
+    description: 'Um registro por financiador declarado em cada trabalho. Fonte: snapshot
+      do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, funder_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: funder_id
+        description: Identificador do financiador no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+  - name: world_openalex__work_reference
+    description: 'Rede de citações: um registro por trabalho citado na lista de referências
+      de cada trabalho, quando o citado também está no OpenAlex. Fonte: snapshot do
+      OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, referenced_work_id]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: referenced_work_id
+        description: Identificador do trabalho citado
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+  - name: world_openalex__work_counts_by_year
+    description: 'Citações recebidas por cada trabalho em cada ano, nos últimos dez
+      anos. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, year]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: year
+        description: Ano em que as citações foram recebidas
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: cited_by_count
+        description: Número de citações recebidas no ano
+  - name: world_openalex__work_indexed_in
+    description: 'Bases e índices em que cada trabalho está indexado (Crossref, PubMed,
+      DOAJ, arXiv, DataCite). Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [work_id, index_name]
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: publication_year >= extract(year from current_date()) - 1
+    columns:
+      - name: publication_year
+        description: Ano de publicação do trabalho
+      - name: work_id
+        description: Identificador do trabalho no OpenAlex
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+      - name: index_name
+        description: 'Índice ou base que indexa o trabalho (ex.: crossref, pubmed,
+          doaj, arxiv, datacite)'
+        tests:
+          - not_null:
+              config:
+                where: publication_year >= extract(year from current_date()) - 1
+  - name: world_openalex__author
+    description: 'Um registro por autor desambiguado pelo OpenAlex, com nome, ORCID,
+      contagens de trabalhos e citações e índices h e i10. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [author_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome de exibição do autor
+      - name: full_name
+        description: Nome completo do autor
+      - name: orcid
+        description: ORCID do autor
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: two_year_mean_citedness
+        description: Média de citações recebidas no último ano por trabalhos publicados
+          nos dois anos anteriores
+      - name: h_index
+        description: Índice h
+      - name: i10_index
+        description: 'Índice i10: número de trabalhos com ao menos 10 citações'
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__author_alternative_name
+    description: 'Grafias alternativas do nome de cada autor encontradas pelo OpenAlex.
+      Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [author_id, alternative_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+        tests: [not_null]
+      - name: alternative_name
+        description: Grafia alternativa do nome do autor
+        tests: [not_null]
+  - name: world_openalex__author_affiliation
+    description: 'Um registro por autor, instituição e ano em que o autor publicou
+      com aquela afiliação. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [author_id, institution_id, year]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Ano em que o autor publicou com esta afiliação
+        tests: [not_null]
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+        tests: [not_null]
+      - name: institution_id
+        description: Identificador da instituição no OpenAlex
+        tests: [not_null]
+  - name: world_openalex__author_last_known_institution
+    description: 'Instituições da afiliação mais recente de cada autor. Fonte: snapshot
+      do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [author_id, institution_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+        tests: [not_null]
+      - name: institution_id
+        description: Identificador da instituição no OpenAlex
+        tests: [not_null]
+  - name: world_openalex__author_topic
+    description: 'Tópicos em que cada autor publica, com o número de trabalhos e a
+      participação de cada tópico na produção do autor. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [author_id, topic_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+        tests: [not_null]
+      - name: topic_id
+        description: Identificador do tópico no OpenAlex
+        tests:
+          - not_null
+          - relationships:
+              to: ref('world_openalex__topic')
+              field: topic_id
+      - name: works_count
+        description: Número de trabalhos do autor neste tópico
+      - name: topic_share
+        description: Participação do tópico na produção do autor, de 0 a 1
+  - name: world_openalex__author_counts_by_year
+    description: 'Trabalhos publicados, trabalhos em acesso aberto e citações recebidas
+      por cada autor em cada ano, nos últimos dez anos. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [author_id, year]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Ano de referência
+        tests: [not_null]
+      - name: author_id
+        description: Identificador do autor no OpenAlex
+        tests: [not_null]
+      - name: works_count
+        description: Número de trabalhos publicados no ano
+      - name: oa_works_count
+        description: Número de trabalhos em acesso aberto publicados no ano
+      - name: cited_by_count
+        description: Número de citações recebidas no ano
+  - name: world_openalex__award
+    description: 'Um registro por financiamento (bolsa, auxílio, projeto) registrado
+      pelo OpenAlex, com financiador, valor, moeda, datas e tópico principal. Fonte:
+      snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [award_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: award_id
+        description: Identificador do financiamento (award) no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Título do projeto financiado
+      - name: description
+        description: Descrição do projeto financiado
+      - name: funder_id
+        description: Identificador do financiador no OpenAlex
+      - name: funder_award_id
+        description: Código do financiamento atribuído pelo financiador
+      - name: funding_type
+        description: 'Tipo de financiamento (ex.: grant, fellowship)'
+      - name: funder_scheme
+        description: Programa ou linha de financiamento
+      - name: amount
+        description: Valor do financiamento, na moeda indicada em currency
+      - name: currency
+        description: Moeda do valor (código ISO 4217)
+      - name: start_date
+        description: Data de início do financiamento
+      - name: end_date
+        description: Data de término do financiamento
+      - name: start_year
+        description: Ano de início do financiamento
+      - name: end_year
+        description: Ano de término do financiamento
+      - name: primary_topic_id
+        description: Tópico principal do projeto
+      - name: funded_outputs_count
+        description: Número de trabalhos ligados ao financiamento
+      - name: doi
+        description: DOI do financiamento
+      - name: landing_page_url
+        description: URL da página do financiamento
+      - name: provenance
+        description: Fonte de onde o OpenAlex obteve o registro
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__award_investigator
+    description: 'Pesquisadores de cada financiamento, com o papel (responsável, co-responsável
+      ou membro) e a afiliação declarada. Fonte: snapshot do OpenAlex (OurResearch),
+      licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [award_id, investigator_sequence]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: award_id
+        description: Identificador do financiamento (award) no OpenAlex
+        tests: [not_null]
+      - name: investigator_sequence
+        description: Ordem do pesquisador no financiamento
+        tests: [not_null]
+      - name: role
+        description: 'Papel no projeto: lead, co_lead ou investigator'
+      - name: given_name
+        description: Prenome do pesquisador
+      - name: family_name
+        description: Sobrenome do pesquisador
+      - name: orcid
+        description: ORCID do pesquisador
+      - name: role_start_date
+        description: Data de início no papel
+      - name: affiliation_name
+        description: Nome da instituição de afiliação
+      - name: country_code
+        description: País da afiliação (código ISO 3166-1 alfa-2)
+  - name: world_openalex__award_institution
+    description: 'Instituições do OpenAlex que receberam cada financiamento. Fonte:
+      snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [award_id, institution_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: award_id
+        description: Identificador do financiamento (award) no OpenAlex
+        tests: [not_null]
+      - name: institution_id
+        description: Identificador da instituição no OpenAlex
+        tests: [not_null]
+  - name: world_openalex__award_topic
+    description: 'Tópicos atribuídos a cada financiamento pelo classificador do OpenAlex,
+      com o escore de confiança. Fonte: snapshot do OpenAlex (OurResearch), licença
+      CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [award_id, topic_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: award_id
+        description: Identificador do financiamento (award) no OpenAlex
+        tests: [not_null]
+      - name: topic_id
+        description: Identificador do tópico no OpenAlex
+        tests: [not_null]
+      - name: score
+        description: Escore de confiança da atribuição, de 0 a 1
+  - name: world_openalex__institution
+    description: 'Um registro por instituição (universidade, hospital, empresa, órgão
+      público) do OpenAlex, ligada ao Research Organization Registry (ROR), com localização,
+      tipo e contagens de trabalhos e citações. Fonte: snapshot do OpenAlex (OurResearch),
+      licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [institution_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: institution_id
+        description: Identificador da instituição no OpenAlex
+        tests: [not_null]
+      - name: ror_id
+        description: Identificador ROR (Research Organization Registry)
+      - name: display_name
+        description: Nome da instituição
+      - name: country_code
+        description: País (código ISO 3166-1 alfa-2)
+      - name: type
+        description: 'Tipo de instituição (ex.: education, healthcare, company, government)'
+      - name: city
+        description: Cidade
+      - name: region
+        description: Região ou estado
+      - name: geonames_city_id
+        description: Identificador da cidade no GeoNames
+      - name: latitude
+        description: Latitude
+      - name: longitude
+        description: Longitude
+      - name: is_super_system
+        description: 'Se é um sistema que agrega várias instituições (ex.: rede universitária
+          estadual)'
+      - name: status
+        description: 'Situação do registro no ROR (ex.: active, inactive, withdrawn)'
+      - name: homepage_url
+        description: Endereço do sítio oficial
+      - name: wikidata_id
+        description: Identificador no Wikidata
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: two_year_mean_citedness
+        description: Média de citações recebidas no último ano por trabalhos publicados
+          nos dois anos anteriores
+      - name: h_index
+        description: Índice h
+      - name: i10_index
+        description: 'Índice i10: número de trabalhos com ao menos 10 citações'
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__institution_association
+    description: 'Relações entre instituições registradas no ROR: instituição-mãe,
+      filha ou relacionada. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - institution_id
+            - associated_institution_id
+            - relationship
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: institution_id
+        description: Identificador da instituição no OpenAlex
+        tests: [not_null]
+      - name: associated_institution_id
+        description: Instituição associada
+        tests: [not_null]
+      - name: relationship
+        description: 'Tipo de relação: parent, child ou related'
+        tests: [not_null]
+  - name: world_openalex__source
+    description: 'Um registro por fonte que hospeda trabalhos (periódico, repositório,
+      conferência, série de livros), com ISSN, editora, indicadores de acesso aberto,
+      taxa de publicação e contagens de trabalhos e citações. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [source_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: source_id
+        description: Identificador da fonte (periódico, repositório, conferência)
+          no OpenAlex
+        tests: [not_null]
+      - name: issn_l
+        description: ISSN de ligação (ISSN-L)
+      - name: display_name
+        description: Nome da fonte
+      - name: type
+        description: 'Tipo de fonte (ex.: journal, repository, conference, book series)'
+      - name: host_organization_id
+        description: Organização que hospeda a fonte (editora ou instituição)
+      - name: country_code
+        description: País (código ISO 3166-1 alfa-2)
+      - name: homepage_url
+        description: Endereço do sítio oficial
+      - name: is_open_access
+        description: Se a fonte é totalmente de acesso aberto
+      - name: is_in_doaj
+        description: Se a fonte está no Directory of Open Access Journals
+      - name: is_in_doaj_since_year
+        description: Ano de entrada no DOAJ
+      - name: is_in_scielo
+        description: Se a fonte está na SciELO
+      - name: is_ojs
+        description: Se a fonte usa o Open Journal Systems
+      - name: is_core
+        description: Se a fonte está no conjunto central do CWTS
+      - name: is_preprint_repository
+        description: Se a fonte é um repositório de preprints
+      - name: oa_flip_year
+        description: Ano em que a fonte passou a ser de acesso aberto
+      - name: first_publication_year
+        description: Ano do primeiro trabalho da fonte
+      - name: last_publication_year
+        description: Ano do último trabajo da fonte
+      - name: apc_usd
+        description: Taxa de publicação (APC) da fonte, em dólares americanos
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: oa_works_count
+        description: Número de trabalhos em acesso aberto
+      - name: cited_by_count
+        description: Ano do último trabalho da fonte
+      - name: two_year_mean_citedness
+        description: Média de citações recebidas no último ano por trabalhos publicados
+          nos dois anos anteriores
+      - name: h_index
+        description: Índice h
+      - name: i10_index
+        description: 'Índice i10: número de trabalhos com ao menos 10 citações'
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__source_issn
+    description: 'Todos os ISSN (impresso e eletrônico) de cada fonte. Fonte: snapshot
+      do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [source_id, issn]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: source_id
+        description: Identificador da fonte (periódico, repositório, conferência)
+          no OpenAlex
+        tests: [not_null]
+      - name: issn
+        description: ISSN da fonte (impresso ou eletrônico)
+        tests: [not_null]
+  - name: world_openalex__publisher
+    description: 'Um registro por editora, com sua posição na hierarquia de editoras,
+      países e contagens de trabalhos e citações. Fonte: snapshot do OpenAlex (OurResearch),
+      licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [publisher_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: publisher_id
+        description: Identificador da editora no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome da editora
+      - name: hierarchy_level
+        description: Nível na hierarquia de editoras, 0 = editora de topo
+      - name: parent_publisher_id
+        description: Editora-mãe
+      - name: country_codes
+        description: Países da editora (códigos ISO 3166-1 alfa-2)
+      - name: ror_id
+        description: Identificador ROR (Research Organization Registry)
+      - name: wikidata_id
+        description: Identificador no Wikidata
+      - name: homepage_url
+        description: Endereço do sítio oficial
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: two_year_mean_citedness
+        description: Média de citações recebidas no último ano por trabalhos publicados
+          nos dois anos anteriores
+      - name: h_index
+        description: Índice h
+      - name: i10_index
+        description: 'Índice i10: número de trabalhos com ao menos 10 citações'
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__funder
+    description: 'Um registro por organização financiadora de pesquisa, ligada ao
+      Crossref Funder Registry e ao ROR, com contagens de trabalhos, citações e financiamentos.
+      Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [funder_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: funder_id
+        description: Identificador do financiador no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome do financiador
+      - name: country_code
+        description: País (código ISO 3166-1 alfa-2)
+      - name: description
+        description: Descrição textual
+      - name: ror_id
+        description: Identificador ROR (Research Organization Registry)
+      - name: wikidata_id
+        description: Identificador no Wikidata
+      - name: crossref_funder_id
+        description: Identificador do financiador no Crossref Funder Registry
+      - name: homepage_url
+        description: Endereço do sítio oficial
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: awards_count
+        description: Número de financiamentos concedidos
+      - name: two_year_mean_citedness
+        description: Média de citações recebidas no último ano por trabalhos publicados
+          nos dois anos anteriores
+      - name: h_index
+        description: Índice h
+      - name: i10_index
+        description: 'Índice i10: número de trabalhos com ao menos 10 citações'
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__topic
+    description: 'Os cerca de 4.500 tópicos da classificação do OpenAlex, com descrição,
+      palavras-chave e a subárea, área e domínio a que pertencem. Fonte: snapshot
+      do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [topic_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: topic_id
+        description: Identificador do tópico no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome do tópico
+      - name: description
+        description: Descrição textual
+      - name: subfield_id
+        description: Subárea do tópico
+        tests:
+          - relationships:
+              to: ref('world_openalex__subfield')
+              field: subfield_id
+      - name: field_id
+        description: Área do tópico
+      - name: domain_id
+        description: Domínio do tópico
+      - name: keywords
+        description: Palavras-chave que caracterizam o tópico
+      - name: wikipedia_url
+        description: URL do artigo da Wikipédia sobre o tópico
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__subfield
+    description: 'As 252 subáreas da classificação do OpenAlex, que seguem a classificação
+      de periódicos da Scopus (ASJC). Fonte: snapshot do OpenAlex (OurResearch), licença
+      CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [subfield_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: subfield_id
+        description: Identificador da subárea no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome da subárea
+      - name: description
+        description: Descrição textual
+      - name: field_id
+        description: Área da subárea
+        tests:
+          - relationships:
+              to: ref('world_openalex__field')
+              field: field_id
+      - name: domain_id
+        description: Domínio da subárea
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__field
+    description: 'As 26 áreas da classificação do OpenAlex. Fonte: snapshot do OpenAlex
+      (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [field_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: field_id
+        description: Identificador da área no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome da área
+      - name: description
+        description: Descrição textual
+      - name: domain_id
+        description: Domínio da área
+        tests:
+          - relationships:
+              to: ref('world_openalex__domain')
+              field: domain_id
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__domain
+    description: 'Os 4 domínios da classificação do OpenAlex: ciências da vida, sociais,
+      físicas e da saúde. Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [domain_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: domain_id
+        description: Identificador do domínio no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Nome do domínio
+      - name: description
+        description: Descrição textual
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__keyword
+    description: 'Vocabulário de palavras-chave que o OpenAlex atribui aos trabalhos.
+      Fonte: snapshot do OpenAlex (OurResearch), licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [keyword_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: keyword_id
+        description: Identificador da palavra-chave no OpenAlex
+        tests: [not_null]
+      - name: display_name
+        description: Palavra-chave
+      - name: works_count
+        description: Número de trabalhos associados
+      - name: cited_by_count
+        description: Número de citações recebidas
+      - name: created_date
+        description: Data de criação do registro no OpenAlex
+      - name: updated_date
+        description: Data da última alteração do registro no OpenAlex
+  - name: world_openalex__dicionario
+    description: 'Rótulos dos códigos de idioma, licença e Objetivo de Desenvolvimento
+      Sustentável usados nas demais tabelas. Fonte: snapshot do OpenAlex (OurResearch),
+      licença CC0.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: ID da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: Chave
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor

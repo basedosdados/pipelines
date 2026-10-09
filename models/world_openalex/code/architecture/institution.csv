@@ -1,0 +1,22 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+institution_id,STRING,Identificador da instituição no OpenAlex,OpenAlex identifier of the institution,Identificador de la institución en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: I27837315),Stored without the URL prefix (e.g. I27837315),"Almacenado sin el prefijo de URL (p. ej., I27837315)",id
+ror_id,STRING,Identificador ROR (Research Organization Registry),ROR (Research Organization Registry) identifier,Identificador ROR (Research Organization Registry),,no,,,no,Armazenado sem o prefixo de URL (ex.: 05dxps055),Stored without the URL prefix (e.g. 05dxps055),"Almacenado sin el prefijo de URL (p. ej., 05dxps055)",ror
+display_name,STRING,Nome da instituição,Name of the institution,Nombre de la institución,,no,,,no,,,,display_name
+country_code,STRING,País (código ISO 3166-1 alfa-2),Country (ISO 3166-1 alpha-2 code),País (código ISO 3166-1 alfa-2),,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,,,country_code
+type,STRING,"Tipo de instituição (ex.: education, healthcare, company, government)","Institution type (e.g. education, healthcare, company, government)","Tipo de institución (p. ej., education, healthcare, company, government)",,no,,,no,,,,type
+city,STRING,Cidade,City,Ciudad,,no,,,no,,,,geo.city
+region,STRING,Região ou estado,Region or state,Región o estado,,no,,,no,,,,geo.region
+geonames_city_id,STRING,Identificador da cidade no GeoNames,GeoNames identifier of the city,Identificador de la ciudad en GeoNames,,no,,,no,,,,geo.geonames_city_id
+latitude,FLOAT64,Latitude,Latitude,Latitud,,no,,degree,no,,,,geo.latitude
+longitude,FLOAT64,Longitude,Longitude,Longitud,,no,,degree,no,,,,geo.longitude
+is_super_system,BOOLEAN,Se é um sistema que agrega várias instituições (ex.: rede universitária estadual),Whether it is a system grouping many institutions (e.g. a state university system),"Si es un sistema que agrupa varias instituciones (p. ej., una red universitaria estatal)",,no,,,no,,,,is_super_system
+status,STRING,"Situação do registro no ROR (ex.: active, inactive, withdrawn)","Record status in ROR (e.g. active, inactive, withdrawn)","Estado del registro en ROR (p. ej., active, inactive, withdrawn)",,no,,,no,,,,status
+homepage_url,STRING,Endereço do sítio oficial,Official website URL,Dirección del sitio web oficial,,no,,,no,,,,homepage_url
+wikidata_id,STRING,Identificador no Wikidata,Wikidata identifier,Identificador en Wikidata,,no,,,no,Armazenado sem o prefixo de URL (ex.: Q49108),Stored without the URL prefix (e.g. Q49108),"Almacenado sin el prefijo de URL (p. ej., Q49108)",ids.wikidata
+works_count,INT64,Número de trabalhos associados,Number of associated works,Número de trabajos asociados,,no,,work,no,,,,works_count
+cited_by_count,INT64,Número de citações recebidas,Number of citations received,Número de citas recibidas,,no,,citation,no,,,,cited_by_count
+two_year_mean_citedness,FLOAT64,Média de citações recebidas no último ano por trabalhos publicados nos dois anos anteriores,Mean citations received in the last year by works published in the two preceding years,Promedio de citas recibidas en el último año por trabajos publicados en los dos años anteriores,,no,,ratio,no,,,,summary_stats.2yr_mean_citedness
+h_index,INT64,Índice h,H-index: largest h such that h works have at least h citations each,Índice h,,no,,index,no,,,,summary_stats.h_index
+i10_index,INT64,Índice i10: número de trabalhos com ao menos 10 citações,Number of works with at least 10 citations (i10-index),Índice i10: número de trabajos con al menos 10 citas,,no,,work,no,,,,summary_stats.i10_index
+created_date,DATE,Data de criação do registro no OpenAlex,Date the record was created in OpenAlex,Fecha de creación del registro en OpenAlex,,no,,,no,,,,created_date
+updated_date,DATE,Data da última alteração do registro no OpenAlex,Date the record was last changed in OpenAlex,Fecha de la última modificación del registro en OpenAlex,,no,,,no,,,,updated_date
