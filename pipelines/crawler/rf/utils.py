@@ -8,7 +8,7 @@ import pyarrow.parquet as pq
 from tqdm import tqdm
 
 from pipelines.crawler.rf.constants import constants as br_rf_cosnstants
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 _BROWSER_HEADERS = {
     "User-Agent": (
@@ -57,6 +57,14 @@ async def download_chunk(
 
     async with semaphore:  # controla concorrência
         response = await client.get(url, headers=headers, timeout=60.0)
+
+        if response.status_code != 206:
+            raise httpx.HTTPStatusError(
+                f"Faixa {start}-{end}: esperado 206, veio {response.status_code}",
+                request=response.request,
+                response=response,
+            )
+
         with open(filepath, "r+b") as f:
             f.seek(start)  # posiciona no ponto certo do arquivo
             f.write(response.content)
@@ -91,7 +99,11 @@ async def download_file_async(root: str, url: str) -> None:
 
     log(f"---- Starting async download from {url}")
 
-    async with httpx.AsyncClient() as client:
+    proxy = brasil_proxy_url()
+
+    log(f"proxy brasileiro {'em uso' if proxy else 'não configurado'}")
+
+    async with httpx.AsyncClient(proxy=proxy) as client:
         response = await client.head(
             url, timeout=60.0, headers=_BROWSER_HEADERS, follow_redirects=True
         )
@@ -115,7 +127,7 @@ async def download_file_async(root: str, url: str) -> None:
     with tqdm(
         total=total_size, unit="MB", unit_scale=True, desc=filepath
     ) as pbar:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(proxy=proxy) as client:
             for start in range(0, total_size, chunk_size):
                 end = min(start + chunk_size - 1, total_size - 1)
                 tasks.append(
