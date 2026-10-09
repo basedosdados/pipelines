@@ -11,8 +11,10 @@ flow falhe no meio (download, upload, dbt).
 Dois conceitos de data (nao confundir):
 - RawDataSource Update (poll/commit) = data de publicacao (CKAN last_modified),
   granularidade %Y-%m-%d.
-- Coverage da tabela (materializacao) = anual (coluna `ano`), dado publico ->
-  AllFree + YearOnly + DateFormat.YEAR.
+- Coverage da tabela (materializacao) = data da operacao, granularidade
+  %Y-%m-%d, dado publico -> AllFree + DateOnly + DateFormat.YEAR_MD. As tabelas
+  nao tem coluna de mes, entao YearMonth nao serve. A excecao e a
+  operacoes_exportacao_servicos, carga unica, que segue anual (coluna `ano`).
 """
 
 from pipelines.crawler.bndes.tasks import (
@@ -29,7 +31,12 @@ from pipelines.crawler.bndes.tasks import (
     get_source_max_date_exportacao_bens,
     get_source_max_date_exportacao_servicos,
 )
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    DateOnly,
+    YearOnly,
+)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -141,7 +148,8 @@ def _run_operacoes(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=AllFree(
-                date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+                date_column=DateOnly(col="data_contratacao"),
+                date_format=DateFormat.YEAR_MD,
             ),
             env="prod",
             bq_project="basedosdados",
@@ -239,7 +247,8 @@ def _run_operacoes_exportacao_bens(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=AllFree(
-                date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+                date_column=DateOnly(col="data_contratacao"),
+                date_format=DateFormat.YEAR_MD,
             ),
             env="prod",
             bq_project="basedosdados",
@@ -447,7 +456,8 @@ def _run_operacoes_administracao_publica(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=AllFree(
-                date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+                date_column=DateOnly(col="data_nivel_atual"),
+                date_format=DateFormat.YEAR_MD,
             ),
             env="prod",
             bq_project="basedosdados",
