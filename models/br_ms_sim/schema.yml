@@ -74,7 +74,8 @@ models:
       - name: id_municipio_residencia_datasus
         description: >
           ID Município de Residência como veio da fonte (DATASUS). Até 1998 inclui
-          subdivisões das capitais (3345xxx Rio de Janeiro, 3580xxx São Paulo) e, até
+          subdivisões das capitais (3345xxx Rio de Janeiro, 3580xxx São Paulo) e,
+          até
           2005, municípios ignorados (UF seguida de 00000)
       - name: local_ocorrencia
         description: Local de Ocorrência
@@ -325,7 +326,8 @@ models:
         description: Número de óbitos
   - name: br_ms_sim__municipio_causa
     description: >
-      Número de óbitos por ano, município de residência e causa básica. Calculado a partir dos
+      Número de óbitos por ano, município de residência e causa básica. Calculado
+      a partir dos
       microdados. Óbitos sem município de residência informado entram com
       id_municipio nulo.
     tests:
@@ -352,12 +354,18 @@ models:
         description: Número de óbitos
   - name: br_ms_sim__municipio_causa_idade
     description: >
-      Número de óbitos por ano, município de residência, causa básica e idade. Calculado a partir
+      Número de óbitos por ano, município de residência, causa básica e idade. Calculado
+      a partir
       dos microdados. Óbitos sem município de residência informado entram com
       id_municipio nulo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, sigla_uf, id_municipio, causa_basica, idade]
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - id_municipio
+            - causa_basica
+            - idade
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
