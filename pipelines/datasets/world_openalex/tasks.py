@@ -47,3 +47,23 @@ def load_snapshot_task(
     for table, n in sorted(result["rows"].items()):
         print(f"{table}: {n:,} rows")
     return result
+
+
+@task
+def reload_tables_task(
+    bucket_name: str, tables: list[str], workers: int = 3
+) -> dict:
+    """Regenerate only ``tables`` in ``gs://<bucket>/staging/world_openalex/``.
+
+    See ``loader.reload_tables``; resumes like a load does.
+    """
+    scratch = Path(tempfile.mkdtemp(prefix="world_openalex_reload_"))
+    result = loader.reload_tables(
+        bucket_name=bucket_name,
+        scratch=scratch,
+        tables=tables,
+        workers=workers,
+    )
+    for table, n in sorted(result["rows"].items()):
+        print(f"{table}: {n:,} rows")
+    return result

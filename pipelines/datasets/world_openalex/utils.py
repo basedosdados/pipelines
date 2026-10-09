@@ -246,218 +246,275 @@ def clean_publication_year(year: pa.Array) -> pa.Array:
     return pc.if_else(pc.greater(year, cap), pa.scalar(None, year.type), year)
 
 
+# Source columns each works table needs, besides ``id`` and
+# ``publication_year``. ``None`` means the whole record. A partial reload reads
+# only these columns, and flatten_works emits only the tables whose columns are
+# present, so the two always agree.
+WORKS_TABLE_COLUMNS: dict[str, list[str] | None] = {
+    "work": None,
+    "work_abstract": ["abstract_inverted_index"],
+    "work_authorship": ["authorships"],
+    "work_authorship_institution": ["authorships"],
+    "work_authorship_affiliation": ["authorships"],
+    "work_authorship_country": ["authorships"],
+    "work_location": ["locations", "primary_location", "best_oa_location"],
+    "work_topic": ["topics"],
+    "work_keyword": ["keywords"],
+    "work_sdg": ["sustainable_development_goals"],
+    "work_mesh": ["mesh"],
+    "work_award": ["awards"],
+    "work_funder": ["funders"],
+    "work_reference": ["referenced_works"],
+    "work_counts_by_year": ["counts_by_year"],
+    "work_indexed_in": ["indexed_in"],
+}
+KEYWORD_PREFIX = "https://openalex.org/keywords/"
+
+
+def keyword_id(a: pa.Array) -> pa.Array:
+    """Strip the keyword URL prefix, keeping slashes inside the keyword.
+
+    Keyword ids can contain ``/`` (``.../keywords/medicare/medicaid``), so the
+    last-segment rule of :func:`short_id` would merge distinct keywords.
+    """
+    return pc.replace_substring(a, KEYWORD_PREFIX, "", max_replacements=1)
+
+
 def flatten_works(t: pa.Table) -> dict[str, pa.Table]:
-    """Flatten a batch of works into the 16 work tables."""
+    """Flatten a batch of works into the work tables its columns allow.
+
+    A full record yields all 16 tables; a batch read with only some columns
+    (a partial reload) yields only the tables those columns feed, per
+    ``WORKS_TABLE_COLUMNS``.
+    """
     out: dict[str, pa.Table] = {}
+    has = set(t.column_names)
     wid = short_id(col(t, "id"))
     year = clean_publication_year(col(t, "publication_year"))
-    ids = col(t, "ids")
-    pl = col(t, "primary_location")
-    oa = col(t, "open_access")
-    bib = col(t, "biblio")
-    cnp = col(t, "citation_normalized_percentile")
 
-    def ident(key: str) -> pa.Array:
-        return short_id(pc.map_lookup(ids, pa.scalar(key), "first"))
+    if "title" in has:
+        ids = col(t, "ids")
+        pl = col(t, "primary_location")
+        oa = col(t, "open_access")
+        bib = col(t, "biblio")
+        cnp = col(t, "citation_normalized_percentile")
 
-    out["work"] = table(
-        publication_year=year,
-        work_id=wid,
-        doi=strip_doi(col(t, "doi")),
-        pmid=ident("pmid"),
-        pmcid=ident("pmcid"),
-        mag_id=ident("mag"),
-        title=col(t, "title"),
-        publication_date=col(t, "publication_date"),
-        type=col(t, "type"),
-        language=col(t, "language"),
-        primary_source_id=short_id(field(pl, "source.id")),
-        primary_topic_id=short_id(field(col(t, "primary_topic"), "id")),
-        is_open_access=field(oa, "is_oa"),
-        open_access_status=field(oa, "oa_status"),
-        open_access_url=field(oa, "oa_url"),
-        any_repository_has_fulltext=field(oa, "any_repository_has_fulltext"),
-        is_paratext=col(t, "is_paratext"),
-        is_retracted=col(t, "is_retracted"),
-        is_xpac=col(t, "is_xpac"),
-        volume=field(bib, "volume"),
-        issue=field(bib, "issue"),
-        first_page=field(bib, "first_page"),
-        last_page=field(bib, "last_page"),
-        authors_count=col(t, "authors_count"),
-        institutions_distinct_count=col(t, "institutions_distinct_count"),
-        countries_distinct_count=col(t, "countries_distinct_count"),
-        locations_count=col(t, "locations_count"),
-        referenced_works_count=col(t, "referenced_works_count"),
-        cited_by_count=col(t, "cited_by_count"),
-        fwci=col(t, "fwci"),
-        citation_normalized_percentile=field(cnp, "value"),
-        is_in_top_1_percent=field(cnp, "is_in_top_1_percent"),
-        is_in_top_10_percent=field(cnp, "is_in_top_10_percent"),
-        apc_list_usd=field(col(t, "apc_list"), "value_usd"),
-        apc_paid_usd=field(col(t, "apc_paid"), "value_usd"),
-        has_fulltext=col(t, "has_fulltext"),
-        has_pdf=field(col(t, "has_content"), "pdf"),
-        created_date=col(t, "created_date"),
-        updated_date=col(t, "updated_date"),
-    )
+        def ident(key: str) -> pa.Array:
+            return short_id(pc.map_lookup(ids, pa.scalar(key), "first"))
 
-    # Abstracts: rebuilt in Python, one JSON parse per work.
-    abstracts = pa.array(
-        [
-            rebuild_abstract(s)
-            for s in col(t, "abstract_inverted_index").to_pylist()
-        ],
-        pa.string(),
-    )
-    keep = pc.is_valid(abstracts)
-    out["work_abstract"] = table(
-        publication_year=year.filter(keep),
-        work_id=wid.filter(keep),
-        abstract=abstracts.filter(keep),
-    )
-
-    # Authorships and their nested lists.
-    au, au_par, au_pos = explode(col(t, "authorships"))
-    au_year, au_wid = take(year, au_par), take(wid, au_par)
-    out["work_authorship"] = table(
-        publication_year=au_year,
-        work_id=au_wid,
-        author_sequence=au_pos,
-        author_id=short_id(field(au, "author.id")),
-        author_position=field(au, "author_position"),
-        author_name=field(au, "author.display_name"),
-        orcid=short_id(field(au, "author.orcid")),
-        raw_author_name=field(au, "raw_author_name"),
-        raw_orcid=field(au, "raw_orcid"),
-        is_corresponding=field(au, "is_corresponding"),
-    )
-    if len(au):
-        inst, inst_par, _ = explode(field(au, "institutions"))
-        out["work_authorship_institution"] = table(
-            publication_year=take(au_year, inst_par),
-            work_id=take(au_wid, inst_par),
-            author_sequence=take(au_pos, inst_par),
-            institution_id=short_id(field(inst, "id")),
-        )
-        aff, aff_par, aff_pos = explode(field(au, "affiliations"))
-        out["work_authorship_affiliation"] = table(
-            publication_year=take(au_year, aff_par),
-            work_id=take(au_wid, aff_par),
-            author_sequence=take(au_pos, aff_par),
-            affiliation_sequence=aff_pos,
-            raw_affiliation_string=field(aff, "raw_affiliation_string"),
-            institution_ids=join_list(
-                field(aff, "institution_ids"), short=True
+        out["work"] = table(
+            publication_year=year,
+            work_id=wid,
+            doi=strip_doi(col(t, "doi")),
+            pmid=ident("pmid"),
+            pmcid=ident("pmcid"),
+            mag_id=ident("mag"),
+            title=col(t, "title"),
+            publication_date=col(t, "publication_date"),
+            type=col(t, "type"),
+            language=col(t, "language"),
+            primary_source_id=short_id(field(pl, "source.id")),
+            primary_topic_id=short_id(field(col(t, "primary_topic"), "id")),
+            is_open_access=field(oa, "is_oa"),
+            open_access_status=field(oa, "oa_status"),
+            open_access_url=field(oa, "oa_url"),
+            any_repository_has_fulltext=field(
+                oa, "any_repository_has_fulltext"
             ),
+            is_paratext=col(t, "is_paratext"),
+            is_retracted=col(t, "is_retracted"),
+            is_xpac=col(t, "is_xpac"),
+            volume=field(bib, "volume"),
+            issue=field(bib, "issue"),
+            first_page=field(bib, "first_page"),
+            last_page=field(bib, "last_page"),
+            authors_count=col(t, "authors_count"),
+            institutions_distinct_count=col(t, "institutions_distinct_count"),
+            countries_distinct_count=col(t, "countries_distinct_count"),
+            locations_count=col(t, "locations_count"),
+            referenced_works_count=col(t, "referenced_works_count"),
+            cited_by_count=col(t, "cited_by_count"),
+            fwci=col(t, "fwci"),
+            citation_normalized_percentile=field(cnp, "value"),
+            is_in_top_1_percent=field(cnp, "is_in_top_1_percent"),
+            is_in_top_10_percent=field(cnp, "is_in_top_10_percent"),
+            apc_list_usd=field(col(t, "apc_list"), "value_usd"),
+            apc_paid_usd=field(col(t, "apc_paid"), "value_usd"),
+            has_fulltext=col(t, "has_fulltext"),
+            has_pdf=field(col(t, "has_content"), "pdf"),
+            created_date=col(t, "created_date"),
+            updated_date=col(t, "updated_date"),
         )
-        ctry, ctry_par, _ = explode(field(au, "countries"))
-        out["work_authorship_country"] = table(
-            publication_year=take(au_year, ctry_par),
-            work_id=take(au_wid, ctry_par),
-            author_sequence=take(au_pos, ctry_par),
-            country_code=ctry,
+
+    if "abstract_inverted_index" in has:
+        # Abstracts: rebuilt in Python, one JSON parse per work.
+        abstracts = pa.array(
+            [
+                rebuild_abstract(s)
+                for s in col(t, "abstract_inverted_index").to_pylist()
+            ],
+            pa.string(),
+        )
+        keep = pc.is_valid(abstracts)
+        out["work_abstract"] = table(
+            publication_year=year.filter(keep),
+            work_id=wid.filter(keep),
+            abstract=abstracts.filter(keep),
         )
 
-    loc, loc_par, loc_pos = explode(col(t, "locations"))
-    loc_id = field(loc, "id")
-    primary_id = take(field(pl, "id"), loc_par)
-    best_id = take(field(col(t, "best_oa_location"), "id"), loc_par)
-    out["work_location"] = table(
-        publication_year=take(year, loc_par),
-        work_id=take(wid, loc_par),
-        location_sequence=loc_pos,
-        location_id=loc_id,
-        source_id=short_id(field(loc, "source.id")),
-        is_primary=pc.fill_null(pc.equal(loc_id, primary_id), False),
-        is_best_open_access=pc.fill_null(pc.equal(loc_id, best_id), False),
-        is_open_access=field(loc, "is_oa"),
-        is_published=field(loc, "is_published"),
-        is_accepted=field(loc, "is_accepted"),
-        version=field(loc, "version"),
-        license=field(loc, "license"),
-        landing_page_url=field(loc, "landing_page_url"),
-        pdf_url=field(loc, "pdf_url"),
-        raw_source_name=field(loc, "raw_source_name"),
-        raw_type=field(loc, "raw_type"),
-        provenance=field(loc, "provenance"),
-    )
+    if "authorships" in has:
+        # Authorships and their nested lists.
+        au, au_par, au_pos = explode(col(t, "authorships"))
+        au_year, au_wid = take(year, au_par), take(wid, au_par)
+        out["work_authorship"] = table(
+            publication_year=au_year,
+            work_id=au_wid,
+            author_sequence=au_pos,
+            author_id=short_id(field(au, "author.id")),
+            author_position=field(au, "author_position"),
+            author_name=field(au, "author.display_name"),
+            orcid=short_id(field(au, "author.orcid")),
+            raw_author_name=field(au, "raw_author_name"),
+            raw_orcid=field(au, "raw_orcid"),
+            is_corresponding=field(au, "is_corresponding"),
+        )
+        if len(au):
+            inst, inst_par, _ = explode(field(au, "institutions"))
+            out["work_authorship_institution"] = table(
+                publication_year=take(au_year, inst_par),
+                work_id=take(au_wid, inst_par),
+                author_sequence=take(au_pos, inst_par),
+                institution_id=short_id(field(inst, "id")),
+            )
+            aff, aff_par, aff_pos = explode(field(au, "affiliations"))
+            out["work_authorship_affiliation"] = table(
+                publication_year=take(au_year, aff_par),
+                work_id=take(au_wid, aff_par),
+                author_sequence=take(au_pos, aff_par),
+                affiliation_sequence=aff_pos,
+                raw_affiliation_string=field(aff, "raw_affiliation_string"),
+                institution_ids=join_list(
+                    field(aff, "institution_ids"), short=True
+                ),
+            )
+            ctry, ctry_par, _ = explode(field(au, "countries"))
+            out["work_authorship_country"] = table(
+                publication_year=take(au_year, ctry_par),
+                work_id=take(au_wid, ctry_par),
+                author_sequence=take(au_pos, ctry_par),
+                country_code=ctry,
+            )
 
-    # The snapshot lists topics by descending score, primary first, so list
-    # position is the rank.
-    tp, tp_par, tp_pos = explode(col(t, "topics"))
-    out["work_topic"] = table(
-        publication_year=take(year, tp_par),
-        work_id=take(wid, tp_par),
-        topic_id=short_id(field(tp, "id")),
-        topic_rank=tp_pos,
-        score=field(tp, "score"),
-    )
+    if "locations" in has:
+        loc, loc_par, loc_pos = explode(col(t, "locations"))
+        loc_id = field(loc, "id")
+        primary_id = take(field(col(t, "primary_location"), "id"), loc_par)
+        best_id = take(field(col(t, "best_oa_location"), "id"), loc_par)
+        out["work_location"] = table(
+            publication_year=take(year, loc_par),
+            work_id=take(wid, loc_par),
+            location_sequence=loc_pos,
+            location_id=loc_id,
+            source_id=short_id(field(loc, "source.id")),
+            is_primary=pc.fill_null(pc.equal(loc_id, primary_id), False),
+            is_best_open_access=pc.fill_null(pc.equal(loc_id, best_id), False),
+            is_open_access=field(loc, "is_oa"),
+            is_published=field(loc, "is_published"),
+            is_accepted=field(loc, "is_accepted"),
+            version=field(loc, "version"),
+            license=field(loc, "license"),
+            landing_page_url=field(loc, "landing_page_url"),
+            pdf_url=field(loc, "pdf_url"),
+            raw_source_name=field(loc, "raw_source_name"),
+            raw_type=field(loc, "raw_type"),
+            provenance=field(loc, "provenance"),
+        )
 
-    kw, kw_par, _ = explode(col(t, "keywords"))
-    out["work_keyword"] = table(
-        publication_year=take(year, kw_par),
-        work_id=take(wid, kw_par),
-        keyword_id=short_id(field(kw, "id")),
-        score=field(kw, "score"),
-    )
+    if "topics" in has:
+        # The snapshot lists topics by descending score, primary first, so list
+        # position is the rank.
+        tp, tp_par, tp_pos = explode(col(t, "topics"))
+        out["work_topic"] = table(
+            publication_year=take(year, tp_par),
+            work_id=take(wid, tp_par),
+            topic_id=short_id(field(tp, "id")),
+            topic_rank=tp_pos,
+            score=field(tp, "score"),
+        )
 
-    sdg, sdg_par, _ = explode(col(t, "sustainable_development_goals"))
-    out["work_sdg"] = table(
-        publication_year=take(year, sdg_par),
-        work_id=take(wid, sdg_par),
-        sdg_id=short_id(field(sdg, "id")),
-        score=field(sdg, "score"),
-    )
+    if "keywords" in has:
+        kw, kw_par, _ = explode(col(t, "keywords"))
+        out["work_keyword"] = table(
+            publication_year=take(year, kw_par),
+            work_id=take(wid, kw_par),
+            keyword_id=keyword_id(field(kw, "id")),
+            score=field(kw, "score"),
+        )
 
-    me, me_par, _ = explode(col(t, "mesh"))
-    out["work_mesh"] = table(
-        publication_year=take(year, me_par),
-        work_id=take(wid, me_par),
-        descriptor_id=field(me, "descriptor_ui"),
-        descriptor_name=field(me, "descriptor_name"),
-        qualifier_id=field(me, "qualifier_ui"),
-        qualifier_name=field(me, "qualifier_name"),
-        is_major_topic=field(me, "is_major_topic"),
-    )
+    if "sustainable_development_goals" in has:
+        sdg, sdg_par, _ = explode(col(t, "sustainable_development_goals"))
+        out["work_sdg"] = table(
+            publication_year=take(year, sdg_par),
+            work_id=take(wid, sdg_par),
+            sdg_id=short_id(field(sdg, "id")),
+            score=field(sdg, "score"),
+        )
 
-    aw, aw_par, _ = explode(col(t, "awards"))
-    out["work_award"] = table(
-        publication_year=take(year, aw_par),
-        work_id=take(wid, aw_par),
-        award_id=short_id(field(aw, "id")),
-        funder_id=short_id(field(aw, "funder_id")),
-        funder_award_id=field(aw, "funder_award_id"),
-    )
+    if "mesh" in has:
+        me, me_par, _ = explode(col(t, "mesh"))
+        out["work_mesh"] = table(
+            publication_year=take(year, me_par),
+            work_id=take(wid, me_par),
+            descriptor_id=field(me, "descriptor_ui"),
+            descriptor_name=field(me, "descriptor_name"),
+            qualifier_id=field(me, "qualifier_ui"),
+            qualifier_name=field(me, "qualifier_name"),
+            is_major_topic=field(me, "is_major_topic"),
+        )
 
-    fu, fu_par, _ = explode(col(t, "funders"))
-    out["work_funder"] = table(
-        publication_year=take(year, fu_par),
-        work_id=take(wid, fu_par),
-        funder_id=short_id(field(fu, "id")),
-    )
+    if "awards" in has:
+        aw, aw_par, _ = explode(col(t, "awards"))
+        out["work_award"] = table(
+            publication_year=take(year, aw_par),
+            work_id=take(wid, aw_par),
+            award_id=short_id(field(aw, "id")),
+            funder_id=short_id(field(aw, "funder_id")),
+            funder_award_id=field(aw, "funder_award_id"),
+        )
 
-    rf, rf_par, _ = explode(col(t, "referenced_works"))
-    out["work_reference"] = table(
-        publication_year=take(year, rf_par),
-        work_id=take(wid, rf_par),
-        referenced_work_id=short_id(rf),
-    )
+    if "funders" in has:
+        fu, fu_par, _ = explode(col(t, "funders"))
+        out["work_funder"] = table(
+            publication_year=take(year, fu_par),
+            work_id=take(wid, fu_par),
+            funder_id=short_id(field(fu, "id")),
+        )
 
-    cy, cy_par, _ = explode(col(t, "counts_by_year"))
-    out["work_counts_by_year"] = table(
-        publication_year=take(year, cy_par),
-        work_id=take(wid, cy_par),
-        year=field(cy, "year"),
-        cited_by_count=field(cy, "cited_by_count"),
-    )
+    if "referenced_works" in has:
+        rf, rf_par, _ = explode(col(t, "referenced_works"))
+        out["work_reference"] = table(
+            publication_year=take(year, rf_par),
+            work_id=take(wid, rf_par),
+            referenced_work_id=short_id(rf),
+        )
 
-    ix, ix_par, _ = explode(col(t, "indexed_in"))
-    out["work_indexed_in"] = table(
-        publication_year=take(year, ix_par),
-        work_id=take(wid, ix_par),
-        index_name=ix,
-    )
+    if "counts_by_year" in has:
+        cy, cy_par, _ = explode(col(t, "counts_by_year"))
+        out["work_counts_by_year"] = table(
+            publication_year=take(year, cy_par),
+            work_id=take(wid, cy_par),
+            year=field(cy, "year"),
+            cited_by_count=field(cy, "cited_by_count"),
+        )
+
+    if "indexed_in" in has:
+        ix, ix_par, _ = explode(col(t, "indexed_in"))
+        out["work_indexed_in"] = table(
+            publication_year=take(year, ix_par),
+            work_id=take(wid, ix_par),
+            index_name=ix,
+        )
+
     return out
 
 
@@ -792,7 +849,7 @@ def flatten_keywords(t: pa.Table) -> dict[str, pa.Table]:
     """Flatten a batch of keywords."""
     return {
         "keyword": table(
-            keyword_id=short_id(col(t, "id")),
+            keyword_id=keyword_id(col(t, "id")),
             display_name=col(t, "display_name"),
             **_counts_dates(t),
         )
@@ -855,6 +912,7 @@ def process_file(
     out_dir: Path,
     file_tag: str,
     filesystem: fs.FileSystem | None = None,
+    columns: list[str] | None = None,
 ) -> dict[str, tuple[Path, int]]:
     """Stream one snapshot file, flatten it, write one staging file per table.
 
@@ -864,6 +922,8 @@ def process_file(
         out_dir: Local directory; files land in ``out_dir/<table>/<file_tag>.parquet``.
         file_tag: Unique name for this source file within the entity.
         filesystem: Where ``path`` lives; defaults to the OpenAlex S3 bucket.
+        columns: Read only these source columns (a partial reload); the
+            flattener then emits only the tables they feed.
 
     Returns:
         ``{table: (local file, rows written)}`` for tables with at least one row.
@@ -872,7 +932,9 @@ def process_file(
     rows: dict[str, int] = {}
     paths: dict[str, Path] = {}
     try:
-        for batch in iter_batches(path, filesystem=filesystem):
+        for batch in iter_batches(
+            path, columns=columns, filesystem=filesystem
+        ):
             for tbl, data in FLATTENERS[entity](batch).items():
                 if data.num_rows == 0:
                     continue

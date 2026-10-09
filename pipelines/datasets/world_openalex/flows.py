@@ -22,6 +22,7 @@ from pipelines.datasets.world_openalex.constants import constants
 from pipelines.datasets.world_openalex.tasks import (
     get_release_date,
     load_snapshot_task,
+    reload_tables_task,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -70,6 +71,8 @@ def world_openalex_flow(
     fresh_load: bool = False,
     load_workers: int = 3,
     resume_fingerprint: str = "",
+    only_tables: str = "",
+    dbt_tables: str = "",
 ) -> None:
     """Rebuild every world_openalex table from the current OpenAlex snapshot.
 
@@ -83,11 +86,17 @@ def world_openalex_flow(
         force_run: Rebuild even when the poll finds no new release.
         fresh_load: Reload every file even when an interrupted load of the same
             release and code can be resumed.
-            load_workers: Snapshot files processed in parallel. Each worker peaks
+        load_workers: Snapshot files processed in parallel. Each worker peaks
             near 1.8 GB on the pod, so 3 stays inside the 6Gi request; above
             the request, a memory-tight node evicts the pod first.
-            resume_fingerprint: Resume the load markers of this earlier code
+        resume_fingerprint: Resume the load markers of this earlier code
             fingerprint. Only after a fix that cannot change staged output.
+        only_tables: Comma-separated tables to regenerate instead of the full
+            load (``loader.reload_tables``); every other table's staging is
+            left as loaded. For a fix that changes only these tables.
+        dbt_tables: Comma-separated models to rebuild; defaults to
+            ``only_tables`` when that is set, else every model. Tests always
+            run on every model.
     """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="work"
@@ -121,16 +130,24 @@ def world_openalex_flow(
 
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
     target = "prod" if materialize_to_prod else "dev"
-    load_snapshot_task(
-        bucket_name=bucket,
-        workers=load_workers,
-        fresh=fresh_load,
-        resume_fingerprint=resume_fingerprint,
-    )
+    reload = [t.strip() for t in only_tables.split(",") if t.strip()]
+    if reload:
+        reload_tables_task(
+            bucket_name=bucket, tables=reload, workers=load_workers
+        )
+    else:
+        load_snapshot_task(
+            bucket_name=bucket,
+            workers=load_workers,
+            fresh=fresh_load,
+            resume_fingerprint=resume_fingerprint,
+        )
+    rebuild = [t.strip() for t in dbt_tables.split(",") if t.strip()] or reload
+    models = [t for t in TABLES if not rebuild or t in rebuild]
 
     # Run every model, then test every model: the relationship and dictionary
     # tests read sibling models, which must all exist first.
-    for table in TABLES:
+    for table in models:
         run_dbt(
             dataset_id=DATASET_ID,
             table_id=table,

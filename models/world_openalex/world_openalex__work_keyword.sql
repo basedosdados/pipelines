@@ -13,9 +13,15 @@
 }}
 
 
-select
-    safe_cast(publication_year as int64) publication_year,
-    safe_cast(work_id as string) work_id,
-    safe_cast(keyword_id as string) keyword_id,
-    safe_cast(score as float64) score
-from {{ set_datalake_project("world_openalex_staging.work_keyword") }} as t
+with
+    t as (
+        select
+            safe_cast(publication_year as int64) publication_year,
+            safe_cast(work_id as string) work_id,
+            safe_cast(keyword_id as string) keyword_id,
+            safe_cast(score as float64) score
+        from {{ set_datalake_project("world_openalex_staging.work_keyword") }} as t
+    )
+select publication_year, work_id, keyword_id, max(score) score
+from t
+group by publication_year, work_id, keyword_id

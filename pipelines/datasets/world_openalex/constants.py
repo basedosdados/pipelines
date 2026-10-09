@@ -27,8 +27,9 @@ class constants(Enum):
     ARCHITECTURE_DIR = _REPO_ROOT / "models/world_openalex/code/architecture"
 
     # Snapshot entity -> tables built from it. Entities absent here (concepts,
-    # continents, countries, work-types, ...) are not loaded; languages,
-    # licenses and sdgs only feed the dicionario.
+    # continents, countries, languages, work-types, ...) are not loaded;
+    # licenses and sdgs only feed the dicionario. Languages are not used:
+    # work.language is not a controlled code (see its architecture notes).
     ENTITY_TABLES = {
         "works": [
             "work",
@@ -76,7 +77,6 @@ class constants(Enum):
     # Lookup entities whose labels go into the dicionario:
     # entity -> [(table, column), ...] the codes appear in.
     DICTIONARY_ENTITIES = {
-        "languages": [("work", "language")],
         "licenses": [("work_location", "license")],
         "sdgs": [("work_sdg", "sdg_id")],
     }

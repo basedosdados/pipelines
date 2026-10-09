@@ -13,12 +13,31 @@
 }}
 
 
+with
+    t as (
+        select
+            safe_cast(publication_year as int64) publication_year,
+            safe_cast(work_id as string) work_id,
+            safe_cast(descriptor_id as string) descriptor_id,
+            safe_cast(descriptor_name as string) descriptor_name,
+            safe_cast(qualifier_id as string) qualifier_id,
+            safe_cast(qualifier_name as string) qualifier_name,
+            safe_cast(is_major_topic as bool) is_major_topic
+        from {{ set_datalake_project("world_openalex_staging.work_mesh") }} as t
+    )
 select
-    safe_cast(publication_year as int64) publication_year,
-    safe_cast(work_id as string) work_id,
-    safe_cast(descriptor_id as string) descriptor_id,
-    safe_cast(descriptor_name as string) descriptor_name,
-    safe_cast(qualifier_id as string) qualifier_id,
-    safe_cast(qualifier_name as string) qualifier_name,
-    safe_cast(is_major_topic as bool) is_major_topic
-from {{ set_datalake_project("world_openalex_staging.work_mesh") }} as t
+    publication_year,
+    work_id,
+    descriptor_id,
+    descriptor_name,
+    qualifier_id,
+    qualifier_name,
+    logical_or(is_major_topic) is_major_topic
+from t
+group by
+    publication_year,
+    work_id,
+    descriptor_id,
+    descriptor_name,
+    qualifier_id,
+    qualifier_name

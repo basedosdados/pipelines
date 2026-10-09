@@ -242,11 +242,15 @@ def run_file(
     bucket_name: str,
     scratch: str,
     markers: str,
+    columns: list[str] | None = None,
+    keep: list[str] | None = None,
 ) -> dict:
     """Download, flatten and upload one snapshot file. Runs in a worker process.
 
     Writes a completion marker to ``markers`` only after every table file is
-    uploaded, so a marker means the file is fully staged.
+    uploaded, so a marker means the file is fully staged. With ``columns``
+    (a partial reload) the file is read straight from S3, those columns only,
+    instead of downloaded; ``keep`` limits the tables uploaded.
 
     Returns:
         The marker record: entity, source path, rows per table, stage timings.
@@ -256,17 +260,25 @@ def run_file(
     shutil.rmtree(work, ignore_errors=True)
     try:
         t0 = time.time()
-        src = work / "src.parquet"
-        download(path, src, size)
-        t1 = time.time()
-        out = utils.process_file(
-            entity,
-            str(src),
-            work / "out",
-            tag,
-            filesystem=fs.LocalFileSystem(),
-        )
-        src.unlink()
+        if columns is None:
+            src = work / "src.parquet"
+            download(path, src, size)
+            t1 = time.time()
+            out = utils.process_file(
+                entity,
+                str(src),
+                work / "out",
+                tag,
+                filesystem=fs.LocalFileSystem(),
+            )
+            src.unlink()
+        else:
+            t1 = t0
+            out = utils.process_file(
+                entity, path, work / "out", tag, columns=columns
+            )
+        if keep is not None:
+            out = {t: v for t, v in out.items() if t in keep}
         t2 = time.time()
         with ThreadPoolExecutor(TRANSFER_THREADS) as ex:
             list(
@@ -439,3 +451,171 @@ def _load_dicionario(bucket_name: str, manifest: dict, scratch: Path) -> int:
     upload_file(bucket_name, "dicionario", path, "dicionario.parquet")
     path.unlink()
     return t.num_rows
+
+
+# --------------------------------------------------------------------------
+# Partial reload
+# --------------------------------------------------------------------------
+
+RELOAD_TAG = "_reload_"
+
+
+def reload_tables(
+    bucket_name: str,
+    scratch: Path,
+    tables: list[str],
+    workers: int = 3,
+    fresh: bool = False,
+) -> dict:
+    """Regenerate only ``tables`` from the current snapshot, leaving the rest.
+
+    For a fix that changes some tables' output: the named tables' staging
+    prefixes are cleared and rebuilt, every other table's staging is left as
+    loaded. Works files are read from S3 for just the columns those tables
+    need (``utils.WORKS_TABLE_COLUMNS``), which is far cheaper than a full
+    load. Markers go under their own prefix, so the main load's are untouched,
+    and a reload resumes like a load does.
+
+    Args:
+        bucket_name: ``basedosdados-dev`` or ``basedosdados``.
+        scratch: Local directory for in-flight files.
+        tables: Tables to rebuild, among the entity tables and ``dicionario``.
+        workers: Source files processed in parallel.
+        fresh: Rebuild every file even when reload markers exist.
+
+    Returns:
+        ``{"release": date, "rows": {table: rows}, "checks": {entity: (rows, expected)}}``.
+
+    Raises:
+        ValueError: on a table name the dataset does not have.
+        RuntimeError: when a rebuilt entity's row count disagrees with the
+            manifest.
+    """
+    owner = {
+        t: e for e, ts in constants.ENTITY_TABLES.value.items() for t in ts
+    }
+    unknown = set(tables) - set(owner) - {"dicionario"}
+    if unknown:
+        raise ValueError(f"unknown tables {sorted(unknown)}")
+    file_tables = sorted(t for t in tables if t != "dicionario")
+    entities = sorted({owner[t] for t in file_tables})
+    scratch.mkdir(parents=True, exist_ok=True)
+    manifest = utils.fetch_manifest()
+    release = utils.release_date(manifest)
+    markers = marker_prefix(
+        release, f"{fingerprint()}{RELOAD_TAG}{'+'.join(sorted(tables))}"
+    )
+
+    done_recs = [] if fresh else read_markers(bucket_name, markers)
+    if not done_recs and file_tables:
+        print(
+            f"Reloading {file_tables} of release {release} into {bucket_name}"
+        )
+        create_staging_tables(bucket_name, file_tables)
+    done = {r["path"] for r in done_recs}
+
+    jobs = []
+    for e in entities:
+        columns: list[str] | None = None
+        if e == "works":
+            needed = [utils.WORKS_TABLE_COLUMNS[t] for t in file_tables]
+            if all(c is not None for c in needed):
+                columns = [
+                    "id",
+                    "publication_year",
+                    *sorted({c for cs in needed if cs for c in cs}),
+                ]
+        jobs += [
+            (e, p, columns)
+            for p, _ in utils.entity_files(manifest, e)
+            if p not in done
+        ]
+    print(
+        f"{len(done)} files already reloaded, {len(jobs)} to go, {workers} workers"
+    )
+
+    sizes = {
+        f["url"].removeprefix("s3://"): f["meta"]["content_length"]
+        for ent in manifest["entities"]
+        for f in ent["files"]
+    }
+    ctx = multiprocessing.get_context("spawn")
+    started = time.time()
+    with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as ex:
+        futs = [
+            ex.submit(
+                run_file,
+                e,
+                p,
+                sizes[p],
+                bucket_name,
+                str(scratch),
+                markers,
+                cols,
+                file_tables,
+            )
+            for e, p, cols in jobs
+        ]
+        for i, fut in enumerate(as_completed(futs), 1):
+            fut.result()
+            if i % 50 == 0 or i == len(jobs):
+                rate = i / (time.time() - started)
+                print(f"  {i}/{len(jobs)} files, {rate * 3600:.0f}/h")
+
+    rows: dict[str, int] = {}
+    for r in read_markers(bucket_name, markers):
+        for t, n in r["rows"].items():
+            rows[t] = rows.get(t, 0) + n
+    checks = {}
+    for e in entities:
+        main = ENTITY_MAIN_TABLE[e]
+        if main in file_tables:
+            expected = utils.entity_record_count(manifest, e)
+            checks[e] = (rows.get(main, 0), expected)
+            if rows.get(main, 0) != expected:
+                raise RuntimeError(
+                    f"{e}: {rows.get(main, 0):,} rows staged, manifest declares {expected:,}"
+                )
+    if "dicionario" in tables:
+        rows["dicionario"] = _load_dicionario(bucket_name, manifest, scratch)
+    return {"release": release, "rows": rows, "checks": checks}
+
+
+def staged_rows(bucket_name: str, release: str) -> dict[str, int]:
+    """Rows per table staged for ``release``: the load, then any reloads.
+
+    Reads the one main load prefix of the release and overlays every reload
+    prefix, newest last, for the tables it rebuilt.
+    """
+    root = f"staging/{DATASET_ID}/_load_state/"
+    it = _bucket(bucket_name).list_blobs(prefix=root, delimiter="/")
+    list(it)
+    prefixes = [p for p in it.prefixes if p.startswith(f"{root}{release}_")]
+    main = [p for p in prefixes if RELOAD_TAG not in p]
+    if len(main) != 1:
+        raise RuntimeError(
+            f"expected one load prefix for {release}, found {main}"
+        )
+    rows: dict[str, int] = {}
+    for rec in read_markers(bucket_name, main[0]):
+        for t, n in rec["rows"].items():
+            rows[t] = rows.get(t, 0) + n
+    reloads = []
+    for p in prefixes:
+        if RELOAD_TAG in p:
+            recs = read_markers(bucket_name, p)
+            newest = max(
+                (b.updated for b in _bucket(bucket_name).list_blobs(prefix=p)),
+                default=None,
+            )
+            reloads.append((newest, p, recs))
+    for _, p, recs in sorted(reloads, key=lambda x: str(x[0])):
+        tables = p.rstrip("/").split(RELOAD_TAG)[1].split("+")
+        sums: dict[str, int] = {}
+        for rec in recs:
+            for t, n in rec["rows"].items():
+                sums[t] = sums.get(t, 0) + n
+        for t in tables:
+            if t in sums:
+                rows[t] = sums[t]
+    return rows

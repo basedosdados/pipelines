@@ -488,9 +488,9 @@ TABLES: dict[str, TableSpec] = {
     "dicionario": _t(
         ("Dicionário", "Dictionary", "Diccionario"),
         (
-            "Rótulos dos códigos de idioma, licença e Objetivo de Desenvolvimento Sustentável usados nas demais tabelas.",
-            "Labels of the language, license and Sustainable Development Goal codes used in the other tables.",
-            "Etiquetas de los códigos de idioma, licencia y Objetivo de Desarrollo Sostenible usados en las demás tablas.",
+            "Rótulos dos códigos de licença e Objetivo de Desenvolvimento Sustentável usados nas demais tabelas.",
+            "Labels of the license and Sustainable Development Goal codes used in the other tables.",
+            "Etiquetas de los códigos de licencia y Objetivo de Desarrollo Sostenible usados en las demás tablas.",
         ),
         ["id_tabela", "nome_coluna", "chave"],
     ),

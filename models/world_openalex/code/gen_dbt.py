@@ -33,9 +33,20 @@ CAST = {
 SPARSE = {
     "work": ["pmid", "pmcid", "mag_id", "apc_list_usd", "apc_paid_usd"],
     "work_authorship": ["raw_orcid"],
+    "award": ["doi"],
+    "award_investigator": ["orcid"],
+    "publisher": ["parent_publisher_id"],
+    "dicionario": ["cobertura_temporal"],
+}
+# Models that collapse duplicate keys the source repeats. MeSH lists repeat a
+# (descriptor, qualifier) pair in 99.8% of the keys checked; keyword lists
+# occasionally repeat a keyword with different scores. Each entry is the
+# aggregate of every non-key column; the key columns are grouped on.
+DEDUPE = {
+    "work_mesh": {"is_major_topic": "logical_or(is_major_topic)"},
+    "work_keyword": {"score": "max(score)"},
 }
 DICTIONARY = {
-    "work": ["language"],
     "work_location": ["license"],
     "work_sdg": ["sdg_id"],
 }
@@ -77,11 +88,36 @@ def sql(table: str) -> str:
         f"safe_cast({c['name']} as {CAST[c['bigquery_type']]}) {c['name']}"
         for c in columns(table)
     )
+    source = f'{{{{ set_datalake_project("{DS}_staging.{table}") }}}}'
+    if table in DEDUPE:
+        aggs = DEDUPE[table]
+        keys = [c["name"] for c in columns(table) if c["name"] not in aggs]
+        outer = ",\n    ".join(
+            aggs.get(c["name"], c["name"]) + f" {c['name']}"
+            if c["name"] in aggs
+            else c["name"]
+            for c in columns(table)
+        )
+        return (
+            "{{\n    config(\n        " + cfg + ",\n    )\n}}\n\n\n"
+            f"with t as (\n    select\n        {sel.replace(chr(10) + '    ', chr(10) + '        ')}\n"
+            f"    from {source} as t\n)\n"
+            f"select\n    {outer}\n"
+            "from t\n" + group_by(keys)
+        )
     return (
         "{{\n    config(\n        " + cfg + ",\n    )\n}}\n\n\n"
         f"select\n    {sel}\n"
         f'from {{{{ set_datalake_project("{DS}_staging.{table}") }}}} as t\n'
     )
+
+
+def group_by(keys: list[str]) -> str:
+    """A GROUP BY clause laid out as sqlfmt lays it out, so regeneration is stable."""
+    one_line = f"group by {', '.join(keys)}"
+    if len(one_line) <= 88:
+        return one_line + "\n"
+    return "group by\n" + ",\n".join(f"    {k}" for k in keys) + "\n"
 
 
 def q(s: str) -> str:

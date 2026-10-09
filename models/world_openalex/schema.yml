@@ -17,11 +17,6 @@ models:
           ignore_values: [pmid, pmcid, mag_id, apc_list_usd, apc_paid_usd]
           config:
             where: publication_year >= extract(year from current_date()) - 1
-      - custom_dictionary_coverage:
-          dictionary_model: ref('world_openalex__dicionario')
-          columns_covered_by_dictionary: [language]
-          config:
-            where: publication_year >= extract(year from current_date()) - 1
     columns:
       - name: publication_year
         description: Ano de publicação do trabalho
@@ -46,7 +41,7 @@ models:
       - name: type
         description: 'Tipo do trabalho (ex.: article, book-chapter, dataset, preprint)'
       - name: language
-        description: Idioma do trabalho (código ISO 639-1)
+        description: Idioma do trabalho, como código informado pela fonte
       - name: primary_source_id
         description: Identificador da fonte (periódico, repositório, conferência)
           no OpenAlex
@@ -771,6 +766,7 @@ models:
           combination_of_columns: [award_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [doi]
     columns:
       - name: award_id
         description: Identificador do financiamento (award) no OpenAlex
@@ -822,6 +818,7 @@ models:
           combination_of_columns: [award_id, investigator_sequence]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [orcid]
     columns:
       - name: award_id
         description: Identificador do financiamento (award) no OpenAlex
@@ -1044,6 +1041,7 @@ models:
           combination_of_columns: [publisher_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [parent_publisher_id]
     columns:
       - name: publisher_id
         description: Identificador da editora no OpenAlex
@@ -1270,14 +1268,15 @@ models:
       - name: updated_date
         description: Data da última alteração do registro no OpenAlex
   - name: world_openalex__dicionario
-    description: 'Rótulos dos códigos de idioma, licença e Objetivo de Desenvolvimento
-      Sustentável usados nas demais tabelas. Fonte: snapshot do OpenAlex (OurResearch),
-      licença CC0.'
+    description: 'Rótulos dos códigos de licença e Objetivo de Desenvolvimento Sustentável
+      usados nas demais tabelas. Fonte: snapshot do OpenAlex (OurResearch), licença
+      CC0.'
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
         description: ID da tabela
