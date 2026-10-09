@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de notificação da versão inicial do contrato,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de partição (ano) ou de agrupamento (mês), derivada da data de notificação da versão inicial do contrato (menor id_modification). Contratos sem data de notificação válida, ou notificados antes de 2014, não entram na base",dateNotification
+mes,INT64,Mês de notificação da versão inicial do contrato,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,"Coluna de partição (ano) ou de agrupamento (mês), derivada da data de notificação da versão inicial do contrato (menor id_modification). Contratos sem data de notificação válida, ou notificados antes de 2014, não entram na base",dateNotification
+id_marche,STRING,Identificador único do contrato na DECP,,no,,,no,"Concatenação, feita pela fonte, do SIRET do comprador, do identificador interno do contrato e do código CPV",uid
+id_modification,STRING,Número sequencial da versão do contrato; 0 corresponde à atribuição inicial,,no,,,no,Gerado pela fonte a partir da ordem das datas de notificação. 10.074 contratos não têm versão 0 na fonte,modification_id
+date_notification,DATE,Data em que o contrato ou a modificação foi notificado ao contratado,,no,,,no,,dateNotification
+date_publication_donnees,DATE,Data em que os dados do contrato ou da modificação foram publicados,,no,,,no,,datePublicationDonnees
+duree_mois,INT64,Duração do contrato em meses,,no,,month,no,Mantido como publicado; a fonte contém valores negativos e extremos,dureeMois
+montant,FLOAT64,"Valor fixo ou valor máximo estimado do contrato, sem impostos",,no,,eur,no,"Mantido como declarado pelo comprador, inclusive valores aberrantes; ver montant_rationalise e montant_anomalie",montant
+montant_rationalise,FLOAT64,Valor do contrato com os montantes classificados como aberrantes substituídos,,no,,eur,no,"Igual a montant, exceto quando montant_anomalie = aberrant, caso em que a fonte o substitui por uma estimativa a partir de contratos semelhantes",montant_rationalise
+montant_anomalie,STRING,Classificação do valor declarado em comparação com contratos semelhantes,,no,,,no,"Valores: suspect, aberrant. Nulo quando o valor não é anômalo",montant_anomalie
+montant_anomalie_raisons,STRING,Critério que levou à classificação do valor como anômalo,,no,,,no,,montant_anomalie_raisons
+donnees_actuelles,STRING,Indica se a linha corresponde à versão mais recente do contrato,,no,,,no,Valores: true / false. Nulo quando a fonte não informa,donneesActuelles
