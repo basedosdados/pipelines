@@ -1,6 +1,7 @@
 -- - Atualização 10/12/2025
 {{ config(alias="brasil", schema="br_inep_saeb", materialized="table") }}
 
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(rede as string) rede,
