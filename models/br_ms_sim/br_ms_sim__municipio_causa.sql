@@ -11,6 +11,11 @@
     )
 }}
 
-select ano, sigla_uf, id_municipio, causa_basica, sum(numero_obitos) as numero_obitos
-from {{ ref("br_ms_sim__municipio_causa_idade_sexo_raca") }}
+select
+    ano,
+    sigla_uf,
+    id_municipio_residencia as id_municipio,
+    causa_basica,
+    count(*) as numero_obitos
+from {{ ref("br_ms_sim__microdados") }}
 group by 1, 2, 3, 4

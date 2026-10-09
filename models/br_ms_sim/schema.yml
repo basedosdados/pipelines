@@ -9,7 +9,13 @@ models:
       (at_least 0.99), pois a fonte contém nulls legítimos raros (ver README).
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, sigla_uf, sequencial_obito]
+          # sequencial_obito é numerado por arquivo; os óbitos movidos de GO para TO
+          # repetem sequenciais do TO, e o município de origem os distingue.
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - sequencial_obito
+            - id_municipio_residencia_datasus
     columns:
       - name: ano
         description: Ano
@@ -58,7 +64,18 @@ models:
       - name: codigo_bairro_residencia
         description: Código do Bairro de Residência
       - name: id_municipio_residencia
-        description: ID Município de Residência - IBGE 7 Dígitos
+        description: >
+          ID Município de Residência - IBGE 7 Dígitos. Códigos da fonte sem
+          equivalente no IBGE (município ignorado) ficam nulos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_residencia_datasus
+        description: >
+          ID Município de Residência como veio da fonte (DATASUS). Até 1998 inclui
+          subdivisões das capitais (3345xxx Rio de Janeiro, 3580xxx São Paulo) e, até
+          2005, municípios ignorados (UF seguida de 00000)
       - name: local_ocorrencia
         description: Local de Ocorrência
       - name: codigo_bairro_ocorrencia
@@ -245,12 +262,12 @@ models:
     description: >
       Número de óbitos por ano, município de residência, causa básica, idade, sexo
       e raça ou cor, calculado a partir dos microdados. Óbitos sem município de
-      residência ou com município ignorado não entram. Em 1996-1998, os códigos
-      3345xxx da capital do Rio de Janeiro são somados ao município 3304557.
+      residência informado entram com id_municipio nulo.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - ano
+            - sigla_uf
             - id_municipio
             - causa_basica
             - idade
@@ -266,15 +283,11 @@ models:
         description: Sigla da Unidade da Federação de residência
         tests: [not_null]
       - name: id_municipio
-        description: ID Município de residência - IBGE 7 Dígitos
+        description: ID Município de residência - IBGE 7 Dígitos (nulo se ignorado)
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              # Até 2003 a fonte traz 13 códigos fora do diretório (64 óbitos).
-              config:
-                where: ano >= 2004
       - name: causa_basica
         description: Causa básica (CID-10)
       - name: idade
@@ -287,11 +300,12 @@ models:
         description: Número de óbitos
   - name: br_ms_sim__municipio
     description: >
-      Número de óbitos por ano e município de residência. Soma de
-      br_ms_sim__municipio_causa_idade_sexo_raca.
+      Número de óbitos por ano e município de residência. Calculado a partir dos
+      microdados. Óbitos sem município de residência informado entram com
+      id_municipio nulo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, id_municipio]
+          combination_of_columns: [ano, sigla_uf, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -302,24 +316,21 @@ models:
         description: Sigla da Unidade da Federação de residência
         tests: [not_null]
       - name: id_municipio
-        description: ID Município de residência - IBGE 7 Dígitos
+        description: ID Município de residência - IBGE 7 Dígitos (nulo se ignorado)
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              # Até 2003 a fonte traz 13 códigos fora do diretório (64 óbitos).
-              config:
-                where: ano >= 2004
       - name: numero_obitos
         description: Número de óbitos
   - name: br_ms_sim__municipio_causa
     description: >
-      Número de óbitos por ano, município de residência e causa básica. Soma de
-      br_ms_sim__municipio_causa_idade_sexo_raca.
+      Número de óbitos por ano, município de residência e causa básica. Calculado a partir dos
+      microdados. Óbitos sem município de residência informado entram com
+      id_municipio nulo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, id_municipio, causa_basica]
+          combination_of_columns: [ano, sigla_uf, id_municipio, causa_basica]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -330,27 +341,23 @@ models:
         description: Sigla da Unidade da Federação de residência
         tests: [not_null]
       - name: id_municipio
-        description: ID Município de residência - IBGE 7 Dígitos
+        description: ID Município de residência - IBGE 7 Dígitos (nulo se ignorado)
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              # Até 2003 a fonte traz 13 códigos fora do diretório (64 óbitos).
-              config:
-                where: ano >= 2004
       - name: causa_basica
         description: Causa básica (CID-10)
       - name: numero_obitos
         description: Número de óbitos
   - name: br_ms_sim__municipio_causa_idade
     description: >
-      Número de óbitos por ano, município de residência, causa básica e idade. Soma
-      de
-      br_ms_sim__municipio_causa_idade_sexo_raca.
+      Número de óbitos por ano, município de residência, causa básica e idade. Calculado a partir
+      dos microdados. Óbitos sem município de residência informado entram com
+      id_municipio nulo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, id_municipio, causa_basica, idade]
+          combination_of_columns: [ano, sigla_uf, id_municipio, causa_basica, idade]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -361,15 +368,11 @@ models:
         description: Sigla da Unidade da Federação de residência
         tests: [not_null]
       - name: id_municipio
-        description: ID Município de residência - IBGE 7 Dígitos
+        description: ID Município de residência - IBGE 7 Dígitos (nulo se ignorado)
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              # Até 2003 a fonte traz 13 códigos fora do diretório (64 óbitos).
-              config:
-                where: ano >= 2004
       - name: causa_basica
         description: Causa básica (CID-10)
       - name: idade

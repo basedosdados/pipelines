@@ -618,6 +618,31 @@ O DATASUS fornece códigos IBGE de 6 dígitos. O pipeline converte para 7 dígit
 
 Os CSVs de staging **não** incluem `ano` e `sigla_uf` no arquivo (90 colunas). Essas colunas vêm do path GCS: `ano=YYYY/sigla_uf=UF/`.
 
+### 7.3 Correções de município e UF no modelo dbt
+
+Até 2005 a fonte grava o município de residência com 7 dígitos, e alguns códigos não existem no IBGE. O modelo `br_ms_sim__microdados.sql` corrige isso sem perder o original:
+
+- `id_municipio_residencia_datasus`: código como veio da fonte.
+- `id_municipio_residencia`: código IBGE equivalente, pelo de-para da tabela de municípios do TabWin do SIM (`MUNICBR.CNV`, em `ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/TAB/OBITOS_CID10_TAB.zip`).
+
+| Código da fonte | Óbitos | Anos | `id_municipio_residencia` |
+|---|---|---|---|
+| 3345xxx (subdivisões do Rio de Janeiro) | 149.940 | 1996–1998 | 3304557 |
+| 3580xxx (subdivisões de São Paulo) | 26 | 1996–1998 | 3550308 |
+| 4314530 (Pinto Bandeira) | 37 | 2001–2002 | 4314548 |
+| XX00000 (município ignorado, só a UF) | 68.489 | 1996–2005 | nulo |
+| 5306006 (não existe no de-para) | 1 | 2003 | nulo |
+
+Óbitos de residentes do TO gravados no arquivo de GO (10 em 1999, 14 em 2001) passam para TO. Os 10 de 2001 que também estão no arquivo do TO, com os mesmos dados, são o mesmo óbito e são descartados.
+
+As tabelas agregadas (`municipio*`) são calculadas a partir do `microdados` e não excluem nenhum óbito: sem município IBGE, `id_municipio` fica nulo.
+
+Mudanças em relação às versões anteriores das tabelas agregadas (até 2019):
+
+- `municipio_causa_idade_sexo_raca`: `sexo` e `raca_cor` passam de código (`1`, `2`) para texto (`masculino`, `branca`), como no `microdados`.
+- `municipio_causa_idade`: `ano` passa de STRING para INT64, como nas demais tabelas.
+- Óbitos sem município de residência informado, que antes ficavam fora a partir de 2006, entram com `id_municipio` nulo.
+
 ---
 
 ## 8. Referências

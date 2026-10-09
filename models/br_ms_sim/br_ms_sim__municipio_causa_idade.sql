@@ -14,9 +14,9 @@
 select
     ano,
     sigla_uf,
-    id_municipio,
+    id_municipio_residencia as id_municipio,
     causa_basica,
-    idade,
-    sum(numero_obitos) as numero_obitos
-from {{ ref("br_ms_sim__municipio_causa_idade_sexo_raca") }}
+    cast(floor(idade) as int64) as idade,
+    count(*) as numero_obitos
+from {{ ref("br_ms_sim__microdados") }}
 group by 1, 2, 3, 4, 5
