@@ -837,6 +837,9 @@ models:
     world_olympedia_olympics:
       +materialized: table
       +schema: world_olympedia_olympics
+    world_openalex:
+      +materialized: table
+      +schema: world_openalex
     world_sofascore_competicoes_futebol:
       +materialized: table
       +schema: world_sofascore_competicoes_futebol
