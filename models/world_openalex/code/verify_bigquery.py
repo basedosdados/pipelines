@@ -51,7 +51,7 @@ def main() -> None:
         if table not in built:
             bad.append(f"{table}: not built")
             continue
-        n = client.get_table(f"{PROJECT}.{DS}.{table}").num_rows
+        n = client.get_table(f"{PROJECT}.{DS}.{table}").num_rows or 0
         want = staged.get(table)
         ok = (
             want is None
