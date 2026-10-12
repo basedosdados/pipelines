@@ -29,15 +29,9 @@ select
     publication_year,
     work_id,
     descriptor_id,
-    descriptor_name,
+    max(descriptor_name) descriptor_name,
     qualifier_id,
-    qualifier_name,
+    max(qualifier_name) qualifier_name,
     logical_or(is_major_topic) is_major_topic
 from t
-group by
-    publication_year,
-    work_id,
-    descriptor_id,
-    descriptor_name,
-    qualifier_id,
-    qualifier_name
+group by publication_year, work_id, descriptor_id, qualifier_id

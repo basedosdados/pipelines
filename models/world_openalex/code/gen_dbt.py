@@ -39,11 +39,17 @@ SPARSE = {
     "dicionario": ["cobertura_temporal"],
 }
 # Models that collapse duplicate keys the source repeats. MeSH lists repeat a
-# (descriptor, qualifier) pair in 99.8% of the keys checked; keyword lists
+# (descriptor, qualifier) pair in 99.8% of the keys checked, sometimes under
+# both the old and the new name of a renamed descriptor ("Depressive Disorder,
+# Major" and "Major Depressive Disorder" for D003865); keyword lists
 # occasionally repeat a keyword with different scores. Each entry is the
 # aggregate of every non-key column; the key columns are grouped on.
 DEDUPE = {
-    "work_mesh": {"is_major_topic": "logical_or(is_major_topic)"},
+    "work_mesh": {
+        "descriptor_name": "max(descriptor_name)",
+        "qualifier_name": "max(qualifier_name)",
+        "is_major_topic": "logical_or(is_major_topic)",
+    },
     "work_keyword": {"score": "max(score)"},
 }
 DICTIONARY = {
