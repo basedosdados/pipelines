@@ -1,0 +1,12 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+author_id,STRING,Identificador do autor no OpenAlex,OpenAlex identifier of the author,Identificador del autor en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: A5023888391),Stored without the URL prefix (e.g. A5023888391),"Almacenado sin el prefijo de URL (p. ej., A5023888391)",id
+display_name,STRING,Nome de exibição do autor,Display name of the author,Nombre de visualización del autor,,no,,,no,,,,display_name
+full_name,STRING,Nome completo do autor,Full name of the author,Nombre completo del autor,,no,,,no,,,,full_name
+orcid,STRING,ORCID do autor,Author ORCID,ORCID del autor,,no,,,no,Armazenado sem o prefixo de URL (ex.: 0000-0002-1825-0097),Stored without the URL prefix (e.g. 0000-0002-1825-0097),"Almacenado sin el prefijo de URL (p. ej., 0000-0002-1825-0097)",orcid
+works_count,INT64,Número de trabalhos associados,Number of associated works,Número de trabajos asociados,,no,,work,no,,,,works_count
+cited_by_count,INT64,Número de citações recebidas,Number of citations received,Número de citas recibidas,,no,,citation,no,,,,cited_by_count
+two_year_mean_citedness,FLOAT64,Média de citações recebidas no último ano por trabalhos publicados nos dois anos anteriores,Mean citations received in the last year by works published in the two preceding years,Promedio de citas recibidas en el último año por trabajos publicados en los dos años anteriores,,no,,ratio,no,,,,summary_stats.2yr_mean_citedness
+h_index,INT64,Índice h,H-index: largest h such that h works have at least h citations each,Índice h,,no,,index,no,,,,summary_stats.h_index
+i10_index,INT64,Índice i10: número de trabalhos com ao menos 10 citações,Number of works with at least 10 citations (i10-index),Índice i10: número de trabajos con al menos 10 citas,,no,,work,no,,,,summary_stats.i10_index
+created_date,DATE,Data de criação do registro no OpenAlex,Date the record was created in OpenAlex,Fecha de creación del registro en OpenAlex,,no,,,no,,,,created_date
+updated_date,DATE,Data da última alteração do registro no OpenAlex,Date the record was last changed in OpenAlex,Fecha de la última modificación del registro en OpenAlex,,no,,,no,,,,updated_date
