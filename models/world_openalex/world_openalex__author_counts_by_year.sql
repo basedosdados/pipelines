@@ -13,10 +13,17 @@
 }}
 
 
-select
-    safe_cast(year as int64) year,
-    safe_cast(author_id as string) author_id,
-    safe_cast(works_count as int64) works_count,
-    safe_cast(oa_works_count as int64) oa_works_count,
-    safe_cast(cited_by_count as int64) cited_by_count
-from {{ set_datalake_project("world_openalex_staging.author_counts_by_year") }} as t
+select *
+from
+    (
+        select
+            safe_cast(year as int64) year,
+            safe_cast(author_id as string) author_id,
+            safe_cast(works_count as int64) works_count,
+            safe_cast(oa_works_count as int64) oa_works_count,
+            safe_cast(cited_by_count as int64) cited_by_count
+        from
+            {{ set_datalake_project("world_openalex_staging.author_counts_by_year") }}
+            as t
+    )
+where year <= extract(year from current_date()) + 1

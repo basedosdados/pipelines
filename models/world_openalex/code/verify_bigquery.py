@@ -4,7 +4,9 @@
 
 1. Row counts of every built table, read from table metadata (free), against
    the rows the loader staged (its state file). A mismatch means a model
-   dropped or duplicated rows.
+   dropped or duplicated rows; the models in ``gen_dbt.DEDUPE`` collapse
+   repeated keys and those in ``gen_dbt.FILTER`` drop bad rows, so they may
+   hold fewer rows than were staged, never more.
 2. Min and max year of ``work.publication_year`` and of the two author-by-year
    tables, written to ``coverage.json`` for ``register_metadata.py``. Every
    works table takes the ``work`` range: their rows exist only for works.
@@ -18,6 +20,7 @@ from pathlib import Path
 
 from google.cloud import bigquery
 
+from models.world_openalex.code.gen_dbt import DEDUPE, FILTER
 from models.world_openalex.code.tables import TABLES
 from pipelines.datasets.world_openalex import loader, utils
 
@@ -50,7 +53,12 @@ def main() -> None:
             continue
         n = client.get_table(f"{PROJECT}.{DS}.{table}").num_rows
         want = staged.get(table)
-        flag = "" if want is None or n == want else "  <-- MISMATCH"
+        ok = (
+            want is None
+            or n == want
+            or (table in {**DEDUPE, **FILTER} and n <= want)
+        )
+        flag = "" if ok else "  <-- MISMATCH"
         if flag:
             bad.append(f"{table}: {n:,} built vs {want:,} staged")
         print(

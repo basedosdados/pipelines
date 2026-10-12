@@ -52,6 +52,13 @@ DEDUPE = {
     },
     "work_keyword": {"score": "max(score)"},
 }
+# Row filters. The author-by-year tables carry a few thousand impossible years
+# (2555, 10000, 2025002); a count or an affiliation without its year means
+# nothing, so those rows are dropped rather than nulled.
+FILTER = {
+    "author_affiliation": "year <= extract(year from current_date()) + 1",
+    "author_counts_by_year": "year <= extract(year from current_date()) + 1",
+}
 DICTIONARY = {
     "work_location": ["license"],
     "work_sdg": ["sdg_id"],
@@ -110,6 +117,13 @@ def sql(table: str) -> str:
             f"    from {source} as t\n)\n"
             f"select\n    {outer}\n"
             "from t\n" + group_by(keys)
+        )
+    if table in FILTER:
+        return (
+            "{{\n    config(\n        " + cfg + ",\n    )\n}}\n\n\n"
+            "select *\nfrom (\n    select\n        "
+            + sel.replace("\n    ", "\n        ")
+            + f"\n    from {source} as t\n)\nwhere {FILTER[table]}\n"
         )
     return (
         "{{\n    config(\n        " + cfg + ",\n    )\n}}\n\n\n"
