@@ -1,0 +1,56 @@
+{{
+    config(
+        schema="world_openalex",
+        alias="work",
+        materialized="table",
+        partition_by={
+            "field": "publication_year",
+            "data_type": "int64",
+            "range": {"start": 1500, "end": 2031, "interval": 1},
+        },
+        cluster_by=["work_id"],
+    )
+}}
+
+
+select
+    safe_cast(publication_year as int64) publication_year,
+    safe_cast(work_id as string) work_id,
+    safe_cast(doi as string) doi,
+    safe_cast(pmid as string) pmid,
+    safe_cast(pmcid as string) pmcid,
+    safe_cast(mag_id as string) mag_id,
+    safe_cast(title as string) title,
+    safe_cast(publication_date as date) publication_date,
+    safe_cast(type as string) type,
+    safe_cast(language as string) language,
+    safe_cast(primary_source_id as string) primary_source_id,
+    safe_cast(primary_topic_id as string) primary_topic_id,
+    safe_cast(is_open_access as bool) is_open_access,
+    safe_cast(open_access_status as string) open_access_status,
+    safe_cast(open_access_url as string) open_access_url,
+    safe_cast(any_repository_has_fulltext as bool) any_repository_has_fulltext,
+    safe_cast(is_paratext as bool) is_paratext,
+    safe_cast(is_retracted as bool) is_retracted,
+    safe_cast(is_xpac as bool) is_xpac,
+    safe_cast(volume as string) volume,
+    safe_cast(issue as string) issue,
+    safe_cast(first_page as string) first_page,
+    safe_cast(last_page as string) last_page,
+    safe_cast(authors_count as int64) authors_count,
+    safe_cast(institutions_distinct_count as int64) institutions_distinct_count,
+    safe_cast(countries_distinct_count as int64) countries_distinct_count,
+    safe_cast(locations_count as int64) locations_count,
+    safe_cast(referenced_works_count as int64) referenced_works_count,
+    safe_cast(cited_by_count as int64) cited_by_count,
+    safe_cast(fwci as float64) fwci,
+    safe_cast(citation_normalized_percentile as float64) citation_normalized_percentile,
+    safe_cast(is_in_top_1_percent as bool) is_in_top_1_percent,
+    safe_cast(is_in_top_10_percent as bool) is_in_top_10_percent,
+    safe_cast(apc_list_usd as int64) apc_list_usd,
+    safe_cast(apc_paid_usd as float64) apc_paid_usd,
+    safe_cast(has_fulltext as bool) has_fulltext,
+    safe_cast(has_pdf as bool) has_pdf,
+    safe_cast(created_date as date) created_date,
+    safe_cast(updated_date as date) updated_date
+from {{ set_datalake_project("world_openalex_staging.work") }} as t
