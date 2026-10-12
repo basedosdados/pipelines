@@ -1,0 +1,345 @@
+---
+version: 2
+models:
+  - name: fr_colibre_decp__marche
+    description: >
+      Contratos públicos franceses sujeitos à publicação de dados essenciais (obrigatória
+      a partir de 40 mil euros desde 2020, e de 25 mil euros antes), segundo os Dados
+      Essenciais da Contratação Pública (DECP) consolidados por colibre.fr. Uma linha
+      por contrato (id_marche), com os atributos do comprador e os valores da versão
+      inicial do contrato.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_marche]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [montant_anomalie, montant_anomalie_raisons]
+    columns:
+      - name: ano
+        description: >
+          Ano de notificação da versão inicial do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de notificação da versão inicial do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_marche
+        description: >
+          Identificador único do contrato na DECP
+        tests: [not_null]
+      - name: id_marche_acheteur
+        description: >
+          Identificador interno atribuído pelo comprador ao contrato
+      - name: id_accord_cadre
+        description: >
+          Identificador interno do acordo-quadro ao qual o contrato subsequente se
+          vincula
+      - name: siret_acheteur
+        description: >
+          SIRET do estabelecimento comprador
+      - name: siren_acheteur
+        description: >
+          SIREN da unidade legal compradora
+      - name: nom_acheteur
+        description: >
+          Nome do comprador segundo o SIRENE
+      - name: categorie_acheteur
+        description: >
+          Categoria do comprador segundo sua categoria jurídica no INSEE
+      - name: labels_acheteur
+        description: >
+          Selos e certificações do comprador, separados por vírgula
+      - name: code_commune_acheteur
+        description: >
+          Código INSEE da comuna do comprador
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__commune')
+              field: id_comuna
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: code_departement_acheteur
+        description: >
+          Código do departamento do comprador
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__departement')
+              field: id_departamento
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: code_region_acheteur
+        description: >
+          Código da região do comprador
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__region')
+              field: id_regiao
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: geometria_acheteur
+        description: >
+          Localização geográfica do comprador
+      - name: nature
+        description: >
+          Natureza do contrato
+      - name: objet
+        description: >
+          Objeto do contrato
+      - name: type_marche
+        description: >
+          Tipo de contrato: fornecimentos, serviços ou obras
+      - name: code_cpv
+        description: >
+          Código CPV (Common Procurement Vocabulary) do objeto do contrato
+      - name: procedure
+        description: >
+          Procedimento de contratação utilizado
+      - name: techniques
+        description: >
+          Técnicas de compra utilizadas, separadas por vírgula
+      - name: modalites_execution
+        description: >
+          Modalidades de execução do contrato, separadas por vírgula
+      - name: date_notification
+        description: >
+          Data em que o contrato ou a modificação foi notificado ao contratado
+      - name: date_publication_donnees
+        description: >
+          Data em que os dados do contrato ou da modificação foram publicados
+      - name: duree_mois
+        description: >
+          Duração do contrato em meses
+      - name: montant
+        description: >
+          Valor fixo ou valor máximo estimado do contrato, sem impostos
+      - name: montant_rationalise
+        description: >
+          Valor do contrato com os montantes classificados como aberrantes substituídos
+      - name: montant_anomalie
+        description: >
+          Classificação do valor declarado em comparação com contratos semelhantes
+      - name: montant_anomalie_raisons
+        description: >
+          Critério que levou à classificação do valor como anômalo
+      - name: nombre_offres
+        description: >
+          Número de propostas recebidas, incluindo as irregulares ou inaceitáveis
+      - name: forme_prix
+        description: >
+          Forma do preço do contrato
+      - name: types_prix
+        description: >
+          Tipos de preço do contrato, separados por vírgula
+      - name: attribution_avance
+        description: >
+          Indica se foi concedido adiantamento ao contratado
+      - name: taux_avance
+        description: >
+          Percentual do adiantamento concedido em relação ao valor do contrato
+      - name: marche_innovant
+        description: >
+          Indica se o contrato inclui obras, serviços ou fornecimentos inovadores
+      - name: considerations_sociales
+        description: >
+          Considerações sociais previstas no contrato, separadas por vírgula
+      - name: considerations_environnementales
+        description: >
+          Considerações ambientais previstas no contrato, separadas por vírgula
+      - name: ccag
+        description: >
+          Caderno de cláusulas administrativas gerais (CCAG) aplicado ao contrato
+      - name: sous_traitance_declaree
+        description: >
+          Indica se os contratados declararam recorrer a subcontratação na notificação
+      - name: type_groupement_operateurs
+        description: >
+          Tipo de consórcio de operadores econômicos
+      - name: origine_ue
+        description: >
+          Percentual do valor de produtos originários da União Europeia
+      - name: origine_france
+        description: >
+          Percentual do valor de produtos originários da França
+      - name: code_lieu_execution
+        description: >
+          Código do local de execução do contrato
+      - name: type_code_lieu_execution
+        description: >
+          Tipo do código do local de execução
+      - name: source_donnees
+        description: >
+          Código do conjunto de dados de origem da linha na consolidação
+      - name: fichier_source
+        description: >
+          Endereço do arquivo de dados abertos de onde a linha foi extraída
+  - name: fr_colibre_decp__modification
+    description: >
+      Versões dos contratos da DECP: a atribuição inicial (id_modification = 0) e
+      cada modificação posterior, que só pode alterar o valor, a duração e os contratados.
+      Uma linha por contrato e versão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_marche, id_modification]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [montant_anomalie, montant_anomalie_raisons]
+    columns:
+      - name: ano
+        description: >
+          Ano de notificação da versão inicial do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de notificação da versão inicial do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_marche
+        description: >
+          Identificador único do contrato na DECP
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fr_colibre_decp__marche')
+              field: id_marche
+      - name: id_modification
+        description: >
+          Número sequencial da versão do contrato; 0 corresponde à atribuição inicial
+        tests: [not_null]
+      - name: date_notification
+        description: >
+          Data em que o contrato ou a modificação foi notificado ao contratado
+      - name: date_publication_donnees
+        description: >
+          Data em que os dados do contrato ou da modificação foram publicados
+      - name: duree_mois
+        description: >
+          Duração do contrato em meses
+      - name: montant
+        description: >
+          Valor fixo ou valor máximo estimado do contrato, sem impostos
+      - name: montant_rationalise
+        description: >
+          Valor do contrato com os montantes classificados como aberrantes substituídos
+      - name: montant_anomalie
+        description: >
+          Classificação do valor declarado em comparação com contratos semelhantes
+      - name: montant_anomalie_raisons
+        description: >
+          Critério que levou à classificação do valor como anômalo
+      - name: donnees_actuelles
+        description: >
+          Indica se a linha corresponde à versão mais recente do contrato
+  - name: fr_colibre_decp__titulaire
+    description: >
+      Contratados de cada versão dos contratos da DECP. Uma linha por contrato, versão
+      e contratado; um contrato pode ter vários contratados.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_marche, id_modification, id_titulaire]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de notificação da versão inicial do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de notificação da versão inicial do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_marche
+        description: >
+          Identificador único do contrato na DECP
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fr_colibre_decp__marche')
+              field: id_marche
+      - name: id_modification
+        description: >
+          Número sequencial da versão do contrato; 0 corresponde à atribuição inicial
+        tests: [not_null]
+      - name: id_titulaire
+        description: >
+          Identificador do contratado, no referencial indicado em type_identifiant_titulaire
+      - name: type_identifiant_titulaire
+        description: >
+          Referencial do identificador do contratado
+      - name: siren_titulaire
+        description: >
+          SIREN da unidade legal contratada
+      - name: nom_titulaire
+        description: >
+          Nome do contratado; segundo o SIRENE quando o identificador é um SIRET
+      - name: categorie_titulaire
+        description: >
+          Categoria de empresa do contratado segundo o INSEE
+      - name: labels_titulaire
+        description: >
+          Selos e certificações do contratado, separados por vírgula
+      - name: code_activite_titulaire
+        description: >
+          Código da atividade principal (NAF rev. 2) do estabelecimento contratado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_rev2')
+              field: naf_rev2.naf_rev2
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: code_commune_titulaire
+        description: >
+          Código INSEE da comuna do contratado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__commune')
+              field: id_comuna
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: code_departement_titulaire
+        description: >
+          Código do departamento do contratado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__departement')
+              field: id_departamento
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: code_region_titulaire
+        description: >
+          Código da região do contratado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__region')
+              field: id_regiao
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
+      - name: geometria_titulaire
+        description: >
+          Localização geográfica do contratado
+      - name: distance_acheteur
+        description: >-
+          Distância entre o endereço do comprador e o do contratado
