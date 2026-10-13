@@ -132,6 +132,44 @@ def test_upsert_coverage_datetime_range_passes_dto_fields(client, backend):
     assert v["endYear"] == 2026 and v["endMonth"] == 6 and v["endDay"] == 1
 
 
+def test_upsert_coverage_datetime_range_create_sets_interval(client, backend):
+    backend.set_response(
+        "allDatetimerange", node_response("allDatetimerange", None)
+    )
+    backend.set_response(
+        "CreateUpdateDateTimeRange",
+        mutation_response("CreateUpdateDateTimeRange"),
+    )
+
+    dto = DateTimeRangeInput(
+        coverage=UUID, startYear=2014, startMonth=1, endYear=2026, endMonth=4
+    )
+    client.upsert_coverage_datetime_range(dto)
+
+    v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
+    assert v["interval"] == 1
+    assert "id" not in v
+
+
+def test_upsert_coverage_datetime_range_update_keeps_stored_interval(
+    client, backend
+):
+    backend.set_response(
+        "allDatetimerange", node_response("allDatetimerange", "dtr-1")
+    )
+    backend.set_response(
+        "CreateUpdateDateTimeRange",
+        mutation_response("CreateUpdateDateTimeRange"),
+    )
+
+    dto = DateTimeRangeInput(coverage=UUID, endYear=2026, endMonth=6)
+    client.upsert_coverage_datetime_range(dto)
+
+    v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
+    assert v["id"] == "dtr-1"
+    assert "interval" not in v
+
+
 def test_write_carries_auth_header(client, backend):
     backend.set_response(
         "allRawdatasource", node_response("allRawdatasource", RDS)

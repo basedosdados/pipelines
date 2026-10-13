@@ -385,4 +385,11 @@ class MetadataClient:
         payload = dto.model_dump(exclude_none=True)
         if existing:
             payload["id"] = existing
+        else:
+            # Um range novo sem `interval` é recusado pelo backend ("Interval
+            # must exist in ranges with start and end dates"). Tabelas cujo
+            # range foi semeado no registro nunca caíam aqui; uma tabela
+            # part_bdpro registrada sem range (o correto, para não declarar a
+            # janela paga como gratuita) cai na primeira materialização.
+            payload.setdefault("interval", 1)
         return self._mutate("CreateUpdateDateTimeRange", payload)
