@@ -34,8 +34,9 @@ from pipelines.datasets.br_mps_beneficios.tasks import (
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
-    AllFree,
     DateFormat,
+    FreeLag,
+    PartBdpro,
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
@@ -56,36 +57,45 @@ DICIONARIO = constants.TABLE_DICIONARIO.value
 
 # Coverage spec per table.
 #
-# Both data tables refresh monthly, and the house rule is that a table
-# refreshed monthly or more often paywalls its most recent window to BD Pro.
-# They are registered AllFree here deliberately, and switching them is a
-# separate, deliberate step, because:
+# Both data tables refresh monthly, so by the house rule their most recent six
+# months are BD Pro and everything older is free. `register_table_materialization`
+# rolls the window and reissues the Row Access Policies on every prod run; the
+# dbt models are untouched.
 #
-#   * `part_bdpro` requires BOTH a free (is_closed=False) and a pro
-#     (is_closed=True) Coverage to already exist on the table, or
-#     `assert_coverage_topology` raises before anything is written — and only
-#     the free one exists today;
-#   * creating the pro Coverage sets `Table.contains_closed_data`, which puts a
-#     Pro badge on a dataset that is already published and entirely free, so it
-#     is visibly wrong until the Row Access Policies exist.
-#
-# To switch: create the pro Coverage on each data table
-# (`create_update_coverage(table_id=…, area_id=<br>, is_closed=True, env="prod")`,
-# and set is_closed on its DateTimeRange too), then change these two entries to
-# `PartBdpro(date_column=YearMonth(...), date_format=DateFormat.YEAR_MONTH,
-# free_lag=FreeLag(unit="months", value=6))`. The window then rolls by itself.
+# `part_bdpro` requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+# Coverage on the table, or `assert_coverage_topology` raises before writing
+# anything. Create the pro Coverage with no DateTimeRange — the flow writes both
+# ranges, and a static range on the paid tier would declare it free until then.
 #
 # `dicionario_especie` has no date column, so it takes no coverage spec at all.
 _COVERAGE = {
-    CONCEDIDO: AllFree(
+    table_id: PartBdpro(
         date_column=YearMonth(year="ano", month="mes"),
         date_format=DateFormat.YEAR_MONTH,
-    ),
-    MANTIDO: AllFree(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
+        free_lag=FreeLag(unit="months", value=6),
+    )
+    for table_id in (CONCEDIDO, MANTIDO)
 }
+
+
+def _register_coverage() -> None:
+    """Roll the BD Pro window and reissue the Row Access Policies, both tables.
+
+    Runs for every data table on every prod run with metadata on — not only the
+    ones that got a new competência. It is idempotent (ranges come from the
+    data, `Table.Update` from BigQuery's last-modified time), and it is the only
+    place the paywall is enforced: mantido publishes irregularly and its source
+    currently lists months older than the table, so gating this on a new month
+    would leave its paid window open indefinitely.
+    """
+    for table_id in (CONCEDIDO, MANTIDO):
+        register_table_materialization_task(
+            dataset_id=DATASET_ID,
+            table_id=table_id,
+            coverage=_COVERAGE[table_id],
+            env="prod",
+            bq_project="basedosdados",
+        )
 
 
 def _competencia_to_date(competencia: int) -> str:
@@ -107,8 +117,9 @@ def br_mps_beneficios_flow(
             prod staging bucket and run dbt against ``target="prod"``. Set False
             to exercise only the dev half — required for a safe test run, since
             the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage. Has no effect when ``materialize_to_prod`` is False.
+        update_metadata: On a prod run, roll both tables' coverage and reissue
+            the BD Pro Row Access Policies — also when no table had a new
+            competência. Has no effect when ``materialize_to_prod`` is False.
         force_run: Rebuild even when the poll reports no new competência. The
             reissue guard still applies, so forcing a run on a republished month
             stages nothing.
@@ -175,6 +186,8 @@ def br_mps_beneficios_flow(
 
         if not staged:
             print("no table had a genuinely new competência")
+            if materialize_to_prod and update_metadata:
+                _register_coverage()
             return
 
         # The source Update is committed right after the poll, before the
@@ -236,14 +249,7 @@ def br_mps_beneficios_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table_id in staged:
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table_id,
-                    coverage=_COVERAGE[table_id],
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            _register_coverage()
     finally:
         # Covers the early returns and any exception. A mantidos archive is
         # ~950 MB and the k8s pool gives a fresh pod per run, but a process
