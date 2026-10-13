@@ -16,9 +16,11 @@ rodam via trigger manual do `check_update` até a decisão da PRUV. Os crons
 originais (desativados) seguem documentados em comentário em cada bloco,
 prontos para reativar quando a fonte for restaurada.
 
-`pipelines/crawler/anatel/banda_larga_fixa/flows.py` (`_run_anatel_banda_larga_fixa`,
-o flow monolítico antigo) não é mais usado por este dataset — fica preservado
-como histórico, sem outro consumidor no repositório.
+O flow monolítico antigo (`_run_anatel_banda_larga_fixa`, que vivia em
+`pipelines/crawler/anatel/banda_larga_fixa/flows.py`) não tinha mais
+consumidor no repositório e foi removido nesta limpeza — a lógica de
+check/download/unzip/clean que ele reusava já estava preservada em
+`tasks.py`/`utils.py` deste módulo.
 """
 
 from prefect.schedules import Cron

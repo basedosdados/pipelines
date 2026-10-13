@@ -16,10 +16,10 @@ check_update quanto extract_and_load baixam/descompactam o ZIP e leem os CSVs
 via pandas (ambos pesados, diferente do flow antigo que fazia tudo de uma vez
 só).
 
-`pipelines/crawler/anatel/telefonia_movel/flows.py` (`_run_anatel_telefonia_movel`,
-o flow monolítico antigo) não é mais usado por este dataset — fica preservado
-como histórico, sem outro consumidor no repositório; `tasks.py` deste módulo
-reaproveita as tasks de `pipelines/crawler/anatel/telefonia_movel/tasks.py`.
+O flow monolítico antigo (`_run_anatel_telefonia_movel`, que vivia em
+`pipelines/crawler/anatel/telefonia_movel/flows.py`) não tinha mais
+consumidor após esta migração e foi removido; as tasks daquele módulo foram
+incorporadas a `tasks.py` deste dataset.
 """
 
 from prefect.schedules import Cron

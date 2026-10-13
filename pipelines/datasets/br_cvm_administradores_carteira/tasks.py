@@ -1,5 +1,10 @@
 """Tasks for br_cvm_administradores_carteira — Prefect 3.
 
+`crawl`/`clean_table_*` fazem o download e a limpeza das três tabelas do
+dataset — migrados de `pipelines/crawler/cvm_administradores_carteira/`
+(pasta removida; este módulo é o único consumidor real daquele código desde
+a migração pro pipeline em estágios).
+
 Check diferente do padrão usual: a fonte (URL estática única da CVM, sem
 listagem de diretório nem competência no nome do arquivo) não expõe nenhuma
 data pra comparar. O sinal usado aqui é a **contagem de linhas**: baixa o
@@ -17,16 +22,17 @@ novo.
 """
 
 import datetime
+import os
+import shutil
 from collections.abc import Callable
 
+import pandas as pd
+import requests
 from google.cloud import bigquery
+from pandas.api.types import is_string_dtype
+from prefect import task
+from unidecode import unidecode
 
-from pipelines.crawler.cvm_administradores_carteira.tasks import (
-    clean_table_pessoa_fisica,
-    clean_table_pessoa_juridica,
-    clean_table_responsavel,
-    crawl,
-)
 from pipelines.datasets.br_cvm_administradores_carteira.constants import (
     DATASET_ID,
     PESSOA_FISICA_COVERAGE,
@@ -46,6 +52,152 @@ _BQ_PROJECT = "basedosdados"
 
 # Sentinela sempre mais antigo que qualquer `Table.Update.latest` real.
 _NO_NEW_DATA_DATE = datetime.date(2000, 1, 1)
+
+_CRAWL_ROOT = "/tmp/data_cvm_adm_cart"
+_CRAWL_URL = (
+    "http://dados.cvm.gov.br/dados/ADM_CART/CAD/DADOS/cad_adm_cart.zip"
+)
+
+
+@task(retries=2, retry_delay_seconds=30)
+def crawl(
+    root: str = _CRAWL_ROOT, url: str = _CRAWL_URL, chunk_size: int = 128
+) -> None:
+    """Download and unzip dataset br_cvm_administradores_carteira."""
+    filepath = f"{root}/data.zip"
+    os.makedirs(root, exist_ok=True)
+    os.makedirs(f"{root}/cleaned", exist_ok=True)
+
+    response = requests.get(url, timeout=300)
+
+    with open(filepath, "wb") as file:
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            file.write(chunk)
+
+    shutil.unpack_archive(filepath, extract_dir=root)
+
+
+@task
+def clean_table_responsavel(root: str = _CRAWL_ROOT) -> str:
+    in_filepath = f"{root}/cad_adm_cart_resp.csv"
+    ou_filepath = f"{root}/cleaned/bd_responsavel.csv"
+
+    dataframe = pd.read_csv(
+        in_filepath,
+        sep=";",
+        na_values="",
+        keep_default_na=False,
+        encoding="latin1",
+        dtype=object,
+    )
+
+    dataframe.columns = ["cnpj", "nome", "tipo"]
+    dataframe["cnpj"] = (
+        dataframe["cnpj"]
+        .str.replace(".", "", regex=False)
+        .str.replace("/", "", regex=False)
+        .str.replace("-", "", regex=False)
+    )
+
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
+
+    dataframe.to_csv(ou_filepath, index=False, encoding="utf-8")
+    return ou_filepath
+
+
+@task
+def clean_table_pessoa_fisica(root: str = _CRAWL_ROOT) -> str:
+    in_filepath = f"{root}/cad_adm_cart_pf.csv"
+    ou_filepath = f"{root}/cleaned/bd_pessoa_fisica.csv"
+
+    dataframe = pd.read_csv(
+        in_filepath,
+        sep=";",
+        keep_default_na=False,
+        encoding="latin1",
+        dtype=object,
+    )
+
+    dataframe.columns = [
+        "nome",
+        "data_registro",
+        "data_cancelamento",
+        "motivo_cancelamento",
+        "situacao",
+        "data_inicio_situacao",
+        "categoria_registro",
+    ]
+
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
+
+    dataframe.to_csv(ou_filepath, index=False)
+    return ou_filepath
+
+
+@task
+def clean_table_pessoa_juridica(root: str = _CRAWL_ROOT) -> str:
+    in_filepath = f"{root}/cad_adm_cart_pj.csv"
+    ou_filepath = f"{root}/cleaned/bd_pessoa_juridica.csv"
+
+    dataframe = pd.read_csv(
+        in_filepath,
+        sep=";",
+        keep_default_na=False,
+        encoding="latin1",
+        dtype=object,
+    )
+
+    dataframe.columns = [
+        "cnpj",
+        "denominacao_social",
+        "denominacao_comercial",
+        "data_registro",
+        "data_cancelamento",
+        "motivo_cancelamento",
+        "situacao",
+        "data_inicio_situacao",
+        "categoria_registro",
+        "subcategoria_registro",
+        "controle_acionario",
+        "tipo_endereco",
+        "logradouro",
+        "complemento",
+        "bairro",
+        "municipio",
+        "sigla_uf",
+        "cep",
+        "ddd",
+        "telefone",
+        "valor_patrimonial_liquido",
+        "data_patrimonio_liquido",
+        "email",
+        "website",
+    ]
+
+    dataframe["cnpj"] = (
+        dataframe["cnpj"]
+        .str.replace(".", "", regex=False)
+        .str.replace("/", "", regex=False)
+        .str.replace("-", "", regex=False)
+    )
+
+    for col in dataframe.columns:
+        if is_string_dtype(dataframe[col]):
+            dataframe[col] = dataframe[col].apply(
+                lambda x: unidecode(x) if isinstance(x, str) else x
+            )
+
+    dataframe.to_csv(ou_filepath, index=False)
+    return ou_filepath
+
 
 _CLEANERS = {
     RESPONSAVEL_TABLE_ID: clean_table_responsavel,

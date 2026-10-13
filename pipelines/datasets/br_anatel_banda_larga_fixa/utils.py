@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from pipelines.crawler.anatel.banda_larga_fixa.constants import (
+from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
 from pipelines.utils.utils import log, to_partitions

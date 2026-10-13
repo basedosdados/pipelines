@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 from unidecode import unidecode
 
-from pipelines.crawler.cvm.constants import constants as cvm_constants
+from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.utils.utils import log, to_partitions
 
 # Define configuration for each table type

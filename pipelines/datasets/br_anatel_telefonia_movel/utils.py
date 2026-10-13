@@ -10,7 +10,7 @@ from zipfile import ZipFile
 import pandas as pd
 import requests
 
-from pipelines.crawler.anatel.telefonia_movel.constants import (
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.utils.utils import log, to_partitions

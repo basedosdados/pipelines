@@ -12,9 +12,10 @@ Check diferente do padrão usual — ver `tasks.py` e
 única da CVM, sem nenhuma data exposta pra comparar. O check baixa o ZIP e
 compara a contagem de linhas contra o que já está publicado no BigQuery.
 
-O antigo `_run_cvm_administradores_carteira` monolítico segue existindo em
-`pipelines/crawler/cvm_administradores_carteira/flows.py` — não removido
-daqui, sem outro consumidor hoje, mas fora do escopo desta migração.
+O antigo flow monolítico `_run_cvm_administradores_carteira` (e a pasta
+`pipelines/crawler/cvm_administradores_carteira/` como um todo) foi
+removido: estava obsoleto desde esta migração pro pipeline em estágios e
+não tinha mais nenhum consumidor.
 """
 
 from prefect.schedules import Cron

@@ -7,7 +7,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from tqdm import tqdm
 
-from pipelines.crawler.rf.constants import constants as br_rf_cosnstants
+from pipelines.datasets.br_rf_cno.constants import (
+    constants as br_rf_cosnstants,
+)
 from pipelines.utils.utils import brasil_proxy_url, log
 
 _BROWSER_HEADERS = {

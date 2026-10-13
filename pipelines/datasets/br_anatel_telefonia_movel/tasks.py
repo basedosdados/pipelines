@@ -1,33 +1,142 @@
 """
-Tasks for br_anatel_telefonia_movel.
+Tasks for dataset br_anatel_telefonia_movel
 """
 
+import os
 from collections.abc import Callable
 
-from pipelines.crawler.anatel.telefonia_movel.tasks import (
-    get_max_date_in_table_microdados,
-    get_semester,
-    get_year_full,
-    join_tables_in_function,
-    unzip,
-)
+import pandas as pd
+from prefect import task
+
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     COVERAGE,
     DATASET_ID,
+)
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    constants as anatel_constants,
+)
+from pipelines.datasets.br_anatel_telefonia_movel.utils import (
+    clean_csv_brasil,
+    clean_csv_microdados,
+    clean_csv_municipio,
+    clean_csv_uf,
+    get_year,
+    normalize_label,
+    unzip_file,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
     pipeline_factory,
 )
+from pipelines.utils.utils import log
+
+
+@task(retries=5, retry_delay_seconds=10)
+def join_tables_in_function(table_id, semestre, ano):
+    # pyrefly: ignore [deprecated]
+    os.system(
+        f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
+    )
+    if table_id == "microdados":
+        clean_csv_microdados(ano=ano, semestre=semestre, table_id=table_id)
+
+    elif table_id == "densidade_brasil":
+        clean_csv_brasil(table_id=table_id)
+
+    elif table_id == "densidade_uf":
+        clean_csv_uf(table_id=table_id)
+
+    elif table_id == "densidade_municipio":
+        clean_csv_municipio(table_id=table_id)
+
+    return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
+
+
+@task(retries=5, retry_delay_seconds=10)
+def get_max_date_in_table_microdados(table_id, ano, semestre):
+    if table_id == "microdados":
+        log(
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv"
+        )
+        df = pd.read_csv(
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
+            sep=";",
+            encoding="utf-8",
+            dtype=str,
+        )
+        df["data"] = df["Ano"] + "-" + df["Mês"]
+
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
+
+        return df["data"].max()
+
+    else:
+        log(
+            f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv"
+        )
+
+        df = pd.read_csv(
+            f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
+            sep=";",
+            encoding="utf-8",
+            dtype=str,
+        )
+
+        table_level = {
+            "densidade_brasil": "Brasil",
+            "densidade_uf": "UF",
+            "densidade_municipio": "Municipio",
+        }
+
+        level = table_level[table_id]
+
+        geography = df["Nível Geográfico Densidade"]
+
+        df = df[
+            geography.map(normalize_label) == normalize_label(level)
+        ].copy()
+
+        df["data"] = df["Ano"] + "-" + df["Mês"]
+
+        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
+
+        return df["data"].max()
+
+
+@task(retries=5, retry_delay_seconds=10)
+def unzip():
+    return unzip_file()
+
+
+@task
+def get_year_full(year):
+    log("Obtendo o ano...")
+    if year is None:
+        return get_year()
+
+
+@task
+def get_semester(semester):
+    log("Obtendo o semestre...")
+    ano = get_year()
+    if semester is None:
+        if os.path.exists(
+            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_2S.csv"
+        ):
+            log("Segundo semestre")
+            return 2
+        else:
+            log("Primeiro semestre")
+            return 1
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 4 tabelas — ver constants.py
 #
-# As 4 compartilham o mesmo ZIP de origem (`unzip`, de
-# `pipelines/crawler/anatel/telefonia_movel/`) e a mesma resolução de
-# ano/semestre (`get_year_full`/`get_semester`, que inspecionam os arquivos
-# já descompactados em disco) — só `get_max_date_in_table_microdados`/
+# As 4 compartilham o mesmo ZIP de origem (`unzip`, definida acima) e a mesma
+# resolução de ano/semestre (`get_year_full`/`get_semester`, que inspecionam
+# os arquivos já descompactados em disco) — só `get_max_date_in_table_microdados`/
 # `join_tables_in_function` variam o que cada chamada lê/extrai do CSV por
 # `table_id` (microdados lê `Acessos_Telefonia_Movel_<ano>_<semestre>S.csv`;
 # as 3 densidades leem o mesmo `Densidade_Telefonia_Movel.csv`, filtrado por
