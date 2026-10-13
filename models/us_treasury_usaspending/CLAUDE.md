@@ -2,10 +2,13 @@
 
 USAspending.gov federal award transactions — every US federal contract and financial
 assistance action, published under the DATA Act of 2014. Public domain (CC0).
-225,131,794 rows across FY2007–FY2026 at onboarding. The source rebuilds its bulk
-archive **monthly**, so only the open fiscal year is refreshed; earlier years are frozen
-and never re-downloaded. Staging upload is `append` (the run adds the current fiscal
-year's partition), source format `parquet`.
+225,131,163 transaction rows across FY2007–FY2026 at onboarding. The source rebuilds its bulk
+archive **monthly**, so only the open fiscal year is refreshed, plus the year that just
+closed from October through December; earlier years are frozen and never re-downloaded.
+A new fiscal year is absent from the archive until the next monthly build, so the flow
+skips years it does not list yet. Staging upload is `append`, source format `parquet`;
+the flow deletes a refreshed year's staging objects first, because the file names carry
+the build stamp and a new build would otherwise sit beside the old one.
 
 ## Refresh cadence
 - `20 17 8,9,10,11,12 * *` — 17:20 America/Sao_Paulo, days 8–12 monthly

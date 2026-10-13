@@ -2,14 +2,61 @@
 
 from pathlib import Path
 
+import basedosdados as bd
 from prefect import task
 
 from pipelines.datasets.us_treasury_usaspending.constants import constants
 from pipelines.datasets.us_treasury_usaspending.utils import (
     clean_archive,
     download_archive,
+    is_archived,
     latest_stamp,
 )
+
+
+@task(retries=3, retry_delay_seconds=120)
+def get_archived_fiscal_years(candidates: list[int]) -> list[int]:
+    """The subset of ``candidates`` the archive already lists, in order.
+
+    Raises if none is listed, since then there is nothing to refresh and the
+    source has most likely changed shape.
+    """
+    listed = [fy for fy in candidates if is_archived(fy)]
+    if not listed:
+        raise RuntimeError(f"no archive files listed for any of {candidates}")
+    return listed
+
+
+@task(retries=3, retry_delay_seconds=30)
+def clear_staging_fiscal_year(
+    bucket_name: str, table_id: str, fiscal_year: int
+) -> int:
+    """Delete one fiscal year's staging parquet before it is re-uploaded.
+
+    Staging uses ``dump_mode="append"``, and each parquet is named after its
+    archive, which carries the build stamp
+    (``FY2026_All_Contracts_Full_20260806.parquet``). Without this, next month's
+    build would land beside the old file and every row of the year would be
+    counted twice.
+
+    Returns:
+        The number of objects deleted.
+    """
+    st = bd.Storage(
+        dataset_id=constants.DATASET_ID.value,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    )
+    prefix = (
+        f"staging/{constants.DATASET_ID.value}/{table_id}/"
+        f"{constants.PARTITION_COLUMN.value}={fiscal_year}/"
+    )
+    blobs = list(st.bucket.list_blobs(prefix=prefix))
+    for blob in blobs:
+        blob.delete()
+    print(f"removed {len(blobs)} object(s) under gs://{bucket_name}/{prefix}")
+    return len(blobs)
 
 
 @task(retries=3, retry_delay_seconds=120)

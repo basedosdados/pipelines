@@ -5,17 +5,19 @@ USAspending.gov Award Data Archive: every federal contract and financial
 assistance transaction, one zip per fiscal year per award family, rebuilt
 monthly by the source.
 
-**Only the current fiscal year is refreshed.** Closed fiscal years are frozen
-once loaded — the archive still republishes them, but their content no longer
-changes materially, and re-downloading ~50 GB every month to detect that would
-be waste. The current year's partition is replaced wholesale on each run, so
-late corrections to open-year records are picked up.
+**Only the open fiscal year is refreshed** — plus, from October through
+December, the year that just closed, which still takes late reports. Older
+years are frozen once loaded: the archive still republishes them, but their
+content no longer changes materially, and re-downloading ~50 GB every month to
+detect that would be waste. A refreshed year's partition is replaced wholesale,
+so late corrections are picked up.
 
 Staging upload therefore uses ``dump_mode="append"``, not ``"overwrite"``:
 overwrite drops the whole staging table, which would delete the frozen
-historical partitions this flow does not re-upload. Each fiscal year writes a
-single deterministically-named parquet object, so re-uploading the current year
-replaces exactly that object.
+historical partitions this flow does not re-upload. Because each parquet is
+named after its archive, and the archive name carries the build stamp, the flow
+deletes a refreshed year's staging objects before uploading it; otherwise each
+new build would add a second copy of the year.
 
 **Cost note.** The dbt models are ``materialized="table"``, so every run
 rebuilds the full ~250M-row tables from staging. That is correct and simple but
@@ -35,6 +37,8 @@ from prefect.schedules import Cron
 
 from pipelines.datasets.us_treasury_usaspending.constants import constants
 from pipelines.datasets.us_treasury_usaspending.tasks import (
+    clear_staging_fiscal_year,
+    get_archived_fiscal_years,
     get_latest_stamp,
     refresh_fiscal_year,
 )
@@ -89,6 +93,19 @@ def current_fiscal_year(today: date | None = None) -> int:
     return today.year + 1 if today.month >= 10 else today.year
 
 
+def default_fiscal_years(today: date | None = None) -> list[int]:
+    """Fiscal years a scheduled run should refresh, oldest first.
+
+    The current one always. From October through December also the one that
+    just closed: agencies keep reporting and correcting its last months for
+    weeks after September 30, and the new year is not in the archive until the
+    next monthly build anyway.
+    """
+    today = today or date.today()
+    fy = current_fiscal_year(today)
+    return [fy - 1, fy] if today.month >= 10 else [fy]
+
+
 @flow(name="us_treasury_usaspending", log_prints=True)
 def us_treasury_usaspending_flow(
     materialize_to_prod: bool = True,
@@ -108,14 +125,18 @@ def us_treasury_usaspending_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new archive
             build.
-        fiscal_year: Fiscal year to refresh. Defaults to the current one; pass
-            an explicit year to backfill or repair a closed year.
+        fiscal_year: Fiscal year to refresh. Defaults to
+            :func:`default_fiscal_years`, minus any year the archive does not
+            list yet; pass an explicit year to backfill or repair a closed one.
     """
-    target_fy = fiscal_year or current_fiscal_year()
+    target_fys = get_archived_fiscal_years(
+        [fiscal_year] if fiscal_year else default_fiscal_years()
+    )
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=f"FY{target_fy}"
+        prefix="Dump: ",
+        dataset_id=DATASET_ID,
+        table_id="+".join(f"FY{fy}" for fy in target_fys),
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_treasury_usaspending_")
@@ -124,7 +145,7 @@ def us_treasury_usaspending_flow(
         # date rather than a coverage date, which is the honest reading here:
         # each build is a full snapshot current as of that day, and the source
         # exposes no cheaper coverage marker than downloading the files.
-        stamp_iso = get_latest_stamp(fiscal_year=target_fy)
+        stamp_iso = get_latest_stamp(fiscal_year=target_fys[-1])
 
         has_new_data = poll_source_for_update_task(
             dataset_id=DATASET_ID,
@@ -137,10 +158,16 @@ def us_treasury_usaspending_flow(
         if not has_new_data and not force_run:
             return
 
-        result = refresh_fiscal_year(
-            work_dir=work_dir, fiscal_year=target_fy, stamp_iso=stamp_iso
-        )
-        print(f"row counts: {result['row_counts']}")
+        # Every year cleans into the same partitioned output directory, so the
+        # last result's table paths cover all of them.
+        result: dict = {}
+        row_counts: dict = {}
+        for fy in target_fys:
+            result = refresh_fiscal_year(
+                work_dir=work_dir, fiscal_year=fy, stamp_iso=stamp_iso
+            )
+            row_counts.update(result["row_counts"])
+        print(f"row counts: {row_counts}")
 
         # The dev materialization is the pre-arm validation path, not part of a
         # production run: it rebuilds and re-tests every table in
@@ -153,6 +180,12 @@ def us_treasury_usaspending_flow(
             # references the dicionario model), so interleaving run and test per
             # table fails on the first table in a clean environment.
             for table in REFRESHED_TABLES:
+                for fy in target_fys:
+                    clear_staging_fiscal_year(
+                        bucket_name="basedosdados-dev",
+                        table_id=table,
+                        fiscal_year=fy,
+                    )
                 upload_to_gcs(
                     data_path=result[table],
                     dataset_id=DATASET_ID,
@@ -177,6 +210,10 @@ def us_treasury_usaspending_flow(
             return
 
         for table in REFRESHED_TABLES:
+            for fy in target_fys:
+                clear_staging_fiscal_year(
+                    bucket_name="basedosdados", table_id=table, fiscal_year=fy
+                )
             upload_to_gcs(
                 data_path=result[table],
                 dataset_id=DATASET_ID,

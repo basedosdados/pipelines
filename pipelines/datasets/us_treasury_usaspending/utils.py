@@ -96,6 +96,20 @@ def latest_stamp(fiscal_year: int, family: str = "Assistance") -> str:
     raise RuntimeError(f"no archive file listed for FY{fiscal_year} {family}")
 
 
+def is_archived(fiscal_year: int) -> bool:
+    """Whether the archive lists files for ``fiscal_year`` yet.
+
+    A new fiscal year opens on October 1 but appears in the archive only with
+    the next monthly build, so for the first weeks of each year the current
+    fiscal year is not there. HTTP errors still raise.
+    """
+    try:
+        latest_stamp(fiscal_year)
+    except RuntimeError:
+        return False
+    return True
+
+
 def archive_name(fiscal_year: int, family: str, stamp: str) -> str:
     return f"FY{fiscal_year}_All_{family}_Full_{stamp}.zip"
 
