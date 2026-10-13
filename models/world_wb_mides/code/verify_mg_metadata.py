@@ -21,12 +21,14 @@ table and takes 80+ seconds on this dataset -- past the client's own timeout.
 
 from __future__ import annotations
 
+import argparse
+
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 
 import models.world_wb_mides.code.mg_table_glossary as tables
 import models.world_wb_mides.code.register_mg_metadata as reg
 
-ENV = "staging"
+ENV = "staging"  # set from `--env` in main()
 DATASET_ID = reg.DATASET_ID
 EXPECTED_END_YEAR = reg.END_YEAR
 
@@ -54,6 +56,19 @@ COLUMN_QUERY = """query($id: ID!) {
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--env",
+        default="staging",
+        choices=["dev", "staging", "prod"],
+        help="backend to read (default: staging)",
+    )
+    args = parser.parse_args()
+
+    global ENV
+    ENV = args.env
+    print(f"verifying against {ENV}")
+
     # The MG models now sit beside the 9 original multi-state ones in
     # `models/world_wb_mides/`, so the glossary -- not a directory listing --
     # is what names this set of 43.
