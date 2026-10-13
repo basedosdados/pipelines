@@ -25,14 +25,12 @@ Usage (from the repo root):
 import argparse
 import datetime as dt
 import json
-import sys
-from pathlib import Path
+from typing import Any
 
 import databasis_mcp.tools.metadata as bd_meta
 import databasis_mcp.tools.write as bd_write
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_metadata import columns
+from models.us_ucla_voteview.code.build_metadata import columns
 
 DATASET_SLUG = "voteview"
 GCP_DATASET_ID = "us_ucla_voteview"
@@ -405,7 +403,7 @@ def main() -> None:
             .get("tables", {})
             .get(table, {})
         )
-        common = {
+        common: dict[str, Any] = {
             "slug": table,
             **{
                 k: spec[k]

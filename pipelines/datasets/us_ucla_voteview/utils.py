@@ -76,12 +76,17 @@ def read_source(path: Path) -> pa.Table:
 
 
 def normalise(tbl: pa.Table) -> pa.Table:
-    """Strip whitespace, and turn "100.0" into "100" in integer-valued columns."""
+    """Strip whitespace, and turn "100.0" into "100" in integer-valued columns.
+
+    pyarrow.compute's functions are generated at runtime, so Pyrefly cannot see
+    them; the ``pyrefly: ignore`` markers on ``pc.*`` calls follow the repo
+    convention.
+    """
     for i, name in enumerate(tbl.column_names):
-        c = pc.utf8_trim_whitespace(tbl.column(i))
-        c = pc.if_else(pc.equal(c, ""), pa.scalar(None, pa.string()), c)
+        c = pc.utf8_trim_whitespace(tbl.column(i))  # pyrefly: ignore [missing-attribute]
+        c = pc.if_else(pc.equal(c, ""), pa.scalar(None, pa.string()), c)  # pyrefly: ignore [missing-attribute]
         if name in constants.INTEGER_LIKE.value:
-            c = pc.replace_substring_regex(c, r"^(-?\d+)\.0+$", r"\1")
+            c = pc.replace_substring_regex(c, r"^(-?\d+)\.0+$", r"\1")  # pyrefly: ignore [missing-attribute]
         tbl = tbl.set_column(i, name, c)
     return tbl
 
@@ -94,7 +99,7 @@ def add_vote_date(votes: pa.Table, rollcalls: pa.Table) -> pa.Table:
     """
     dates = rollcalls.select([*KEY, "date"])
     out = votes.join(dates, keys=KEY, join_type="left outer")
-    missing = out.num_rows - pc.count(out["date"]).as_py()
+    missing = out.num_rows - pc.count(out["date"]).as_py()  # pyrefly: ignore [missing-attribute]
     if out.num_rows != votes.num_rows or missing:
         raise ValueError(
             f"votes date join: {votes.num_rows:,} rows in, {out.num_rows:,} out, "
@@ -174,10 +179,10 @@ def write_table(tbl: pa.Table, table: str, output_dir: Path) -> int:
         keys = tbl[part]
         rest = tbl.drop_columns([part])
         rows = 0
-        for value in sorted(pc.unique(keys).to_pylist(), key=int):
+        for value in sorted(pc.unique(keys).to_pylist(), key=int):  # pyrefly: ignore [missing-attribute]
             pdir = tdir / f"{part}={value}"
             pdir.mkdir()
-            sub = rest.filter(pc.equal(keys, value))
+            sub = rest.filter(pc.equal(keys, value))  # pyrefly: ignore [missing-attribute]
             if table == "votes":
                 sub = drop_exact_duplicates(
                     sub,
@@ -240,6 +245,6 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
         "dictionary",
         output_dir,
     )
-    max_date = pc.max(src["rollcalls"]["date"]).as_py()
+    max_date = pc.max(src["rollcalls"]["date"]).as_py()  # pyrefly: ignore [missing-attribute]
     log.info(f"latest roll call: {max_date}")
     return {"rows": rows, "max_date": max_date}

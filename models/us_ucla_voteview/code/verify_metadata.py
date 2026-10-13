@@ -16,8 +16,11 @@ from pathlib import Path
 import databasis_mcp.tools.metadata as bd_meta
 
 ARCH = Path(__file__).resolve().parent / "architecture"
-sys.path.insert(0, str(ARCH.parent))
-from register_metadata import DATASET_SLUG, PARTITIONS, TABLES  # noqa: E402
+from models.us_ucla_voteview.code.register_metadata import (  # noqa: E402
+    DATASET_SLUG,
+    PARTITIONS,
+    TABLES,
+)
 
 Q = """
 query($id: ID) { allTable(id: $id) { edges { node { slug status { slug }
