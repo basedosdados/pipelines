@@ -361,8 +361,8 @@ grew past 4Gi is failing for this reason and not for the reason its logs suggest
 Verify rather than trusting the number you wrote:
 
 ```bash
-uv run python -c "import sys; sys.path.insert(0,'<mcp>'); import server; \
-print(list(server._prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
+uv run python -c "from databasis_mcp.tools.prefect import _prefect_get; \
+print(list(_prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
 ```
 
 **Pick a minute nobody else is using — never `0`.** The hour follows the source's

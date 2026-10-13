@@ -1,6 +1,6 @@
 """Upload cleaned cl_chilecompra_mercado_publico parquet to BigQuery staging.
 
-    uv run python models/cl_chilecompra_mercado_publico/code/upload.py [--env dev] [table ...]
+    uv run models/cl_chilecompra_mercado_publico/code/upload.py [--env dev] [table ...]
 
 Point GOOGLE_APPLICATION_CREDENTIALS at the matching service account; this machine's
 config.toml is provisioned for dev only. Prod table data is materialised by the

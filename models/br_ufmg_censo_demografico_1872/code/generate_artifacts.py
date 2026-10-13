@@ -11,7 +11,7 @@ Writes:
   ../br_ufmg_censo_demografico_1872__<table_slug>.sql
   ../schema.yml
 
-Run:  uv run python models/br_ufmg_censo_demografico_1872/code/generate_artifacts.py
+Run:  uv run models/br_ufmg_censo_demografico_1872/code/generate_artifacts.py
 """
 
 from __future__ import annotations

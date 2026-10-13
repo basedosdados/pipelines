@@ -4,7 +4,7 @@ Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they are supposed to
 implement.
 
-Run: uv run python models/us_nih_reporter/code/gen_dbt.py
+Run: uv run models/us_nih_reporter/code/gen_dbt.py
 """
 
 from models.us_nih_reporter.code.common import (

@@ -10,8 +10,8 @@ Round tables are one-row-per-respondent survey microdata: unpartitioned, with
 original variable codes as columns and value labels held in `dicionario`.
 
 Usage:
-    .venv/bin/python models/af_afrobarometer_survey/code/build_dbt_files.py profile
-    .venv/bin/python models/af_afrobarometer_survey/code/build_dbt_files.py generate
+    uv run models/af_afrobarometer_survey/code/build_dbt_files.py profile
+    uv run models/af_afrobarometer_survey/code/build_dbt_files.py generate
 """
 
 from __future__ import annotations

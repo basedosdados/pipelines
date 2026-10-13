@@ -1,0 +1,7 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+keyword_id,STRING,Identificador da palavra-chave no OpenAlex,OpenAlex identifier of the keyword,Identificador de la palabra clave en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: machine-learning),Stored without the URL prefix (e.g. machine-learning),"Almacenado sin el prefijo de URL (p. ej., machine-learning)",id
+display_name,STRING,Palavra-chave,Keyword,Palabra clave,,no,,,no,,,,display_name
+works_count,INT64,Número de trabalhos associados,Number of associated works,Número de trabajos asociados,,no,,work,no,,,,works_count
+cited_by_count,INT64,Número de citações recebidas,Number of citations received,Número de citas recibidas,,no,,citation,no,,,,cited_by_count
+created_date,DATE,Data de criação do registro no OpenAlex,Date the record was created in OpenAlex,Fecha de creación del registro en OpenAlex,,no,,,no,,,,created_date
+updated_date,DATE,Data da última alteração do registro no OpenAlex,Date the record was last changed in OpenAlex,Fecha de la última modificación del registro en OpenAlex,,no,,,no,,,,updated_date

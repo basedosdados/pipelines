@@ -17,7 +17,13 @@ with
     sia_add_municipios as (
         -- Adicionar id_municipio de 7 dígitos
         select
-            psicossocial.*,
+            -- Normaliza o formato dos CIDs (ex.: 'f99' -> 'F99'). Códigos fora de
+            -- br_bd_diretorios_brasil.cid_10 NÃO são nulificados: o teste de
+            -- relacionamento no schema.yml deve acusá-los.
+            psicossocial.* replace (
+                upper(trim(psicossocial.cidpri)) as cidpri,
+                upper(trim(psicossocial.cidassoc)) as cidassoc
+            ),
             mun.id_municipio as id_municipio_executante,
             mun_res.id_municipio as id_municipio_residencia
         from
@@ -101,18 +107,20 @@ select
     safe_cast(
         trim(
             case
+                when length(trim(cidpri)) = 4 and cidpri != '0000'
+                then cidpri
                 when
-                    length(trim(cidpri)) between 3 and 4
+                    length(trim(cidpri)) = 3
                     and cidpri in (
                         select subcategoria
                         from `basedosdados.br_bd_diretorios_brasil.cid_10`
-                        where length(subcategoria) between 3 and 4
+                        where length(subcategoria) = 3
                     )
                 then cidpri
                 else null
             end
         ) as string
-    ) as cid_principal_subcategoria,
+    ) as cid_principal_subcategoria
     safe_cast(
         trim(case when length(trim(cidassoc)) = 3 then cidassoc else null end) as string
     ) as cid_causas_associadas_categoria,

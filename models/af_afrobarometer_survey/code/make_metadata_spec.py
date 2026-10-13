@@ -4,7 +4,7 @@
 computed from profile_cache.json + common.ROUNDS. English-source descriptions,
 translated to PT/ES with consistent terminology.
 
-Usage: .venv/bin/python models/af_afrobarometer_survey/code/make_metadata_spec.py
+Usage: uv run models/af_afrobarometer_survey/code/make_metadata_spec.py
 """
 
 from __future__ import annotations

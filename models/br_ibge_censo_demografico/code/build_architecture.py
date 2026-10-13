@@ -1,7 +1,7 @@
 """Parse the IBGE public layout into architecture CSVs and a dicionario.
 
 Usage:
-    uv run python models/br_ibge_censo_demografico/code/build_architecture.py
+    uv run models/br_ibge_censo_demografico/code/build_architecture.py
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Upload cleaned us_treasury_fiscaldata parquet tables to BigQuery staging.
 
 Usage:
-    uv run python models/us_treasury_fiscaldata/code/upload.py [--env dev|prod] [table ...]
+    uv run models/us_treasury_fiscaldata/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Uploads
 sequentially (smallest first) and stops on first failure. Scratch data root is

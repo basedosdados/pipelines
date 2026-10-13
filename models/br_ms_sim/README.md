@@ -292,7 +292,7 @@ Após confirmar no `.dbc` que 2022 tinha `CONTADOR` e `DTOBITO` preenchidos, rep
 
 ```bash
 # YEAR_RANGE = [2022] em pipeline.py
-uv run python pipeline.py
+uv run pipeline.py
 
 cd ~/pipelines
 uv run dbt run --select br_ms_sim__microdados

@@ -10,22 +10,16 @@ create_update_* tools duplicate silently when no id is supplied.
 
 Usage::
 
-    PYTHONPATH=. python models/au_nsw_nswec_elections/code/register_metadata.py
+    PYTHONPATH=. uv run models/au_nsw_nswec_elections/code/register_metadata.py
 """
 
 from __future__ import annotations
 
 import json
 import pathlib
-import sys
 
-MCP = (
-    pathlib.Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(MCP))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ENV = "staging"
 DATASET_SLUG = "nsw_elections"
@@ -164,7 +158,7 @@ def log(message: str) -> None:
 
 def main() -> int:
     tables_meta = json.loads((META / "tables.json").read_text())
-    existing = call(server.get_dataset, slug=DATASET_SLUG, env=ENV)
+    existing = call(bd_mcp_metadata.get_dataset, slug=DATASET_SLUG, env=ENV)
     known = existing.get("tables", {}) or {}
     table_ids: dict[str, str] = {}
 
@@ -172,7 +166,7 @@ def main() -> int:
         meta = tables_meta[table]
         prior = known.get(table) or {}
         table_id = call(
-            server.create_update_table,
+            bd_mcp_write.create_update_table,
             slug=table,
             name_pt=meta["name_pt"],
             name_en=meta["name_en"],
@@ -193,14 +187,14 @@ def main() -> int:
         ol_ids: dict[str, str] = {}
         for entity_slug, _column in OBSERVATION_LEVELS[table]:
             ol_ids[entity_slug] = call(
-                server.create_update_observation_level,
+                bd_mcp_write.create_update_observation_level,
                 table_id=table_id,
                 entity_id=ENTITY[entity_slug],
                 env=ENV,
             )["id"]
         if ol_ids:
             call(
-                server.reorder_observation_levels,
+                bd_mcp_write.reorder_observation_levels,
                 table_id=table_id,
                 ol_ids=[ol_ids[e] for e, _ in OBSERVATION_LEVELS[table]],
                 env=ENV,
@@ -208,7 +202,7 @@ def main() -> int:
 
         payload = (META / f"{table}.json").read_text()
         result = call(
-            server.bulk_upsert_columns,
+            bd_mcp_write.bulk_upsert_columns,
             table_id=table_id,
             columns_json=payload,
             env=ENV,
@@ -220,14 +214,14 @@ def main() -> int:
         # default to False, so is_partition has to be re-passed for year or the
         # bulk upsert's value is clobbered.
         column_ids = {
-            c["name"]: server._strip_id(c["id"])
-            for c in server._fetch_table_columns(table_id, ENV)
+            c["name"]: bd_mcp_metadata._strip_id(c["id"])
+            for c in bd_mcp_write._fetch_table_columns(table_id, ENV)
         }
         for entity_slug, column_name in OBSERVATION_LEVELS[table]:
             if column_name is None or column_name not in column_ids:
                 continue
             call(
-                server.update_column,
+                bd_mcp_write.update_column,
                 column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -239,7 +233,7 @@ def main() -> int:
             year_id = column_ids.get("year")
             if year_id:
                 call(
-                    server.update_column,
+                    bd_mcp_write.update_column,
                     column_id=year_id,
                     column_name="year",
                     table_id=table_id,
@@ -249,7 +243,7 @@ def main() -> int:
                 )
 
         call(
-            server.create_update_cloud_table,
+            bd_mcp_write.create_update_cloud_table,
             table_id=table_id,
             gcp_project_id=GCP_PROJECT,
             gcp_dataset_id=GCP_DATASET,
@@ -257,14 +251,14 @@ def main() -> int:
             env=ENV,
         )
         coverage_id = call(
-            server.create_update_coverage,
+            bd_mcp_write.create_update_coverage,
             table_id=table_id,
             area_id=AREA_AU_NSW,
             env=ENV,
         )["id"]
         start, end = COVERAGE[table]
         call(
-            server.create_update_datetime_range,
+            bd_mcp_write.create_update_datetime_range,
             coverage_id=coverage_id,
             start_year=start,
             end_year=end,
@@ -272,7 +266,7 @@ def main() -> int:
             env=ENV,
         )
         call(
-            server.create_update_update,
+            bd_mcp_write.create_update_update,
             entity_id=ENTITY["year"],
             frequency=4,
             latest=LAST_REFRESHED,
@@ -285,7 +279,7 @@ def main() -> int:
     for table in TABLE_ORDER:
         meta = tables_meta[table]
         call(
-            server.create_update_table,
+            bd_mcp_write.create_update_table,
             slug=table,
             name_pt=meta["name_pt"],
             name_en=meta["name_en"],
@@ -304,7 +298,7 @@ def main() -> int:
         log(f"  linked {len(TABLE_SOURCES[table])} raw sources to {table}")
 
     call(
-        server.reorder_tables,
+        bd_mcp_write.reorder_tables,
         dataset_slug=DATASET_SLUG,
         table_slugs=TABLE_ORDER,
         env=ENV,

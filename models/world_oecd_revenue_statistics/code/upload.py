@@ -1,7 +1,7 @@
 """Upload cleaned world_oecd_revenue_statistics parquet tables to BigQuery.
 
 Usage:
-    uv run python models/world_oecd_revenue_statistics/code/upload.py [--env dev|prod] [table ...]
+    uv run models/world_oecd_revenue_statistics/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Uploads
 smallest first, verifies the staging row count against the parquet, stops on first

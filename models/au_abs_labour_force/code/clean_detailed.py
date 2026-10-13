@@ -18,7 +18,7 @@ classification-code map is asserted to cover the observed labels, so a silent
 change in the source fails the run instead of producing NULLs.
 
 Usage:
-    uv run python models/au_abs_labour_force/code/clean_detailed.py [table ...]
+    uv run models/au_abs_labour_force/code/clean_detailed.py [table ...]
 """
 
 import csv

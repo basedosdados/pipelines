@@ -1,6 +1,6 @@
 """Clean every FARS year into partitioned parquet, then build the dicionario.
 
-Run: uv run python models/us_dot_fars/code/clean.py [first_year] [last_year]
+Run: uv run models/us_dot_fars/code/clean.py [first_year] [last_year]
 
 Downloads what is missing into ``INPUT`` and writes
 ``OUTPUT/<table>/year=<Y>/data.parquet``. The transform itself lives in

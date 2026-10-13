@@ -44,9 +44,9 @@ that one vintage, so empenho -> liquidacao -> pagamento linkage stays internally
 consistent. Only `orgao` is rewritten, so the key scheme matches the rest of MG.
 
 Usage:
-    python remap_mg_2017_2018_orgao.py --validate     # ground-truth check only
-    python remap_mg_2017_2018_orgao.py --dry-run
-    python remap_mg_2017_2018_orgao.py                # backup, remap, upload
+    uv run models/world_wb_mides/code/remap_mg_2017_2018_orgao.py --validate     # ground-truth check only
+    uv run models/world_wb_mides/code/remap_mg_2017_2018_orgao.py --dry-run
+    uv run models/world_wb_mides/code/remap_mg_2017_2018_orgao.py                # backup, remap, upload
 """
 
 from __future__ import annotations
@@ -57,7 +57,6 @@ import json
 import os
 import random
 import re
-import sys
 import threading
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
@@ -68,9 +67,7 @@ import pyarrow.parquet as pq
 from google.cloud import storage
 from google.oauth2 import service_account
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import clean_mg
+import models.world_wb_mides.code.clean_mg as clean_mg
 
 BUCKET = "basedosdados-dev"
 PREFIX = "staging/world_wb_mides"
@@ -128,7 +125,9 @@ def source_pairs(
             ]
             if not hit:
                 return None
-            table, _ = clean_mg.read_source_csv(archive.read(hit[0]), hit[0])
+            table, _, _ = clean_mg.read_source_csv(
+                archive.read(hit[0]), hit[0]
+            )
             if (
                 "seq_orgao" not in table.column_names
                 or "cod_orgao" not in table.column_names

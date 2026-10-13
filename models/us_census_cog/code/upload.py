@@ -1,7 +1,7 @@
 """Upload the cleaned us_census_cog parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                       # every table
-    python upload.py finance government_unit
+    uv run models/us_census_cog/code/upload.py                       # every table
+    uv run models/us_census_cog/code/upload.py finance government_unit
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` -- the same helper the recurring
 flow calls -- rather than ``bd.Table.create(path=<data>)`` or a BigQuery load
@@ -26,15 +26,11 @@ requester-pays, so ``gcs.Client.bucket`` is patched to pin ``user_project``.
 """
 
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-
-from models.us_census_cog.code.common import (  # noqa: E402
+from models.us_census_cog.code.common import (
     ALL_TABLES,
     DATASET_ID,
     OUTPUT,

@@ -16,7 +16,7 @@ years NEWEST first so each column gets its newest available varTitle.
 Unresolved columns get description "TODO".
 
 Usage:
-    uv run python models/us_ed_ipeds/code/build_architecture.py
+    uv run models/us_ed_ipeds/code/build_architecture.py
 """
 
 import html as htmllib

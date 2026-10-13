@@ -1,7 +1,7 @@
 """Upload the 12 cleaned Detailed-release tables to BigQuery (dev only).
 
 Usage:
-    uv run python models/au_abs_labour_force/code/upload_detailed.py [table ...]
+    uv run models/au_abs_labour_force/code/upload_detailed.py [table ...]
 
 **Uploads to ``basedosdados-dev`` and nowhere else, by design.** Data Basis never
 writes prod from a workstation: the prod tables are materialised by the

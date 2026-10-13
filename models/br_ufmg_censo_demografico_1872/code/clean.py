@@ -11,7 +11,7 @@ stringifies the staging header anyway, so typed Parquet is rejected on read.
 Casting goes through Arrow rather than ``astype(str)``, which would render NULL
 as the literal "nan".
 
-Run:  uv run python models/br_ufmg_censo_demografico_1872/code/clean.py
+Run:  uv run models/br_ufmg_censo_demografico_1872/code/clean.py
 """
 
 from __future__ import annotations

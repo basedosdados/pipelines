@@ -20,18 +20,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from datetime import date
-from pathlib import Path
 
-MCP_DIR = Path.home() / "Dropbox" / "BD" / "mcp"
-sys.path.insert(0, str(MCP_DIR))
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402  — the databasis MCP module
-
-from pipelines.datasets.au_aec_elections import schema  # noqa: E402
-from pipelines.datasets.au_aec_elections.constants import (  # noqa: E402
+from pipelines.datasets.au_aec_elections import schema
+from pipelines.datasets.au_aec_elections.constants import (
     constants,
     data_root,
 )
@@ -157,7 +152,7 @@ RESULT_TABLES = {
 
 def delete(mutation: str, record_id: str, env: str) -> None:
     # The delete mutations take UUID!, not the ID! that the create/update ones use.
-    server._gql(
+    bd_mcp_metadata._gql(
         f"mutation($id: UUID!) {{ {mutation}(id: $id) {{ ok errors }} }}",
         {"id": record_id},
         env=env,
@@ -196,14 +191,15 @@ def drop_duplicates(node: dict, env: str) -> dict:
 
 
 def table_updates(table_id: str, env: str) -> list[str]:
-    data = server._gql(
+    data = bd_mcp_metadata._gql(
         "query($id: ID!) { allUpdate(table_Id: $id) { edges { node { id } } } }",
         {"id": table_id},
         env=env,
         auth=False,
     )
     return [
-        server._strip_id(e["node"]["id"]) for e in data["allUpdate"]["edges"]
+        bd_mcp_metadata._strip_id(e["node"]["id"])
+        for e in data["allUpdate"]["edges"]
     ]
 
 
@@ -266,11 +262,11 @@ def main() -> None:
     args = ap.parse_args()
 
     env = args.env
-    account_id = server.get_authenticated_account(env=env)["id"]
+    account_id = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
     today = date.today().isoformat() + "T00:00:00"
     targets = args.only or constants.TABLES.value
 
-    dataset = server.get_dataset(DATASET_SLUG, env=env)
+    dataset = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     existing_tables = dataset.get("tables") or {}
 
     for table in constants.TABLES.value:
@@ -288,12 +284,12 @@ def main() -> None:
         )
 
         payload = table_payload(table, args.dataset_id, account_id)
-        table_id = server.create_update_table(
+        table_id = bd_mcp_write.create_update_table(
             id=node.get("id"), env=env, **payload
         )["id"]
         print(f"  table {table_id}")
 
-        out = server.bulk_upsert_columns(
+        out = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id, columns_json=columns_payload(table), env=env
         )
         if out["errors"]:
@@ -303,8 +299,8 @@ def main() -> None:
         # _fetch_table_columns returns raw Relay global ids; the mutation wants bare
         # UUIDs, so strip them the way bulk_upsert_columns does internally.
         column_ids = {
-            c["name"]: server._strip_id(c["id"])
-            for c in server._fetch_table_columns(table_id, env)
+            c["name"]: bd_mcp_metadata._strip_id(c["id"])
+            for c in bd_mcp_write._fetch_table_columns(table_id, env)
         }
 
         # --- observation levels: one per desired entity, surplus deleted ---
@@ -317,11 +313,11 @@ def main() -> None:
             entity_id = ENTITY[entity_key]
             pool = by_entity.get(entity_id, [])
             ol_id = pool[0] if pool else None
-            ol_id = server.create_update_observation_level(
+            ol_id = bd_mcp_write.create_update_observation_level(
                 table_id=table_id, entity_id=entity_id, id=ol_id, env=env
             )["id"]
             keep.add(ol_id)
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -338,7 +334,7 @@ def main() -> None:
         print(f"  observation levels: {len(wanted)}")
 
         if table != "dicionario" and not wanted:
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_ids["year"],
                 column_name="year",
                 table_id=table_id,
@@ -348,7 +344,7 @@ def main() -> None:
 
         # --- cloud table ---
         cloud = node.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=args.gcp_project,
             gcp_dataset_id=DATASET_ID,
@@ -363,7 +359,7 @@ def main() -> None:
         if table != "dicionario":
             # --- coverage and its datetime range ---
             covs = node.get("coverages", [])
-            cov_id = server.create_update_coverage(
+            cov_id = bd_mcp_write.create_update_coverage(
                 table_id=table_id,
                 area_id=AREA_AU,
                 is_closed=False,
@@ -376,7 +372,7 @@ def main() -> None:
             span = year_range(table)
             if span:
                 ranges = covs[0].get("datetime_ranges", []) if covs else []
-                server.create_update_datetime_range(
+                bd_mcp_write.create_update_datetime_range(
                     coverage_id=cov_id,
                     start_year=span[0],
                     end_year=span[1],
@@ -393,7 +389,7 @@ def main() -> None:
             # Results republish per electoral event (~3 years); the Transparency
             # Register publishes annually.
             ups = table_updates(table_id, env)
-            server.create_update_update(
+            bd_mcp_write.create_update_update(
                 table_id=table_id,
                 entity_id=ENTITY["year"],
                 frequency=3 if table in RESULT_TABLES else 1,
@@ -406,7 +402,7 @@ def main() -> None:
             print("  update record ok")
 
         # Link the raw data source last, re-passing every required field.
-        server.create_update_table(
+        bd_mcp_write.create_update_table(
             id=table_id, raw_data_source_ids=[source_id], env=env, **payload
         )
         print("  raw data source linked")

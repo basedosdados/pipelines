@@ -1,6 +1,6 @@
 """Verify the MG metadata in the backend against the models on disk.
 
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/verify_mg_metadata.py
+    uv run models/world_wb_mides/code/verify_mg_metadata.py
 
 Checks what a reviewer would otherwise have to check by hand, and reports what is
 actually true rather than what was intended:
@@ -21,23 +21,10 @@ table and takes 80+ seconds on this dataset -- past the client's own timeout.
 
 from __future__ import annotations
 
-import os
-import sys
+import databasis_mcp.tools.metadata as bd_mcp_metadata
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import register_mg_metadata as reg
-
-# pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
-import server
+import models.world_wb_mides.code.mg_table_glossary as tables
+import models.world_wb_mides.code.register_mg_metadata as reg
 
 ENV = "staging"
 DATASET_ID = reg.DATASET_ID
@@ -77,14 +64,14 @@ def main() -> None:
     for slug in slugs:
         want = dict(reg.typed_columns(reg.model_path(slug)))
 
-        edges = server._gql(
+        edges = bd_mcp_metadata._gql(
             TABLE_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
         )["allTable"]["edges"]
         if not edges:
             problems.append(f"{slug}: NOT REGISTERED")
             continue
         node = edges[0]["node"]
-        table_id = server._strip_id(node["id"])
+        table_id = bd_mcp_metadata._strip_id(node["id"])
 
         for field in (
             "namePt",
@@ -99,9 +86,9 @@ def main() -> None:
 
         cols = {
             e["node"]["name"]: e["node"]
-            for e in server._gql(COLUMN_QUERY, {"id": table_id}, env=ENV)[
-                "allColumn"
-            ]["edges"]
+            for e in bd_mcp_metadata._gql(
+                COLUMN_QUERY, {"id": table_id}, env=ENV
+            )["allColumn"]["edges"]
         }
         missing = sorted(set(want) - set(cols))
         extra = sorted(set(cols) - set(want))

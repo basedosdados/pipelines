@@ -11,7 +11,7 @@ program documentation.
 Writes <data>/auxiliary/<table>/auxiliary_files.zip.
 
 Usage:
-    uv run python models/us_bls_employment/code/build_auxiliary_files.py
+    uv run models/us_bls_employment/code/build_auxiliary_files.py
 """
 
 import os

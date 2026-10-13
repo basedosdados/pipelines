@@ -5,7 +5,7 @@ descriptions cannot drift between the catalog and the warehouse. Edit
 ``build_architecture.py`` (or the glossary) and regenerate — never hand-edit
 ``../us_fema_openfema__*.sql`` or ``../schema.yml``.
 
-    uv run python build_dbt.py
+    uv run build_dbt.py
 """
 
 from __future__ import annotations

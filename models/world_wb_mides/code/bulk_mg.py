@@ -67,8 +67,8 @@ surface much later, in the cleaner.
 
 Usage:
     export MG_TOKEN_FILE=~/Downloads/world_wb_mides_data/.mg_token
-    python bulk_mg.py                      # every exercise/category
-    python bulk_mg.py --year 2025          # one exercise
+    uv run models/world_wb_mides/code/bulk_mg.py                      # every exercise/category
+    uv run models/world_wb_mides/code/bulk_mg.py --year 2025          # one exercise
 """
 
 from __future__ import annotations
@@ -76,7 +76,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import threading
 import time
 import zipfile
@@ -86,15 +85,13 @@ from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import BROWSER_UA, MG_API, MG_STATIC_BEARER
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from download_mg import _fold
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from harvest_mg import (
+from models.world_wb_mides.code.constants import (
+    BROWSER_UA,
+    MG_API,
+    MG_STATIC_BEARER,
+)
+from models.world_wb_mides.code.download_mg import _fold
+from models.world_wb_mides.code.harvest_mg import (
     CATEGORIES,
     FIRST_YEAR,
     LAST_YEAR,
@@ -146,7 +143,7 @@ def _size_mb(text: str | None) -> float:
         return 0.0
 
 
-def session_for(token: str) -> requests.Session:
+def session_for() -> requests.Session:
     session = requests.Session()
     session.verify = ca_bundle()
     session.headers.update(
@@ -379,7 +376,7 @@ def main() -> None:
 
     # Resolve every exercise's catalogue up front: 13 cheap requests, and it means
     # the worker pool never contends on the listing endpoint.
-    listing = session_for(token_file)
+    listing = session_for()
     plan: list[tuple[int, str, dict]] = []
     for year in years:
         for _attempt in range(3):
@@ -443,7 +440,7 @@ def main() -> None:
         if stop.is_set():
             return
         if not hasattr(local, "session"):
-            local.session = session_for(token_file)
+            local.session = session_for()
         package = fetch_bulk(
             local.session, token_file, year, categoria, entry, stop
         )

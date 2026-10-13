@@ -8,7 +8,7 @@ the shared adaptive throttle in ``utils.get`` (every 429 widens the gap for the
 rest of the run). A full run takes 1-3 hours; it is meant to run in the background.
 
 Usage:
-    uv run python models/world_oecd_revenue_statistics/code/download.py
+    uv run models/world_oecd_revenue_statistics/code/download.py
 """
 
 import io

@@ -9,12 +9,10 @@ staging parquet cannot drift from each other.
 from __future__ import annotations
 
 import csv
-import sys
 import textwrap
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT))
 
 DATASET = "us_dot_bts_ontime"
 MODELS = ROOT / "models" / DATASET

@@ -13,7 +13,7 @@ a payment that cannot be tied back to a commitment is money with no budget line.
 Everything is computed in one pass per table; see validate_mg.py for why that matters.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_pe.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_pe.py [--env dev]
 """
 
 from __future__ import annotations

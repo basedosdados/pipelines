@@ -20,55 +20,18 @@ and because a second partial call blanks the table names
 ([[reference_create_update_table_blanks_names]]).
 
 Usage:
-    ~/.venvs/bd-pipelines/bin/python models/au_abs_labour_force/code/register_detailed.py \
+    uv run models/au_abs_labour_force/code/register_detailed.py \
         [--env staging|prod] [--publish] [table ...]
-
-Set DATABASIS_MCP_PATH if the databasis MCP checkout is not a sibling of
-this repository.
 """
 
 import argparse
-import os
-import sys
 from datetime import date
 from pathlib import Path
 
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-# The databasis MCP server is a separate checkout, not a dependency of this
-# repo, so its location has to come from the environment. DATABASIS_MCP_PATH
-# overrides; otherwise fall back to the conventional sibling checkout next to
-# this repository. Validated here so a missing checkout fails with a clear
-# message instead of an ImportError on `import server`.
-def _find_mcp() -> Path:
-    """Locate the databasis MCP checkout.
-
-    DATABASIS_MCP_PATH wins. Otherwise walk up from this file looking for a
-    sibling ``mcp/server.py`` — which finds it from a normal checkout and from
-    a git worktree under ``.claude/worktrees/``, where the repo root sits three
-    levels deeper than usual.
-    """
-    env = os.environ.get("DATABASIS_MCP_PATH")
-    if env:
-        return Path(env).expanduser()
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent.parent / "mcp"
-        if (candidate / "server.py").is_file():
-            return candidate
-    return Path("mcp")
-
-
-_MCP_PATH = _find_mcp()
-if not (_MCP_PATH / "server.py").is_file():
-    raise SystemExit(
-        f"databasis MCP checkout not found at {_MCP_PATH}. Set "
-        f"DATABASIS_MCP_PATH to the directory containing server.py."
-    )
-sys.path.insert(0, str(_MCP_PATH))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402  (import follows the sys.path bootstrap above)
-
-from models.au_abs_labour_force.code.metadata_detailed import (  # noqa: E402
+from models.au_abs_labour_force.code.metadata_detailed import (
     DATASET_DESCRIPTION,
     DATASET_SLUG,
     DATASET_TAGS,
@@ -145,7 +108,7 @@ def main() -> None:
     if unknown:
         raise SystemExit(f"unknown table(s): {sorted(unknown)}")
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "entity", "license", "availability", "tag"]
     )
     status, entity, license_, avail, tag = (
@@ -155,12 +118,14 @@ def main() -> None:
         ids["availability"],
         ids["tag"],
     )
-    area_id = server.lookup_id(category="area", slug=AREA_SLUG, env=env)["id"]
-    account = server.get_authenticated_account(env=env)
+    area_id = bd_mcp_metadata.lookup_id(
+        category="area", slug=AREA_SLUG, env=env
+    )["id"]
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = str(account["id"])
     log(f"account={account['email']} area({AREA_SLUG})={area_id}")
 
-    ds = server.get_dataset(DATASET_SLUG, env=env)
+    ds = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     if not ds.get("found"):
         raise SystemExit(f"dataset {DATASET_SLUG} not found on {env}")
     dataset_id = ds["id"]
@@ -175,7 +140,7 @@ def main() -> None:
             tag_ids.append(tag[slug])
         elif slug in NEW_TAGS:
             pt, en, es = NEW_TAGS[slug]
-            r = server.create_update_tag(
+            r = bd_mcp_write.create_update_tag(
                 slug=slug, name_pt=pt, name_en=en, name_es=es, env=env
             )
             tag_ids.append(r["id"])
@@ -195,7 +160,7 @@ def main() -> None:
         if env == "prod" or args.publish
         else status["under_review"]
     )
-    r = server.create_update_dataset(
+    r = bd_mcp_write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=ds["name_pt"],
         name_en=ds["name_en"],
@@ -217,10 +182,10 @@ def main() -> None:
     # ── raw data source ─────────────────────────────────────────────────────
     existing_rds = {
         s["url"]: s["id"]
-        for s in server.get_raw_data_sources(DATASET_SLUG, env=env)
+        for s in bd_mcp_write.get_raw_data_sources(DATASET_SLUG, env=env)
     }
     rds_id = existing_rds.get(RAW_SOURCE["url"])
-    r = server.create_update_raw_data_source(
+    r = bd_mcp_write.create_update_raw_data_source(
         dataset_id=dataset_id,
         name_pt=RAW_SOURCE["name_pt"],
         name_en=RAW_SOURCE["name_en"],
@@ -242,12 +207,12 @@ def main() -> None:
     log(f"raw data source: {rds_id}")
 
     # ── phase 1: every create_update_table, BEFORE any coverage ─────────────
-    ds = server.get_dataset(DATASET_SLUG, env=env)
+    ds = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     table_ids = {}
     for slug in want:
         m = TABLE_META[slug]
         existing = ds["tables"].get(slug)
-        r = server.create_update_table(
+        r = bd_mcp_write.create_update_table(
             slug=slug,
             name_pt=m["name_pt"],
             name_en=m["name_en"],
@@ -267,7 +232,7 @@ def main() -> None:
         log(f"table {slug}: {r['id']}")
 
     # ── phase 2: OLs, columns, cloud table, coverage, range, update ─────────
-    ds = server.get_dataset(DATASET_SLUG, env=env)
+    ds = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     for slug in want:
         m = TABLE_META[slug]
         tid = table_ids[slug]
@@ -280,7 +245,7 @@ def main() -> None:
         }
         ol_ids = {}
         for ent_slug in m["observation_levels"]:
-            r = server.create_update_observation_level(
+            r = bd_mcp_write.create_update_observation_level(
                 table_id=tid,
                 entity_id=entity[ent_slug],
                 id=ol_by_entity.get(ent_slug),
@@ -290,14 +255,16 @@ def main() -> None:
         log(f"  observation levels: {ol_ids}")
 
         payload = (COLUMNS_JSON / f"{slug}.json").read_text()
-        r = server.bulk_upsert_columns(
+        r = bd_mcp_write.bulk_upsert_columns(
             table_id=tid, columns_json=payload, env=env
         )
         log(
             f"  columns: {r.get('created', '?')} created, {r.get('updated', '?')} updated"
         )
 
-        live2 = server.get_dataset(DATASET_SLUG, env=env)["tables"][slug]
+        live2 = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)["tables"][
+            slug
+        ]
         col_ids = {c["name"]: c["id"] for c in live2["columns"]}
         col_to_ol = {
             col: ol_ids[ent]
@@ -308,7 +275,7 @@ def main() -> None:
         for name in sorted(set(col_to_ol) | parts):
             if name not in col_ids:
                 raise SystemExit(f"{slug}: column {name!r} not registered")
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=col_ids[name],
                 column_name=name,
                 table_id=tid,
@@ -322,7 +289,7 @@ def main() -> None:
         )
 
         ct = live.get("cloud_tables") or []
-        r = server.create_update_cloud_table(
+        r = bd_mcp_write.create_update_cloud_table(
             table_id=tid,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=GCP_DATASET,
@@ -333,7 +300,7 @@ def main() -> None:
         log(f"  cloud table: {GCP_PROJECT[env]}.{GCP_DATASET}.{slug}")
 
         cov = live.get("coverages") or []
-        r = server.create_update_coverage(
+        r = bd_mcp_write.create_update_coverage(
             table_id=tid,
             area_id=area_id,
             id=cov[0]["id"] if cov else None,
@@ -342,7 +309,7 @@ def main() -> None:
         cov_id = r["id"]
         sy, sm, ey, em = m["coverage"]
         existing_dr = (cov[0].get("datetime_ranges") if cov else None) or []
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=cov_id,
             start_year=sy,
             start_month=sm,
@@ -360,7 +327,7 @@ def main() -> None:
         # table-anchored Update it means when Data Basis last refreshed the
         # table — today — never the max date in the data.
         latest = f"{date.today().isoformat()}T00:00:00"
-        server.create_update_update(
+        bd_mcp_write.create_update_update(
             entity_id=entity[m["update_entity"]],
             frequency=1,
             latest=latest,
@@ -372,7 +339,7 @@ def main() -> None:
 
     # ── phase 3: table order ────────────────────────────────────────────────
     if len(want) == len(TABLE_META):
-        server.reorder_tables(
+        bd_mcp_write.reorder_tables(
             dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
         )
         log(f"reordered {len(TABLE_ORDER)} tables")

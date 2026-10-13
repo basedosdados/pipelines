@@ -4,9 +4,9 @@ Current program years ship as loose CSVs; archived ones ship as a single ZIP
 per year whose members are extracted and the ZIP then deleted. Nothing lands
 in the repo or in Dropbox -- see constants.DATA_ROOT.
 
-    uv run python download.py detail 2024
-    uv run python download.py profile
-    uv run python download.py summary
+    uv run download.py detail 2024
+    uv run download.py profile
+    uv run download.py summary
 """
 
 import concurrent.futures as cf

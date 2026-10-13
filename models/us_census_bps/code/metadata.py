@@ -5,7 +5,7 @@ id is passed back, because create_update_* duplicates a record when called
 without one.
 
 Usage:
-    python models/us_census_bps/code/metadata.py --env staging
+    uv run models/us_census_bps/code/metadata.py --env staging
 """
 
 from __future__ import annotations
@@ -13,16 +13,10 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from pipelines.datasets.us_census_bps.constants import constants
 
@@ -328,10 +322,10 @@ def column_payload(table: str) -> list[dict]:
 
 def refresh_columns(env: str) -> int:
     """Re-upsert every table's columns from the architecture CSVs."""
-    tables = server.get_dataset(DATASET_SLUG, env=env)["tables"]
+    tables = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)["tables"]
     for table in TABLE_ORDER:
         payload = column_payload(table)
-        server.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=tables[table]["id"],
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -359,27 +353,33 @@ def main() -> int:
     if args.columns_only:
         return refresh_columns(env)
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "theme", "entity", "license", "availability"]
     )
     status = ids["status"]
-    account = server.get_authenticated_account(env=env)["id"]
-    org = server.lookup_id("organization", "census_bureau", env=env)["id"]
+    account = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
+    org = bd_mcp_metadata.lookup_id("organization", "census_bureau", env=env)[
+        "id"
+    ]
 
     tag_ids = []
     for slug in TAG_SLUGS[env]:
-        tag_ids.append(server.lookup_id("tag", slug, env=env)["id"])
+        tag_ids.append(bd_mcp_metadata.lookup_id("tag", slug, env=env)["id"])
     for tag in NEW_TAGS:
         try:
-            tag_ids.append(server.lookup_id("tag", tag["slug"], env=env)["id"])
+            tag_ids.append(
+                bd_mcp_metadata.lookup_id("tag", tag["slug"], env=env)["id"]
+            )
         except RuntimeError:
-            created = server.create_update_tag(env=env, **tag)
+            created = bd_mcp_write.create_update_tag(env=env, **tag)
             print(f"created tag {tag['slug']}: {created}")
-            tag_ids.append(server.lookup_id("tag", tag["slug"], env=env)["id"])
+            tag_ids.append(
+                bd_mcp_metadata.lookup_id("tag", tag["slug"], env=env)["id"]
+            )
 
-    existing = server.get_dataset(DATASET_SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     dataset_id = existing.get("id") if existing.get("found") else None
-    result = server.create_update_dataset(
+    result = bd_mcp_write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
         name_en=NAME_EN,
@@ -397,7 +397,7 @@ def main() -> int:
     dataset_id = result.get("id") or dataset_id
     print(f"dataset {DATASET_SLUG}: {dataset_id}")
 
-    prior_sources = server.get_raw_data_sources(DATASET_SLUG, env=env)
+    prior_sources = bd_mcp_write.get_raw_data_sources(DATASET_SLUG, env=env)
     if isinstance(prior_sources, dict):
         prior_sources = prior_sources.get("raw_data_sources", [])
     existing_sources = {
@@ -406,7 +406,8 @@ def main() -> int:
     source_ids: dict[str, str | None] = {}
     for level, (path, tables, name_en, name_pt, name_es) in SOURCES.items():
         url = BASE + path
-        res = server.create_update_raw_data_source(
+        res = bd_mcp_write.create_update_raw_data_source(
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             name_pt=name_pt,
             name_en=name_en,
@@ -429,7 +430,9 @@ def main() -> int:
         for table in tables:
             source_ids[table] = source_ids[level]
 
-    state = server.get_dataset(DATASET_SLUG, env=env).get("tables", {})
+    state = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env).get(
+        "tables", {}
+    )
     for table in TABLE_ORDER:
         pt, en, es = TABLE_NAMES[table]
         desc = (
@@ -438,11 +441,12 @@ def main() -> int:
             else table_description(table)
         )
         prior = state.get(table, {})
-        res = server.create_update_table(
+        res = bd_mcp_write.create_update_table(
             slug=table,
             name_pt=pt,
             name_en=en,
             name_es=es,
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             status_id=status["published"],
             published_by_ids=[account],
@@ -459,7 +463,7 @@ def main() -> int:
         table_id = res.get("id") or prior.get("id")
         print(f"table {table}: {table_id}")
 
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=args.gcp_project,
             gcp_dataset_id=GCP_DATASET,
@@ -469,7 +473,7 @@ def main() -> int:
         )
 
         payload = column_payload(table)
-        server.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,

@@ -1,7 +1,7 @@
 """Upload the cleaned br_ufmg_censo_demografico_1872 Parquet tables to BigQuery.
 
 Usage:
-    uv run python models/br_ufmg_censo_demografico_1872/code/upload.py \
+    uv run models/br_ufmg_censo_demografico_1872/code/upload.py \
         [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point

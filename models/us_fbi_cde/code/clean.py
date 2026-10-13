@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 import urllib.request
 from collections import Counter
@@ -28,8 +27,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.utils import (

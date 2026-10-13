@@ -13,7 +13,7 @@ from models.br_tse_eleicoes.code.python.utils.helpers import (
     select_named,
 )
 
-YEARS = list(range(2010, 2025, 2))
+YEARS = list(range(2010, 2027, 2))
 
 
 def build_perfil_local_votacao(ano: int) -> pd.DataFrame:

@@ -1,6 +1,6 @@
 """Verify the built BigQuery tables against the models -- WITHOUT spending quota.
 
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/verify_mg_bigquery.py
+    uv run models/world_wb_mides/code/verify_mg_bigquery.py
 
 THIS READS THE CATALOG, NOT THE TABLES. `__TABLES__` bills exactly zero;
 `INFORMATION_SCHEMA.COLUMNS` bills about 10 MB, which is not zero but is five
@@ -26,20 +26,13 @@ every row rather than a sample), and the rest waits for the rebuild.
 from __future__ import annotations
 
 import json
-import os
-import sys
 from pathlib import Path
 
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import register_mg_metadata as reg
+import models.world_wb_mides.code.mg_table_glossary as tables
+import models.world_wb_mides.code.register_mg_metadata as reg
 
 CREDENTIALS = Path.home() / ".basedosdados/credentials/staging.json"
 PROJECT = "basedosdados-dev"

@@ -8,35 +8,33 @@ Checks, per table with chunks on disk:
 Run before trusting the generated schema.yml, since a key asserted in dbt but
 false in the data fails only after a full upload and materialisation.
 
-Usage:  uv run python models/br_mgi_compras_publicas/code/validate.py
+Usage:  uv run models/br_mgi_compras_publicas/code/validate.py
 """
 
 from __future__ import annotations
 
 import hashlib
-import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import pyarrow.dataset as ds
 
-import pyarrow.dataset as ds  # noqa: E402
-
-from models.br_mgi_compras_publicas.code.dbt_spec import TABLES  # noqa: E402
-from pipelines.datasets.br_mgi_compras_publicas.api import (  # noqa: E402
+from models.br_mgi_compras_publicas.code.dbt_spec import TABLES
+from pipelines.datasets.br_mgi_compras_publicas.api import (
     build_session,
 )
-from pipelines.datasets.br_mgi_compras_publicas.constants import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.constants import (
     constants,
 )
-from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     plan_jobs,
 )
-from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.utils import (
     TABLE_SPECS,
     load_architecture,
 )
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def data_dir() -> Path:

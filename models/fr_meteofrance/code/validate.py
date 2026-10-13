@@ -1,6 +1,6 @@
 """Validate the cleaned parquet before upload: keys, coverage, sparsity, dictionary.
 
-    uv run python models/fr_meteofrance/code/validate.py
+    uv run models/fr_meteofrance/code/validate.py
 
 **Exits non-zero when a check fails.** Every check used to print and return, so a
 run that found 12,000 duplicate keys was indistinguishable from a clean one by

@@ -53,7 +53,7 @@ def run(year_range: list[int]) -> None:
 
 
 # Anos no FTP (SIM/CID10/DORES). Conferir antes de rodar:
-#   uv run python check_ftp_years.py
+#   uv run check_ftp_years.py
 # Incluir só anos com 27/27 UFs. 2025+ quando o FTP publicar.
 YEAR_RANGE = [2020, 2021, 2022, 2023, 2024]
 

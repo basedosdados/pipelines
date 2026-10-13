@@ -1,7 +1,7 @@
 """Download the PIAAC Public Use Files and supporting documents.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/download.py [--docs-only] [--pufs-only]
+    uv run models/world_oecd_piaac/code/download.py [--docs-only] [--pufs-only]
 
 Resumable: a file whose local size already matches the server's Content-Length is
 skipped, so the script can be re-run after an interruption. webfs.oecd.org is slow

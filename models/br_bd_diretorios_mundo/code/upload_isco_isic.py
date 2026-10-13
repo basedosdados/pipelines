@@ -1,7 +1,7 @@
 """Upload the ISCO-08 and ISIC Rev.4 directory tables to BigQuery staging.
 
 Usage:
-    uv run python models/br_bd_diretorios_mundo/code/upload_isco_isic.py [--env dev|prod] [table_slug ...]
+    uv run models/br_bd_diretorios_mundo/code/upload_isco_isic.py [--env dev|prod] [table_slug ...]
 
 Parquet is produced by build_isco_isic.py under
 ~/Downloads/world_oecd_piaac_data/output/diretorios (override with PIAAC_DATA_ROOT).

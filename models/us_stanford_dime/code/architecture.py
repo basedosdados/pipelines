@@ -16,7 +16,7 @@ unit. Coded values (party codes, transaction codes, 0/1 flags) are STRING and
 carry ``covered_by_dictionary = yes`` when the ``dicionario`` table defines
 their labels.
 
-Run ``python architecture.py`` to (re)write the CSVs under ``architecture/``.
+Run ``uv run models/us_stanford_dime/code/architecture.py`` to (re)write the CSVs under ``architecture/``.
 """
 
 from __future__ import annotations

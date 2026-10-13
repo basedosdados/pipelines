@@ -17,7 +17,7 @@ credential with prod object-write rights. Related: the published
 for anonymous readers on every production table that has one, pending the move
 to ``gs://basedosdados-public``.
 
-Run: uv run python models/us_nih_reporter/code/build_auxiliary_files.py [--upload]
+Run: uv run models/us_nih_reporter/code/build_auxiliary_files.py [--upload]
 """
 
 import shutil

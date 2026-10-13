@@ -1,7 +1,7 @@
 """Generate the bulk_upsert_columns payloads for br_cgu_despesas_publicas.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/build_columns_json.py
+    uv run models/br_cgu_despesas_publicas/code/build_columns_json.py
 
 Reads the per-table specs via ``_specs.py`` and writes
 ``columns_json/<table>.json``. The architecture CSV carries only the Portuguese

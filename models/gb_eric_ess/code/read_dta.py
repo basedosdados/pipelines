@@ -8,7 +8,7 @@ rounds 8-11. Value-label keys that are integers are the substantive codes;
 string keys ('a','b','c') are Stata extended-missing markers (No answer /
 Refusal / Don't know) and are ignored for int_codes.
 
-Usage: python read_dta.py <input.dta> <round_int> <output.json>
+Usage: uv run models/gb_eric_ess/code/read_dta.py <input.dta> <round_int> <output.json>
 """
 
 import json

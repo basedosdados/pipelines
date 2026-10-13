@@ -13,7 +13,7 @@ seven zero columns are 0% populated in the source too, verified directly.
 
 Writes ``measured.json``, which ``gen_dbt.py`` reads.
 
-Run: ``python verify_parquet.py``   (after clean.py)
+Run: ``uv run models/world_oecd_socx/code/verify_parquet.py``   (after clean.py)
 """
 
 import json

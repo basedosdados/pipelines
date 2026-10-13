@@ -6,8 +6,8 @@ driven from a script. That matters here: 23 tables and 651 columns is roughly
 transcription errors. Everything is keyed by name or slug and every write is
 an upsert, so the script is safe to re-run.
 
-    ~/.pyenv/versions/3.11.6/bin/python register_metadata.py staging
-    ~/.pyenv/versions/3.11.6/bin/python register_metadata.py prod --publish
+    uv run models/us_cms_open_payments/code/register_metadata.py staging
+    uv run models/us_cms_open_payments/code/register_metadata.py prod --publish
 
 The dataset is created `under_review` in every environment. `--publish` flips
 it to published, which is only correct on dev/staging before promotion, or on
@@ -15,34 +15,20 @@ prod after the PR has merged and the tables are verified.
 """
 
 import json
-import os
 import sys
 import time
-from pathlib import Path
 
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 import requests
 
-# The databasis MCP server is a standalone checkout, not a package dependency.
-# BD_MCP_PATH overrides the usual location so this runs off one machine.
-_MCP_PATH = Path(
-    os.environ.get("BD_MCP_PATH", Path.home() / "Dropbox" / "BD" / "mcp")
-)
-if not (_MCP_PATH / "server.py").exists():
-    raise SystemExit(
-        f"databasis MCP server not found at {_MCP_PATH}. "
-        "Set BD_MCP_PATH to the directory containing server.py."
-    )
-sys.path.insert(0, str(_MCP_PATH))
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
-
-from models.us_cms_open_payments.code import constants as c  # noqa: E402
-from models.us_cms_open_payments.code import dataset_meta as meta  # noqa: E402
-from models.us_cms_open_payments.code import (  # noqa: E402
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import dataset_meta as meta
+from models.us_cms_open_payments.code import (
     gen_metadata_payloads,
     layout,
 )
-from models.us_cms_open_payments.code.table_descriptions import (  # noqa: E402
+from models.us_cms_open_payments.code.table_descriptions import (
     TABLE_DESCRIPTIONS,
 )
 
@@ -111,7 +97,10 @@ for _name in (
     "lookup_id",
     "discover_ids",
 ):
-    setattr(server, _name, _with_retries(getattr(server, _name)))
+    _module = (
+        bd_mcp_metadata if hasattr(bd_mcp_metadata, _name) else bd_mcp_write
+    )
+    setattr(_module, _name, _with_retries(getattr(_module, _name)))
 
 
 class References:
@@ -124,7 +113,7 @@ class References:
 
     def __init__(self, env: str):
         self.env = env
-        catalogue = server.discover_ids(
+        catalogue = bd_mcp_metadata.discover_ids(
             env=env,
             keys=["status", "license", "availability", "theme", "entity"],
         )
@@ -135,8 +124,10 @@ class References:
         self.entities = {
             slug: catalogue["entity"][slug] for slug in meta.ENTITY_SLUGS
         }
-        self.area = server.lookup_id(category="area", slug="us", env=env)["id"]
-        self.organization = server.lookup_id(
+        self.area = bd_mcp_metadata.lookup_id(
+            category="area", slug="us", env=env
+        )["id"]
+        self.organization = bd_mcp_metadata.lookup_id(
             category="organization", slug=meta.ORGANIZATION_SLUG, env=env
         )["id"]
         self.tags = [self._tag(aliases) for aliases in meta.TAG_SLUGS]
@@ -144,7 +135,7 @@ class References:
     def _tag(self, aliases: tuple[str, ...]) -> str:
         for slug in aliases:
             try:
-                return server.lookup_id(
+                return bd_mcp_metadata.lookup_id(
                     category="tag", slug=slug, env=self.env
                 )["id"]
             except Exception:
@@ -153,7 +144,7 @@ class References:
         _, name_pt, name_en, name_es = next(
             t for t in meta.NEW_TAGS if t[0] == slug
         )
-        created = server.create_update_tag(
+        created = bd_mcp_write.create_update_tag(
             slug=slug,
             name_pt=name_pt,
             name_en=name_en,
@@ -165,9 +156,9 @@ class References:
 
 
 def register_dataset(env: str, publish: bool, refs: References) -> str:
-    existing = server.get_dataset(slug=meta.DATASET["slug"], env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=meta.DATASET["slug"], env=env)
     status = refs.status["published" if publish else "under_review"]
-    result = server.create_update_dataset(
+    result = bd_mcp_write.create_update_dataset(
         slug=meta.DATASET["slug"],
         name_pt=meta.DATASET["name_pt"],
         name_en=meta.DATASET["name_en"],
@@ -191,13 +182,13 @@ def register_raw_sources(
 ) -> dict[str, str]:
     existing = {
         source["name"]: source["id"]
-        for source in server.get_raw_data_sources(
+        for source in bd_mcp_write.get_raw_data_sources(
             dataset_slug=meta.DATASET["slug"], env=env
         )
     }
     ids = {}
     for key, spec in meta.RAW_SOURCES.items():
-        result = server.create_update_raw_data_source(
+        result = bd_mcp_write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],
@@ -248,7 +239,7 @@ def register_table(
     desc_pt, desc_en, desc_es = TABLE_DESCRIPTIONS[table]
     existing = snapshot.get("tables", {}).get(table, {})
 
-    result = server.create_update_table(
+    result = bd_mcp_write.create_update_table(
         slug=table,
         name_pt=name_pt,
         name_en=name_en,
@@ -276,7 +267,7 @@ def register_table(
     observation_levels = {}
     for entity in meta.OBSERVATION_LEVELS[table]:
         entity_id = refs.entities[entity]
-        level = server.create_update_observation_level(
+        level = bd_mcp_write.create_update_observation_level(
             table_id=table_id,
             entity_id=entity_id,
             id=known.get(entity_id),
@@ -286,7 +277,7 @@ def register_table(
     if observation_levels:
         log(f"  observation levels: {', '.join(observation_levels)}")
 
-    upserted = server.bulk_upsert_columns(
+    upserted = bd_mcp_write.bulk_upsert_columns(
         table_id=table_id,
         columns_json=json.dumps(
             gen_metadata_payloads.payload(table), ensure_ascii=False
@@ -297,7 +288,9 @@ def register_table(
 
     column_ids = {
         col["name"]: col["id"]
-        for col in server.get_dataset(slug=meta.DATASET["slug"], env=env)
+        for col in bd_mcp_metadata.get_dataset(
+            slug=meta.DATASET["slug"], env=env
+        )
         .get("tables", {})
         .get(table, {})
         .get("columns", [])
@@ -314,7 +307,7 @@ def register_table(
         )
         if not column or column not in column_ids:
             continue
-        server.update_column(
+        bd_mcp_write.update_column(
             column_id=column_ids[column],
             column_name=column,
             table_id=table_id,
@@ -325,7 +318,7 @@ def register_table(
             env=env,
         )
 
-    server.create_update_cloud_table(
+    bd_mcp_write.create_update_cloud_table(
         table_id=table_id,
         gcp_project_id=GCP_PROJECT[env],
         gcp_dataset_id=c.GCP_DATASET_ID,
@@ -334,7 +327,7 @@ def register_table(
         env=env,
     )
 
-    coverage = server.create_update_coverage(
+    coverage = bd_mcp_write.create_update_coverage(
         table_id=table_id,
         area_id=refs.area,
         id=(existing.get("coverages") or [{}])[0].get("id"),
@@ -345,7 +338,7 @@ def register_table(
         ranges = (existing.get("coverages") or [{}])[0].get(
             "datetime_ranges"
         ) or [{}]
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=coverage["id"],
             start_year=start,
             end_year=end,
@@ -353,7 +346,7 @@ def register_table(
             id=ranges[0].get("id"),
             env=env,
         )
-        server.create_update_update(
+        bd_mcp_write.create_update_update(
             entity_id=refs.entities["year"],
             frequency=1,
             latest=REFRESHED_ON,
@@ -369,14 +362,14 @@ def main() -> None:
     env = sys.argv[1] if len(sys.argv) > 1 else "staging"
     publish = "--publish" in sys.argv
 
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     log(f"authenticated as {account['email']} (id {account['id']}) on {env}")
 
     refs = References(env)
     dataset_id = register_dataset(env, publish, refs)
     raw_sources = register_raw_sources(dataset_id, env, refs)
 
-    snapshot = server.get_dataset(slug=meta.DATASET["slug"], env=env)
+    snapshot = bd_mcp_metadata.get_dataset(slug=meta.DATASET["slug"], env=env)
     table_ids = {}
     for table in layout.LAYOUT:
         table_ids[table] = register_table(
@@ -387,7 +380,7 @@ def main() -> None:
     for table, table_id in table_ids.items():
         name_pt, name_en, name_es = meta.TABLE_NAMES[table]
         desc_pt, desc_en, desc_es = TABLE_DESCRIPTIONS[table]
-        server.create_update_table(
+        bd_mcp_write.create_update_table(
             slug=table,
             name_pt=name_pt,
             name_en=name_en,
@@ -405,13 +398,13 @@ def main() -> None:
         )
     log(f"  linked {len(table_ids)} tables to {len(raw_sources)} raw sources")
 
-    server.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=meta.DATASET["slug"],
         table_slugs=list(layout.LAYOUT),
         env=env,
     )
     for table, table_id in table_ids.items():
-        server.reorder_columns(
+        bd_mcp_write.reorder_columns(
             table_id=table_id, column_names=layout.LAYOUT[table], env=env
         )
     log("\ntable and column order applied")

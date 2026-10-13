@@ -1,7 +1,7 @@
 """Upload us_harvard_cbdb typed parquet to BigQuery dev (basedosdados-dev).
 
 Unpartitioned tables: output/<table>/data.parquet -> staging.<table>.
-Usage: uv run python upload.py [table1 table2 ...]   (default: all in order)
+Usage: uv run upload.py [table1 table2 ...]   (default: all in order)
 """
 
 import os

@@ -118,13 +118,108 @@ MG_STATIC_TABLES = {
 }
 
 # The portal_* flat files are annual CSVs (not gz) covering 2022+.
+#
+# These are a DIFFERENT export of SIAD from the `compras_contratos` dimensional model
+# above: the flat "NOVA CONSULTA" spreadsheets, published to GitHub by CGE/DCTA and
+# committed to the repo, so a refresh is a fetch of a raw file rather than a scrape.
+# They matter for one reason above all: `mg_dm_contratado` and `mg_dm_favorecido`
+# anonymise the counterparty (`nr_documento_anonimizado`, `nome_anonimizado`), and these
+# files do not.
 MG_PORTAL_TABLES = {
     "licitacoes": "mg_licitacao",
     "item": "mg_licitacao_item",
     "contratos": "mg_contrato",
     "itens": "mg_contrato_item",
+    # Trailing underscore is part of the stem: the files are
+    # `fiscais_contratos_2022.csv`, not `fiscais_contratos2022.csv`.
+    "fiscais_contratos_": "mg_contrato_fiscal",
 }
 MG_PORTAL_FIRST_YEAR = 2022
+
+# Which repository publishes each flat file.
+MG_PORTAL_REPOS = {
+    "licitacoes": "portal_licitacoes_mg",
+    "item": "portal_licitacoes_mg",
+    "contratos": "portal_contratos",
+    "itens": "portal_contratos",
+    "fiscais_contratos_": "portal_fiscais_contratos",
+}
+
+# Pinned so a rebuild is reproducible. The repos are refreshed by CGE's own automation,
+# so bump these deliberately rather than tracking a branch; `download_mg_portal.py
+# --ref main` overrides for a coverage refresh.
+MG_PORTAL_REFS = {
+    "portal_contratos": "3998d827e15b4448a1ebf281a4650e11a529bc1c",  # 2026-09-23
+    "portal_licitacoes_mg": "6e654482fe4d32d881ac9f8f2ee41fdc1e739729",  # 2026-09-23
+    "portal_fiscais_contratos": "02290ebe5d74cf828c04567c9a9128084566b00a",  # 2026-09-15
+    "portal_notas_fiscais": "7e616c7e4d0370da53fe968b557f4353f9424522",  # 2026-09-23
+    "portal_cafimp": "e07569122e4a1c9dacec4666de2d9866c2957b8b",
+    "portal_empresas_sancionadas": "43b9fa3f14d52c135f8f04cd2287001668b5ca7c",
+    "portal_plano_anual_contratacao": "052d15bdd985b68801b25ff8af99e122ede4dfb1",
+}
+
+# The invoice repo is published MONTHLY, not annually: `notas_jan22.csv`,
+# `itensnota_set26.csv`. 57 months per stem, 2022-01 to 2026-09, 889 MB in all. Kept in a
+# separate map because the filename shape differs, and because the item file carries NO
+# date column of its own -- its period comes from the filename, which the clean step
+# preserves as `arquivo_origem`.
+MG_PORTAL_MONTHLY_TABLES = {
+    "notas_": "mg_nota_fiscal",
+    "itensnota_": "mg_nota_fiscal_item",
+}
+MG_PORTAL_MONTHLY_REPO = "portal_notas_fiscais"
+MG_PORTAL_MONTHLY_FIRST = (2022, 1)
+
+# Portuguese three-letter abbreviations, in calendar order: index + 1 is the month.
+MG_PORTAL_MES = (
+    "jan",
+    "fev",
+    "mar",
+    "abr",
+    "mai",
+    "jun",
+    "jul",
+    "ago",
+    "set",
+    "out",
+    "nov",
+    "dez",
+)
+
+# Two registries published as a single whole-table file, with no year or month in the
+# name. The sanction side of procurement: who was barred, and who was penalised.
+MG_PORTAL_STATIC_TABLES = {
+    "cafimp": "mg_fornecedor_impedido",
+    "empresas_sancionadas": "mg_empresa_sancionada",
+}
+MG_PORTAL_STATIC_REPOS = {
+    "cafimp": "portal_cafimp",
+    "empresas_sancionadas": "portal_empresas_sancionadas",
+}
+
+# The annual procurement plan. Its filenames are irregular -- `pac_2024_inicial3.csv`,
+# `pac_2026_revisao7.csv` -- and the trailing number is a FILE PART, not a revision
+# number: each year has one `inicial` and one `revisao` vintage, split across however many
+# parts the export needed. Because the part count is not predictable, these files are
+# discovered from the repository listing rather than constructed from a pattern.
+MG_PORTAL_LISTED_TABLES = {"pac_": "mg_plano_contratacao_item"}
+MG_PORTAL_LISTED_REPOS = {"pac_": "portal_plano_anual_contratacao"}
+
+# GitHub contents API for a repo's data directory, at a pinned ref.
+MG_PORTAL_LISTING = "https://api.github.com/repos/transparencia-mg/{repo}/contents/dataset/data?ref={ref}"
+
+MG_PORTAL_RAW = (
+    "https://raw.githubusercontent.com/transparencia-mg/{repo}/{ref}"
+    "/dataset/data/{stem}{year}.csv"
+)
+
+# Consumed by a model today. `licitacoes` / `item` are declared but not wired: they
+# restate what the CKAN model already covers from 2009, so unioning them would only
+# duplicate 2022+ (see MG_PORTAIS_PLAN.md section 3).
+MG_PORTAL_IN_USE = ("contratos", "itens", "fiscais_contratos_")
+MG_PORTAL_MONTHLY_IN_USE = ("notas_", "itensnota_")
+MG_PORTAL_STATIC_IN_USE = ("cafimp", "empresas_sancionadas")
+MG_PORTAL_LISTED_IN_USE = ("pac_",)
 
 MG_SEP = ";"
 MG_ENCODING = "utf-8-sig"  # the files carry a BOM

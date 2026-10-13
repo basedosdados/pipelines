@@ -12,7 +12,7 @@ requester-pays, so the published URL currently returns HTTP 400 to an
 anonymous fetch; that is a bucket setting, not something this script can fix.
 
 Usage:
-    /tmp/cs_venv/bin/python models/us_ed_college_scorecard/code/build_auxiliary_files.py
+    uv run models/us_ed_college_scorecard/code/build_auxiliary_files.py
 """
 
 import os

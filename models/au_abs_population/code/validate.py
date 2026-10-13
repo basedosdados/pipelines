@@ -14,7 +14,7 @@ regress:
    never derived, because ABS computes it from unrounded area.
 
 Usage:
-    python validate.py <output_dir> [<directory_id_dir>]
+    uv run models/au_abs_population/code/validate.py <output_dir> [<directory_id_dir>]
 """
 
 import glob

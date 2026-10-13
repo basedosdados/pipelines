@@ -899,8 +899,9 @@ models:
   - name: br_bd_execucao_estadual__contrato
     description: >
       Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
-      objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
-      Santo, Santa Catarina, Rio Grande do Sul e Rondônia, os quatro estados que publicam
+      objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Minas
+      Gerais, Espírito
+      Santo, Santa Catarina, Rio Grande do Sul e Rondônia, os cinco estados que publicam
       um cadastro de contratos. Complementa as tabelas de execução: o contrato é o
       compromisso,
       a
@@ -911,7 +912,15 @@ models:
       Rondônia não publica tipo de contrato, situação nem data de início de vigência,
       e
       traz um único valor, então nesses contratos tipo_contrato, situacao e
-      data_inicio_vigencia são nulos e valor_atual repete valor_inicial.
+      data_inicio_vigencia são nulos e valor_atual repete valor_inicial. Em Minas
+      Gerais
+      o modelo dimensional aberto anonimiza o contratado, então documento_contratado
+      e
+      nome_contratado vêm do Portal de Contratos (github.com/transparencia-mg), que
+      cobre
+      2022+ e apenas contratos com termo de contrato; nos contratos mineiros fora
+      dessa
+      cobertura os dois campos permanecem anonimizados e data_assinatura é nula.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [sigla_uf, id_contrato_bd]
@@ -971,3 +980,566 @@ models:
       - name: valor_atual
         description: Valor atual do contrato em reais correntes, após aditivos quando
           informado
+  - name: br_bd_execucao_estadual__contrato_item
+    description: >
+      Itens contratados pelos governos estaduais: o que cada contrato comprou, linha
+      a
+      linha, com produto catalogado, quantidade e preço de referência. Uma linha por
+      (contrato, produto, ocorrência) -- o mesmo produto pode aparecer mais de uma
+      vez no
+      mesmo contrato com quantidade ou preço diferentes, e são linhas legítimas, não
+      duplicatas. Complementa contrato (o instrumento) e licitacao_item (o que foi
+      licitado): ligue a contrato por id_contrato_bd e a licitacao_item por
+      codigo_catalogo, o mesmo catálogo de material e serviço nas duas pontas. Existe
+      só
+      para Minas Gerais; os outros estados publicam itens no processo licitatório,
+      não no
+      contrato. Atenção: valor_total_referencia e valor_total_homologado não são
+      quantidade vezes preço unitário na fonte, e a MG não documenta o multiplicador,
+      então
+      os três campos são publicados como vêm, sem recálculo. A fonte não publica preço
+      unitário homologado no contrato, então valor_unitario é sempre nulo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [valor_unitario]
+    columns:
+      - name: ano
+        description: Ano de assinatura do contrato
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_contrato_bd
+        description: >
+          Identificador do contrato construído pela Data Basis; junta-se a contrato
+          pelo
+          mesmo campo
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_execucao_estadual__contrato')
+              field: id_contrato_bd
+      - name: id_item_bd
+        description: >
+          Identificador do item construído pela Data Basis, único por (contrato, produto,
+          ocorrência)
+        tests: [not_null]
+      - name: numero_contrato
+        description: Número do contrato no sistema de origem
+      - name: numero_processo
+        description: Número do processo de compra que originou o contrato
+      - name: numero_item
+        description: >
+          Número do item no pedido, como publicado pela fonte; é uma linha de lote
+          e não
+          identifica o produto, podendo repetir-se dentro do contrato
+      - name: codigo_catalogo
+        description: >
+          Código do item de material ou serviço no catálogo da fonte; liga-se a
+          licitacao_item pelo mesmo campo
+      - name: descricao
+        description: Descrição do item de material ou serviço
+      - name: item_despesa
+        description: Código do item de despesa
+      - name: nome_item_despesa
+        description: Nome do item de despesa
+      - name: documento_contratado
+        description: CPF ou CNPJ do contratado, sem máscara
+      - name: nome_contratado
+        description: Nome ou razão social do contratado
+      - name: quantidade
+        description: >
+          Quantidade contratada do item, como publicada; não é o multiplicador que
+          produz
+          os valores totais
+      - name: valor_unitario
+        description: >
+          Preço unitário homologado, em reais correntes; sempre nulo em Minas Gerais,
+          que
+          não o publica no contrato
+      - name: valor_unitario_referencia
+        description: Preço unitário de referência do item em reais correntes
+      - name: valor_total_referencia
+        description: Valor total de referência do item em reais correntes
+      - name: valor_total_homologado
+        description: Valor total homologado do item em reais correntes
+  - name: br_bd_execucao_estadual__nota_fiscal
+    description: >
+      Notas fiscais recebidas pelos governos estaduais: o documento que o fornecedor
+      emitiu, com emissor, natureza, datas de emissão, recebimento e registro, e valor
+      total. Uma linha por nota. É a fase de entrega, que as outras tabelas não cobrem:
+      licitacao é o que se licitou, contrato o que se comprometeu, despesa, liquidacao
+      e
+      pagamento o que se gastou, e esta é o que o fornecedor de fato faturou. Limitação
+      da
+      fonte, importante: a nota não traz número de processo, de contrato nem de empenho
+      em
+      nenhum dos 114 arquivos do repositório de origem, então não há ligação por chave
+      com
+      contrato ou licitacao; a única ligação possível é probabilística, por unidade
+      gestora,
+      documento do emissor e período, e nos itens pelo código de catálogo. Os campos
+      ano e
+      mes são o mês de referência do arquivo de origem, não a data de emissão, porque
+      a
+      data de emissão vai de 1969 a 2026 e 4,3% das linhas têm ano de emissão anterior
+      ao
+      do arquivo; confere com o mês de registro em 100% das linhas. 1.736 notas (0,13%)
+      republicadas em mês posterior com status ou valor corrigido foram consolidadas
+      na
+      versão mais recente. Existe só para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_nota_fiscal_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do arquivo de origem, igual ao ano de registro
+        tests: [not_null]
+      - name: mes
+        description: Mês de referência do arquivo de origem, igual ao mês de registro
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_nota_fiscal_bd
+        description: >
+          Identificador da nota construído pela Data Basis a partir das oito colunas
+          que a
+          identificam na fonte; junta-se a nota_fiscal_item pelo mesmo campo
+        tests: [not_null]
+      - name: id_unidade_gestora
+        description: Código do órgão emissor da nota
+      - name: tipo_documento
+        description: Tipo do documento fiscal
+      - name: numero
+        description: Número da nota fiscal
+      - name: serie
+        description: Série da nota fiscal
+      - name: sequencial
+        description: Sequencial da nota fiscal no sistema de origem
+      - name: documento_emissor
+        description: CNPJ ou CPF do fornecedor emissor, sem máscara
+      - name: nome_emissor
+        description: Nome empresarial do fornecedor emissor
+      - name: situacao
+        description: Situação da nota fiscal
+      - name: natureza
+        description: Natureza da nota fiscal
+      - name: indicador_orcamento
+        description: Indicador de orçamento da nota fiscal
+      - name: data_emissao
+        description: >
+          Data de emissão da nota; a fonte traz valores de 1969 em diante, alguns
+          claramente sentinelas, então filtre antes de agregar por esta data
+      - name: data_recebimento
+        description: Data de recebimento da nota pelo órgão
+      - name: data_registro
+        description: Data de registro da nota no sistema
+      - name: valor_total
+        description: Valor total da nota com impostos, em reais correntes
+  - name: br_bd_execucao_estadual__nota_fiscal_item
+    description: >
+      Itens das notas fiscais recebidas pelos governos estaduais: cada produto catalogado
+      entregue, com quantidade e preço unitário efetivamente cobrado. Uma linha por
+      nota,
+      produto e ocorrência. É o grão mais fino do conjunto e o único lugar em que
+      aparece
+      um preço unitário efetivamente cobrado, e não de referência ou homologado. Ligue
+      a
+      nota_fiscal por id_nota_fiscal_bd e a licitacao_item ou contrato_item por
+      codigo_catalogo. Atenção: 0,11% das chaves de nota presentes aqui não têm linha
+      correspondente em nota_fiscal, então a ligação não é garantida e não há teste
+      de
+      integridade referencial; filtre pelo join quando precisar de pai garantido.
+      Os campos
+      ano e mes vêm do arquivo de origem porque estas linhas não trazem data alguma.
+      Existe
+      só para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do arquivo de origem
+        tests: [not_null]
+      - name: mes
+        description: Mês de referência do arquivo de origem
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_nota_fiscal_bd
+        description: >
+          Identificador da nota a que o item pertence; junta-se a nota_fiscal pelo
+          mesmo
+          campo, sem garantia de correspondência em 0,11% dos casos
+        tests: [not_null]
+      - name: id_item_bd
+        description: >
+          Identificador do item construído pela Data Basis, único por nota, produto
+          e
+          ocorrência
+        tests: [not_null]
+      - name: numero_item
+        description: Número do item na nota fiscal
+      - name: codigo_catalogo
+        description: >
+          Código do item de material no catálogo da fonte; liga-se a licitacao_item
+          e
+          contrato_item pelo mesmo campo
+      - name: descricao
+        description: Descrição do item de material
+      - name: unidade_medida
+        description: Descrição da unidade de fornecimento do item
+      - name: unidade_orcamentaria
+        description: Unidade orçamentária a que o item foi lançado
+      - name: item_despesa
+        description: Elemento item de despesa do item
+      - name: documento_emissor
+        description: CNPJ ou CPF do fornecedor emissor, sem máscara
+      - name: nome_emissor
+        description: Nome empresarial do fornecedor emissor
+      - name: quantidade
+        description: Quantidade do item na nota fiscal
+      - name: valor_unitario
+        description: Preço unitário efetivamente cobrado, em reais correntes
+      - name: valor_total
+        description: Valor total do item na nota, em reais correntes
+  - name: br_bd_execucao_estadual__contrato_fiscal
+    description: >
+      Gestores e fiscais de contrato dos governos estaduais: os servidores nomeados
+      para
+      gerir e fiscalizar cada contrato. Uma linha por contrato, papel e pessoa. É
+      a única
+      tabela do conjunto cujo grão é uma pessoa, e não um órgão ou um documento, e
+      permite
+      perguntar sobre carga de fiscalização, rotatividade e relação entre quem fiscaliza
+      e
+      o desempenho do contrato. A fonte publica listas separadas por vírgula numa
+      só
+      célula e este modelo as desmembra; a separação por vírgula é uma suposição,
+      e um nome
+      de uma só palavra é o indício de uma separação equivocada, o que ocorre em 0,16%
+      das
+      linhas. O campo masp é a matrícula do servidor, presente em 19% dos contratos
+      porque
+      só aí a fonte a informa. Ligue a contrato por id_contrato_bd; 13 linhas, de
+      2
+      contratos que não existem em contrato, ficam com id_contrato_bd nulo, então
+      não há
+      teste de integridade referencial. A lista de órgãos participantes do contrato,
+      também separada por vírgula na fonte, não é reproduzida aqui porque pertence
+      ao
+      contrato e não ao fiscal. Existe só para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_fiscal_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [masp]
+    columns:
+      - name: ano
+        description: Ano de publicação do contrato
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_contrato_bd
+        description: >
+          Identificador do contrato construído pela Data Basis; junta-se a contrato
+          pelo
+          mesmo campo, nulo nos 2 contratos ausentes de contrato
+      - name: id_fiscal_bd
+        description: >
+          Identificador construído pela Data Basis, único por contrato, papel e ocorrência
+        tests: [not_null]
+      - name: numero_contrato
+        description: Número do contrato no sistema de origem
+      - name: numero_processo
+        description: Número do processo de compra que originou o contrato
+      - name: id_unidade_gestora
+        description: Unidade gestora do contrato
+      - name: papel
+        description: >
+          Papel do servidor no contrato, gestor ou fiscal, conforme a coluna da fonte
+          de
+          que o nome foi extraído
+        tests: [not_null]
+      - name: nome
+        description: Nome do servidor, sem a matrícula quando a fonte a anexava ao
+          nome
+        tests: [not_null]
+      - name: masp
+        description: >
+          Matrícula do servidor (MASP), quando a fonte a informa junto ao nome; nula
+          na
+          maioria das linhas e nunca informada para gestores
+  - name: br_bd_execucao_estadual__fornecedor_sancionado
+    description: >
+      Fornecedores sancionados pelos governos estaduais: quem foi impedido de contratar
+      ou
+      penalizado, por quê, por qual órgão e em que período. Uma linha por sanção.
+      É a
+      margem de fiscalização, que nenhuma outra tabela do conjunto observa, e permite
+      a
+      pergunta direta de se ser sancionado afasta a empresa de contratos posteriores;
+      ligue documento_fornecedor a contrato.documento_contratado,
+      licitacao_participante.documento ou nota_fiscal.documento_emissor. Reúne dois
+      registros distintos marcados por origem: o CAFIMP, cadastro de fornecedores
+      impedidos, com 2.087 registros desde 2003, e os processos administrativos
+      sancionadores, com 54 e R$ 101 milhões em multas. A diferença de tamanho é da
+      fonte;
+      não leia os 54 como o total de sanções do estado e não some os dois cadastros,
+      porque
+      uma empresa pode aparecer nos dois pelo mesmo episódio. Campos que só um registro
+      possui são nulos no outro: o CAFIMP não traz conduta, multa nem fase processual,
+      e os
+      processos não trazem janela de penalidade nem código de órgão. Existe só para
+      Minas
+      Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_sancao_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.02
+          ignore_values:
+            - tipo_societario
+            - tipo_penalidade
+            - conduta
+            - fase
+            - data_inicio
+            - data_fim
+            - id_unidade_gestora
+            - nome_orgao_lesado
+            - valor_multa
+            - processo
+    columns:
+      - name: ano
+        description: >
+          Ano de publicação da sanção; numa linha do CAFIMP cuja data de publicação
+          é um
+          erro de digitação, o ano vem da data de início da penalidade
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_sancao_bd
+        description: Identificador da sanção construído pela Data Basis
+        tests: [not_null]
+      - name: origem
+        description: >
+          Registro de origem da linha, cafimp para o cadastro de impedidos e
+          processo_administrativo para os processos sancionadores
+        tests: [not_null]
+      - name: documento_fornecedor
+        description: >
+          CNPJ ou CPF do fornecedor, somente dígitos; normalizado porque os dois registros
+          o publicam em formatos diferentes
+      - name: nome_fornecedor
+        description: Nome ou razão social do fornecedor sancionado
+      - name: tipo_societario
+        description: Tipo societário da empresa; só nos processos administrativos
+      - name: tipo_penalidade
+        description: Tipo da penalidade aplicada; só no CAFIMP
+      - name: sancao
+        description: >
+          Descrição da sanção no CAFIMP, ou a decisão do processo nos processos
+          administrativos
+      - name: conduta
+        description: Conduta imputada à empresa; só nos processos administrativos
+      - name: fase
+        description: Fase processual; só nos processos administrativos
+      - name: data_publicacao
+        description: >
+          Data de publicação da sanção, como está na fonte, inclusive numa linha em
+          que é
+          um erro de digitação
+      - name: data_inicio
+        description: Data de início da penalidade; só no CAFIMP
+      - name: data_fim
+        description: Data de fim da penalidade; só no CAFIMP
+      - name: id_unidade_gestora
+        description: >
+          Código do órgão que registrou a sanção; só no CAFIMP, e com o sufixo decimal
+          da
+          planilha de origem removido
+      - name: nome_unidade_gestora
+        description: >
+          Nome do órgão que registrou a sanção, ou o órgão instaurador do processo
+      - name: nome_orgao_lesado
+        description: Órgão lesado pela conduta; só nos processos administrativos
+      - name: valor_multa
+        description: Valor da multa aplicada em reais correntes; só nos processos
+          administrativos
+      - name: processo
+        description: Número do processo administrativo ou do processo SEI
+  - name: br_bd_execucao_estadual__plano_contratacao_item
+    description: >
+      Plano anual de contratações dos governos estaduais, item a item: o que o estado
+      declarou que pretendia comprar, com quantidade, preço unitário previsto, ano
+      de
+      entrega e município, antes de comprar. Uma linha por ano-base, plano, item e
+      versão.
+      É a única tabela ex-ante do conjunto, o que torna mensurável a distância entre
+      o
+      planejado e o executado e permite usar o plano inicial como linha de base contra
+      a
+      qual medir discricionariedade posterior; ligue a contrato_item, licitacao_item
+      e
+      nota_fiscal_item por codigo_catalogo, e ao processo que o item virou por
+      numero_processo. Atenção às versões: a fonte as publica em duas colunas, versao
+      e
+      versao_detalhe, reproduzidas exatamente como vêm. Em 2023, 2024 e 2025 as duas
+      concordam e há duas versões limpas por ano; em 2026 elas se contradizem, com
+      98.544
+      linhas trazendo versao igual a revisão e versao_detalhe igual a INICIAL ao mesmo
+      tempo, e outras 109.511 sem versao alguma. Por isso não se publica um número
+      de
+      revisão normalizado, que exigiria escolher em silêncio entre dois rótulos
+      contraditórios. Atenção também aos valores: valor_total_previsto soma R$ 90,4
+      trilhões por causa de 42 linhas acima de R$ 1 bilhão, a maior de R$ 31,98 trilhões;
+      sem elas o total é R$ 169,1 bilhões, a mediana R$ 552,50 e o percentil 99 R$
+      915.308,16. As linhas não são corrigidas, seguindo a mesma decisão tomada para
+      a
+      linha de R$ 81,76 trilhões de licitacao; aplique um limite superior antes de
+      agregar.
+      O campo id_municipio é derivado do código de seis dígitos da fonte pelo diretório
+      de
+      municípios e é nulo nas linhas em que a fonte usa o sentinela estadual. Existe
+      só
+      para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_plano_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - versao
+            - versao_detalhe
+            - justificativa_desativacao
+            - data_conclusao_processo
+            - numero_processo
+    columns:
+      - name: ano
+        description: Ano-base do plano de contratações
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_plano_item_bd
+        description: >
+          Identificador construído pela Data Basis a partir de ano-base, plano, item
+          e as
+          duas colunas de versão da fonte
+        tests: [not_null]
+      - name: versao
+        description: >
+          Versão do plano como publicada na coluna base da fonte; contraditória com
+          versao_detalhe em 2026
+      - name: versao_detalhe
+        description: >
+          Versão do plano como publicada na coluna dado da fonte, presente só em quatro
+          arquivos de 2026
+      - name: numero_plano
+        description: Número formatado do planejamento de solicitações
+      - name: numero_item
+        description: Número do item dentro do planejamento
+      - name: situacao
+        description: Situação do planejamento
+      - name: item_ativo
+        description: Indicador de item de planejamento ativo
+      - name: centralizado
+        description: Indicador de compra centralizada
+      - name: id_orgao
+        description: Código do órgão que planejou a solicitação
+      - name: nome_orgao
+        description: Nome do órgão que planejou a solicitação
+      - name: id_unidade
+        description: Código da unidade que planejou a solicitação
+      - name: nome_unidade
+        description: Nome da unidade que planejou a solicitação
+      - name: codigo_catalogo
+        description: >
+          Código do item de material ou serviço no catálogo; liga-se a licitacao_item,
+          contrato_item e nota_fiscal_item pelo mesmo campo
+      - name: descricao
+        description: Descrição do item de material ou serviço
+      - name: codigo_material_servico
+        description: Código do material ou serviço
+      - name: nome_material_servico
+        description: Nome do material ou serviço
+      - name: codigo_grupo
+        description: Código do grupo de material ou serviço
+      - name: nome_grupo
+        description: Nome do grupo de material ou serviço
+      - name: codigo_classe
+        description: Código da classe de material ou serviço
+      - name: nome_classe
+        description: Nome da classe de material ou serviço
+      - name: item_despesa
+        description: >
+          Código do item de despesa previsto, no espaço de códigos do export da fonte;
+          NÃO
+          coincide com item_despesa do dicionario e não deve ser juntado a ele. O
+          rótulo
+          acompanha a linha em nome_item_despesa
+      - name: unidade_aquisicao
+        description: Unidade de aquisição do item
+      - name: descricao_unidade_aquisicao
+        description: Descrição da unidade de aquisição
+      - name: quantidade
+        description: Quantidade prevista do item
+      - name: valor_unitario_previsto
+        description: >
+          Preço unitário previsto em reais correntes; contém valores implausíveis,
+          ver a
+          descrição da tabela
+      - name: valor_total_previsto
+        description: >
+          Valor total previsto em reais correntes; contém 42 valores implausíveis,
+          ver a
+          descrição da tabela
+      - name: ano_inicio_execucao
+        description: Ano previsto de início da execução ou entrega
+      - name: id_municipio
+        description: >
+          Código IBGE de sete dígitos do município previsto, derivado do código de
+          seis
+          dígitos da fonte; nulo quando a fonte usa o sentinela estadual
+      - name: nome_municipio
+        description: Nome do município previsto, como publicado
+      - name: unidade_orcamentaria
+        description: Unidade orçamentária prevista
+      - name: projeto_atividade
+        description: Projeto ou atividade orçamentária prevista
+      - name: fonte_recurso
+        description: >
+          Código da fonte de recurso prevista; mesmo espaço de códigos de
+          despesa.fonte_recurso e coberto pelo dicionario
+      - name: procedencia
+        description: Procedência prevista do material ou serviço
+      - name: numero_processo
+        description: >
+          Número do planejamento de processo de compra em que o item se transformou,
+          quando já houve
+      - name: procedimento_contratacao
+        description: Procedimento de contratação previsto
+      - name: objeto
+        description: Objeto do processo de compra
+      - name: data_criacao_plano
+        description: Data de criação do planejamento de solicitações
+      - name: data_aprovacao_plano
+        description: Data de aprovação ou reprovação do planejamento
+      - name: data_criacao_processo
+        description: Data de criação do planejamento de processo de compra
+      - name: data_conclusao_processo
+        description: Data de conclusão do processo de compra
+      - name: justificativa_desativacao
+        description: Justificativa de desativação do item de planejamento

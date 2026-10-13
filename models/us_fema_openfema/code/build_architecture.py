@@ -14,7 +14,7 @@ glossary entry, a numeric column with no declared unit, or a coded column that
 did not end up STRING all raise. Silence there would ship a column with an
 empty description or a meaningless unit into the catalog.
 
-    uv run python build_architecture.py
+    uv run build_architecture.py
 """
 
 from __future__ import annotations
