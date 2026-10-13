@@ -792,6 +792,9 @@ models:
     us_ucla_voteview:
       +materialized: table
       +schema: us_ucla_voteview
+    us_nyuad_cora:
+      +materialized: table
+      +schema: us_nyuad_cora
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
@@ -843,9 +846,9 @@ models:
     world_olympedia_olympics:
       +materialized: table
       +schema: world_olympedia_olympics
-    world_openalex:
+    ca_ourresearch_openalex:
       +materialized: table
-      +schema: world_openalex
+      +schema: ca_ourresearch_openalex
     world_sofascore_competicoes_futebol:
       +materialized: table
       +schema: world_sofascore_competicoes_futebol
