@@ -1,7 +1,7 @@
 """Build the per-table auxiliary-file bundles for world_oecd_piaac.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/build_auxiliary.py [--upload] [--env dev|prod]
+    uv run models/world_oecd_piaac/code/build_auxiliary.py [--upload] [--env dev|prod]
 
 Follows .claude/rules/auxiliary-files.md: one ZIP per table containing only the
 documents a user of that table needs, each bundle carrying a README with the
@@ -16,9 +16,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import constants as piaac
+from models.world_oecd_piaac.code import constants as piaac
 
 BUNDLE_ROOT = piaac.OUTPUT_ROOT / "auxiliary_files"
 DOWNLOADED_ON = dt.date(2026, 8, 21).isoformat()

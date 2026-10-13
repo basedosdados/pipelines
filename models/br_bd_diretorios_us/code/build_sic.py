@@ -36,7 +36,7 @@ appears in `us_sec_edgar.submission`.
 OSHA's index lists major group 99 under Division J; the 1987 standard puts it in
 Division K, Nonclassifiable Establishments, and that correction is applied here.
 
-    uv run python models/br_bd_diretorios_us/code/build_sic.py
+    uv run models/br_bd_diretorios_us/code/build_sic.py
 
 Writes `<outdir>/sic/data.parquet` (all-STRING staging) plus a CSV copy beside
 it for review. Both go to the scratch directory, never into the repo.

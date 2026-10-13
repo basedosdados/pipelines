@@ -3,14 +3,14 @@
 The backend metadata is generated from the same CSV as the transform and the dbt
 model, so the three cannot describe different schemas.
 
-Run: uv run python models/us_eia_seds/code/gen_columns_json.py [out_dir]
+Run: uv run models/us_eia_seds/code/gen_columns_json.py [out_dir]
 """
 
 import json
 import sys
 from pathlib import Path
 
-from common import DATA_TABLES, load_cols
+from models.us_eia_consumption.code.common import DATA_TABLES, load_cols
 
 DICIONARIO_COLUMNS = [
     {

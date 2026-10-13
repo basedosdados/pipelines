@@ -8,8 +8,6 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 BASE = Path(__file__).resolve().parents[1] / "data"

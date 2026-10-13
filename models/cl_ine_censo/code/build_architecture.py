@@ -18,13 +18,14 @@ import csv
 
 import openpyxl  # type: ignore[import-untyped]
 import pyarrow.dataset as pads
-from constants import (
+
+from models.cl_ine_censo.code.constants import (
     AGGREGATE_PREFIXES,
     ARCHITECTURE_DIR,
     INPUT_DIR,
     OUTPUT_DIR,
 )
-from dictionary import _clean, load_redatam_dictionary
+from models.cl_ine_censo.code.dictionary import _clean, load_redatam_dictionary
 
 FIELDS = [
     "name",
@@ -186,6 +187,7 @@ def load_aggregate_descriptions() -> dict[str, str]:
         universe = (
             _clean(str(row[4])) if len(row) > 4 and row[4] is not None else ""
         )
+        # pyrefly: ignore [unsupported-operation]
         descriptions[name] = (description, universe)
     return descriptions
 

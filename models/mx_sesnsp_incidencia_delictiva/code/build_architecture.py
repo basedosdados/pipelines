@@ -14,7 +14,7 @@ Columns (data-basis-style.md order):
   directory_column,measurement_unit,has_sensitive_data,observations,original_name
 
 Usage:
-    uv run python models/mx_sesnsp_incidencia_delictiva/code/build_architecture.py
+    uv run models/mx_sesnsp_incidencia_delictiva/code/build_architecture.py
 """
 
 import csv

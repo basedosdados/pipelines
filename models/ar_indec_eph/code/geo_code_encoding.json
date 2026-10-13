@@ -1,0 +1,876 @@
+{
+ "CH15_COD": {
+  "2003Q3": {
+   "n": 7987,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2003Q4": {
+   "n": 8348,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q1": {
+   "n": 8129,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q2": {
+   "n": 8541,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q3": {
+   "n": 8392,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q4": {
+   "n": 8247,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q1": {
+   "n": 8260,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q2": {
+   "n": 8271,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q3": {
+   "n": 8251,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q4": {
+   "n": 8046,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q1": {
+   "n": 7810,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q2": {
+   "n": 8262,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q3": {
+   "n": 11643,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q4": {
+   "n": 11492,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2007Q1": {
+   "n": 11408,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2007Q2": {
+   "n": 11596,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2007Q4": {
+   "n": 11130,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q1": {
+   "n": 11198,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q2": {
+   "n": 11216,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q3": {
+   "n": 11261,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q4": {
+   "n": 10946,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q1": {
+   "n": 10845,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q2": {
+   "n": 10912,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q3": {
+   "n": 10678,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q4": {
+   "n": 10415,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q1": {
+   "n": 10460,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q2": {
+   "n": 10604,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q3": {
+   "n": 10559,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q4": {
+   "n": 10449,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q1": {
+   "n": 10340,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q2": {
+   "n": 10357,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q3": {
+   "n": 10119,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q4": {
+   "n": 9906,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q1": {
+   "n": 9522,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q2": {
+   "n": 9888,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q3": {
+   "n": 9802,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q4": {
+   "n": 9423,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q1": {
+   "n": 9262,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q2": {
+   "n": 9498,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q3": {
+   "n": 9733,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q4": {
+   "n": 9535,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q1": {
+   "n": 9832,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q2": {
+   "n": 10396,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q3": {
+   "n": 10185,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q4": {
+   "n": 9871,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2015Q1": {
+   "n": 9821,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2015Q2": {
+   "n": 10040,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2016Q2": {
+   "n": 9640,
+   "alphabetic": 9640,
+   "share_alphabetic": 1.0
+  },
+  "2016Q3": {
+   "n": 9550,
+   "alphabetic": 9550,
+   "share_alphabetic": 1.0
+  },
+  "2016Q4": {
+   "n": 9273,
+   "alphabetic": 9273,
+   "share_alphabetic": 1.0
+  },
+  "2017Q1": {
+   "n": 9332,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2017Q2": {
+   "n": 9600,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2017Q3": {
+   "n": 9171,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2017Q4": {
+   "n": 9228,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q1": {
+   "n": 9109,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q2": {
+   "n": 9246,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q3": {
+   "n": 9042,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q4": {
+   "n": 9178,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q1": {
+   "n": 9201,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q2": {
+   "n": 9041,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q3": {
+   "n": 9079,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q4": {
+   "n": 9151,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q1": {
+   "n": 7894,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q2": {
+   "n": 5165,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q3": {
+   "n": 5944,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q4": {
+   "n": 6340,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q1": {
+   "n": 7043,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q2": {
+   "n": 7199,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q3": {
+   "n": 7323,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q4": {
+   "n": 7430,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q1": {
+   "n": 7455,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q2": {
+   "n": 7951,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q3": {
+   "n": 7768,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q4": {
+   "n": 7245,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q1": {
+   "n": 7222,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q2": {
+   "n": 7507,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q3": {
+   "n": 7366,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q4": {
+   "n": 7048,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q1": {
+   "n": 6734,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q2": {
+   "n": 6969,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q3": {
+   "n": 7036,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q4": {
+   "n": 7002,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q1": {
+   "n": 6653,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q2": {
+   "n": 6819,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q3": {
+   "n": 6607,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q4": {
+   "n": 6395,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2026Q1": {
+   "n": 6329,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  }
+ },
+ "CH16_COD": {
+  "2003Q3": {
+   "n": 989,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2003Q4": {
+   "n": 1046,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q1": {
+   "n": 1014,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q2": {
+   "n": 1065,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q3": {
+   "n": 1172,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2004Q4": {
+   "n": 1052,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q1": {
+   "n": 1003,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q2": {
+   "n": 1103,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q3": {
+   "n": 1075,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2005Q4": {
+   "n": 1041,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q1": {
+   "n": 972,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q2": {
+   "n": 1015,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q3": {
+   "n": 1665,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2006Q4": {
+   "n": 1565,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2007Q1": {
+   "n": 1526,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2007Q2": {
+   "n": 1579,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2007Q4": {
+   "n": 1456,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q1": {
+   "n": 1450,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q2": {
+   "n": 1549,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q3": {
+   "n": 1493,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2008Q4": {
+   "n": 1472,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q1": {
+   "n": 1579,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q2": {
+   "n": 1558,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q3": {
+   "n": 1421,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2009Q4": {
+   "n": 1351,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q1": {
+   "n": 1367,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q2": {
+   "n": 1463,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q3": {
+   "n": 1485,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2010Q4": {
+   "n": 1421,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q1": {
+   "n": 1410,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q2": {
+   "n": 1509,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q3": {
+   "n": 1256,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2011Q4": {
+   "n": 1036,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q1": {
+   "n": 1053,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q2": {
+   "n": 1221,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q3": {
+   "n": 1211,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2012Q4": {
+   "n": 1018,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q1": {
+   "n": 977,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q2": {
+   "n": 1078,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q3": {
+   "n": 1177,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2013Q4": {
+   "n": 1101,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q1": {
+   "n": 988,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q2": {
+   "n": 1251,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q3": {
+   "n": 1184,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2014Q4": {
+   "n": 983,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2015Q1": {
+   "n": 881,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2015Q2": {
+   "n": 954,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2016Q2": {
+   "n": 845,
+   "alphabetic": 845,
+   "share_alphabetic": 1.0
+  },
+  "2016Q3": {
+   "n": 840,
+   "alphabetic": 840,
+   "share_alphabetic": 1.0
+  },
+  "2016Q4": {
+   "n": 797,
+   "alphabetic": 797,
+   "share_alphabetic": 1.0
+  },
+  "2017Q1": {
+   "n": 788,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2017Q2": {
+   "n": 795,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2017Q3": {
+   "n": 879,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2017Q4": {
+   "n": 920,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q1": {
+   "n": 902,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q2": {
+   "n": 851,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q3": {
+   "n": 843,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2018Q4": {
+   "n": 981,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q1": {
+   "n": 915,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q2": {
+   "n": 844,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q3": {
+   "n": 838,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2019Q4": {
+   "n": 962,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q1": {
+   "n": 817,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q2": {
+   "n": 440,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q3": {
+   "n": 525,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2020Q4": {
+   "n": 542,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q1": {
+   "n": 591,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q2": {
+   "n": 688,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q3": {
+   "n": 662,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2021Q4": {
+   "n": 683,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q1": {
+   "n": 686,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q2": {
+   "n": 856,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q3": {
+   "n": 726,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2022Q4": {
+   "n": 614,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q1": {
+   "n": 616,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q2": {
+   "n": 738,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q3": {
+   "n": 742,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2023Q4": {
+   "n": 717,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q1": {
+   "n": 558,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q2": {
+   "n": 618,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q3": {
+   "n": 597,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2024Q4": {
+   "n": 644,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q1": {
+   "n": 526,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q2": {
+   "n": 585,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q3": {
+   "n": 576,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2025Q4": {
+   "n": 569,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  },
+  "2026Q1": {
+   "n": 563,
+   "alphabetic": 0,
+   "share_alphabetic": 0.0
+  }
+ }
+}

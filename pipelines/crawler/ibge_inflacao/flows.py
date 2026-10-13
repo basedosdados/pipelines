@@ -32,7 +32,6 @@ def _run_ibge_inflacao(
     force_run: bool = False,
 ) -> None:
     """Lógica completa do flow de inflação IBGE. Chamada pelos flows de cada dataset."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

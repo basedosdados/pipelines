@@ -66,7 +66,6 @@ def _run_operacoes(
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -168,7 +167,6 @@ def _run_operacoes_exportacao_bens(
         update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -271,7 +269,6 @@ def _run_operacoes_exportacao_servicos(
         target (str): target do dbt na etapa de prod.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -375,7 +372,6 @@ def _run_operacoes_administracao_publica(
         target (str): target do dbt na etapa de prod.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

@@ -5,10 +5,15 @@ Equivalent of sub/detalhes_votacao_municipio_zona.do.
 
 import numpy as np
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.clean_election_type import clean_election_type_series
-from utils.clean_string import clean_string_series
-from utils.helpers import (
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.clean_election_type import (
+    clean_election_type_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_string import (
+    clean_string_series,
+)
+from models.br_tse_eleicoes.code.python.utils.helpers import (
     merge_municipio,
     parse_date_br,
     read_raw_csv,
@@ -33,6 +38,7 @@ UFS = {
     2020: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
     2022: ["AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
     2024: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2026: ["AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
 }
 # fmt: on
 

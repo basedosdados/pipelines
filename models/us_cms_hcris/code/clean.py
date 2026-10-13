@@ -1,8 +1,8 @@
 """Download and clean every HCRIS hospital extract into partitioned parquet.
 
-    python clean.py                 # every extract in EXTRACTS
-    python clean.py 2552-10:2024    # one extract
-    python clean.py --skip-download
+    uv run models/us_cms_hcris/code/clean.py                 # every extract in EXTRACTS
+    uv run models/us_cms_hcris/code/clean.py 2552-10:2024    # one extract
+    uv run models/us_cms_hcris/code/clean.py --skip-download
 
 Writes ``<OUTPUT>/report/year=<YYYY>/`` and ``<OUTPUT>/report_value/year=<YYYY>/``,
 all-STRING Snappy parquet. One file per (table, partition, source extract), so
@@ -16,7 +16,7 @@ unpacked at once.
 import sys
 import time
 
-from common import (
+from models.us_cms_hcris.code.common import (
     EXTRACTS,
     INPUT,
     OUTPUT,

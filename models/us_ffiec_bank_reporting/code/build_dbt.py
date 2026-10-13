@@ -7,7 +7,7 @@ Regeneration is a TWO-step process. This script emits the models and schema;
 the repo's sqlfmt and yamlfix pre-commit hooks then normalise line wrapping and
 list style. Run
 
-    python build_dbt.py && pre-commit run --files models/us_ffiec_bank_reporting/schema.yml models/us_ffiec_bank_reporting/*.sql
+    uv run models/us_ffiec_bank_reporting/code/build_dbt.py && pre-commit run --files models/us_ffiec_bank_reporting/schema.yml models/us_ffiec_bank_reporting/*.sql
 
 or pre-commit.ci will push an autofix commit on top of yours, and your next
 regeneration will diff against it forever. The from-clause is emitted
@@ -28,7 +28,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from schema_def import TABLES
+from models.us_ffiec_bank_reporting.code.schema_def import TABLES
 
 DATASET = "us_ffiec_bank_reporting"
 MODEL_DIR = Path(__file__).resolve().parents[1]

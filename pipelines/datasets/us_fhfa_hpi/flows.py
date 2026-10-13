@@ -151,7 +151,6 @@ def us_fhfa_hpi_master_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="master"
     )
@@ -218,7 +217,6 @@ def us_fhfa_hpi_annual_flow(
     FHFA releases these once a year, in late March. Args are as for
     :func:`us_fhfa_hpi_master_flow`.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="annual"
     )

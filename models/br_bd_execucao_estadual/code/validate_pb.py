@@ -25,7 +25,7 @@ script reports BOTH figures on every run rather than asserting one, so the quest
 stays in front of whoever reads the output instead of being settled by silence.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_pb.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_pb.py [--env dev]
 """
 
 from __future__ import annotations

@@ -15,12 +15,9 @@ from __future__ import annotations
 import csv
 import io
 import os
-import sys
 import zipfile
 from collections import OrderedDict
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 

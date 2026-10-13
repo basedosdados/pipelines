@@ -24,6 +24,18 @@ class constants(Enum):
         "licitacao_item",
         "licitacao_participante",
         "contrato",
+        # MG-only: the contract-item grain. The dimensional model publishes items per
+        # process (`licitacao_item`), never per contract.
+        "contrato_item",
+        # MG-only: the delivery phase. No other state publishes invoices.
+        "nota_fiscal",
+        "nota_fiscal_item",
+        # MG-only, and the only table whose grain is a person.
+        "contrato_fiscal",
+        # MG-only: the enforcement margin.
+        "fornecedor_sancionado",
+        # MG-only, and the only ex-ante table: the annual procurement plan.
+        "plano_contratacao_item",
         "relacionamentos",
         "dicionario",
     ]
@@ -37,6 +49,16 @@ class constants(Enum):
             "despesa",
             "licitacao",
             "licitacao_item",
+            # MG's contract registry comes from the `compras_contratos` dimensional
+            # model, joined to the `portal_contratos` flat export for the signature
+            # date and the unmasked counterparty.
+            "contrato",
+            "contrato_item",
+            "nota_fiscal",
+            "nota_fiscal_item",
+            "contrato_fiscal",
+            "fornecedor_sancionado",
+            "plano_contratacao_item",
             "relacionamentos",
             "dicionario",
         ],
@@ -151,6 +173,17 @@ class constants(Enum):
             "mg_dm_tempo",
             "mg_fl_compras_empenho",
             "mg_dm_empenho_compras",
+            # Not from CKAN: the `portal_contratos` flat export on
+            # github.com/transparencia-mg, 2022+. Supplies `data_assinatura` and the
+            # real CNPJ/name, which the anonymised `mg_dm_contratado` cannot.
+            "mg_contrato",
+            "mg_contrato_item",
+            "mg_contrato_fiscal",
+            "mg_nota_fiscal",
+            "mg_nota_fiscal_item",
+            "mg_fornecedor_impedido",
+            "mg_empresa_sancionada",
+            "mg_plano_contratacao_item",
         ],
         "BA": [
             "ba_despesa",

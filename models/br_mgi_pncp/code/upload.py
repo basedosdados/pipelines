@@ -1,7 +1,7 @@
 """Upload cleaned br_mgi_pncp parquet to BigQuery dev staging.
 
 Usage:
-    uv run python models/br_mgi_pncp/code/upload.py [--table <slug>]
+    uv run models/br_mgi_pncp/code/upload.py [--table <slug>]
 
 Dev only: billing and target project is basedosdados-dev. Prod table data is
 materialised by the table-approve action when the onboarding PR merges, never
@@ -32,8 +32,6 @@ warnings.filterwarnings("ignore")
 import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_mgi_pncp.constants import constants  # noqa: E402
 

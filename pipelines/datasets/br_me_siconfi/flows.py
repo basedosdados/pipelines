@@ -122,7 +122,6 @@ def br_me_siconfi_flow(
     if end_year is None:
         end_year = now_year
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="siconfi"
     )

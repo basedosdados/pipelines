@@ -91,7 +91,6 @@ def br_mf_divida_ativa_flow(
             prod. Use for a safe dev smoke test:
             ``{materialize_to_prod: False, update_metadata: False, force_run: True}``.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
     )
@@ -107,7 +106,6 @@ def br_mf_divida_ativa_flow(
 
         # Record a Poll on the source (audit: "when we last looked"). Non-gating —
         # the ingest decision is driven by discover_new_quarters, not this return.
-        # pyrefly: ignore [unused-coroutine]
         poll_source_for_update_task(
             dataset_id=DATASET_ID,
             table_id=ANCHOR_TABLE,

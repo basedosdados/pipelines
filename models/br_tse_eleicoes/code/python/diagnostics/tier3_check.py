@@ -64,6 +64,7 @@ def _check_positional(site, layout) -> tuple[list[dict], list[dict]]:
 def _norm_header(name: str) -> str:
     """Normalize a header name exactly as ``read_raw_csv`` does at runtime:
     lowercase, accent-stripped, internal whitespace collapsed."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     s = " ".join(str(name).strip().strip('"').split())
     s = "".join(
         c
@@ -121,7 +122,9 @@ def run(table: str | None = None) -> list[Finding]:
             site_d = asdict(site) if not isinstance(site, dict) else site
             if site_d["kind"] == "named":
                 named_years_by_key.setdefault(
-                    (audit.tables[0], audit.family), set()
+                    (audit.tables[0], audit.family),
+                    set(),
+                    # pyrefly: ignore [bad-argument-type]
                 ).update(site_d["years"])
 
     for audit in audits:
@@ -129,7 +132,9 @@ def run(table: str | None = None) -> list[Finding]:
         named_years = named_years_by_key.get((table_name, audit.family), set())
         for site in audit.sites:
             site_d = asdict(site) if not isinstance(site, dict) else site
+            # pyrefly: ignore [bad-argument-type]
             suppressed = SUPPRESSED_SITES.get((audit.module, site_d["lineno"]))
+            # pyrefly: ignore [not-iterable]
             for ano in site_d["years"]:
                 if suppressed:
                     findings.append(
@@ -137,16 +142,20 @@ def run(table: str | None = None) -> list[Finding]:
                             table=table_name,
                             module=audit.module,
                             function=audit.function,
+                            # pyrefly: ignore [bad-argument-type]
                             lineno=site_d["lineno"],
                             family=audit.family,
+                            # pyrefly: ignore [bad-argument-type]
                             ano=ano,
                             severity="WARN",
                             kind="UNVERIFIED_VARIANT",
+                            # pyrefly: ignore [bad-argument-type]
                             variant=site_d.get("variant", ""),
                             details=[{"reason": suppressed}],
                         )
                     )
                     continue
+                # pyrefly: ignore [bad-argument-type]
                 layout = load_layout(audit.family, ano)
                 base = dict(
                     table=table_name,
@@ -159,6 +168,7 @@ def run(table: str | None = None) -> list[Finding]:
                 )
                 if layout is None or len(layout.columns) < 3:
                     findings.append(
+                        # pyrefly: ignore [bad-argument-type]
                         Finding(**base, severity="NO_LAYOUT", kind="NO_LAYOUT")
                     )
                     continue
@@ -172,6 +182,7 @@ def run(table: str | None = None) -> list[Finding]:
                         # only drops the column, so this is WARN not FAIL
                         findings.append(
                             Finding(
+                                # pyrefly: ignore [bad-argument-type]
                                 **base,
                                 severity="WARN",
                                 kind="MISSING_KEY",
@@ -181,6 +192,7 @@ def run(table: str | None = None) -> list[Finding]:
                     if affinity_bad:
                         findings.append(
                             Finding(
+                                # pyrefly: ignore [bad-argument-type]
                                 **base,
                                 severity="WARN",
                                 kind="NAMED_AFFINITY_MISMATCH",
@@ -189,6 +201,7 @@ def run(table: str | None = None) -> list[Finding]:
                         )
                     if not missing and not affinity_bad:
                         findings.append(
+                            # pyrefly: ignore [bad-argument-type]
                             Finding(**base, severity="OK", kind="OK")
                         )
                     continue
@@ -196,6 +209,7 @@ def run(table: str | None = None) -> list[Finding]:
                 if ano in named_years and layout.has_header:
                     findings.append(
                         Finding(
+                            # pyrefly: ignore [bad-argument-type]
                             **base,
                             severity="OK",
                             kind="POSITIONAL_FALLBACK_UNUSED",
@@ -217,6 +231,7 @@ def run(table: str | None = None) -> list[Finding]:
                 if out_of_range:
                     findings.append(
                         Finding(
+                            # pyrefly: ignore [bad-argument-type]
                             **base,
                             severity="FAIL" if layout.has_header else "WARN",
                             kind="OUT_OF_RANGE",
@@ -226,6 +241,7 @@ def run(table: str | None = None) -> list[Finding]:
                 if mismatches:
                     findings.append(
                         Finding(
+                            # pyrefly: ignore [bad-argument-type]
                             **base,
                             severity="FAIL" if layout.has_header else "WARN",
                             kind="POSITIONAL_MAPPING_MISMATCH",
@@ -233,6 +249,7 @@ def run(table: str | None = None) -> list[Finding]:
                         )
                     )
                 if not mismatches and not out_of_range:
+                    # pyrefly: ignore [bad-argument-type]
                     findings.append(Finding(**base, severity="OK", kind="OK"))
 
     ARTIFACTS.mkdir(parents=True, exist_ok=True)

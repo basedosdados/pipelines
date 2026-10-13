@@ -1,7 +1,7 @@
 """Download Censo 2022 public microdata (per-UF CSV zips) and the layout.
 
 Usage:
-    uv run python models/br_ibge_censo_demografico/code/download.py [--ufs RR,AC]
+    uv run models/br_ibge_censo_demografico/code/download.py [--ufs RR,AC]
 """
 
 from __future__ import annotations

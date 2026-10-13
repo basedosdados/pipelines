@@ -1,7 +1,7 @@
 """Measure the cleaned us_census_cog parquet before it goes anywhere.
 
-    python validate.py                 # every table
-    python validate.py finance
+    uv run models/us_census_cog/code/validate.py                 # every table
+    uv run models/us_census_cog/code/validate.py finance
 
 Reports, per table: row counts by year, the non-null share of every column, the
 uniqueness of each declared key, and the share of geographic identifiers absent
@@ -26,8 +26,8 @@ from collections import Counter
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-from common import DATA_TABLES, OUTPUT
 
+from models.us_census_cog.code.common import DATA_TABLES, OUTPUT
 from pipelines.datasets.us_census_cog.utils import load_cols
 
 CACHE = OUTPUT.parent / "directory_cache.json"
@@ -61,13 +61,11 @@ def directory_values() -> dict[str, list[str]]:
     """Fetch the directory key columns, caching them next to the output."""
     if CACHE.exists():
         return json.loads(CACHE.read_text())
-    from metadata import import_databasis_server
-
-    server = import_databasis_server()
+    import databasis_mcp.tools.bigquery as bd_mcp_bigquery
 
     out = {}
     for column, (table, field) in DIRECTORIES.items():
-        result = server.query_bigquery(
+        result = bd_mcp_bigquery.query_bigquery(
             sql=f"select {field} from `basedosdados.{table}`",
             billing_project="basedosdados-dev",
         )
@@ -120,17 +118,21 @@ def check(table: str, directories: dict[str, list[str]]) -> None:
             if column not in columns:
                 continue
             values = data.column(column).combine_chunks()
+            # pyrefly: ignore [missing-attribute]
             valid = pc.drop_null(values)
             present[column] += len(valid)
             if not len(valid):
                 continue
+            # pyrefly: ignore [missing-attribute]
             known = pc.is_in(
                 valid,
                 value_set=pa.array(directories[column], type=pa.string()),
             )
+            # pyrefly: ignore [missing-attribute]
             missing[column] += len(valid) - (pc.sum(known).as_py() or 0)
         for label, key in KEYS.get(table, []):
             subset = data.select(key)
+            # pyrefly: ignore [missing-attribute]
             subset = subset.filter(pc.is_valid(subset.column(label)))
             if subset.num_rows == 0:
                 continue

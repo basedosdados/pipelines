@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import datetime
 import os
-import sys
 import tomllib
 import urllib.request
 import zipfile
@@ -23,8 +22,6 @@ from pathlib import Path
 
 from google.cloud import storage
 from google.oauth2 import service_account
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_bps.constants import constants
 
@@ -200,6 +197,7 @@ def main() -> int:
         try:
             with urllib.request.urlopen(request, timeout=60) as response:
                 status = str(response.status)
+        # pyrefly: ignore [implicit-import]
         except urllib.error.HTTPError as exc:
             status = f"{exc.code} {exc.reason}"
         except Exception as exc:

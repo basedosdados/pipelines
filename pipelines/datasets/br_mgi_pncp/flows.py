@@ -131,7 +131,6 @@ def br_mgi_pncp_flow(
         lookback_days: How far back to re-harvest. Wider than the schedule
             interval on purpose, because PNCP backdates amendments.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="contratacao"
     )

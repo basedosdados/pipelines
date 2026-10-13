@@ -59,9 +59,9 @@ file name itself, per municipality, for free.
 
 Usage:
     export MG_TOKEN_FILE=/path/to/token.txt
-    python harvest_mg.py --plan                      # enumerate, no downloads
-    python harvest_mg.py --year 2025                 # harvest one exercise
-    python harvest_mg.py                             # everything, 2014-2026
+    uv run models/world_wb_mides/code/harvest_mg.py --plan                      # enumerate, no downloads
+    uv run models/world_wb_mides/code/harvest_mg.py --year 2025                 # harvest one exercise
+    uv run models/world_wb_mides/code/harvest_mg.py                             # everything, 2014-2026
 """
 
 from __future__ import annotations
@@ -86,9 +86,7 @@ from pathlib import Path
 import certifi
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import (
+from models.world_wb_mides.code.constants import (
     BROWSER_UA,
     DATA_DIR,
     MG_API,

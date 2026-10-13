@@ -66,7 +66,6 @@ def build_urls(
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             log(f"URL -> {url_completa}")
             list_url.append(url_completa)
-        # pyrefly: ignore [bad-return]
         return list_url
 
 
@@ -136,7 +135,6 @@ def download_file(
         # pyrefly: ignore [bad-argument-type]
         input = Path(value_constants["INPUT"])
         if not os.path.exists(input):
-            # pyrefly: ignore [bad-argument-type]
             os.makedirs(input)
         url = build_urls(
             # pyrefly: ignore [bad-argument-type]

@@ -12,17 +12,15 @@ coisa. Três decisões o definem:
 
 O download e a extração acontecem só se os CSVs não estiverem em disco.
 
-    uv run python run_local.py                 # trata
-    uv run python run_local.py --output /tmp/x # outro destino
+    uv run run_local.py                 # trata
+    uv run run_local.py --output /tmp/x # outro destino
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from constants import (  # type: ignore
+from models.br_inep_censo_escolar.code.constants import (
     ANO,
     ARCHITECTURE_URL,
     BILLING_PROJECT_ID,
@@ -36,7 +34,7 @@ from constants import (  # type: ignore
     URL,
     ZIP_PATH,
 )
-from utils import (  # type: ignore
+from models.br_inep_censo_escolar.code.utils import (
     align_columns,
     build_escola,
     colunas_da_edicao,

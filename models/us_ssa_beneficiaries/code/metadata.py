@@ -1,8 +1,8 @@
 """Register us_ssa_beneficiaries metadata in the Data Basis backend.
 
-    uv run python models/us_ssa_beneficiaries/code/metadata.py --env staging
-    uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod
-    uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
+    uv run models/us_ssa_beneficiaries/code/metadata.py --env staging
+    uv run models/us_ssa_beneficiaries/code/metadata.py --env prod
+    uv run models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
 
 Idempotent: every record is looked up before it is written and existing ids are
 reused. ``create_update_*`` creates a duplicate when called without an id, so a
@@ -16,36 +16,14 @@ are verified. ``--publish`` flips the status and does nothing else.
 
 from __future__ import annotations
 
-# ruff: noqa: E402  (the MCP server lives outside the repo, so sys.path comes first)
 import argparse
 import datetime
-import os
-import sys
-from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-HERE = Path(__file__).resolve().parent
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-# The databasis MCP server lives outside this repo. Point BD_MCP_ROOT at it;
-# the default is the usual Dropbox checkout. Fail loudly rather than dying on
-# an opaque ImportError three lines later.
-MCP_ROOT = Path(
-    os.environ.get(
-        "BD_MCP_ROOT",
-        Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp",
-    )
-)
-if not (MCP_ROOT / "server.py").is_file():
-    raise SystemExit(
-        f"databasis MCP server not found at {MCP_ROOT}/server.py — "
-        f"set BD_MCP_ROOT to the directory containing it"
-    )
-for path in (str(REPO_ROOT), str(MCP_ROOT), str(HERE)):
-    sys.path.insert(0, path)
-
-import server  # type: ignore[import-not-found]  # pyrefly: ignore[import-error]
-from build_columns_json import columns_json  # type: ignore[import-not-found]
+from models.us_ssa_beneficiaries.code.build_columns_json import columns_json
 
 DATASET_SLUG = "beneficiaries"
 GCP_DATASET = "us_ssa_beneficiaries"
@@ -333,7 +311,7 @@ def tool(name: str) -> Any:
     Returns ``Any``: the MCP module is untyped and the tools are resolved by
     name, so a precise signature is not recoverable here.
     """
-    fn = getattr(server, name)
+    fn = getattr(bd_mcp_metadata, name, None) or getattr(bd_mcp_write, name)
     return getattr(fn, "fn", fn)
 
 
@@ -352,7 +330,7 @@ def current_status_id(dataset_id: str | None, env: str) -> str | None:
     """
     if not dataset_id:
         return None
-    edges = server._gql(
+    edges = bd_mcp_metadata._gql(
         "query($id: ID!) { allDataset(id: $id) { edges { node { status { id } } } } }",
         {"id": dataset_id},
         env=env,
@@ -399,7 +377,7 @@ def main() -> int:
         if not existing.get("found"):
             print(f"dataset {DATASET_SLUG!r} not found on {env}")
             return 1
-        node = server._gql(
+        node = bd_mcp_metadata._gql(
             """query($id: ID!) { allDataset(id: $id) { edges { node { slug namePt
                nameEn nameEs descriptionPt descriptionEn descriptionEs
                organizations { edges { node { id } } } themes { edges { node { id } } }
@@ -536,9 +514,9 @@ def main() -> int:
             table_id=tid, columns_json=columns_json(slug), env=env
         )
 
-        node = server._gql(TABLE_STATE_Q, {"id": tid}, env=env, auth=False)[
-            "allTable"
-        ]["edges"][0]["node"]
+        node = bd_mcp_metadata._gql(
+            TABLE_STATE_Q, {"id": tid}, env=env, auth=False
+        )["allTable"]["edges"][0]["node"]
         ols = {
             bare(e["node"]["entity"]["id"]): bare(e["node"]["id"])
             for e in node["observationLevels"]["edges"]
@@ -571,7 +549,7 @@ def main() -> int:
 
         cols = {
             e["node"]["name"]: bare(e["node"]["id"])
-            for e in server._gql(
+            for e in bd_mcp_metadata._gql(
                 "query($id: ID!) { allColumn(table_Id: $id) { edges { node { id name } } } }",
                 {"id": tid},
                 env=env,
@@ -661,7 +639,7 @@ def main() -> int:
     # second Update rather than replacing the first, so a re-run accumulates
     # duplicates on the raw source.
     for sid in src_ids.values():
-        existing_update = server._gql(
+        existing_update = bd_mcp_metadata._gql(
             """query($id: ID!) { allRawdatasource(id: $id) { edges { node {
                  updates { edges { node { id } } } } } } }""",
             {"id": sid},

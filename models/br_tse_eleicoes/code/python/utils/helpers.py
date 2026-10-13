@@ -8,7 +8,11 @@ import unicodedata
 from pathlib import Path
 
 import pandas as pd
-from config import MUNICIPIO_DIR_CSV, NULL_SENTINELS
+
+from models.br_tse_eleicoes.code.python.config import (
+    MUNICIPIO_DIR_CSV,
+    NULL_SENTINELS,
+)
 
 # ---------------------------------------------------------------------------
 # Reading raw TSE files
@@ -74,7 +78,8 @@ def _detect_header(row: list[str], path: Path) -> bool:
     if _normalize_cell(row[0]) in _HEADER_FIRST_CELLS:
         return True
     digitless = len(row) >= 5 and not any(
-        _DIGIT_RE.search(str(c)) for c in row
+        _DIGIT_RE.search(str(c))  # pyrefly: ignore [unnecessary-type-conversion]
+        for c in row  # pyrefly: ignore [unnecessary-type-conversion]
     )
     if (cells & _HEADER_TELL_CELLS) or digitless:
         msg = (
@@ -134,7 +139,25 @@ def read_raw_csv(
     elif csv_path.exists():
         path = csv_path
     else:
-        raise FileNotFoundError(f"Neither {txt_path} nor {csv_path} found.")
+        # From 2026 TSE splits some national files per UF inside the zip
+        # (perfil_eleitorado_2026_AC.csv, ...). Read and stack the parts.
+        # Two-letter suffixes only: the zip also ships a _BRASIL.csv that
+        # repeats every UF row, and stacking it doubles the counts.
+        parts = sorted(base.parent.glob(f"{base.name}_[A-Z][A-Z].csv"))
+        if not parts:
+            raise FileNotFoundError(
+                f"Neither {txt_path} nor {csv_path} found."
+            )
+        frames = [
+            read_raw_csv(str(p.with_suffix("")), encoding=encoding)
+            for p in parts
+        ]
+        if len({tuple(f.columns) for f in frames}) != 1:
+            msg = f"{base}: per-UF parts disagree on header or columns"
+            raise ValueError(msg)
+        df = pd.concat(frames, ignore_index=True)
+        df.attrs = {**frames[0].attrs, "tse_path": f"{base}_*.csv"}
+        return df
 
     if path.stat().st_size == 0:
         msg = (
@@ -257,6 +280,7 @@ def iter_raw_csv_chunks(
         )
         if engine == "python":
             kwargs["engine"] = "python"
+        # pyrefly: ignore [no-matching-overload]
         return pd.read_csv(path, **kwargs)
 
     # C engine first (fast). If it raises mid-stream, resume with the python

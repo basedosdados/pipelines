@@ -14,7 +14,7 @@ Six checks, each of which has to pass before the dev/staging checkpoint:
                       ignore_values list is measured, not guessed
 
 Usage:
-    python validate.py [--local-only]
+    uv run models/us_ffiec_bank_reporting/code/validate.py [--local-only]
 """
 
 from __future__ import annotations
@@ -24,7 +24,8 @@ from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import (
+
+from models.us_ffiec_bank_reporting.code.common import (
     BHC_FIRST,
     BHC_LAST,
     CALL_FIRST,
@@ -34,7 +35,7 @@ from common import (
     OUTPUT_DIR,
     quarters,
 )
-from schema_def import TABLES
+from models.us_ffiec_bank_reporting.code.schema_def import TABLES
 
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "us_ffiec_bank_reporting"

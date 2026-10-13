@@ -13,12 +13,12 @@ sibling ``_name`` column carrying the label IATI Tables already resolved — whi
 is why no column is ``covered_by_dictionary`` and the dataset has no
 ``dicionario`` table.
 
-Run: ``python gen_architecture.py``
+Run: ``uv run models/world_iati_activities/code/gen_architecture.py``
 """
 
 import csv
 
-from common import ARCH_DIR
+from models.world_iati_activities.code.common import ARCH_DIR
 
 HEADER = [
     "name",

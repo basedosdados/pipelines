@@ -6,7 +6,7 @@ script writes them from the column maps in
 ``pipelines/datasets/us_census_lodes/constants.py`` so the four artefacts cannot
 drift apart.
 
-    uv run python models/us_census_lodes/code/gen_architecture.py
+    uv run models/us_census_lodes/code/gen_architecture.py
 
 Descriptions are written in Portuguese, English and Spanish. Per the house style
 a column description never ends with a period, and always starts with a capital.
@@ -15,10 +15,6 @@ a column description never ends with a period, and always starts with a capital.
 from __future__ import annotations
 
 import csv
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     ARCHITECTURE_DIR,

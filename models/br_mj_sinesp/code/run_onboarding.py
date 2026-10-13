@@ -1,7 +1,7 @@
 """One-shot onboarding: download every year, clean, report coverage.
 
-    python run_onboarding.py            # all years
-    python run_onboarding.py 2025 2026  # a subset
+    uv run models/br_mj_sinesp/code/run_onboarding.py            # all years
+    uv run models/br_mj_sinesp/code/run_onboarding.py 2025 2026  # a subset
 
 Scratch data lives under $SINESP_DATA_DIR (default ~/Downloads/br_mj_sinesp_data)
 and is deleted at the end of the onboarding run; it is fully reproducible.
@@ -13,8 +13,12 @@ import json
 import os
 import sys
 
-from constants import DATA_DIR, INPUT_DIR, OUTPUT_DIR
-from utils import available_years, clean_all, download_year
+from models.br_mj_sinesp.code.constants import DATA_DIR, INPUT_DIR, OUTPUT_DIR
+from models.br_mj_sinesp.code.utils import (
+    available_years,
+    clean_all,
+    download_year,
+)
 
 
 def main(years: list[int] | None = None) -> None:

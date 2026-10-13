@@ -1,7 +1,7 @@
 """Upload cleaned au_abs_household_income_wealth parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_abs_household_income_wealth/code/upload.py [--env dev|prod] [table ...]
+    uv run models/au_abs_household_income_wealth/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev. Point GOOGLE_APPLICATION_CREDENTIALS at
 the matching service account (locally, ~/.basedosdados/credentials/prod.json has

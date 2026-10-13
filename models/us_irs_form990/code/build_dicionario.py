@@ -7,7 +7,7 @@ NTEE labels come from the Nonprofit Open Data Collective's
 ``ntee_codes.csv``). The resulting CSV is committed; the cleaning transform
 only converts it to parquet.
 
-    python build_dicionario.py
+    uv run models/us_irs_form990/code/build_dicionario.py
 """
 
 import csv

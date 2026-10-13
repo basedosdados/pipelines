@@ -1,6 +1,6 @@
 """Architecture for the contrato tables (Lei 14.133 execution stage)."""
 
-from arch_common import BRL, DIR_ANO, c
+from models.br_mgi_compras_publicas.code.arch_common import BRL, DIR_ANO, c
 
 COB = "2021(1)2026"
 

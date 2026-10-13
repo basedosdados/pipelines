@@ -3,12 +3,10 @@
 import collections
 import glob
 import os
-import sys
 
 import pandas as pd
 
-sys.path.insert(0, os.path.dirname(__file__))
-from schema_map import SYNOP_COLUMNS
+from models.fr_meteofrance.code.schema_map import SYNOP_COLUMNS
 
 INPUT = os.path.expanduser(
     os.environ.get("MF_INPUT", "~/Downloads/fr_meteofrance_data/input")

@@ -753,7 +753,6 @@ def output_file_to_parquet(
         savepath=savepath.as_posix(),
         file_type="parquet",
     )
-    # pyrefly: ignore [bad-return]
     return savepath
 
 

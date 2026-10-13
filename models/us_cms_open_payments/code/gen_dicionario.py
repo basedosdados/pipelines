@@ -13,10 +13,9 @@ this step.
 import json
 import sys
 
-import constants as c
-import layout
-import profile_data
-from glossary import gloss
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import layout, profile_data
+from models.us_cms_open_payments.code.glossary import gloss
 
 
 def coverage(table: str) -> str:

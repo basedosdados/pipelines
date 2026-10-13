@@ -1,7 +1,7 @@
 """Upload cleaned us_usda_nass parquet tables to BigQuery (one-shot onboarding).
 
 Usage:
-    uv run python models/us_usda_nass/code/upload.py [--env dev|prod] [table ...]
+    uv run models/us_usda_nass/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Staging is

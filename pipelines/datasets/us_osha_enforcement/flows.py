@@ -157,7 +157,6 @@ def us_osha_enforcement_flow(
         modified_days: Also rebuild any older year holding an inspection whose
             ``case_mod_date`` falls within this many days.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="inspection"
     )

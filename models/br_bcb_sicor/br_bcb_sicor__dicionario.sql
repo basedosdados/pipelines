@@ -4,6 +4,11 @@
 select
     safe_cast(id_tabela as string) id_tabela,
     safe_cast(nome_coluna as string) nome_coluna,
+    -- `ltrim(chave, '0')` alinha as chaves com os modelos, que também removem
+    -- zeros à esquerda. Um código composto só de zeros ('0', '00') vira string
+    -- vazia dos dois lados do join, e é assim que o código "Não se aplica"
+    -- casa hoje. Ver a seção "O código zero..." no README antes de mexer: o
+    -- conserto tem de ser feito nos dois lados ao mesmo tempo.
     safe_cast(ltrim(chave, '0') as string) chave,
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor,

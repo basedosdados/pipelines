@@ -6,10 +6,12 @@ The payload is derived from the layout and never stored: ``register_metadata``
 builds it in memory, so there is no committed copy to drift from its source.
 """
 
-import descriptions
-import gen_architecture
-import layout
-import schema
+from models.us_cms_open_payments.code import (
+    descriptions,
+    gen_architecture,
+    layout,
+    schema,
+)
 
 
 def payload(table: str) -> list[dict]:

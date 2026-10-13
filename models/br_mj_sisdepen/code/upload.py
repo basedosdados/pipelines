@@ -1,6 +1,6 @@
 """Upload the cleaned br_mj_sisdepen parquet to BigQuery (dev project).
 
-    python models/br_mj_sisdepen/code/upload.py [--tables t1,t2] [--dry-run]
+    uv run models/br_mj_sisdepen/code/upload.py [--tables t1,t2] [--dry-run]
 
 Targets basedosdados-dev only. Production tables are materialised by the
 table-approve GitHub action when the onboarding PR merges, never from here.
@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import sys
 from pathlib import Path
 
 # The SDK's own service-account key is the dev uploader credential; fall back to
@@ -23,9 +22,10 @@ if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") and _SDK_KEY.exists():
 import basedosdados as bd  # noqa: E402
 from google.cloud import storage  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from constants import OUTPUT_DIR, TABLES  # noqa: E402
+from models.br_mj_sisdepen.code.constants import (  # noqa: E402
+    OUTPUT_DIR,
+    TABLES,
+)
 
 GCP_DATASET_ID = "br_mj_sisdepen"
 BILLING_PROJECT = "basedosdados-dev"

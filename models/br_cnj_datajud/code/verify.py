@@ -10,7 +10,8 @@ import collections
 import sys
 
 import pyarrow.dataset as ds
-from clean import (
+
+from models.br_cnj_datajud.code.clean import (
     INPUT_DIR,
     OUTPUT_DIR,
     RAMO_NORMALISATION,

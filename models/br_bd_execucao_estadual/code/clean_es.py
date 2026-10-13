@@ -15,13 +15,11 @@ See .claude/rules/prefect-pipeline-conventions.md, "Staging parquet must be all-
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     ES_ALWAYS_FETCH_STEMS,
     ES_SEP,
     ES_TABLES,
@@ -120,6 +118,7 @@ def clean_table(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
             f"COPY (SELECT *{drop}, {year_expr} FROM {rel}) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out}')"
         ).fetchone()[0]
@@ -155,6 +154,7 @@ def clean_table(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
         f"FROM read_parquet('{dest}/data_*.parquet')"
     ).fetchone()
     print(
+        # pyrefly: ignore [unsupported-operation]
         f"  {table}: {total:,} rows across {len(files)} files "
         f"-> {label} {span[0]}-{span[1]} ({span[2]} distinct)"
     )

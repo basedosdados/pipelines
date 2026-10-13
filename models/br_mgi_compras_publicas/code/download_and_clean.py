@@ -9,11 +9,11 @@ published; everything here is reproducible from the API.
 
 Usage
 -----
-    uv run python models/br_mgi_compras_publicas/code/download_and_clean.py \
+    uv run models/br_mgi_compras_publicas/code/download_and_clean.py \
         --tables fast
-    uv run python models/br_mgi_compras_publicas/code/download_and_clean.py \
+    uv run models/br_mgi_compras_publicas/code/download_and_clean.py \
         --tables contrato contrato_item
-    uv run python models/br_mgi_compras_publicas/code/download_and_clean.py \
+    uv run models/br_mgi_compras_publicas/code/download_and_clean.py \
         --consolidate
 
 Every step is resumable: a chunk on disk is never re-fetched.
@@ -26,19 +26,14 @@ import datetime as dt
 import json
 import logging
 import os
-import sys
 import time
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mgi_compras_publicas.api import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.api import (
     build_session,
     limiter_rates,
 )
-from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     CONTRATO_PROBE_WINDOW,
     harvest_table,
     list_registered_orgaos,
@@ -47,15 +42,16 @@ from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     probe_contrato_orgaos,
     year_orgao_pairs,
 )
-from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     consolidate_table as consolidate,
 )
-from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.utils import (
     TABLE_SPECS,
 )
 
 logger = logging.getLogger("br_mgi_compras_publicas")
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DATA_DIR = Path.home() / "Downloads" / "br_mgi_compras_publicas_data"
 
 # Tables whose module is not savagely rate limited. These are the bulk of the
@@ -112,6 +108,7 @@ def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
         logger.info("orgao list: %d from cache", len(codes))
         return codes
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     from_data = {str(code) for code in orgaos_from_chunks(output_dir)}
     session = build_session()
     registered = set(list_registered_orgaos(session))

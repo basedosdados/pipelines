@@ -8,7 +8,7 @@ this file supplies PT and ES only. A ``name:table`` key overrides a plain
 ``name`` key where the same column means something table-specific (record_date).
 
 Usage:
-    uv run python models/us_treasury_fiscaldata/code/build_columns_json.py
+    uv run models/us_treasury_fiscaldata/code/build_columns_json.py
 """
 
 import csv
