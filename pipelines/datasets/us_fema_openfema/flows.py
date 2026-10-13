@@ -24,14 +24,14 @@ record" and forbid using the data to make determinations affecting an
 individual's rights or eligibility, so paywalling it is a commercial decision
 to be taken deliberately rather than a default. See the dataset's memory note.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_fema_openfema_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_fema_openfema_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow  # pyrefly: ignore [missing-attribute]
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fema_openfema.constants import constants
 from pipelines.datasets.us_fema_openfema.tasks import (
@@ -40,6 +40,7 @@ from pipelines.datasets.us_fema_openfema.tasks import (
     download_openfema,
     write_dicionario_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -79,7 +80,6 @@ def us_fema_openfema_flow(
         force_run: Download and materialize every set even when the poll
             reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="nfip_claim"
     )
@@ -173,12 +173,10 @@ def us_fema_openfema_flow(
 # Daily at 05:13 BRT — a free minute. The declarations and Public Assistance
 # sets move most days; the two NFIP files are monthly, so their poll no-ops
 # until FEMA cuts a new extract.
-# pyrefly: ignore [missing-attribute]
 us_fema_openfema_flow.deploy_schedules = [
-    {"cron": "13 5 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("13 5 * * *", timezone="America/Sao_Paulo")
 ]
 # The NFIP policy file is a 3.7 GB parquet re-partitioned into 19 year files.
 # The clean streams by record batch, so peak memory is a batch rather than the
 # file, but the download and the dbt rebuild want headroom.
-# pyrefly: ignore [missing-attribute]
 us_fema_openfema_flow.job_variables = {"memory": "8Gi"}

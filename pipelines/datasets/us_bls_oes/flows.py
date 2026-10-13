@@ -13,14 +13,14 @@ column is computed over the whole panel, which a single-year run does not hold.
 The clean task instead asserts that the new year introduces no unlabelled code,
 and fails the run if it does (see `utils.assert_dictionary_labels`).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_oes_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_oes_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bls_oes.constants import constants
 from pipelines.datasets.us_bls_oes.tasks import (
@@ -28,6 +28,7 @@ from pipelines.datasets.us_bls_oes.tasks import (
     download_oes,
     resolve_latest_year,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -79,7 +80,6 @@ def us_bls_oes_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="oes"
     )
@@ -189,10 +189,8 @@ def us_bls_oes_flow(
 # OEWS releases once a year, in the northern spring, with the exact date varying
 # between late March and May. Poll weekly across those three months; the
 # source-poll guard no-ops until a new reference year actually appears.
-# pyrefly: ignore [missing-attribute]
 us_bls_oes_flow.deploy_schedules = [
-    {"cron": "47 17 1,8,15,22,29 3,4,5 *", "timezone": "America/Sao_Paulo"}
+    Cron("47 17 1,8,15,22,29 3,4,5 *", timezone="America/Sao_Paulo")
 ]
 # One release is ~430k rows held in pandas plus the Excel reader's own buffers.
-# pyrefly: ignore [missing-attribute]
 us_bls_oes_flow.job_variables = {"memory": "8Gi"}

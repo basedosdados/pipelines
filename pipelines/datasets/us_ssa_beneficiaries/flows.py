@@ -14,7 +14,7 @@ Accepting a year is gated inside ``clean_ssa``: county sums are reconciled
 against SSA's published state totals and state sums against its national total,
 and a year that fails raises rather than uploading.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``us_ssa_beneficiaries_flow``; the dev pool ignores the schedule, the prod pool
 activates it.
 """
@@ -22,13 +22,14 @@ activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_ssa_beneficiaries.constants import constants
 from pipelines.datasets.us_ssa_beneficiaries.tasks import (
     clean_ssa,
     download_ssa,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -78,7 +79,6 @@ def us_ssa_beneficiaries_flow(
     # repo calls without awaiting, so it silently does nothing. That is tracked
     # repo-wide in #2097 (issue #1940); fixing it here alone would duplicate
     # that PR and leave this flow inconsistent with the other 99.
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
     )
@@ -159,14 +159,12 @@ def us_ssa_beneficiaries_flow(
 # last updated 2026-08-02). Poll four days a month across August to October; the
 # source-poll guard no-ops until the new year actually lands. Minute 41 chosen
 # to avoid the crowded top-of-hour slots.
-# pyrefly: ignore [missing-attribute]
 us_ssa_beneficiaries_flow.deploy_schedules = [
-    {"cron": "41 13 5,12,19,26 8,9,10 *", "timezone": "America/Sao_Paulo"}
+    Cron("41 13 5,12,19,26 8,9,10 *", timezone="America/Sao_Paulo")
 ]
 # The eight source files total ~145 MB of JSON and the melt holds ~1.6M rows in
 # memory. memory_limit is the key the pool honors — bare `memory` is silently
 # ignored and capped at 4Gi.
-# pyrefly: ignore [missing-attribute]
 us_ssa_beneficiaries_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

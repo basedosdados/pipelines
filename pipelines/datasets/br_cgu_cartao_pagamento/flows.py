@@ -2,9 +2,10 @@
 Flows para br_cgu_cartao_pagamento — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.cgu.flows import _run_cgu_cartao_pagamento
+from pipelines.utils.flow import flow
 
 
 ## Update 2026-09-18
@@ -32,8 +33,7 @@ def _flow_factory(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

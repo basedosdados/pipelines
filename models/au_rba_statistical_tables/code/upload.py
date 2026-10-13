@@ -1,7 +1,7 @@
 """Upload cleaned au_rba_statistical_tables parquet to BigQuery staging.
 
 Usage:
-    uv run python models/au_rba_statistical_tables/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run models/au_rba_statistical_tables/code/upload.py [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev. Point GOOGLE_APPLICATION_CREDENTIALS at
 the matching service account. Reads the cleaned parquet from $RBA_DATA/output

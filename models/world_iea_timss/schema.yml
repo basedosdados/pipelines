@@ -474,7 +474,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_m49
-              ignore_values: ['411', '956', '957', '7843', NA]
+              ignore_values: ['957', '956', '411', '926', '7843']
       - name: grade_id
         description: Grade ID
       - name: school_id
@@ -1051,7 +1051,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_m49
-              ignore_values: ['957', '956', '411', '926']
+              ignore_values: ['957', '956', '411', '926', '7843']
       - name: grade_id
         description: Grade ID
       - name: school_id
@@ -1735,7 +1735,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_m49
-              ignore_values: ['957', '956', '411', '926']
+              ignore_values: ['957', '956', '411', '926', '7843']
       - name: grade_id
         description: Grade Id
       - name: school_id
@@ -2455,7 +2455,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_m49
-              ignore_values: ['957', '956', '411', '926']
+              ignore_values: ['957', '956', '411', '926', '7843']
       - name: grade_id
         description: Grade ID
       - name: school_id

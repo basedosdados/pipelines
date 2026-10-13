@@ -8,7 +8,7 @@ replace of all three tables, guarded by a cheap poll: a HEAD request on the
 complete CSV's S3 ``Last-Modified`` header, compared against the table's last
 materialization. Nothing is downloaded until the source is newer.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `us_state_foreign_assistance_flow`; the dev pool ignores the schedule, the prod
 pool activates it (paused until armed in Django admin).
 """
@@ -16,7 +16,7 @@ pool activates it (paused until armed in Django admin).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_state_foreign_assistance.constants import constants
 from pipelines.datasets.us_state_foreign_assistance.tasks import (
@@ -25,6 +25,7 @@ from pipelines.datasets.us_state_foreign_assistance.tasks import (
     clear_staging_blobs,
     download_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -107,7 +108,6 @@ def us_state_foreign_assistance_flow(
         force_run: Download and materialize even when the source poll reports
             no newer release.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -171,9 +171,8 @@ def us_state_foreign_assistance_flow(
 # The publisher uploads "quarterly" with no fixed calendar (observed releases
 # 2026-07-08 and 2026-09-02). Poll weekly at a free minute; the HEAD-based
 # guard makes a run without a new release a no-op that downloads nothing.
-# pyrefly: ignore [missing-attribute]
 us_state_foreign_assistance_flow.deploy_schedules = [
-    {"cron": "40 5 5,12,19,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 5 5,12,19,26 * *", timezone="America/Sao_Paulo")
 ]
 # The whole transform peaks at 1.82 GB resident (measured: full clean_all over the
 # 3.75 GB CSV, on-disk DuckDB with a 6 GB buffer ceiling, 65 s), so 8Gi is ~4x
@@ -184,7 +183,6 @@ us_state_foreign_assistance_flow.deploy_schedules = [
 # only `memory` was OOM-killed well below the value it asked for — so `memory`
 # alone is not reliably the container limit. Flows with a real memory floor
 # (br_me_cnpj, br_anatel_telefonia_movel, br_sfb_sicar) all set the explicit pair.
-# pyrefly: ignore [missing-attribute]
 us_state_foreign_assistance_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

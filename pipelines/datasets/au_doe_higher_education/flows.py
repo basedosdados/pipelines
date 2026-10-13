@@ -28,7 +28,7 @@ figures are taken as the current truth for those years. Do not "fix" the 27-row
 drop by reintroducing the delisted series. Whole years are still safe: 2025 was
 outside the release and survived untouched.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_doe_higher_education_flow`; the dev pool ignores the schedule, the prod
 pool activates it (paused until armed in Django admin).
 """
@@ -36,7 +36,7 @@ pool activates it (paused until armed in Django admin).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_doe_higher_education.constants import constants
 from pipelines.datasets.au_doe_higher_education.tasks import (
@@ -46,6 +46,7 @@ from pipelines.datasets.au_doe_higher_education.tasks import (
     download_task,
     source_max_year_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -87,7 +88,6 @@ def au_doe_higher_education_flow(
     update_metadata: bool = True,
     force_run: bool = False,
 ):
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -189,14 +189,12 @@ def au_doe_higher_education_flow(
 # applications early in the year, and none of them on a fixed day. Polling on
 # the 9th of each month is cheap: the guard returns before anything is
 # downloaded unless the source year actually moved.
-# pyrefly: ignore [missing-attribute]
 au_doe_higher_education_flow.deploy_schedules = [
-    {"cron": "35 17 9 * *", "timezone": "America/Sao_Paulo"}
+    Cron("35 17 9 * *", timezone="America/Sao_Paulo")
 ]
 # `memory` is not a variable of the work pool's job template, so it is dropped
 # without complaint and the pod gets the pool default of 4Gi no matter what
 # number is written here. `memory_limit` is the one that is actually applied.
-# pyrefly: ignore [missing-attribute]
 au_doe_higher_education_flow.job_variables = {
     "memory_limit": "12Gi",
     "memory_request": "2Gi",

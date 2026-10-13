@@ -1163,8 +1163,8 @@ class TestJobVariablesReachThePod:
     def test_the_memory_ask_uses_the_key_the_pool_reads(self):
         from pipelines.datasets.br_mgi_pncp import flows
 
-        # pyrefly: ignore [missing-attribute]
         jv = flows.br_mgi_pncp_flow.job_variables
+        assert jv is not None, "br_mgi_pncp_flow sets no job_variables"
         assert "memory_limit" in jv, (
             "job_variables sets no memory_limit, so the pod gets the pool's "
             f"4Gi default however large `memory` is; got {jv}"
@@ -1180,8 +1180,7 @@ class TestJobVariablesReachThePod:
         # `memory` is kept deliberately: harmless, and it is what a reader
         # greps for. Everything else must be a real template variable.
         unknown = (
-            # pyrefly: ignore [missing-attribute]
-            set(flows.br_mgi_pncp_flow.job_variables)
+            set(flows.br_mgi_pncp_flow.job_variables or {})
             - self.POOL_VARIABLES
             - {"memory"}
         )

@@ -34,7 +34,7 @@ Worker sizing: `"memory": "8Gi"`
 - https://www.sec.gov/os/webmaster-faq#developers
 
 ## Design notes
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_sec_edgar_flow`; the dev
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_sec_edgar_flow`; the dev
 pool ignores the schedule, the prod pool activates it.
 
 No Prefect imports here: `models/us_sec_edgar/code/clean.py` (the one-shot onboarding

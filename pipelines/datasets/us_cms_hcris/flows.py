@@ -19,7 +19,7 @@ That shapes three decisions:
   dictionary coverage tests read ``dicionario``, so a per-table interleave
   would test a model before its sibling exists.
 
-Deploy: ``.github/scripts/deploy_flows.py`` discovers ``us_cms_hcris_flow``; the
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` discovers ``us_cms_hcris_flow``; the
 dev pool strips the schedule, the prod pool activates it (paused until armed).
 """
 
@@ -27,7 +27,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_cms_hcris.constants import constants
 from pipelines.datasets.us_cms_hcris.tasks import (
@@ -36,6 +36,7 @@ from pipelines.datasets.us_cms_hcris.tasks import (
     list_extracts_task,
     source_max_date_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -86,7 +87,6 @@ def us_cms_hcris_flow(
         last_extract_year: Highest federal fiscal year to probe for. CMS adds
             one each October; the probe stops at the first year that 404s.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -163,16 +163,14 @@ def us_cms_hcris_flow(
 # stamped 14 July. Poll four times a month at a minute nothing else uses; the
 # freshness guard makes every poll a no-op until an archive is actually
 # reissued, and a poll is 66 HEAD requests.
-# pyrefly: ignore [missing-attribute]
 us_cms_hcris_flow.deploy_schedules = [
-    {"cron": "29 15 10,15,20,25 * *", "timezone": "America/Sao_Paulo"}
+    Cron("29 15 10,15,20,25 * *", timezone="America/Sao_Paulo")
 ]
 # `memory` alone is NOT a variable of this work pool's job template and is
 # dropped silently, leaving the pod on the 4Gi default -- 43 flows in this repo
 # are capped that way without knowing it. `memory_limit` is the one that
 # applies. duckdb streams the clean, so the ceiling is headroom, not a measured
 # peak.
-# pyrefly: ignore [missing-attribute]
 us_cms_hcris_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

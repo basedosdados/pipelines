@@ -7,17 +7,12 @@ overridable via ``US_EIA_CONSUMPTION_DATA_DIR``.
 """
 
 import os
-import sys
 from pathlib import Path
 
-CODE_DIR = Path(__file__).resolve().parent
-REPO_ROOT = CODE_DIR.parents[2]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.us_eia_consumption.constants import (  # noqa: E402
+from pipelines.datasets.us_eia_consumption.constants import (
     constants,
 )
-from pipelines.datasets.us_eia_consumption.utils import (  # noqa: E402,F401
+from pipelines.datasets.us_eia_consumption.utils import (  # noqa: F401
     Col,
     assert_all_string,
     build_dicionario,
@@ -33,6 +28,7 @@ from pipelines.datasets.us_eia_consumption.utils import (  # noqa: E402,F401
     year_zip,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 ARCHITECTURE_DIR = Path(constants.ARCHITECTURE_DIR.value)
 
 DATA_DIR = Path(

@@ -18,13 +18,9 @@ from __future__ import annotations
 import argparse
 import shutil
 import subprocess
-import sys
 import urllib.request
 import zipfile
 from datetime import date
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.utils import signed_url
@@ -211,6 +207,7 @@ def fetch_sources():
             archive = INPUT / "hate_crime.zip"
             if not archive.exists():
                 url = signed_url(constants.HATE_CRIME_KEY.value)
+                # pyrefly: ignore [bad-argument-type]
                 urllib.request.urlretrieve(url, archive)
             with zipfile.ZipFile(archive) as zf:
                 zf.extractall(INPUT / "extracted_hate_crime")

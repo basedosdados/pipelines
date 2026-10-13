@@ -21,17 +21,11 @@ import csv
 import datetime as dt
 import io
 import os
-import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# pyrefly: ignore [missing-import]
-import schema
-
-# pyrefly: ignore [missing-import]
-from build_artifacts import (
+from models.us_ed_nces_ccd.code import schema
+from models.us_ed_nces_ccd.code.build_artifacts import (
     fetch_varlist,
     parse_values,
 )

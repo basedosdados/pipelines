@@ -3,7 +3,7 @@
 Streams each UF CSV in chunks so SP/MG never sit fully in memory.
 
 Usage:
-    uv run python models/br_ibge_censo_demografico/code/clean.py [--ufs RR] [--delete-zip]
+    uv run models/br_ibge_censo_demografico/code/clean.py [--ufs RR] [--delete-zip]
 """
 
 from __future__ import annotations

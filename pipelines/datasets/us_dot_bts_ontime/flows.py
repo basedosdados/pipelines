@@ -6,20 +6,21 @@ restatement of the history, so a run appends one partition rather than rebuildin
 the table: ``dump_mode="append"`` against ``flight/year=YYYY/``. The reference
 tables are small and are rebuilt each run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dot_bts_ontime_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dot_bts_ontime_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_dot_bts_ontime.constants import constants
 from pipelines.datasets.us_dot_bts_ontime.tasks import (
     discover_latest_month,
     download_and_clean_month,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -77,7 +78,6 @@ def us_dot_bts_ontime_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="flight"
     )
@@ -175,10 +175,8 @@ def us_dot_bts_ontime_flow(
 # 2026-08-12). Poll across a few mid-month days; the source-poll guard no-ops
 # until a new month actually appears. Minute 28 is unused elsewhere in the repo,
 # so scheduled runs do not pile onto another pipeline's instant.
-# pyrefly: ignore [missing-attribute]
 us_dot_bts_ontime_flow.deploy_schedules = [
-    {"cron": "28 16 12,14,16,18,20 * *", "timezone": "America/Sao_Paulo"}
+    Cron("28 16 12,14,16,18,20 * *", timezone="America/Sao_Paulo")
 ]
 # One month is ~600k rows across 114 columns held in arrow during the clean.
-# pyrefly: ignore [missing-attribute]
 us_dot_bts_ontime_flow.job_variables = {"memory": "8Gi"}

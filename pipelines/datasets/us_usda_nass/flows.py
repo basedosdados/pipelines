@@ -13,17 +13,18 @@ already-present years are picked up at the next new-year trigger; use
 ``force_run=True`` for an on-demand full refresh. (Refining this to a
 load-time-based poll for true continuous refresh is a documented follow-up.)
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_usda_nass_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_usda_nass_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_usda_nass.constants import constants
 from pipelines.datasets.us_usda_nass.tasks import clean_nass, download_nass
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -75,7 +76,6 @@ def us_usda_nass_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
     )
@@ -179,14 +179,12 @@ def us_usda_nass_flow(
 # NASS regenerates the bulk files continuously; a new `year` appears a couple of
 # times a year. Poll monthly at a free minute; the source-poll guard no-ops until
 # a new year lands. Minute 23 chosen to avoid the crowded top-of-hour slots.
-# pyrefly: ignore [missing-attribute]
 us_usda_nass_flow.deploy_schedules = [
-    {"cron": "23 15 12 * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 15 12 * *", timezone="America/Sao_Paulo")
 ]
 # The clean streams to disk in bounded flush windows; the upload globs parquet.
 # Give the worker headroom. memory_limit is the key the pool honors — bare
 # `memory` is silently ignored (capped at 4Gi).
-# pyrefly: ignore [missing-attribute]
 us_usda_nass_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

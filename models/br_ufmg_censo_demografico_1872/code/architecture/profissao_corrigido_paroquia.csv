@@ -1,0 +1,25 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do recenseamento,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,
+id_provincia,STRING,"Código da província no banco Pop-72, de 1 a 21",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_municipio_1872,STRING,"Código do município de 1872 no banco Pop-72, com 3 dígitos, cujos dois primeiros são o código da província. Não corresponde ao código do IBGE",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_paroquia,STRING,"Código da paróquia no banco Pop-72, com 5 dígitos, cujos três primeiros são o código do município de 1872",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_categoria,STRING,"Código da categoria de desagregação da tabela, decodificado em dicionario",1872,yes,,,no,,Categ
+homens_brasileiros_solteiros,INT64,Número de homens brasileiros solteiros,1872,no,,person,no,,hbrsli
+homens_brasileiros_casados,INT64,Número de homens brasileiros casados,1872,no,,person,no,,hbrcli
+homens_brasileiros_viuvos,INT64,Número de homens brasileiros viúvos,1872,no,,person,no,,hbrvli
+homens_brasileiros_sem_informacao,INT64,"Número de homens brasileiros, sem informação de estado civil",1872,no,,person,no,,hbrlsinf
+mulheres_brasileiras_solteiras,INT64,Número de mulheres brasileiras solteiras,1872,no,,person,no,,mbrsli
+mulheres_brasileiras_casadas,INT64,Número de mulheres brasileiras casadas,1872,no,,person,no,,mbrcli
+mulheres_brasileiras_viuvas,INT64,Número de mulheres brasileiras viúvas,1872,no,,person,no,,mbrvli
+mulheres_brasileiras_sem_informacao,INT64,"Número de mulheres brasileiras, sem informação de estado civil",1872,no,,person,no,,mbrlsinf
+homens_estrangeiros_solteiros,INT64,Número de homens estrangeiros solteiros,1872,no,,person,no,,hetsli
+homens_estrangeiros_casados,INT64,Número de homens estrangeiros casados,1872,no,,person,no,,hetcli
+homens_estrangeiros_viuvos,INT64,Número de homens estrangeiros viúvos,1872,no,,person,no,,hetvli
+homens_estrangeiros_sem_informacao,INT64,"Número de homens estrangeiros, sem informação de estado civil",1872,no,,person,no,,hetlsinf
+mulheres_estrangeiras_solteiras,INT64,Número de mulheres estrangeiras solteiras,1872,no,,person,no,,metsli
+mulheres_estrangeiras_casadas,INT64,Número de mulheres estrangeiras casadas,1872,no,,person,no,,metcli
+mulheres_estrangeiras_viuvas,INT64,Número de mulheres estrangeiras viúvas,1872,no,,person,no,,metvli
+mulheres_estrangeiras_sem_informacao,INT64,"Número de mulheres estrangeiras, sem informação de estado civil",1872,no,,person,no,,metlsinf
+homens_escravizados,INT64,Número de homens escravizados,1872,no,,person,no,,h_esci
+mulheres_escravizadas,INT64,Número de mulheres escravizadas,1872,no,,person,no,,m_esci
+total,INT64,Total de pessoas,1872,no,,person,no,,soma

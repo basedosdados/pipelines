@@ -15,17 +15,15 @@ Sparse-column exemptions are read from ``sparsity.json``, which
 the built table instead would let a column destroyed by a bad cast look
 legitimately empty and be excused by the very test meant to catch it.
 
-    python gen_dbt.py
+    uv run models/us_stanford_dime/code/gen_dbt.py
 """
 
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
+from models.us_stanford_dime.code import architecture as arch
 
 CODE_DIR = Path(__file__).resolve().parent
 MODEL_DIR = CODE_DIR.parent
@@ -245,6 +243,7 @@ def schema_yml() -> str:
             out.append(f"            where: {sparse_where}")
         out.append("    columns:")
         for col in cols:
+            # pyrefly: ignore [bad-unpacking]
             (
                 name,
                 _bq,

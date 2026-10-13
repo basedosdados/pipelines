@@ -30,14 +30,12 @@ import os
 import pathlib
 import re
 import shutil
-import sys
 
-import openpyxl  # pyrefly: ignore [untyped-import]
+import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from providers import (  # pyrefly: ignore [missing-import]
+from models.au_doe_higher_education_finances.code.providers import (
     STATE_GROUPS,
     ProviderIndex,
 )
@@ -139,7 +137,7 @@ def workbook_sheets(path: pathlib.Path) -> dict[str, list[list[str]]]:
     filenames that claim otherwise.
     """
     if not path.read_bytes()[:2].startswith(b"PK"):
-        import xlrd  # pyrefly: ignore [untyped-import]
+        import xlrd
 
         book = xlrd.open_workbook(str(path))
         return {

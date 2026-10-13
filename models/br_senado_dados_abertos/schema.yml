@@ -211,6 +211,14 @@ models:
     description: >
       Processos legislativos (projetos, requerimentos, medidas e demais matérias)
       apresentados no Senado Federal e no Congresso Nacional, com uma linha por processo.
+      `norma_gerada` e `apelido` ficam fora do piso de 5% de não-nulos
+      (`ignore_values`) porque são esparsas por natureza, não por falha de coleta.
+      Só uma minoria dos processos chega a virar norma jurídica, e a conversão
+      leva anos: a proporção de `norma_gerada` preenchida cai de 42% em 1988 para
+      3,9% em 2026 de forma contínua, já que o teste é escopado em
+      `__most_recent_year__` — sempre a safra mais recente e menos madura. Na
+      tabela inteira a proporção é de 23,9%. `apelido` nunca passa de 4% em
+      nenhum ano (1,1% na tabela inteira).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_processo]
@@ -218,7 +226,7 @@ models:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [apelido]
+          ignore_values: [apelido, norma_gerada]
           config:
             where: __most_recent_year__
     columns:

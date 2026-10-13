@@ -6,7 +6,7 @@ observations_pt/en/es), so this is a direct map -- no translation table. Writes
 code/columns_json/<table>.json.
 
 Usage:
-    python models/world_oecd_revenue_statistics/code/build_columns_json.py
+    uv run models/world_oecd_revenue_statistics/code/build_columns_json.py
 """
 
 import csv

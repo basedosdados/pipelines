@@ -112,6 +112,7 @@ def _const_str_list(node: ast.expr) -> list[str] | None:
         isinstance(e, ast.Constant) and isinstance(e.value, str)
         for e in node.elts
     ):
+        # pyrefly: ignore [missing-attribute]
         return [e.value for e in node.elts]
     return None
 
@@ -164,6 +165,7 @@ def _select_list(node: ast.expr) -> list[str] | None:
         return None
     sl = node.slice
     if isinstance(sl, ast.Index):  # py<3.9 compat in stale ASTs
+        # pyrefly: ignore [missing-attribute]
         sl = sl.value
     items = _const_str_list(sl)
     if items and all(V_RE.match(i) for i in items):

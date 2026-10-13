@@ -6,7 +6,7 @@ Round-table descriptions are English (SPSS labels) with pt/es from
 translations.json. The 5 dicionario columns carry hand-written trilingual text
 (their architecture description is Portuguese, not an English source string).
 
-Usage: .venv/bin/python models/af_afrobarometer_survey/code/build_column_descriptions.py
+Usage: uv run models/af_afrobarometer_survey/code/build_column_descriptions.py
 """
 
 from __future__ import annotations

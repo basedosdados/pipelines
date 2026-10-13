@@ -2,13 +2,14 @@
 Flow br_bcb_taxa_cambio — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.bcb_taxa_cambio.tasks import (
     get_data_taxa_cambio,
     get_source_max_date,
     treat_data_taxa_cambio,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -47,7 +48,6 @@ def br_bcb_taxa_cambio__taxa_cambio(
     Passar uma lista recarrega esses anos sem consultar a fonte, para consertar
     partição incompleta ou duplicada.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -138,7 +138,6 @@ def br_bcb_taxa_cambio__taxa_cambio(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_bcb_taxa_cambio__taxa_cambio.deploy_schedules = [
-    {"cron": "40 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 8 * * *", timezone="America/Sao_Paulo")
 ]

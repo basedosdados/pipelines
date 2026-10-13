@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_eia_electricity.
 
-    python gen_dbt.py
+    uv run models/us_eia_electricity/code/gen_dbt.py
 
 Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they implement. The
@@ -14,7 +14,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from common import DATA_TABLES, REPO_ROOT, load_cols
+from models.us_eia_electricity.code.common import (
+    DATA_TABLES,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_eia_electricity"
 CODE_DIR = Path(__file__).resolve().parent

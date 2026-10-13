@@ -38,7 +38,7 @@ year, which makes a scheduled run a cheap no-op between the yearly updates. WDI 
 4.0 and fully open, so every table is AllFree — no BD Pro paywall (the rolling-window
 paywall applies only to monthly-or-faster tables).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `world_wb_wdi_flow`; the dev
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `world_wb_wdi_flow`; the dev
 pool ignores the schedule, the prod pool activates it.
 
 Pure functions (no Prefect) so they are importable and unit-testable. The recurring

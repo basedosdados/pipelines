@@ -1,6 +1,6 @@
 """Verify the cleaned us_eia_consumption parquet before upload.
 
-    python verify_parquet.py
+    uv run models/us_eia_consumption/code/verify_parquet.py
 
 Checks, over the whole cleaned record: row counts and per-year partitions; the
 natural keys; directory resolution; and a magnitude check that reproduces EIA's
@@ -12,7 +12,8 @@ import sys
 
 import pandas as pd
 import pyarrow.dataset as pads
-from common import OUTPUT
+
+from models.us_eia_consumption.code.common import OUTPUT
 
 
 def load(table: str) -> pd.DataFrame:

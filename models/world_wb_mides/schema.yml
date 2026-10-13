@@ -49,7 +49,10 @@ models:
       - name: numero_empenho
         description: Número do empenho
       - name: orgao
-        description: Sequencial identificador do órgão.
+        description: >
+          Código do órgão dentro do município. Em Minas Gerais corresponde ao
+          cod_orgao do SICOM, atribuído pelo próprio município; nos demais estados,
+          ao identificador publicado pelo respectivo tribunal de contas
       - name: programa
         description: Descrição do programa orçamentário.
       - name: sigla_uf
@@ -353,7 +356,10 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: orgao
-        description: Sequencial identificador do órgão
+        description: >
+          Código do órgão dentro do município. Em Minas Gerais corresponde ao
+          cod_orgao do SICOM, atribuído pelo próprio município; nos demais estados,
+          ao identificador publicado pelo respectivo tribunal de contas
       - name: id_unidade_gestora
         description: Sequencial identificador da unidade gestora
       - name: id_empenho_bd
@@ -424,7 +430,10 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: orgao
-        description: Sequencial identificador do órgão
+        description: >
+          Código do órgão dentro do município. Em Minas Gerais corresponde ao
+          cod_orgao do SICOM, atribuído pelo próprio município; nos demais estados,
+          ao identificador publicado pelo respectivo tribunal de contas
       - name: id_unidade_gestora
         description: Sequencial identificador da unidade gestora
       - name: id_empenho_bd

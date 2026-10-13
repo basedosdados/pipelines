@@ -16,13 +16,14 @@ As decisões de desenho e o que ainda está aberto estão no README do diretóri
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_sedec_desastres.constants import constants
 from pipelines.datasets.br_sedec_desastres.tasks import (
     clean_reconhecimentos,
     download_reconhecimentos,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -53,7 +54,6 @@ def br_sedec_desastres__reconhecimentos_vigentes(
     force_run: bool = False,
 ) -> None:
     """Baixa o relatório do S2ID, remonta a tabela e materializa."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -139,13 +139,11 @@ def br_sedec_desastres__reconhecimentos_vigentes(
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# pyrefly: ignore [missing-attribute]
 br_sedec_desastres__reconhecimentos_vigentes.deploy_schedules = [
-    {"cron": "10 2 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("10 2 * * *", timezone="America/Sao_Paulo")
 ]
 
 
-# pyrefly: ignore [missing-attribute]
 br_sedec_desastres__reconhecimentos_vigentes.job_variables = {
     "memory_limit": "4Gi",
     "memory_request": "1Gi",

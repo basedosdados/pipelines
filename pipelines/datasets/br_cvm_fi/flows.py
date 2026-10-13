@@ -2,9 +2,10 @@
 Flows for br_cvm_fi — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.cvm.flows import _run_cvm_fi
+from pipelines.utils.flow import flow
 
 
 def _cvm_fi_flow(table_id: str, cron: str, date_column_name: dict):
@@ -32,8 +33,7 @@ def _cvm_fi_flow(table_id: str, cron: str, date_column_name: dict):
             url=url,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

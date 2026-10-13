@@ -2,9 +2,8 @@
 Flows for br_ms_sinan — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.datasus.flows import _run_sinan
+from pipelines.utils.flow import flow
 
 
 @flow(

@@ -14,7 +14,7 @@ remapped, so the same concept shows up under several labels with disjoint covera
 import argparse
 from pathlib import Path
 
-from common import OUTPUT, build_dicionario
+from models.us_cfpb_complaints.code.common import OUTPUT, build_dicionario
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)

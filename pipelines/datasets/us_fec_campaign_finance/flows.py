@@ -33,7 +33,7 @@ window: the most recent 6 months are pro-only, everything older is free. The
 registration tables (candidate, committee, candidate_committee_link) have no date
 column and stay fully free.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
 The dev pool strips the schedule entirely. The prod pool keeps it but deploys
 ``paused=True``, and the backend sync leaves an unknown deployment paused — arming is a
 manual step in Django admin (``/admin/admin_data_tools/disabledflowschedule/``), not a
@@ -43,12 +43,13 @@ consequence of merging.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fec_campaign_finance.constants import constants
 from pipelines.datasets.us_fec_campaign_finance.tasks import (
     refresh_current_cycle,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -147,7 +148,6 @@ def us_fec_campaign_finance_flow(
         cycle: Refresh this cycle instead of the current one. For backfilling a
             single past cycle by hand; leave unset on scheduled runs.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -263,12 +263,10 @@ def us_fec_campaign_finance_flow(
 # alone are multi-GB, so a daily full-cycle re-pull is wasteful. Weekly on Sunday at
 # 05:00 BRT keeps the lag under a week outside the pre-election crunch; the
 # source-poll guard makes a run with nothing new a cheap no-op.
-# pyrefly: ignore [missing-attribute]
 us_fec_campaign_finance_flow.deploy_schedules = [
-    {"cron": "20 5 * * 0", "timezone": "America/Sao_Paulo"}
+    Cron("20 5 * * 0", timezone="America/Sao_Paulo")
 ]
 
 # The current cycle's individual-contributions file is ~2 GB compressed and is parsed
 # in 1M-row chunks; size the worker to the parse peak plus parquet buffers.
-# pyrefly: ignore [missing-attribute]
 us_fec_campaign_finance_flow.job_variables = {"memory": "8Gi"}

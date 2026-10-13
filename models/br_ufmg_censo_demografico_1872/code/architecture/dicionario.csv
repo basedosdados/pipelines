@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela à qual a chave se aplica,1872,no,,,no,,
+nome_coluna,STRING,Nome da coluna à qual a chave se aplica,1872,no,,,no,,
+chave,STRING,"Chave, o valor armazenado na coluna codificada",1872,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal da chave,1872,no,,,no,,
+valor,STRING,"Valor por extenso correspondente à chave, prefixado pelo grupo da categoria quando o rótulo é ambíguo entre grupos",1872,no,,,no,,

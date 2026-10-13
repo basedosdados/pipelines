@@ -1,7 +1,7 @@
 """Upload the br_bd_execucao_estadual staging parquet to BigQuery.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/upload.py [--env dev] [table ...]
+    uv run models/br_bd_execucao_estadual/code/upload.py [--env dev] [table ...]
 
 Onboarding only ever uploads to **dev**. The prod tables are materialised by the
 table-approve action when the PR merges -- never populate `basedosdados` by hand.

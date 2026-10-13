@@ -49,7 +49,7 @@ HEADs it, and compares `Last-Modified` against `Table.Update.latest`. The ~1.1 G
 payload is downloaded only when CMS has actually republished, so a scheduled run
 between monthly releases is a cheap no-op.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_hhs_nppes_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_hhs_nppes_flow`; the
 dev pool ignores the schedule, the prod pool activates it (deployed paused).
 
 Pure functions (no Prefect) so they are importable and testable. The recurring

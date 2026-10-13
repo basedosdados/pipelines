@@ -21,9 +21,10 @@ import time
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import COMPLAINT, DATASET_ID, OUTPUT
 from google.api_core import exceptions as gexc
 from google.cloud import bigquery, storage
+
+from models.us_cfpb_complaints.code.common import COMPLAINT, DATASET_ID, OUTPUT
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

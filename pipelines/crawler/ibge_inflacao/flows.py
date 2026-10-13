@@ -3,13 +3,12 @@ Flow compartilhado para índices de inflação do IBGE (IPCA, INPC, ...).
 Prefect 3 — use os flows dos datasets (br_ibge_ipca, br_ibge_inpc) para deploy.
 """
 
-from prefect import flow
-
 from pipelines.crawler.ibge_inflacao.tasks import (
     check_for_updates,
     collect_data_utils,
     json_to_csv,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -33,7 +32,6 @@ def _run_ibge_inflacao(
     force_run: bool = False,
 ) -> None:
     """Lógica completa do flow de inflação IBGE. Chamada pelos flows de cada dataset."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -137,5 +135,4 @@ def ibge_inflacao_flow(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 ibge_inflacao_flow.deploy_schedules = []

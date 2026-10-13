@@ -1,5 +1,6 @@
 import asyncio
 import os
+from datetime import date
 
 import numpy as np
 import pandas as pd
@@ -21,8 +22,7 @@ from pipelines.utils.utils import to_partitions
 def check_for_updates(
     table_id: str,
     dataset_id: str,
-) -> None:
-    # pyrefly: ignore [bad-return]
+) -> date:
     return get_date_api(table_id=table_id, dataset_id=dataset_id)
 
 

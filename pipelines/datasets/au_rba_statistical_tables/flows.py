@@ -6,7 +6,7 @@ of its series, so each run is a **full replace** (``dump_mode="overwrite"``),
 not an incremental append. A single flow downloads all ~220 CSVs once and
 rebuilds all four tables.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_rba_statistical_tables_flow`; the dev pool ignores the schedule, the prod
 pool activates it.
 """
@@ -14,13 +14,14 @@ pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_rba_statistical_tables.constants import constants
 from pipelines.datasets.au_rba_statistical_tables.tasks import (
     clean_rba,
     download_rba,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -84,7 +85,6 @@ def au_rba_statistical_tables_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="statistical_tables"
     )
@@ -210,10 +210,8 @@ def au_rba_statistical_tables_flow(
 # The RBA publishes on Sydney business days, typically late morning AEST — which
 # is the small hours in São Paulo. Run daily at 09:00 BRT, comfortably after;
 # the source-poll guard makes weekends and quiet days a no-op.
-# pyrefly: ignore [missing-attribute]
 au_rba_statistical_tables_flow.deploy_schedules = [
-    {"cron": "40 9 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 9 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~1.5M parsed observations in memory before writing.
-# pyrefly: ignore [missing-attribute]
 au_rba_statistical_tables_flow.job_variables = {"memory": "4Gi"}

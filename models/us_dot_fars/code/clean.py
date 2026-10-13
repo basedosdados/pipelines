@@ -1,6 +1,6 @@
 """Clean every FARS year into partitioned parquet, then build the dicionario.
 
-Run: uv run python models/us_dot_fars/code/clean.py [first_year] [last_year]
+Run: uv run models/us_dot_fars/code/clean.py [first_year] [last_year]
 
 Downloads what is missing into ``INPUT`` and writes
 ``OUTPUT/<table>/year=<Y>/data.parquet``. The transform itself lives in
@@ -11,7 +11,7 @@ pipeline.
 import sys
 import time
 
-from common import (
+from models.us_dot_fars.code.common import (
     ALL_TABLES,
     DATA_TABLES,
     FIRST_YEAR,
@@ -29,6 +29,7 @@ def main() -> None:
     last = (
         int(sys.argv[2]) if len(sys.argv) > 2 else latest_published_year(first)
     )
+    # pyrefly: ignore [unsupported-operation]
     years = list(range(first, last + 1))
     INPUT.mkdir(parents=True, exist_ok=True)
     OUTPUT.mkdir(parents=True, exist_ok=True)

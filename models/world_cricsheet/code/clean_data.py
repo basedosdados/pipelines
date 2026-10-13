@@ -17,8 +17,8 @@ convention); the dbt models ``safe_cast`` every column back to its real type. Ro
 counts are identical to the original typed onboarding run.
 
 Usage:
-    python clean_data.py --prototype   # pivot a handful of info files, print, exit
-    python clean_data.py               # full run + validation report
+    uv run models/world_cricsheet/code/clean_data.py --prototype   # pivot a handful of info files, print, exit
+    uv run models/world_cricsheet/code/clean_data.py               # full run + validation report
 """
 
 from __future__ import annotations

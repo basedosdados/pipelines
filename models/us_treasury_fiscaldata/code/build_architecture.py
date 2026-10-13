@@ -17,7 +17,7 @@ Type follows arithmetic meaning, not raw storage (see
 .claude/rules/bigquery-conventions.md): coded/label columns stay STRING.
 
 Usage:
-    uv run python models/us_treasury_fiscaldata/code/build_architecture.py
+    uv run models/us_treasury_fiscaldata/code/build_architecture.py
 """
 
 import csv

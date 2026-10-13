@@ -23,14 +23,14 @@ A trailing window cannot follow the weekly reconstruction of *old* years, so
 ``full_refresh`` rebuilds all 264 partitions. That is a multi-hour run and is
 meant to be triggered deliberately, not scheduled.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `world_noaa_ghcn_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `world_noaa_ghcn_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.world_noaa_ghcn.constants import (
     ALL_TABLES,
@@ -42,6 +42,7 @@ from pipelines.datasets.world_noaa_ghcn.tasks import (
     source_max_date,
 )
 from pipelines.datasets.world_noaa_ghcn.utils import refresh_years
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -118,7 +119,6 @@ def world_noaa_ghcn_flow(
         full_refresh: Rebuild all 264 year-partitions instead of the trailing
             window. Several hours; use when NCEI reprocesses historical data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
     )
@@ -214,14 +214,12 @@ def world_noaa_ghcn_flow(
 # Weekly matches the reconstruction cadence and keeps the cost of rebuilding a
 # 3.19bn-row table proportionate; the source-poll guard makes a run with no new
 # observation day a cheap no-op. Tuesday 09:38 BRT is an otherwise-free slot.
-# pyrefly: ignore [missing-attribute]
 world_noaa_ghcn_flow.deploy_schedules = [
-    {"cron": "38 9 * * 2", "timezone": "America/Sao_Paulo"}
+    Cron("38 9 * * 2", timezone="America/Sao_Paulo")
 ]
 # Sized to the clean step: one year-partition is read into arrow whole, and the
 # largest is ~37M rows. `memory` alone is silently ignored by the work pool's
 # job template, which defaults to 4Gi — `memory_limit` is the one that applies.
-# pyrefly: ignore [missing-attribute]
 world_noaa_ghcn_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",

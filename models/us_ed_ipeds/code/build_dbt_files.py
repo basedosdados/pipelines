@@ -1,8 +1,8 @@
 """Generate DBT model files (.sql) and schema.yml for us_ed_ipeds.
 
 Usage:
-    uv run python models/us_ed_ipeds/code/build_dbt_files.py profile [--cache PATH]
-    uv run python models/us_ed_ipeds/code/build_dbt_files.py generate [--cache PATH]
+    uv run models/us_ed_ipeds/code/build_dbt_files.py profile [--cache PATH]
+    uv run models/us_ed_ipeds/code/build_dbt_files.py generate [--cache PATH]
 
 `profile` scans the local partitioned parquet in models/us_ed_ipeds/output/
 one table at a time to (1) verify the primary key empirically and (2) compute
@@ -17,11 +17,10 @@ import argparse
 import csv
 import json
 from pathlib import Path
+from typing import Any
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 CODE_DIR = Path(__file__).resolve().parent
@@ -171,7 +170,7 @@ def check_pk(table):
     """Return (chosen_key, evidence) — evidence maps candidate -> dup rows."""
     files = year_files(table)
     schema_names = set(pq.read_schema(files[0]).names)
-    evidence = {}
+    evidence: dict[str, Any] = {}
     chosen = None
     for cand in PK_CANDIDATES[table]:
         if not set(cand) <= schema_names:
@@ -184,7 +183,6 @@ def check_pk(table):
             total += t.num_rows
             n_unique = t.group_by(cand).aggregate([]).num_rows
             dups += t.num_rows - n_unique
-        # pyrefly: ignore [unsupported-operation]
         evidence[",".join(cand)] = {
             "duplicate_rows": dups,
             "total_rows": total,

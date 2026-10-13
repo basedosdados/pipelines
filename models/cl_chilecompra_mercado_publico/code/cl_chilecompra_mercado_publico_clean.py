@@ -7,7 +7,7 @@ one month is ever on disk at a time (~600 MB peak).
 The transform itself lives in ``pipelines.datasets.cl_chilecompra_mercado_publico.utils``
 and is shared verbatim with the recurring Prefect pipeline.
 
-    uv run python models/cl_chilecompra_mercado_publico/code/cl_chilecompra_mercado_publico_clean.py \
+    uv run models/cl_chilecompra_mercado_publico/code/cl_chilecompra_mercado_publico_clean.py \
         --start 2007-1 --end 2026-8
 
 Resumable: a month whose parquet parts already exist is skipped unless --force.

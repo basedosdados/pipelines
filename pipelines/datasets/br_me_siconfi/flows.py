@@ -21,7 +21,7 @@ missing from the compatibilização tables fails the run. Because the download i
 run's archived raw JSON before the download starts, once against this run's own
 download before any builder runs. See ``utils.preflight_crosswalk``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_me_siconfi_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_me_siconfi_flow``;
 the dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -29,10 +29,11 @@ import shutil
 import tempfile
 from datetime import datetime
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_me_siconfi import tasks, utils
 from pipelines.datasets.br_me_siconfi.constants import constants
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -121,7 +122,6 @@ def br_me_siconfi_flow(
     if end_year is None:
         end_year = now_year
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="siconfi"
     )
@@ -249,12 +249,10 @@ def br_me_siconfi_flow(
 
 # SICONFI is annual but revised retroactively; rebuild once a month (1st at
 # 16:00 BRT). Each run rebuilds fully — there is no source-poll no-op here.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.deploy_schedules = [
-    {"cron": "0 16 1 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 1 * *", timezone="America/Sao_Paulo")
 ]
 # The município window build holds a full year of data in pandas at a time.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}
 
 
@@ -335,5 +333,4 @@ def br_me_siconfi_seed_flow(
 
 
 # The legacy build holds one year of município Excel in pandas at a time.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_seed_flow.job_variables = {"memory": "8Gi"}

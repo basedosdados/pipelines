@@ -7,20 +7,21 @@ BIS republishes the full history each quarter, so each run is a full replace;
 the source poll short-circuits a run until the BIS publishes a newer quarter,
 making a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``world_bis_property_prices_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``world_bis_property_prices_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.world_bis_property_prices.constants import constants
 from pipelines.datasets.world_bis_property_prices.tasks import (
     clean_bis,
     download_bis,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -89,7 +90,6 @@ def world_bis_property_prices_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )
@@ -180,7 +180,6 @@ def world_bis_property_prices_flow(
 # in the second half of every month at 15:47 America/Sao_Paulo (a free minute);
 # the source-poll guard no-ops until a new quarter actually lands, so the extra
 # polls cost only a download.
-# pyrefly: ignore [missing-attribute]
 world_bis_property_prices_flow.deploy_schedules = [
-    {"cron": "47 15 19,20,21,22,23 * *", "timezone": "America/Sao_Paulo"}
+    Cron("47 15 19,20,21,22,23 * *", timezone="America/Sao_Paulo")
 ]

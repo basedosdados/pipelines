@@ -12,9 +12,10 @@ O `process_file` escreve parquet, então o `_run_rf` declara `source_format="par
 no upload: com o default `"csv"`, o `dump_header` procura arquivo que não existe.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.rf.flows import _run_rf
+from pipelines.utils.flow import flow
 
 
 def _cno_flow(table_id: str, cron: str):
@@ -41,8 +42,7 @@ def _cno_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

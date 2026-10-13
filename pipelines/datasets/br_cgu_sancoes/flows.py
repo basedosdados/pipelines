@@ -14,20 +14,21 @@ of Pro six months after it starts. The remaining tables (cepim,
 acordos_leniencia_efeitos) stay fully free (coverage keyed on the snapshot date,
 their only date column); ``dicionario`` has no date column and takes no spec.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_cgu_sancoes_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_cgu_sancoes_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_cgu_sancoes.constants import constants
 from pipelines.datasets.br_cgu_sancoes.tasks import (
     clean_sancoes,
     download_sancoes,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -126,7 +127,6 @@ def br_cgu_sancoes_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="sancoes"
     )
@@ -229,7 +229,6 @@ def br_cgu_sancoes_flow(
 # polling across a couple of days (Mon + Tue) at 08:00 BRT so a day where the
 # on-demand generation fails still gets a retry; overwrite makes a second run
 # idempotent.
-# pyrefly: ignore [missing-attribute]
 br_cgu_sancoes_flow.deploy_schedules = [
-    {"cron": "30 8 * * 1,2", "timezone": "America/Sao_Paulo"}
+    Cron("30 8 * * 1,2", timezone="America/Sao_Paulo")
 ]

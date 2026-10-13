@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_cms_hcris.
 
-    python gen_dbt.py
+    uv run models/us_cms_hcris/code/gen_dbt.py
 
 Four models are written to ``models/us_cms_hcris/``:
 
@@ -24,9 +24,9 @@ import csv
 import json
 from pathlib import Path
 
-from codes import CODES, COVERED
-from measures import MEASURES
-from schema import TABLES
+from models.us_cms_hcris.code.codes import CODES, COVERED
+from models.us_cms_hcris.code.measures import MEASURES
+from models.us_cms_hcris.code.schema import TABLES
 
 CODE_DIR = Path(__file__).resolve().parent
 MODEL_DIR = CODE_DIR.parent

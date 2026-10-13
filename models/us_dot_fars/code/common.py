@@ -12,17 +12,10 @@ the raw -> clean mapping; ``gen_architecture.py`` writes them.
 """
 
 import os
-import sys
 from pathlib import Path
 
-CODE_DIR = Path(__file__).resolve().parent
-REPO_ROOT = CODE_DIR.parents[2]
-# These scripts run from their own directory with bare sibling imports, so the
-# repo root is not otherwise importable.
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.us_dot_fars.constants import constants  # noqa: E402
-from pipelines.datasets.us_dot_fars.utils import (  # noqa: E402,F401
+from pipelines.datasets.us_dot_fars.constants import constants
+from pipelines.datasets.us_dot_fars.utils import (  # noqa: F401
     Col,
     assert_all_string,
     blood_alcohol,
@@ -44,6 +37,7 @@ from pipelines.datasets.us_dot_fars.utils import (  # noqa: E402,F401
     year_is_published,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = Path(
     os.environ.get(
         "FARS_DATA_DIR", Path.home() / "Downloads" / "us_dot_fars_data"

@@ -12,14 +12,14 @@ each run is a **full replace** (``dump_mode="overwrite"``), not an incremental
 append. The source poll short-circuits a run until ABS publishes a newer
 period, which makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers every flow defined
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers every flow defined
 here; the dev pool ignores the schedules, the prod pool activates them.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_abs_prices_inflation.constants import constants
 from pipelines.datasets.au_abs_prices_inflation.tasks import (
@@ -28,6 +28,7 @@ from pipelines.datasets.au_abs_prices_inflation.tasks import (
     download_cpi,
     download_price_release,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -118,7 +119,6 @@ def au_abs_prices_inflation_cpi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
@@ -214,9 +214,8 @@ def au_abs_prices_inflation_cpi_flow(
 # ABS publishes the monthly CPI in the last week of each month (moving to the
 # 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT; the
 # source-poll guard no-ops until a new month lands.
-# pyrefly: ignore [missing-attribute]
 au_abs_prices_inflation_cpi_flow.deploy_schedules = [
-    {"cron": "15 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
+    Cron("15 16 22,23,24,25,26,27,28 * *", timezone="America/Sao_Paulo")
 ]
 
 # ---------------------------------------------------------------------------
@@ -288,7 +287,6 @@ def _build_release_flow(release: str):
                 ``materialize_to_prod`` is False.
             force_run: Materialize even when the poll reports no new quarter.
         """
-        # pyrefly: ignore [unused-coroutine]
         rename_flow_run_dataset_table(
             prefix="Dump: ", dataset_id=DATASET_ID, table_id=release
         )
@@ -366,9 +364,8 @@ def _build_release_flow(release: str):
             # Covers early returns (no new data, dev-only) and any exception.
             shutil.rmtree(work_dir, ignore_errors=True)
 
-    # pyrefly: ignore [missing-attribute]
     _release_flow.deploy_schedules = [
-        {"cron": _RELEASE_SCHEDULE[release], "timezone": "America/Sao_Paulo"}
+        Cron(_RELEASE_SCHEDULE[release], timezone="America/Sao_Paulo")
     ]
     return _release_flow
 

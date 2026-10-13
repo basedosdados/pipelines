@@ -16,7 +16,7 @@ all six read back unchanged. Ratios carry no unit at all.
 
 from dataclasses import dataclass
 
-from measures import MEASURES, provenance
+from models.us_cms_hcris.code.measures import MEASURES, provenance
 
 USD = "usd"
 

@@ -2,9 +2,10 @@
 Flows for br_ms_sia — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.datasus.flows import _run_siasus
+from pipelines.utils.flow import flow
 
 
 # Atualizado em 2026-09-24
@@ -30,8 +31,7 @@ def _sia_flow(table_id: str, cron: str):
             year_month_to_extract=year_month_to_extract,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

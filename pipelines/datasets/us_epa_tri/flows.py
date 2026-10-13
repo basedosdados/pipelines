@@ -21,14 +21,14 @@ regeneration (each regeneration republishes every year, so nothing is lost, it
 arrives later). Comparing a coverage date against a wall clock is a known
 property of the shared poll task, not something to work around per dataset.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_epa_tri_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_epa_tri_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_epa_tri.constants import constants
 from pipelines.datasets.us_epa_tri.tasks import (
@@ -37,6 +37,7 @@ from pipelines.datasets.us_epa_tri.tasks import (
     download_tri,
     download_tri_facilities,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -92,7 +93,6 @@ def us_epa_tri_flow(
         force_run: Download and materialize even when the source poll reports
             nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="form"
     )
@@ -206,11 +206,9 @@ def us_epa_tri_flow(
 # few more times as revisions come in. Poll weekly on Wednesdays at 04:07 BRT
 # — a minute nobody else uses; the page poll no-ops until the "processed as
 # of" date moves.
-# pyrefly: ignore [missing-attribute]
 us_epa_tri_flow.deploy_schedules = [
-    {"cron": "7 4 * * 3", "timezone": "America/Sao_Paulo"}
+    Cron("7 4 * * 3", timezone="America/Sao_Paulo")
 ]
 # Two ~60 MB CSVs are read whole into DuckDB and unpivoted; comfortably under
 # the default, but give the dbt runs headroom.
-# pyrefly: ignore [missing-attribute]
 us_epa_tri_flow.job_variables = {"memory": "4Gi"}

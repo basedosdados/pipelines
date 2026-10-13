@@ -14,7 +14,7 @@ respectively. Melting keys every value on its MDRM item code instead, so a
 retired item simply stops appearing.
 
 Usage:
-    python clean.py [call|bhc|cra|mdrm|all] [--quarters N]
+    uv run models/us_ffiec_bank_reporting/code/clean.py [call|bhc|cra|mdrm|all] [--quarters N]
 """
 
 from __future__ import annotations
@@ -29,7 +29,8 @@ from collections import Counter
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-from common import (
+
+from models.us_ffiec_bank_reporting.code.common import (
     BHC_FIRST,
     BHC_LAST,
     CALL_FIRST,
@@ -42,9 +43,15 @@ from common import (
     quarters,
     report_date,
 )
-from dictionary import rows as dictionary_rows
-from mdrm import is_flag_item, load_mdrm, parse_date
-from schema_def import columns
+from models.us_ffiec_bank_reporting.code.dictionary import (
+    rows as dictionary_rows,
+)
+from models.us_ffiec_bank_reporting.code.mdrm import (
+    is_flag_item,
+    load_mdrm,
+    parse_date,
+)
+from models.us_ffiec_bank_reporting.code.schema_def import columns
 
 # Values the sources use for "nothing here". Kept out of the fact tables so the
 # 36% of Call Report cells that carry a value are not buried under blanks.

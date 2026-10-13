@@ -9,9 +9,14 @@ Equivalent of sub/agregacao.do.
 """
 
 import pandas as pd
-from config import OUTPUT_PYTHON, YEARS_EVEN
-from sub.results_state import YEARS as YEARS_HISTORICAL
-from utils.helpers import coerce_numeric_for_write
+
+from models.br_tse_eleicoes.code.python.config import OUTPUT_PYTHON, YEARS_EVEN
+from models.br_tse_eleicoes.code.python.sub.results_state import (
+    YEARS as YEARS_HISTORICAL,
+)
+from models.br_tse_eleicoes.code.python.utils.helpers import (
+    coerce_numeric_for_write,
+)
 
 
 def _read_partitioned_csv(
@@ -97,6 +102,7 @@ def build_resultados_candidato_municipio():
                 / f"sigla_uf={uf}"
             )
             dest.mkdir(parents=True, exist_ok=True)
+            # pyrefly: ignore [bad-argument-type]
             coerce_numeric_for_write(agg).to_csv(
                 dest / "resultados_candidato_municipio.csv",
                 index=False,
@@ -259,6 +265,7 @@ def build_resultados_candidato():
             "nome_candidato",
         ]
         available_dup = [c for c in dup_key if c in agg.columns]
+        # pyrefly: ignore [unexpected-keyword]
         dup_mask = agg.duplicated(subset=available_dup, keep=False)
         agg = agg[~dup_mask]
 
@@ -269,6 +276,7 @@ def build_resultados_candidato():
 
         dest = OUTPUT_PYTHON / "resultados_candidato" / f"ano={ano}"
         dest.mkdir(parents=True, exist_ok=True)
+        # pyrefly: ignore [bad-argument-type]
         coerce_numeric_for_write(agg).to_csv(
             dest / "resultados_candidato.csv",
             index=False,
@@ -336,8 +344,10 @@ def build_resultados_candidato():
                 ]
                 merge_pres = ["ano", "tipo_eleicao", "cargo", "numero"]
                 bring = ["titulo_eleitoral", "numero_partido", "sigla_partido"]
+                # pyrefly: ignore [missing-attribute]
                 bring = [c for c in bring if c in mod2_est.columns]
 
+                # pyrefly: ignore [unsupported-operation]
                 sub_est = mod2_est[merge_est + bring].drop_duplicates(
                     subset=merge_est
                 )
@@ -349,7 +359,9 @@ def build_resultados_candidato():
                         df_est[col] = df_est[col].fillna(df_est[f"{col}_norm"])
                         df_est = df_est.drop(columns=[f"{col}_norm"])
 
+                # pyrefly: ignore [unsupported-operation]
                 sub_pres = mod2_pres[
+                    # pyrefly: ignore [missing-attribute]
                     [c for c in merge_pres + bring if c in mod2_pres.columns]
                 ].drop_duplicates(subset=merge_pres)
                 df_pres = df_pres.merge(
@@ -392,6 +404,7 @@ def build_resultados_candidato():
 
         dest = OUTPUT_PYTHON / "resultados_candidato" / f"ano={ano}"
         dest.mkdir(parents=True, exist_ok=True)
+        # pyrefly: ignore [bad-argument-type]
         coerce_numeric_for_write(agg).to_csv(
             dest / "resultados_candidato.csv",
             index=False,

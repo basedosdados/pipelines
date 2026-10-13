@@ -12,13 +12,15 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import INPUT_DIR, OUTPUT_DIR, normalise_column
+from models.br_bd_execucao_estadual.code.constants import (
+    INPUT_DIR,
+    OUTPUT_DIR,
+    normalise_column,
+)
 
 PE_INPUT = INPUT_DIR / "pe"
 
@@ -227,6 +229,7 @@ def clean(
             f"COPY (SELECT '{year}' AS ano, * FROM {_relation(path)}) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out}')"
         ).fetchone()[0]
@@ -255,6 +258,7 @@ def clean(
             continue
         harmonise(con, d, parts)
         parts = sorted(d.glob("*.parquet"))
+        # pyrefly: ignore [unsupported-operation]
         rows = con.execute(
             f"SELECT count(*) FROM read_parquet('{d}/*.parquet')"
         ).fetchone()[0]

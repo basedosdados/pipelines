@@ -5,7 +5,7 @@ covered_by_dictionary, measurement_unit) and writes one JSON per table under
 code/columns_json/. No Google Sheet needed. All columns are US-geography or
 descriptive, so no directory_column links are set.
 
-Run: uv run python models/us_usda_nass/code/build_columns_json.py
+Run: uv run models/us_usda_nass/code/build_columns_json.py
 """
 
 import csv

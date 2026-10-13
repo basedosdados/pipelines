@@ -10,17 +10,18 @@ Rebuilding everything makes a double-count structurally impossible and keeps the
 dicionario computed over the whole record. The dataset is annual, so every table
 is fully free — no BD Pro window.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_seds_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_seds_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_eia_seds.constants import constants
 from pipelines.datasets.us_eia_seds.tasks import clean_corpus, probe_source
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -63,7 +64,6 @@ def us_eia_seds_flow(
         force_run: Materialize even when the source poll reports nothing new —
             needed for a release that restates history without adding a year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -167,14 +167,12 @@ def us_eia_seds_flow(
 # SEDS publishes once a year in late June. Poll across a window of days so the
 # source-poll guard no-ops until the new vintage lands; :23 keeps clear of other
 # crons in this repo.
-# pyrefly: ignore [missing-attribute]
 us_eia_seds_flow.deploy_schedules = [
-    {"cron": "23 9 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 9 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step reads one ~90 MB CSV into pandas and writes 65 partitions; 8Gi
 # is comfortable. `memory` alone is dropped by the work pool — the pod honours
 # `memory_limit`.
-# pyrefly: ignore [missing-attribute]
 us_eia_seds_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

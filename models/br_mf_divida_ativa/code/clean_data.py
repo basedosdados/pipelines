@@ -9,13 +9,13 @@ Downloads one quarter at a time and
 
 Usage:
     # one quarter, all three tables
-    uv run python models/br_mf_divida_ativa/code/clean_data.py --quarters 2026Q2
+    uv run models/br_mf_divida_ativa/code/clean_data.py --quarters 2026Q2
 
     # full backfill 2020Q1..2026Q2 (all tables), keep going past missing quarters
-    uv run python models/br_mf_divida_ativa/code/clean_data.py --all
+    uv run models/br_mf_divida_ativa/code/clean_data.py --all
 
     # a subset of tables
-    uv run python models/br_mf_divida_ativa/code/clean_data.py --quarters 2025Q4 --tables fgts previdenciario
+    uv run models/br_mf_divida_ativa/code/clean_data.py --quarters 2025Q4 --tables fgts previdenciario
 """
 
 import argparse

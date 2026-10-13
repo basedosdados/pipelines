@@ -60,7 +60,6 @@ import io
 import json
 import re
 import subprocess
-import sys
 import zipfile
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -68,8 +67,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     CE_EMPENHO_DUPLICATE_SLOT,
     CE_ENCODING,
     CE_EXERCICIO_COLUMNS,
@@ -210,6 +208,7 @@ def _cell(value) -> str:
 
 
 def _xlsx_rows(path: Path) -> list[list[str]]:
+
     import openpyxl
 
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -225,6 +224,7 @@ def _xlsx_rows(path: Path) -> list[list[str]]:
 
 
 def _xls_rows(path: Path) -> list[list[str]]:
+
     import xlrd
 
     wb = xlrd.open_workbook(str(path))
@@ -237,6 +237,7 @@ def _xls_rows(path: Path) -> list[list[str]]:
         ):
             if ctype == xlrd.XL_CELL_DATE:
                 row.append(
+                    # pyrefly: ignore [bad-argument-type]
                     xlrd.xldate_as_datetime(value, wb.datemode).strftime(
                         "%d/%m/%Y"
                     )
@@ -543,7 +544,9 @@ def _match_era(phase: str, header: list[str]) -> str:
         overlap = len(set(header) & set(columns))
         if overlap > score:
             best, score = era, overlap
+    # pyrefly: ignore [bad-index]
     missing = [c for c in known[best] if c not in header]
+    # pyrefly: ignore [bad-index]
     extra = [c for c in header if c not in known[best]]
     raise SchemaUnknownError(
         f"{phase}: header of {len(header)} column(s) matches no registered era. "

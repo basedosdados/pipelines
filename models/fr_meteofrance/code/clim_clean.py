@@ -1,6 +1,6 @@
 """Clean the *Données climatologiques de base* archives into partitioned parquet.
 
-    uv run python models/fr_meteofrance/code/clim_clean.py [--only quot|mens|poste]
+    uv run models/fr_meteofrance/code/clim_clean.py [--only quot|mens|poste]
                                                            [--latest-only]
 
 A thin CLI. The transform itself lives in

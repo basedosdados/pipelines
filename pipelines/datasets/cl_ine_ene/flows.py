@@ -14,14 +14,14 @@ and weight total against what is already published; a mismatch stops the run and
 asks for a deliberate ``full_refresh``, rather than quietly leaving 16 years of
 superseded weights in the table.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `cl_ine_ene_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `cl_ine_ene_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.cl_ine_ene.constants import constants
 from pipelines.datasets.cl_ine_ene.tasks import (
@@ -30,6 +30,7 @@ from pipelines.datasets.cl_ine_ene.tasks import (
     last_ingested_period,
     probe_source_max_period,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -99,7 +100,6 @@ def cl_ine_ene_flow(
             published, rounded to 3 decimals. Changes on a recalibration even
             when the row count does not.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )
@@ -267,15 +267,13 @@ def cl_ine_ene_flow(
 # INE publishes a moving quarter about a month after its last month, on a date
 # set by the official calendar (late in the month). Poll across a few end-of-month
 # days at 16:52 BRT; the source poll no-ops until a new quarter appears.
-# pyrefly: ignore [missing-attribute]
 cl_ine_ene_flow.deploy_schedules = [
-    {"cron": "52 16 27,28,29,30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("52 16 27,28,29,30 * *", timezone="America/Sao_Paulo")
 ]
 # An incremental run holds one ~98k-row period in pandas; a full refresh holds one
 # period at a time but downloads 6.5 GB. `memory` alone is NOT a variable of the
 # work pool's job template and is dropped silently, capping the pod at the 4Gi
 # default — memory_limit is the one that is actually applied.
-# pyrefly: ignore [missing-attribute]
 cl_ine_ene_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

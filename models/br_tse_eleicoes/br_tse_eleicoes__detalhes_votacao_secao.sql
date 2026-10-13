@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1994, "end": 2024, "interval": 2},
+            "range": {"start": 1994, "end": 2030, "interval": 2},
         },
         cluster_by=["sigla_uf"],
     )
@@ -41,4 +41,3 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.detalhes_votacao_secao") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    

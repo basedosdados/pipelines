@@ -11,14 +11,14 @@ re-deliver records the previous run already loaded, and the dbt models collapse
 them on the PNCP control number, keeping the row with the latest
 ``data_atualizacao``. Re-running a window is therefore always safe.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_mgi_pncp_flow``; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_mgi_pncp_flow``; the
 dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_mgi_pncp.constants import constants
 from pipelines.datasets.br_mgi_pncp.tasks import (
@@ -26,6 +26,7 @@ from pipelines.datasets.br_mgi_pncp.tasks import (
     harvest_window,
     max_publication_date,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -130,7 +131,6 @@ def br_mgi_pncp_flow(
         lookback_days: How far back to re-harvest. Wider than the schedule
             interval on purpose, because PNCP backdates amendments.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="contratacao"
     )
@@ -277,9 +277,8 @@ def br_mgi_pncp_flow(
 
 # PNCP publishes continuously, so a daily run at a minute nobody else is using.
 # 04:12 BRT clears the overnight backlog before the working day.
-# pyrefly: ignore [missing-attribute]
 br_mgi_pncp_flow.deploy_schedules = [
-    {"cron": "12 4 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("12 4 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds a full lookback window of contratações in memory.
 #
@@ -287,7 +286,6 @@ br_mgi_pncp_flow.deploy_schedules = [
 # job template, so the pod would get the 4Gi default while the deployment
 # record still showed the 8Gi we asked for. `memory_limit` is the one the
 # container actually gets.
-# pyrefly: ignore [missing-attribute]
 br_mgi_pncp_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",
