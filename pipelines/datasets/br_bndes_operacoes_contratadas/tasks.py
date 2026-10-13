@@ -26,12 +26,14 @@ from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
     constants_pre_embarque,
 )
 from pipelines.datasets.br_bndes_operacoes_contratadas.utils import (
+    assert_md5,
     clean,
     clean_administracao_publica,
     clean_exportacao_bens,
     clean_exportacao_servicos,
     download_csv,
     get_source_last_modified,
+    get_source_md5,
 )
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
@@ -61,7 +63,8 @@ def get_source_max_date(table_id: str) -> date:
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def download_source_csv(table_id: str) -> str:
     """
-    Baixa o CSV consolidado da tabela para o INPUT_PATH do config.
+    Baixa o CSV consolidado da tabela para o INPUT_PATH do config e confere
+    o MD5 contra o result.hash do recurso.
 
     Args:
         table_id (str): chave em TABLES_CONSTANTS
@@ -79,6 +82,11 @@ def download_source_csv(table_id: str) -> str:
 
     dest_path: Path = download_csv(
         dest=dest, url=table_constants.DOWNLOAD_URL.value
+    )
+
+    assert_md5(
+        dest_path,
+        get_source_md5(table_constants.RESOURCE_SHOW_URL.value),
     )
 
     return str(dest_path)
@@ -123,7 +131,8 @@ def get_source_max_date_administracao_publica() -> date:
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def download_administracao_publica_csv() -> str:
     """
-    Baixa o CSV de operacoes_administracao_publica para o INPUT_PATH.
+    Baixa o CSV de operacoes_administracao_publica para o INPUT_PATH e
+    confere o MD5 contra o result.hash do recurso.
 
     Returns:
         str: caminho local do CSV baixado.
@@ -135,6 +144,13 @@ def download_administracao_publica_csv() -> str:
 
     downloaded_file_path = download_csv(
         dest=dest, url=constants_administracao_publica.DOWNLOAD_URL.value
+    )
+
+    assert_md5(
+        downloaded_file_path,
+        get_source_md5(
+            constants_administracao_publica.RESOURCE_SHOW_URL.value
+        ),
     )
 
     return str(downloaded_file_path)
@@ -178,7 +194,8 @@ def get_source_max_date_exportacao_bens() -> date:
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def download_exportacao_bens_csv() -> str:
     """
-    Baixa o CSV de operacoes_exportacao_bens para o INPUT_PATH.
+    Baixa o CSV de operacoes_exportacao_bens para o INPUT_PATH e confere o
+    MD5 contra o result.hash do recurso.
 
     Returns:
         str: caminho local do CSV baixado.
@@ -190,6 +207,11 @@ def download_exportacao_bens_csv() -> str:
 
     downloaded_file_path = download_csv(
         dest=dest, url=constants_exportacao_bens.DOWNLOAD_URL.value
+    )
+
+    assert_md5(
+        downloaded_file_path,
+        get_source_md5(constants_exportacao_bens.RESOURCE_SHOW_URL.value),
     )
 
     return str(downloaded_file_path)

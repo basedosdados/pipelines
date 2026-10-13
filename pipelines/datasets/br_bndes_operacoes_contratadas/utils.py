@@ -113,6 +113,52 @@ def assert_row_count(rows_read: int, resource_id: str) -> None:
     log(f"Contagem de linhas confere com a fonte: {rows_read}")
 
 
+def get_source_md5(url: str) -> str:
+    """
+    Le o MD5 que o CKAN publica para o recurso (result.hash).
+
+    Args:
+        url (str): RESOURCE_SHOW_URL do recurso CKAN da tabela.
+
+    Returns:
+        str: MD5 do arquivo publicado.
+    """
+    response = httpx.get(url, timeout=60)
+    response.raise_for_status()
+
+    return response.json()["result"]["hash"]
+
+
+def assert_md5(path: Path, expected_md5: str) -> None:
+    """
+    Confere o MD5 do arquivo baixado contra o publicado pela fonte.
+
+    Se nao bater, apaga o arquivo e levanta erro.
+
+    Args:
+        path (Path): arquivo baixado.
+        expected_md5 (str): MD5 publicado pela fonte (get_source_md5).
+
+    Raises:
+        ValueError: quando os MD5 divergem.
+    """
+    md5 = hashlib.md5(usedforsecurity=False)
+    with open(path, "rb") as file:
+        chunk = file.read(1024 * 1024)
+        while chunk:
+            md5.update(chunk)
+            chunk = file.read(1024 * 1024)
+
+    if md5.hexdigest() != expected_md5:
+        path.unlink()
+        raise ValueError(
+            f"O MD5 de {path} ({md5.hexdigest()}) nao bate com o publicado "
+            f"pela fonte ({expected_md5})."
+        )
+
+    log(f"Download conferido pelo MD5: {path}")
+
+
 def parse_decimal_ptbr(s: pd.Series) -> pd.Series:
     """
     Normaliza o separador decimal pt-BR do CSV (virgula -> ponto).
