@@ -373,9 +373,14 @@ def write_table(df: pd.DataFrame, path: Path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     for p in path.glob("*.parquet"):
         p.unlink()
-    df = df.astype(object).where(pd.notna(df), None)
-    schema = pa.schema([(c, pa.string()) for c in df.columns])
-    table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+    # from_pandas=True maps NaN to null, so no NaN reaches the file as "nan".
+    table = pa.Table.from_arrays(
+        [
+            pa.array(df[c].tolist(), type=pa.string(), from_pandas=True)
+            for c in df.columns
+        ],
+        names=list(df.columns),
+    )
     out = path / "data.parquet"
     pq.write_table(table, out, compression="snappy")
     return out
