@@ -110,6 +110,24 @@ LAYOUTS: dict[str, Layout] = {
 }
 
 
+def fix_mojibake(text: str | None) -> str | None:
+    """Desfaz UTF-8 lido como Latin-1, que a própria fonte grava nas planilhas.
+
+    Entre 2014 e 2019 as células trazem literalmente ``NÃ£o Identificado`` e
+    ``AlienaÃ§Ã£o FiduciÃ¡ria``, às vezes no mesmo mês que a grafia correta.
+    Sem o reparo, os dois viram categorias diferentes. Um texto que não
+    reverte limpo é devolvido intacto.
+    """
+    if text is None or ("Ã" not in text and "Â" not in text):
+        return text
+    for encoding in ("latin-1", "cp1252"):
+        try:
+            return text.encode(encoding).decode("utf-8")
+        except UnicodeError:
+            continue
+    return text
+
+
 def normalize(text: str) -> str:
     """Normaliza um nome de arquivo ou cabeçalho para comparação.
 
@@ -415,7 +433,13 @@ def clean_breakdown(
         ]
     )
     final = final.with_columns(
-        [pl.col(dim).str.strip_chars().alias(dim) for dim in layout.dimensions]
+        [
+            pl.col(dim)
+            .apply(fix_mojibake, return_dtype=pl.Utf8)
+            .str.strip_chars()
+            .alias(dim)
+            for dim in layout.dimensions
+        ]
     )
 
     # Somar depois de aparar. A fonte emite variantes so de espaco do mesmo
