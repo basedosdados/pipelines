@@ -1,0 +1,292 @@
+---
+version: 2
+models:
+  - name: us_ucla_voteview__members
+    description: >
+      Members of the US Congress and presidents, one row per member, chamber and
+      Congress, with biographical fields and DW-NOMINATE and Nokken-Poole
+      ideal-point estimates.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [congress, chamber, icpsr]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [conditional]
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ucla_voteview__dictionary')
+          columns_covered_by_dictionary: [last_means, conditional]
+    columns:
+      - name: congress
+        description: >
+          Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)
+        tests: [not_null]
+      - name: chamber
+        description: >
+          Chamber: House, Senate or President
+      - name: icpsr
+        description: >
+          ICPSR identifier of the member
+        tests: [not_null]
+      - name: state_icpsr
+        description: >
+          ICPSR code of the state the member represents
+      - name: district_code
+        description: >
+          Congressional district the member represents within their state
+      - name: state_abbrev
+        description: >
+          Two-letter postal abbreviation of the state the member represents
+      - name: state_id
+        description: >
+          FIPS code of the state the member represents
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: party_code
+        description: >
+          Voteview code of the member's party
+        tests:
+          - relationships:
+              to: ref('us_ucla_voteview__parties')
+              field: party_code
+      - name: occupancy
+        description: >
+          ICPSR occupancy code: order of the member among the occupants of the
+          seat
+      - name: last_means
+        description: >
+          ICPSR attain-office code: the member's last means of attaining office
+      - name: bioname
+        description: >
+          Name of the member, surname first
+      - name: bioguide_id
+        description: >
+          Identifier of the member in the Biographical Directory of the US
+          Congress
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__congress_member')
+              field: id_bioguide
+              config:
+                severity: warn
+      - name: born
+        description: >
+          Year of the member's birth
+      - name: died
+        description: >
+          Year of the member's death
+      - name: nominate_dim1
+        description: >
+          NOMINATE (DW-NOMINATE) first-dimension estimate
+      - name: nominate_dim2
+        description: >
+          NOMINATE (DW-NOMINATE) second-dimension estimate
+      - name: nominate_log_likelihood
+        description: >
+          Log-likelihood of the member's NOMINATE (DW-NOMINATE) estimate
+      - name: nominate_geo_mean_probability
+        description: >
+          Geometric mean probability of the member's NOMINATE (DW-NOMINATE)
+          estimate
+      - name: nominate_number_of_votes
+        description: >
+          Number of votes cast by the member in the Congress
+      - name: nominate_number_of_errors
+        description: >
+          Number of the member's votes misclassified by the NOMINATE
+          (DW-NOMINATE) estimate
+      - name: conditional
+        description: >
+          Whether the NOMINATE (DW-NOMINATE) estimate was produced conditionally
+      - name: nokken_poole_dim1
+        description: >
+          Nokken-Poole first-dimension estimate
+      - name: nokken_poole_dim2
+        description: >
+          Nokken-Poole second-dimension estimate
+  - name: us_ucla_voteview__parties
+    description: >
+      Congressional parties, one row per party, chamber and Congress, with the
+      number of members and the mean and median DW-NOMINATE scores.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [congress, chamber, party_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: congress
+        description: >
+          Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)
+        tests: [not_null]
+      - name: chamber
+        description: >
+          Chamber: House, Senate or President
+      - name: party_code
+        description: >
+          Voteview code of the party
+      - name: party_name
+        description: >
+          Name of the party
+      - name: n_members
+        description: >
+          Number of party members in the chamber in the Congress
+      - name: nominate_dim1_median
+        description: >
+          NOMINATE (DW-NOMINATE) first-dimension median of the party's members
+      - name: nominate_dim2_median
+        description: >
+          NOMINATE (DW-NOMINATE) second-dimension median of the party's members
+      - name: nominate_dim1_mean
+        description: >
+          NOMINATE (DW-NOMINATE) first-dimension mean of the party's members
+      - name: nominate_dim2_mean
+        description: >
+          NOMINATE (DW-NOMINATE) second-dimension mean of the party's members
+  - name: us_ucla_voteview__rollcalls
+    description: >
+      Roll-call votes of the US House and Senate, one row per roll call, with
+      the result, the vote counts and the DW-NOMINATE midpoint and spread.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [congress, chamber, rollnumber]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: congress
+        description: >
+          Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)
+        tests: [not_null]
+      - name: chamber
+        description: >
+          Chamber: House, Senate or President
+      - name: rollnumber
+        description: >
+          Sequential number of the roll call within the Congress and chamber
+      - name: date
+        description: >
+          Date of the roll call
+        tests: [not_null]
+      - name: session
+        description: >
+          Session of the Congress in which the roll call took place
+      - name: clerk_rollnumber
+        description: >
+          Roll call number assigned by the clerk of the chamber
+      - name: majority_requirement
+        description: >
+          Fraction of votes required to pass, e.g. 1/2, 2/3 or 3/5
+      - name: yea_count
+        description: >
+          Number of Yea votes
+      - name: nay_count
+        description: >
+          Number of Nay votes
+      - name: nominate_mid_1
+        description: >
+          NOMINATE (DW-NOMINATE) first-dimension midpoint estimate of the roll
+          call
+      - name: nominate_mid_2
+        description: >
+          NOMINATE (DW-NOMINATE) second-dimension midpoint estimate of the roll
+          call
+      - name: nominate_spread_1
+        description: >
+          NOMINATE (DW-NOMINATE) first-dimension spread estimate of the roll
+          call
+      - name: nominate_spread_2
+        description: >
+          NOMINATE (DW-NOMINATE) second-dimension spread estimate of the roll
+          call
+      - name: nominate_log_likelihood
+        description: >
+          Log-likelihood of the roll call's NOMINATE (DW-NOMINATE) estimate
+      - name: bill_number
+        description: >
+          Number of the bill on which the roll call was held
+      - name: vote_result
+        description: >
+          Official result of the roll call
+      - name: vote_desc
+        description: >
+          Description of the roll call assigned by congressional staff
+      - name: vote_question
+        description: >
+          Question put to the vote, e.g. On Agreeing to the Amendment
+      - name: dtl_desc
+        description: >
+          Description of the roll call from historical sources
+  - name: us_ucla_voteview__votes
+    description: >
+      How each member of the US Congress voted in each roll call, one row per
+      member and roll call, with the NOMINATE probability of the recorded vote.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [congress, chamber, rollnumber, icpsr]
+          config:
+            where: date >= date_sub(current_date(), interval 2 year)
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: date >= date_sub(current_date(), interval 2 year)
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ucla_voteview__dictionary')
+          columns_covered_by_dictionary: [cast_code]
+          config:
+            where: date >= date_sub(current_date(), interval 2 year)
+    columns:
+      - name: congress
+        description: >
+          Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)
+        tests:
+          - not_null:
+              config:
+                where: date >= date_sub(current_date(), interval 2 year)
+      - name: chamber
+        description: >
+          Chamber: House, Senate or President
+      - name: rollnumber
+        description: >
+          Sequential number of the roll call within the Congress and chamber
+      - name: date
+        description: >
+          Date of the roll call
+        tests: [not_null]
+      - name: icpsr
+        description: >
+          ICPSR identifier of the member
+        tests:
+          - relationships:
+              to: ref('us_ucla_voteview__members')
+              field: icpsr
+              config:
+                where: date >= date_sub(current_date(), interval 2 year)
+      - name: cast_code
+        description: >
+          How the member voted
+      - name: prob
+        description: >
+          Estimated probability, from NOMINATE (DW-NOMINATE), of the member
+          casting the vote as recorded
+  - name: us_ucla_voteview__dictionary
+    description: >
+      Labels of the coded columns of the us_ucla_voteview tables.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, column_name, key]
+    columns:
+      - name: table_id
+        description: >
+          Table identifier
+      - name: column_name
+        description: >
+          Column name
+      - name: key
+        description: >
+          Code
+      - name: temporal_coverage
+        description: >
+          Temporal coverage of the code
+      - name: value
+        description: >-
+          Meaning of the code
