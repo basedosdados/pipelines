@@ -5,7 +5,7 @@ Um `@flow` por tabela, declarado no nível do módulo com o horário logo abaixo
 compartilhando a espinha `run_inep_enem`.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_inep_enem.tasks import (
     clean_table,
@@ -13,6 +13,7 @@ from pipelines.datasets.br_inep_enem.tasks import (
     get_source_max_date,
     resolve_years,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     CoverageSpec,
@@ -53,7 +54,6 @@ def run_inep_enem(
     source_format: str,
 ) -> None:
     """Executa o ciclo baixar, limpar, subir, dbt e metadados de uma tabela."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -165,9 +165,8 @@ def br_inep_enem__participantes(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_inep_enem__participantes.deploy_schedules = [
-    {"cron": "13 9 12,13,14 * *", "timezone": "America/Sao_Paulo"}
+    Cron("13 9 12,13,14 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -198,12 +197,10 @@ def br_inep_enem__resultados(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_inep_enem__resultados.deploy_schedules = [
-    {"cron": "43 9 12,13,14 * *", "timezone": "America/Sao_Paulo"}
+    Cron("43 9 12,13,14 * *", timezone="America/Sao_Paulo")
 ]
 
-# pyrefly: ignore [missing-attribute]
 br_inep_enem__resultados.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",
