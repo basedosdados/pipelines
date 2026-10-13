@@ -1,0 +1,49 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+institution_type,STRING,Authorised deposit-taking institution type or grouping,,yes,,,no,APRA institution groupings; some do not report every statement (e.g. foreign branch banks report no capital adequacy),
+net_interest_income,FLOAT64,Net interest income ($m),,no,,AUD million,no,Values in millions of Australian dollars,Net interest income ($m)
+total_operating_income,FLOAT64,Total operating income ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total operating income ($m)
+total_operating_expenses,FLOAT64,Operating expenses ($m),,no,,AUD million,no,Values in millions of Australian dollars,Operating expenses ($m)
+net_profit_after_tax,FLOAT64,Net profit (loss) after tax ($m),,no,,AUD million,no,Values in millions of Australian dollars,Net profit (loss) after tax ($m)
+average_total_assets,FLOAT64,Average total assets ($m),,no,,AUD million,no,Values in millions of Australian dollars,Average total assets ($m)
+average_total_shareholders_equity,FLOAT64,Average total shareholders' equity ($m),,no,,AUD million,no,Values in millions of Australian dollars,Average total shareholders' equity ($m)
+net_interest_income_to_assets,FLOAT64,Net interest income to assets,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Net interest income to assets
+operating_income_to_assets,FLOAT64,Operating income to assets,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Operating income to assets
+operating_expenses_to_assets,FLOAT64,Operating expenses to assets,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Operating expenses to assets
+profit_margin,FLOAT64,Profit margin,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Profit margin
+return_on_assets,FLOAT64,Return on assets (after tax),,no,,AUD million,no,Values in millions of Australian dollars,Return on assets (after tax)
+return_on_equity,FLOAT64,Return on equity (after tax),,no,,AUD million,no,Values in millions of Australian dollars,Return on equity (after tax)
+other_operating_income,FLOAT64,Other operating income ($m),,no,,AUD million,no,Values in millions of Australian dollars,Other operating income ($m)
+fee_and_commission_income,FLOAT64,Fee and commission income ($m),,no,,AUD million,no,Values in millions of Australian dollars,Fee and commission income ($m)
+total_operating_income__2,FLOAT64,Total operating income ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total operating income ($m)
+operating_expenses__2,FLOAT64,Operating expenses ($m),,no,,AUD million,no,Values in millions of Australian dollars,Operating expenses ($m)
+personnel_expenses,FLOAT64,Personnel expenses ($m),,no,,AUD million,no,Values in millions of Australian dollars,Personnel expenses ($m)
+non_interest_income_share,FLOAT64,Non-interest income share,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Non-interest income share
+fee_income_to_total_operating_income,FLOAT64,Fee income to total operating income,,no,,AUD million,no,Values in millions of Australian dollars,Fee income to total operating income
+cost_to_income,FLOAT64,Cost to income,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Cost to income
+personnel_to_operating_expenses,FLOAT64,Personnel to operating expenses,,no,,AUD million,no,Values in millions of Australian dollars,Personnel to operating expenses
+total_assets,FLOAT64,Total assets ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total assets ($m)
+average_net_loans_and_advances,FLOAT64,Average net loans and advances ($m),,no,,AUD million,no,Values in millions of Australian dollars,Average net loans and advances ($m)
+average_deposits,FLOAT64,Average deposits ($m),,no,,AUD million,no,Values in millions of Australian dollars,Average deposits ($m)
+growth_in_total_assets,FLOAT64,Growth in total assets,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Growth in total assets
+net_loans_to_deposits,FLOAT64,Net loans to deposits,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Net loans to deposits
+deposits_to_assets,FLOAT64,Deposits to assets,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Deposits to assets
+equity_to_deposits,FLOAT64,Equity to deposits,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Equity to deposits
+total_capital_base,FLOAT64,Total capital base ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total capital base ($m)
+total_risk_weighted_assets,FLOAT64,Total risk weighted assets ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total risk weighted assets ($m)
+total_capital_ratio,FLOAT64,Total capital ratio,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Total capital ratio
+total_impaired_facilities,FLOAT64,Total impaired facilities ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total impaired facilities ($m)
+impaired_facilities_to_loans_and_advances,FLOAT64,Impaired facilities to loans and advances,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Impaired facilities to loans and advances
+gross_loans_and_advances,FLOAT64,Gross loans and advances ($m),,no,,AUD million,no,Values in millions of Australian dollars,Gross loans and advances ($m)
+total_non_performing_exposures,FLOAT64,Total non-performing exposures ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total non-performing exposures ($m)
+non_performing_to_loans_and_advances,FLOAT64,Non-performing to loans and advances,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Non-performing to loans and advances
+total_lcr_liquid_assets,FLOAT64,Total LCR liquid assets ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total LCR liquid assets ($m)
+net_cash_outflows,FLOAT64,Net cash outflows ($m),,no,,AUD million,no,Values in millions of Australian dollars,Net cash outflows ($m)
+liquidity_coverage_ratio,FLOAT64,Liquidity coverage ratio (LCR),,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Liquidity coverage ratio (LCR)
+total_adjusted_minimum_liquidity_holdings,FLOAT64,Total adjusted minimum liquidity holdings (MLH) ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total adjusted minimum liquidity holdings (MLH) ($m)
+adjusted_liability_base,FLOAT64,Adjusted liability base ($m),,no,,AUD million,no,Values in millions of Australian dollars,Adjusted liability base ($m)
+mlh_ratio,FLOAT64,MLH ratio,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),MLH ratio
+number_of_entities,INT64,Number of entities,,no,,unit,no,,Number of entities
+capital_ratio,FLOAT64,Capital ratio,,no,,proportion,no,Dimensionless ratio or proportion (APRA reports many of these as a fraction),Capital ratio
+total_loans_and_advances,FLOAT64,Total loans and advances ($m),,no,,AUD million,no,Values in millions of Australian dollars,Total loans and advances ($m)

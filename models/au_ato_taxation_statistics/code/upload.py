@@ -3,7 +3,7 @@
 Usage::
 
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      uv run python models/au_ato_taxation_statistics/code/upload.py [table ...]
+      uv run models/au_ato_taxation_statistics/code/upload.py [table ...]
 
 Writes to ``basedosdados-dev`` only. Production table data is materialised
 by the table-approve action when the onboarding PR merges, never from here.

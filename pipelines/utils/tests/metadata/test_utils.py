@@ -66,6 +66,14 @@ def test_year_quarter_column_keeps_future_labels():
     assert "MAX(DATE(ano,trimestre*3,1))" in query
 
 
+def test_year_bimester_column_keeps_future_labels():
+    query = _query_for(
+        {"year": "ano", "bimester": "bimestre"}, date_format="%Y-%m"
+    )
+    assert "CURRENT_DATE()" not in query
+    assert "MAX(DATE(ano,bimestre*2,1))" in query
+
+
 def test_returned_date_is_parsed_with_the_given_format():
     """The filter must not change the value that comes back."""
     captured = {}

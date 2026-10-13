@@ -34,7 +34,7 @@ Worker sizing: `"memory": "8Gi"`
 - https://data.gov.au/data/api/3/action/package_show
 
 ## Design notes
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_ato_taxation_statistics_flow`; the dev pool ignores the schedule, the prod pool
 activates it.
 

@@ -2,6 +2,8 @@
 Shared run logic for DATASUS pipelines (CNES, SIA, SIH, SINAN) — Prefect 3.
 """
 
+from typing import Literal
+
 from pipelines.crawler.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
@@ -36,13 +38,11 @@ def _run_cnes(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
     year_month_to_extract: str = "",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -108,7 +108,6 @@ def _run_cnes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -127,7 +126,6 @@ def _run_cnes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -148,16 +146,12 @@ def _run_dbf_to_parquet(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
-    target: str,
+    fonte_label: Literal["SIA", "SIH"],
     force_run: bool,
-    source_format: str,
-    fonte_label: str,
     year_month_to_extract: str = "",
 ) -> None:
     """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -213,13 +207,12 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format=source_format,
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -232,14 +225,13 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format=source_format,
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        target=target,
+        target="prod",
     )
 
     if update_metadata:
@@ -256,23 +248,21 @@ def _run_dbf_to_parquet(
 
 
 def _run_siasus(**kwargs) -> None:
-    _run_dbf_to_parquet(source_format="csv", fonte_label="SIA", **kwargs)
+    _run_dbf_to_parquet(fonte_label="SIA", **kwargs)
 
 
 def _run_sihsus(**kwargs) -> None:
-    _run_dbf_to_parquet(source_format="parquet", fonte_label="SIH", **kwargs)
+    _run_dbf_to_parquet(fonte_label="SIH", **kwargs)
 
 
 def _run_sinan(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -329,7 +319,6 @@ def _run_sinan(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -347,7 +336,6 @@ def _run_sinan(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

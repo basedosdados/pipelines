@@ -12,8 +12,8 @@ kept verbatim; the DuckDB loading step is replaced by partitioned Parquet
 output (output/<table>/year=YYYY/data.parquet, snappy compression).
 
 Usage:
-    uv run python models/us_ed_ipeds/code/clean_data.py            # all tables
-    uv run python models/us_ed_ipeds/code/clean_data.py adm ef_d   # subset
+    uv run models/us_ed_ipeds/code/clean_data.py            # all tables
+    uv run models/us_ed_ipeds/code/clean_data.py adm ef_d   # subset
 
 Raw ZIP files are cached in models/us_ed_ipeds/input/ so subsequent runs
 skip downloads.
@@ -193,7 +193,7 @@ def build_manifest():
 # ---------------------------------------------------------------------------
 
 
-def download_file(filename: str, retries: int = 3) -> Path:
+def download_file(filename: str, retries: int = 3) -> Path | None:
     """Download a zip file if not already cached."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     local_path = DATA_DIR / f"{filename}.zip"
@@ -212,7 +212,6 @@ def download_file(filename: str, retries: int = 3) -> Path:
                 log.warning(
                     f"  Failed to download {filename}: HTTP {resp.status_code}"
                 )
-                # pyrefly: ignore [bad-return]
                 return None
             local_path.write_bytes(resp.content)
             return local_path
@@ -224,12 +223,10 @@ def download_file(filename: str, retries: int = 3) -> Path:
                 f"  Download error (attempt {attempt + 1}/{retries}): {e}"
             )
             if attempt == retries - 1:
-                # pyrefly: ignore [bad-return]
                 return None
             import time
 
             time.sleep(2**attempt)
-    # pyrefly: ignore [bad-return]
     return None
 
 
@@ -238,7 +235,7 @@ def download_file(filename: str, retries: int = 3) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
+def read_csv_from_zip(zip_path: Path) -> pd.DataFrame | None:
     """Extract and read the CSV data file from a zip archive."""
     with zipfile.ZipFile(zip_path) as zf:
         # Find the main CSV file (not the dictionary/frequencies file)
@@ -258,7 +255,6 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
 
         if not csv_files:
             log.warning(f"  No CSV found in {zip_path.name}: {zf.namelist()}")
-            # pyrefly: ignore [bad-return]
             return None
 
         # Pick the largest CSV (usually the data file)
@@ -291,7 +287,6 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
             )
         except Exception as e:
             log.warning(f"  Error reading CSV from {zip_path.name}: {e}")
-            # pyrefly: ignore [bad-return]
             return None
 
         # Drop pandas duplicate-header artifacts (e.g. "xefgndru.1" in

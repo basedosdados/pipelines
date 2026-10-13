@@ -1,0 +1,25 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de publicação do aviso de contratação direta,1997(1)2024,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, correspondente ao campo dt_ano_aviso da fonte",,Year of publication of the direct contracting notice,Año de publicación del aviso de contratación directa
+id_compra,STRING,Identificador da contratação direta no SIASG,,no,,,no,Chave primária da tabela,id_compra,Identifier of the direct contracting in SIASG,Identificador de la contratación directa en el SIASG
+codigo_uasg,STRING,Código da UASG responsável pela contratação,,no,,,no,,co_uasg,Code of the UASG running the procurement,Código de la UASG responsable de la contratación
+codigo_orgao,STRING,Código do órgão responsável pela contratação,,no,,,no,,co_orgao,Code of the body running the procurement,Código del órgano responsable de la contratación
+numero_aviso,STRING,Número do aviso da contratação direta,,no,,,no,,nu_aviso_licitacao,Notice number of the direct contracting,Número del aviso de la contratación directa
+numero_processo,STRING,Número do processo administrativo,,no,,,no,,nu_processo,Administrative case number,Número del proceso administrativo
+codigo_modalidade,STRING,Código da modalidade da contratação direta,,yes,,,no,"6 dispensa de licitação, 7 inexigibilidade de licitação",co_modalidade_licitacao,Code of the direct contracting modality,Código de la modalidad de la contratación directa
+quantidade_total_item,INT64,Quantidade total de itens da contratação,,no,,unit,no,,qt_total_item,Total number of items in the procurement,Cantidad total de ítems de la contratación
+objeto_licitacao,STRING,Descrição do objeto da contratação,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,ds_objeto_licitacao,Description of the procurement's subject matter,Descripción del objeto de la contratación
+fundamento_legal,STRING,Dispositivo legal que fundamenta a contratação direta,,no,,,no,,ds_fundamento_legal,Legal provision underpinning the direct contracting,Disposición legal que fundamenta la contratación directa
+justificativa,STRING,Justificativa apresentada para a contratação direta,,no,,,no,,ds_justificativa,Justification given for the direct contracting,Justificación presentada para la contratación directa
+nome_responsavel_declaracao_dispensa,STRING,Nome do responsável pela declaração de dispensa ou inexigibilidade,,no,,,no,,no_responsavel_decl_disp,Name of the official who declared the waiver,Nombre del responsable de la declaración de dispensa o inexigibilidad
+cargo_responsavel_declaracao_dispensa,STRING,Cargo do responsável pela declaração de dispensa ou inexigibilidade,,no,,,no,,no_cargo_resp_decl_disp,Role of the official who declared the waiver,Cargo del responsable de la declaración de dispensa o inexigibilidad
+nome_responsavel_ratificacao,STRING,Nome do responsável pela ratificação,,no,,,no,,no_responsavel_ratificacao,Name of the official who ratified the waiver,Nombre del responsable de la ratificación
+cargo_responsavel_ratificacao,STRING,Cargo do responsável pela ratificação,,no,,,no,,no_cargo_resp_ratificacao,Role of the official who ratified the waiver,Cargo del responsable de la ratificación
+nome_uasg,STRING,Nome da UASG responsável pela contratação,,no,,,no,,no_ausg,Name of the UASG running the procurement,Nombre de la UASG responsable de la contratación
+codigo_orgao_superior,STRING,Código do órgão superior na hierarquia administrativa,,no,,,no,,co_orgao_superior,Code of the superior body in the administrative hierarchy,Código del órgano superior en la jerarquía administrativa
+lei,STRING,Lei que rege a contratação direta,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,ds_lei,Law governing the direct contracting,Ley que rige la contratación directa
+valor_estimado,FLOAT64,Valor total estimado da contratação direta,,no,,BRL,no,,vr_estimado,Total estimated value of the direct contracting,Valor total estimado de la contratación directa
+indicador_pertence_14133,BOOLEAN,Indica se a contratação foi realizada sob a Lei 14.133/2021,,no,,,no,,pertence14133,Whether the procurement was run under Law 14.133/2021,Indica si la contratación se realizó bajo la Ley 14.133/2021
+data_declaracao_dispensa,DATE,Data da declaração de dispensa ou inexigibilidade,,no,,,no,,dt_declaracao_dispensa,Date the waiver was declared,Fecha de la declaración de dispensa o inexigibilidad
+data_ratificacao,DATE,Data da ratificação da contratação direta,,no,,,no,,dt_ratificacao,Date the direct contracting was ratified,Fecha de la ratificación de la contratación directa
+data_publicacao,DATE,Data de publicação do aviso,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,dt_publicacao,Date the notice was published,Fecha de publicación del aviso
+data_alteracao,DATETIME,Data e hora da última alteração do registro,,no,,,no,,dt_alteracao,Timestamp of the last change to the record,Fecha y hora de la última modificación del registro

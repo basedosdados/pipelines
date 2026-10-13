@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_id,STRING,Slug of the table the covered column belongs to,,no,,,no,,derived
+column_name,STRING,Name of the column whose values this row decodes,,no,,,no,,derived
+key,STRING,Value as stored in the covered column,,no,,,no,,derived
+temporal_coverage,STRING,Years the key is valid for,,no,,,no,Empty where the key is valid for the whole coverage of the table,derived
+value,STRING,Meaning of the key,,no,,,no,,derived

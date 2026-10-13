@@ -1,0 +1,16 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the reporting quarter,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,
+quarter,INT64,"Calendar quarter of the report, 1 to 4",,no,,quarter,no,,
+report_date,DATE,Last calendar day of the reporting quarter,,no,,,no,,
+rssd_id,STRING,"RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id, which carries the FDIC certificate",,no,,,no,,IDRSSD
+fdic_cert_id,STRING,"FDIC certificate number, the institution key used by us_fdic_bankfind",,no,,,no,Reported as 0 when the institution has no FDIC certificate; converted to NULL.,FDIC Certificate Number
+occ_charter_id,STRING,OCC charter number for nationally chartered banks,,no,,,no,Reported as 0 when not OCC chartered; converted to NULL.,OCC Charter Number
+ots_docket_id,STRING,Former OTS docket number for thrift institutions,,no,,,no,Reported as 0 when absent; converted to NULL.,OTS Docket Number
+aba_routing_id,STRING,Primary ABA routing number,,no,,,no,Reported as 0 when absent; converted to NULL.,Primary ABA Routing Number
+name,STRING,Legal name of the financial institution,,no,,,no,,Financial Institution Name
+address,STRING,Street address of the institution's main office,,no,,,no,,Financial Institution Address
+city,STRING,City of the institution's main office,,no,,,no,,Financial Institution City
+state_abbreviation,STRING,Two-letter postal abbreviation of the state of the main office,,no,,,no,"Not linked to the state directory: its primary key is the FIPS code, and the abbreviation is a non-key column.",Financial Institution State
+zip_code,STRING,ZIP code of the institution's main office,,no,,,no,,Financial Institution Zip Code
+call_report_form_id,STRING,Call Report form the institution filed for the quarter,,yes,,,no,,Financial Institution Filing Type
+last_submission_updated_at,DATETIME,Timestamp at which the institution last updated its submission for the quarter,,no,,,no,"Later than the report date, and moves when an amended filing is accepted.",Last Date/Time Submission Updated On

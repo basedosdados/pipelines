@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção associada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de inspection.open_date. Registros cujo inspection_id não existe em inspection recebem year = 9999,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+program_type,STRING,Tipo do programa de ênfase,,no,,,no,"A OSHA não publica a legenda dos códigos L, N, P e S, que por isso não constam do dicionário",PROG_TYPE
+program_value,STRING,Descrição do programa de ênfase específico,,no,,,no,"Texto livre digitado no escritório de origem, com grafias inconsistentes e ocasionais caracteres espúrios",PROG_VALUE

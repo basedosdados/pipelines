@@ -11,7 +11,7 @@
         cluster_by=["sigla_uf"],
     )
 }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     cnpj_estabelecimentos as (
         select
@@ -55,8 +55,8 @@ with
         from {{ set_datalake_project("br_rf_cnpj_staging.estabelecimentos") }}
         {% if is_incremental() %}
             where
-                safe.parse_date('%Y-%m', data_referencia)
-                > (select max(data_referencia) from {{ this }})
+                data_referencia
+                > format_date('%Y-%m', (select max(data_referencia) from {{ this }}))
         -- Dados históricos até 2023-04-30 foram migrados do modelo
         -- br_me_cnpj.estabelecimentos
         {% else %}

@@ -1,0 +1,894 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+return_financial,form_type,990,,"Form 990, Return of Organization Exempt From Income Tax"
+return_financial,form_type,990EZ,,"Form 990-EZ, Short Form Return of Organization Exempt From Income Tax"
+compensation,form_type,990,,"Form 990, Return of Organization Exempt From Income Tax"
+compensation,form_type,990EZ,,"Form 990-EZ, Short Form Return of Organization Exempt From Income Tax"
+organization,subsection_code,01,,501(c)(1) Government instrumentality
+organization,subsection_code,02,,501(c)(2) Title-holding corporation
+organization,subsection_code,03,,"501(c)(3) Charitable, educational, religious, scientific or literary organization"
+organization,subsection_code,04,,501(c)(4) Civic league or social welfare organization
+organization,subsection_code,05,,"501(c)(5) Labor, agricultural or horticultural organization"
+organization,subsection_code,06,,"501(c)(6) Business league, chamber of commerce or board of trade"
+organization,subsection_code,07,,501(c)(7) Social or recreational club
+organization,subsection_code,08,,501(c)(8) Fraternal beneficiary society
+organization,subsection_code,09,,501(c)(9) Voluntary employees' beneficiary association
+organization,subsection_code,10,,501(c)(10) Domestic fraternal society
+organization,subsection_code,11,,501(c)(11) Teachers' retirement fund association
+organization,subsection_code,12,,"501(c)(12) Benevolent life insurance association, mutual ditch or irrigation company, mutual or cooperative telephone company"
+organization,subsection_code,13,,501(c)(13) Cemetery company or burial association
+organization,subsection_code,14,,501(c)(14) Credit union or other mutual financial organization
+organization,subsection_code,15,,501(c)(15) Mutual insurance company or association
+organization,subsection_code,16,,501(c)(16) Corporation financing crop operations
+organization,subsection_code,17,,501(c)(17) Supplemental unemployment compensation trust
+organization,subsection_code,18,,501(c)(18) Employee-funded pension trust (created before 25 June 1959)
+organization,subsection_code,19,,501(c)(19) Post or organization of war veterans
+organization,subsection_code,20,,501(c)(20) Legal service organization
+organization,subsection_code,21,,501(c)(21) Black lung benefit trust
+organization,subsection_code,22,,501(c)(22) Multiemployer pension plan
+organization,subsection_code,23,,501(c)(23) Veterans' association formed before 1880
+organization,subsection_code,24,,501(c)(24) Trust described in section 4049 of ERISA
+organization,subsection_code,25,,501(c)(25) Title-holding company for pensions and other exempt entities
+organization,subsection_code,26,,501(c)(26) State-sponsored high-risk health insurance organization
+organization,subsection_code,27,,501(c)(27) State-sponsored workers' compensation reinsurance organization
+organization,subsection_code,29,,501(c)(29) ACA section 1322 qualified nonprofit health insurance issuer
+organization,subsection_code,40,,501(d) Apostolic and religious organization
+organization,subsection_code,50,,501(e) Cooperative hospital service organization
+organization,subsection_code,60,,501(f) Cooperative service organization of operating educational organizations
+organization,subsection_code,70,,501(k) Child care organization
+organization,subsection_code,71,,501(n) Charitable risk pool
+organization,subsection_code,81,,529 Qualified state-sponsored tuition program
+organization,subsection_code,92,,4947(a)(1) Non-exempt charitable trust treated as a private foundation (Form 990-PF filer)
+organization,subsection_code,00,,Not exempt under any subsection (revoked or not yet determined)
+organization,subsection_code,82,,"Code 82, not documented in the IRS EO BMF information sheet"
+organization,subsection_code,91,,"Code 91, not documented in the IRS EO BMF information sheet"
+organization,subsection_classification_code,011,,Government instrumentality
+organization,subsection_classification_code,021,,Title-holding corporation
+organization,subsection_classification_code,031,,Charitable organization
+organization,subsection_classification_code,032,,Educational organization
+organization,subsection_classification_code,033,,Literary organization
+organization,subsection_classification_code,034,,Organization to prevent cruelty to animals
+organization,subsection_classification_code,035,,Organization to prevent cruelty to children
+organization,subsection_classification_code,036,,Organization for public safety testing
+organization,subsection_classification_code,037,,Religious organization
+organization,subsection_classification_code,038,,Scientific organization
+organization,subsection_classification_code,041,,Civic league
+organization,subsection_classification_code,042,,Local association of employees
+organization,subsection_classification_code,043,,Social welfare organization
+organization,subsection_classification_code,051,,Agricultural organization
+organization,subsection_classification_code,052,,Horticultural organization
+organization,subsection_classification_code,053,,Labor organization
+organization,subsection_classification_code,061,,Board of trade
+organization,subsection_classification_code,062,,Business league
+organization,subsection_classification_code,063,,Chamber of commerce
+organization,subsection_classification_code,064,,Real estate board
+organization,subsection_classification_code,071,,"Pleasure, recreational or social club"
+organization,subsection_classification_code,081,,"Fraternal beneficiary society, order or association"
+organization,subsection_classification_code,091,,Voluntary employees' beneficiary association (non-government employees)
+organization,subsection_classification_code,092,,Voluntary employees' beneficiary association (government employees)
+organization,subsection_classification_code,101,,Domestic fraternal society or association
+organization,subsection_classification_code,111,,Teachers' retirement fund association
+organization,subsection_classification_code,121,,Benevolent life insurance association
+organization,subsection_classification_code,122,,Mutual ditch or irrigation company
+organization,subsection_classification_code,123,,Mutual cooperative telephone company
+organization,subsection_classification_code,124,,Organization like those on the three preceding lines
+organization,subsection_classification_code,131,,Burial association
+organization,subsection_classification_code,132,,Cemetery company
+organization,subsection_classification_code,141,,Credit union
+organization,subsection_classification_code,142,,Other mutual corporation or association
+organization,subsection_classification_code,151,,Mutual insurance company or association other than life or marine
+organization,subsection_classification_code,161,,Corporation financing crop operations
+organization,subsection_classification_code,171,,Supplemental unemployment compensation trust or plan
+organization,subsection_classification_code,181,,Employee-funded pension trust (created before 25 June 1959)
+organization,subsection_classification_code,191,,Post or organization of war veterans
+organization,subsection_classification_code,201,,Legal service organization
+organization,subsection_classification_code,211,,Black lung trust
+organization,subsection_classification_code,221,,Multiemployer pension plan
+organization,subsection_classification_code,231,,Veterans' association formed prior to 1880
+organization,subsection_classification_code,241,,Trust described in section 4049 of ERISA
+organization,subsection_classification_code,251,,Title-holding company for pensions and similar entities
+organization,subsection_classification_code,261,,State-sponsored high-risk health insurance organization
+organization,subsection_classification_code,271,,State-sponsored workers' compensation reinsurance organization
+organization,subsection_classification_code,291,,ACA section 1322 qualified nonprofit health insurance issuer
+organization,subsection_classification_code,401,,Apostolic and religious organization (501(d))
+organization,subsection_classification_code,501,,Cooperative hospital service organization (501(e))
+organization,subsection_classification_code,601,,Cooperative service organization of operating educational organizations (501(f))
+organization,subsection_classification_code,701,,Child care organization (501(k))
+organization,subsection_classification_code,711,,Charitable risk pool
+organization,subsection_classification_code,811,,Qualified state-sponsored tuition program
+organization,subsection_classification_code,921,,4947(a)(1) private foundation (Form 990-PF filer)
+organization,affiliation_code,1,,"Central organization (no group exemption) of a national, regional or geographic grouping"
+organization,affiliation_code,2,,"Intermediate organization (no group exemption) of a national, regional or geographic grouping"
+organization,affiliation_code,3,,Independent organization or independent auxiliary
+organization,affiliation_code,6,,"Central organization holding a group ruling, not a church or 501(c)(1) organization"
+organization,affiliation_code,7,,Intermediate organization of a group exemption
+organization,affiliation_code,8,,Central organization holding a group ruling that is a church or 501(c)(1) organization
+organization,affiliation_code,9,,Subordinate organization in a group ruling
+organization,affiliation_code,0,,Not reported
+organization,deductibility_code,1,,Contributions are deductible
+organization,deductibility_code,2,,Contributions are not deductible
+organization,deductibility_code,4,,Contributions are deductible by treaty (foreign organizations)
+organization,deductibility_code,0,,Not reported
+organization,foundation_code,00,,All organizations except 501(c)(3)
+organization,foundation_code,02,,Private operating foundation exempt from paying excise taxes on investment income
+organization,foundation_code,03,,Private operating foundation (other)
+organization,foundation_code,04,,Private non-operating foundation
+organization,foundation_code,09,,Suspense
+organization,foundation_code,10,,Church 170(b)(1)(A)(i)
+organization,foundation_code,11,,School 170(b)(1)(A)(ii)
+organization,foundation_code,12,,Hospital or medical research organization 170(b)(1)(A)(iii)
+organization,foundation_code,13,,Organization operated for the benefit of a governmentally owned college or university 170(b)(1)(A)(iv)
+organization,foundation_code,14,,Governmental unit 170(b)(1)(A)(v)
+organization,foundation_code,15,,Organization receiving a substantial part of its support from a governmental unit or the general public 170(b)(1)(A)(vi)
+organization,foundation_code,16,,"Organization receiving no more than one-third of its support from gross investment income and unrelated business income and more than one-third from contributions, fees and exempt-purpose receipts 509(a)(2)"
+organization,foundation_code,17,,"Organization operated solely for the benefit of organizations described in codes 10 through 16, 509(a)(3)"
+organization,foundation_code,18,,Organization organized and operated to test for public safety 509(a)(4)
+organization,foundation_code,21,,509(a)(3) Type I supporting organization
+organization,foundation_code,22,,509(a)(3) Type II supporting organization
+organization,foundation_code,23,,509(a)(3) Type III functionally integrated supporting organization
+organization,foundation_code,24,,509(a)(3) Type III not functionally integrated supporting organization
+organization,foundation_code,25,,Agricultural research organization 170(b)(1)(A)(ix)
+organization,foundation_code,06,,"Code 06, not documented in the IRS EO BMF information sheet"
+organization,foundation_code,07,,"Code 07, not documented in the IRS EO BMF information sheet"
+organization,organization_code,1,,Corporation
+organization,organization_code,2,,Trust
+organization,organization_code,3,,Co-operative
+organization,organization_code,4,,Partnership
+organization,organization_code,5,,Association
+organization,organization_code,0,,Not reported
+organization,organization_code,6,,Other
+organization,status_code,01,,Unconditional exemption
+organization,status_code,02,,Conditional exemption
+organization,status_code,12,,Trust described in section 4947(a)(2) of the Internal Revenue Code
+organization,status_code,25,,Organization terminating its private foundation status under section 507(b)(1)(B)
+organization,asset_code,0,,0
+organization,asset_code,1,,"1 to 9,999"
+organization,asset_code,2,,"10,000 to 24,999"
+organization,asset_code,3,,"25,000 to 99,999"
+organization,asset_code,4,,"100,000 to 499,999"
+organization,asset_code,5,,"500,000 to 999,999"
+organization,asset_code,6,,"1,000,000 to 4,999,999"
+organization,asset_code,7,,"5,000,000 to 9,999,999"
+organization,asset_code,8,,"10,000,000 to 49,999,999"
+organization,asset_code,9,,"50,000,000 or greater"
+organization,income_code,0,,0
+organization,income_code,1,,"1 to 9,999"
+organization,income_code,2,,"10,000 to 24,999"
+organization,income_code,3,,"25,000 to 99,999"
+organization,income_code,4,,"100,000 to 499,999"
+organization,income_code,5,,"500,000 to 999,999"
+organization,income_code,6,,"1,000,000 to 4,999,999"
+organization,income_code,7,,"5,000,000 to 9,999,999"
+organization,income_code,8,,"10,000,000 to 49,999,999"
+organization,income_code,9,,"50,000,000 or greater"
+organization,filing_requirement_code,01,,Form 990 (all other) or 990-EZ return required
+organization,filing_requirement_code,02,,"Required to file Form 990-N (e-Postcard); income under $50,000 per year"
+organization,filing_requirement_code,03,,Form 990 group return
+organization,filing_requirement_code,04,,Required to file Form 990-BL (black lung trusts)
+organization,filing_requirement_code,06,,Not required to file (church)
+organization,filing_requirement_code,07,,Government 501(c)(1)
+organization,filing_requirement_code,13,,Not required to file (religious organization)
+organization,filing_requirement_code,14,,Not required to file (instrumentality of a state or political subdivision)
+organization,filing_requirement_code,00,,Not required to file (all other)
+organization,pf_filing_requirement_code,1,,Form 990-PF return required
+organization,pf_filing_requirement_code,0,,No Form 990-PF return required
+organization,pf_filing_requirement_code,2,,"Form 990-PF return required (code 2, undocumented by the IRS)"
+organization,pf_filing_requirement_code,3,,"Form 990-PF return required (code 3, undocumented by the IRS)"
+organization,ntee_code,A,,"Arts, Culture & Humanities"
+organization,ntee_code,A01,,Alliances & Advocacy
+organization,ntee_code,A02,,Management & Technical Assistance
+organization,ntee_code,A03,,Professional Societies & Associations
+organization,ntee_code,A05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,A11,,Single Organization Support
+organization,ntee_code,A12,,Fund Raising & Fund Distribution
+organization,ntee_code,A19,,Support N.E.C.
+organization,ntee_code,A20,,Arts & Culture
+organization,ntee_code,A23,,Cultural & Ethnic Awareness
+organization,ntee_code,A24,,Folk Arts
+organization,ntee_code,A25,,Arts Education
+organization,ntee_code,A26,,Arts & Humanities Councils & Agencies
+organization,ntee_code,A27,,Community Celebrations
+organization,ntee_code,A30,,Media & Communications
+organization,ntee_code,A31,,Film & Video
+organization,ntee_code,A32,,Television
+organization,ntee_code,A33,,Printing & Publishing
+organization,ntee_code,A34,,Radio
+organization,ntee_code,A40,,Visual Arts
+organization,ntee_code,A50,,Museums
+organization,ntee_code,A51,,Art Museums
+organization,ntee_code,A52,,Children's Museums
+organization,ntee_code,A53,,Folk Arts Museums<i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,A54,,History Museums
+organization,ntee_code,A56,,Natural History & Natural Science Museums
+organization,ntee_code,A57,,Science & Technology Museums
+organization,ntee_code,A60,,Performing Arts
+organization,ntee_code,A61,,Performing Arts Centers
+organization,ntee_code,A62,,Dance
+organization,ntee_code,A63,,Ballet
+organization,ntee_code,A65,,Theater
+organization,ntee_code,A68,,Music
+organization,ntee_code,A69,,Symphony Orchestras
+organization,ntee_code,A6A,,Opera
+organization,ntee_code,A6B,,Singing & Choral Groups
+organization,ntee_code,A6C,,Bands & Ensembles
+organization,ntee_code,A6E,,Performing Arts Schools
+organization,ntee_code,A70,,Humanities
+organization,ntee_code,A80,,Historical Organizations
+organization,ntee_code,A82,,Historical Societies & Historic Preservation
+organization,ntee_code,A84,,Commemorative Events
+organization,ntee_code,A90,,Arts Services
+organization,ntee_code,A99,,"Arts, Culture & Humanities N.E.C."
+organization,ntee_code,B,,Education
+organization,ntee_code,B01,,Alliances & Advocacy
+organization,ntee_code,B02,,Management & Technical Assistance
+organization,ntee_code,B03,,Professional Societies & Associations
+organization,ntee_code,B05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,B11,,Single Organization Support
+organization,ntee_code,B12,,Fund Raising & Fund Distribution
+organization,ntee_code,B19,,Support N.E.C.
+organization,ntee_code,B20,,Elementary & Secondary Schools
+organization,ntee_code,B21,,Preschools
+organization,ntee_code,B24,,Primary & Elementary Schools
+organization,ntee_code,B25,,Secondary & High Schools
+organization,ntee_code,B28,,Special Education
+organization,ntee_code,B29,,Charter Schools
+organization,ntee_code,B30,,Vocational & Technical Schools
+organization,ntee_code,B40,,Higher Education
+organization,ntee_code,B41,,Two-Year Colleges
+organization,ntee_code,B42,,Undergraduate Colleges
+organization,ntee_code,B43,,Universities
+organization,ntee_code,B50,,Graduate & Professional Schools
+organization,ntee_code,B60,,Adult Education
+organization,ntee_code,B70,,Libraries
+organization,ntee_code,B80,,Student Services
+organization,ntee_code,B82,,Scholarships & Student Financial Aid
+organization,ntee_code,B83,,Student Sororities & Fraternities
+organization,ntee_code,B84,,Alumni Associations
+organization,ntee_code,B90,,Educational Services
+organization,ntee_code,B92,,Remedial Reading & Encouragement
+organization,ntee_code,B94,,Parent & Teacher Groups
+organization,ntee_code,B99,,Education N.E.C.
+organization,ntee_code,C,,Environment
+organization,ntee_code,C01,,Alliances & Advocacy
+organization,ntee_code,C02,,Management & Technical Assistance
+organization,ntee_code,C03,,Professional Societies & Associations
+organization,ntee_code,C05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,C11,,Single Organization Support
+organization,ntee_code,C12,,Fund Raising & Fund Distribution
+organization,ntee_code,C19,,Support N.E.C.
+organization,ntee_code,C20,,Pollution Abatement & Control
+organization,ntee_code,C27,,Recycling
+organization,ntee_code,C30,,Natural Resources Conservation & Protection
+organization,ntee_code,C32,,"Water Resources, Wetlands Conservation & Management"
+organization,ntee_code,C34,,Land Resources Conservation
+organization,ntee_code,C35,,Energy Resources Conservation & Development
+organization,ntee_code,C36,,Forest Conservation
+organization,ntee_code,C40,,"Botanical, Horticultural & Landscape Services"
+organization,ntee_code,C41,,Botanical Gardens & Arboreta
+organization,ntee_code,C42,,Garden Clubs
+organization,ntee_code,C50,,Environmental Beautification
+organization,ntee_code,C60,,Environmental Education
+organization,ntee_code,C99,,Environment N.E.C.
+organization,ntee_code,D,,Animal-Related
+organization,ntee_code,D01,,Alliances & Advocacy
+organization,ntee_code,D02,,Management & Technical Assistance
+organization,ntee_code,D03,,Professional Societies & Associations
+organization,ntee_code,D05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,D11,,Single Organization Support
+organization,ntee_code,D12,,Fund Raising & Fund Distribution
+organization,ntee_code,D19,,Support N.E.C.
+organization,ntee_code,D20,,Animal Protection & Welfare
+organization,ntee_code,D30,,Wildlife Preservation & Protection
+organization,ntee_code,D31,,Protection of Endangered Species
+organization,ntee_code,D32,,Bird Sanctuaries
+organization,ntee_code,D33,,Fisheries Resources
+organization,ntee_code,D34,,Wildlife Sanctuaries
+organization,ntee_code,D40,,Veterinary Services
+organization,ntee_code,D50,,Zoos & Aquariums
+organization,ntee_code,D60,,Animal Services N.E.C.
+organization,ntee_code,D61,,Animal Training
+organization,ntee_code,D99,,Animal-Related N.E.C.
+organization,ntee_code,E,,Health Care
+organization,ntee_code,E01,,Alliances & Advocacy
+organization,ntee_code,E02,,Management & Technical Assistance
+organization,ntee_code,E03,,Professional Societies & Associations
+organization,ntee_code,E05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,E11,,Single Organization Support
+organization,ntee_code,E12,,Fund Raising & Fund Distribution
+organization,ntee_code,E19,,Support N.E.C.
+organization,ntee_code,E20,,Hospitals
+organization,ntee_code,E21,,Community Health Systems
+organization,ntee_code,E22,,General Hospitals
+organization,ntee_code,E24,,Specialty Hospitals
+organization,ntee_code,E30,,Ambulatory & Primary Health Care
+organization,ntee_code,E31,,Group Health Practices
+organization,ntee_code,E32,,Community Clinics
+organization,ntee_code,E40,,Reproductive Health Care
+organization,ntee_code,E42,,Family Planning
+organization,ntee_code,E50,,Rehabilitative Care
+organization,ntee_code,E60,,Health Support
+organization,ntee_code,E61,,Blood Banks
+organization,ntee_code,E62,,Emergency Medical Services & Transport
+organization,ntee_code,E65,,Organ & Tissue Banks
+organization,ntee_code,E6A,,Pharmacies and drug stores
+organization,ntee_code,E70,,Public Health
+organization,ntee_code,E80,,Health (General & Financing)
+organization,ntee_code,E86,,Patient & Family Support
+organization,ntee_code,E90,,Nursing
+organization,ntee_code,E91,,Nursing Facilities
+organization,ntee_code,E92,,Home Health Care
+organization,ntee_code,E99,,Health Care N.E.C.
+organization,ntee_code,F,,Mental Health & Crisis Intervention
+organization,ntee_code,F01,,Alliances & Advocacy
+organization,ntee_code,F02,,Management & Technical Assistance
+organization,ntee_code,F03,,Professional Societies & Associations
+organization,ntee_code,F05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,F11,,Single Organization Support
+organization,ntee_code,F12,,Fund Raising & Fund Distribution
+organization,ntee_code,F19,,Support N.E.C.
+organization,ntee_code,F20,,"Substance Abuse Dependency, Prevention & Treatment"
+organization,ntee_code,F21,,Substance Abuse Prevention
+organization,ntee_code,F22,,Substance Abuse Treatment
+organization,ntee_code,F30,,Mental Health Treatment
+organization,ntee_code,F31,,Psychiatric Hospitals
+organization,ntee_code,F32,,Community Mental Health Centers
+organization,ntee_code,F33,,Residential Mental Health Treatment
+organization,ntee_code,F40,,Hot Lines & Crisis Intervention
+organization,ntee_code,F42,,Sexual Assault Services
+organization,ntee_code,F50,,Addictive Disorders N.E.C.
+organization,ntee_code,F52,,Smoking Addiction
+organization,ntee_code,F53,,Eating Disorders & Addictions
+organization,ntee_code,F54,,Gambling Addiction
+organization,ntee_code,F60,,Counseling
+organization,ntee_code,F70,,Mental Health Disorders
+organization,ntee_code,F80,,Mental Health Associations
+organization,ntee_code,F99,,Mental Health & Crisis Intervention N.E.C.
+organization,ntee_code,G,,Voluntary Health Associations & Medical Disciplines
+organization,ntee_code,G01,,Alliances & Advocacy
+organization,ntee_code,G02,,Management & Technical Assistance
+organization,ntee_code,G03,,Professional Societies & Associations
+organization,ntee_code,G05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,G11,,Single Organization Support
+organization,ntee_code,G12,,Fund Raising & Fund Distribution
+organization,ntee_code,G19,,Support N.E.C.
+organization,ntee_code,G20,,Birth Defects & Genetic Diseases
+organization,ntee_code,G25,,Down Syndrome
+organization,ntee_code,G30,,Cancer
+organization,ntee_code,G32,,Breast Cancer
+organization,ntee_code,G40,,Diseases of Specific Organs
+organization,ntee_code,G41,,"Eye Diseases, Blindness & Vision Impairments"
+organization,ntee_code,G42,,Ear & Throat Diseases
+organization,ntee_code,G43,,Heart & Circulatory System Diseases & Disorders
+organization,ntee_code,G44,,Kidney Diseases
+organization,ntee_code,G45,,Lung Diseases
+organization,ntee_code,G48,,Brain Disorders
+organization,ntee_code,G50,,"Nerve, Muscle & Bone Diseases"
+organization,ntee_code,G51,,Arthritis
+organization,ntee_code,G54,,Epilepsy
+organization,ntee_code,G60,,Allergy-Related Diseases
+organization,ntee_code,G61,,Asthma
+organization,ntee_code,G70,,Digestive Diseases & Disorders
+organization,ntee_code,G80,,Specifically Named Diseases
+organization,ntee_code,G81,,AIDS
+organization,ntee_code,G83,,Alzheimers Disease
+organization,ntee_code,G84,,Autism
+organization,ntee_code,G90,,Medical Disciplines
+organization,ntee_code,G92,,Biomedicine & Bioengineering
+organization,ntee_code,G94,,Geriatrics
+organization,ntee_code,G96,,Neurology & Neuroscience
+organization,ntee_code,G98,,Pediatrics
+organization,ntee_code,G99,,Voluntary Health Associations & Medical Disciplines N.E.C.
+organization,ntee_code,G9B,,Surgical Specialties
+organization,ntee_code,H,,Medical Research
+organization,ntee_code,H01,,Alliances & Advocacy
+organization,ntee_code,H02,,Management & Technical Assistance
+organization,ntee_code,H03,,Professional Societies & Associations
+organization,ntee_code,H05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,H11,,Single Organization Support
+organization,ntee_code,H12,,Fund Raising & Fund Distribution
+organization,ntee_code,H19,,Support N.E.C.
+organization,ntee_code,H20,,Birth Defects & Genetic Diseases Research
+organization,ntee_code,H25,,Down Syndrome Research
+organization,ntee_code,H30,,Cancer Research
+organization,ntee_code,H32,,Breast Cancer Research
+organization,ntee_code,H40,,Diseases of Specific Organs Research
+organization,ntee_code,H41,,"Eye Diseases, Blindness & Vision Impairments Research"
+organization,ntee_code,H42,,Ear & Throat Diseases Research
+organization,ntee_code,H43,,Heart & Circulatory System Diseases & Disorders Research
+organization,ntee_code,H44,,Kidney Diseases Research
+organization,ntee_code,H45,,Lung Diseases Research
+organization,ntee_code,H48,,Brain Disorders Research
+organization,ntee_code,H50,,"Nerve, Muscle & Bone Diseases Research"
+organization,ntee_code,H51,,Arthritis Research
+organization,ntee_code,H54,,Epilepsy Research
+organization,ntee_code,H60,,Allergy-Related Diseases Research
+organization,ntee_code,H61,,Asthma Research
+organization,ntee_code,H70,,Digestive Diseases & Disorders Research
+organization,ntee_code,H80,,Specifically Named Diseases Research
+organization,ntee_code,H81,,AIDS Research
+organization,ntee_code,H83,,Alzheimers Disease Research
+organization,ntee_code,H84,,Autism Research
+organization,ntee_code,H90,,Medical Disciplines Research
+organization,ntee_code,H92,,Biomedicine & Bioengineering Research
+organization,ntee_code,H94,,Geriatrics Research
+organization,ntee_code,H96,,Neurology & Neuroscience Research
+organization,ntee_code,H98,,Pediatrics Research
+organization,ntee_code,H99,,Medical Research N.E.C.
+organization,ntee_code,H9B,,Surgical Specialties Research
+organization,ntee_code,I,,Crime & Legal-Related
+organization,ntee_code,I01,,Alliances & Advocacy
+organization,ntee_code,I02,,Management & Technical Assistance
+organization,ntee_code,I03,,Professional Societies & Associations
+organization,ntee_code,I05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,I11,,Single Organization Support
+organization,ntee_code,I12,,Fund Raising & Fund Distribution
+organization,ntee_code,I19,,Support N.E.C.
+organization,ntee_code,I20,,Crime Prevention
+organization,ntee_code,I21,,Youth Violence Prevention
+organization,ntee_code,I23,,Drunk Driving-Related
+organization,ntee_code,I30,,Correctional Facilities
+organization,ntee_code,I31,,Half-Way Houses for Offenders & Ex-Offenders
+organization,ntee_code,I40,,Rehabilitation Services for Offenders
+organization,ntee_code,I43,,Inmate Support
+organization,ntee_code,I44,,Prison Alternatives
+organization,ntee_code,I50,,Administration of Justice
+organization,ntee_code,I51,,Dispute Resolution & Mediation
+organization,ntee_code,I60,,Law Enforcement
+organization,ntee_code,I70,,Protection Against Abuse
+organization,ntee_code,I71,,Spouse Abuse Prevention
+organization,ntee_code,I72,,Child Abuse Prevention
+organization,ntee_code,I73,,Sexual Abuse Prevention
+organization,ntee_code,I80,,Legal Services
+organization,ntee_code,I83,,Public Interest Law
+organization,ntee_code,I99,,Crime & Legal-Related N.E.C.
+organization,ntee_code,J,,Employment
+organization,ntee_code,J01,,Alliances & Advocacy
+organization,ntee_code,J02,,Management & Technical Assistance
+organization,ntee_code,J03,,Professional Societies & Associations
+organization,ntee_code,J05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,J11,,Single Organization Support
+organization,ntee_code,J12,,Fund Raising & Fund Distribution
+organization,ntee_code,J19,,Support N.E.C.
+organization,ntee_code,J20,,Employment Preparation & Procurement
+organization,ntee_code,J21,,Vocational Counseling
+organization,ntee_code,J22,,Job Training
+organization,ntee_code,J30,,Vocational Rehabilitation
+organization,ntee_code,J32,,Goodwill Industries
+organization,ntee_code,J33,,Sheltered Employment
+organization,ntee_code,J40,,Labor Unions
+organization,ntee_code,J99,,Employment N.E.C.
+organization,ntee_code,K,,"Food, Agriculture & Nutrition"
+organization,ntee_code,K01,,Alliances & Advocacy
+organization,ntee_code,K02,,Management & Technical Assistance
+organization,ntee_code,K03,,Professional Societies & Associations
+organization,ntee_code,K05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,K11,,Single Organization Support
+organization,ntee_code,K12,,Fund Raising & Fund Distribution
+organization,ntee_code,K19,,Support N.E.C.
+organization,ntee_code,K20,,Agricultural Programs
+organization,ntee_code,K25,,Farmland Preservation
+organization,ntee_code,K26,,Animal Husbandry
+organization,ntee_code,K28,,Farm Bureaus & Granges
+organization,ntee_code,K2A,,Other Vegetable (except Potato) and Melon Farming
+organization,ntee_code,K2B,,"Soil Preparation, Planting, and Cultivating"
+organization,ntee_code,K2C,,Wineries
+organization,ntee_code,K30,,Food Programs
+organization,ntee_code,K31,,Food Banks & Pantries
+organization,ntee_code,K34,,Congregate Meals
+organization,ntee_code,K35,,Soup Kitchens
+organization,ntee_code,K36,,Meals on Wheels
+organization,ntee_code,K40,,Nutrition
+organization,ntee_code,K50,,Home Economics
+organization,ntee_code,K6A,,Meat markets
+organization,ntee_code,K6B,,Confectionery and Nut Stores
+organization,ntee_code,K6C,,Caterers
+organization,ntee_code,K6D,,Mobile food services
+organization,ntee_code,K6E,,Drinking Places (Alcoholic Beverages)
+organization,ntee_code,K6F,,Snack and Nonalcoholic Beverage Bars
+organization,ntee_code,K90,,Limited-Service Restaurants
+organization,ntee_code,K91,,Supermarkets and Other Grocery (except Convenience) Stores
+organization,ntee_code,K92,,Convenience Stores
+organization,ntee_code,K93,,Fruit and Vegetable Markets
+organization,ntee_code,K94,,All Other Specialty Food Stores
+organization,ntee_code,K95,,Food (Health) Supplement Stores
+organization,ntee_code,K96,,Warehouse Clubs and Supercenters
+organization,ntee_code,K97,,Food Service Contractors
+organization,ntee_code,K98,,Full-Service Restaurants
+organization,ntee_code,K99,,"Food, Agriculture & Nutrition N.E.C."
+organization,ntee_code,L,,Housing & Shelter
+organization,ntee_code,L01,,Alliances & Advocacy
+organization,ntee_code,L02,,Management & Technical Assistance
+organization,ntee_code,L03,,Professional Societies & Associations
+organization,ntee_code,L05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,L11,,Single Organization Support
+organization,ntee_code,L12,,Fund Raising & Fund Distribution
+organization,ntee_code,L19,,Support N.E.C.
+organization,ntee_code,L20,,"Housing Development, Construction & Management"
+organization,ntee_code,L21,,Low-Income & Subsidized Rental Housing
+organization,ntee_code,L22,,Senior Citizens Housing & Retirement Communities
+organization,ntee_code,L24,,Independent Housing for People with Disabilities
+organization,ntee_code,L25,,Housing Rehabilitation
+organization,ntee_code,L30,,Housing Search Assistance
+organization,ntee_code,L40,,Temporary Housing
+organization,ntee_code,L41,,Homeless Shelters
+organization,ntee_code,L4A,,Hotels (except Casino Hotels) and Motels
+organization,ntee_code,L4B,,Bed-and-breakfast inns
+organization,ntee_code,L50,,Homeowners & Tenants Associations
+organization,ntee_code,L80,,Housing Support
+organization,ntee_code,L81,,Home Improvement & Repairs
+organization,ntee_code,L82,,Housing Expense Reduction Support
+organization,ntee_code,L99,,Housing & Shelter N.E.C.
+organization,ntee_code,M,,"Public Safety, Disaster Preparedness & Relief"
+organization,ntee_code,M01,,Alliances & Advocacy
+organization,ntee_code,M02,,Management & Technical Assistance
+organization,ntee_code,M03,,Professional Societies & Associations
+organization,ntee_code,M05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,M11,,Single Organization Support
+organization,ntee_code,M12,,Fund Raising & Fund Distribution
+organization,ntee_code,M19,,Support N.E.C.
+organization,ntee_code,M20,,Disaster Preparedness & Relief Services
+organization,ntee_code,M23,,Search & Rescue Squads
+organization,ntee_code,M24,,Fire Prevention
+organization,ntee_code,M40,,Safety Education
+organization,ntee_code,M41,,First Aid
+organization,ntee_code,M42,,Automotive Safety
+organization,ntee_code,M60,,Public Safety Benevolent Associations
+organization,ntee_code,M99,,"Public Safety, Disaster Preparedness & Relief N.E.C."
+organization,ntee_code,N,,Recreation & Sports
+organization,ntee_code,N01,,Alliances & Advocacy
+organization,ntee_code,N02,,Management & Technical Assistance
+organization,ntee_code,N03,,Professional Societies & Associations
+organization,ntee_code,N05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,N11,,Single Organization Support
+organization,ntee_code,N12,,Fund Raising & Fund Distribution
+organization,ntee_code,N19,,Support N.E.C.
+organization,ntee_code,N20,,Camps
+organization,ntee_code,N2A,,RV (Recreational Vehicle) Parks and Campgrounds
+organization,ntee_code,N2B,,Recreational and Vacation Camps (Except Campgrounds)
+organization,ntee_code,N30,,Physical Fitness & Community Recreational Facilities
+organization,ntee_code,N31,,Community Recreational Centers
+organization,ntee_code,N32,,Parks & Playgrounds
+organization,ntee_code,N40,,Sports Associations & Training Facilities
+organization,ntee_code,N50,,Recreational Clubs
+organization,ntee_code,N52,,Fairs
+organization,ntee_code,N60,,Amateur Sports
+organization,ntee_code,N61,,Fishing & Hunting
+organization,ntee_code,N62,,Basketball
+organization,ntee_code,N63,,Baseball & Softball
+organization,ntee_code,N64,,Soccer
+organization,ntee_code,N65,,Football
+organization,ntee_code,N66,,Racquet Sports
+organization,ntee_code,N67,,Swimming & Other Water Recreation
+organization,ntee_code,N68,,Winter Sports
+organization,ntee_code,N69,,Equestrian
+organization,ntee_code,N6A,,Golf
+organization,ntee_code,N70,,Amateur Sports Competitions
+organization,ntee_code,N71,,Olympics
+organization,ntee_code,N72,,Special Olympics
+organization,ntee_code,N80,,Professional Athletic Leagues
+organization,ntee_code,N99,,Recreation & Sports N.E.C.
+organization,ntee_code,O,,Youth Development
+organization,ntee_code,O01,,Alliances & Advocacy
+organization,ntee_code,O02,,Management & Technical Assistance
+organization,ntee_code,O03,,Professional Societies & Associations
+organization,ntee_code,O05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,O11,,Single Organization Support
+organization,ntee_code,O12,,Fund Raising & Fund Distribution
+organization,ntee_code,O19,,Support N.E.C.
+organization,ntee_code,O20,,Youth Centers & Clubs
+organization,ntee_code,O21,,Boys Clubs
+organization,ntee_code,O22,,Girls Clubs
+organization,ntee_code,O23,,Boys & Girls Clubs
+organization,ntee_code,O30,,Adult & Child Matching Programs
+organization,ntee_code,O31,,Big Brothers & Big Sisters
+organization,ntee_code,O40,,Scouting
+organization,ntee_code,O41,,Boy Scouts of America
+organization,ntee_code,O42,,Girl Scouts of the U.S.A.
+organization,ntee_code,O43,,Camp Fire
+organization,ntee_code,O50,,Youth Development Programs
+organization,ntee_code,O51,,Youth Community Service Clubs
+organization,ntee_code,O52,,Youth Development - Agricultural
+organization,ntee_code,O53,,Youth Development - Business
+organization,ntee_code,O54,,Youth Development - Citizenship
+organization,ntee_code,O55,,Youth Development - Religious Leadership
+organization,ntee_code,O99,,Youth Development N.E.C.
+organization,ntee_code,P,,Human Services
+organization,ntee_code,P01,,Alliances & Advocacy
+organization,ntee_code,P02,,Management & Technical Assistance
+organization,ntee_code,P03,,Professional Societies & Associations
+organization,ntee_code,P05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,P11,,Single Organization Support
+organization,ntee_code,P12,,Fund Raising & Fund Distribution
+organization,ntee_code,P19,,Support N.E.C.
+organization,ntee_code,P20,,Human Service Organizations
+organization,ntee_code,P21,,American Red Cross
+organization,ntee_code,P22,,Urban League
+organization,ntee_code,P24,,Salvation Army
+organization,ntee_code,P26,,Volunteers of America
+organization,ntee_code,P27,,Young Mens or Womens Associations
+organization,ntee_code,P28,,Neighborhood Centers
+organization,ntee_code,P29,,Thrift Shops
+organization,ntee_code,P30,,Children & Youth Services
+organization,ntee_code,P31,,Adoption
+organization,ntee_code,P32,,Foster Care
+organization,ntee_code,P33,,Child Day Care
+organization,ntee_code,P40,,Family Services
+organization,ntee_code,P42,,Single Parent Agencies
+organization,ntee_code,P43,,Family Violence Shelters
+organization,ntee_code,P44,,In-Home Assistance
+organization,ntee_code,P45,,Family Services for Adolescent Parents
+organization,ntee_code,P46,,Family Counseling
+organization,ntee_code,P47,,Pregnancy Centers
+organization,ntee_code,P50,,Personal Social Services
+organization,ntee_code,P51,,Financial Counseling
+organization,ntee_code,P52,,Transportation Assistance
+organization,ntee_code,P58,,Gift Distribution
+organization,ntee_code,P60,,Emergency Assistance
+organization,ntee_code,P61,,Travelers Aid
+organization,ntee_code,P62,,Victims Services
+organization,ntee_code,P70,,Residential Care & Adult Day Programs
+organization,ntee_code,P71,,Adult Day Care
+organization,ntee_code,P73,,Group Homes
+organization,ntee_code,P74,,Hospices
+organization,ntee_code,P75,,Supportive Housing for Older Adults
+organization,ntee_code,P76,,Homes for Children & Adolescents
+organization,ntee_code,P7A,,"Residential Intellectual and Developmental Disability Facilities (group homes, intermediate care facilities & hospitals)"
+organization,ntee_code,P80,,Centers to Support the Independence of Specific Populations
+organization,ntee_code,P81,,Senior Centers
+organization,ntee_code,P82,,Developmentally Disabled Centers
+organization,ntee_code,P83,,Women's Centers
+organization,ntee_code,P84,,Ethnic & Immigrant Centers
+organization,ntee_code,P85,,Homeless Centers
+organization,ntee_code,P86,,Blind & Visually Impaired Centers
+organization,ntee_code,P87,,Deaf & Hearing Impaired Centers
+organization,ntee_code,P88,,LGBT Centers
+organization,ntee_code,P99,,Human Services N.E.C.
+organization,ntee_code,Q,,"International, Foreign Affairs & National Security"
+organization,ntee_code,Q01,,Alliances & Advocacy
+organization,ntee_code,Q02,,Management & Technical Assistance
+organization,ntee_code,Q03,,Professional Societies & Associations
+organization,ntee_code,Q05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,Q11,,Single Organization Support
+organization,ntee_code,Q12,,Fund Raising & Fund Distribution
+organization,ntee_code,Q19,,Support N.E.C.
+organization,ntee_code,Q20,,Promotion of International Understanding
+organization,ntee_code,Q21,,International Cultural Exchange
+organization,ntee_code,Q22,,International Academic Exchange
+organization,ntee_code,Q23,,International Exchange N.E.C.
+organization,ntee_code,Q30,,International Development
+organization,ntee_code,Q31,,International Agricultural Development
+organization,ntee_code,Q32,,International Economic Development
+organization,ntee_code,Q33,,International Relief
+organization,ntee_code,Q34,,International Educational Development <i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,Q35,,International Democracy & Civil Society Development
+organization,ntee_code,Q36,,International Science & Technology Development <i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,Q38,,"International Environment, Population & Sustainability <i>(Draft Code - not for internal IRS use)</i>"
+organization,ntee_code,Q39,,International Health Development <i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,Q40,,International Peace & Security
+organization,ntee_code,Q41,,Arms Control & Peace
+organization,ntee_code,Q42,,United Nations Associations
+organization,ntee_code,Q43,,National Security
+organization,ntee_code,Q50,,"International Affairs, Foreign Policy, & Globalization"
+organization,ntee_code,Q51,,International Economic & Trade Policy
+organization,ntee_code,Q70,,International Human Rights
+organization,ntee_code,Q71,,International Migration & Refugee Issues
+organization,ntee_code,Q99,,"International, Foreign Affairs & National Security N.E.C."
+organization,ntee_code,R,,"Civil Rights, Social Action & Advocacy"
+organization,ntee_code,R01,,Alliances & Advocacy
+organization,ntee_code,R02,,Management & Technical Assistance
+organization,ntee_code,R03,,Professional Societies & Associations
+organization,ntee_code,R05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,R11,,Single Organization Support
+organization,ntee_code,R12,,Fund Raising & Fund Distribution
+organization,ntee_code,R19,,Support N.E.C.
+organization,ntee_code,R20,,Civil Rights
+organization,ntee_code,R21,,Immigrants' Rights<i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,R22,,Minority Rights
+organization,ntee_code,R23,,Disabled Persons Rights
+organization,ntee_code,R24,,Womens Rights
+organization,ntee_code,R25,,Seniors Rights
+organization,ntee_code,R26,,Lesbian & Gay Rights
+organization,ntee_code,R27,,Patients' Rights<i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,R28,,Children's Rights
+organization,ntee_code,R29,,Employee & Workers' Rights<i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,R30,,Intergroup & Race Relations
+organization,ntee_code,R40,,Voter Education & Registration
+organization,ntee_code,R60,,Civil Liberties
+organization,ntee_code,R61,,Reproductive Rights
+organization,ntee_code,R62,,Right to Life
+organization,ntee_code,R63,,"Censorship, Freedom of Speech & Press"
+organization,ntee_code,R65,,Freedom of Religion Issues<i>(Draft Code - not for internal IRS use)</i>
+organization,ntee_code,R67,,Right to Die & Euthanasia
+organization,ntee_code,R99,,"Civil Rights, Social Action & Advocacy N.E.C."
+organization,ntee_code,S,,Community Improvement & Capacity Building
+organization,ntee_code,S01,,Alliances & Advocacy
+organization,ntee_code,S02,,Management & Technical Assistance
+organization,ntee_code,S03,,Professional Societies & Associations
+organization,ntee_code,S05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,S11,,Single Organization Support
+organization,ntee_code,S12,,Fund Raising & Fund Distribution
+organization,ntee_code,S19,,Support N.E.C.
+organization,ntee_code,S20,,Community & Neighborhood Development
+organization,ntee_code,S21,,Community Coalitions
+organization,ntee_code,S22,,Neighborhood & Block Associations
+organization,ntee_code,S30,,Economic Development
+organization,ntee_code,S31,,Urban & Community Economic Development
+organization,ntee_code,S32,,Rural Economic Development
+organization,ntee_code,S40,,Business & Industry
+organization,ntee_code,S41,,Chambers of Commerce & Business Leagues
+organization,ntee_code,S43,,Small Business Development
+organization,ntee_code,S46,,Boards of Trade
+organization,ntee_code,S47,,Real Estate Associations
+organization,ntee_code,S50,,Nonprofit Management
+organization,ntee_code,S80,,Community Service Clubs
+organization,ntee_code,S81,,Womens Service Clubs
+organization,ntee_code,S82,,Mens Service Clubs
+organization,ntee_code,S99,,Community Improvement & Capacity Building N.E.C.
+organization,ntee_code,T,,"Philanthropy, Voluntarism & Grantmaking Foundations"
+organization,ntee_code,T01,,Alliances & Advocacy
+organization,ntee_code,T02,,Management & Technical Assistance
+organization,ntee_code,T03,,Professional Societies & Associations
+organization,ntee_code,T05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,T11,,Single Organization Support
+organization,ntee_code,T12,,Fund Raising & Fund Distribution
+organization,ntee_code,T19,,Support N.E.C.
+organization,ntee_code,T20,,Private Grantmaking Foundations
+organization,ntee_code,T21,,Corporate Foundations
+organization,ntee_code,T22,,Private Independent Foundations
+organization,ntee_code,T23,,Private Operating Foundations
+organization,ntee_code,T30,,Public Foundations
+organization,ntee_code,T31,,Community Foundations
+organization,ntee_code,T40,,Voluntarism Promotion
+organization,ntee_code,T50,,"Philanthropy, Charity & Voluntarism Promotion"
+organization,ntee_code,T70,,Federated Giving Programs
+organization,ntee_code,T90,,Named Trusts N.E.C.
+organization,ntee_code,T99,,"Philanthropy, Voluntarism & Grantmaking Foundations N.E.C."
+organization,ntee_code,U,,Science & Technology
+organization,ntee_code,U01,,Alliances & Advocacy
+organization,ntee_code,U02,,Management & Technical Assistance
+organization,ntee_code,U03,,Professional Societies & Associations
+organization,ntee_code,U05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,U11,,Single Organization Support
+organization,ntee_code,U12,,Fund Raising & Fund Distribution
+organization,ntee_code,U19,,Support N.E.C.
+organization,ntee_code,U20,,General Science
+organization,ntee_code,U21,,Marine Science & Oceanography
+organization,ntee_code,U30,,Physical & Earth Sciences
+organization,ntee_code,U31,,Astronomy
+organization,ntee_code,U33,,Chemistry & Chemical Engineering
+organization,ntee_code,U34,,Mathematics
+organization,ntee_code,U36,,Geology
+organization,ntee_code,U40,,Engineering & Technology
+organization,ntee_code,U41,,Computer Science
+organization,ntee_code,U42,,Engineering
+organization,ntee_code,U50,,Biological & Life Sciences
+organization,ntee_code,U99,,Science & Technology N.E.C.
+organization,ntee_code,V,,Social Science
+organization,ntee_code,V01,,Alliances & Advocacy
+organization,ntee_code,V02,,Management & Technical Assistance
+organization,ntee_code,V03,,Professional Societies & Associations
+organization,ntee_code,V05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,V11,,Single Organization Support
+organization,ntee_code,V12,,Fund Raising & Fund Distribution
+organization,ntee_code,V19,,Support N.E.C.
+organization,ntee_code,V20,,Social Science
+organization,ntee_code,V21,,Anthropology & Sociology
+organization,ntee_code,V22,,Economics
+organization,ntee_code,V23,,Behavioral Science
+organization,ntee_code,V24,,Political Science
+organization,ntee_code,V25,,Population Studies
+organization,ntee_code,V26,,Law & Jurisprudence
+organization,ntee_code,V30,,Interdisciplinary Research
+organization,ntee_code,V31,,Black Studies
+organization,ntee_code,V32,,Womens Studies
+organization,ntee_code,V33,,Ethnic Studies
+organization,ntee_code,V34,,Urban Studies
+organization,ntee_code,V35,,International Studies
+organization,ntee_code,V36,,Gerontology
+organization,ntee_code,V37,,Labor Studies
+organization,ntee_code,V99,,Social Science N.E.C.
+organization,ntee_code,W,,Public & Societal Benefit
+organization,ntee_code,W01,,Alliances & Advocacy
+organization,ntee_code,W02,,Management & Technical Assistance
+organization,ntee_code,W03,,Professional Societies & Associations
+organization,ntee_code,W05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,W11,,Single Organization Support
+organization,ntee_code,W12,,Fund Raising & Fund Distribution
+organization,ntee_code,W19,,Support N.E.C.
+organization,ntee_code,W20,,Government & Public Administration
+organization,ntee_code,W22,,"Public Finance, Taxation & Monetary Policy"
+organization,ntee_code,W24,,Citizen Participation
+organization,ntee_code,W30,,Military & Veterans Organizations
+organization,ntee_code,W40,,Public Transportation Systems
+organization,ntee_code,W50,,Telecommunications
+organization,ntee_code,W60,,Financial Institutions
+organization,ntee_code,W61,,Credit Unions
+organization,ntee_code,W70,,Leadership Development
+organization,ntee_code,W80,,Public Utilities
+organization,ntee_code,W90,,Consumer Protection
+organization,ntee_code,W99,,Public & Societal Benefit N.E.C.
+organization,ntee_code,X,,Religion-Related
+organization,ntee_code,X01,,Alliances & Advocacy
+organization,ntee_code,X02,,Management & Technical Assistance
+organization,ntee_code,X03,,Professional Societies & Associations
+organization,ntee_code,X05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,X11,,Single Organization Support
+organization,ntee_code,X12,,Fund Raising & Fund Distribution
+organization,ntee_code,X19,,Support N.E.C.
+organization,ntee_code,X20,,Christianity
+organization,ntee_code,X21,,Protestant
+organization,ntee_code,X22,,Roman Catholic
+organization,ntee_code,X30,,Judaism
+organization,ntee_code,X40,,Islam
+organization,ntee_code,X50,,Buddhism
+organization,ntee_code,X70,,Hinduism
+organization,ntee_code,X80,,Religious Media & Communications
+organization,ntee_code,X81,,Religious Film & Video
+organization,ntee_code,X82,,Religious Television
+organization,ntee_code,X83,,Religious Printing & Publishing
+organization,ntee_code,X84,,Religious Radio
+organization,ntee_code,X90,,Interfaith Coalitions
+organization,ntee_code,X99,,Religion-Related N.E.C.
+organization,ntee_code,Y,,Mutual & Membership Benefit
+organization,ntee_code,Y01,,Alliances & Advocacy
+organization,ntee_code,Y02,,Management & Technical Assistance
+organization,ntee_code,Y03,,Professional Societies & Associations
+organization,ntee_code,Y05,,Research Institutes & Public Policy Analysis
+organization,ntee_code,Y11,,Single Organization Support
+organization,ntee_code,Y12,,Fund Raising & Fund Distribution
+organization,ntee_code,Y19,,Support N.E.C.
+organization,ntee_code,Y20,,Insurance Providers
+organization,ntee_code,Y22,,Local Benevolent Life Insurance Associations
+organization,ntee_code,Y23,,Mutual Insurance Companies & Associations
+organization,ntee_code,Y24,,Supplemental Unemployment Compensation
+organization,ntee_code,Y25,,State-Sponsored Workers Compensation Reinsurance Organizations
+organization,ntee_code,Y30,,Pension & Retirement Funds
+organization,ntee_code,Y33,,Teachers Retirement Fund Associations
+organization,ntee_code,Y34,,Employee Funded Pension Trusts
+organization,ntee_code,Y35,,Multi-Employer Pension Plans
+organization,ntee_code,Y40,,Fraternal Societies
+organization,ntee_code,Y41,,Fraternal Beneficiary Societies
+organization,ntee_code,Y42,,Domestic Fraternal Societies
+organization,ntee_code,Y43,,Voluntary Employees Beneficiary Associations (Non-Government)
+organization,ntee_code,Y44,,Voluntary Employees Beneficiary Associations Government)
+organization,ntee_code,Y50,,Cemeteries
+organization,ntee_code,Y99,,Mutual & Membership Benefit N.E.C.
+organization,ntee_code,Z,,Unknown
+organization,ntee_code,Z99,,Unknown
+revocation,exemption_type,01,,501(c)(1) Government instrumentality
+revocation,exemption_type,02,,501(c)(2) Title-holding corporation
+revocation,exemption_type,03,,"501(c)(3) Charitable, educational, religious, scientific or literary organization"
+revocation,exemption_type,04,,501(c)(4) Civic league or social welfare organization
+revocation,exemption_type,05,,"501(c)(5) Labor, agricultural or horticultural organization"
+revocation,exemption_type,06,,"501(c)(6) Business league, chamber of commerce or board of trade"
+revocation,exemption_type,07,,501(c)(7) Social or recreational club
+revocation,exemption_type,08,,501(c)(8) Fraternal beneficiary society
+revocation,exemption_type,09,,501(c)(9) Voluntary employees' beneficiary association
+revocation,exemption_type,10,,501(c)(10) Domestic fraternal society
+revocation,exemption_type,11,,501(c)(11) Teachers' retirement fund association
+revocation,exemption_type,12,,"501(c)(12) Benevolent life insurance association, mutual ditch or irrigation company, mutual or cooperative telephone company"
+revocation,exemption_type,13,,501(c)(13) Cemetery company or burial association
+revocation,exemption_type,14,,501(c)(14) Credit union or other mutual financial organization
+revocation,exemption_type,15,,501(c)(15) Mutual insurance company or association
+revocation,exemption_type,16,,501(c)(16) Corporation financing crop operations
+revocation,exemption_type,17,,501(c)(17) Supplemental unemployment compensation trust
+revocation,exemption_type,18,,501(c)(18) Employee-funded pension trust (created before 25 June 1959)
+revocation,exemption_type,19,,501(c)(19) Post or organization of war veterans
+revocation,exemption_type,20,,501(c)(20) Legal service organization
+revocation,exemption_type,21,,501(c)(21) Black lung benefit trust
+revocation,exemption_type,22,,501(c)(22) Multiemployer pension plan
+revocation,exemption_type,23,,501(c)(23) Veterans' association formed before 1880
+revocation,exemption_type,24,,501(c)(24) Trust described in section 4049 of ERISA
+revocation,exemption_type,25,,501(c)(25) Title-holding company for pensions and other exempt entities
+revocation,exemption_type,26,,501(c)(26) State-sponsored high-risk health insurance organization
+revocation,exemption_type,27,,501(c)(27) State-sponsored workers' compensation reinsurance organization
+revocation,exemption_type,29,,501(c)(29) ACA section 1322 qualified nonprofit health insurance issuer
+revocation,exemption_type,40,,501(d) Apostolic and religious organization
+revocation,exemption_type,50,,501(e) Cooperative hospital service organization
+revocation,exemption_type,60,,501(f) Cooperative service organization of operating educational organizations
+revocation,exemption_type,70,,501(k) Child care organization
+revocation,exemption_type,71,,501(n) Charitable risk pool
+revocation,exemption_type,81,,529 Qualified state-sponsored tuition program
+revocation,exemption_type,92,,4947(a)(1) Non-exempt charitable trust treated as a private foundation (Form 990-PF filer)
+revocation,exemption_type,00,,Not exempt under any subsection (revoked or not yet determined)
+revocation,exemption_type,82,,"Code 82, not documented in the IRS EO BMF information sheet"
+revocation,exemption_type,91,,"Code 91, not documented in the IRS EO BMF information sheet"

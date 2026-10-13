@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2002, "end": 2024, "interval": 2},
+            "range": {"start": 2002, "end": 2030, "interval": 2},
         },
     )
 }}
@@ -26,13 +26,15 @@ select
     safe_cast(numero_partido as string) numero_partido,
     safe_cast(sigla_partido as string) sigla_partido,
     safe_cast(cargo as string) cargo,
-    safe_cast(sequencial_receita as string) sequencial_receita,
+    nullif(
+        nullif(safe_cast(sequencial_receita as string), '#nulo'), '-1'
+    ) sequencial_receita,
     {{ validate_date_range("data_receita", "1900-01-01", "2100-01-01") }}
     as data_receita,
-    safe_cast(fonte_receita as string) fonte_receita,
+    nullif(nullif(safe_cast(fonte_receita as string), '#nulo'), '-1') fonte_receita,
     safe_cast(origem_receita as string) origem_receita,
     safe_cast(natureza_receita as string) natureza_receita,
-    safe_cast(especie_receita as string) especie_receita,
+    nullif(nullif(safe_cast(especie_receita as string), '#nulo'), '-1') especie_receita,
     safe_cast(situacao_receita as string) situacao_receita,
     safe_cast(descricao_receita as string) descricao_receita,
     safe_cast(valor_receita as float64) valor_receita,
@@ -75,6 +77,4 @@ select
     safe_cast(entrega_conjunto as string) entrega_conjunto
 from
     {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
-
     -- Rematerialized from the refactored pipeline (PR #1476).
-    

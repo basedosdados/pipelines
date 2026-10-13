@@ -1,0 +1,19 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+data_extracao,DATE,Data em que o registro foi extraído da API Compras.gov.br,,no,,,no,"Coluna de particionamento. A fonte publica apenas o estado corrente do cadastro, sem histórico, portanto cada extração é uma fotografia",,Date on which the record was extracted from the Compras.gov.br API,Fecha en que el registro fue extraído de la API Compras.gov.br
+codigo_orgao,STRING,Código do órgão no SIASG,,no,,,no,,codigoOrgao,Code of the government body in SIASG,Código del órgano en el SIASG
+cnpj_orgao,STRING,CNPJ ou CPF do órgão,,no,,,no,"O valor 0 indica órgão sem CNPJ próprio, como as agregações regionais",cnpjCpfOrgao,Taxpayer number (CNPJ or CPF) of the government body,CNPJ o CPF del órgano
+nome_orgao,STRING,Nome do órgão,,no,,,no,,nomeOrgao,Name of the government body,Nombre del órgano
+nome_mnemonico_orgao,STRING,Nome abreviado do órgão usado no SIASG,,no,,,no,,nomeMnemonicoOrgao,Short name of the government body used in SIASG,Nombre abreviado del órgano usado en el SIASG
+codigo_orgao_vinculado,STRING,Código do órgão ao qual este é vinculado,,no,,,no,,codigoOrgaoVinculado,Code of the body this one is attached to,Código del órgano al que este está vinculado
+cnpj_orgao_vinculado,STRING,CNPJ ou CPF do órgão vinculado,,no,,,no,,cnpjCpfOrgaoVinculado,Taxpayer number of the attached-to body,CNPJ o CPF del órgano vinculado
+nome_orgao_vinculado,STRING,Nome do órgão vinculado,,no,,,no,,nomeOrgaoVinculado,Name of the attached-to body,Nombre del órgano vinculado
+codigo_orgao_superior,STRING,Código do órgão superior na hierarquia administrativa,,no,,,no,,codigoOrgaoSuperior,Code of the superior body in the administrative hierarchy,Código del órgano superior en la jerarquía administrativa
+cnpj_orgao_superior,STRING,CNPJ ou CPF do órgão superior,,no,,,no,,cnpjCpfOrgaoSuperior,Taxpayer number of the superior body,CNPJ o CPF del órgano superior
+nome_orgao_superior,STRING,Nome do órgão superior,,no,,,no,,nomeOrgaoSuperior,Name of the superior body,Nombre del órgano superior
+codigo_tipo_administracao,STRING,Código do tipo de administração do órgão,,yes,,,no,,codigoTipoAdministracao,Code of the body's administration type,Código del tipo de administración del órgano
+nome_tipo_administracao,STRING,"Tipo de administração do órgão, como administração direta federal, autarquia ou fundo",,no,,,no,,nomeTipoAdministracao,"Administration type of the body, such as federal direct administration, autarchy or fund","Tipo de administración del órgano, como administración directa federal, autarquía o fondo"
+poder,STRING,Poder ao qual o órgão pertence,,yes,,,no,"E Executivo, L Legislativo, J Judiciário, N não classificado",poder,Branch of government the body belongs to,Poder al que pertenece el órgano
+esfera,STRING,Esfera federativa do órgão,,yes,,,no,"F federal, E estadual, M municipal, D distrital, N não classificado",esfera,Federative sphere of the body,Esfera federativa del órgano
+indicador_uso_sisg,BOOLEAN,Indica se o órgão integra o SISG,,no,,,no,"SISG é o Sistema de Serviços Gerais, que reúne os órgãos da administração federal direta, autárquica e fundacional",usoSisg,Whether the body is part of SISG,Indica si el órgano integra el SISG
+indicador_orgao_ativo,BOOLEAN,Indica se o órgão está ativo no cadastro,,no,,,no,,statusOrgao,Whether the body is active in the registry,Indica si el órgano está activo en el registro
+data_hora_movimento,DATETIME,Data e hora da última movimentação do cadastro do órgão,,no,,,no,,dataHoraMovimento,Timestamp of the last change to the body's registry entry,Fecha y hora del último movimiento del registro del órgano

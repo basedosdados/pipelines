@@ -40,7 +40,7 @@ class constants(Enum):
     BASE_URL = "https://s2id.mi.gov.br/paginas/relatorios/"
 
     # Âncoras de texto do painel do relatório. Ainda SEM USO: são o estado final
-    # da raspagem (ancorar por texto), não o atual — ver o roadmap da task.
+    # da raspagem (ancorar por texto), não o atual.
     PANEL_TITLE = "Reconhecimentos vigentes"
     EXPORT_BUTTON_LABEL = "Exportar CSV"
 
@@ -71,13 +71,23 @@ class constants(Enum):
         # selenium levanta ElementNotInteractableException nele. A interação é:
         # clicar no widget para abrir o painel, depois clicar no <li> do estado.
         # Ler o select oculto ainda serve para pegar o par (sigla, nome).
-        "estado_widget": "//*[@id='abas:sanfonas:j_idt142']",
-        "estado_select_oculto": "//select[@id='abas:sanfonas:j_idt142_input']",
-        "estado_item": (
-            "//div[@id='abas:sanfonas:j_idt142_panel']"
-            "//li[@data-label='{uf_nome}']"
+        #
+        # Achado pelas opções que ele contém, e não pelo id: o id do JSF muda
+        # quando a página muda, e já mudou — em 08/2026 o select era
+        # `j_idt142` e `j_idt146` era o botão XLS; hoje `j_idt146` é o select.
+        "estado_select_oculto": (
+            f"{_CONTENT}//select[option[@value='AC'] and option[@value='SP']]"
         ),
-        "exportar_csv": "//*[@id='abas:sanfonas:j_idt147']",
+        # Os dois abaixo levam o id do widget, derivado do select em tempo de
+        # execução por `_base_do_estado`.
+        "estado_widget": "//*[@id='{base}']",
+        "estado_item": "//div[@id='{base}_panel']//li[@data-label='{uf_nome}']",
+        # Pelo rótulo, escopado ao painel: `btnExportarCsv` é o CSV de OUTRO
+        # relatório da mesma página, e ancorar nele baixa o arquivo errado sem
+        # erro nenhum.
+        "exportar_csv": (
+            f"{_CONTENT}//button[span[normalize-space(.)='Exportar CSV']]"
+        ),
     }
 
     USER_AGENT = (
@@ -92,9 +102,9 @@ class constants(Enum):
 
     # Ordem, tipo e nome de origem das colunas da tabela final.
     #
-    # Espelha a planilha de arquitetura, que fica em task_davi/bndes/ e não é
-    # versionada junto do pipeline — por isso o schema precisa estar aqui, e não
-    # lido de um CSV. Ao mexer na planilha, mexer aqui também.
+    # Espelha a planilha de arquitetura, que não é versionada junto do pipeline —
+    # por isso o schema precisa estar aqui, e não lido de um CSV. Ao mexer na
+    # planilha, mexer aqui também.
     #
     # `original_name` vazio = coluna que não vem da fonte. COBRADE aparece duas
     # vezes de propósito: um campo da fonte que virá duas colunas.

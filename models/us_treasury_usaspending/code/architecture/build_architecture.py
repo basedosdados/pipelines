@@ -25,15 +25,19 @@ import csv
 import json
 import os
 import re
-import sys
 import urllib.request
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
+from models.us_treasury_usaspending.code.architecture.descriptions import (
+    CODE_PAIRS,
+    DESCRIPTIONS,
+)
+from models.us_treasury_usaspending.code.architecture.labels import (
+    FLAG_TEMPLATE,
+    FLAGS,
+)
 
-from descriptions import CODE_PAIRS, DESCRIPTIONS  # noqa: E402
-from labels import FLAG_TEMPLATE, FLAGS  # noqa: E402
+HERE = Path(__file__).resolve().parent
 
 DATA_DIR = Path(
     os.environ.get(
@@ -373,10 +377,11 @@ def describe(
     src: str, orientation: dict | None = None
 ) -> tuple[str, str, str]:
     if src in FLAGS:
-        return tuple(
+        pt, en, es = (
             tpl.format(lbl)
             for tpl, lbl in zip(FLAG_TEMPLATE, FLAGS[src], strict=True)
-        )  # type: ignore[return-value]
+        )
+        return pt, en, es
     if src in DESCRIPTIONS:
         return DESCRIPTIONS[src]
     orientation = orientation or {}

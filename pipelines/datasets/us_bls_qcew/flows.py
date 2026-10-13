@@ -12,20 +12,21 @@ and does a **full replace** (dump_mode="overwrite"), not an incremental append.
 The source poll (on the newest quarter) short-circuits a scheduled run until BLS
 actually publishes a newer period, making the between-release runs cheap no-ops.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_qcew_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_qcew_flow`; the
 dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bls_qcew.constants import constants
 from pipelines.datasets.us_bls_qcew.tasks import (
     clean_qcew,
     latest_source_period,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -101,7 +102,6 @@ def us_bls_qcew_flow(
             is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="naics"
     )
@@ -199,11 +199,9 @@ def us_bls_qcew_flow(
 # and Wages news releases land in early March, June, September, and December.
 # Poll across the first ~10 days of those months at 16:00 BRT; the source-poll
 # guard no-ops until a new quarter actually appears in the singlefiles.
-# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.deploy_schedules = [
-    {"cron": "10 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("10 16 1-10 3,6,9,12 *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams ~15M-row singlefiles one chunk at a time (peak ~1.75GB
 # in pandas); give the worker headroom above that.
-# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.job_variables = {"memory": "8Gi"}

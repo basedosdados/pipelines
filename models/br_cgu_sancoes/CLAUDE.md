@@ -38,7 +38,7 @@ remaining tables (cepim, acordos_leniencia_efeitos) stay fully free (coverage ke
 the snapshot date, their only date column); ``dicionario`` has no date column and takes
 no spec.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_cgu_sancoes_flow`; the dev
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_cgu_sancoes_flow`; the dev
 pool ignores the schedule, the prod pool activates it.
 
 Pure functions (no Prefect) shared by the recurring pipeline (wrapped in @task in

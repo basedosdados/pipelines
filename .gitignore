@@ -181,3 +181,4 @@ models/**/metadata/
 models/**/code/columns_json/
 
 models/fr_insee_sirene/code/dicionario.csv
+models/us_eia_electricity/code/_columns/

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the record date,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column derived from record_date,record_date
+record_date,DATE,"Date the debt figure was reported, published on business days",,no,,,no,Daily business-day series,record_date
+total_public_debt_outstanding,FLOAT64,"Total public debt outstanding on the record date, the sum of debt held by the public and intragovernmental holdings",,no,,USD,no,,tot_pub_debt_out_amt
+debt_held_by_public,FLOAT64,Portion of the total public debt held by the public rather than by government accounts,,no,,USD,no,"Reported from 1997 onward, null before",debt_held_public_amt
+intragovernmental_holdings,FLOAT64,"Portion of the total public debt held by government trust funds, revolving funds, and special funds",,no,,USD,no,"Reported from 1997 onward, null before",intragov_hold_amt

@@ -11,6 +11,7 @@
     )
 }}
 
+-- Atualizado em 2026-09-17
 with
     safe_select as (
         select

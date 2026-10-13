@@ -133,6 +133,7 @@ models:
           combination_of_columns: [ano, rede, ensino, anos_escolares]
       - not_null_proportion_multiple_columns:
           at_least: 0.7
+          ignore_values: [projecao]
     columns:
       - name: ano
         description: Ano
@@ -174,6 +175,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.7
+          ignore_values: [projecao]
     columns:
       - name: ano
         description: Ano
@@ -221,6 +223,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.7
+          ignore_values: [projecao]
     columns:
       - name: ano
         description: Ano

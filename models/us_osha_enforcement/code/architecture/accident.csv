@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do acidente,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de event_date,
+accident_id,STRING,Identificador único do acidente (número do formulário OSHA-170),,no,,,no,,SUMMARY_NR
+reporting_office_id,STRING,Código da jurisdição da OSHA (escritório federal ou plano estadual) que registrou o acidente,,no,,,no,"Preserva zeros à esquerda, por isso STRING",REPORT_ID
+event_date,DATE,Data do acidente,,no,,,no,,EVENT_DATE
+event_description,STRING,"Descrição curta do evento, sem identificação dos trabalhadores envolvidos",,no,,,no,,EVENT_DESC
+event_keyword,STRING,"Palavras-chave atribuídas ao acidente na revisão, separadas por vírgula",,no,,,no,Multivalorado; até 685 caracteres,EVENT_KEYWORD
+fatality,STRING,Indica que há óbito associado ao acidente (X),,yes,,,no,,FATALITY
+sic_list,STRING,"Códigos SIC de quatro dígitos das inspeções relacionadas, separados por vírgula",,no,,,no,Multivalorado,SIC_LIST
+construction_end_use,STRING,"Destinação da obra, quando o acidente ocorre na construção civil",,yes,,,no,,CONST_END_USE
+project_type,STRING,"Tipo da obra, quando o acidente ocorre na construção civil",,yes,,,no,,PROJECT_TYPE
+project_cost,STRING,"Faixa de custo da obra, quando o acidente ocorre na construção civil",,yes,,,no,,PROJECT_COST
+building_stories,INT64,"Número de pavimentos da edificação, quando o acidente ocorre na construção civil",,no,,storey,no,,BUILD_STORIES
+nonbuilding_height,INT64,"Altura em pés da estrutura, quando a obra não é uma edificação",,no,,foot,no,,NONBUILD_HT

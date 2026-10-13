@@ -1,0 +1,19 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year the lending activity was reported for,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,Activity Year
+respondent_id,STRING,"Respondent identifier assigned by the institution's supervisory agency; unique only together with agency and year, and not an RSSD",,no,,,no,,Respondent ID
+agency_id,STRING,"Supervisory agency that assigned the respondent identifier: occ, frs, fdic, or ots for the Office of Thrift Supervision, which was abolished in 2011 and appears only up to 2010",,no,,,no,,Agency Code
+rssd_id,STRING,"RSSD identifier of the reporting institution, taken from the CRA transmittal sheet for the same respondent, agency and year; the join key to institution, call_report_item and holding_company",,no,,,no,,
+loan_type,STRING,Whether the row covers small business or small farm lending,,no,,,no,,Loan Type
+action_taken,STRING,Whether the loans were originated by the reporting institution or purchased from another lender,,no,,,no,,Action Taken Type
+state_id,STRING,Two-digit state FIPS code,,no,br_bd_diretorios_us.state:id_state,,no,Blank on rows that total across all states.,State
+county_id,STRING,"Five-digit county FIPS code, the state code followed by the county code",,no,br_bd_diretorios_us.county:id_county,,no,"Blank on rows that total across counties. County FIPS codes change over time and are not restated by the source, so early years carry the codes in force at the time.",State + County
+msa_md_id,STRING,Metropolitan statistical area or metropolitan division code as defined by OMB,,no,,,no,"NA outside a metropolitan area, blank on rows that total across areas.",MSA/MD
+assessment_area_id,STRING,Assessment area number the institution assigned to the area,,no,,,no,"NA outside any assessment area, blank on totals.",Assessment Area Number
+is_partial_county,STRING,"Whether the assessment area covers only part of the county, 1 for yes",,no,,,no,,Partial County Indicator
+is_split_county,STRING,"Whether the county is split across more than one assessment area, 1 for yes",,no,,,no,,Split County Indicator
+population_classification,STRING,"Whether the county has fewer or more than 500,000 residents",,no,,,no,,Population Classification
+tract_income_group,STRING,"Income group of the census tracts the lending is grouped into, as a share of area median family income",,yes,,,no,,Income Group Total
+report_level,STRING,"Geographic and assessment-area level the row totals over, from a single county up to a nationwide total",,yes,,,no,,Report Level
+measure_band,STRING,Loan size or borrower revenue band the count and amount refer to,,yes,,,no,,
+loan_count,INT64,Number of loans in the band,,no,,unit,no,,
+loan_amount,FLOAT64,Total amount of the loans in the band,,no,,USD,no,"Filed in thousands of dollars and multiplied by 1,000 here.",

@@ -1,0 +1,1488 @@
+---
+version: 2
+models:
+  - name: us_dot_fars__crash
+    description: >-
+      Um registro por acidente de trânsito com vítima fatal ocorrido em via
+      pública dos Estados Unidos desde 1975, identificado pela combinação de
+      ano, estado e número do caso. Traz data e hora, localização,
+      características da via, condições de tempo e iluminação, contagens de
+      veículos e pessoas envolvidas e o número de mortes. Fonte: Fatality
+      Analysis Reporting System (FARS) da NHTSA, um censo e não uma amostra:
+      entra no arquivo todo acidente em via pública que produza ao menos uma
+      morte em até 30 dias. O arquivo nacional cobre os 50 estados e o
+      Distrito de Columbia; Porto Rico e os demais territórios são publicados
+      à parte e não estão incluídos. Duas ressalvas de comparabilidade ao
+      longo do período: as colunas codificadas tiveram seus conjuntos de
+      códigos redefinidos várias vezes, e por isso devem ser lidas na tabela
+      dicionario pelo par (código, cobertura temporal); e um bloco de
+      variáveis de via (velocidade regulamentada, número de faixas,
+      alinhamento, perfil, pavimento e controle de tráfego) deixou de ser
+      registrado por acidente em 2010 e passou a ser registrado por veículo,
+      na tabela vehicle.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, case_number]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_dot_fars__dicionario')
+          columns_covered_by_dictionary:
+            - city_code
+            - day_of_week_code
+            - route_signing_code
+            - rural_urban_code
+            - road_function_class_code
+            - functional_system_code
+            - road_owner_code
+            - national_highway_system_code
+            - special_jurisdiction_code
+            - first_harmful_event_code
+            - manner_of_collision_code
+            - relation_to_junction_code
+            - within_interchange_code
+            - intersection_type_code
+            - relation_to_roadway_code
+            - work_zone_code
+            - light_condition_code
+            - weather_code
+            - school_bus_related_code
+            - hit_and_run_code
+            - number_of_lanes_code
+            - roadway_alignment_code
+            - roadway_profile_code
+            - surface_condition_code
+            - traffic_control_code
+            - traffic_control_functioning_code
+            - trafficway_flow_code
+            - crash_related_factor_1_code
+            - crash_related_factor_2_code
+            - crash_related_factor_3_code
+            - federal_highway_code
+            - land_use_code
+            - roadway_surface_type_code
+            - atmospheric_condition_1_code
+            - atmospheric_condition_2_code
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do acidente
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado onde ocorreu o acidente
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Código FIPS de cinco posições do condado onde ocorreu o acidente
+      - name: case_number
+        description: >-
+          Número do caso atribuído pelo estado, único dentro do par estado-ano
+        tests: [not_null]
+      - name: city_code
+        description: >-
+          Código NHTSA do município ou cidade onde ocorreu o acidente
+      - name: date
+        description: >-
+          Data do acidente
+      - name: month
+        description: >-
+          Mês-calendário do acidente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: day
+        description: >-
+          Dia do mês em que ocorreu o acidente
+      - name: day_of_week_code
+        description: >-
+          Dia da semana em que ocorreu o acidente
+      - name: hour
+        description: >-
+          Hora do acidente, no relógio de 24 horas
+      - name: minute
+        description: >-
+          Minuto do acidente
+      - name: latitude
+        description: >-
+          Latitude do local do acidente, em graus decimais
+      - name: longitude
+        description: >-
+          Longitude do local do acidente, em graus decimais
+      - name: trafficway_id
+        description: >-
+          Identificação da via em que ocorreu o acidente, conforme registrada
+          pelo estado
+      - name: milepoint
+        description: >-
+          Marco quilométrico, em milhas, do ponto do acidente na via
+      - name: route_signing_code
+        description: >-
+          Tipo de sinalização da via (interestadual, rodovia federal,
+          estadual, via local)
+      - name: rural_urban_code
+        description: >-
+          Classificação rural ou urbana do local do acidente
+      - name: road_function_class_code
+        description: >-
+          Classe funcional da via, combinando o corte rural/urbano e a função
+          da via
+      - name: functional_system_code
+        description: >-
+          Sistema funcional da via segundo a classificação da Federal Highway
+          Administration
+      - name: road_owner_code
+        description: >-
+          Entidade proprietária da via
+      - name: national_highway_system_code
+        description: >-
+          Indica se o acidente ocorreu em via do National Highway System
+      - name: special_jurisdiction_code
+        description: >-
+          Jurisdição especial sobre o local do acidente, quando não é a via
+          pública comum
+      - name: first_harmful_event_code
+        description: >-
+          Primeiro evento lesivo do acidente, isto é, o primeiro impacto que
+          produziu dano ou lesão
+      - name: manner_of_collision_code
+        description: >-
+          Posição relativa dos veículos no primeiro impacto entre veículos em
+          movimento
+      - name: relation_to_junction_code
+        description: >-
+          Relação do local do acidente com um entroncamento
+      - name: within_interchange_code
+        description: >-
+          Indica se o acidente ocorreu dentro da área de um trevo ou
+          entroncamento em desnível
+      - name: intersection_type_code
+        description: >-
+          Configuração geométrica do cruzamento onde ocorreu o acidente
+      - name: relation_to_roadway_code
+        description: >-
+          Posição do acidente em relação à pista de rolamento
+      - name: work_zone_code
+        description: >-
+          Indica se o acidente ocorreu em zona de obras e de que tipo
+      - name: light_condition_code
+        description: >-
+          Condição de iluminação no momento do acidente
+      - name: weather_code
+        description: >-
+          Condição atmosférica predominante no momento do acidente
+      - name: school_bus_related_code
+        description: >-
+          Indica se um ônibus escolar esteve envolvido no acidente
+      - name: rail_crossing_id
+        description: >-
+          Identificador do cruzamento ferroviário onde ocorreu o acidente
+      - name: hit_and_run_code
+        description: >-
+          Indica se houve evasão do local por algum veículo envolvido
+      - name: number_of_lanes_code
+        description: >-
+          Número de faixas de rolamento da via, em faixas codificadas
+      - name: speed_limit
+        description: >-
+          Velocidade máxima regulamentada da via, em milhas por hora
+      - name: roadway_alignment_code
+        description: >-
+          Alinhamento horizontal da via no local do acidente
+      - name: roadway_profile_code
+        description: >-
+          Perfil vertical da via no local do acidente
+      - name: surface_condition_code
+        description: >-
+          Condição do pavimento no local do acidente
+      - name: traffic_control_code
+        description: >-
+          Dispositivo de controle de tráfego presente no local do acidente
+      - name: traffic_control_functioning_code
+        description: >-
+          Indica se o dispositivo de controle de tráfego estava em
+          funcionamento
+      - name: trafficway_flow_code
+        description: >-
+          Sentido de circulação da via e presença de separação física entre os
+          fluxos
+      - name: vehicle_forms_count
+        description: >-
+          Número de veículos em movimento envolvidos no acidente
+      - name: vehicles_total_count
+        description: >-
+          Número total de veículos envolvidos, incluindo os estacionados
+      - name: parked_vehicles_count
+        description: >-
+          Número de veículos estacionados ou fora de circulação envolvidos no
+          acidente
+      - name: persons_count
+        description: >-
+          Número de pessoas em veículos em movimento envolvidas no acidente
+      - name: persons_in_motor_vehicles_count
+        description: >-
+          Número de ocupantes de veículos automotores em movimento
+      - name: persons_outside_motor_vehicles_count
+        description: >-
+          Número de pessoas envolvidas que não estavam em veículo automotor em
+          movimento
+      - name: pedestrians_count
+        description: >-
+          Número de pedestres e outros não ocupantes envolvidos no acidente
+      - name: fatalities_count
+        description: >-
+          Número de mortes decorrentes do acidente
+      - name: drunk_drivers_count
+        description: >-
+          Número de condutores envolvidos com álcool no organismo segundo a
+          imputação da NHTSA
+      - name: notification_hour
+        description: >-
+          Hora em que os serviços de emergência foram notificados
+      - name: notification_minute
+        description: >-
+          Minuto em que os serviços de emergência foram notificados
+      - name: arrival_hour
+        description: >-
+          Hora de chegada dos serviços de emergência ao local
+      - name: arrival_minute
+        description: >-
+          Minuto de chegada dos serviços de emergência ao local
+      - name: hospital_arrival_hour
+        description: >-
+          Hora de chegada do primeiro ferido ao hospital
+      - name: hospital_arrival_minute
+        description: >-
+          Minuto de chegada do primeiro ferido ao hospital
+      - name: crash_related_factor_1_code
+        description: >-
+          Primeiro fator relacionado ao acidente registrado no laudo
+      - name: crash_related_factor_2_code
+        description: >-
+          Segundo fator relacionado ao acidente registrado no laudo
+      - name: crash_related_factor_3_code
+        description: >-
+          Terceiro fator relacionado ao acidente registrado no laudo
+      - name: federal_highway_code
+        description: >-
+          Classificação da via quanto ao financiamento federal
+      - name: land_use_code
+        description: >-
+          Uso do solo no local do acidente
+      - name: roadway_surface_type_code
+        description: >-
+          Tipo de pavimento da via no local do acidente
+      - name: trafficway_id_2
+        description: >-
+          Identificação da segunda via, quando o acidente ocorreu em um
+          cruzamento
+      - name: vehicles_in_transport_count
+        description: >-
+          Número de veículos em circulação envolvidos no acidente
+      - name: atmospheric_condition_1_code
+        description: >-
+          Primeira condição atmosférica registrada no momento do acidente
+      - name: atmospheric_condition_2_code
+        description: >-
+          Segunda condição atmosférica registrada no momento do acidente
+  - name: us_dot_fars__vehicle
+    description: >-
+      Um registro por veículo envolvido em acidente fatal, identificado pela
+      combinação da chave do acidente com o número do veículo. Traz marca,
+      modelo, ano-modelo, tipo de carroceria, velocidade estimada, ponto de
+      impacto, extensão dos danos e o histórico e a habilitação do condutor.
+      Fonte: Fatality Analysis Reporting System (FARS) da NHTSA. Liga-se a
+      crash por year, state_id e case_number. A partir de 2010 esta tabela
+      passou a concentrar também as variáveis de via antes registradas por
+      acidente, nas colunas com prefixo vehicle_. As colunas codificadas devem
+      ser lidas na tabela dicionario pelo par (código, cobertura temporal): o
+      tipo de carroceria, por exemplo, teve onze conjuntos de códigos
+      distintos entre 1975 e 2024.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_id
+            - case_number
+            - vehicle_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Published only over part of the 1975-2024 span, or
+          # populated for a small subset of rows by construction,
+          # so the pooled non-null share sits below the floor.
+          ignore_values:
+            - crash_type_configuration_code
+            - driver_vision_obscured_1_code
+            - driver_vision_obscured_2_code
+            - driver_vision_obscured_3_code
+            - truck_chassis_type_code
+            - vin_make
+            - vin_vehicle_type
+            - vin_model_year_code
+            - motorcycle_engine_displacement
+            - motorcycle_engine_cycles_code
+            - motorcycle_dry_weight
+            - engine_displacement_cubic_inch
+            - truck_shipping_weight
+            - truck_shipping_weight_variance_code
+            - wheels_and_drive_wheels_code
+            - carburetion
+            - cylinders
+            - fuel_code
+            - original_tire_size
+            - truck_ton_rating
+            - truck_vin_restraint_type
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_dot_fars__dicionario')
+          columns_covered_by_dictionary:
+            - unit_type_code
+            - hit_and_run_code
+            - registration_state_code
+            - owner_code
+            - make_code
+            - make_model_code
+            - body_type_code
+            - tow_vehicle_code
+            - jackknife_code
+            - gross_vehicle_weight_rating_code
+            - vehicle_configuration_code
+            - cargo_body_type_code
+            - hazardous_material_involvement_code
+            - bus_use_code
+            - special_use_code
+            - emergency_use_code
+            - rollover_code
+            - initial_impact_point_code
+            - extent_of_damage_code
+            - most_harmful_event_code
+            - fire_occurrence_code
+            - driver_present_code
+            - driver_drinking_code
+            - driver_license_state_code
+            - driver_license_status_code
+            - driver_license_compliance_code
+            - commercial_license_status_code
+            - speeding_related_code
+            - trafficway_description_code
+            - vehicle_number_of_lanes_code
+            - vehicle_roadway_alignment_code
+            - vehicle_roadway_profile_code
+            - vehicle_surface_condition_code
+            - vehicle_traffic_control_code
+            - vehicle_traffic_control_functioning_code
+            - crash_type_code
+            - driver_maneuver_code
+            - first_harmful_event_code
+            - manner_of_collision_code
+            - most_damaged_area_code
+            - vehicle_role_code
+            - vehicle_towed_code
+            - rollover_location_code
+            - underride_override_code
+            - vehicle_underride_override_code
+            - vehicle_maneuver_code
+            - crash_avoidance_maneuver_code
+            - crash_type_configuration_code
+            - pre_event_movement_code
+            - attempted_avoidance_maneuver_code
+            - pre_impact_stability_code
+            - pre_impact_location_code
+            - vehicle_roadway_surface_type_code
+            - driver_vision_obscured_1_code
+            - driver_vision_obscured_2_code
+            - driver_vision_obscured_3_code
+            - driver_training_code
+            - license_type_code
+            - license_endorsement_compliance_code
+            - license_restriction_compliance_code
+            - license_vehicle_class_compliance_code
+            - previous_suspensions_bac_count_code
+            - previous_other_suspensions_code
+            - violation_charged_1_code
+            - violation_charged_2_code
+            - violation_charged_3_code
+            - driver_related_factor_1_code
+            - driver_related_factor_2_code
+            - driver_related_factor_3_code
+            - driver_related_factor_4_code
+            - vehicle_related_factor_1_code
+            - vehicle_related_factor_2_code
+            - sequence_of_events_1_code
+            - sequence_of_events_2_code
+            - sequence_of_events_3_code
+            - sequence_of_events_4_code
+            - sequence_of_events_5_code
+            - sequence_of_events_6_code
+            - axles_code
+            - hazardous_material_placard_code
+            - hazardous_material_release_code
+            - motor_carrier_id_issuing_authority_code
+            - trailer_1_gross_weight_rating_code
+            - trailer_2_gross_weight_rating_code
+            - trailer_3_gross_weight_rating_code
+            - gross_vehicle_weight_rating_from_code
+            - gross_vehicle_weight_rating_to_code
+            - final_stage_body_class_code
+            - vpic_make_code
+            - vpic_model_code
+            - vpic_body_class_code
+            - truck_chassis_type_code
+            - vin_model_year_code
+            - motorcycle_engine_cycles_code
+            - truck_shipping_weight_variance_code
+            - truck_weight_rating_code
+            - wheels_and_drive_wheels_code
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do acidente
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado onde ocorreu o acidente
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: case_number
+        description: >-
+          Número do caso atribuído pelo estado, único dentro do par estado-ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_dot_fars__crash')
+              field: case_number
+      - name: vehicle_number
+        description: >-
+          Número sequencial do veículo dentro do acidente
+        tests: [not_null]
+      - name: unit_type_code
+        description: >-
+          Tipo de unidade: veículo em movimento, estacionado ou fora de
+          circulação
+      - name: occupants_count
+        description: >-
+          Número de ocupantes do veículo
+      - name: hit_and_run_code
+        description: >-
+          Indica se o veículo evadiu-se do local do acidente
+      - name: registration_state_code
+        description: >-
+          Estado de emplacamento do veículo
+      - name: owner_code
+        description: >-
+          Condição de propriedade do veículo
+      - name: make_code
+        description: >-
+          Marca do veículo
+      - name: model_code
+        description: >-
+          Modelo do veículo, codificado dentro da marca
+      - name: make_model_code
+        description: >-
+          Combinação codificada de marca e modelo do veículo
+      - name: body_type_code
+        description: >-
+          Tipo de carroceria do veículo
+      - name: model_year
+        description: >-
+          Ano-modelo do veículo
+      - name: vehicle_identification_number
+        description: >-
+          Número de identificação do veículo (VIN), conforme publicado pela
+          NHTSA
+      - name: tow_vehicle_code
+        description: >-
+          Indica se o veículo rebocava reboque ou semirreboque
+      - name: jackknife_code
+        description: >-
+          Indica ocorrência de tesouramento (jackknife) em veículo articulado
+      - name: gross_vehicle_weight_rating_code
+        description: >-
+          Faixa de peso bruto total combinado do veículo
+      - name: vehicle_configuration_code
+        description: >-
+          Configuração do veículo de carga
+      - name: cargo_body_type_code
+        description: >-
+          Tipo de carroceria de carga
+      - name: hazardous_material_involvement_code
+        description: >-
+          Indica envolvimento de carga perigosa
+      - name: bus_use_code
+        description: >-
+          Uso do veículo como ônibus e sua finalidade
+      - name: special_use_code
+        description: >-
+          Uso especial do veículo (táxi, polícia, ambulância, escolar)
+      - name: emergency_use_code
+        description: >-
+          Indica se o veículo estava em atendimento de emergência
+      - name: travel_speed
+        description: >-
+          Velocidade estimada do veículo antes do acidente, em milhas por hora
+      - name: rollover_code
+        description: >-
+          Ocorrência e tipo de capotamento
+      - name: initial_impact_point_code
+        description: >-
+          Ponto de impacto inicial no veículo, em posições de relógio
+      - name: extent_of_damage_code
+        description: >-
+          Extensão dos danos ao veículo
+      - name: most_harmful_event_code
+        description: >-
+          Evento que produziu o dano mais grave a este veículo
+      - name: fire_occurrence_code
+        description: >-
+          Indica ocorrência de incêndio no veículo
+      - name: deaths_count
+        description: >-
+          Número de mortes de ocupantes deste veículo
+      - name: driver_present_code
+        description: >-
+          Indica se havia condutor no veículo
+      - name: driver_drinking_code
+        description: >-
+          Envolvimento do condutor com álcool segundo o relato policial
+      - name: driver_license_state_code
+        description: >-
+          Estado emissor da habilitação do condutor
+      - name: driver_license_status_code
+        description: >-
+          Situação da habilitação do condutor no momento do acidente
+      - name: driver_license_compliance_code
+        description: >-
+          Conformidade da habilitação com a categoria do veículo conduzido
+      - name: commercial_license_status_code
+        description: >-
+          Situação da habilitação comercial do condutor
+      - name: driver_height
+        description: >-
+          Altura declarada do condutor, em polegadas
+      - name: driver_weight
+        description: >-
+          Peso declarado do condutor, em libras
+      - name: previous_crashes_count
+        description: >-
+          Número de acidentes anteriores no histórico do condutor
+      - name: previous_suspensions_count
+        description: >-
+          Número de suspensões ou cassações anteriores da habilitação
+      - name: previous_dwi_convictions_count
+        description: >-
+          Número de condenações anteriores por dirigir sob influência
+      - name: previous_speeding_convictions_count
+        description: >-
+          Número de condenações anteriores por excesso de velocidade
+      - name: previous_other_convictions_count
+        description: >-
+          Número de outras condenações anteriores de trânsito
+      - name: speeding_related_code
+        description: >-
+          Indica se a velocidade contribuiu para o acidente
+      - name: trafficway_description_code
+        description: >-
+          Sentido de circulação e separação da via, registrados por veículo
+      - name: vehicle_number_of_lanes_code
+        description: >-
+          Número de faixas de rolamento, registrado por veículo
+      - name: vehicle_speed_limit
+        description: >-
+          Velocidade máxima regulamentada da via, registrada por veículo, em
+          milhas por hora
+      - name: vehicle_roadway_alignment_code
+        description: >-
+          Alinhamento horizontal da via, registrado por veículo
+      - name: vehicle_roadway_profile_code
+        description: >-
+          Perfil vertical da via, registrado por veículo
+      - name: vehicle_surface_condition_code
+        description: >-
+          Condição do pavimento, registrada por veículo
+      - name: vehicle_traffic_control_code
+        description: >-
+          Dispositivo de controle de tráfego, registrado por veículo
+      - name: vehicle_traffic_control_functioning_code
+        description: >-
+          Funcionamento do dispositivo de controle de tráfego, registrado por
+          veículo
+      - name: crash_type_code
+        description: >-
+          Tipo de acidente segundo a tipologia pré-colisão da NHTSA
+      - name: driver_maneuver_code
+        description: >-
+          Manobra crítica que precedeu o acidente
+      - name: month
+        description: >-
+          Mês-calendário do acidente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: day
+        description: >-
+          Dia do mês em que ocorreu o acidente
+      - name: hour
+        description: >-
+          Hora do acidente, no relógio de 24 horas
+      - name: minute
+        description: >-
+          Minuto do acidente
+      - name: vehicle_forms_count
+        description: >-
+          Número de veículos em movimento envolvidos no acidente
+      - name: first_harmful_event_code
+        description: >-
+          Primeiro evento lesivo do acidente
+      - name: manner_of_collision_code
+        description: >-
+          Posição relativa dos veículos no primeiro impacto
+      - name: most_damaged_area_code
+        description: >-
+          Área mais danificada do veículo
+      - name: vehicle_role_code
+        description: >-
+          Papel do veículo na colisão
+      - name: vehicle_towed_code
+        description: >-
+          Indica se o veículo foi rebocado do local
+      - name: rollover_location_code
+        description: >-
+          Local em que ocorreu o capotamento
+      - name: underride_override_code
+        description: >-
+          Ocorrência de submersão ou sobreposição entre veículos
+      - name: vehicle_underride_override_code
+        description: >-
+          Ocorrência de submersão ou sobreposição, na codificação a partir de
+          2021
+      - name: vehicle_maneuver_code
+        description: >-
+          Manobra do veículo imediatamente antes do acidente
+      - name: crash_avoidance_maneuver_code
+        description: >-
+          Manobra realizada para tentar evitar a colisão
+      - name: crash_type_configuration_code
+        description: >-
+          Configuração do tipo de acidente
+      - name: pre_event_movement_code
+        description: >-
+          Movimento do veículo antes do reconhecimento do evento crítico
+      - name: attempted_avoidance_maneuver_code
+        description: >-
+          Manobra de evasão tentada antes do impacto
+      - name: pre_impact_stability_code
+        description: >-
+          Estabilidade do veículo imediatamente antes do impacto
+      - name: pre_impact_location_code
+        description: >-
+          Posição do veículo na via imediatamente antes do impacto
+      - name: vehicle_roadway_surface_type_code
+        description: >-
+          Tipo de pavimento da via, registrado por veículo
+      - name: driver_vision_obscured_1_code
+        description: >-
+          Primeiro obstáculo à visão do condutor
+      - name: driver_vision_obscured_2_code
+        description: >-
+          Segundo obstáculo à visão do condutor
+      - name: driver_vision_obscured_3_code
+        description: >-
+          Terceiro obstáculo à visão do condutor
+      - name: driver_training_code
+        description: >-
+          Formação do condutor em curso de direção
+      - name: driver_zip_code
+        description: >-
+          Código postal de residência do condutor
+      - name: license_type_code
+        description: >-
+          Categoria da habilitação não comercial do condutor
+      - name: license_endorsement_compliance_code
+        description: >-
+          Conformidade com as autorizações da habilitação comercial
+      - name: license_restriction_compliance_code
+        description: >-
+          Conformidade com as restrições da habilitação
+      - name: license_vehicle_class_compliance_code
+        description: >-
+          Conformidade da habilitação com a categoria do veículo, no registro
+          anterior a 1987
+      - name: previous_suspensions_bac_count_code
+        description: >-
+          Suspensões anteriores por alcoolemia acima do limite, fora dos casos
+          de menoridade
+      - name: previous_other_suspensions_code
+        description: >-
+          Outras suspensões ou cassações anteriores registradas
+      - name: first_record_month
+        description: >-
+          Mês do registro mais antigo de acidente, suspensão ou condenação do
+          condutor
+      - name: first_record_year
+        description: >-
+          Ano do registro mais antigo de acidente, suspensão ou condenação do
+          condutor
+      - name: last_record_month
+        description: >-
+          Mês do registro mais recente de acidente, suspensão ou condenação do
+          condutor
+      - name: last_record_year
+        description: >-
+          Ano do registro mais recente de acidente, suspensão ou condenação do
+          condutor
+      - name: violation_charged_1_code
+        description: >-
+          Primeira infração imputada ao condutor neste acidente
+      - name: violation_charged_2_code
+        description: >-
+          Segunda infração imputada ao condutor neste acidente
+      - name: violation_charged_3_code
+        description: >-
+          Terceira infração imputada ao condutor neste acidente
+      - name: driver_related_factor_1_code
+        description: >-
+          Primeiro fator relacionado ao condutor registrado no laudo
+      - name: driver_related_factor_2_code
+        description: >-
+          Segundo fator relacionado ao condutor registrado no laudo
+      - name: driver_related_factor_3_code
+        description: >-
+          Terceiro fator relacionado ao condutor registrado no laudo
+      - name: driver_related_factor_4_code
+        description: >-
+          Quarto fator relacionado ao condutor registrado no laudo
+      - name: vehicle_related_factor_1_code
+        description: >-
+          Primeiro fator relacionado ao veículo registrado no laudo
+      - name: vehicle_related_factor_2_code
+        description: >-
+          Segundo fator relacionado ao veículo registrado no laudo
+      - name: sequence_of_events_1_code
+        description: >-
+          Primeiro evento da sequência de eventos do veículo
+      - name: sequence_of_events_2_code
+        description: >-
+          Segundo evento da sequência de eventos do veículo
+      - name: sequence_of_events_3_code
+        description: >-
+          Terceiro evento da sequência de eventos do veículo
+      - name: sequence_of_events_4_code
+        description: >-
+          Quarto evento da sequência de eventos do veículo
+      - name: sequence_of_events_5_code
+        description: >-
+          Quinto evento da sequência de eventos do veículo
+      - name: sequence_of_events_6_code
+        description: >-
+          Sexto evento da sequência de eventos do veículo
+      - name: axles_code
+        description: >-
+          Número de eixos do veículo de carga
+      - name: hazardous_material_placard_code
+        description: >-
+          Presença de placa de identificação de carga perigosa
+      - name: hazardous_material_id
+        description: >-
+          Número de identificação da carga perigosa transportada
+      - name: hazardous_material_class_number
+        description: >-
+          Número da classe de risco da carga perigosa
+      - name: hazardous_material_release_code
+        description: >-
+          Ocorrência de vazamento da carga perigosa do compartimento de carga
+      - name: motor_carrier_id
+        description: >-
+          Número de identificação da transportadora
+      - name: motor_carrier_id_issuing_authority_code
+        description: >-
+          Autoridade emissora do número de identificação da transportadora
+      - name: motor_carrier_id_number
+        description: >-
+          Parte numérica do identificador da transportadora
+      - name: trailer_1_vin
+        description: >-
+          VIN do primeiro reboque
+      - name: trailer_2_vin
+        description: >-
+          VIN do segundo reboque
+      - name: trailer_3_vin
+        description: >-
+          VIN do terceiro reboque
+      - name: trailer_1_gross_weight_rating_code
+        description: >-
+          Faixa de peso bruto total do primeiro reboque
+      - name: trailer_2_gross_weight_rating_code
+        description: >-
+          Faixa de peso bruto total do segundo reboque
+      - name: trailer_3_gross_weight_rating_code
+        description: >-
+          Faixa de peso bruto total do terceiro reboque
+      - name: gross_vehicle_weight_rating_from_code
+        description: >-
+          Limite inferior da faixa de peso bruto total da unidade tratora
+      - name: gross_vehicle_weight_rating_to_code
+        description: >-
+          Limite superior da faixa de peso bruto total da unidade tratora
+      - name: final_stage_body_class_code
+        description: >-
+          Classe de carroceria do estágio final de fabricação
+      - name: vpic_make_code
+        description: >-
+          Marca do veículo segundo a decodificação vPIC da NHTSA
+      - name: vpic_model_code
+        description: >-
+          Modelo do veículo segundo a decodificação vPIC da NHTSA
+      - name: vpic_body_class_code
+        description: >-
+          Classe de carroceria segundo a decodificação vPIC da NHTSA
+      - name: motorcycle_type_code
+        description: >-
+          Tipo de motocicleta
+      - name: truck_chassis_type_code
+        description: >-
+          Tipo de chassi do caminhão decodificado do VIN
+      - name: truck_field_code
+        description: >-
+          Código de campo do caminhão decodificado do VIN
+      - name: vin_make
+        description: >-
+          Marca decodificada do VIN
+      - name: vin_model
+        description: >-
+          Modelo decodificado do VIN
+      - name: vin_body_type
+        description: >-
+          Tipo de carroceria decodificado do VIN
+      - name: vin_vehicle_type
+        description: >-
+          Tipo de veículo decodificado do VIN
+      - name: vin_model_year_code
+        description: >-
+          Ano-modelo do VIN, no código de posição 10 usado pela fonte
+      - name: vin_length
+        description: >-
+          Número de caracteres do VIN publicado
+      - name: vin_curb_weight
+        description: >-
+          Peso em ordem de marcha decodificado do VIN, em libras
+      - name: wheelbase_short
+        description: >-
+          Menor entre-eixos decodificado do VIN, em polegadas
+      - name: wheelbase_long
+        description: >-
+          Maior entre-eixos decodificado do VIN, em polegadas
+      - name: motorcycle_engine_displacement
+        description: >-
+          Cilindrada do motor da motocicleta, em centímetros cúbicos
+      - name: motorcycle_engine_cycles_code
+        description: >-
+          Número de tempos do motor da motocicleta
+      - name: motorcycle_dry_weight
+        description: >-
+          Peso a seco da motocicleta, em libras
+      - name: engine_displacement_cubic_inch
+        description: >-
+          Cilindrada do motor, em polegadas cúbicas
+      - name: truck_shipping_weight
+        description: >-
+          Peso de embarque do caminhão, em libras
+      - name: truck_shipping_weight_variance_code
+        description: >-
+          Faixa de variação do peso de embarque do caminhão
+      - name: truck_weight_rating_code
+        description: >-
+          Classe de peso do caminhão decodificada do VIN
+      - name: truck_series
+        description: >-
+          Série do caminhão decodificada do VIN
+      - name: wheels_and_drive_wheels_code
+        description: >-
+          Número de rodas e de rodas motrizes, em código combinado
+      - name: carburetion
+        description: >-
+          Sistema de alimentação de combustível decodificado do VIN
+      - name: cylinders
+        description: >-
+          Número de cilindros do motor decodificado do VIN
+      - name: fuel_code
+        description: >-
+          Tipo de combustível decodificado do VIN
+      - name: original_tire_size
+        description: >-
+          Medida original dos pneus decodificada do VIN
+      - name: truck_ton_rating
+        description: >-
+          Capacidade nominal do caminhão em toneladas, decodificada do VIN
+      - name: truck_vin_restraint_type
+        description: >-
+          Tipo de retenção do caminhão decodificado do VIN
+      - name: vin_character_1
+        description: >-
+          Caractere 1 do número de identificação do veículo
+      - name: vin_character_2
+        description: >-
+          Caractere 2 do número de identificação do veículo
+      - name: vin_character_3
+        description: >-
+          Caractere 3 do número de identificação do veículo
+      - name: vin_character_4
+        description: >-
+          Caractere 4 do número de identificação do veículo
+      - name: vin_character_5
+        description: >-
+          Caractere 5 do número de identificação do veículo
+      - name: vin_character_6
+        description: >-
+          Caractere 6 do número de identificação do veículo
+      - name: vin_character_7
+        description: >-
+          Caractere 7 do número de identificação do veículo
+      - name: vin_character_8
+        description: >-
+          Caractere 8 do número de identificação do veículo
+      - name: vin_character_9
+        description: >-
+          Caractere 9 do número de identificação do veículo
+      - name: vin_character_10
+        description: >-
+          Caractere 10 do número de identificação do veículo
+      - name: vin_character_11
+        description: >-
+          Caractere 11 do número de identificação do veículo
+      - name: vin_character_12
+        description: >-
+          Caractere 12 do número de identificação do veículo
+  - name: us_dot_fars__person
+    description: >-
+      Um registro por pessoa envolvida em acidente fatal, ocupante ou não do
+      veículo, identificado pela chave do acidente somada ao número do veículo
+      e ao número da pessoa. Traz idade, sexo, tipo de pessoa, posição no
+      veículo, uso de retenção, gravidade da lesão, resultado do teste de
+      alcoolemia e, para os falecidos, data e hora do óbito e o intervalo
+      entre o acidente e a morte. Fonte: Fatality Analysis Reporting System
+      (FARS) da NHTSA. Pedestres, ciclistas e demais não ocupantes recebem
+      vehicle_number igual a 0 e não têm correspondência na tabela vehicle. A
+      coluna blood_alcohol_content é derivada e harmoniza a mudança de escala
+      da fonte em 2015, quando o código passou de concentração vezes 100 para
+      concentração vezes 1000; o código original permanece em
+      alcohol_test_result_code para preservar as sentinelas de teste recusado,
+      não realizado e resultado desconhecido.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_id
+            - case_number
+            - vehicle_number
+            - person_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Published only over part of the 1975-2024 span, or
+          # populated for a small subset of rows by construction,
+          # so the pooled non-null share sits below the floor.
+          ignore_values:
+            - non_motorist_device_type_code
+            - non_motorist_device_motorization_code
+            - vin_make
+            - vin_vehicle_type
+            - vin_model_year_code
+            - vin_length
+            - motorcycle_engine_displacement
+            - motorcycle_engine_cycles_code
+            - motorcycle_dry_weight
+            - engine_displacement_cubic_inch
+            - truck_shipping_weight
+            - truck_shipping_weight_variance_code
+            - wheels_and_drive_wheels_code
+            - carburetion
+            - cylinders
+            - fuel_code
+            - original_tire_size
+            - truck_ton_rating
+            - truck_vin_restraint_type
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_dot_fars__dicionario')
+          columns_covered_by_dictionary:
+            - sex_code
+            - person_type_code
+            - injury_severity_code
+            - seating_position_code
+            - restraint_use_code
+            - restraint_misuse_code
+            - helmet_use_code
+            - air_bag_code
+            - ejection_code
+            - ejection_path_code
+            - extrication_code
+            - police_reported_alcohol_code
+            - alcohol_test_status_code
+            - alcohol_test_type_code
+            - alcohol_test_result_code
+            - drug_involvement_code
+            - drug_test_status_code
+            - transported_to_facility_code
+            - died_at_scene_code
+            - work_injury_code
+            - race_code
+            - hispanic_origin_code
+            - non_motorist_location_code
+            - body_type_code
+            - make_code
+            - rollover_code
+            - first_harmful_event_code
+            - manner_of_collision_code
+            - school_bus_related_code
+            - death_time_code
+            - alcohol_determination_method_code
+            - drug_determination_method_code
+            - drug_test_type_1_code
+            - drug_test_type_2_code
+            - drug_test_type_3_code
+            - drug_test_result_1_code
+            - drug_test_result_2_code
+            - drug_test_result_3_code
+            - toxicology_test_code
+            - person_related_factor_1_code
+            - person_related_factor_2_code
+            - person_related_factor_3_code
+            - helmet_misuse_code
+            - non_motorist_device_type_code
+            - non_motorist_device_motorization_code
+            - striking_vehicle_number_legacy_code
+            - roadway_function_class_person_code
+            - rural_urban_person_code
+            - functional_system_person_code
+            - initial_impact_point_code
+            - most_damaged_area_code
+            - vehicle_role_code
+            - fire_occurrence_code
+            - emergency_use_code
+            - special_use_code
+            - tow_vehicle_code
+            - make_model_code
+            - gross_vehicle_weight_rating_from_code
+            - gross_vehicle_weight_rating_to_code
+            - final_stage_body_class_code
+            - vpic_make_code
+            - vpic_model_code
+            - vpic_body_class_code
+            - vin_model_year_code
+            - motorcycle_engine_cycles_code
+            - truck_shipping_weight_variance_code
+            - truck_weight_rating_code
+            - wheels_and_drive_wheels_code
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do acidente
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado onde ocorreu o acidente
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: case_number
+        description: >-
+          Número do caso atribuído pelo estado, único dentro do par estado-ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_dot_fars__crash')
+              field: case_number
+      - name: vehicle_number
+        description: >-
+          Número do veículo em que a pessoa estava; 0 identifica quem não
+          estava em veículo automotor
+        tests: [not_null]
+      - name: person_number
+        description: >-
+          Número sequencial da pessoa dentro do veículo ou do acidente
+        tests: [not_null]
+      - name: age
+        description: >-
+          Idade da pessoa em anos completos no momento do acidente
+      - name: sex_code
+        description: >-
+          Sexo da pessoa
+      - name: person_type_code
+        description: >-
+          Tipo de pessoa: condutor, passageiro, pedestre, ciclista ou outro
+          não ocupante
+      - name: injury_severity_code
+        description: >-
+          Gravidade da lesão sofrida pela pessoa
+      - name: seating_position_code
+        description: >-
+          Posição ocupada pela pessoa no veículo
+      - name: restraint_use_code
+        description: >-
+          Uso de dispositivo de retenção pela pessoa
+      - name: restraint_misuse_code
+        description: >-
+          Indica uso incorreto do dispositivo de retenção
+      - name: helmet_use_code
+        description: >-
+          Uso de capacete por ocupante de motocicleta ou ciclista
+      - name: air_bag_code
+        description: >-
+          Presença e acionamento de airbag na posição ocupada
+      - name: ejection_code
+        description: >-
+          Grau de ejeção da pessoa do veículo
+      - name: ejection_path_code
+        description: >-
+          Abertura pela qual a pessoa foi ejetada
+      - name: extrication_code
+        description: >-
+          Indica se foi necessário desencarcerar a pessoa
+      - name: police_reported_alcohol_code
+        description: >-
+          Envolvimento com álcool segundo o relato policial
+      - name: alcohol_test_status_code
+        description: >-
+          Situação do teste de alcoolemia
+      - name: alcohol_test_type_code
+        description: >-
+          Tipo de teste de alcoolemia aplicado
+      - name: alcohol_test_result_code
+        description: >-
+          Resultado do teste de alcoolemia, no código original da fonte
+      - name: blood_alcohol_content
+        description: >-
+          Concentração de álcool no sangue, em gramas por decilitro
+      - name: drug_involvement_code
+        description: >-
+          Envolvimento com drogas segundo o relato policial
+      - name: drug_test_status_code
+        description: >-
+          Situação do teste toxicológico
+      - name: transported_to_facility_code
+        description: >-
+          Meio de transporte da pessoa até unidade de saúde
+      - name: died_at_scene_code
+        description: >-
+          Indica se a pessoa chegou morta ou morreu no local
+      - name: death_date
+        description: >-
+          Data do óbito
+      - name: death_hour
+        description: >-
+          Hora do óbito, no relógio de 24 horas
+      - name: death_minute
+        description: >-
+          Minuto do óbito
+      - name: survival_hours
+        description: >-
+          Horas decorridas entre o acidente e o óbito
+      - name: survival_minutes
+        description: >-
+          Minutos decorridos, além das horas, entre o acidente e o óbito
+      - name: work_injury_code
+        description: >-
+          Indica se a lesão ocorreu no exercício do trabalho
+      - name: race_code
+        description: >-
+          Raça da pessoa falecida, conforme o atestado de óbito
+      - name: hispanic_origin_code
+        description: >-
+          Origem hispânica da pessoa falecida, conforme o atestado de óbito
+      - name: non_motorist_location_code
+        description: >-
+          Posição do não ocupante na via no momento do acidente
+      - name: striking_vehicle_number
+        description: >-
+          Número do veículo que atingiu o não ocupante
+      - name: body_type_code
+        description: >-
+          Tipo de carroceria do veículo em que a pessoa estava
+      - name: make_code
+        description: >-
+          Marca do veículo em que a pessoa estava
+      - name: model_year
+        description: >-
+          Ano-modelo do veículo em que a pessoa estava
+      - name: rollover_code
+        description: >-
+          Ocorrência e tipo de capotamento do veículo em que a pessoa estava
+      - name: first_harmful_event_code
+        description: >-
+          Primeiro evento lesivo do acidente
+      - name: manner_of_collision_code
+        description: >-
+          Posição relativa dos veículos no primeiro impacto
+      - name: school_bus_related_code
+        description: >-
+          Indica se um ônibus escolar esteve envolvido no acidente
+      - name: county_id
+        description: >-
+          Código FIPS de cinco posições do condado onde ocorreu o acidente
+      - name: month
+        description: >-
+          Mês-calendário do acidente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: day
+        description: >-
+          Dia do mês em que ocorreu o acidente
+      - name: hour
+        description: >-
+          Hora do acidente, no relógio de 24 horas
+      - name: minute
+        description: >-
+          Minuto do acidente
+      - name: vehicle_forms_count
+        description: >-
+          Número de veículos em movimento envolvidos no acidente
+      - name: death_month
+        description: >-
+          Mês do óbito
+      - name: death_day
+        description: >-
+          Dia do óbito
+      - name: death_year
+        description: >-
+          Ano do óbito
+      - name: death_time_code
+        description: >-
+          Hora do óbito no formato HHMM, como publicado pela fonte
+      - name: alcohol_determination_method_code
+        description: >-
+          Método pelo qual a polícia determinou o envolvimento com álcool
+      - name: drug_determination_method_code
+        description: >-
+          Método pelo qual a polícia determinou o envolvimento com drogas
+      - name: drug_test_type_1_code
+        description: >-
+          Tipo do primeiro teste toxicológico realizado
+      - name: drug_test_type_2_code
+        description: >-
+          Tipo do segundo teste toxicológico realizado
+      - name: drug_test_type_3_code
+        description: >-
+          Tipo do terceiro teste toxicológico realizado
+      - name: drug_test_result_1_code
+        description: >-
+          Resultado do primeiro teste toxicológico
+      - name: drug_test_result_2_code
+        description: >-
+          Resultado do segundo teste toxicológico
+      - name: drug_test_result_3_code
+        description: >-
+          Resultado do terceiro teste toxicológico
+      - name: toxicology_test_code
+        description: >-
+          Realização de exame toxicológico, no registro anterior a 1991
+      - name: person_related_factor_1_code
+        description: >-
+          Primeiro fator relacionado à pessoa registrado no laudo
+      - name: person_related_factor_2_code
+        description: >-
+          Segundo fator relacionado à pessoa registrado no laudo
+      - name: person_related_factor_3_code
+        description: >-
+          Terceiro fator relacionado à pessoa registrado no laudo
+      - name: helmet_misuse_code
+        description: >-
+          Indicação de uso incorreto do capacete
+      - name: non_motorist_device_type_code
+        description: >-
+          Tipo de dispositivo usado pelo não ocupante
+      - name: non_motorist_device_motorization_code
+        description: >-
+          Indica se o dispositivo do não ocupante era motorizado
+      - name: striking_vehicle_number_legacy_code
+        description: >-
+          Número do veículo que atingiu o não ocupante, na numeração anterior
+          a 2011
+      - name: death_certificate_number
+        description: >-
+          Número do atestado de óbito atribuído pelo estado
+      - name: roadway_function_class_person_code
+        description: >-
+          Classe funcional da via, repetida no arquivo de pessoas
+      - name: rural_urban_person_code
+        description: >-
+          Classificação rural ou urbana, repetida no arquivo de pessoas
+      - name: functional_system_person_code
+        description: >-
+          Sistema funcional da via, repetido no arquivo de pessoas
+      - name: initial_impact_point_code
+        description: >-
+          Ponto de impacto inicial no veículo em que a pessoa estava
+      - name: most_damaged_area_code
+        description: >-
+          Área mais danificada do veículo em que a pessoa estava
+      - name: vehicle_role_code
+        description: >-
+          Papel do veículo na colisão
+      - name: fire_occurrence_code
+        description: >-
+          Ocorrência de incêndio no veículo em que a pessoa estava
+      - name: emergency_use_code
+        description: >-
+          Indica se o veículo estava em atendimento de emergência
+      - name: special_use_code
+        description: >-
+          Uso especial do veículo em que a pessoa estava
+      - name: tow_vehicle_code
+        description: >-
+          Indica se o veículo rebocava reboque ou semirreboque
+      - name: make_model_code
+        description: >-
+          Combinação codificada de marca e modelo do veículo
+      - name: gross_vehicle_weight_rating_from_code
+        description: >-
+          Limite inferior da faixa de peso bruto total do veículo
+      - name: gross_vehicle_weight_rating_to_code
+        description: >-
+          Limite superior da faixa de peso bruto total do veículo
+      - name: final_stage_body_class_code
+        description: >-
+          Classe de carroceria do estágio final de fabricação
+      - name: vpic_make_code
+        description: >-
+          Marca do veículo segundo a decodificação vPIC da NHTSA
+      - name: vpic_model_code
+        description: >-
+          Modelo do veículo segundo a decodificação vPIC da NHTSA
+      - name: vpic_body_class_code
+        description: >-
+          Classe de carroceria segundo a decodificação vPIC da NHTSA
+      - name: vin_make
+        description: >-
+          Marca decodificada do VIN
+      - name: vin_model
+        description: >-
+          Modelo decodificado do VIN
+      - name: vin_body_type
+        description: >-
+          Tipo de carroceria decodificado do VIN
+      - name: vin_vehicle_type
+        description: >-
+          Tipo de veículo decodificado do VIN
+      - name: vin_model_year_code
+        description: >-
+          Ano-modelo do VIN, no código de posição 10 usado pela fonte
+      - name: vin_length
+        description: >-
+          Número de caracteres do VIN publicado
+      - name: vin_curb_weight
+        description: >-
+          Peso em ordem de marcha decodificado do VIN, em libras
+      - name: wheelbase_short
+        description: >-
+          Menor entre-eixos decodificado do VIN, em polegadas
+      - name: wheelbase_long
+        description: >-
+          Maior entre-eixos decodificado do VIN, em polegadas
+      - name: motorcycle_engine_displacement
+        description: >-
+          Cilindrada do motor da motocicleta, em centímetros cúbicos
+      - name: motorcycle_engine_cycles_code
+        description: >-
+          Número de tempos do motor da motocicleta
+      - name: motorcycle_dry_weight
+        description: >-
+          Peso a seco da motocicleta, em libras
+      - name: engine_displacement_cubic_inch
+        description: >-
+          Cilindrada do motor, em polegadas cúbicas
+      - name: truck_shipping_weight
+        description: >-
+          Peso de embarque do caminhão, em libras
+      - name: truck_shipping_weight_variance_code
+        description: >-
+          Faixa de variação do peso de embarque do caminhão
+      - name: truck_weight_rating_code
+        description: >-
+          Classe de peso do caminhão decodificada do VIN
+      - name: truck_series
+        description: >-
+          Série do caminhão decodificada do VIN
+      - name: wheels_and_drive_wheels_code
+        description: >-
+          Número de rodas e de rodas motrizes, em código combinado
+      - name: carburetion
+        description: >-
+          Sistema de alimentação de combustível decodificado do VIN
+      - name: cylinders
+        description: >-
+          Número de cilindros do motor decodificado do VIN
+      - name: fuel_code
+        description: >-
+          Tipo de combustível decodificado do VIN
+      - name: original_tire_size
+        description: >-
+          Medida original dos pneus decodificada do VIN
+      - name: truck_ton_rating
+        description: >-
+          Capacidade nominal do caminhão em toneladas, decodificada do VIN
+      - name: truck_vin_restraint_type
+        description: >-
+          Tipo de retenção do caminhão decodificado do VIN
+  - name: us_dot_fars__dicionario
+    description: >-
+      Registro de códigos das tabelas crash, vehicle e person, com o
+      significado de cada código e o intervalo de anos em que ele vigorou.
+      Construído a partir das definições PROC FORMAT publicadas pela própria
+      NHTSA para 1975-2014 e das colunas de rótulo que acompanham cada
+      variável codificada a partir de 2015. A coluna cobertura_temporal é
+      essencial e não decorativa: quase toda variável do FARS teve seu
+      conjunto de códigos redefinido ao menos uma vez ao longo do período, de
+      modo que o mesmo código significa coisas diferentes em anos diferentes e
+      um mapa único de código para rótulo estaria errado na maior parte do
+      intervalo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela a que a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Anos em que o par código-significado vigorou, na notação
+          início(intervalo)fim
+        tests: [not_null]
+      - name: valor
+        description: >-
+          Significado do valor armazenado
+        tests: [not_null]

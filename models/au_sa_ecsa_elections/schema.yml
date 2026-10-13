@@ -1,0 +1,630 @@
+---
+version: 2
+models:
+  - name: au_sa_ecsa_elections__election
+    description: >-
+      Catalogue of the five South Australian state electoral events covered by
+      the dataset: the 2022 and 2026 general elections and the three district
+      by-elections held between them. Acts as the key for every other table
+      through election_id.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [election_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: election_name
+        description: >-
+          Name of the electoral event published by the ECSA
+      - name: election_type
+        description: >-
+          Type of the electoral event
+      - name: government_level
+        description: >-
+          Level of government of the electoral event
+      - name: election_date
+        description: >-
+          Date of the poll
+      - name: assembly_districts_contested
+        description: >-
+          Number of Assembly districts contested at the event
+      - name: council_seats_contested
+        description: >-
+          Number of Legislative Council seats contested at the event
+      - name: results_last_updated
+        description: >-
+          Time the results were last updated by the ECSA
+      - name: results_data_version
+        description: >-
+          Version of the results dataset published by the ECSA
+      - name: results_source_url
+        description: >-
+          URL of the API serving the results of the event
+  - name: au_sa_ecsa_elections__candidate
+    description: >-
+      Candidates in each Assembly district, with ballot position, party and
+      elected status. Covers the Assembly only: the API publishes the
+      Legislative Council at ballot group grain and carries no candidate list.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - ballot_order_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the South Australian Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+        tests: [not_null]
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: candidate_surname
+        description: >-
+          Surname of the candidate
+      - name: candidate_given_names
+        description: >-
+          Given names of the candidate
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's or group's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's or group's party
+      - name: is_declared_elected
+        description: >-
+          Whether the candidate was elected in the contest
+  - name: au_sa_ecsa_elections__result_district
+    description: >-
+      Votes for each candidate or group across the whole contest, long on
+      count_type: first preferences and their ordinary and declaration
+      components, two candidate preferred and two party preferred. Always
+      filter on count_type before summing.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - count_type
+            - contestant_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [group_code, group_name]
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the South Australian Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: count_type
+        description: >-
+          Type of count the votes refer to
+        tests: [not_null]
+      - name: contestant_id
+        description: >-
+          Identifier of the candidate or group within the contest
+        tests: [not_null]
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's or group's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's or group's party
+      - name: group_code
+        description: >-
+          Letter of the group on the Legislative Council ballot paper
+      - name: group_name
+        description: >-
+          Name of the group printed on the Legislative Council ballot paper
+      - name: votes
+        description: >-
+          Votes credited to the candidate or group in the count
+      - name: percentage
+        description: >-
+          Votes as a share of the formal votes of the contest in the same
+          count
+  - name: au_sa_ecsa_elections__result_voting_centre
+    description: >-
+      Votes for each candidate or group at each voting centre, long on
+      count_type, with the centre's formal and informal totals repeated on
+      every row. The 2026 declaration and absent vote blocks appear as centres
+      whose name is the declaration type label.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - voting_centre_district_name
+            - voting_centre_name
+            - count_type
+            - contestant_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [group_code, group_name]
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the South Australian Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: voting_centre_district_name
+        description: >-
+          Name of the district the voting centre was counted in
+        tests: [not_null]
+      - name: voting_centre_name
+        description: >-
+          Name of the voting centre, or of the declaration vote type
+        tests: [not_null]
+      - name: voting_centre_type
+        description: >-
+          Type of the voting centre as published by the ECSA
+      - name: count_type
+        description: >-
+          Type of count the votes refer to
+        tests: [not_null]
+      - name: contestant_id
+        description: >-
+          Identifier of the candidate or group within the contest
+        tests: [not_null]
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's or group's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's or group's party
+      - name: group_code
+        description: >-
+          Letter of the group on the Legislative Council ballot paper
+      - name: group_name
+        description: >-
+          Name of the group printed on the Legislative Council ballot paper
+      - name: votes
+        description: >-
+          Votes credited to the candidate or group at the voting centre
+      - name: votes_formal
+        description: >-
+          Total formal votes at the voting centre
+      - name: votes_informal
+        description: >-
+          Total informal votes at the voting centre
+  - name: au_sa_ecsa_elections__distribution_of_preferences
+    description: >-
+      Vote transfers in the Assembly distribution of preferences, one row per
+      round and receiving candidate. The full distribution, with the excluded
+      candidate and the votes transferred, exists only at the 2026 election;
+      2022 carries only the progressive total per round and the by-elections
+      carry no distribution.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - round_number
+            - ballot_order_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the South Australian Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: round_number
+        description: >-
+          Number of the preference distribution round
+        tests: [not_null]
+      - name: round_type
+        description: >-
+          Type of the distribution round
+      - name: excluded_ballot_name
+        description: >-
+          Ballot name of the candidate excluded at this round
+      - name: votes_excluded
+        description: >-
+          Votes of the excluded candidate, redistributed at this round
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+        tests: [not_null]
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's or group's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's or group's party
+      - name: votes_transferred
+        description: >-
+          Votes transferred to the receiving candidate at this round
+      - name: votes_progressive_total
+        description: >-
+          Progressive total of the candidate at the end of the round
+      - name: is_excluded
+        description: >-
+          Whether the candidate was excluded at this round
+      - name: is_elected
+        description: >-
+          Whether the candidate was elected at this round
+  - name: au_sa_ecsa_elections__voting_centre
+    description: >-
+      Voting centres for each electoral event, with the district served and
+      the type of the centre. The ECSA publishes the address, coordinate and
+      accessibility fields empty on every row, so they are not carried in the
+      dataset.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - district_name
+            - voting_centre_name
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: district_name
+        description: >-
+          Name of the district served by the voting centre
+        tests: [not_null]
+      - name: voting_centre_name
+        description: >-
+          Name of the voting centre, or of the declaration vote type
+        tests: [not_null]
+      - name: voting_centre_type
+        description: >-
+          Type of the voting centre as published by the ECSA
+  - name: au_sa_ecsa_elections__enrolment_turnout
+    description: >-
+      One row per contest, with enrolled electors, formal, informal and total
+      votes and the corresponding shares. The counted voting centre tallies
+      are published by the ECSA for the Legislative Council only.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, election_id, contest_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [polling_places_counted, polling_places_total]
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the South Australian Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: enrolment
+        description: >-
+          Number of electors enrolled in the contest
+      - name: candidates_count
+        description: >-
+          Number of candidates or groups in the contest
+      - name: votes_formal
+        description: >-
+          Total formal votes counted in the contest
+      - name: votes_informal
+        description: >-
+          Total informal votes counted in the contest
+      - name: votes_total
+        description: >-
+          Total votes counted in the contest
+      - name: percentage_informal
+        description: >-
+          Informal votes as a share of the total count
+      - name: percentage_roll_counted
+        description: >-
+          Votes counted as a share of enrolled electors
+      - name: polling_places_counted
+        description: >-
+          Voting centres counted in the contest
+      - name: polling_places_total
+        description: >-
+          Voting centres in the contest
+  - name: au_sa_ecsa_elections__disclosure_return
+    description: >-
+      Campaign funding disclosure returns lodged with the ECSA, pooling the
+      current portal and the earlier archive. It covers the return and its
+      aggregate value, not the individual gifts, which exist only inside the
+      attached PDFs. South Australia banned political donations from 1 July
+      2025.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [portal, return_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Year the reporting period of the return starts
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: return_id
+        description: >-
+          Identifier of the return in the portal that publishes it
+        tests: [not_null]
+      - name: portal
+        description: >-
+          ECSA portal that publishes the return
+        tests: [not_null]
+      - name: return_type
+        description: >-
+          Type of the return lodged
+      - name: date_lodged
+        description: >-
+          Date the return was lodged
+      - name: submitter_name
+        description: >-
+          Name of the party that lodged the return
+      - name: return_for_name
+        description: >-
+          Name of the entity the return is lodged for
+      - name: recipient_name
+        description: >-
+          Name of the declared recipient entity
+      - name: period_start_date
+        description: >-
+          Start date of the reporting period of the return
+      - name: period_end_date
+        description: >-
+          End date of the reporting period of the return
+      - name: declared_value
+        description: >-
+          Aggregate declared value, in Australian dollars
+  - name: au_sa_ecsa_elections__dicionario
+    description: >-
+      Mapping between the coded keys used in the dataset's columns and their
+      meaning.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the table described by the dictionary entry
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column described by the dictionary entry
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Coded key value stored in the column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Meaning of the coded key

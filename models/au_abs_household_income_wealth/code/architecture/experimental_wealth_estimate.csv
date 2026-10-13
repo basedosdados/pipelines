@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year the estimate refers to,1994(1)2000,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column; net worth estimates are as at 30 June of this year and income estimates are for the financial year ended 30 June of this year,derived
+source_table_id,STRING,Number of the appendix table in ABS working paper 1351.0,,no,,,no,Such as 14.2.1,derived
+source_table_name,STRING,Title of the appendix table in ABS working paper 1351.0,,no,,,no,,Table title
+breakdown_type,STRING,Population characteristic the estimate is broken down by,,yes,,,no,,derived
+breakdown_value,STRING,Category of the breakdown the estimate refers to,,no,,,no,,Column header
+measure,STRING,Quantity the estimate measures,,no,,,no,,Table title
+measurement_unit,STRING,Unit the estimate is expressed in,,no,,,no,Always $ in current prices,derived
+estimate,FLOAT64,Value of the estimate in current prices,,no,,,no,Experimental model-based estimate. No fixed measurement unit is set because the unit is carried in measurement_unit; the paper publishes no standard errors,Cell value

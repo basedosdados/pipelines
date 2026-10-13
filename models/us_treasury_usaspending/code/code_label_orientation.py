@@ -22,20 +22,20 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
 
 from google.cloud import bigquery
 
-HERE = Path(__file__).resolve().parent
-ARCH = HERE / "architecture"
-sys.path.insert(0, str(ARCH))
-
-from build_architecture import (  # noqa: E402
+from models.us_treasury_usaspending.code.architecture.build_architecture import (
     enumerated_domain,
     load_data_dictionary,
 )
-from descriptions import CODE_PAIRS  # noqa: E402
+from models.us_treasury_usaspending.code.architecture.descriptions import (
+    CODE_PAIRS,
+)
+
+HERE = Path(__file__).resolve().parent
+ARCH = HERE / "architecture"
 
 DATASET = "us_treasury_usaspending"
 TRANSACTION_TABLES = ("contract_transaction", "assistance_transaction")
@@ -104,10 +104,10 @@ def main() -> None:
 
             # The column whose values look more like domain keys than like
             # domain labels, relative to the other column, is the code.
-            def margin(c: str) -> float:
-                return scored[c]["key_hits"] - scored[c]["label_hits"]
-
-            code = max(scored, key=margin)
+            margin = {
+                c: s["key_hits"] - s["label_hits"] for c, s in scored.items()
+            }
+            code = max(margin, key=margin.__getitem__)
             label = partner if code == code_col else code_col
             result[table][code_col] = {
                 "code": code,

@@ -1,6 +1,6 @@
 """Report FEC codes present in the cleaned data but absent from the dicionario.
 
-    python audit_codes.py
+    uv run models/us_fec_campaign_finance/code/audit_codes.py
 
 custom_dictionary_coverage fails on *any* unmapped value, and 45 years of FEC filings
 contain legacy and undocumented codes that the current code-description pages omit
@@ -12,14 +12,12 @@ Reads the cleaned parquet directly, so it needs no BigQuery access.
 """
 
 import csv
-import sys
 from collections import defaultdict
 from pathlib import Path
 
-import build_dicionario as bd
 import pyarrow.dataset as ds
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from models.us_fec_campaign_finance.code import build_dicionario as bd
 from pipelines.datasets.us_fec_campaign_finance import (
     utils as fec,
 )

@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Reference year of data collection, derived from the survey cycle and round",,no,,year,no,"PIAAC carries no year-of-collection variable. Cycle 1 Round 1 was collected Aug 2011-Mar 2012 (2012), Round 2 Apr 2014-Mar 2015 (2015), Round 3 Jul-Dec 2017 (2017); Cycle 2 Round 1 was collected Sep 2022-Aug 2023 (2023)",
+cycle,STRING,Survey cycle of the Survey of Adult Skills (1 or 2),,no,,,no,,
+round,STRING,Round of data collection within the cycle,,no,,,no,Cycle 1 ran three rounds; Cycle 2 has run one so far,
+country_id_iso_3,STRING,ISO 3166-1 alpha-3 code of the participating country,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
+country_id_m49,STRING,UN M49 numeric code of the participating country,,no,br_bd_diretorios_mundo.pais:id_m49,,no,,CNTRYID
+country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,no,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
+respondent_id,STRING,Randomly derived sequential identifier of the respondent,,no,,,no,"Unique within a country and cycle only, never across them; combine with year and country_id_iso_3 for a unique key",SEQID
+item_code,STRING,"Code of the assessment item, shared by every measure recorded for it",,no,,,no,"The PIAAC variable name without its measure suffix, e.g. C301C05 for variables C301C05S, C301C05TT, C301C05A",
+domain,STRING,Assessment domain the item belongs to,,no,,,no,"Literacy, numeracy, problem solving, reading or numeracy components, plus the tutorial and effort-question blocks, which share the same per-item measure structure",
+scored_response,STRING,Scored response code as recorded by PIAAC,,no,,,no,"Codes are item-specific: 1 is Full Credit for most items but Partial Credit for some, and 11 has four distinct meanings across items. Read scored_response_label rather than interpreting the code directly",<item>S
+scored_response_label,STRING,"Meaning of scored_response, decoded with the item's own scoring scheme",,no,,,no,,
+raw_response,STRING,"Response as entered by the respondent, for items that record one",,no,,,no,"Recorded for reading and numeracy component items. For numeric-entry items this is the answer itself, so it carries no decoded label",<item>R
+timing_seconds,FLOAT64,Total time the respondent spent on the item,,no,,second,no,,<item>T / <item>TT
+timing_first_action_seconds,FLOAT64,Time elapsed before the respondent's first action on the item,,no,,second,no,,<item>F
+n_actions,INT64,Number of actions the respondent took on the item,,no,,action,no,,<item>A
+n_visits,INT64,Number of times the respondent visited the item,,no,,visit,no,,<item>V
+n_short_visits,INT64,Number of visits to the item shorter than the PIAAC minimum duration,,no,,visit,no,,<item>VS

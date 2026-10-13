@@ -1,0 +1,47 @@
+[
+ {
+  "name": "nct_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador do estudo clínico no registro ClinicalTrials.gov",
+  "description_en": "Identifier of the clinical study in the ClinicalTrials.gov registry",
+  "description_es": "Identificador del estudio clínico en el registro ClinicalTrials.gov",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Formado pelas letras NCT seguidas de oito dígitos, em todas as 39.560 linhas publicadas.",
+  "observations_en": "Made up of the letters NCT followed by eight digits, on all 39,560 published rows.",
+  "observations_es": "Formado por las letras NCT seguidas de ocho dígitos, en todas las 39.560 filas publicadas."
+ },
+ {
+  "name": "core_project_num",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador do projeto de pesquisa reconhecido como apoio ao estudo clínico",
+  "description_en": "Identifier of the research project acknowledged as supporting the clinical study",
+  "description_es": "Identificador del proyecto de investigación reconocido como apoyo al estudio clínico",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Liga esta tabela a project pela coluna core_project_num. A associação vem do próprio ClinicalTrials.gov, que informa ao RePORTER os números de concessão declarados no registro do estudo, e não identifica um ano do projeto nem um ano fiscal de financiamento.",
+  "observations_en": "Joins this table to project on the core_project_num column. The association comes from ClinicalTrials.gov itself, which reports to RePORTER the grant numbers entered in the study's registration, and identifies neither a year of the project nor a fiscal year of funding.",
+  "observations_es": "Une esta tabla con project por la columna core_project_num. La asociación proviene del propio ClinicalTrials.gov, que informa al RePORTER los números de subvención declarados en el registro del estudio, y no identifica un año del proyecto ni un año fiscal de financiamiento."
+ },
+ {
+  "name": "study_title",
+  "bigquery_type": "STRING",
+  "description_pt": "Título do estudo clínico conforme consta do ClinicalTrials.gov",
+  "description_en": "Title of the clinical study as it appears in ClinicalTrials.gov",
+  "description_es": "Título del estudio clínico tal como consta en ClinicalTrials.gov",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "study_status",
+  "bigquery_type": "STRING",
+  "description_pt": "Estágio atual do estudo clínico",
+  "description_en": "Current stage of the clinical study",
+  "description_es": "Etapa actual del estudio clínico",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Catorze valores, publicados como rótulos legíveis e não como códigos. Descreve a situação do estudo na data de extração do arquivo, e não no ano fiscal do projeto.",
+  "observations_en": "Fourteen values, published as readable labels rather than codes. It describes the study's situation on the file's extraction date, not in the project's fiscal year.",
+  "observations_es": "Catorce valores, publicados como etiquetas legibles y no como códigos. Describe la situación del estudio en la fecha de extracción del archivo, y no en el año fiscal del proyecto."
+ }
+]

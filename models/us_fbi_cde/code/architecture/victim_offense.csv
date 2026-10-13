@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+victim_id,STRING,Identificador da vítima,,no,,,no,,victim_id
+offense_id,STRING,Identificador da ofensa sofrida pela vítima,,no,,,no,,offense_id

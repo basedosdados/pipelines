@@ -1,0 +1,367 @@
+---
+version: 2
+models:
+  - name: us_state_foreign_assistance__transaction
+    description: >
+      Obrigações (empenhos) e desembolsos de assistência externa do governo
+      dos Estados Unidos em nível de atividade, por país receptor, agência
+      gestora e financiadora, conta orçamentária, parceiro implementador,
+      setor OCDE/CAD e tipo de ajuda, do ano fiscal de 1946 até o presente,
+      conforme publicado no ForeignAssistance.gov. Antes de 2001 os dados não
+      contêm detalhe de atividade nem desembolsos. Valores em dólares
+      correntes e constantes de 2025; valores negativos são desobrigações ou
+      correções.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - fiscal_period
+            - transaction_date
+            - transaction_type_id
+            - country_id
+            - managing_subagency_id
+            - funding_agency_id
+            - funding_account_id
+            - implementing_partner_id
+            - international_purpose_code
+            - us_sector_id
+            - aid_type_id
+            - activity_id
+            - current_amount
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - transaction_type_id
+            - country_id
+            - managing_agency_id
+            - funding_account_id
+            - international_purpose_code
+            - us_sector_id
+            - aid_type_id
+          dictionary_model: ref('us_state_foreign_assistance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano fiscal (1º de outubro a 30 de setembro, designado pelo ano civil
+          em que termina); o trimestre de transição de julho a setembro de
+          1976 é atribuído a 1976
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: fiscal_period
+        description: >
+          Período fiscal conforme publicado: o ano fiscal, ou 1976TQ para o
+          trimestre de transição de julho a setembro de 1976
+        tests: [not_null]
+      - name: transaction_date
+        description: >
+          Data em que o registro financeiro foi transacionado no sistema
+          contábil da agência, consolidada por trimestre para algumas
+          agências; não informada antes do ano fiscal de 2002
+      - name: transaction_type_id
+        description: >
+          Código do tipo de transação: 2 = obrigações (empenhos), 3 =
+          desembolsos, 1 = apropriado e planejado, 18 = requisição
+          orçamentária do Presidente
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >
+          Código ISO 3166-1 alfa-3 do país receptor; vazio para receptores
+          regionais e Estados extintos
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              config:
+                where: country_iso3_code is not null
+      - name: country_id
+        description: >
+          Identificador do receptor no ForeignAssistance.gov: código numérico
+          ISO 3166-1 para países, ou código interno de 4 dígitos para regiões
+          e entidades sem código ISO
+        tests: [not_null]
+      - name: country_code
+        description: >
+          Código do receptor conforme publicado: código ISO alfa-3 para
+          países, ou código interno de 3 letras para regiões (ex.: WLD =
+          Mundo, SSN = Região da África Subsaariana)
+      - name: region_id
+        description: >
+          Código da região do Departamento de Estado que agrupa o receptor
+      - name: income_group_id
+        description: >
+          Código do grupo de renda do Banco Mundial do país receptor
+      - name: managing_agency_id
+        description: >
+          Código da agência do governo dos EUA que empenha e desembolsa a
+          assistência, diretamente ou por meio de um parceiro implementador
+      - name: managing_subagency_id
+        description: >
+          Código do escritório, departamento ou subagência dentro da agência
+          gestora; 999 = não aplicável
+      - name: funding_agency_id
+        description: >
+          Código da agência à qual os recursos foram apropriados (para
+          recursos apropriados ao Gabinete Executivo do Presidente, a agência
+          que os empenha)
+      - name: funding_account_id
+        description: >
+          Símbolo de Conta do Tesouro (TAS) da conta de apropriação que
+          financia a transação
+      - name: implementing_partner_id
+        description: >
+          Identificador no ForeignAssistance.gov do parceiro implementador
+          (canal de entrega) que recebeu os recursos
+      - name: implementing_partner_name
+        description: >
+          Nome do parceiro implementador: a agência governamental, empresa,
+          organização ou outra parte que executa a atividade de assistência
+      - name: implementing_partner_category_id
+        description: >
+          Código da categoria ampla do canal de entrega do parceiro
+          implementador (governo, ONG, multilateral, empresa etc.)
+      - name: implementing_partner_subcategory_id
+        description: >
+          Código da subcategoria do canal de entrega do parceiro implementador
+          (ex.: ONG - Estados Unidos, ONG - Internacional)
+      - name: international_category_id
+        description: >
+          Código da categoria setorial internacional do ForeignAssistance.gov
+          (Agricultura, Educação, Saúde e População, Humanitário etc.) que
+          agrega os setores da OCDE/CAD
+      - name: international_sector_code
+        description: >
+          Código setorial de 3 dígitos do Sistema de Notificação do Credor
+          (CRS) da OCDE/CAD (três primeiros dígitos do código de propósito)
+      - name: international_purpose_code
+        description: >
+          Código de propósito de 5 dígitos do CRS da OCDE/CAD da atividade
+      - name: us_category_id
+        description: >
+          Código da categoria de assistência externa do governo dos EUA
+          (primeiro nível da estrutura Standardized Program Structure and
+          Definitions)
+      - name: us_sector_id
+        description: >
+          Código do setor de assistência externa do governo dos EUA (segundo
+          nível da estrutura)
+      - name: objective_id
+        description: >
+          Código do objetivo da assistência no Greenbook: 1 = econômica, 2 =
+          militar
+      - name: aid_type_group_id
+        description: >
+          Código do grupo de tipo de ajuda da OCDE/CAD (apoio orçamentário,
+          contribuições básicas, tipo projeto, assistência técnica, alívio de
+          dívida, custos administrativos, outros)
+      - name: aid_type_id
+        description: >
+          Código do tipo de ajuda da OCDE/CAD, nível abaixo do grupo de tipo
+          de ajuda
+      - name: activity_id
+        description: >
+          Identificador interno no ForeignAssistance.gov da atividade
+          implementadora (projeto, programa, transferência, contribuição etc.)
+        tests: [not_null]
+      - name: submission_id
+        description: >
+          Identificador interno da submissão de dados por um departamento,
+          escritório ou programa
+      - name: activity_name
+        description: >
+          Nome da atividade de assistência
+      - name: activity_description
+        description: >
+          Descrição da atividade de assistência
+      - name: activity_project_number
+        description: >
+          Número do prêmio ou projeto usado pelo sistema financeiro da agência
+          declarante para acompanhar a atividade
+      - name: activity_start_date
+        description: >
+          Data de início da atividade ou mecanismo implementador
+      - name: activity_end_date
+        description: >
+          Data de término da atividade ou mecanismo implementador
+      - name: activity_budget_amount
+        description: >
+          Custo total esperado ou orçamento total da atividade, quando
+          disponível
+      - name: current_amount
+        description: >
+          Valor em dólares americanos correntes (nominais); valores negativos
+          são desobrigações ou correções
+        tests: [not_null]
+      - name: constant_amount
+        description: >
+          Valor em dólares americanos constantes de 2025 (ajustado pela
+          inflação pelo ForeignAssistance.gov)
+  - name: us_state_foreign_assistance__budget
+    description: >
+      Requisições orçamentárias do Presidente e dotações apropriadas e
+      planejadas de assistência externa dos Estados Unidos por ano fiscal,
+      país receptor, unidade operacional, conta orçamentária e setor, do ano
+      fiscal de 2004 até o presente, conforme publicado no
+      ForeignAssistance.gov.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - transaction_type_id
+            - country_id
+            - managing_subagency_id
+            - operating_unit
+            - funding_agency_id
+            - funding_account_id
+            - international_purpose_code
+            - us_sector_id
+            - oco_flag
+            - activity_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [operating_unit, oco_flag]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - transaction_type_id
+            - country_id
+            - funding_account_id
+            - international_purpose_code
+            - us_sector_id
+          dictionary_model: ref('us_state_foreign_assistance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano fiscal (1º de outubro a 30 de setembro, designado pelo ano civil
+          em que termina); o trimestre de transição de julho a setembro de
+          1976 é atribuído a 1976
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: transaction_type_id
+        description: >
+          Código do tipo de transação: 2 = obrigações (empenhos), 3 =
+          desembolsos, 1 = apropriado e planejado, 18 = requisição
+          orçamentária do Presidente
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >
+          Código ISO 3166-1 alfa-3 do país receptor; vazio para receptores
+          regionais e Estados extintos
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              config:
+                where: country_iso3_code is not null
+      - name: country_id
+        description: >
+          Identificador do receptor no ForeignAssistance.gov: código numérico
+          ISO 3166-1 para países, ou código interno de 4 dígitos para regiões
+          e entidades sem código ISO
+        tests: [not_null]
+      - name: country_code
+        description: >
+          Código do receptor conforme publicado: código ISO alfa-3 para
+          países, ou código interno de 3 letras para regiões (ex.: WLD =
+          Mundo, SSN = Região da África Subsaariana)
+      - name: region_id
+        description: >
+          Código da região do Departamento de Estado que agrupa o receptor
+      - name: income_group_id
+        description: >
+          Código do grupo de renda do Banco Mundial do país receptor
+      - name: managing_subagency_id
+        description: >
+          Código do escritório, departamento ou subagência dentro da agência
+          gestora; 999 = não aplicável
+      - name: operating_unit
+        description: >
+          Unidade operacional (missão no país, programa de escritório regional
+          ou funcional) responsável pela linha orçamentária
+      - name: funding_agency_id
+        description: >
+          Código da agência à qual os recursos foram apropriados (para
+          recursos apropriados ao Gabinete Executivo do Presidente, a agência
+          que os empenha)
+      - name: funding_account_id
+        description: >
+          Símbolo de Conta do Tesouro (TAS) da conta de apropriação que
+          financia a transação
+      - name: international_category_id
+        description: >
+          Código da categoria setorial internacional do ForeignAssistance.gov
+          (Agricultura, Educação, Saúde e População, Humanitário etc.) que
+          agrega os setores da OCDE/CAD
+      - name: international_sector_code
+        description: >
+          Código setorial de 3 dígitos do Sistema de Notificação do Credor
+          (CRS) da OCDE/CAD (três primeiros dígitos do código de propósito)
+      - name: international_purpose_code
+        description: >
+          Código de propósito de 5 dígitos do CRS da OCDE/CAD da atividade
+      - name: us_category_id
+        description: >
+          Código da categoria de assistência externa do governo dos EUA
+          (primeiro nível da estrutura Standardized Program Structure and
+          Definitions)
+      - name: us_sector_id
+        description: >
+          Código do setor de assistência externa do governo dos EUA (segundo
+          nível da estrutura)
+      - name: oco_flag
+        description: >
+          Marcador de Operações de Contingência no Exterior (OCO): 1 quando a
+          linha orçamentária é financiamento OCO, vazio caso contrário
+      - name: activity_id
+        description: >
+          Identificador interno no ForeignAssistance.gov da atividade
+          implementadora (projeto, programa, transferência, contribuição etc.)
+      - name: activity_name
+        description: >
+          Nome da atividade de assistência
+      - name: activity_description
+        description: >
+          Descrição da atividade de assistência
+      - name: current_amount
+        description: >
+          Valor em dólares americanos correntes (nominais); valores negativos
+          são desobrigações ou correções
+        tests: [not_null]
+      - name: constant_amount
+        description: >
+          Valor em dólares americanos constantes de 2025 (ajustado pela
+          inflação pelo ForeignAssistance.gov)
+  - name: us_state_foreign_assistance__dicionario
+    description: >
+      Dicionário com os rótulos de todas as colunas codificadas das tabelas
+      transaction e budget (tipo de transação, país, região, grupo de renda,
+      agências, contas, parceiros implementadores, setores e tipos de ajuda).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela que a entrada do dicionário descreve
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado exatamente como armazenado na tabela
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da chave
+      - name: valor
+        description: >-
+          Rótulo correspondente ao valor codificado

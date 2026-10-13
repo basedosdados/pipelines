@@ -1,0 +1,5 @@
+# Never commit data — scratch lives in ~/Downloads/us_treasury_fiscaldata_data
+input/
+output/
+*.parquet
+*.json.gz

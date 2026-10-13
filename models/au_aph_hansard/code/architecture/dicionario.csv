@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_pt,description_es,observations_pt,observations_es
+id_tabela,STRING,Name of the table the coded column belongs to,,no,,,no,,,Nome da tabela a que pertence a coluna codificada,Nombre de la tabla a la que pertenece la columna codificada,,
+nome_coluna,STRING,Name of the coded column,,no,,,no,,,Nome da coluna codificada,Nombre de la columna codificada,,
+chave,STRING,Value stored in the coded column,,no,,,no,,,Valor armazenado na coluna codificada,Valor almacenado en la columna codificada,,
+cobertura_temporal,STRING,Temporal coverage over which the key carries this meaning,,no,,,no,,,Cobertura temporal em que a chave assume este significado,Cobertura temporal en que la clave asume este significado,,
+valor,STRING,Meaning of the key,,no,,,no,,,Significado da chave,Significado de la clave,,

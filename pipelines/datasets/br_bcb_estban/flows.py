@@ -2,7 +2,7 @@
 Flows para br_bcb_estban — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.bcb_estban.tasks import (
     cleaning_data,
@@ -12,6 +12,7 @@ from pipelines.crawler.bcb_estban.tasks import (
     get_id_municipio,
     get_latest_file,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -34,12 +35,10 @@ def _run_bcb_estban(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -112,7 +111,6 @@ def _run_bcb_estban(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -131,7 +129,6 @@ def _run_bcb_estban(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -157,7 +154,6 @@ def _estban_flow(table_id: str, cron: str):
         dataset_id: str = "br_bcb_estban",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -166,14 +162,12 @@ def _estban_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

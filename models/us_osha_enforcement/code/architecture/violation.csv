@@ -1,0 +1,30 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção associada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de inspection.open_date. Registros cujo inspection_id não existe em inspection recebem year = 9999,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+citation_id,STRING,"Identificador da citação: número da citação, do item e do grupo do item",,no,,,no,,CITATION_ID
+standard,STRING,"Norma da OSHA citada, no formato interno do IMIS",,no,,,no,Codificação posicional do IMIS: 19260501 C01 corresponde a 29 CFR 1926.501(c)(1). Não é um código com dicionário fechado,STANDARD
+violation_type,STRING,"Classificação da violação: grave, deliberada, reincidente, outra ou não classificada",,yes,,,no,O valor P aparece na fonte mas não consta na documentação publicada pela OSHA e por isso não recebe rótulo no dicionário,VIOL_TYPE
+deleted,STRING,Indica que a citação foi excluída (X),,yes,,,no,"Marca 3,4% das citações. Elas são mantidas na tabela; filtre deleted is null para contar apenas citações vigentes",DELETE_FLAG
+issuance_date,DATE,Data de emissão da citação,,no,,,no,,ISSUANCE_DATE
+initial_penalty,FLOAT64,Multa proposta na emissão da citação,,no,,USD,no,"Nula em 49,4% das citações, que não têm multa proposta. Valores nominais, sem correção pela inflação",INITIAL_PENALTY
+current_penalty,FLOAT64,Multa corrente após contestações e acordos,,no,,USD,no,"current_penalty é um valor móvel: a multa é contestada e revisada por anos após a citação, e só se estabiliza quando o caso é encerrado. Compare com initial_penalty e acompanhe o histórico completo em violation_event.",CURRENT_PENALTY
+abatement_due_date,DATE,Prazo para correção da condição citada,,no,,,no,Contém erros de digitação da fonte (mínimo observado 0210-06-16),ABATE_DATE
+abatement_completion_code,STRING,Código de situação da correção da condição citada,,no,,,no,"A OSHA não publica a legenda destes 16 códigos, que por isso não constam do dicionário",ABATE_COMPLETE
+contest_date,DATE,Data em que a citação foi contestada pelo empregador,,no,,,no,,CONTEST_DATE
+final_order_date,DATE,Data da ordem final que encerra a citação,,no,,,no,"Contém erros de digitação da fonte (mínimo observado 0018-05-30, máximo 2103-05-22)",FINAL_ORDER_DATE
+instances,INT64,Número de ocorrências da condição citada,,no,,instance,no,,NR_INSTANCES
+employees_exposed,INT64,Número de empregados expostos à condição citada,,no,,employee,no,,NR_EXPOSED
+gravity,STRING,Nível de gravidade atribuído a violações graves,,no,,,no,"Larguras inconsistentes na fonte (0 e 00, 1 e 01). A OSHA não publica a legenda, que por isso não consta do dicionário",GRAVITY
+related_event_code,STRING,"Códigos de eventos relacionados à citação, separados por ponto e vírgula",,no,,,no,Multivalorado (ex.: A;C;I;R). A OSHA não publica a legenda dos códigos,REC
+emphasis_program,STRING,Indica que a citação decorre de um programa de ênfase (X),,yes,,,no,,EMPHASIS
+hazard_category,STRING,Categoria de risco da norma da indústria geral,,no,,,no,"Preenchida em 0,4% das citações; contém o valor espúrio & na fonte",HAZCAT
+hazardous_substance_1,STRING,Primeiro código de substância perigosa associada à citação,,no,,,no,,HAZSUB1
+hazardous_substance_2,STRING,Segundo código de substância perigosa associada à citação,,no,,,no,,HAZSUB2
+hazardous_substance_3,STRING,Terceiro código de substância perigosa associada à citação,,no,,,no,,HAZSUB3
+hazardous_substance_4,STRING,Quarto código de substância perigosa associada à citação,,no,,,no,,HAZSUB4
+hazardous_substance_5,STRING,Quinto código de substância perigosa associada à citação,,no,,,no,,HAZSUB5
+fta_inspection_id,STRING,Identificador da inspeção de falha em corrigir (failure to abate),,no,,,no,,FTA_INSP_NR
+fta_issuance_date,DATE,Data de emissão da citação por falha em corrigir,,no,,,no,,FTA_ISSUANCE_DATE
+fta_penalty,FLOAT64,Multa por falha em corrigir,,no,,USD,no,"Contém valores negativos na fonte (mínimo -1,00)",FTA_PENALTY
+fta_contest_date,DATE,Data de contestação da citação por falha em corrigir,,no,,,no,,FTA_CONTEST_DATE
+fta_final_order_date,DATE,Data da ordem final da citação por falha em corrigir,,no,,,no,,FTA_FINAL_ORDER_DATE

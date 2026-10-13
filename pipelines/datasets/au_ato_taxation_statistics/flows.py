@@ -6,7 +6,7 @@ once a year and revises earlier years in place, so each run refetches every
 in-scope release and does a **full replace** (``dump_mode="overwrite"``)
 rather than appending the newest year.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_ato_taxation_statistics_flow`; the dev pool ignores the schedule, the prod
 pool activates it.
 """
@@ -14,13 +14,14 @@ pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_ato_taxation_statistics.constants import constants
 from pipelines.datasets.au_ato_taxation_statistics.tasks import (
     clean_taxstats,
     download_taxstats,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -69,7 +70,6 @@ def au_ato_taxation_statistics_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new release.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -182,10 +182,8 @@ def au_ato_taxation_statistics_flow(
 # The ATO publishes Taxation Statistics once a year, historically around
 # April-June. Poll monthly at 16:00 BRT on the 20th; the source-poll guard
 # no-ops until a new financial year actually appears.
-# pyrefly: ignore [missing-attribute]
 au_ato_taxation_statistics_flow.deploy_schedules = [
-    {"cron": "45 16 20 * *", "timezone": "America/Sao_Paulo"}
+    Cron("45 16 20 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~4.5M rows in pandas before writing partitions.
-# pyrefly: ignore [missing-attribute]
 au_ato_taxation_statistics_flow.job_variables = {"memory": "8Gi"}

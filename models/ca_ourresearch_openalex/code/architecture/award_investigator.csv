@@ -1,0 +1,10 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+award_id,STRING,Identificador do financiamento (award) no OpenAlex,OpenAlex identifier of the award,Identificador de la subvención (award) en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: G1234567),Stored without the URL prefix (e.g. G1234567),"Almacenado sin el prefijo de URL (p. ej., G1234567)",id
+investigator_sequence,STRING,Ordem do pesquisador no financiamento,Order of the investigator on the award,Orden del investigador en la subvención,,no,,,no,"Posição de 1 em diante na lista original; identificador, não quantidade","Position from 1 onwards in the source list; an identifier, not a quantity","Posición desde 1 en la lista original; identificador, no cantidad",(derived: position in source list)
+role,STRING,"Papel no projeto: lead, co_lead ou investigator","Role on the project: lead, co_lead or investigator","Rol en el proyecto: lead, co_lead o investigator",,no,,,no,,,,lead_investigator / co_lead_investigator / investigators
+given_name,STRING,Prenome do pesquisador,Given name of the investigator,Nombre de pila del investigador,,no,,,no,,,,investigators.given_name
+family_name,STRING,Sobrenome do pesquisador,Family name of the investigator,Apellido del investigador,,no,,,no,,,,investigators.family_name
+orcid,STRING,ORCID do pesquisador,Investigator ORCID,ORCID del investigador,,no,,,no,,,,investigators.orcid
+role_start_date,DATE,Data de início no papel,Start date in the role,Fecha de inicio en el rol,,no,,,no,,,,investigators.role_start
+affiliation_name,STRING,Nome da instituição de afiliação,Name of the affiliated institution,Nombre de la institución de afiliación,,no,,,no,,,,investigators.affiliation.name
+country_code,STRING,País da afiliação (código ISO 3166-1 alfa-2),Country of the affiliation (ISO 3166-1 alpha-2 code),País de la afiliación (código ISO 3166-1 alfa-2),,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,,,investigators.affiliation.country

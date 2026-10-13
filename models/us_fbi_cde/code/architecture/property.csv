@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+property_description_id,STRING,"Identificador da descrição de bem atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,nibrs_prop_desc_id
+property_id,STRING,Identificador do registro de bem a que a descrição pertence,,no,,,no,,property_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
+property_loss_code,STRING,"Código do tipo de perda do bem, por exemplo furtado, recuperado, apreendido ou destruído",,yes,,,no,,prop_loss_id
+property_description_code,STRING,Código do tipo de bem envolvido,,yes,,,no,"Nulo quando o registro de bem não traz descrição, o que ocorre sobretudo em incidentes sem perda de bens. Null when the property record carries no description, which happens mostly in incidents with no property loss.",prop_desc_id
+property_value,INT64,Valor do bem em dólares correntes do ano do incidente,,no,,usd,no,"Valores nominais, sem correção pela inflação. Nominal values, not adjusted for inflation.",property_value
+date_recovered,DATE,Data em que o bem foi recuperado,,no,,,no,,date_recovered
+stolen_count,INT64,"Número de veículos furtados no incidente, informado apenas para furto de veículo",,no,,vehicle,no,,stolen_count
+recovered_count,INT64,"Número de veículos recuperados no incidente, informado apenas para furto de veículo",,no,,vehicle,no,,recovered_count
+suspected_drug_code,STRING,Código do tipo de droga suspeita apreendida,,yes,,,no,Preenchido apenas em ofensas de drogas; guarda-se o menor código quando há mais de uma droga. Populated only for drug offenses; the lowest code is kept when more than one drug was recorded.,suspected_drug_type_id
+drug_quantity,FLOAT64,"Quantidade estimada da droga apreendida, na unidade indicada por 'drug_measure_code'",,no,,drug_measure_unit,no,,est_drug_qty
+drug_measure_code,STRING,Código da unidade de medida da quantidade de droga,,yes,,,no,,drug_measure_type_id

@@ -138,10 +138,12 @@ O flow passou para o modelo de reconciliação de cobertura
 `br_me_caged`:
 
 ```python
-register_source_coverage_task(...)          # grava o Poll e avança RawSource.Update
-check_source_is_ahead_of_table_task(...)    # gate: RawSource.Update > Table.Update
+register_source_coverage_task(...)  # grava o Poll e avança RawSource.Update
+check_source_is_ahead_of_table_task(
+    ...
+)  # gate: RawSource.Update > Table.Update
 ...
-sync_table_coverage_task(...)               # cobertura + RAPs + Table.Update como cobertura
+sync_table_coverage_task(...)  # cobertura + RAPs + Table.Update como cobertura
 ```
 
 Agora os dois lados da comparação são data de cobertura. O `commit_source_update_task`
@@ -235,8 +237,12 @@ funciona. Para checar a descoberta localmente, importe com um shim:
 
 ```python
 import enum
+
 if not hasattr(enum, "StrEnum"):
-    class StrEnum(str, enum.Enum): pass
+
+    class StrEnum(str, enum.Enum):
+        pass
+
     enum.StrEnum = StrEnum
 ```
 

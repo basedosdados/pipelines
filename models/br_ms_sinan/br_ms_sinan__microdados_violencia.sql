@@ -1,0 +1,143 @@
+{{ config(alias="microdados_violencia", schema="br_ms_sinan", materialized="table") }}
+select
+    safe_cast(ano as int64) ano,
+    safe_cast(data_notificacao as date) data_notificacao,
+    safe_cast(tipo_notificacao as string) tipo_notificacao,
+    safe_cast(id_uf_notificacao as string) id_uf_notificacao,
+    safe_cast(id_municipio_notificacao as string) id_municipio_notificacao,
+    safe_cast(id_unidade_notificacao as string) id_unidade_notificacao,
+    safe_cast(id_categoria_cid10 as string) id_categoria_cid10,
+    safe_cast(id_subcategoria_cid10 as string) id_subcategoria_cid10,
+    safe_cast(id_municipio_6_notificacao as string) id_municipio_6_notificacao,
+    safe_cast(id_regional_saude_notificacao as string) id_regional_saude_notificacao,
+    safe_cast(data_ocorrencia as date) data_ocorrencia,
+    safe_cast(id_uf_ocorrencia as string) id_uf_ocorrencia,
+    safe_cast(id_municipio_ocorrencia as string) id_municipio_ocorrencia,
+    safe_cast(id_municipio_6_ocorrencia as string) id_municipio_6_ocorrencia,
+    safe_cast(hora_ocorrencia as string) hora_ocorrencia,
+    safe_cast(local_ocorrencia as string) local_ocorrencia,
+    safe_cast(outro_local_ocorrencia as string) outro_local_ocorrencia,
+    safe_cast(outras_vezes_ocorrencia as string) outras_vezes_ocorrencia,
+    safe_cast(id_uf_residencia as string) id_uf_residencia,
+    safe_cast(id_municipio_residencia as string) id_municipio_residencia,
+    safe_cast(id_municipio_6_residencia as string) id_municipio_6_residencia,
+    safe_cast(id_regional_saude_residencia as string) id_regional_saude_residencia,
+    safe_cast(idade_paciente as float64) idade_paciente,
+    safe_cast(sexo_paciente as string) sexo_paciente,
+    safe_cast(gestante_paciente as string) gestante_paciente,
+    safe_cast(raca_paciente as string) raca_paciente,
+    safe_cast(escolaridade_paciente as string) escolaridade_paciente,
+    safe_cast(ocupacao_paciente as string) ocupacao_paciente,
+    safe_cast(estado_civil_paciente as string) estado_civil_paciente,
+    safe_cast(orientacao_sexual_paciente as string) orientacao_sexual_paciente,
+    safe_cast(identidade_genero_paciente as string) identidade_genero_paciente,
+    safe_cast(motivacao_violencia as string) motivacao_violencia,
+    safe_cast(violencia_relacionada_trabalho as string) violencia_relacionada_trabalho,
+    safe_cast(emitiu_cat as string) emitiu_cat,
+    safe_cast(
+        deficiencia_transtorno_paciente as string
+    ) deficiencia_transtorno_paciente,
+    safe_cast(deficiencia_fisica_paciente as string) deficiencia_fisica_paciente,
+    safe_cast(deficiencia_mental_paciente as string) deficiencia_mental_paciente,
+    safe_cast(deficiencia_visual_paciente as string) deficiencia_visual_paciente,
+    safe_cast(deficiencia_auditiva_paciente as string) deficiencia_auditiva_paciente,
+    safe_cast(transtorno_mental_paciente as string) transtorno_mental_paciente,
+    safe_cast(
+        transtorno_comportamental_paciente as string
+    ) transtorno_comportamental_paciente,
+    safe_cast(outras_deficiencias_paciente as string) outras_deficiencias_paciente,
+    safe_cast(
+        quais_outras_deficiencias_paciente as string
+    ) quais_outras_deficiencias_paciente,
+    safe_cast(lesao_autoprovocada as string) lesao_autoprovocada,
+    safe_cast(ocorreu_violencia_fisica as string) ocorreu_violencia_fisica,
+    safe_cast(ocorreu_violencia_psicologica as string) ocorreu_violencia_psicologica,
+    safe_cast(ocorreu_tortura as string) ocorreu_tortura,
+    safe_cast(ocorreu_violencia_sexual as string) ocorreu_violencia_sexual,
+    safe_cast(ocorreu_trafico_ser_humano as string) ocorreu_trafico_ser_humano,
+    safe_cast(ocorreu_violencia_financeira as string) ocorreu_violencia_financeira,
+    safe_cast(ocorreu_negligencia_abandono as string) ocorreu_negligencia_abandono,
+    safe_cast(ocorreu_trabalho_infantil as string) ocorreu_trabalho_infantil,
+    safe_cast(ocorreu_intervencao_legal as string) ocorreu_intervencao_legal,
+    safe_cast(ocorreu_outra_violencia as string) ocorreu_outra_violencia,
+    safe_cast(ocorreu_qual_outra as string) ocorreu_qual_outra,
+    safe_cast(meio_forca as string) meio_forca,
+    safe_cast(meio_enforcamento as string) meio_enforcamento,
+    safe_cast(meio_objeto_contundente as string) meio_objeto_contundente,
+    safe_cast(meio_objeto_perfurante as string) meio_objeto_perfurante,
+    safe_cast(meio_objeto_quente as string) meio_objeto_quente,
+    safe_cast(meio_envenenamento as string) meio_envenenamento,
+    safe_cast(meio_arma_fogo as string) meio_arma_fogo,
+    safe_cast(meio_ameaca as string) meio_ameaca,
+    safe_cast(meio_outros as string) meio_outros,
+    safe_cast(meio_qual_outro as string) meio_qual_outro,
+    safe_cast(houve_assedio as string) houve_assedio,
+    safe_cast(houve_estupro as string) houve_estupro,
+    safe_cast(houve_pornografia_infantil as string) houve_pornografia_infantil,
+    safe_cast(houve_exploracao_sexual as string) houve_exploracao_sexual,
+    safe_cast(houve_outra_violencia_sexual as string) houve_outra_violencia_sexual,
+    safe_cast(
+        houve_qual_outra_violencia_sexual as string
+    ) houve_qual_outra_violencia_sexual,
+    safe_cast(profilaxia_dst as string) profilaxia_dst,
+    safe_cast(profilaxia_hiv as string) profilaxia_hiv,
+    safe_cast(profilaxia_hepatite_b as string) profilaxia_hepatite_b,
+    safe_cast(coleta_sangue as string) coleta_sangue,
+    safe_cast(coleta_semen as string) coleta_semen,
+    safe_cast(coleta_secrecao_vaginal as string) coleta_secrecao_vaginal,
+    safe_cast(profilaxia_contraceptivo as string) profilaxia_contraceptivo,
+    safe_cast(aborto as string) aborto,
+    safe_cast(numero_envolvidos_violencia as int64) numero_envolvidos_violencia,
+    safe_cast(autor_pai as string) autor_pai,
+    safe_cast(autor_mae as string) autor_mae,
+    safe_cast(autor_padrasto as string) autor_padrasto,
+    safe_cast(autor_madrasta as string) autor_madrasta,
+    safe_cast(autor_conjugue as string) autor_conjugue,
+    safe_cast(autor_ex_conjugue as string) autor_ex_conjugue,
+    safe_cast(autor_namorado_a as string) autor_namorado_a,
+    safe_cast(autor_ex_namorado_a as string) autor_ex_namorado_a,
+    safe_cast(autor_filho_a as string) autor_filho_a,
+    safe_cast(autor_desconhecido as string) autor_desconhecido,
+    safe_cast(autor_irmao as string) autor_irmao,
+    safe_cast(autor_conhecido as string) autor_conhecido,
+    safe_cast(autor_cuidador as string) autor_cuidador,
+    safe_cast(autor_patrao_chefe as string) autor_patrao_chefe,
+    safe_cast(autor_institucional as string) autor_institucional,
+    safe_cast(autor_policial as string) autor_policial,
+    safe_cast(autor_propria_pessoa as string) autor_propria_pessoa,
+    safe_cast(autor_outros as string) autor_outros,
+    safe_cast(autor_relacao_outros as string) autor_relacao_outros,
+    safe_cast(autor_sexo as string) autor_sexo,
+    safe_cast(autor_usou_alcool as string) autor_usou_alcool,
+    safe_cast(encaminhamento_saude as string) encaminhamento_saude,
+    safe_cast(
+        encaminhamento_assistencia_social as string
+    ) encaminhamento_assistencia_social,
+    safe_cast(encaminhamento_educacao as string) encaminhamento_educacao,
+    safe_cast(
+        encaminhamento_atendimento_mulher as string
+    ) encaminhamento_atendimento_mulher,
+    safe_cast(
+        encaminhamento_conselho_tutelar as string
+    ) encaminhamento_conselho_tutelar,
+    safe_cast(encaminhamento_conselho_idoso as string) encaminhamento_conselho_idoso,
+    safe_cast(encaminhamento_delegacia_idoso as string) encaminhamento_delegacia_idoso,
+    safe_cast(
+        encaminhamento_direitos_humanos as string
+    ) encaminhamento_direitos_humanos,
+    safe_cast(encaminhamento_mpu as string) encaminhamento_mpu,
+    safe_cast(
+        encaminhamento_delegacia_crianca as string
+    ) encaminhamento_delegacia_crianca,
+    safe_cast(
+        encaminhamento_delegacia_mulher as string
+    ) encaminhamento_delegacia_mulher,
+    safe_cast(encaminhamento_delegacia as string) encaminhamento_delegacia,
+    safe_cast(
+        encaminhamento_justica_infancia_juventude as string
+    ) encaminhamento_justica_infancia_juventude,
+    safe_cast(
+        encaminhamento_defensoria_publica as string
+    ) encaminhamento_defensoria_publica,
+    safe_cast(data_encerramento as date) data_encerramento,
+from {{ set_datalake_project("br_ms_sinan_staging.microdados_violencia") }} as t

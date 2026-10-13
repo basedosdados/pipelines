@@ -1,5 +1,5 @@
 {{ config(alias="dicionario", schema="br_rf_cnpj", materialized="table") }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     tmp_dict as (
         select

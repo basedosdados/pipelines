@@ -1,0 +1,20 @@
+{
+  "banded": 1816787,
+  "missing_in_year": [],
+  "rows": {
+    "academics": 45781890,
+    "aid_debt": 8303776,
+    "completion": 135780606,
+    "cost": 2490058,
+    "dicionario": 247,
+    "earnings": 4111251,
+    "field_of_study": 1780603,
+    "institution": 208759,
+    "repayment": 28808205,
+    "student_body": 10518983,
+    "variable": 3486
+  },
+  "suppressed_fos": 90027848,
+  "suppressed_long": 118883797,
+  "suppressed_wide": 175
+}

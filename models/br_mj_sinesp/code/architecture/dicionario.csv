@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela a que a chave se aplica,,no,,,no,,
+nome_coluna,STRING,Nome da coluna a que a chave se aplica,,no,,,no,,
+chave,STRING,Valor armazenado na coluna,,no,,,no,,
+cobertura_temporal,STRING,Anos em que a fonte publicou este rótulo para esta chave,,no,,,no,"Notação START(1)END. Um rótulo alterado pela fonte no meio da série gera mais de uma linha para a mesma chave",
+valor,STRING,Rótulo original publicado pela fonte,,no,,,no,,evento

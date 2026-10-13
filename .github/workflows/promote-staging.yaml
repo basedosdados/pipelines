@@ -1,0 +1,77 @@
+---
+# Manual counterpart to `table-approve`, for datasets whose staging tables are
+# not one-per-published-table.
+#
+# `table-approve` infers what to sync from the changed `.sql` files: for each
+# one it copies `staging/<dataset>/<table>/` from the dev bucket to prod. A
+# dataset that harmonises many source streams into fewer published tables has
+# staging mirrors that match no published table, so that inference finds
+# nothing and the prod dbt run fails on the first missing mirror. Dispatch this
+# with an explicit list instead. See `scripts/promote_staging.py`.
+#
+# Dispatch only from `main` -- `workflow_dispatch` reads the workflow file from
+# the default branch, so a copy on a feature branch is not offered in the UI.
+name: promote-staging
+on:
+  workflow_dispatch:
+    inputs:
+      dataset_id:
+        description: Dataset ID, e.g. world_wb_mides
+        required: true
+        type: string
+      staging_tables:
+        description: Comma-separated staging tables to copy dev -> prod
+        required: false
+        type: string
+      models:
+        description: Comma-separated published tables to dbt run, one flow each
+        required: false
+        type: string
+      all_models:
+        description: dbt run the whole dataset in one flow, in DAG order
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: Re-copy a mirror even if the destination blob count matches
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: Report what would happen and copy nothing
+        required: false
+        default: false
+        type: boolean
+jobs:
+  promote-staging:
+    name: promote staging
+    runs-on: ubuntu-latest
+    # A large dataset's mirrors copy at roughly 54 blobs/s; world_wb_mides's
+    # 433,837 take about 2h15m. The GitHub default of 360 minutes applies and is
+    # stated here so a longer dataset fails visibly rather than being cancelled
+    # mid-copy with no explanation.
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Set up python
+        run: uv python install
+      - name: Install requirements
+        run: uv sync --locked --no-dev
+      - name: Promote staging mirrors and materialize in prod
+        run: |-
+          uv run .github/workflows/scripts/promote_staging.py \
+            --dataset-id "${{ inputs.dataset_id }}" \
+            --staging-tables "${{ inputs.staging_tables }}" \
+            --models "${{ inputs.models }}" \
+            ${{ inputs.all_models && '--all-models' || '' }} \
+            ${{ inputs.force && '--force' || '' }} \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+        env:
+          PREFECT_API_URL: https://prefect3.basedosdados.org/api
+          PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
+          BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
+          BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
+          BASEDOSDADOS_CREDENTIALS_STAGING: ${{ secrets.BASEDOSDADOS_CREDENTIALS_STAGING }}

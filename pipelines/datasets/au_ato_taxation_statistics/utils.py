@@ -169,7 +169,7 @@ def _to_number(value: Any) -> float | None:
 
 def read_table(path: Path, table: str) -> pd.DataFrame:
     """Read one workbook and return the long-format frame for ``table``."""
-    # pyrefly: ignore [untyped-import]
+
     import openpyxl
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)

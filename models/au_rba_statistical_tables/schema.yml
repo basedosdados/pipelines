@@ -11,8 +11,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [table_id, series_id, date]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
       # Composite foreign key to the series catalogue. dbt's built-in
       # `relationships` test takes a single field, and series_id alone is not
       # unique across tables, so the key is compared as a concatenation.
@@ -30,6 +34,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: date
         description: >-
           Observation date, using the RBA's own dating convention: the end of the

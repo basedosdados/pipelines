@@ -3,8 +3,7 @@
 import json
 import os
 
-# pyrefly: ignore [missing-import]
-from schema_spec import TABLE_ORDER, TABLES
+from models.us_harvard_cbdb.code.schema_spec import TABLE_ORDER, TABLES
 
 OUT = os.path.join(os.path.dirname(__file__), "metadata_payload")
 os.makedirs(OUT, exist_ok=True)
@@ -26,20 +25,25 @@ OL_GRAIN = {
 
 def main():
     index = {}
-    # pyrefly: ignore [unknown-name]
     for name in TABLE_ORDER:
-        # pyrefly: ignore [unknown-name]
         spec = TABLES[name]
         cols = []
         for c in spec["columns"]:
             cols.append(
                 {
+                    # pyrefly: ignore [bad-index]
                     "name": c["name"],
+                    # pyrefly: ignore [bad-index]
                     "bigquery_type": c["type"],
+                    # pyrefly: ignore [bad-index]
                     "description_pt": c["pt"],
+                    # pyrefly: ignore [bad-index]
                     "description_en": c["en"],
+                    # pyrefly: ignore [bad-index]
                     "description_es": c["es"],
+                    # pyrefly: ignore [missing-attribute]
                     "covered_by_dictionary": c.get("dict", "no") == "yes",
+                    # pyrefly: ignore [missing-attribute]
                     "measurement_unit": c.get("unit", ""),
                     "has_sensitive_data": False,
                 }
@@ -48,7 +52,6 @@ def main():
         with open(path, "w", encoding="utf-8") as f:
             json.dump(cols, f, ensure_ascii=False)
         index[name] = dict(
-            # pyrefly: ignore [unknown-name]
             source=TABLES[name]["source"],
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],

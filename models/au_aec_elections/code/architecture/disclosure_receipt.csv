@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+financial_year,STRING,"Exercício financeiro australiano da declaração, no formato original da AEC",,no,,,no,A AEC usa dois formatos ao longo do tempo: 1998-1999 até 2010-2011 e 2011-12 em diante,Financial Year,"Australian financial year of the return, in the AEC's original format","Ejercicio financiero australiano de la declaración, en el formato original de la AEC"
+return_type,STRING,Categoria da declaração no Transparency Register,,yes,,,no,,Return Type,Category of the return in the Transparency Register,Categoría de la declaración en el Transparency Register
+recipient_name,STRING,Nome da entidade que declarou o recebimento,,no,,,no,,Recipient Name,Name of the entity that reported the receipt,Nombre de la entidad que declaró el ingreso
+received_from,STRING,Nome de quem originou o recebimento,,no,,,no,,Received From,Name of the party the receipt came from,Nombre de quien originó el ingreso
+receipt_type,STRING,Natureza do recebimento declarado,,yes,,,no,,Receipt Type,Nature of the reported receipt,Naturaleza del ingreso declarado
+value,FLOAT64,Valor do recebimento em dólares australianos,,no,,AUD,no,,Value,Value of the receipt in Australian dollars,Valor del ingreso en dólares australianos

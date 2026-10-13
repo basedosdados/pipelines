@@ -25,17 +25,17 @@ hoje, nada exercita isso.
 
 Uso:
     # só baixa e limpa (padrão; não toca em nuvem nenhuma)
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py
 
     # etapas específicas
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages download
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages download
 
     # o retrato do mês: baixa, limpa e sobe para o staging de dev
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py \\
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py \\
         --stages download,clean,upload
 
     # depois do merge da PR: atualiza cobertura, update e poll em prod
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata
 """
 
 import argparse
@@ -86,9 +86,8 @@ def check_flow_importable() -> None:
     try:
         from pipelines.datasets.br_sedec_desastres import flows
 
-        log.info(
-            f"flows.py importa OK — flow: {flows.br_sedec_desastres_flow.name}"
-        )
+        flow = flows.br_sedec_desastres__reconhecimentos_vigentes
+        log.info(f"flows.py importa OK — flow: {flow.name}")
     except ImportError as e:
         log.warning(f"flows.py NÃO importa nesta venv: {e}")
         log.warning(
@@ -244,8 +243,7 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
     log.info(f"prod confirmado em {prod_max}")
 
     # O poll existe só para registrar o Poll da fonte; o retorno é ignorado de
-    # propósito, porque todo retrato mensal é legitimamente novo (decisão 4 do
-    # README).
+    # propósito, porque todo retrato mensal é legitimamente novo.
     poll_source_for_update_task.fn(
         dataset_id=DATASET_ID,
         table_id=TABLE_ID,

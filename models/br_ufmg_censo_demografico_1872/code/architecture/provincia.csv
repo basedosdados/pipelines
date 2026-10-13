@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do recenseamento,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,
+id_provincia,STRING,"Código da província no banco Pop-72, de 1 a 21",1872,no,,,no,,
+nome_provincia,STRING,Nome da província conforme grafia de 1872,1872,no,,,no,,

@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"First calendar year of the Australian financial year the figure describes, so 1970 for 1970-71",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. The Australian financial year runs 1 July to 30 June,(row label)
+financial_year,STRING,"Australian financial year the figure describes, written as published",,no,,,no,,(row label)
+release_id,STRING,Identifier of the fiscal release the figure was published in,,no,,,no,Each release republishes the whole series back to 1970-71 on its own basis. An earlier release is never overwritten by a later one: both were correct as at their own date,(document)
+release_label,STRING,Name of the fiscal release as Treasury refers to it,,no,,,no,,(document)
+release_type,STRING,Kind of fiscal release: budget or final_budget_outcome,,yes,,,no,MYEFO publishes no historical-data statement and so appears in payment_growth but not here,(document)
+release_financial_year,STRING,Australian financial year the release itself is named for,,no,,,no,"Two Budgets were delivered for 2022-23, in March and again in October after the election, so this does not identify a release on its own",(document)
+sector,STRING,Institutional sector the figure covers,,yes,,,no,general_government for every measure; the two wider sectors appear only in the by-sector tables,(column heading)
+measure,STRING,Fiscal aggregate the figure reports,,yes,,,no,,(column heading)
+estimate_type,STRING,Whether the year is a realised outcome or a projection,,yes,,,no,"Read from the (e) marker Treasury prints against projected years, not inferred from the release date. Final Budget Outcome releases carry outcomes only",(e) marker
+source_tables,STRING,"Historical-data tables the row was built from, comma separated",,no,,,no,"Table numbers within the release: 11.1 to 11.11 in most Budgets, 10.1 to 10.11 in the 2022-23 March and 2025-26 Budgets, B.1 to B.11 in every Final Budget Outcome",(table number)
+value_aud_million,FLOAT64,Value in millions of Australian dollars of the day,,no,,,no,"Left blank where the measure is not published in dollars for that year. The measurement unit is empty because the backend has no AUD unit; values are nominal millions exactly as Treasury publishes them, not deflated",($m column)
+value_percent_gdp,FLOAT64,Value as a percentage of nominal gross domestic product,,no,,percent,no,,(Per cent of GDP column)
+value_percent_real_growth,FLOAT64,"Real growth on the previous year, in per cent",,no,,percent,no,"Published only for payments, and only from the year the series begins",(Per cent real growth column)
+value_aud_per_person_real,FLOAT64,Value per person in real Australian dollars of the release's own base year,,no,,,no,"From the real per capita table, whose base year is the release's own, so figures are comparable within a release and not across releases. The measurement unit is empty because the backend has no AUD unit",(real per capita table)

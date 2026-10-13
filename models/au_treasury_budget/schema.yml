@@ -1,0 +1,215 @@
+---
+version: 2
+models:
+  - name: au_treasury_budget__aggregate
+    description: >-
+      Agregados fiscais do Governo da Austrália por safra de divulgação. Cada
+      Orçamento e cada Resultado Orçamentário Final republica a série histórica
+      inteira desde 1970-71 na sua própria base, e nenhuma divulgação anterior é
+      sobrescrita por uma posterior. Construída a partir do Statement de dados
+      históricos do Budget Paper No. 1 e do Apêndice B do Final Budget Outcome.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - release_id
+            - financial_year
+            - sector
+            - measure
+      # value_percent_real_growth is ignored below because real growth is
+      # published only for payments, and only from the year that series begins:
+      # 4.1 per cent of rows carry it. Measured, not assumed, and the share falls
+      # as older releases are added.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_percent_real_growth]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('au_treasury_budget__dicionario')
+          columns_covered_by_dictionary:
+            - release_type
+            - sector
+            - measure
+            - estimate_type
+    columns:
+      - name: year
+        description: >-
+          Primeiro ano-calendário do exercício financeiro australiano a que o
+          valor se refere, portanto 1970 para 1970-71
+        tests: [not_null]
+      - name: financial_year
+        description: >-
+          Exercício financeiro australiano a que o valor se refere, como publicado
+        tests: [not_null]
+      - name: release_id
+        description: Identificador da divulgação fiscal em que o valor foi publicado
+        tests: [not_null]
+      - name: release_label
+        description: Nome da divulgação fiscal como o Tesouro se refere a ela
+      - name: release_type
+        description: >-
+          Tipo de divulgação fiscal: orçamento ou resultado orçamentário final
+      - name: release_financial_year
+        description: >-
+          Exercício financeiro que dá nome à própria divulgação
+      - name: sector
+        description: Setor institucional coberto pelo valor
+        tests: [not_null]
+      - name: measure
+        description: Agregado fiscal informado pelo valor
+        tests: [not_null]
+      - name: estimate_type
+        description: >-
+          Se o ano é um resultado realizado ou uma projeção
+      - name: source_tables
+        description: >-
+          Tabelas de dados históricos de onde a linha foi construída, separadas
+          por vírgula
+      - name: value_aud_million
+        description: Valor em milhões de dólares australianos correntes
+      - name: value_percent_gdp
+        description: Valor como porcentagem do produto interno bruto nominal
+      - name: value_percent_real_growth
+        description: Crescimento real sobre o ano anterior, em porcentagem
+      - name: value_aud_per_person_real
+        description: >-
+          Valor por pessoa em dólares australianos reais do ano-base da própria
+          divulgação
+  - name: au_treasury_budget__payment_growth
+    description: >-
+      Crescimento médio anual dos principais programas de pagamento do Governo
+      da Austrália no médio prazo, por safra de divulgação. O gráfico de origem
+      plota duas safras lado a lado, de modo que a divulgação que publica a linha
+      e a divulgação que a linha informa costumam diferir. Taxas nominais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - source_release_id
+            - series_release_id
+            - payment_program
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('au_treasury_budget__dicionario')
+          columns_covered_by_dictionary: [payment_program, growth_basis]
+    columns:
+      - name: year
+        description: >-
+          Primeiro ano-calendário do exercício financeiro que dá nome à
+          divulgação que publica a linha
+        tests: [not_null]
+      - name: source_release_id
+        description: Identificador da divulgação de cujo gráfico a linha foi lida
+        tests: [not_null]
+      - name: source_release_label
+        description: Nome da divulgação de cujo gráfico a linha foi lida
+      - name: series_release_id
+        description: Identificador da divulgação que a série plotada informa
+        tests: [not_null]
+      - name: series_release_label
+        description: Nome da divulgação que a série plotada informa
+      - name: payment_program
+        description: Programa de pagamento a que a taxa de crescimento se refere
+        tests: [not_null]
+      - name: projection_period_start_year
+        description: >-
+          Primeiro ano-calendário do exercício a partir do qual o crescimento é
+          medido
+      - name: projection_period_end_year
+        description: >-
+          Primeiro ano-calendário do exercício até o qual o crescimento é medido
+      - name: growth_basis
+        description: Se a taxa de crescimento é nominal ou real
+      - name: average_annual_growth_percent
+        description: >-
+          Crescimento médio anual dos pagamentos do programa no período de
+          projeção, em porcentagem
+  - name: au_treasury_budget__igr_projection
+    description: >-
+      Projeções de longo prazo do Relatório Intergeracional de 2023, da linha de
+      base e de seis cenários alternativos de sensibilidade. Construída a partir
+      dos Apêndices A1 e A4 do relatório. As edições de 2021 e 2015 não são
+      legíveis por máquina e não estão presentes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [financial_year, scenario, measure]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            # Expectativa de vida (3.0 por cento das linhas) e taxa de
+            # fecundidade (1.5 por cento) são medidas únicas dentro de uma tabela
+            # de 47 medidas. Proporções medidas, não supostas.
+            - value_years
+            - value_births_per_woman
+      # `measure` is deliberately not listed: its 47 values are the report's own
+      # indicator and program names, which the dictionary does not define.
+      - custom_dictionary_coverage:
+          dictionary_model: ref('au_treasury_budget__dicionario')
+          columns_covered_by_dictionary: [scenario, measure_category]
+    columns:
+      - name: year
+        description: >-
+          Primeiro ano-calendário do exercício financeiro australiano projetado
+        tests: [not_null]
+      - name: financial_year
+        description: Exercício financeiro australiano projetado, como publicado
+        tests: [not_null]
+      - name: igr_edition
+        description: >-
+          Edição do Relatório Intergeracional de onde vem a projeção
+        tests: [not_null]
+      - name: scenario
+        description: >-
+          Cenário de projeção: a linha de base ou uma das seis variantes de
+          sensibilidade
+        tests: [not_null]
+      - name: measure_category
+        description: >-
+          Agrupamento amplo da medida: demográfica, econômica, fiscal ou
+          pagamentos
+      - name: measure
+        description: Quantidade projetada
+        tests: [not_null]
+      - name: source_table
+        description: >-
+          Tabela do apêndice de onde a linha foi construída, separada por vírgula
+      - name: value_percent_gdp
+        description: Valor como porcentagem do produto interno bruto nominal
+      - name: value_aud_per_person_real
+        description: Valor por pessoa em dólares australianos reais de 2022-23
+      - name: value_percent
+        description: >-
+          Valor em porcentagem, para taxas de crescimento e de participação
+      - name: value_persons_million
+        description: Valor em milhões de pessoas
+      - name: value_years
+        description: Valor em anos, para expectativa de vida ao nascer
+      - name: value_births_per_woman
+        description: Taxa de fecundidade total, em nascimentos por mulher
+  - name: au_treasury_budget__dicionario
+    description: >-
+      Dicionário das colunas codificadas do conjunto. Os valores armazenados são
+      legíveis, de modo que o dicionário existe para defini-los: o saldo de caixa
+      subjacente e o saldo de caixa principal diferem por um termo, e o saldo
+      fiscal não é o saldo de caixa com outro nome.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      # cobertura_temporal is filled only when an entry's coverage differs from
+      # the table's. No entry differs, so the column is entirely null.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: Slug da tabela de au_treasury_budget que a entrada descreve
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna que a entrada descreve
+        tests: [not_null]
+      - name: chave
+        description: Valor codificado exatamente como armazenado nos dados
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal da entrada
+      - name: valor
+        description: Significado do valor codificado
+        tests: [not_null]

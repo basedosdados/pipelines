@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,1997(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"Empty for financial-year series, which describe a whole year rather than a quarter",
+financial_year,STRING,"Australian financial year of the observation, such as 2025-26",,no,,,no,Empty for quarterly series; ABS dates a financial-year series at the June ending that year,
+series_id,STRING,ABS time series identifier of the series,,no,,,no,"Stable ABS Series ID (A-code); the series key, unique per combination of dimensions",series_id
+statistic,STRING,Statistic reported by the series,,no,,,no,Harmonised across ABS workbooks: the same statistic is spelled differently between a release's quarterly and financial-year tables,
+series_type,STRING,"ABS series type: Original, Seasonally Adjusted or Trend",,no,,,no,"Only the Wage Price Index publishes more than Original; ABS records the type in the workbook metadata, never in the series description",series_type
+pay_measure,STRING,Wage measure priced by the index,,no,,,no,"Total or ordinary time hourly rates of pay, each excluding or including bonuses",
+region,STRING,"State, territory or national aggregate",,no,,,no,Australia plus the eight states and territories. Could map to a state geography directory in the future,
+sector,STRING,Ownership sector of the employing organisation,,no,,,no,"Private, Public, or Private and Public",
+industry,STRING,ANZSIC industry division of the employing organisation,,no,,,no,The 19 ANZSIC divisions plus All industries,
+frequency,STRING,Publication frequency of the series: Quarter or Annual,,no,,,no,The Wage Price Index is the only release in this dataset publishing both quarterly and financial-year series,frequency
+unit,STRING,"Unit of the reported value, as published by ABS",,no,,,no,"Units vary within a single ABS table, so the unit is carried per row rather than per table",unit
+value,FLOAT64,"Value of the series in the reference period, in the unit given by the unit column",,no,,,no,Carries no fixed measurement_unit: a tidy-indicator column whose unit varies by row and is given by the unit column,value

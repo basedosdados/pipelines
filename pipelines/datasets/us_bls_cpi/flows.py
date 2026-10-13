@@ -6,17 +6,18 @@ history every month, so each run is a **full replace** (dump_mode="overwrite"),
 not an incremental append. A single flow downloads once and rebuilds all four
 tables. Schedule targets the BLS monthly release window (~2nd week).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bls_cpi.constants import constants
 from pipelines.datasets.us_bls_cpi.tasks import clean_cpi, download_cpi
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -90,7 +91,6 @@ def us_bls_cpi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
@@ -188,10 +188,8 @@ def us_bls_cpi_flow(
 # BLS releases CPI monthly, ~2nd week, on a US business day. Poll across a few
 # mid-month days at 16:00 BRT; the source-poll guard no-ops until a new month
 # actually appears.
-# pyrefly: ignore [missing-attribute]
 us_bls_cpi_flow.deploy_schedules = [
-    {"cron": "5 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("5 16 10,11,12,13,14,15 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~4M rows in pandas; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 us_bls_cpi_flow.job_variables = {"memory": "8Gi"}

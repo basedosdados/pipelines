@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""QA the cleaned ABS Consumer Price Index output before upload."""
+
+import glob
+import os
+from pathlib import Path
+
+import pandas as pd
+
+# Scratch data (raw downloads, cleaned parquet) never lives in the repo: the
+# checkout sits inside Dropbox, so writing multi-GB output here would trigger a
+# sync and risk committing data. Default to ~/Downloads and allow an override.
+DATA_ROOT = Path(
+    os.environ.get(
+        "AU_ABS_PRICES_INFLATION_DATA",
+        Path.home() / "Downloads" / "au_abs_prices_inflation_data",
+    )
+)
+
+
+def load(table):
+    """Read one cleaned table back from its partitioned parquet."""
+    files = glob.glob(
+        str(DATA_ROOT / "output" / table / "year=*/data.parquet")
+    )
+    df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    # parquet is all-STRING; cast for checks
+    for c in ("year",):
+        df[c] = df[c].astype(int)
+    pcol = "quarter" if table == "cpi_quarterly" else "month"
+    df[pcol] = df[pcol].astype(int)
+    for c in (
+        "index_number",
+        "percentage_change_period",
+        "percentage_change_year",
+    ):
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    return df, pcol
+
+
+for table in ("cpi_quarterly", "cpi_monthly"):
+    df, pcol = load(table)
+    print("=" * 80)
+    print(
+        f"{table.upper()}  rows={len(df):,}  years {df.year.min()}-{df.year.max()}"
+    )
+    # key uniqueness
+    d1 = df.duplicated(["year", pcol, "region", "index_name"]).sum()
+    d2 = df.duplicated(["year", pcol, "serie_id"]).sum()
+    print(
+        f"  dup (year,{pcol},region,index_name) = {d1} | dup (year,{pcol},serie_id) = {d2}"
+    )
+    print(f"  regions: {sorted(df.region.unique())}")
+    # nulls
+    print(f"  null index_number = {df.index_number.isna().sum()}")
+    print(
+        f"  null pct_period = {df.percentage_change_period.isna().sum()} "
+        f"| null pct_year = {df.percentage_change_year.isna().sum()}"
+    )
+    # base period: where All groups CPI, Australia, index == 100
+    ag = df[
+        (df.index_name == "All groups CPI") & (df.region == "Australia")
+    ].copy()
+    base = ag[(ag.index_number.round(1) == 100.0)]
+    if len(base):
+        b = base.sort_values(["year", pcol]).iloc[0]
+        print(
+            f"  base (All groups Australia index=100.0): {int(b.year)}-{int(b[pcol])}"
+        )
+    # latest headline
+    latest = ag.sort_values(["year", pcol]).iloc[-1]
+    print(
+        f"  latest All groups Australia: {int(latest.year)}-{int(latest[pcol])} "
+        f"index={latest.index_number} "
+        f"chg_period={latest.percentage_change_period:.2f} "
+        f"chg_year={latest.percentage_change_year:.2f}"
+    )
+
+# QA: recompute year change from index for All groups Australia and compare to stored
+print("=" * 80)
+print("QA: computed-vs-stored YoY for All groups Australia (monthly)")
+df, pcol = load("cpi_monthly")
+ag = df[
+    (df.index_name == "All groups CPI") & (df.region == "Australia")
+].copy()
+ag = ag.sort_values(["year", "month"]).reset_index(drop=True)
+ag["recomputed_year"] = (ag.index_number / ag.index_number.shift(12) - 1) * 100
+cmp = ag.dropna(subset=["percentage_change_year", "recomputed_year"])
+maxdiff = (cmp.percentage_change_year - cmp.recomputed_year).abs().max()
+print(
+    f"  n compared = {len(cmp)} | max |stored - recomputed| = {maxdiff:.4f} pp"
+)
+print(
+    ag[
+        [
+            "year",
+            "month",
+            "index_number",
+            "percentage_change_period",
+            "percentage_change_year",
+        ]
+    ]
+    .tail(6)
+    .to_string(index=False)
+)

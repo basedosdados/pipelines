@@ -2,12 +2,23 @@
 version: 2
 models:
   - name: br_inep_sinopse_estatistica_educacao_basica__etapa_ensino_serie
-    description: A base conta com o total de matrículas por município para todas as
-      etapas e subetapas de ensino, além da discriminação dos anos para Anos Iniciais
-      e Finais do Ensino Fundamental, bem como as série do Ensino Médio
+    description: >
+      A base conta com o total de matrículas por município para todas as etapas
+      e subetapas de ensino, além da discriminação dos anos para Anos Iniciais e
+      Finais do Ensino Fundamental, bem como as séries do Ensino Médio. A coluna
+      `serie` é nula nas linhas de total por etapa, que não discriminam série, e
+      por isso fica fora do teste de proporção de nulos.
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - etapa_ensino
+            - serie
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [serie]
     columns:
       - name: ano
         description: Ano
@@ -30,8 +41,8 @@ models:
       - name: rede
         description: Rede Escolar (e.g. federal, estadual, municipal e privada)
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: serie
         description: Série/Ano de ensino
       - name: quantidade_matricula
@@ -40,8 +51,14 @@ models:
     description: A base conta com o total de matrículas por município, etapa de ensino
       e grupo etário dos alunos
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - etapa_ensino
+            - faixa_etaria
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -68,7 +85,23 @@ models:
       - name: quantidade_matricula
         description: Número de matrículas
   - name: br_inep_sinopse_estatistica_educacao_basica__localizacao
-    description: A base conta com o total de matrículas por município, rede e localização
+    description: >
+      A base conta com o total de matrículas por município, rede e localização.
+      Brasília tem duas linhas por combinação na creche, em 2007, 2008, 2009,
+      2010 e 2012 — 40 linhas —, então o teste de unicidade cobre 2013 em
+      diante, até esses anos serem reprocessados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - etapa_ensino
+            - localizacao
+          config:
+            where: ano >= 2013
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -91,8 +124,8 @@ models:
       - name: rede
         description: Rede Escolar (e.g. federal, estadual, municipal e privada)
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: localizacao
         description: Localização (e.g. Zona Urbana, Zona Rural)
       - name: quantidade_matricula
@@ -101,8 +134,15 @@ models:
     description: A base conta com o total de matrículas por município para todas as
       etapas de ensino e o tempo ofertado de aulas, seja integral ou regular
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - etapa_ensino
+            - tempo_ensino
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -124,19 +164,26 @@ models:
               field: id_municipio
       - name: rede
         description: Rede Escolar (e.g. federal, estadual, municipal e privada)
-      - name: tempo
-        description: Classificação em tempo integral e tempo parcial
+      - name: tempo_ensino
+        description: Tempo de Ensino (e.g. Regular, Integral)
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: quantidade_matricula
         description: Número de matrículas
   - name: br_inep_sinopse_estatistica_educacao_basica__sexo_raca_cor
     description: A base conta com o total de matrículas por município para todas as
       etapas de ensino, sexo e raça/cor
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - etapa_ensino
+            - sexo
+            - raca_cor
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -157,8 +204,8 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: sexo
         description: Sexo
       - name: raca_cor
@@ -198,7 +245,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: escolaridade
         description: Escolaridade
       - name: quantidade_docente
@@ -237,7 +284,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: rede
         description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: regime_contrato
@@ -278,7 +325,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: faixa_etaria
         description: Faixa Etária dos docentes
       - name: sexo
@@ -317,7 +364,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: deficiencia
         description: Tipo de deficiência, transtorno global do desenvolvimento ou
           altas habilidades/superdotação
@@ -356,7 +403,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: rede
         description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: localizacao
@@ -364,7 +411,12 @@ models:
       - name: quantidade_docente
         description: Número de docentes
   - name: br_inep_sinopse_estatistica_educacao_basica__docente_etapa_ensino
-    description: A base conta com o total de docentes por etapa ensino
+    description: >
+      A base conta com o total de docentes por etapa de ensino. A coluna `rede`
+      só é preenchida quando o rótulo da planilha termina em nome de rede
+      (Federal, Estadual, Municipal, Privada ou Pública); nas linhas de total,
+      que não discriminam rede, é nula, e por isso fica fora do teste de
+      proporção de nulos.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -372,8 +424,10 @@ models:
             - id_municipio
             - etapa_ensino
             - tipo_classe
+            - rede
       - not_null_proportion_multiple_columns:
           at_least: 0.95
+          ignore_values: [rede]
     columns:
       - name: ano
         description: Ano
@@ -393,6 +447,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: tipo_classe
         description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
           Classes Exclusivas/Especiais)'

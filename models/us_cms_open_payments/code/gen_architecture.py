@@ -8,11 +8,13 @@ are applied afterwards with ``bulk_upsert_columns``.
 
 import csv
 
-import constants as c
-import descriptions
-import layout
-import naming
-import schema
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import (
+    descriptions,
+    layout,
+    naming,
+    schema,
+)
 
 ARCH_COLUMNS = [
     "name",

@@ -2,7 +2,7 @@
 
 Usage::
 
-    uv run python models/world_wil_wid/code/upload.py [--env dev|prod] [table ...]
+    uv run models/world_wil_wid/code/upload.py [--env dev|prod] [table ...]
 
 ``--env dev`` (the default) targets ``basedosdados-dev``; ``--env prod`` targets
 ``basedosdados``. Point ``GOOGLE_APPLICATION_CREDENTIALS`` at the matching
@@ -54,18 +54,32 @@ def _patched_bucket(
     self: gcs.Client,
     bucket_name: str,
     user_project: str | None = None,
+    generation: int | None = None,
 ) -> "gcs.Bucket":
     """Force ``user_project`` so the requester-pays bucket bills our project.
+
+    Accepts ``generation`` so a caller that passes one keeps working, but only
+    forwards it when it is set: older google-cloud-storage releases have no
+    such parameter and reject it outright.
 
     Args:
         self: The storage client the method is bound to.
         bucket_name: Name of the bucket to instantiate.
         user_project: Ignored; overridden with the billing project.
+        generation: Optional bucket generation, forwarded only when provided.
 
     Returns:
         The instantiated ``Bucket`` billed to ``BILLING_PROJECT``.
     """
-    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+    if generation is None:
+        return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+    return _orig_bucket(
+        self,
+        bucket_name,
+        user_project=BILLING_PROJECT,
+        # pyrefly: ignore [unexpected-keyword]
+        generation=generation,
+    )
 
 
 gcs.Client.bucket = _patched_bucket
