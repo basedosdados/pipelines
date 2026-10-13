@@ -39,7 +39,7 @@ TABLES = [
     ("school_district", 19637),
     ("school", 102274),
     ("higher_education_institution", 6072),
-    ("congress_member", 12767),
+    ("congress_member", 12770),
     ("naics_2022", 2125),
     ("naics_1997", 2323),
     ("naics_2002", 2147),
