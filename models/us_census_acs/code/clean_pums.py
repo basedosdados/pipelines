@@ -6,7 +6,7 @@ vintage to the canonical column set from the architecture CSVs, casts types,
 adds ano/period, writes output/<table>/ano=<y>/<period>.parquet.
 
 Usage:
-  python3 clean_pums.py [VINTAGE ...]   # e.g. 2005_1yr  (default: all vintages)
+  uv run models/us_census_acs/code/clean_pums.py [VINTAGE ...]   # e.g. 2005_1yr  (default: all vintages)
 """
 
 import csv as csvmod
@@ -25,8 +25,9 @@ OUTROOT = "/Users/rdahis/acs_data/output"
 ARCH = os.path.join(os.path.dirname(__file__), "architecture")
 CHUNK = 200_000
 
-# pyrefly: ignore [missing-import]
-from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
+from models.us_census_acs.code._pums_schema import (  # noqa: E402  (shared identity-rename map)
+    RENAME,
+)
 
 
 def load_arch(kind):  # kind: microdata_person / microdata_household

@@ -15,12 +15,12 @@ twice over:
   no error and no failing test. Going through the same helper as the flow leaves
   an EXTERNAL table over gs://<bucket>/staging/<ds>/<table>/, so both paths agree.
 
-    python models/cl_ine_ene/code/upload.py --check
-    python models/cl_ine_ene/code/upload.py
+    uv run models/cl_ine_ene/code/upload.py --check
+    uv run models/cl_ine_ene/code/upload.py
 
 Run it with GOOGLE_APPLICATION_CREDENTIALS unset so the local ADC is used:
 
-    env -u GOOGLE_APPLICATION_CREDENTIALS uv run --no-sync python .../upload.py
+    env -u GOOGLE_APPLICATION_CREDENTIALS uv run --no-sync uv run models/cl_ine_ene/code/upload.py
 """
 
 from __future__ import annotations
@@ -28,10 +28,6 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
-import sys
-
-REPO = pathlib.Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO))
 
 DATA = pathlib.Path(
     os.environ.get(

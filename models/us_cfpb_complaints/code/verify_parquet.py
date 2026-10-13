@@ -9,7 +9,8 @@ import argparse
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import COMPLAINT, OUTPUT, load_cols
+
+from models.us_cfpb_complaints.code.common import COMPLAINT, OUTPUT, load_cols
 
 
 def verify(table_dir: Path, table: str) -> int:

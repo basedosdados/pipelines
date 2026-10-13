@@ -1,7 +1,7 @@
 """Upload cleaned us_ssa_beneficiaries parquet tables to BigQuery (one-shot onboarding).
 
 Usage:
-    uv run python models/us_ssa_beneficiaries/code/upload.py [--env dev|prod] [table ...]
+    uv run models/us_ssa_beneficiaries/code/upload.py [--env dev|prod] [table ...]
 
 Dev only: prod tables are materialised by the table-approve action when the
 onboarding PR merges, never uploaded from here. Staging is

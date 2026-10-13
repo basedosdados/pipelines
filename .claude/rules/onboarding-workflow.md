@@ -117,11 +117,11 @@ long-form PDFs).
 
 Two things to know before reporting success:
 
-- **The published links are currently dead for the public.** Both GCS buckets are
-  requester-pays, so an anonymous fetch returns `UserProjectMissing`; all 84
-  production tables using the field are affected. Ship the bundle in the documented
-  location anyway, but `curl -sI` each URL with no credentials and report what it
-  actually returns.
+- **Upload to `gs://basedosdados-public`, not to a data-lake bucket.** The two
+  data-lake buckets (`basedosdados`, `basedosdados-dev`) are requester-pays, so
+  anything served from them returns `UserProjectMissing` to an anonymous fetch.
+  `curl -sI` each URL with no credentials and report what it actually returns —
+  a 400 means the wrong bucket.
 - **Some publishers block scripted downloads.** `www.oecd.org` serves `.zip` only to
   a real browser. Fetch through the browser tools rather than dropping the document.
 

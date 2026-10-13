@@ -1,7 +1,7 @@
 """Generate the world_oecd_piaac dbt models and schema.yml from the architecture.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/build_dbt.py
+    uv run models/world_oecd_piaac/code/build_dbt.py
 
 Generating rather than hand-writing matters here: the respondent models carry 612
 and 788 safe_cast lines each, and they have to stay in exact step with the
@@ -12,14 +12,11 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import architecture as arch
+from models.world_oecd_piaac.code import architecture as arch
 
 CODE_DIR = Path(__file__).parent
 MODEL_DIR = CODE_DIR.parent

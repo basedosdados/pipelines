@@ -13,15 +13,16 @@ seven zero columns are 0% populated in the source too, verified directly.
 
 Writes ``measured.json``, which ``gen_dbt.py`` reads.
 
-Run: ``python verify_parquet.py``   (after clean.py)
+Run: ``uv run models/world_oecd_socx/code/verify_parquet.py``   (after clean.py)
 """
 
 import json
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-from common import CODE_DIR, OUTPUT
-from tables import TABLES
+
+from models.world_oecd_socx.code.common import CODE_DIR, OUTPUT
+from models.world_oecd_socx.code.tables import TABLES
 
 THRESHOLD = 0.05
 
@@ -40,6 +41,7 @@ def measure(slug):
             col = table.column(name)
             nonnull = col.length() - col.null_count
             # Staging is all-STRING, so an empty string is as absent as a null.
+            # pyrefly: ignore [missing-attribute]
             blank = pc.sum(pc.equal(col, "")).as_py() or 0
             filled[name] = filled.get(name, 0) + nonnull - blank
     return {

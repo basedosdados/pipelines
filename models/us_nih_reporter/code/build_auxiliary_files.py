@@ -17,7 +17,7 @@ credential with prod object-write rights. Related: the published
 for anonymous readers on every production table that has one, pending the move
 to ``gs://basedosdados-public``.
 
-Run: uv run python models/us_nih_reporter/code/build_auxiliary_files.py [--upload]
+Run: uv run models/us_nih_reporter/code/build_auxiliary_files.py [--upload]
 """
 
 import shutil
@@ -28,7 +28,13 @@ from datetime import date
 from pathlib import Path
 
 import requests
-from common import ALL_TABLES, DATA_DIR, DATASET_ID, constants
+
+from models.us_nih_reporter.code.common import (
+    ALL_TABLES,
+    DATA_DIR,
+    DATASET_ID,
+    constants,
+)
 
 OUT = DATA_DIR / "auxiliary_files"
 DOWNLOADED = date(2026, 9, 8)

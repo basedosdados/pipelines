@@ -43,9 +43,8 @@ import requests
 from google.api_core import exceptions as google_exceptions
 from google.cloud import bigquery
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
-import clean
+from models.us_stanford_dime.code import architecture as arch
+from models.us_stanford_dime.code import clean
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"
@@ -173,6 +172,7 @@ def load_staging_table(table: str) -> int:
         ),
     )
     job.result()
+    # pyrefly: ignore [bad-return]
     return bq.get_table(target).num_rows
 
 

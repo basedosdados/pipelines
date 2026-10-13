@@ -25,25 +25,20 @@ checks is something that would otherwise be discovered after 8 GB had been uploa
     and a broken join empties `id_empenho_bd` for every restos-a-pagar row.
 
 Usage:
-    uv run python models/world_wb_mides/code/validate_mg.py [--year 2022] [--full]
+    uv run models/world_wb_mides/code/validate_mg.py [--year 2022] [--full]
 """
 
 from __future__ import annotations
 
 import argparse
 import re
-import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from clean_mg import MIRROR, SPECS, schema_for
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import (
+from models.world_wb_mides.code.clean_mg import MIRROR, SPECS, schema_for
+from models.world_wb_mides.code.constants import (
     MG_FIRST_YEAR,
     MG_MUNICIPALITIES,
     OUTPUT_DIR,

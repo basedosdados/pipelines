@@ -17,7 +17,6 @@ import os
 import re
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 from pipelines.datasets.au_abs_prices_inflation.constants import constants

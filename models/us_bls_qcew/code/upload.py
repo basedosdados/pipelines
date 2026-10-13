@@ -1,7 +1,7 @@
 """Upload cleaned us_bls_qcew parquet tables to BigQuery.
 
 Usage:
-    uv run python models/us_bls_qcew/code/upload.py [--env dev|prod] [table ...]
+    uv run models/us_bls_qcew/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev. Point GOOGLE_APPLICATION_CREDENTIALS at
 the matching service account. Uploads sequentially and stops on first failure.

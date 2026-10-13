@@ -20,15 +20,22 @@ occur in the cleaned output. Two things keep that honest:
 Emitting the full codelists instead would be 70,202 rows, 39,907 of them
 CL_REGIONAL codes that never appear in any of these cubes.
 
-Run: ``python gen_dicionario.py``   (after clean.py)
+Run: ``uv run models/world_oecd_socx/code/gen_dicionario.py``   (after clean.py)
 """
 
 import csv
 import xml.etree.ElementTree as ET
 
 import pyarrow.parquet as pq
-from common import ARCH_DIR, DATASET_ID, OUTPUT, REPO_ROOT, STRUCTURE
-from tables import TABLES
+
+from models.world_oecd_socx.code.common import (
+    ARCH_DIR,
+    DATASET_ID,
+    OUTPUT,
+    REPO_ROOT,
+    STRUCTURE,
+)
+from models.world_oecd_socx.code.tables import TABLES
 
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
 C = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common}"

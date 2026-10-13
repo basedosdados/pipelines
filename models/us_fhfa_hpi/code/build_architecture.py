@@ -4,7 +4,7 @@ One CSV per table, in `architecture/`. The architecture is the single source of
 truth for column order, BigQuery type and description; `clean_data.py`,
 `build_dbt.py` and the metadata step all read it back from here.
 
-Run:  uv run python models/us_fhfa_hpi/code/build_architecture.py
+Run:  uv run models/us_fhfa_hpi/code/build_architecture.py
 """
 
 import csv

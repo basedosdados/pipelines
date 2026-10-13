@@ -8,7 +8,7 @@ partition.  The run is resumable: a quarter whose parquet already exists is
 skipped, which matters because the full download takes hours and the API returns
 the occasional 5xx.
 
-    uv run python models/us_fdic_bankfind/code/download_and_clean.py --workers 5
+    uv run models/us_fdic_bankfind/code/download_and_clean.py --workers 5
 """
 
 from __future__ import annotations
@@ -17,14 +17,11 @@ import argparse
 import csv
 import json
 import os
-import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fdic_bankfind import utils
 from pipelines.datasets.us_fdic_bankfind.institution_spec import (

@@ -9,7 +9,7 @@ Data lives outside the repo (never under Dropbox) by house convention:
     ~/Downloads/au_apra_superannuation_data/{input,output}
 
 Usage:
-    uv run python models/au_apra_superannuation/code/clean_data.py
+    uv run models/au_apra_superannuation/code/clean_data.py
 """
 
 import logging

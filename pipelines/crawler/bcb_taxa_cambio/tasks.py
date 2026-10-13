@@ -67,16 +67,17 @@ def get_data_taxa_cambio(table_id: str, ano: int | None = None) -> str:
 
 
 @task
-def treat_data_taxa_cambio(table_id: str) -> str:
+def treat_data_taxa_cambio(table_id: str) -> dict:
     """
     Reads input data from a CSV file, performs data treatment on the dataframe,
-    saves the treated dataframe to a file, and returns the full file path.
+    and saves the treated dataframe partitioned by `ano`.
 
     Args:
         table_id (str): The identifier for the table.
 
     Returns:
-        str: The full file path where the treated data is saved.
+        dict: `save_output_path` (directory the partitioned data was written
+            to) and `max_date` (most recent `data_cotacao`, as `%Y-%m-%d`).
     """
 
     # Read input data from a CSV file
@@ -98,6 +99,4 @@ def treat_data_taxa_cambio(table_id: str) -> str:
         "max_date": max_date.strftime("%Y-%m-%d"),
     }
 
-    # Return the full file path
-    # pyrefly: ignore [bad-return]
     return file_info

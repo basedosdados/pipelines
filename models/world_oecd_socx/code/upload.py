@@ -1,7 +1,7 @@
 """Upload the cleaned world_oecd_education parquet to BigQuery staging (dev).
 
-    python upload.py                 # every table
-    python upload.py student finance # selected tables
+    uv run models/world_oecd_socx/code/upload.py                 # every table
+    uv run models/world_oecd_socx/code/upload.py student finance # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` rather than a BigQuery load job or
 ``bd.Table.create(path=<data>)``, for two reasons that have each cost a debugging
@@ -22,16 +22,13 @@ is patched to pin ``user_project``.
 """
 
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+from google.cloud import bigquery
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-from common import DATASET_ID, OUTPUT  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
-from tables import TABLES  # noqa: E402
+from models.world_oecd_socx.code.common import DATASET_ID, OUTPUT
+from models.world_oecd_socx.code.tables import TABLES
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

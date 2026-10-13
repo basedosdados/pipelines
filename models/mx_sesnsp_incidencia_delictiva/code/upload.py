@@ -2,7 +2,7 @@
 """Upload mx_sesnsp_incidencia_delictiva parquet (7 tables, ano-partitioned) to BigQuery.
 
 Usage:
-    uv run python models/mx_sesnsp_incidencia_delictiva/code/upload.py [--env dev|prod] [table ...]
+    uv run models/mx_sesnsp_incidencia_delictiva/code/upload.py [--env dev|prod] [table ...]
 """
 
 import glob

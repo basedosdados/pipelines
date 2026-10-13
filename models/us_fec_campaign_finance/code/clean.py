@@ -1,7 +1,7 @@
 """One-shot onboarding clean for us_fec_campaign_finance.
 
-    python clean.py                      # every table, cycles 1980-2026
-    python clean.py candidate committee  # selected tables only
+    uv run models/us_fec_campaign_finance/code/clean.py                      # every table, cycles 1980-2026
+    uv run models/us_fec_campaign_finance/code/clean.py candidate committee  # selected tables only
 
 Downloads each cycle's ZIP, parses it, writes all-STRING partitioned parquet under
 $FEC_DATA_DIR/output, and deletes the ZIP immediately — peak disk stays near one
@@ -13,12 +13,10 @@ too, so there is exactly one implementation of it.
 
 import sys
 import time
-from pathlib import Path
 
 # The cleaning transform lives in the pipeline package so the recurring flow and
 # this one-shot onboarding script share exactly one implementation
 # (.claude/rules/prefect-pipeline-conventions.md, "DRY with the onboarding code").
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from pipelines.datasets.us_fec_campaign_finance import (
     utils as fec,
 )

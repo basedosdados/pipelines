@@ -10,12 +10,14 @@ Tabelas:
 | `operacoes_administracao_publica` | operação com ente da Administração Pública Direta | ✅ |
 | `operacoes_exportacao_bens` | subcrédito de operação de exportação pós-embarque de bens | ✅ |
 | `operacoes_exportacao_servicos` | subcrédito de operação de exportação pós-embarque de serviços de engenharia | ⏸️ (flow sem cron — carga única) |
+| `operacoes_pre_embarque` | operação de financiamento à produção para exportação (a fonte não define o que cada linha representa) | ✅ |
 | `operacoes_nao_automaticas` | subcrédito (forma direta e indireta não automática) | ✅ |
 
 ## Estrutura (compartilhada)
 
 - **Crawler (Prefect 3):** `pipelines/crawler/bndes/{constants,utils,tasks,flows}.py`. Cada tabela com pipeline tem sua própria config (`constants` / `constants_administracao_publica`), seu transform + `clean` e seu `_run` em `flows.py`. Funções genéricas (`download_csv`, `get_source_last_modified`) são compartilhadas entre as tabelas.
 - **Wrapper `@flow` + schedule por tabela:** `pipelines/datasets/br_bndes_operacoes_contratadas/flows.py` (cron **semanal**, segunda 06h BRT).
+- **Exceção: `operacoes_pre_embarque`**, que segue o desenho de diretório único. `constants.py`, `utils.py` e `tasks.py` ficam em `pipelines/datasets/br_bndes_operacoes_contratadas/` e servem só a ela; o corpo do flow fica no próprio `@flow`. O cron é `25 2 * * 1` (segunda, 02h25 BRT).
 - **Poll deferido** (`poll_source_for_update` + `commit_source_update`): grava o Poll ao detectar novidade, mas só comita o Update **depois** de materializar — evita adiantar o Update e travar runs futuras se o flow falhar no meio.
 - **Staging 100% STRING:** o `clean` grava Parquet todo string; a tipagem fica a cargo do `safe_cast` no dbt. (Parquet tipado quebra o upload: `... does not match target STRING_PIECE`.) Partição por `ano`.
 - **DBT:** `models/br_bndes_operacoes_contratadas/` (um `.sql` por tabela + `schema.yml` único).
@@ -158,6 +160,47 @@ As 21 colunas comuns às duas tabelas de exportação seguem as decisões já to
 - `taxa_juros` varia entre os subcréditos de uma mesma operação conforme a data de embarque ou de prestação em cada liberação — média simples entre linhas não faz sentido sem ponderar pelo valor.
 - `custo_financeiro` é `TAXA FIXA EM US$` em toda a série, então `taxa_juros` é a taxa total.
 - `tipo_mutuario` é quase sempre público aqui (642 contra 10), inverso de bens.
+
+## operacoes_pre_embarque
+
+### O que é
+
+Operações de financiamento do BNDES à **produção para exportação (pré-embarque)**: produção nacional de máquinas, equipamentos, bens de consumo e outros bens e serviços destinados à exportação. Cobertura nacional, **2002-01-08 a 2026-07-30**, 7.650 linhas. O arquivo traz apenas operações contratadas: toda linha tem data de contratação, e `situacao_operacao` só assume `ATIVA` ou `LIQUIDADA`.
+
+A fonte não declara periodicidade. A frequência mensal registrada nos metadados é inferida do intervalo entre o `last_modified` do recurso e a data de contratação mais recente, e da cadência das irmãs.
+
+### Fonte
+
+Mesmo conjunto CKAN `operacoes-exportacao` das duas tabelas de pós-embarque, recurso `81f5d4d7-b5d0-460d-8639-423df942045b` (~3,5 MB, `;` / cp1252), com dicionário de dados próprio (recurso `37fe8b18-56e8-4839-a339-2a9488a5e3f1`, uma página).
+
+O flow usa três campos do `resource_show`:
+
+- `last_modified`, o sinal de republicação;
+- `url`, de onde o CSV é baixado;
+- `hash`, o MD5 do arquivo.
+
+O flow confere o download contra o `hash` e falha se o MD5 não bater ou se o recurso deixar de publicá-lo.
+
+**Baixa o CSV direto, não o `/datastore/dump`.** Ao contrário da `operacoes_exportacao_servicos`, aqui o dump não dispensa conversão: o datastore guarda os valores como texto, e os dois caminhos trazem valores como `7.028.400` e datas em dd/mm/aaaa. O CSV direto tem `Content-Length` e o MD5 publicado; o dump não tem nenhum dos dois.
+
+### Detecção de novidade
+
+O poll compara o `last_modified` com o `Table.Update` (`compare_against="table_update"`), como nas irmãs, e não a data de contratação mais recente com a cobertura. O BNDES republica o arquivo inteiro, e uma republicação pode alterar só operações antigas (`situacao_operacao`, `valor_desembolsado`) sem mexer na data de contratação mais recente. Com a comparação pela cobertura, essa republicação não seria carregada.
+
+### Decisões de modelagem
+
+- **Sem `unique_combination_of_columns`, com linhas repetidas.** 49 linhas são idênticas a outra em todas as 26 colunas da fonte (88 linhas envolvidas). A fonte não publica número de operação, e o dicionário não diz o que cada linha representa: só cita subcréditos ao descrever a fonte de recurso. A `operacoes_nao_automaticas` tem `id_contrato`, mas não traz nenhuma operação de pré-embarque, então o cruzamento com ela não identifica as linhas. As linhas ficam como a fonte publica.
+- **Os nomes de coluna seguem o manual de estilo**, e por isso três deles divergem da `operacoes_indiretas_automaticas`: `indicador_inovacao` (coluna de sim/não leva o prefixo `indicador_`), `nome_instituicao_financeira_credenciada` e `cnpj_instituicao_financeira_credenciada`. Os três são os nomes usados na `operacoes_nao_automaticas`. `codigo_subsetor_cnae` fica como na `operacoes_indiretas_automaticas`, embora `codigo_` não esteja entre os prefixos do manual. `valor_operacao` e `valor_desembolsado` ficam no fim, como o manual pede.
+- **Cliente, não exportador.** O dicionário diz "cliente" e não afirma que ele é o exportador. Por isso as colunas são `cnpj_cliente`, `nome_cliente` e `porte_cliente`, como na `operacoes_indiretas_automaticas`, e não `_exportador`, como no pós-embarque.
+- **CNAE não vira FK.** O código tem uma letra e sete dígitos, e parte dos códigos foi criada pelo BNDES para controle interno. Mesma decisão das irmãs.
+- **Geografia pelo diretório:** `sigla_uf` e `id_municipio` vêm da fonte, e o nome do município não é guardado. Os valores `"0"` (4 linhas) e `9999999` (1 linha) de `municipio_codigo` viram nulo, assim como a UF `IE`, que aparece na mesma linha do `9999999`, com município `DIVERSOS`. O dicionário não explica o `IE`. A `uf` vem com espaço à esquerda (`" SP"`).
+- **Valores em reais inteiros, com ponto de milhar** (`7.028.400`). A descrição do recurso anuncia vírgula decimal, que não aparece nos dados. `parse_valor` aceita as duas formas e falha se algum valor fugir do formato brasileiro. 42 linhas não têm valor desembolsado; a descrição do recurso atribui a ausência ao sigilo do preço unitário dos bens.
+- **Data fora de dd/mm/aaaa faz a limpeza falhar**, porque a linha ficaria sem partição. É o mesmo que fazem bens e serviços; a indiretas, a não automáticas e a de administração pública descartam a linha e registram no log.
+- **Só o campo vazio vira nulo na leitura** (`keep_default_na=False`). Com o padrão do pandas, um texto como `NA` também viraria nulo.
+- **Staging toda em texto, com esquema explícito**, para que uma coluna inteiramente vazia num ano não seja gravada com tipo `null`, diferente dos outros anos.
+- `cnpj_instituicao_financeira_credenciada` vem com ponto no lugar da barra (`33.140.666.0001-02`) e fica como a fonte publica.
+- Três colunas são constantes na série inteira: `modalidade_apoio`, `produto` e `natureza_cliente`.
+- Cobertura pública → `AllFree`, sem paywall BD Pro, como as irmãs.
 
 ## operacoes_nao_automaticas
 

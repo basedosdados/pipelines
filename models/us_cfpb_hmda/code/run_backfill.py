@@ -10,9 +10,15 @@ only after its clean succeeds, so peak disk stays near a single raw file (~5 GB)
 
 import sys
 
-from clean import clean
-from common import LEGACY, LEGACY_YEARS, MODERN, MODERN_YEARS, OUTPUT
-from download import download
+from models.us_cfpb_hmda.code.clean import clean
+from models.us_cfpb_hmda.code.common import (
+    LEGACY,
+    LEGACY_YEARS,
+    MODERN,
+    MODERN_YEARS,
+    OUTPUT,
+)
+from models.us_cfpb_hmda.code.download import download
 
 
 def done(table: str, year: int) -> bool:

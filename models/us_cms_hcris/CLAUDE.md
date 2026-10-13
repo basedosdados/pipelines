@@ -111,7 +111,7 @@ address. That pass found two real defects on the first run:
     hospitals have a burn ICU. Sparse is not the same as broken; `verify_measures.py`
     distinguishes them.
 
-## Code (`code/`, run with `~/.venvs/bd-pipelines/bin/python`)
+## Code (`code/`, run with `uv run`)
 
 The download and cleaning transform lives in `pipelines/datasets/us_cms_hcris/utils.py`
 and is **imported** here, never duplicated, so the bootstrap and the recurring pipeline

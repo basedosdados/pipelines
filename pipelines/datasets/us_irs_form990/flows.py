@@ -147,7 +147,6 @@ def us_irs_form990_flow(
         max_batches: Upper bound on e-file ZIPs processed per run (each is
             0.1 to 1.2 GB); the rest are picked up by the next run.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="return_financial"
     )

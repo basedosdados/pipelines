@@ -6,7 +6,7 @@ table-approve action when the onboarding PR merges, never uploaded from here.
 Run with the Data Basis service account, not personal ADC::
 
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials.json \
-        python upload.py
+        uv run models/br_mj_sinesp/code/upload.py
 
 Without it the storage client falls back to application-default credentials and
 the staging listing fails with "does not have serviceusage.services.use access".
@@ -18,8 +18,9 @@ import os
 import sys
 
 import basedosdados as bd
-from constants import DATASET_ID, OUTPUT_DIR, TABLES
 from google.cloud import storage
+
+from models.br_mj_sinesp.code.constants import DATASET_ID, OUTPUT_DIR, TABLES
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

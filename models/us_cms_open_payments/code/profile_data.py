@@ -14,9 +14,8 @@ Three later steps depend on this rather than on guesswork:
 
 import json
 
-import constants as c
-import layout
-import schema
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import layout, schema
 
 # Above this many distinct values a column is not a value set worth writing
 # into the dictionary table. Open Payments stores readable labels rather than

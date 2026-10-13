@@ -10,10 +10,10 @@ BigQuery differ from the one in the API. yamlfix reflows the file afterwards
 without changing its meaning, so the workflow is regenerate, then run
 pre-commit:
 
-    python gen_dbt.py && uv run pre-commit run --files models/au_abs_population/schema.yml
+    uv run models/au_abs_population/code/gen_dbt.py && uv run pre-commit run --files models/au_abs_population/schema.yml
 
 Usage:
-    python gen_dbt.py
+    uv run models/au_abs_population/code/gen_dbt.py
 """
 
 import csv
@@ -203,8 +203,11 @@ def schema_for(table, cols):
     ]
     proportion = {"at_least": 0.05}
     if table in SPARSE:
+        # pyrefly: ignore [bad-assignment]
         proportion["ignore_values"] = SPARSE[table]
+    # pyrefly: ignore [bad-assignment]
     tests.append({"not_null_proportion_multiple_columns": proportion})
+    # pyrefly: ignore [bad-assignment]
     model["tests"] = tests
 
     out_cols = []
@@ -223,6 +226,7 @@ def schema_for(table, cols):
             rel = {"to": f"ref('{ds}__{tbl}')", "field": fld}
             if table == "regional_lga" and c["name"] == "lga_id":
                 ctests.append(
+                    # pyrefly: ignore [bad-argument-type]
                     {
                         "custom_relationships": {
                             **rel,
@@ -232,9 +236,11 @@ def schema_for(table, cols):
                     }
                 )
             else:
+                # pyrefly: ignore [bad-argument-type]
                 ctests.append({"relationships": rel})
         if c["name"] == "series_id" and table != "series":
             ctests.append(
+                # pyrefly: ignore [bad-argument-type]
                 {
                     "relationships": {
                         "to": f"ref('{DATASET}__series')",
@@ -245,6 +251,7 @@ def schema_for(table, cols):
         if ctests:
             col["tests"] = ctests
         out_cols.append(col)
+    # pyrefly: ignore [bad-assignment]
     model["columns"] = out_cols
     return model
 

@@ -1,6 +1,6 @@
 """Measure each column's non-null share, to build the dbt test exemption lists.
 
-    python null_proportions.py
+    uv run models/us_cms_hcris/code/null_proportions.py
 
 ``not_null_proportion_multiple_columns`` asserts every column is at least 5%
 non-null, and a column that is legitimately sparser has to be exempted by name.
@@ -21,8 +21,9 @@ import json
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import OUTPUT
-from measures import MEASURES
+
+from models.us_cms_hcris.code.common import OUTPUT
+from models.us_cms_hcris.code.measures import MEASURES
 
 CODE_DIR = Path(__file__).resolve().parent
 THRESHOLD = 0.05

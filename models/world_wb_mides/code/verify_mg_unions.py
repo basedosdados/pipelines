@@ -3,7 +3,7 @@
     uv run dbt compile --target-path /tmp/dbt_mides \
         --select world_wb_mides__licitacao world_wb_mides__licitacao_item \
                  world_wb_mides__licitacao_participante
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/verify_mg_unions.py \
+    uv run models/world_wb_mides/code/verify_mg_unions.py \
         --compiled /tmp/dbt_mides/compiled/basedosdados/models/world_wb_mides
 
 WHY THIS EXISTS

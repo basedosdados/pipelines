@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_localidad,STRING,"Código de la localidad censal, de ocho dígitos",,no,,,no,Llave primaria. Los cinco primeros dígitos corresponden al departamento,Código de localidad
+id_departamento,STRING,Código del departamento al que pertenece la localidad,,no,br_bd_diretorios_ar.departamento:id_departamento,,no,,Código de departamento
+id_jurisdiccion,STRING,Código de la jurisdicción a la que pertenece la localidad,,no,br_bd_diretorios_ar.jurisdiccion:id_jurisdiccion,,no,"Redundante respecto de id_departamento, se incluye para evitar un cruce adicional en los análisis por jurisdicción",Código de jurisdicción
+id_gobierno_local,STRING,Código del gobierno local al que pertenece la localidad,,no,br_bd_diretorios_ar.gobierno_local:id_gobierno_local,,no,,Código  de gobierno Local
+id_aglomerado,STRING,Código del aglomerado al que pertenece la localidad,,no,br_bd_diretorios_ar.aglomerado:id_aglomerado,,no,"Toda localidad integra exactamente un aglomerado; 3.587 son aglomerados de una sola localidad",Código de aglomerado
+nombre,STRING,Nombre de la localidad censal,,no,,,no,"No es único dentro del departamento: 11 localidades comparten nombre y departamento con otra",Localidad
+tipo,STRING,Tipo de localidad,,yes,,,no,"LS para localidad simple y CA para componente de aglomerado. Equivale a la cardinalidad del aglomerado: las 436 localidades CA integran los 119 aglomerados de más de una localidad y las 3.587 LS son aglomerados de una sola localidad",Tipo de localidad

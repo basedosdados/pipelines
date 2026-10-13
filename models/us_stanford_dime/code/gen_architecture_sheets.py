@@ -9,13 +9,11 @@ to ``i18n.py`` and ``observations_i18n.py`` (the other two languages).
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
-from i18n import DESCRIPTIONS
-from observations_i18n import OBSERVATIONS
+from models.us_stanford_dime.code import architecture as arch
+from models.us_stanford_dime.code.i18n import DESCRIPTIONS
+from models.us_stanford_dime.code.observations_i18n import OBSERVATIONS
 
 HEADER = [
     "name",
@@ -38,6 +36,7 @@ HEADER = [
 def rows(table: str) -> list[list[str]]:
     out = [HEADER]
     for c in arch.TABLES[table]:
+        # pyrefly: ignore [bad-unpacking]
         name, bq, desc, tcov, cdict, direc, unit, sens, obs, orig = c
         d_pt, d_es = DESCRIPTIONS[desc]
         if obs:

@@ -1,7 +1,7 @@
 """Upload cleaned au_apra_adi parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_apra_adi/code/upload.py [--env dev|prod] [table ...]
+    uv run models/au_apra_adi/code/upload.py [--env dev|prod] [table ...]
 """
 
 import os

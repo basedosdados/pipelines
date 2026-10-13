@@ -43,11 +43,11 @@ schema.yml
 ## Reproduce
 
 ```bash
-uv run python models/au_abs_national_accounts/code/download.py
-uv run python models/au_abs_national_accounts/code/clean_data.py \
+uv run models/au_abs_national_accounts/code/download.py
+uv run models/au_abs_national_accounts/code/clean_data.py \
     models/au_abs_national_accounts/input models/au_abs_national_accounts/output
 GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/prod.json \
-  uv run python models/au_abs_national_accounts/code/upload.py --env dev
+  uv run models/au_abs_national_accounts/code/upload.py --env dev
 ```
 
 ## Status

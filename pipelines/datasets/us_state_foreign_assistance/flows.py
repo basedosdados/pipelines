@@ -108,7 +108,6 @@ def us_state_foreign_assistance_flow(
         force_run: Download and materialize even when the source poll reports
             no newer release.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

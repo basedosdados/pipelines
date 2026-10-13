@@ -88,7 +88,6 @@ def au_doe_higher_education_flow(
     update_metadata: bool = True,
     force_run: bool = False,
 ):
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
