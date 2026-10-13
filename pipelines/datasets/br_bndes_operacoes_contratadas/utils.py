@@ -6,9 +6,9 @@ Tres responsabilidades:
   - download_csv: baixa o CSV consolidado (stream p/ disco + resume via Range)
   - clean: le o CSV bruto e grava Parquet particionado por ano (schema explicito)
 
-get_source_last_modified/download_csv/clean sao genericas as duas tabelas de
-TABLES_CONSTANTS ("operacoes_indiretas_automaticas" e
-"operacoes_nao_automaticas"); a URL/schema de cada uma e resolvida pelo
+get_source_last_modified serve as seis tabelas; download_csv/clean sao
+genericas as duas tabelas de TABLES_CONSTANTS ("operacoes_indiretas_automaticas"
+e "operacoes_nao_automaticas"); a URL/schema de cada uma e resolvida pelo
 chamador (url ou table_id), nao tem default fixo aqui.
 
 As funcoes da operacoes_pre_embarque ficam no fim do modulo, de build_paths a
@@ -20,7 +20,7 @@ Passo a passo de implementacao de cada funcao: ver task_davi/ROADMAP.md, secao 2
 import hashlib
 import re
 import shutil
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -40,24 +40,23 @@ from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
 from pipelines.utils.metadata.domain import DateFormat
 from pipelines.utils.utils import log
 
-CHUNKSIZE = 200_000
 
-
-def get_source_last_modified(url: str, last_modified_format: str) -> datetime:
+def get_source_last_modified(url: str, last_modified_format: str) -> date:
     """
-    Le o `last_modified` do recurso no CKAN (sinal de atualizacao do poll).
+    Le o dia do `last_modified` do recurso no CKAN (sinal do poll).
 
-    Faz GET em `url` (RESOURCE_SHOW_URL da tabela) e parseia
-    result["last_modified"] com `last_modified_format`.
+    Faz GET em `url` (RESOURCE_SHOW_URL da tabela), parseia
+    result["last_modified"] com `last_modified_format` e devolve so o dia; a
+    hora fica no log.
 
     Args:
         url (str): RESOURCE_SHOW_URL do recurso CKAN da tabela.
         last_modified_format (str): LAST_MODIFIED_FORMAT da classe da tabela.
 
     Returns:
-        datetime: Data/hora da ultima publicacao do CSV no portal.
+        date: Dia da ultima publicacao do CSV no portal.
     """
-    response = httpx.get(url)
+    response = httpx.get(url, timeout=60)
     response.raise_for_status()
     last_modified_date_iso = response.json()["result"]["last_modified"]
     last_modified_date = datetime.strptime(
@@ -65,7 +64,7 @@ def get_source_last_modified(url: str, last_modified_format: str) -> datetime:
     )
     log(f"Fonte last_modified: {last_modified_date}")
 
-    return last_modified_date
+    return last_modified_date.date()
 
 
 def get_datastore_row_count(resource_id: str) -> int:
@@ -395,7 +394,7 @@ def clean(csv_path: Path, output_dir: Path, table_id: str) -> Path:
     """
     Le o CSV bruto em chunks e grava Parquet particionado por ano.
 
-    Le com read_csv(sep=";", encoding="cp1252", dtype=str, chunksize=CHUNKSIZE),
+    Le com read_csv(sep=";", encoding="cp1252", dtype=str, chunksize=CHUNKSIZE da tabela),
     limpa cada chunk com _transform_chunk e vai anexando cada ano num
     pq.ParquetWriter proprio (um por particao, mantido aberto entre chunks) ->
     memoria constante. O SCHEMA da tabela (via table_id) garante que anos
@@ -429,7 +428,7 @@ def clean(csv_path: Path, output_dir: Path, table_id: str) -> Path:
             sep=";",
             encoding="cp1252",
             dtype=str,
-            chunksize=CHUNKSIZE,
+            chunksize=table_constants.CHUNKSIZE.value,
         ),
         start=1,
     ):
@@ -926,17 +925,6 @@ def get_resource() -> dict[str, Any]:
     )
     response.raise_for_status()
     return response.json()["result"]
-
-
-def get_source_last_modified_pre_embarque() -> str:
-    """Lê a data da última republicação do recurso.
-
-    Returns:
-        A data do `last_modified` do recurso, no formato `%Y-%m-%d`.
-    """
-    last_modified = datetime.fromisoformat(get_resource()["last_modified"])
-    log(f"last_modified do recurso: {last_modified}")
-    return last_modified.strftime(DateFormat.YEAR_MD)
 
 
 def download_table() -> Path:
