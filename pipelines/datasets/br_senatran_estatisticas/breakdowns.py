@@ -269,6 +269,11 @@ def read_breakdown(path: str | Path, layout: Layout) -> pl.DataFrame:
     partes = []
     for aba in sheets:
         parte = pd.read_excel(path, sheet_name=aba, dtype=str)
+        # Os arquivos de 2014 trazem as abas vazias padrão do Excel (`Plan2`,
+        # `Plan3`, `Plan4`), com zero colunas. Pular aba sem dado; uma aba com
+        # dado e colunas de menos continua sendo erro.
+        if parte.dropna(how="all").empty:
+            continue
         if parte.shape[1] < expected:
             raise ValueError(
                 f"{path} [{aba}]: esperava >= {expected} colunas para o "
@@ -282,6 +287,8 @@ def read_breakdown(path: str | Path, layout: Layout) -> pl.DataFrame:
         parte.columns = colunas
         partes.append(parte)
 
+    if not partes:
+        raise ValueError(f"Nenhuma aba com dados em {path}")
     frame = (
         partes[0] if len(partes) == 1 else pd.concat(partes, ignore_index=True)
     )
