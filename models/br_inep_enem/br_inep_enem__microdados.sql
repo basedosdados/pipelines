@@ -5,7 +5,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1998, "end": 2023, "interval": 1},
+            "range": {"start": 1998, "end": 2028, "interval": 1},
         },
         labels={"project_id": "basedosdados", "tema": "educacao"},
     )
