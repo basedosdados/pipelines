@@ -1,7 +1,7 @@
 """
 Flows para br_bndes_operacoes_contratadas — Prefect 3.
 
-Migrado por completo pro pipeline em estágios (staged pipeline):
+5 das 6 tabelas migradas pro pipeline em estágios (staged pipeline):
 check_update -> extract_and_load -> build_and_promote, uma dupla de flows por
 tabela. Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
@@ -9,6 +9,11 @@ tabela. Lógica específica do dataset mora em `tasks.py`, constantes em
 A lógica de download/clean (`get_source_last_modified`, `download_csv`,
 `clean*`) segue existindo em `pipelines/crawler/bndes/` — reaproveitada por
 `tasks.py`, não reescrita.
+
+A exceção é `operacoes_pre_embarque`, que segue o desenho de diretório
+único e ainda não foi migrada pro pipeline em estágios: o corpo fica no
+próprio flow, e o download/limpeza, em `constants`/`utils`/`tasks` deste
+mesmo diretório.
 """
 
 from prefect.schedules import Cron
@@ -23,20 +28,34 @@ from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
     SOURCE_DATE_FORMAT,
 )
 from pipelines.datasets.br_bndes_operacoes_contratadas.tasks import (
+    clean_table,
+    download_table,
     extract_load_data_administracao_publica,
     extract_load_data_exportacao_bens,
     extract_load_data_exportacao_servicos,
     get_latest_update_administracao_publica,
     get_latest_update_exportacao_bens,
     get_latest_update_exportacao_servicos,
+    get_source_last_modified,
     make_extract_load_data,
     make_get_latest_update,
 )
 from pipelines.utils.flow import flow
+from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
+)
 from pipelines.utils.stage_dispatch import (
     CheckThenExtractLoadPipeline,
     Etapa,
     deploy_tags,
+)
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
+    run_dbt,
+    upload_to_gcs,
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -306,3 +325,107 @@ br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_download.deploy_tag
     DATASET_ID, Etapa.EXTRACT_AND_LOAD, OPERACOES_EXPORTACAO_SERVICOS_TABLE_ID
 )
 _operacoes_exportacao_servicos_pipeline.extract_load_deployment = br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_download.fn.__name__
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# operacoes_pre_embarque — exceção de diretório único, ainda não migrada pro
+# pipeline em estágios (ver constants.py/tasks.py/utils.py deste diretório).
+# Sem cron, carga manual: a série da fonte está ativa, mas republica sem
+# periodicidade declarada.
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@flow(
+    name="br_bndes_operacoes_contratadas__operacoes_pre_embarque",
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas__operacoes_pre_embarque(
+    dataset_id: str = "br_bndes_operacoes_contratadas",
+    table_id: str = "operacoes_pre_embarque",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    force_run: bool = False,
+) -> None:
+    """Atualiza a operacoes_pre_embarque quando o BNDES republica o recurso."""
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    source_max_date = get_source_last_modified()
+
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format=DateFormat.YEAR_MD,
+            compare_against="table_update",
+        )
+        if not has_new_data:
+            print(f"Não há atualizações para a tabela {table_id}!")
+            return
+
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
+    csv_path = download_table()
+    filepath = clean_table(csv_path=csv_path)
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="prod",
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=AllFree(
+                date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+br_bndes_operacoes_contratadas__operacoes_pre_embarque.deploy_schedules = [
+    Cron("25 2 * * 1", timezone="America/Sao_Paulo")
+]

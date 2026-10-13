@@ -15,9 +15,16 @@ confirmar novidade, antes de baixar) — exatamente o que
 única chamada síncrona ao `resource_show` do CKAN (`get_source_max_date*`,
 já com retry via `@task`); quem decide se há dado novo e faz o poll/commit é
 a cápsula.
+
+As tasks de `operacoes_pre_embarque` (fim do arquivo) são exceção: essa
+tabela não foi migrada pro pipeline em estágios, segue com o flow monolítico
+próprio (ver `flows.py`) — cada task embrulha uma função de `utils.py`.
 """
 
 from collections.abc import Callable
+from pathlib import Path
+
+from prefect import task
 
 from pipelines.crawler.bndes.tasks import (
     clean_and_partition,
@@ -33,6 +40,7 @@ from pipelines.crawler.bndes.tasks import (
     get_source_max_date_exportacao_bens,
     get_source_max_date_exportacao_servicos,
 )
+from pipelines.datasets.br_bndes_operacoes_contratadas import utils
 from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
     COVERAGE,
 )
@@ -153,3 +161,42 @@ def extract_load_data_exportacao_servicos(
         dump_mode="overwrite",
         source_format="parquet",
     )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# operacoes_pre_embarque — exceção de diretório único, flow monolítico
+# próprio (ver flows.py). Cada task embrulha uma função de `utils.py`.
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@task(retries=3, retry_delay_seconds=30)
+def get_source_last_modified() -> str:
+    """Lê a data da última republicação do recurso.
+
+    Returns:
+        A data do `last_modified`, no formato `%Y-%m-%d`.
+    """
+    return utils.get_source_last_modified()
+
+
+@task(retries=3, retry_delay_seconds=60)
+def download_table() -> Path:
+    """Baixa o CSV e confere o MD5.
+
+    Returns:
+        O caminho do CSV baixado.
+    """
+    return utils.download_table()
+
+
+@task
+def clean_table(csv_path: Path) -> Path:
+    """Limpa e particiona a tabela.
+
+    Args:
+        csv_path: CSV baixado por `download_table`.
+
+    Returns:
+        O diretório particionado, no formato esperado por `upload_to_gcs`.
+    """
+    return utils.clean_table(csv_path=csv_path)

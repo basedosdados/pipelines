@@ -184,6 +184,12 @@ models:
     br_bd_diretorios_fr:
       +materialized: table
       +schema: br_bd_diretorios_fr
+    fr_colibre_decp:
+      +materialized: table
+      +schema: fr_colibre_decp
+    fr_inpi_ratios_financiers:
+      +materialized: table
+      +schema: fr_inpi_ratios_financiers
     fr_insee_sirene:
       +materialized: table
       +schema: fr_insee_sirene
@@ -351,6 +357,9 @@ models:
     br_bd_siga_o_dinheiro:
       +materialized: table
       +schema: br_bd_siga_o_dinheiro
+    br_bndes_desembolsos:
+      +materialized: table
+      +schema: br_bndes_desembolsos
     br_bndes_operacoes_contratadas:
       +materialized: table
       +schema: br_bndes_operacoes_contratadas
@@ -396,6 +405,9 @@ models:
     br_cgu_servidores_executivo_federal:
       +materialized: table
       +schema: br_cgu_servidores_executivo_federal
+    br_cnj_datajud:
+      +materialized: table
+      +schema: br_cnj_datajud
     br_cnj_improbidade_administrativa:
       +materialized: table
       +schema: br_cnj_improbidade_administrativa
@@ -432,6 +444,9 @@ models:
     br_geobr_mapas:
       +materialized: table
       +schema: br_geobr_mapas
+    br_ibama_fiscalizacao:
+      +materialized: table
+      +schema: br_ibama_fiscalizacao
     br_ibge_censo_2022:
       +materialized: table
       +schema: br_ibge_censo_2022
@@ -780,6 +795,9 @@ models:
     us_meta_sci:
       +materialized: table
       +schema: us_meta_sci
+    us_nyuad_cora:
+      +materialized: table
+      +schema: us_nyuad_cora
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
@@ -831,6 +849,9 @@ models:
     world_olympedia_olympics:
       +materialized: table
       +schema: world_olympedia_olympics
+    ca_ourresearch_openalex:
+      +materialized: table
+      +schema: ca_ourresearch_openalex
     world_sofascore_competicoes_futebol:
       +materialized: table
       +schema: world_sofascore_competicoes_futebol
