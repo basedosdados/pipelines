@@ -55,7 +55,7 @@ br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_check_update.depl
     constants_indiretas_automaticas.TABLE_ID.value,
 )
 br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_check_update.deploy_schedules = [
-    Cron("5 6 * * 1", timezone="America/Sao_Paulo")
+    Cron("5 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -101,7 +101,7 @@ br_bndes_operacoes_contratadas_operacoes_nao_automaticas_check_update.deploy_tag
     constants_nao_automaticas.TABLE_ID.value,
 )
 br_bndes_operacoes_contratadas_operacoes_nao_automaticas_check_update.deploy_schedules = [
-    Cron("10 6 * * 1", timezone="America/Sao_Paulo")
+    Cron("10 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -147,7 +147,7 @@ br_bndes_operacoes_contratadas_operacoes_administracao_publica_check_update.depl
     constants_administracao_publica.TABLE_ID.value,
 )
 br_bndes_operacoes_contratadas_operacoes_administracao_publica_check_update.deploy_schedules = [
-    Cron("20 6 * * 1", timezone="America/Sao_Paulo")
+    Cron("20 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -193,7 +193,7 @@ br_bndes_operacoes_contratadas_operacoes_exportacao_bens_check_update.deploy_tag
     constants_exportacao_bens.TABLE_ID.value,
 )
 br_bndes_operacoes_contratadas_operacoes_exportacao_bens_check_update.deploy_schedules = [
-    Cron("25 6 * * 1", timezone="America/Sao_Paulo")
+    Cron("25 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -282,7 +282,7 @@ br_bndes_operacoes_contratadas_operacoes_pre_embarque_check_update.deploy_tags =
     constants_pre_embarque.TABLE_ID.value,
 )
 br_bndes_operacoes_contratadas_operacoes_pre_embarque_check_update.deploy_schedules = [
-    Cron("25 2 * * 1", timezone="America/Sao_Paulo")
+    Cron("25 2 * * *", timezone="America/Sao_Paulo")
 ]
 
 
