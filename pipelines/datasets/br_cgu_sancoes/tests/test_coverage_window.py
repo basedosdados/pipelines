@@ -12,7 +12,7 @@ from datetime import date
 
 import pytest
 
-from pipelines.datasets.br_cgu_sancoes.flows import _COVERAGE
+from pipelines.datasets.br_cgu_sancoes.constants import COVERAGE as _COVERAGE
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,

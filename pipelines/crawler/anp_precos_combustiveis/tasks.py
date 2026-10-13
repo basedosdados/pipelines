@@ -2,6 +2,8 @@
 Tasks for br_anp_precos_combustiveis — Prefect 3.
 """
 
+from datetime import date
+
 import pandas as pd
 from prefect import task
 
@@ -24,7 +26,7 @@ from pipelines.crawler.anp_precos_combustiveis.utils import (
 
 
 @task
-def get_data_source_anp_max_date():
+def get_data_source_anp_max_date() -> date:
     download_files(
         anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value
     )
