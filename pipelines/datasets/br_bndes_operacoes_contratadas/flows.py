@@ -1,29 +1,50 @@
 """
-Flows for br_bndes_operacoes_contratadas — Prefect 3.
+Flows de br_bndes_operacoes_contratadas — Prefect 3.
 
-Wrapper @flow do crawler: expoe os parametros de run e o cron. A logica de
-orquestracao (poll deferido) vive em pipelines/crawler/bndes/flows.py.
+Um @flow por tabela, com os parâmetros de run e o cron. O corpo das cinco
+tabelas antigas fica nas funções `_run_*` deste arquivo (a indiretas e a não
+automáticas dividem `_run_operacoes`); o da operacoes_pre_embarque, no próprio
+flow. Download e limpeza ficam em constants/utils/tasks deste diretório.
 
-A exceção é a operacoes_pre_embarque, que já segue o desenho de diretório
-único: o corpo fica no próprio flow, e o download e a limpeza, em
-constants/utils/tasks deste diretório.
+Poll deferido: poll_source_for_update_task detecta novidade (grava só o Poll);
+commit_source_update_task grava o Update logo após essa confirmação, antes de
+baixar e materializar. O poll nunca lê o RawDataSource.Update para decidir
+(compara com o Table.Update), então adiantar esse valor não trava runs futuras
+e mostra que havia dado novo publicado mesmo que o flow falhe no meio.
+
+Duas datas, que não se confundem:
+- Update da fonte (poll/commit): data de publicação, o last_modified do CKAN.
+- Período da tabela (registro da materialização): data da operação, com dia
+  (AllFree + DateOnly + DateFormat.YEAR_MD), porque nenhuma tabela tem coluna
+  de mês. A exceção é a operacoes_exportacao_servicos, carga única, por ano.
 """
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.bndes.flows import (
-    _run_operacoes,
-    _run_operacoes_administracao_publica,
-    _run_operacoes_exportacao_bens,
-    _run_operacoes_exportacao_servicos,
-)
 from pipelines.datasets.br_bndes_operacoes_contratadas.tasks import (
+    clean_and_partition,
+    clean_and_partition_administracao_publica,
+    clean_and_partition_exportacao_bens,
+    clean_and_partition_exportacao_servicos,
     clean_table,
+    download_administracao_publica_csv,
+    download_exportacao_bens_csv,
+    download_exportacao_servicos_csv,
+    download_source_csv,
     download_table,
-    get_source_last_modified,
+    get_source_last_modified_pre_embarque,
+    get_source_max_date,
+    get_source_max_date_administracao_publica,
+    get_source_max_date_exportacao_bens,
+    get_source_max_date_exportacao_servicos,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    DateOnly,
+    YearOnly,
+)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -34,6 +55,417 @@ from pipelines.utils.tasks import (
     run_dbt,
     upload_to_gcs,
 )
+
+
+def _run_operacoes(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    """
+    Orquestra o crawler: poll deferido -> download -> clean -> upload -> dbt.
+
+    Args:
+        dataset_id (str): ID do dataset no GCP/BigQuery.
+        table_id (str): ID da tabela no GCP/BigQuery.
+        materialize_after_dump (bool): se False, para apos o dbt em dev (nao toca prod).
+        update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
+        target (str): target do dbt na etapa de prod.
+        force_run (bool): ignora o early-return quando nao ha novidade.
+    """
+
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    source_max_date = get_source_max_date(table_id=table_id)
+
+    has_new_data = poll_source_for_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        compare_against="table_update",
+    )
+
+    if not has_new_data and not force_run:
+        return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
+    csv_path = download_source_csv(table_id=table_id)
+
+    output_dir = clean_and_partition(csv_path=csv_path, table_id=table_id)
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=AllFree(
+                date_column=DateOnly(col="data_contratacao"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+def _run_operacoes_exportacao_bens(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    update_metadata: bool,
+    force_run: bool,
+) -> None:
+    """
+    Orquestra o crawler da 3a tabela: poll deferido -> download -> clean -> upload -> dbt.
+
+    Mesma receita das irmas, trocando so as tasks especificas da tabela.
+
+    Args:
+        dataset_id (str): ID do dataset no GCP/BigQuery.
+        table_id (str): ID da tabela no GCP/BigQuery.
+        materialize_after_dump (bool): se False, para apos o dbt em dev (nao toca prod).
+        update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
+        force_run (bool): ignora o early-return quando nao ha novidade.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    source_max_date = get_source_max_date_exportacao_bens()
+
+    has_new_data = poll_source_for_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        compare_against="table_update",
+    )
+
+    if not has_new_data and not force_run:
+        return
+
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
+    csv_path = download_exportacao_bens_csv()
+
+    output_dir = clean_and_partition_exportacao_bens(csv_path=csv_path)
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="prod",
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=AllFree(
+                date_column=DateOnly(col="data_contratacao"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+def _run_operacoes_exportacao_servicos(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    """
+    Orquestra o crawler da 4a tabela: poll deferido -> download -> clean -> upload -> dbt.
+
+    Mesma receita das irmas, trocando so as tasks especificas da tabela. A
+    tabela e carga unica — a serie da fonte termina em 2015 e o flow nao tem
+    cron —, entao na pratica so roda por disparo manual, com force_run.
+
+    Args:
+        dataset_id (str): ID do dataset no GCP/BigQuery.
+        table_id (str): ID da tabela no GCP/BigQuery.
+        materialize_after_dump (bool): se False, para apos o dbt em dev (nao toca prod).
+        update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
+        target (str): target do dbt na etapa de prod.
+        force_run (bool): ignora o early-return quando nao ha novidade.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    source_max_date = get_source_max_date_exportacao_servicos()
+
+    has_new_data = poll_source_for_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        compare_against="table_update",
+    )
+
+    if not has_new_data and not force_run:
+        return
+
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
+    csv_path = download_exportacao_servicos_csv()
+
+    output_dir = clean_and_partition_exportacao_servicos(csv_path=csv_path)
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=AllFree(
+                date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+def _run_operacoes_administracao_publica(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    """
+    Orquestra o crawler da 2a tabela: poll deferido -> download -> clean -> upload -> dbt.
+
+    Mesma receita de _run_operacoes_indiretas_automaticas: poll deferido — o
+    poll_source_for_update_task grava so o Poll ao detectar novidade; o
+    commit_source_update_task grava o Update da fonte logo apos essa
+    confirmacao, antes de baixar/materializar prod.
+
+    Args:
+        dataset_id (str): ID do dataset no GCP/BigQuery.
+        table_id (str): ID da tabela no GCP/BigQuery.
+        materialize_after_dump (bool): se False, para apos o dbt em dev (nao toca prod).
+        update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
+        target (str): target do dbt na etapa de prod.
+        force_run (bool): ignora o early-return quando nao ha novidade.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    source_max_date = get_source_max_date_administracao_publica()
+
+    has_new_data = poll_source_for_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        compare_against="table_update",
+    )
+
+    if not has_new_data and not force_run:
+        return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=DateFormat.YEAR_MD,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
+    csv_path = download_administracao_publica_csv()
+
+    output_dir = clean_and_partition_administracao_publica(csv_path=csv_path)
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=AllFree(
+                date_column=DateOnly(col="data_nivel_atual"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
 
 
 @flow(
@@ -208,7 +640,7 @@ def br_bndes_operacoes_contratadas__operacoes_pre_embarque(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    source_max_date = get_source_last_modified()
+    source_max_date = get_source_last_modified_pre_embarque()
 
     if not force_run:
         has_new_data = poll_source_for_update_task(
