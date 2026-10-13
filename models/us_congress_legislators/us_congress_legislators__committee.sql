@@ -5,6 +5,7 @@
         materialized="table",
     )
 }}
+-- Source snapshot: unitedstates/congress-legislators@d5af3d2 (2026-09-24)
 select
     safe_cast(id_committee as string) id_committee,
     safe_cast(id_committee_parent as string) id_committee_parent,
