@@ -27,7 +27,7 @@ hold across the whole series:
     threshold rather than asserted at zero.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_sc.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_sc.py [--env dev]
 """
 
 from __future__ import annotations

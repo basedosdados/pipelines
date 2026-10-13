@@ -4,7 +4,7 @@ Target is always `basedosdados-dev`; the production tables are materialised by
 the table-approve action when the onboarding PR merges, never from here.
 
 Usage:
-    uv run python models/us_ed_nces_ccd/code/upload.py [table_slug ...]
+    uv run models/us_ed_nces_ccd/code/upload.py [table_slug ...]
 
 Uploads smallest first and stops on the first failure, so a broken table is
 never followed by more uploads on top of it.

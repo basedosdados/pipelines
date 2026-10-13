@@ -16,7 +16,8 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
-from constants import (
+
+from models.br_mj_sisdepen.code.constants import (
     BASE_URL,
     CAPACITY_REGIMES,
     CHARACTERISTIC_BLOCKS,
@@ -787,6 +788,7 @@ def build_uf_semestre(
     """State-level convenience aggregate."""
     pop = (
         populacao.groupby(["ano", "semestre", "sigla_uf"])
+        # pyrefly: ignore [no-matching-overload]
         .apply(
             lambda g: pd.Series(
                 {
@@ -936,7 +938,9 @@ def build_cobertura(
             if (n + miss)
             else np.nan,
             "taxa_capacidade_informada": round(
-                float(g["capacidade_total"].notna().mean()), 6
+                # pyrefly: ignore [unnecessary-type-conversion]
+                float(g["capacidade_total"].notna().mean()),
+                6,
             ),
         }
         sub = cond[
@@ -951,6 +955,7 @@ def build_cobertura(
                 ("ausente", "nao"),
             ):
                 rec[f"taxa_{char}_{suffix}"] = (
+                    # pyrefly: ignore [unnecessary-type-conversion]
                     round(float((s == key).sum() / total), 6)
                     if total
                     else np.nan

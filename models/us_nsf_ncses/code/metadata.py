@@ -9,11 +9,10 @@ Columns come from the architecture CSVs, so the registered types, descriptions
 and directory links cannot drift from the dbt models, which are generated from
 the same files.
 
-Run with the shared venv, which has fastmcp and requests. The databasis MCP
-checkout it imports ``server`` from is located via ``DATABASIS_MCP_DIR``:
+Run with an environment that has the ``databasis-mcp`` dependency installed:
 
-    ~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py staging
-    ~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py prod
+    uv run models/us_nsf_ncses/code/metadata.py staging
+    uv run models/us_nsf_ncses/code/metadata.py prod
 """
 
 from __future__ import annotations
@@ -21,39 +20,11 @@ from __future__ import annotations
 import csv
 import datetime
 import json
-import os
 import sys
 from pathlib import Path
 
-# `server` is the databasis MCP server, which lives in its own repository rather
-# than in this one, so it cannot be imported as a declared dependency. This is
-# the house pattern for one-shot metadata scripts (`au_abs_population`,
-# `au_aec_elections`, `au_nsw_nswec_elections`, `au_sa_ecsa_elections` all do
-# the same). Override the checkout location with DATABASIS_MCP_DIR; the default
-# is only a convenience for the machine this was onboarded from.
-MCP_DIR = Path(
-    os.environ.get(
-        "DATABASIS_MCP_DIR",
-        Path.home()
-        / "Monash Uni Enterprise Dropbox"
-        / "Ricardo Dahis"
-        / "BD"
-        / "mcp",
-    )
-).expanduser()
-sys.path.insert(0, str(MCP_DIR))
-
-try:
-    import server
-except ModuleNotFoundError as exc:  # pragma: no cover - operator feedback only
-    raise SystemExit(
-        f"cannot import the databasis MCP server from {MCP_DIR}.\n"
-        "Clone https://github.com/basedosdados/mcp and point DATABASIS_MCP_DIR "
-        "at it, e.g.\n"
-        "    DATABASIS_MCP_DIR=~/src/mcp \\\n"
-        "        ~/.venvs/bd-pipelines/bin/python "
-        "models/us_nsf_ncses/code/metadata.py staging"
-    ) from exc
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
@@ -155,9 +126,9 @@ def resolve_refs(env: str) -> dict[str, str]:
     """Look every reference id up in the target backend."""
     refs = {}
     for key, (category, slug) in REF_SLUGS.items():
-        refs[key] = server.lookup_id(category=category, slug=slug, env=env)[
-            "id"
-        ]
+        refs[key] = bd_mcp_metadata.lookup_id(
+            category=category, slug=slug, env=env
+        )["id"]
     return refs
 
 
@@ -509,7 +480,9 @@ def resolve_tags(env: str) -> list[str]:
     )
     ids, missing = [], []
     for tag_id, label in TAG_IDS.items():
-        edges = server._gql(query, {"id": tag_id}, env=env)["allTag"]["edges"]
+        edges = bd_mcp_metadata._gql(query, {"id": tag_id}, env=env)["allTag"][
+            "edges"
+        ]
         if edges:
             ids.append(tag_id)
         else:
@@ -522,11 +495,11 @@ def resolve_tags(env: str) -> list[str]:
 def register(env: str) -> dict:
     """Register the dataset, its raw sources and its seven tables."""
     refs = resolve_refs(env)
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = account["id"]
     area_us = refs["area_us"]
 
-    dataset = server.create_update_dataset(
+    dataset = bd_mcp_write.create_update_dataset(
         id=DATASET_ID,
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
@@ -550,17 +523,21 @@ def register(env: str) -> dict:
     # Raw sources are matched on URL so a re-run updates rather than appends.
     by_url = {
         existing_source["url"]: existing_source["id"]
-        for existing_source in server.get_raw_data_sources(
+        for existing_source in bd_mcp_write.get_raw_data_sources(
             dataset_slug=DATASET_SLUG, env=env
         )
     }
     source_ids: dict[str, list[str]] = {}
     for source in RAW_SOURCES:
-        created = server.create_update_raw_data_source(
+        created = bd_mcp_write.create_update_raw_data_source(
             dataset_id=DATASET_ID,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=source["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=source["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=source["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             url=source["url"],
             license_id=refs["license_ppdl"],
             availability_id=refs["availability_online"],
@@ -574,24 +551,34 @@ def register(env: str) -> dict:
         for table in source["tables"]:
             source_ids.setdefault(table, []).append(created["id"])
 
-    existing = server.get_dataset(slug=DATASET_SLUG, env=env).get("tables", {})
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env).get(
+        "tables", {}
+    )
     report = {}
     for spec in TABLES:
         slug = spec["slug"]
         prior = existing.get(slug, {})
-        table = server.create_update_table(
+        table = bd_mcp_write.create_update_table(
             id=prior.get("id"),
+            # pyrefly: ignore [bad-argument-type]
             slug=slug,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=spec["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=spec["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=spec["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             description_pt=spec["description_pt"],
+            # pyrefly: ignore [bad-argument-type]
             description_en=spec["description_en"],
+            # pyrefly: ignore [bad-argument-type]
             description_es=spec["description_es"],
             dataset_id=DATASET_ID,
             status_id=refs["status_published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # pyrefly: ignore [no-matching-overload]
             raw_data_source_ids=source_ids.get(slug, []),
             auxiliary_files_url=(
                 ""
@@ -610,9 +597,10 @@ def register(env: str) -> dict:
             for level in prior.get("observation_levels", [])
         }
         levels = {}
+        # pyrefly: ignore [not-iterable]
         for level in spec["levels"]:
             entity_id = refs[f"entity_{level}"]
-            created = server.create_update_observation_level(
+            created = bd_mcp_write.create_update_observation_level(
                 id=prior_levels.get(entity_id),
                 table_id=table_id,
                 entity_id=entity_id,
@@ -621,35 +609,38 @@ def register(env: str) -> dict:
             levels[level] = created["id"]
 
         cloud_tables = prior.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=cloud_tables[0]["id"] if cloud_tables else None,
             table_id=table_id,
             gcp_project_id=(
                 "basedosdados" if env == "prod" else "basedosdados-dev"
             ),
             gcp_dataset_id=GCP_DATASET,
+            # pyrefly: ignore [bad-argument-type]
             gcp_table_id=slug,
             env=env,
         )
 
         coverages = prior.get("coverages", [])
-        coverage = server.create_update_coverage(
+        coverage = bd_mcp_write.create_update_coverage(
             id=coverages[0]["id"] if coverages else None,
             table_id=table_id,
             area_id=area_us,
             env=env,
         )
         ranges = coverages[0].get("datetime_ranges", []) if coverages else []
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             id=ranges[0]["id"] if ranges else None,
             coverage_id=coverage["id"],
+            # pyrefly: ignore [bad-argument-type]
             start_year=spec["start"],
+            # pyrefly: ignore [bad-argument-type]
             end_year=spec["end"],
             interval=1,
             env=env,
         )
         updates = prior.get("updates", [])
-        server.create_update_update(
+        bd_mcp_write.create_update_update(
             id=updates[0]["id"] if updates else None,
             table_id=table_id,
             entity_id=refs["entity_year"],
@@ -659,8 +650,9 @@ def register(env: str) -> dict:
             env=env,
         )
 
-        written = server.bulk_upsert_columns(
+        written = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
+            # pyrefly: ignore [bad-argument-type]
             columns_json=columns_payload(slug),
             env=env,
         )
@@ -670,18 +662,20 @@ def register(env: str) -> dict:
         # so both are written together, per column, here.
         by_name = {
             c["name"]: c["id"]
-            for c in server.get_dataset(slug=DATASET_SLUG, env=env)["tables"][
-                slug
-            ]["columns"]
+            for c in bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)[
+                "tables"
+            ][slug]["columns"]
         }
+        # pyrefly: ignore [no-matching-overload]
         partition = PARTITIONS.get(slug, "")
+        # pyrefly: ignore [no-matching-overload]
         wanted = dict(spec["level_columns"])
         if partition and partition not in wanted.values():
             wanted["__partition__"] = partition
         for level, column in wanted.items():
             if column not in by_name:
                 raise RuntimeError(f"{slug}: no column {column} to link")
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name[column],
                 column_name=column,
                 table_id=table_id,
@@ -692,8 +686,9 @@ def register(env: str) -> dict:
         report[slug] = {"id": table_id, "columns": written}
         print(f"table {slug}: {written}")
 
-    server.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG,
+        # pyrefly: ignore [bad-argument-type]
         table_slugs=[t["slug"] for t in TABLES],
         env=env,
     )
@@ -707,7 +702,7 @@ def set_dataset_status(env: str, status: str) -> dict:
     """
     status_id = resolve_refs(env)[f"status_{status}"]
     refs = resolve_refs(env)
-    return server.create_update_dataset(
+    return bd_mcp_write.create_update_dataset(
         id=DATASET_ID,
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
@@ -734,7 +729,7 @@ def rename_organization(env: str) -> dict:
     The organization also carries an unfilled Survey of Doctorate Recipients
     shell, whose public URL changes with this rename.
     """
-    return server.create_update_organization(
+    return bd_mcp_write.create_update_organization(
         id=ORGANIZATION_ID,
         slug="nsf",
         name_pt="National Science Foundation (NSF)",

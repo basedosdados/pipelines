@@ -76,7 +76,6 @@ def us_ed_nces_ccd_flow(
             coverage. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the poll reports no new school year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="school"
     )

@@ -93,7 +93,6 @@ def us_cfpb_complaints_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=COMPLAINT
     )

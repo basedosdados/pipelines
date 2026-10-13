@@ -132,11 +132,11 @@ reachable from the raw data source URL.
 ## Rebuilding
 
 ```bash
-uv run python models/us_ssa_beneficiaries/code/build_architecture.py
-uv run python models/us_ssa_beneficiaries/code/build_dbt_models.py
-uv run python models/us_ssa_beneficiaries/code/clean.py --download
-uv run python models/us_ssa_beneficiaries/code/upload.py
-uv run python models/us_ssa_beneficiaries/code/test_reconciliation.py
+uv run models/us_ssa_beneficiaries/code/build_architecture.py
+uv run models/us_ssa_beneficiaries/code/build_dbt_models.py
+uv run models/us_ssa_beneficiaries/code/clean.py --download
+uv run models/us_ssa_beneficiaries/code/upload.py
+uv run models/us_ssa_beneficiaries/code/test_reconciliation.py
 ```
 
 Scratch data goes to `~/Downloads/us_ssa_beneficiaries_data` (override with
@@ -150,9 +150,9 @@ One script registers everything, and is safe to re-run because every record is
 looked up before it is written:
 
 ```bash
-uv run python models/us_ssa_beneficiaries/code/metadata.py --env staging
-uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod
-uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
+uv run models/us_ssa_beneficiaries/code/metadata.py --env staging
+uv run models/us_ssa_beneficiaries/code/metadata.py --env prod
+uv run models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
 ```
 
 `--dataset-only` updates the dataset record alone, which is what a tag or

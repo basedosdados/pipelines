@@ -1,6 +1,10 @@
 """Architecture for the registry and catalogue tables (snapshot, partitioned by data_extracao)."""
 
-from arch_common import DIR_MUNICIPIO, DIR_UF, c
+from models.br_mgi_compras_publicas.code.arch_common import (
+    DIR_MUNICIPIO,
+    DIR_UF,
+    c,
+)
 
 DATA_EXTRACAO = c(
     "data_extracao",

@@ -54,9 +54,9 @@ TABLES: dict[str, TableMeta] = {
         (2021, 1, 2026, 7),
     ),
     "contratacao_item_resultado": TableMeta(
-        "Contratação - Resultado do item",
-        "Procurement - Item result",
-        "Contratación - Resultado del ítem",
+        "Contratação - Item - Resultado",
+        "Procurement - Item - Result",
+        "Contratación - Ítem - Resultado",
         "Results of the items of Law 14,133/2021 procurements. One row per supplier ranked on "
         "each item, with the quantity and value awarded",
         "Resultados de los ítems de las contrataciones de la Ley 14.133/2021. Una fila por "
@@ -281,9 +281,9 @@ TABLES: dict[str, TableMeta] = {
     # result-by-supplier pages, which no Compras.gov.br API exposes, so their
     # coverage ends with the legado system rather than with the Lei 8.666 series.
     "pregao_item_oferta": TableMeta(
-        "Licitação - Pregão - Proposta vencedora do item",
-        "Tender - Reverse auction - Winning item offer",
-        "Licitación - Pregón - Propuesta ganadora del ítem",
+        "Licitação - Pregão - Item - Proposta vencedora",
+        "Tender - Reverse auction - Item - Winning offer",
+        "Licitación - Pregón - Ítem - Propuesta ganadora",
         "Winning offers by item for the electronic reverse auctions run under Law 8.666, with "
         "the brand, manufacturer, model and detailed description of the object actually offered "
         "by the supplier, plus the unit and total price. One row per item and winning supplier. "
@@ -308,9 +308,9 @@ TABLES: dict[str, TableMeta] = {
         (2004, None, 2024, None),
     ),
     "pregao_item_evento": TableMeta(
-        "Licitação - Pregão - Evento do item",
-        "Tender - Reverse auction - Item event",
-        "Licitación - Pregón - Evento del ítem",
+        "Licitação - Pregão - Item - Evento",
+        "Tender - Reverse auction - Item - Event",
+        "Licitación - Pregón - Ítem - Evento",
         "Event timeline by item for the electronic reverse auctions run under Law 8.666, with "
         "the date, time and responsible public official for each award, homologation, "
         "cancellation and return to a previous phase. One row per item event. It includes items "
@@ -433,10 +433,29 @@ TABLE_ORDER = [
 #: the registries and the dicionario, which `…semanal` re-snapshots
 #: (cron 12 4 * * 0).
 #:
-#: The Lei 8.666 tables and the two ComprasNet legado tables have no flow yet.
-#: They are recorded as weekly because that is the cadence planned for them; the
-#: regime is closed, so a refresh only ever picks up late corrections.
-UPDATE_CADENCE: dict[str, tuple[str, int]] = {
+#: The eight archive tables carry NO frequency. They were recorded as weekly on
+#: the assumption that a flow would later refresh them, but the Lei 8.666 legado
+#: stopped publishing in mid-2025 and there will be no refresh to declare:
+#:
+#:   /modulo-legado/1_consultarLicitacao, by publication month
+#:     2025-01: 1,631   2025-03: 1,566   2025-05: 951
+#:     2025-07: 0       2025-09: 0       2026-01 … 2026-09: 0
+#:   /modulo-legado/5_consultarComprasSemLicitacao, whole year
+#:     2025: 24,382     2026 to date: 0
+#:
+#: A weekly claim on the site would also be expensive to honour rather than
+#: merely wrong: /modulo-legado/2_consultarItemLicitacao, which feeds
+#: licitacao_item, has no date filter at all -- modalidade=5 alone returns
+#: 32,397,345 records -- so a refresh must re-read tens of millions of rows to
+#: discover nothing changed. The same applies to the two ComprasNet tables,
+#: scraped from the legacy web UI and ending in 2024.
+#:
+#: `frequency=None` is "no declared cadence", which is what a closed archive
+#: has. `latest` still means what it always did -- when we last refreshed the
+#: table -- so the record stays useful. Prod already holds 37 such Updates
+#: (censo_demografico). The MCP types `frequency` as `int`, but the backend
+#: field is nullable and accepts None; verified against staging and prod.
+UPDATE_CADENCE: dict[str, tuple[str, int | None]] = {
     "contratacao": ("day", 1),
     "contratacao_item": ("day", 1),
     "contratacao_item_resultado": ("day", 1),
@@ -450,12 +469,12 @@ UPDATE_CADENCE: dict[str, tuple[str, int]] = {
     "catalogo_material": ("week", 1),
     "catalogo_servico": ("week", 1),
     "dicionario": ("week", 1),
-    "licitacao": ("week", 1),
-    "licitacao_item": ("week", 1),
-    "licitacao_pregao": ("week", 1),
-    "licitacao_item_pregao": ("week", 1),
-    "compra_sem_licitacao": ("week", 1),
-    "compra_sem_licitacao_item": ("week", 1),
-    "pregao_item_oferta": ("week", 1),
-    "pregao_item_evento": ("week", 1),
+    "licitacao": ("year", None),
+    "licitacao_item": ("year", None),
+    "licitacao_pregao": ("year", None),
+    "licitacao_item_pregao": ("year", None),
+    "compra_sem_licitacao": ("year", None),
+    "compra_sem_licitacao_item": ("year", None),
+    "pregao_item_oferta": ("year", None),
+    "pregao_item_evento": ("year", None),
 }

@@ -4,7 +4,7 @@ Per-table trilingual names + descriptions, observation-level entities, coverage
 years, and the BD-Pro flag — the input for backend metadata registration. Pure
 string assembly; reference-object UUIDs are supplied at registration time.
 
-Run: uv run python models/us_bls_qcew/code/build_registration_spec.py
+Run: uv run models/us_bls_qcew/code/build_registration_spec.py
 """
 
 import json
@@ -173,10 +173,8 @@ def main():
                 "pt": "Dicionário que mapeia as colunas codificadas do us_bls_qcew (propriedade, nível de agregação, classe de tamanho, indústria e área) para seus rótulos legíveis.",
                 "es": "Diccionario que asigna las columnas codificadas de us_bls_qcew (propiedad, nivel de agregación, clase de tamaño, industria y área) a sus etiquetas legibles.",
             },
-            # pyrefly: ignore [bad-assignment]
             "coverage": None,
             "ol_entities": [],
-            # pyrefly: ignore [bad-assignment]
             "update_entity": None,
             "bdpro": False,
             "columns_json": "code/columns_json/dicionario.json",

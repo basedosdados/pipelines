@@ -15,7 +15,7 @@ malloc) as a cheap second bound.
 
 Invoked as::
 
-    python -m pipelines.crawler.sfb_sicar._clean_runner \
+    uv run python -m pipelines.crawler.sfb_sicar._clean_runner \
         <shp> <start> <count> <part_dir> <table> <snapshot_iso> <sigla_uf> <idx>
 
 Prints one ``RESULT rows=<n> dropped=<n> peak_rss_mb=<n>`` line on success and

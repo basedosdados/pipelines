@@ -9,10 +9,10 @@ Uso:
     cd models/br_ms_sim/code
 
     # Conferir o que será removido (não altera nada)
-    uv run python update_dicionario.py --dry-run
+    uv run update_dicionario.py --dry-run
 
     # Aplicar: atualiza staging + roda dbt depois
-    uv run python update_dicionario.py --apply
+    uv run update_dicionario.py --apply
 """
 
 from __future__ import annotations
@@ -153,9 +153,7 @@ def main() -> None:
     summarize(removed, kept)
 
     if not args.apply:
-        print(
-            "\nDry-run. Para aplicar: uv run python update_dicionario.py --apply"
-        )
+        print("\nDry-run. Para aplicar: uv run update_dicionario.py --apply")
         return
 
     if removed.empty:

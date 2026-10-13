@@ -5,7 +5,7 @@ flags) and attaches Portuguese and Spanish translations from TRANSLATIONS below,
 so columns can be registered directly (no Google Sheet).
 
 Usage:
-    uv run python models/au_apra_superannuation/code/build_columns_json.py
+    uv run models/au_apra_superannuation/code/build_columns_json.py
 """
 
 import csv

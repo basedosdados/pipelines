@@ -1,0 +1,524 @@
+[
+ {
+  "year": 2003,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t303_dta.zip"
+ },
+ {
+  "year": 2003,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t403_dta.zip"
+ },
+ {
+  "year": 2004,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t104_dta.zip"
+ },
+ {
+  "year": 2004,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t204_dta.zip"
+ },
+ {
+  "year": 2004,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t304_dta.zip"
+ },
+ {
+  "year": 2004,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t404_dta.zip"
+ },
+ {
+  "year": 2005,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t105_dta.zip"
+ },
+ {
+  "year": 2005,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t205_dta.zip"
+ },
+ {
+  "year": 2005,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t305_dta.zip"
+ },
+ {
+  "year": 2005,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t405_dta.zip"
+ },
+ {
+  "year": 2006,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t106_dta.zip"
+ },
+ {
+  "year": 2006,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t206_dta.zip"
+ },
+ {
+  "year": 2006,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t306_dta.zip"
+ },
+ {
+  "year": 2006,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t406_dta.zip"
+ },
+ {
+  "year": 2007,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t107_dta.zip"
+ },
+ {
+  "year": 2007,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t207_dta.zip"
+ },
+ {
+  "year": 2007,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t407_dta.zip"
+ },
+ {
+  "year": 2008,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t108_dta.zip"
+ },
+ {
+  "year": 2008,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t208_dta.zip"
+ },
+ {
+  "year": 2008,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t308_dta.zip"
+ },
+ {
+  "year": 2008,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t408_dta.zip"
+ },
+ {
+  "year": 2009,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t109_dta.zip"
+ },
+ {
+  "year": 2009,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t209_dta.zip"
+ },
+ {
+  "year": 2009,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t309_dta.zip"
+ },
+ {
+  "year": 2009,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t409_dta.zip"
+ },
+ {
+  "year": 2010,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t110_dta.zip"
+ },
+ {
+  "year": 2010,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t210_dta.zip"
+ },
+ {
+  "year": 2010,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t310_dta.zip"
+ },
+ {
+  "year": 2010,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t410_dta.zip"
+ },
+ {
+  "year": 2011,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t111_dta.zip"
+ },
+ {
+  "year": 2011,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t211_dta.zip"
+ },
+ {
+  "year": 2011,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t311_dta.zip"
+ },
+ {
+  "year": 2011,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t411_dta.zip"
+ },
+ {
+  "year": 2012,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t112_dta.zip"
+ },
+ {
+  "year": 2012,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t212_dta.zip"
+ },
+ {
+  "year": 2012,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t312_dta.zip"
+ },
+ {
+  "year": 2012,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t412_dta.zip"
+ },
+ {
+  "year": 2013,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t113_dta.zip"
+ },
+ {
+  "year": 2013,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t213_dta.zip"
+ },
+ {
+  "year": 2013,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t313_dta.zip"
+ },
+ {
+  "year": 2013,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t413_dta.zip"
+ },
+ {
+  "year": 2014,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t114_dta.rar"
+ },
+ {
+  "year": 2014,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t214_dta.zip"
+ },
+ {
+  "year": 2014,
+  "quarter": 3,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t314_dta.rar"
+ },
+ {
+  "year": 2014,
+  "quarter": 4,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t414_dta.rar"
+ },
+ {
+  "year": 2015,
+  "quarter": 1,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t115_dta.rar"
+ },
+ {
+  "year": 2015,
+  "quarter": 2,
+  "fmt": "dta",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/t215_dta.rar"
+ },
+ {
+  "year": 2016,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2doTrim_2016_txt.zip"
+ },
+ {
+  "year": 2016,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3erTrim_2016_txt.zip"
+ },
+ {
+  "year": 2016,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4toTrim_2016_txt.zip"
+ },
+ {
+  "year": 2017,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1er_Trim_2017_txt.zip"
+ },
+ {
+  "year": 2017,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2017_txt.zip"
+ },
+ {
+  "year": 2017,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2017_txt.zip"
+ },
+ {
+  "year": 2017,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2017_txt.zip"
+ },
+ {
+  "year": 2018,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2018_txt.zip"
+ },
+ {
+  "year": 2018,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2018_txt.zip"
+ },
+ {
+  "year": 2018,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2018_txt.zip"
+ },
+ {
+  "year": 2018,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2018_txt.zip"
+ },
+ {
+  "year": 2019,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2019_txt.zip"
+ },
+ {
+  "year": 2019,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2019_txt.zip"
+ },
+ {
+  "year": 2019,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2019_txt.zip"
+ },
+ {
+  "year": 2019,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2019_txt.zip"
+ },
+ {
+  "year": 2020,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2020_txt.zip"
+ },
+ {
+  "year": 2020,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2020_txt.zip"
+ },
+ {
+  "year": 2020,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2020_txt.zip"
+ },
+ {
+  "year": 2020,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2020_txt.zip"
+ },
+ {
+  "year": 2021,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2021_txt.zip"
+ },
+ {
+  "year": 2021,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2021_txt.zip"
+ },
+ {
+  "year": 2021,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2021_txt.zip"
+ },
+ {
+  "year": 2021,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2021_txt.zip"
+ },
+ {
+  "year": 2022,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2022_txt.zip"
+ },
+ {
+  "year": 2022,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2022_txt.zip"
+ },
+ {
+  "year": 2022,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2022_txt.zip"
+ },
+ {
+  "year": 2022,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2022_txt.zip"
+ },
+ {
+  "year": 2023,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2023_txt.zip"
+ },
+ {
+  "year": 2023,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2023_txt.zip"
+ },
+ {
+  "year": 2023,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2023_txt.zip"
+ },
+ {
+  "year": 2023,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2023_txt.zip"
+ },
+ {
+  "year": 2024,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2024_txt.zip"
+ },
+ {
+  "year": 2024,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2024_txt.zip"
+ },
+ {
+  "year": 2024,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2024_txt.zip"
+ },
+ {
+  "year": 2024,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2024_txt.zip"
+ },
+ {
+  "year": 2025,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2025_txt.zip"
+ },
+ {
+  "year": 2025,
+  "quarter": 2,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_2_Trim_2025_txt.zip"
+ },
+ {
+  "year": 2025,
+  "quarter": 3,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_3_Trim_2025_txt.zip"
+ },
+ {
+  "year": 2025,
+  "quarter": 4,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_4_Trim_2025_txt.zip"
+ },
+ {
+  "year": 2026,
+  "quarter": 1,
+  "fmt": "txt",
+  "url": "https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2026_txt.zip"
+ }
+]

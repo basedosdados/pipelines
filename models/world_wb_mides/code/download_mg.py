@@ -35,7 +35,7 @@ Two further traps, both cheap and both fatal if missed:
 
 Usage:
     export MG_API_TOKEN='<jwt>'
-    uv run python models/world_wb_mides/code/download_mg.py --year 2022 --year 2023
+    uv run models/world_wb_mides/code/download_mg.py --year 2022 --year 2023
 """
 
 from __future__ import annotations
@@ -55,9 +55,7 @@ from pathlib import Path
 import certifi
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import (
+from models.world_wb_mides.code.constants import (
     BROWSER_UA,
     INPUT_DIR,
     MG_CA_BUNDLE,
@@ -88,7 +86,7 @@ and automating it is circumvention. A human does this, in a browser, in about a 
      (Equivalently: Application -> Local Storage -> the same key.)
   4. Hand it to this script, WITHOUT the leading "token " prefix:
          export MG_API_TOKEN='eyJ...'
-         uv run python models/world_wb_mides/code/download_mg.py
+         uv run models/world_wb_mides/code/download_mg.py
 
 The token lives 120 minutes. A full backfill can outlast it; the script says exactly
 which packages are already on disk when it expires, and a re-run with a fresh token

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Flip the dataset's status between ``under_review`` and ``published``.
 
-    python models/us_osha_enforcement/code/publish.py --env staging --status published
+    uv run models/us_osha_enforcement/code/publish.py --env staging --status published
 
 On dev/staging this is safe at any point and is done before the PR, so a
 reviewer sees the dataset as it will appear. On **prod** it is a separate
@@ -20,7 +20,6 @@ import logging
 import sys
 from pathlib import Path
 
-MCP = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 HERE = Path(__file__).resolve().parent
 SLUG = "enforcement"
 
@@ -36,8 +35,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    sys.path.insert(0, MCP)
-    import server
+    import databasis_mcp.tools.metadata as bd_mcp_metadata
+    import databasis_mcp.tools.write as bd_mcp_write
 
     spec = importlib.util.spec_from_file_location(
         "rm", HERE / "register_metadata.py"
@@ -49,8 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     spec.loader.exec_module(rm)
 
     env = args.env
-    ids = server.discover_ids(env=env, keys=["status", "theme", "tag"])
-    existing = server.get_dataset(slug=SLUG, env=env)
+    ids = bd_mcp_metadata.discover_ids(
+        env=env, keys=["status", "theme", "tag"]
+    )
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
     if not existing.get("found"):
         log.error(f"dataset {SLUG} not found on {env}")
         return 1
@@ -58,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     known = set(ids["tag"].values())
     tag_ids = [t for t in rm.TAGS if t in known]
     theme_ids = [ids["theme"][t] for t in ("safety", "economics", "justice")]
-    server.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         id=existing["id"],
         slug=SLUG,
         organization_ids=[org_id],

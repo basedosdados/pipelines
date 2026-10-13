@@ -12,13 +12,9 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from clean_data import TABLE_COLUMNS
-from constants import ARCHITECTURE_DIR
+from models.br_prf_acidentes.code.clean_data import TABLE_COLUMNS
+from models.br_prf_acidentes.code.constants import ARCHITECTURE_DIR
 
 FIELDS = [
     "name",

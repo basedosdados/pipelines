@@ -11,9 +11,6 @@ from unittest.mock import patch
 
 import pytest
 
-# pyrefly: ignore [missing-import]
-from conftest import FakeBQ, FakeMetadataClient
-
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.tasks import (
@@ -25,6 +22,7 @@ from pipelines.utils.metadata.tasks import (
     register_source_poll_task,
     register_table_materialization_task,
 )
+from pipelines.utils.tests.metadata.conftest import FakeBQ, FakeMetadataClient
 
 
 class TestCoerceToDate:

@@ -13,7 +13,7 @@ Two sources, because ParlInfo no longer serves its own back catalogue:
 Resumable: existing files are left alone, so the script can be re-run.
 
 Usage:
-    python models/au_aph_hansard/code/harvest.py [--end 2026] [--skip-mirror]
+    uv run models/au_aph_hansard/code/harvest.py [--end 2026] [--skip-mirror]
 """
 
 from __future__ import annotations
@@ -23,15 +23,12 @@ import csv
 import os
 import shutil
 import subprocess
-import sys
 import threading
 import time
 import urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.utils import (

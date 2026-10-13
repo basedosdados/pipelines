@@ -6,8 +6,7 @@ safe. association is the only non-unique table (0.04%) -> relaxed custom test.
 
 import os
 
-# pyrefly: ignore [missing-import]
-from schema_spec import TABLE_ORDER, TABLES
+from models.us_harvard_cbdb.code.schema_spec import TABLE_ORDER, TABLES
 
 MODELS = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..")
@@ -149,6 +148,7 @@ def sql_model(name):
     lines = []
     for c in spec["columns"]:
         lines.append(
+            # pyrefly: ignore [bad-index]
             f"    safe_cast({c['name']} as {BQ[c['type']]}) {c['name']},"
         )
     lines[-1] = lines[-1].rstrip(",")
@@ -203,9 +203,12 @@ def schema_yml():
                 out.append(f"            - {c}")
         out.append("    columns:")
         for c in spec["columns"]:
+            # pyrefly: ignore [bad-index]
             out.append(f"      - name: {c['name']}")
+            # pyrefly: ignore [bad-index]
             out.append(f"        description: {yaml_block(c['pt'], 8)}")
             tests = []
+            # pyrefly: ignore [bad-index]
             if c["name"] in tc["not_null"]:
                 tests.append("not_null")
             rel = tc["rel"].get(c["name"])

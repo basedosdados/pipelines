@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year the diary was collected,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column. Collection year of the quarter file, not the BLS release year",file name (YYQ)
+quarter,INT64,"Quarter the data was collected, from 1 to 4",,no,,quarter,no,,file name (YYQ)
+consumer_unit_id,STRING,"Identifier of the consumer unit (household), stable across its interviews or diary weeks",,no,,,no,NEWID without its last digit,newid
+diary_week,STRING,"Diary week of the consumer unit, 1 or 2",,no,,,no,Last digit of NEWID,newid
+newid,STRING,BLS public-use identifier of the consumer unit and interview or diary week; the last digit is the interview number (1-4) or diary week (1-2),,no,,,no,Unique per interview or diary week,newid
+alloc,STRING,Adjustment status for cost variable,,yes,,,no,,alloc
+cost,FLOAT64,"Total cost of item, including sales tax",,no,,usd,no,,cost
+pub_flag,STRING,Is cost included in published reports?,,yes,,,no,,pub_flag
+ucc,STRING,Universal Classification Code,,yes,,,no,,ucc
+expnsqdy,STRING,Sequential day of the diary week (1-7),2012(1)2024,yes,,,no,,expnsqdy
+expnwkdy,STRING,"Day of the week, Sunday through Saturday (1-7)",2012(1)2024,yes,,,no,,expnwkdy
+expnmo,STRING,Reference Month of this expenditure (01-12),2012(1)2024,yes,,,no,,expnmo
+expnmo_,STRING,"Data-quality flag for EXPNMO: valid, blank, allocated, imputed or topcoded",2012(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,expnmo_
+expnyr,INT64,Reference Year of this expenditure (0000-9999),2012(1)2024,no,,year,no,,expnyr
+expnyr_,STRING,"Data-quality flag for EXPNYR: valid, blank, allocated, imputed or topcoded",2012(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,expnyr_
+gift,STRING,Was this item bought for someone outside the CU?,1996(1)2022,yes,,,no,,gift
+qredate,STRING,"Purchase date recode field Consists of: Sequential day of the Diary week (1-7) Day of the week, Sunday through Saturday (1-7) Reference month of this expenditure, (01-12) Reference day of this expenditure, (01-31) Reference year of this expenditure, (0000-9999)",1996(1)2011,no,,,no,,qredate
+qredate_,STRING,"Data-quality flag for QREDATE: valid, blank, allocated, imputed or topcoded",1996(1)2011,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,qredate_
+expn_qdy,STRING,"Data-quality flag for EXPNSQDY: valid, blank, allocated, imputed or topcoded",2012(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,expn_qdy
+expn_kdy,STRING,"Data-quality flag for EXPNWKDY: valid, blank, allocated, imputed or topcoded",2012(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,expn_kdy

@@ -1,7 +1,7 @@
 """Upload the cleaned parquet of br_mgi_compras_publicas to BigQuery dev staging.
 
-    uv run python models/br_mgi_compras_publicas/code/upload.py            # every table
-    uv run python models/br_mgi_compras_publicas/code/upload.py contratacao
+    uv run models/br_mgi_compras_publicas/code/upload.py            # every table
+    uv run models/br_mgi_compras_publicas/code/upload.py contratacao
 
 Targets basedosdados-dev only. Prod table data is never uploaded from here: it is
 materialised by the GitHub table-approve action when the onboarding PR merges
@@ -26,17 +26,13 @@ import google.cloud.storage as gcs
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from dbt_spec import TABLES  # noqa: E402
-
-from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+from models.br_mgi_compras_publicas.code.dbt_spec import TABLES
+from pipelines.datasets.br_mgi_compras_publicas.utils import (
     load_architecture,
     string_schema,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "br_mgi_compras_publicas"
 

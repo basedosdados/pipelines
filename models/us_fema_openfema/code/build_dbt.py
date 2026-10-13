@@ -5,7 +5,7 @@ descriptions cannot drift between the catalog and the warehouse. Edit
 ``build_architecture.py`` (or the glossary) and regenerate — never hand-edit
 ``../us_fema_openfema__*.sql`` or ``../schema.yml``.
 
-    uv run python build_dbt.py
+    uv run build_dbt.py
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 MODELS = HERE.parent
 sys.path.insert(0, str(HERE))
 
-import tables as spec  # noqa: E402
+from models.us_fema_openfema.code import tables as spec  # noqa: E402
 
 DATASET = "us_fema_openfema"
 
@@ -232,6 +232,7 @@ def write_schema() -> None:
         out.append("    tests:")
         if cfg:
             key = cfg["primary_key"]
+            # pyrefly: ignore [no-matching-overload]
             combo = ", ".join(key if "year" in key else ["year", *key])
             out.append("      - dbt_utils.unique_combination_of_columns:")
             out.append(f"          combination_of_columns: [{combo}]")

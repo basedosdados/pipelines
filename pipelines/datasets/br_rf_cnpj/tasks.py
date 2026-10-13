@@ -111,10 +111,8 @@ def main(
                     if table_configs["table_name"] == "Estabelecimentos":
                         process_csv_estabelecimentos(
                             # pyrefly: ignore [bad-argument-type]
-                            # pyrefly: ignore [unbound-name]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
-                            # pyrefly: ignore [unbound-name]
                             output_path,
                             folder_date,
                             last_modified_date,
@@ -125,10 +123,8 @@ def main(
                     elif table_configs["table_name"] == "Socios":
                         process_csv_socios(
                             # pyrefly: ignore [bad-argument-type]
-                            # pyrefly: ignore [unbound-name]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
-                            # pyrefly: ignore [unbound-name]
                             output_path,
                             folder_date,
                             last_modified_date,
@@ -138,10 +134,8 @@ def main(
                     elif table_configs["table_name"] == "Empresas":
                         process_csv_empresas(
                             # pyrefly: ignore [bad-argument-type]
-                            # pyrefly: ignore [unbound-name]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
-                            # pyrefly: ignore [unbound-name]
                             output_path,
                             folder_date,
                             last_modified_date,
@@ -171,10 +165,8 @@ def main(
             elif table_configs["table_name"] == "Simples":
                 process_csv_simples(
                     # pyrefly: ignore [bad-argument-type]
-                    # pyrefly: ignore [unbound-name]
                     input_path,
                     # pyrefly: ignore [bad-argument-type]
-                    # pyrefly: ignore [unbound-name]
                     output_path,
                     folder_date,
                     last_modified_date,

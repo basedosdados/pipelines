@@ -1,7 +1,7 @@
 """Upload cleaned br_senado_dados_abertos_administrativos parquet to BigQuery.
 
 Usage:
-    uv run python models/br_senado_dados_abertos_administrativos/code/upload.py \
+    uv run models/br_senado_dados_abertos_administrativos/code/upload.py \
         [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. This
@@ -140,6 +140,7 @@ def upload_table(slug: str) -> int:
     )
     try:
         got = int(
+            # pyrefly: ignore [bad-argument-type]
             bd.read_sql(
                 query, billing_project_id=BILLING_PROJECT, from_file=True
             ).iloc[0, 0]

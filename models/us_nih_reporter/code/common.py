@@ -12,19 +12,12 @@ types and the raw -> clean name mapping; ``gen_architecture.py`` writes them.
 """
 
 import os
-import sys
 from pathlib import Path
 
-CODE_DIR = Path(__file__).resolve().parent
-REPO_ROOT = CODE_DIR.parents[2]
-# These scripts run from their own directory with bare sibling imports, so the
-# repo root is not otherwise importable.
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.us_nih_reporter.constants import (  # noqa: E402
+from pipelines.datasets.us_nih_reporter.constants import (
     constants,
 )
-from pipelines.datasets.us_nih_reporter.utils import (  # noqa: E402,F401
+from pipelines.datasets.us_nih_reporter.utils import (  # noqa: F401
     Col,
     assert_all_string,
     build_dicionario,
@@ -51,6 +44,7 @@ from pipelines.datasets.us_nih_reporter.utils import (  # noqa: E402,F401
     write_partition,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = Path(
     os.environ.get(
         "NIH_REPORTER_DATA_DIR",
@@ -68,45 +62,3 @@ DATA_TABLES = [t for t in ALL_TABLES if t != "dicionario"]
 # The full published corpus, as of the FY2025 project release.
 FISCAL_YEARS = list(range(constants.FIRST_FISCAL_YEAR.value, 2026))
 CALENDAR_YEARS = list(range(constants.FIRST_CALENDAR_YEAR.value, 2026))
-
-
-def import_mcp_server():
-    """Import the Data Basis MCP ``server`` module.
-
-    The MCP server is a **separate checkout**, not a dependency of this
-    repository, so its location cannot be hardcoded and it is not importable in
-    CI at all. Set ``DATABASIS_MCP_PATH`` to the directory holding
-    ``server.py``; the two metadata scripts use it, nothing else does.
-
-    Returns:
-        The imported ``server`` module.
-
-    Raises:
-        SystemExit: when the module is neither already importable nor findable
-            through ``DATABASIS_MCP_PATH`` — a named configuration error rather
-            than a bare ``ModuleNotFoundError`` from an import that silently
-            fell through a nonexistent path.
-    """
-    try:
-        import server  # already importable: installed, or on PYTHONPATH
-
-        return server
-    except ModuleNotFoundError:
-        pass
-
-    configured = os.environ.get("DATABASIS_MCP_PATH", "").strip()
-    if not configured:
-        raise SystemExit(
-            "DATABASIS_MCP_PATH is not set. Point it at the directory holding "
-            "the Data Basis MCP server.py (the basedosdados/mcp checkout)."
-        )
-    path = Path(configured).expanduser()
-    if not (path / "server.py").is_file():
-        raise SystemExit(
-            f"No server.py under DATABASIS_MCP_PATH={path}. Point it at the "
-            "directory holding the Data Basis MCP server.py."
-        )
-    sys.path.insert(0, str(path))
-    import server
-
-    return server

@@ -5,7 +5,7 @@ Reads the architecture CSVs (English descriptions + type/dictionary/unit flags)
 and attaches Portuguese and Spanish translations from TRANSLATIONS below, so
 columns register without a Google Sheet. Writes code/columns_json/<table>.json.
 
-Usage: uv run python models/au_nsw_bocsar_crime/code/build_columns_json.py
+Usage: uv run models/au_nsw_bocsar_crime/code/build_columns_json.py
 """
 
 import csv

@@ -14,18 +14,15 @@ column's ``observations``:
 * ``seat``, ``nimsp_office``, ``nimsp_party`` and ``nimsp_candidate_status``
   carry readable labels rather than codes and are not dictionary-covered at all.
 
-    python gen_dicionario.py
+    uv run models/us_stanford_dime/code/gen_dicionario.py
 """
 
 from __future__ import annotations
 
 import csv
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
-import clean
+from models.us_stanford_dime.code import architecture as arch
+from models.us_stanford_dime.code import clean
 
 OUT = clean.OUTPUT / "dicionario"
 

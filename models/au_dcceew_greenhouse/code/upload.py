@@ -1,7 +1,7 @@
 """Upload cleaned au_dcceew_greenhouse parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_dcceew_greenhouse/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run models/au_dcceew_greenhouse/code/upload.py [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads

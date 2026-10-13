@@ -11,9 +11,6 @@ import datetime
 
 import pytest
 
-# pyrefly: ignore [missing-import]
-from conftest import FakeBQ, FakeMetadataClient
-
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -32,6 +29,7 @@ from pipelines.utils.metadata.register import (
     register_source_poll_by_size,
     register_table_materialization,
 )
+from pipelines.utils.tests.metadata.conftest import FakeBQ, FakeMetadataClient
 
 
 class FakeRedis:

@@ -100,7 +100,6 @@ def cl_ine_ene_flow(
             published, rounded to 3 decimals. Changes on a recalibration even
             when the row count does not.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )

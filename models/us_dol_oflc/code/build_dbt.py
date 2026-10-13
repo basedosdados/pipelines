@@ -5,7 +5,7 @@ architecture CSVs are the single source of truth for column order, types and
 descriptions, so the models cannot drift from them.
 
 Usage:
-    uv run python models/us_dol_oflc/code/build_dbt.py
+    uv run models/us_dol_oflc/code/build_dbt.py
 """
 
 from __future__ import annotations

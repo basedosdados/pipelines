@@ -14,11 +14,7 @@ guards against.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
+from models.us_stanford_dime.code import architecture as arch
 
 # English -> (Portuguese, Spanish)
 DESCRIPTIONS: dict[str, tuple[str, str]] = {
@@ -563,7 +559,7 @@ DESCRIPTIONS: dict[str, tuple[str, str]] = {
 
 def missing() -> dict[str, list[str]]:
     """Return architecture strings with no translation."""
-    from observations_i18n import OBSERVATIONS
+    from models.us_stanford_dime.code.observations_i18n import OBSERVATIONS
 
     d_missing, o_missing = [], []
     for cols in arch.TABLES.values():

@@ -2,7 +2,7 @@
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      .venv/bin/python models/us_hhs_nppes/code/upload.py [--env dev|prod] [table ...]
+      uv run models/us_hhs_nppes/code/upload.py [--env dev|prod] [table ...]
 
 Dev (default) -> basedosdados-dev. Uploads smallest first, stops on the first
 failure, and prints each table's staging row count so it can be checked against
