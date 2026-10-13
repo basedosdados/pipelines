@@ -23,7 +23,7 @@ not cheap at monthly cadence. If the bill matters more than the simplicity, the
 models can move to an incremental ``insert_overwrite`` strategy keyed on
 ``fiscal_year``; the staging layout above already supports it.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_treasury_usaspending_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_treasury_usaspending_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -31,13 +31,14 @@ import shutil
 import tempfile
 from datetime import date
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_treasury_usaspending.constants import constants
 from pipelines.datasets.us_treasury_usaspending.tasks import (
     get_latest_stamp,
     refresh_fiscal_year,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -232,11 +233,15 @@ def us_treasury_usaspending_flow(
 # minute there can be both unused and five minutes clear of a neighbour. Hour 17
 # has nothing in it. Minute 0 is the worst instant to pick regardless, with 15+
 # pipelines already on it across the day.
-# pyrefly: ignore [missing-attribute]
 us_treasury_usaspending_flow.deploy_schedules = [
-    {"cron": "20 17 8,9,10,11,12 * *", "timezone": "America/Sao_Paulo"}
+    Cron("20 17 8,9,10,11,12 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams CSV in batches, but a 297-column arrow batch plus the
 # parquet writer still wants headroom, and the archives are several GB on disk.
-# pyrefly: ignore [missing-attribute]
-us_treasury_usaspending_flow.job_variables = {"memory": "16Gi"}
+# The work pool's template has no `memory` variable, so that key alone is
+# dropped and the pod gets the 4Gi default; `memory_limit` is what applies.
+us_treasury_usaspending_flow.job_variables = {
+    "memory": "16Gi",
+    "memory_limit": "16Gi",
+    "memory_request": "4Gi",
+}
