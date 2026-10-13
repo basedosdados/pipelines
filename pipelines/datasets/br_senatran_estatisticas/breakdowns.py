@@ -490,6 +490,22 @@ def download(url: str, dest_dir: str | Path, session=None) -> Path:
                 url, headers=senatran_constants.HEADERS.value, timeout=600
             )
             resposta.raise_for_status()
+            # O gov.br corta a conexão no meio e o requests devolve o corpo
+            # truncado sem erro: medido 11,0 MB de 15,97 MB num .xlsx de 2019,
+            # que só falhava depois, como BadZipFile. Conferir contra o
+            # Content-Length quando o servidor o envia (e sem compressão, que
+            # faria o Content-Length medir o corpo comprimido).
+            esperado = resposta.headers.get("Content-Length")
+            comprimido = resposta.headers.get("Content-Encoding", "identity")
+            if (
+                esperado is not None
+                and comprimido == "identity"
+                and len(resposta.content) != int(esperado)
+            ):
+                raise OSError(
+                    f"download truncado: {len(resposta.content)} de "
+                    f"{esperado} bytes"
+                )
             destino.write_bytes(resposta.content)
             if destino.stat().st_size > 0:
                 return destino
