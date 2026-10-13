@@ -3,8 +3,8 @@
 
 Usage::
 
-    python register_metadata.py                 # staging (default)
-    python register_metadata.py --env prod      # only after explicit approval
+    uv run python -m models.br_ibama_fiscalizacao.code.register_metadata
+    uv run python -m models.br_ibama_fiscalizacao.code.register_metadata --env prod
 
 Idempotent by construction: every create_update_* call is given the id of the
 record it is updating when that record already exists, because create_update_*
@@ -20,14 +20,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(Path(__file__).parent))
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-import server
-import translations as tr
-from constants import DATASET_ID
+from models.br_ibama_fiscalizacao.code import translations as tr
+from models.br_ibama_fiscalizacao.code.constants import DATASET_ID
 
 # create_update_update.latest is a DateTime, not a Date.
 NOW = datetime.now().replace(microsecond=0).isoformat()
@@ -145,7 +142,9 @@ def ids(*_keys):
     for category, slugs in REFERENCES.items():
         out[category] = {}
         for slug in slugs:
-            r = server.lookup_id(slug=slug, category=category, env=ENV)
+            r = bd_mcp_metadata.lookup_id(
+                slug=slug, category=category, env=ENV
+            )
             r = json.loads(r) if isinstance(r, str) else r
             if not r.get("id"):
                 sys.exit(f"cannot resolve {category}.{slug} on {ENV}")
@@ -186,7 +185,7 @@ def main() -> None:
     ref = ids(
         "status", "organization", "theme", "entity", "license", "availability"
     )
-    account = server.get_authenticated_account(env=ENV)
+    account = bd_mcp_metadata.get_authenticated_account(env=ENV)
     account_id = (
         json.loads(account)["id"]
         if isinstance(account, str)
@@ -194,12 +193,12 @@ def main() -> None:
     )
     log(f"  authenticated as account {account_id}")
 
-    existing = server.get_dataset(slug=SLUG, env=ENV)
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=ENV)
     existing = json.loads(existing) if isinstance(existing, str) else existing
     dataset_id = existing.get("id") if existing.get("found") else None
     log(f"  existing dataset: {dataset_id or 'none, will create'}")
 
-    res = server.create_update_dataset(
+    res = bd_mcp_write.create_update_dataset(
         id=dataset_id,
         slug=SLUG,
         name_pt=tr.DATASET_NAME[0],
@@ -218,13 +217,15 @@ def main() -> None:
     log(f"  dataset -> {dataset_id}")
 
     # --- raw data sources -------------------------------------------------
-    existing_sources = server.get_raw_data_sources(dataset_slug=SLUG, env=ENV)
+    existing_sources = bd_mcp_write.get_raw_data_sources(
+        dataset_slug=SLUG, env=ENV
+    )
     if isinstance(existing_sources, str):
         existing_sources = json.loads(existing_sources)
     by_name = {s.get("name"): s.get("id") for s in (existing_sources or [])}
     source_ids = {}
     for key, spec in RAW_SOURCES.items():
-        out = server.create_update_raw_data_source(
+        out = bd_mcp_write.create_update_raw_data_source(
             id=by_name.get(spec["name_pt"]),
             dataset_id=dataset_id,
             name_pt=spec["name_pt"],
@@ -240,7 +241,7 @@ def main() -> None:
         log(f"  raw source {key} -> {out['id']}")
 
     # --- tables -----------------------------------------------------------
-    snapshot = server.get_dataset(slug=SLUG, env=ENV)
+    snapshot = bd_mcp_metadata.get_dataset(slug=SLUG, env=ENV)
     snapshot = json.loads(snapshot) if isinstance(snapshot, str) else snapshot
     prior = snapshot.get("tables", {}) or {}
 
@@ -249,7 +250,7 @@ def main() -> None:
         names = tr.TABLE_NAMES[table]
         descs = tr.TABLE_DESCRIPTIONS[table]
         was = prior.get(table, {})
-        t = server.create_update_table(
+        t = bd_mcp_write.create_update_table(
             id=was.get("id"),
             slug=table,
             dataset_id=dataset_id,
@@ -274,7 +275,7 @@ def main() -> None:
             for o in (was.get("observation_levels") or [])
         }
         for entity_slug in OBSERVATION_LEVELS[table]:
-            ol = server.create_update_observation_level(
+            ol = bd_mcp_write.create_update_observation_level(
                 id=prior_ol.get(entity_slug),
                 table_id=table_id,
                 entity_id=ref["entity"][entity_slug],
@@ -285,7 +286,7 @@ def main() -> None:
 
         # columns
         payload = columns_payload(table)
-        server.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=ENV,
@@ -296,7 +297,7 @@ def main() -> None:
         # does not do this, and without it the site renders the level's columns as
         # "Nao informado". update_column's booleans default to False, so is_partition
         # has to be re-passed on `ano` in the same call.
-        cols = server.get_dataset(slug=SLUG, env=ENV)
+        cols = bd_mcp_metadata.get_dataset(slug=SLUG, env=ENV)
         cols = json.loads(cols) if isinstance(cols, str) else cols
         col_ids = {
             c["name"]: c["id"] for c in cols["tables"][table]["columns"]
@@ -308,7 +309,7 @@ def main() -> None:
                         f"    WARNING: column {col_name} absent, cannot link OL"
                     )
                     continue
-                server.update_column(
+                bd_mcp_write.update_column(
                     column_id=col_ids[col_name],
                     column_name=col_name,
                     table_id=table_id,
@@ -322,7 +323,7 @@ def main() -> None:
 
         # cloud table
         prior_cloud = (was.get("cloud_tables") or [{}])[0].get("id")
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=prior_cloud,
             table_id=table_id,
             gcp_project_id=GCP_PROJECT,
@@ -333,19 +334,21 @@ def main() -> None:
         log(f"    cloud table -> {GCP_PROJECT}.{DATASET_ID}.{table}")
 
         # coverage + temporal range
-        area_id = server.lookup_id(slug="br", category="area", env=ENV)
+        area_id = bd_mcp_metadata.lookup_id(
+            slug="br", category="area", env=ENV
+        )
         area_id = (
             area_id["id"]
             if isinstance(area_id, dict)
             else json.loads(area_id)["id"]
         )
         prior_cov = (was.get("coverages") or [{}])[0]
-        cov = server.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=prior_cov.get("id"), table_id=table_id, area_id=area_id, env=ENV
         )
         start, end = COVERAGE[table]
         prior_range = ((prior_cov.get("datetime_ranges") or [{}])[0]).get("id")
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             id=prior_range,
             coverage_id=cov["id"],
             start_year=start,
@@ -358,7 +361,7 @@ def main() -> None:
         # Table-anchored Update: `latest` is when WE last refreshed the table,
         # not the max date in the data. The source republishes daily.
         prior_update = (was.get("updates") or [{}])[0].get("id")
-        server.create_update_update(
+        bd_mcp_write.create_update_update(
             id=prior_update,
             table_id=table_id,
             entity_id=ref["entity"]["day"],
@@ -371,7 +374,7 @@ def main() -> None:
         # Deferred raw-source link. create_update_table does no partial updates, so
         # every required field is re-passed or the table's names are blanked.
         if table in source_ids:
-            server.create_update_table(
+            bd_mcp_write.create_update_table(
                 id=table_id,
                 slug=table,
                 dataset_id=dataset_id,
