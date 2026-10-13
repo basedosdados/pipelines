@@ -1,5 +1,4 @@
 import csv
-import datetime
 import re
 import sys
 import time
@@ -8,7 +7,10 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-import yaml
+
+from pipelines.datasets.us_congress_legislators.utils import (
+    build_congress_member,
+)
 
 BASE = Path(__file__).resolve().parents[1] / "data"
 INPUT = BASE / "input"
@@ -796,73 +798,11 @@ def clean_higher_education_institution():
     return write_table(df, "higher_education_institution", fields)
 
 
-def legislator_record(person):
-    ids = person.get("id", {})
-    name = person.get("name", {})
-    bio = person.get("bio", {})
-
-    def s(value):
-        return None if value is None else str(value)
-
-    fec = ids.get("fec")
-    birthday = bio.get("birthday")
-    return {
-        "id_bioguide": s(ids.get("bioguide")),
-        "name_first": s(name.get("first")),
-        "name_middle": s(name.get("middle")),
-        "name_last": s(name.get("last")),
-        "name_suffix": s(name.get("suffix")),
-        "name_official_full": s(name.get("official_full")),
-        "birthday": datetime.date.fromisoformat(birthday)
-        if birthday
-        else None,
-        "gender": s(bio.get("gender")),
-        "id_govtrack": s(ids.get("govtrack")),
-        "id_icpsr": s(ids.get("icpsr")),
-        "id_lis": s(ids.get("lis")),
-        "id_thomas": s(ids.get("thomas")),
-        "id_opensecrets": s(ids.get("opensecrets")),
-        "id_votesmart": s(ids.get("votesmart")),
-        "id_cspan": s(ids.get("cspan")),
-        "id_fec": ",".join(fec) if fec else None,
-        "id_wikidata": s(ids.get("wikidata")),
-        "wikipedia": s(ids.get("wikipedia")),
-        "ballotpedia": s(ids.get("ballotpedia")),
-    }
-
-
 def clean_congress_member():
-    with open(
-        INPUT / "congress_legislators" / "legislators-current.yaml"
-    ) as f:
-        current = yaml.safe_load(f)
-    with open(
-        INPUT / "congress_legislators" / "legislators-historical.yaml"
-    ) as f:
-        historical = yaml.safe_load(f)
-    df = pd.DataFrame([legislator_record(p) for p in current + historical])
-    df = df.drop_duplicates(subset="id_bioguide", keep="first")
-    fields = [
-        ("id_bioguide", pa.string()),
-        ("name_first", pa.string()),
-        ("name_middle", pa.string()),
-        ("name_last", pa.string()),
-        ("name_suffix", pa.string()),
-        ("name_official_full", pa.string()),
-        ("birthday", pa.date32()),
-        ("gender", pa.string()),
-        ("id_govtrack", pa.string()),
-        ("id_icpsr", pa.string()),
-        ("id_lis", pa.string()),
-        ("id_thomas", pa.string()),
-        ("id_opensecrets", pa.string()),
-        ("id_votesmart", pa.string()),
-        ("id_cspan", pa.string()),
-        ("id_fec", pa.string()),
-        ("id_wikidata", pa.string()),
-        ("wikipedia", pa.string()),
-        ("ballotpedia", pa.string()),
-    ]
+    # Shared with the us_congress_legislators Prefect pipeline, which refreshes
+    # this table weekly. Written all-STRING: dbt safe_casts birthday to DATE.
+    df = build_congress_member(INPUT / "congress_legislators")
+    fields = [(c, pa.string()) for c in df.columns]
     return write_table(df, "congress_member", fields)
 
 

@@ -795,6 +795,9 @@ models:
     us_meta_sci:
       +materialized: table
       +schema: us_meta_sci
+    us_ucla_voteview:
+      +materialized: table
+      +schema: us_ucla_voteview
     us_nyuad_cora:
       +materialized: table
       +schema: us_nyuad_cora
