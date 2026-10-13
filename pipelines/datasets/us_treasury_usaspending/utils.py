@@ -57,16 +57,36 @@ def architecture_columns(table: str) -> list[str]:
         return [row["name"] for row in csv.DictReader(f)]
 
 
+def staging_columns(table: str) -> list[str]:
+    """Staging column names for ``table``, in architecture order.
+
+    Staging carries the **source** spelling, not the architecture's: the dbt
+    model reads ``contract_transaction_unique_key`` and the ``*_fips_code``
+    columns and renames or derives the published names itself. Writing the
+    architecture names here instead would make every such column NULL, since
+    ``_normalize_batch`` fills a schema column the source lacks with nulls. Only
+    the spellings BigQuery cannot accept go through :data:`RENAMES`. Columns
+    with no ``original_name`` (the dicionario) keep their name.
+    """
+    path = Path(constants.ARCHITECTURE_DIR.value) / f"{table}.csv"
+    with path.open() as f:
+        return [
+            RENAMES.get(src, src)
+            for src in (
+                row["original_name"] or row["name"]
+                for row in csv.DictReader(f)
+            )
+        ]
+
+
 def staging_schema(table: str) -> pa.Schema:
-    """All-STRING arrow schema carrying the architecture's column order.
+    """All-STRING arrow schema carrying the staging column order.
 
     Staging is all-STRING by house convention — ``upload_to_gcs`` builds the
     BigQuery staging table from a stringified one-row header, so typed parquet
     is rejected on read. The schema here carries order, not types.
     """
-    return pa.schema(
-        [(name, pa.string()) for name in architecture_columns(table)]
-    )
+    return pa.schema([(name, pa.string()) for name in staging_columns(table)])
 
 
 # --------------------------------------------------------------------------
