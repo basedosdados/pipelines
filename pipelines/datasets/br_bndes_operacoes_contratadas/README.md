@@ -15,10 +15,10 @@ Tabelas:
 
 ## Estrutura (compartilhada)
 
-- **Código (Prefect 3):** `pipelines/datasets/br_bndes_operacoes_contratadas/{constants,utils,tasks,flows}.py`. Cada tabela tem sua classe em `constants.py` (`constants_<tabela>`), seu transform e `clean` em `utils.py` e suas tasks em `tasks.py`. A indiretas e a não automáticas dividem as funções genéricas, que acham a classe da tabela por `TABLES_CONSTANTS`. `get_source_last_modified` serve às seis tabelas e `download_csv` às cinco antigas; a `operacoes_pre_embarque` baixa pelo próprio `download_table`, com conferência pelo MD5.
+- **Código (Prefect 3):** `pipelines/datasets/br_bndes_operacoes_contratadas/{constants,utils,tasks,flows}.py`. Cada tabela tem sua classe em `constants.py` (`constants_<tabela>`), seu transform e `clean` em `utils.py` e suas tasks em `tasks.py`. A `operacoes_indiretas_automaticas` e a `operacoes_nao_automaticas` dividem as funções genéricas, que acham a classe da tabela por `TABLES_CONSTANTS`. `get_source_last_modified` serve às seis tabelas e `download_csv` às cinco antigas; a `operacoes_pre_embarque` baixa pelo próprio `download_table`, com conferência pelo MD5.
 - **Dois flows por tabela** em `flows.py`, no modelo em estágios: `check_update`, com o cron, e `extract_and_load`, montados por `CheckThenExtractLoadPipeline` com as funções `<tabela>_get_latest_update` e `<tabela>_extract_load_data` de `tasks.py`. O dbt, a promoção para prod e o registro dos metadados ficam no `build_and_promote` compartilhado. Crons **semanais**, às segundas (BRT): indiretas `5 6 * * 1`, não automáticas `10 6 * * 1`, administração pública `20 6 * * 1`, bens `25 6 * * 1` e pré-embarque `25 2 * * 1`; a `operacoes_exportacao_servicos` não tem cron.
 - **Poll deferido** (`poll_source_for_update` + `commit_source_update`): o poll grava o Poll e detecta novidade; o commit grava o Update da fonte logo em seguida, **antes** de baixar e materializar. O poll compara com o `Table.Update` e nunca lê o Update da fonte, então adiantá-lo não trava runs futuras, e o metadado da fonte mostra que havia dado novo publicado mesmo que o flow falhe no meio.
-- **Cobertura temporal pela data da operação** (`AllFree` + `DateOnly` + `DateFormat.YEAR_MD`): `data_contratacao` na indiretas, na não automáticas, na de bens e na de pré-embarque; `data_nivel_atual` na de administração pública, a mesma coluna de onde sai o `ano`. Nenhuma tabela tem coluna de mês, que o `YearMonth` exigiria, então a faixa sai com dia (por exemplo, 2002-01-08 a 2026-08-31). O flow só atualiza o fim da faixa; o início é registrado à mão no backend. A `operacoes_exportacao_servicos`, carga única, fica por ano.
+- **Cobertura temporal pela data da operação** (`AllFree` + `DateOnly` + `DateFormat.YEAR_MD`): `data_contratacao` na `operacoes_indiretas_automaticas`, na `operacoes_nao_automaticas`, na `operacoes_exportacao_bens` e na `operacoes_pre_embarque`; `data_nivel_atual` na `operacoes_administracao_publica`, a mesma coluna de onde sai o `ano`. Nenhuma tabela tem coluna de mês, que o `YearMonth` exigiria, então a faixa sai com dia (por exemplo, 2002-01-08 a 2026-08-31 na `operacoes_pre_embarque`). O flow só atualiza o fim da faixa; o início é registrado à mão no backend. A `operacoes_exportacao_servicos`, carga única, fica por ano.
 - **Staging 100% STRING:** o `clean` grava Parquet todo string; a tipagem fica a cargo do `safe_cast` no dbt. (Parquet tipado quebra o upload: `... does not match target STRING_PIECE`.) Partição por `ano`.
 - **DBT:** `models/br_bndes_operacoes_contratadas/` (um `.sql` por tabela + `schema.yml` único).
 - **Observation level = `transaction`** (grão de operação/subcrédito; a BD não tem entidade "operação").
@@ -27,7 +27,7 @@ Tabelas:
 
 ### O que é
 
-Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada** (não há identificador único de operação na fonte). Cobertura nacional, **2002-01 a 2026-05**, ~2,36 milhões de linhas. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do cliente é sempre CNPJ).
+Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada** (não há identificador único de operação na fonte). Cobertura nacional, **a partir de 2002-01**. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do cliente é sempre CNPJ).
 
 ### Fonte
 
@@ -56,7 +56,7 @@ Registrados **direto em produção** (o backend de dev foi desativado durante a 
 
 ### O que é
 
-Operações do BNDES com **entes da Administração Pública Direta** (União, Administração Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional, **1994–2026**, ~4,7 mil linhas (após o filtro CONTRATADA). Fonte: conjunto CKAN `operacoes-com-entes-da-administracao-publica-direta`, recurso `ea4e5da3-e586-4225-a460-c5aa09e36100` (~1,17 MB, `;` / cp1252). Sinal de atualização = `last_modified` do recurso, mensal.
+Operações do BNDES com **entes da Administração Pública Direta** (União, Administração Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional, **1994–2026**. Fonte: conjunto CKAN `operacoes-com-entes-da-administracao-publica-direta`, recurso `ea4e5da3-e586-4225-a460-c5aa09e36100` (~1,17 MB, `;` / cp1252). Sinal de atualização = `last_modified` do recurso, mensal.
 
 ### Decisões de modelagem
 
@@ -70,7 +70,7 @@ Operações do BNDES com **entes da Administração Pública Direta** (União, A
 
 ### O que é
 
-Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador). Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo número de operação equivale ao valor total da operação. Cobertura nacional, **2002-01 a 2026-06**, ~2,3 mil linhas.
+Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador). Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo número de operação equivale ao valor total da operação. Cobertura nacional, **a partir de 2002-01**.
 
 ### Fonte
 
