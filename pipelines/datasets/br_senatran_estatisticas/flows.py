@@ -398,9 +398,8 @@ def br_senatran_estatisticas__municipio_cor(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_cor.deploy_schedules = [
-    {"cron": "5 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("5 22 10-30 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -429,9 +428,8 @@ def br_senatran_estatisticas__municipio_potencia(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_potencia.deploy_schedules = [
-    {"cron": "15 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("15 22 10-30 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -460,9 +458,8 @@ def br_senatran_estatisticas__municipio_restricao(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_restricao.deploy_schedules = [
-    {"cron": "25 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("25 22 10-30 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -491,9 +488,8 @@ def br_senatran_estatisticas__municipio_cep(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_cep.deploy_schedules = [
-    {"cron": "35 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("35 22 10-30 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -522,9 +518,8 @@ def br_senatran_estatisticas__municipio_ano_fabricacao_modelo(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_ano_fabricacao_modelo.deploy_schedules = [
-    {"cron": "45 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("45 22 10-30 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -553,7 +548,6 @@ def br_senatran_estatisticas__municipio_tipo_especie_eixos(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_tipo_especie_eixos.deploy_schedules = [
-    {"cron": "55 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("55 22 10-30 * *", timezone="America/Sao_Paulo")
 ]
