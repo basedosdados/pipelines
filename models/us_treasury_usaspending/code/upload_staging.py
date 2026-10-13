@@ -158,9 +158,10 @@ def upload_table(
     prefix = f"gs://{bucket_name}/staging/{DATASET_ID}/{table}/"
     config = bigquery.ExternalConfig("PARQUET")
     config.source_uris = [f"{prefix}*"]
-    config.hive_partitioning = bigquery.HivePartitioningOptions()
-    config.hive_partitioning.mode = "STRINGS"
-    config.hive_partitioning.source_uri_prefix = prefix
+    hive = bigquery.HivePartitioningOptions()
+    hive.mode = "STRINGS"
+    hive.source_uri_prefix = prefix
+    config.hive_partitioning = hive
     bq_table = bigquery.Table(f"{project}.{DATASET_ID}_staging.{table}")
     bq_table.external_data_configuration = config
     bq.delete_table(bq_table, not_found_ok=True)
