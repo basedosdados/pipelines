@@ -197,10 +197,21 @@ def table_state(
         where t.ano * 100 + t.mes = u.competencia
         group by u.competencia, target_rows
     """
+    # from_file=True: the worker has the service-account file, not ADC or a
+    # browser, so without it basedosdados falls back to interactive OAuth and
+    # raises.
     try:
-        frame = bd.read_sql(query, billing_project_id=bq_project)
-    except Exception as exc:  # table absent on a first run
-        print(f"{table_id}: no previous competência ({type(exc).__name__})")
+        frame = bd.read_sql(
+            query, billing_project_id=bq_project, from_file=True
+        )
+    except Exception as exc:
+        # Only a missing table means "first run". Anything else — auth,
+        # billing, SQL — must raise: returning None here disables both the
+        # double-count and the reissue guard, and the run would append a
+        # month the table already holds.
+        if "Not found: Table" not in str(exc):
+            raise
+        print(f"{table_id}: table absent, treating as a first run")
         return None
     if frame is None or frame.empty:
         return None
