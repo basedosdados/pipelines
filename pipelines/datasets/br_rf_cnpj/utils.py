@@ -362,11 +362,17 @@ async def download_chunk(
                 )
 
                 return
-            except HTTPError:
-                delay = 2**attempt
+            except HTTPError as e:
+                # Timeouts e quedas de conexão não têm response; só erros HTTP têm status
+                status = getattr(
+                    getattr(e, "response", None), "status_code", None
+                )
+                # Backoff longo o bastante para atravessar instabilidades do servidor da RF
+                delay = min(5 * 2**attempt, 120)
                 log(
                     f"Falha no download do chunk {chunk_range[0]}-{chunk_range[1]} "
-                    f"na tentativa {attempt + 1}. Retentando em {delay} segundos..."
+                    f"na tentativa {attempt + 1} ({type(e).__name__}: {e!r}, status={status}). "
+                    f"Retentando em {delay} segundos..."
                 )
                 await sleep(delay)
 

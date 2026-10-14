@@ -23,8 +23,8 @@ ATTEMPTS = 0
 # Parâmetros de download
 DOWNLOAD_CHUNK_SIZE = 15 * 1024 * 1024
 DOWNLOAD_MAX_RETRIES = 5
-DOWNLOAD_MAX_PARALLEL = 15
-DOWNLOAD_TIMEOUT = 5 * 60
+DOWNLOAD_MAX_PARALLEL = 5
+DOWNLOAD_TIMEOUT = 10 * 60
 CSV_CHUNK_SIZE = 100_000
 
 ## Cada tabela no BigQuery pode ter mais de uma fonte de dados
