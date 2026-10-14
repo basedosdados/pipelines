@@ -148,13 +148,39 @@ uv run manage.py list-pipelines
 
 ### Testar uma pipeline localmente
 
-Escolha a pipeline que deseja executar (exemplo `pipelines.rj_escritorio.test_pipeline.flows.flow`). Crie um arquivo `test.py` na pasta e importe o flow
+> [!NOTE]
+> As funções `run_local`/`run_cloud` citadas em versões antigas deste guia não existem mais — eram do Prefect 1. O jeito atual (Prefect 3) é o que segue.
+
+O Prefect 3 sempre precisa de algum backend (servidor) pra rodar qualquer `@task`/`@flow`, mesmo fora de um deployment — não dá pra chamar a função "pura", sem mais nada, como no Prefect 1. `scripts/dev_local.sh` sobe esse backend localmente (servidor + work pool + worker, tudo rodando na sua própria máquina, sem precisar de Docker nem de nada além do que o `uv sync` já instalou):
+
+```sh
+scripts/dev_local.sh up
+export PREFECT_API_URL="http://127.0.0.1:4200/api"   # a própria saída do comando já mostra essa linha
+```
+
+A UI fica em `http://127.0.0.1:4200`.
+
+**Flow monolítico (ainda não migrado pro pipeline em estágios)**: o `@flow` já é uma função Python chamável direto. A maioria aceita `materialize_after_dump=False`/`force_run=True` (ou nomes parecidos) — isso já garante que só escreve em dev, nunca em prod:
 
 ```python
-from pipelines.datasets.test_pipeline.flows import flow
-from pipelines.utils.utils import run_local
+from pipelines.datasets.br_fgv_igp.flows import br_fgv_igp__igp_di_mes
 
-run_local(flow, parameters={"param": "val"})
+br_fgv_igp__igp_di_mes(materialize_after_dump=False, force_run=True)
+```
+
+**Pipeline em estágios (`check_update`/`extract_and_load`, ver `pipelines/utils/stage_dispatch.py`)**: como o `check_update` dispara o próximo estágio via `run_deployment()`, ele precisa de um deployment de verdade pra apontar — não dá pra só chamar a função. Deploye pro pool local com o mesmo script que já é usado pra deploy de produção, só com a flag `--local` (lê o código do disco, não exige commit/push):
+
+```sh
+uv run .github/workflows/scripts/deploy_flows.py --local --files pipelines/datasets/meu_dataset/flows.py
+uv run prefect deployment run 'check_update: meu_dataset__minha_tabela/dev-check_update'
+```
+
+Ou dispare pela própria UI, na página do deployment. Os dois criam o deployment com o `env:dev` nas tags, então a cadeia `check_update → extract_and_load` dispara entre si automaticamente, igual em produção — só que tudo rodando localmente, escrevendo só em `basedosdados-dev`.
+
+Quando terminar:
+
+```sh
+scripts/dev_local.sh down
 ```
 
 ### Testar uma pipeline na nuvem
