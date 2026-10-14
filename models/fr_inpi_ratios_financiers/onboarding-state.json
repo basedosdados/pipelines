@@ -1,0 +1,31 @@
+{
+  "saved_at": "2026-10-07T15:45:00+11:00",
+  "dataset_slug": "ratios_financiers",
+  "gcp_dataset_id": "fr_inpi_ratios_financiers",
+  "current_step": 8,
+  "completed_steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "context_block": "Source: data.economie.gouv.fr ratios_inpi_bce (ODS v2.1, needs browser UA). Producer INPI (RNCS), processed by DNUM (Min. Travail) on BCE, published by DGE. Licence Ouverte v2.0. Modified 2026-09-15. 6,813,145 rows, 23 fields. Tables: ratios_financiers, dicionario.",
+  "discovered_ids_block": "dev unreachable (503); prod read-only reference only",
+  "architecture_urls": {
+    "ratios_financiers": "models/fr_inpi_ratios_financiers/code/architecture/ratios_financiers.csv",
+    "dicionario": "models/fr_inpi_ratios_financiers/code/architecture/dicionario.csv"
+  },
+  "drive_folder": "n/a (architecture CSVs in repo are the source of truth)",
+  "scratch_dir": "~/bd_scratch/fr_inpi_ratios_financiers_data (~/Downloads is a Dropbox symlink on this machine)",
+  "env": "dev",
+  "notes": {
+    "upload": "staging ratios_financiers 6,813,145 / dicionario 3 (basedosdados-dev), verified",
+    "dbt": "run PASS=2, test PASS=8 (dbt 1.8.8 from uv.lock env)",
+    "step_6b": "skipped: source publishes no documentation beyond field descriptions (formulas copied into column observations)",
+    "metadata": "BLOCKED: dev backend 503 continuously 14:03-15:45 AEDT 2026-10-07; register_metadata.py (ab6f5dc3c) not yet run; nothing registered anywhere. Next: when dev returns 200, run ~/.venvs/databasis-mcp/bin/python models/fr_inpi_ratios_financiers/code/register_metadata.py dev under_review, verify, then rerun with 'dev published' (step 9b).",
+    "prod_refs_read_only": "slug ratios_financiers free in prod; no INPI org in prod; license -> cc_by (no Licence Ouverte record)"
+  }
+}
