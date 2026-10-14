@@ -3,6 +3,12 @@
 Carga dos microdados de óbitos não fetais (CID-10) do SIM/DATASUS, do FTP até a
 materialização em `basedosdados.br_ms_sim.microdados`.
 
+Depois do `microdados`, o flow rematerializa as quatro tabelas agregadas
+(`municipio`, `municipio_causa`, `municipio_causa_idade` e
+`municipio_causa_idade_sexo_raca`), que são calculadas a partir dele. Elas são
+tabelas, não views, então só acompanham o `microdados` se rodarem de novo. A
+lista fica em `constants.AGGREGATE_TABLES`.
+
 Contexto da base, investigações de qualidade e decisões de tratamento estão em
 [`models/br_ms_sim/README.md`](../../../models/br_ms_sim/README.md).
 
