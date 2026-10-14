@@ -53,24 +53,24 @@ _empresas_pipeline.extract_load_deployment = (
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
-# empresas
-# check_update: br_rf_cnpj__empresas
-# extract_and_load: br_rf_cnpj__empresas
+# estabelecimentos
+# check_update: br_rf_cnpj__estabelecimentos
+# extract_and_load: br_rf_cnpj__estabelecimentos
 # ──────────────────────────────────────────────────────────────────────────────
 
-_empresas_pipeline = make_pipeline(ESTABELECIMENTOS_TABLE_ID)
+_estabelecimentos_pipeline = make_pipeline(ESTABELECIMENTOS_TABLE_ID)
 
 
-@flow(name=_empresas_pipeline.check_update_flow_name, log_prints=True)
-def br_rf_cnpj_empresas_check_update() -> None:
-    _empresas_pipeline.run_check_update()
+@flow(name=_estabelecimentos_pipeline.check_update_flow_name, log_prints=True)
+def br_rf_cnpj_estabelecimentos_check_update() -> None:
+    _estabelecimentos_pipeline.run_check_update()
 
 
-br_rf_cnpj_empresas_check_update.deploy_tags = deploy_tags(
+br_rf_cnpj_estabelecimentos_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, ESTABELECIMENTOS_TABLE_ID
 )
 
-br_rf_cnpj_empresas_check_update.deploy_schedules = [
+br_rf_cnpj_estabelecimentos_check_update.deploy_schedules = [
     Cron(
         CHECK_UPDATE_CRON[ESTABELECIMENTOS_TABLE_ID],
         timezone="America/Sao_Paulo",
@@ -78,16 +78,18 @@ br_rf_cnpj_empresas_check_update.deploy_schedules = [
 ]
 
 
-@flow(name=_empresas_pipeline.extract_and_load_flow_name, log_prints=True)
-def br_rf_cnpj_empresas_download(download_params: dict) -> None:
-    _empresas_pipeline.run_extract_and_load(download_params)
+@flow(
+    name=_estabelecimentos_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def br_rf_cnpj_estabelecimentos_download(download_params: dict) -> None:
+    _estabelecimentos_pipeline.run_extract_and_load(download_params)
 
 
-br_rf_cnpj_empresas_download.deploy_tags = deploy_tags(
+br_rf_cnpj_estabelecimentos_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTABELECIMENTOS_TABLE_ID
 )
-_empresas_pipeline.extract_load_deployment = (
-    br_rf_cnpj_empresas_download.fn.__name__
+_estabelecimentos_pipeline.extract_load_deployment = (
+    br_rf_cnpj_estabelecimentos_download.fn.__name__
 )
 
 ## Precisa resolver isso
