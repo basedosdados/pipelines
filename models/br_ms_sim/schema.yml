@@ -64,7 +64,7 @@ models:
       - name: codigo_bairro_residencia
         description: Código do Bairro de Residência
       - name: id_municipio_residencia
-        description: >
+        description: >-
           ID Município de Residência - IBGE 7 Dígitos. Códigos da fonte sem
           equivalente no IBGE (município ignorado) ficam nulos
         tests:
@@ -72,7 +72,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: id_municipio_residencia_datasus
-        description: >
+        description: >-
           ID Município de Residência como veio da fonte (DATASUS). Até 1998 inclui
           subdivisões das capitais (3345xxx Rio de Janeiro, 3580xxx São Paulo) e,
           até 2005, municípios ignorados (UF seguida de 00000)
