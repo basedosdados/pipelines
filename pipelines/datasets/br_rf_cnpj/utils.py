@@ -6,8 +6,10 @@ import datetime
 import os
 import re
 import zipfile
+import zlib
 from asyncio import Semaphore, gather, sleep
 from pathlib import Path
+from time import sleep as blocking_sleep
 
 import basedosdados as bd
 import pandas as pd
@@ -23,11 +25,41 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     COLUNAS_SIMPLES,
     COLUNAS_SOCIOS,
     COMPONENTS_SPECS,
+    DOWNLOAD_ZIP_MAX_ATTEMPTS,
     HEADERS,
+    PROPFIND_MAX_ATTEMPTS,
+    PROPFIND_TIMEOUT,
     UFS,
     XML_BODY,
 )
 from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
+
+
+def _propfind(url: str) -> requests.Response:
+    """PROPFIND na listagem WebDAV da RF, com timeout folgado e retry com backoff."""
+    for attempt in range(PROPFIND_MAX_ATTEMPTS):
+        try:
+            response = requests.request(
+                method="PROPFIND",
+                url=url,
+                headers=HEADERS,
+                data=XML_BODY,
+                timeout=PROPFIND_TIMEOUT,
+                proxies=brasil_proxy_dict(),
+            )
+            response.raise_for_status()
+            return response
+        except (requests.Timeout, requests.ConnectionError) as e:
+            if attempt == PROPFIND_MAX_ATTEMPTS - 1:
+                raise
+            delay = 10 * 2**attempt
+            log(
+                f"Falha no PROPFIND {url} na tentativa {attempt + 1} "
+                f"({type(e).__name__}). Retentando em {delay} segundos...",
+                "warning",
+            )
+            blocking_sleep(delay)
+    raise AssertionError("inalcançável")
 
 
 def data_url(
@@ -44,15 +76,7 @@ def data_url(
 
         tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
-    link_data = requests.request(
-        method="PROPFIND",
-        url=url,
-        headers=HEADERS,
-        data=XML_BODY,
-        timeout=30,
-        proxies=brasil_proxy_dict(),
-    )
-    link_data.raise_for_status()
+    link_data = _propfind(url)
     soup = BeautifulSoup(link_data.text, "html.parser")
 
     last_modified_dates = [p for p in soup.find_all("d:prop")]
@@ -104,15 +128,7 @@ def get_table_files(table_name: str, url_base: str):
     """
     Get the files and its links of the specified table from the given BeautifulSoup object.
     """
-    link_data = requests.request(
-        method="PROPFIND",
-        url=url_base,
-        headers=HEADERS,
-        data=XML_BODY,
-        timeout=30,
-        proxies=brasil_proxy_dict(),
-    )
-    link_data.raise_for_status()
+    link_data = _propfind(url_base)
     soup = BeautifulSoup(link_data.text, "html.parser")
 
     pattern = re.compile(rf"{table_name}.+\.zip")
@@ -352,6 +368,18 @@ async def download_chunk(
                 )
                 response.raise_for_status()
 
+                # Evita que Um chunk corrompido atrapalhe a extração de todo o zip
+                # exige exatamente os bytes do range pedido.
+                expected_size = chunk_range[1] - chunk_range[0] + 1
+                if len(response.content) != expected_size or (
+                    response.status_code != 206 and chunk_range[0] > 0
+                ):
+                    raise HTTPError(
+                        f"Resposta inválida para o range {chunk_range[0]}-{chunk_range[1]}: "
+                        f"status={response.status_code}, "
+                        f"{len(response.content)} bytes (esperado {expected_size})"
+                    )
+
                 with open(save_path, "r+b") as fd:
                     fd.seek(chunk_range[0])
                     fd.write(response.content)
@@ -399,24 +427,37 @@ async def download_unzip_csv(
     """
     log(f"Baixando o arquivo {url}")
     save_path = path / f"{Path(url).stem}.zip"
-    await download(
-        url,
-        save_path,
-        chunk_size=chunk_size,
-        max_retries=max_retries,
-        max_parallel=max_parallel,
-        timeout=timeout,
+
+    for attempt in range(DOWNLOAD_ZIP_MAX_ATTEMPTS):
+        await download(
+            url,
+            save_path,
+            chunk_size=chunk_size,
+            max_retries=max_retries,
+            max_parallel=max_parallel,
+            timeout=timeout,
+        )
+        try:
+            # testzip confere o CRC de todos os membros antes de extrair
+            with zipfile.ZipFile(save_path) as z:
+                bad_member = z.testzip()
+                if bad_member is not None:
+                    raise zipfile.BadZipFile(f"CRC inválido em {bad_member}")
+                z.extractall(path)
+            os.remove(save_path)
+            log("Dados extraídos com sucesso!")
+            return
+        except (zipfile.BadZipFile, zlib.error) as e:
+            log(
+                f"O arquivo {Path(url).stem} chegou corrompido na tentativa "
+                f"{attempt + 1}/{DOWNLOAD_ZIP_MAX_ATTEMPTS} ({e!r}).",
+                "warning",
+            )
+            os.remove(save_path)
+
+    raise RuntimeError(
+        f"{Path(url).stem}.zip corrompido após {DOWNLOAD_ZIP_MAX_ATTEMPTS} downloads"
     )
-
-    try:
-        with zipfile.ZipFile(save_path) as z:
-            z.extractall(path)
-        log("Dados extraídos com sucesso!")
-    except zipfile.BadZipFile:
-        log(f"O arquivo {Path(url).stem} não é um arquivo ZIP válido.")
-        # raise
-
-    os.remove(save_path)
 
 
 # ! Salva os dados CSV Estabelecimentos
@@ -443,6 +484,11 @@ def process_csv_estabelecimentos(
     colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
+
+    # A escrita abaixo é em modo append: sobra de uma tentativa que caiu no meio
+    # deste arquivo duplicaria linhas no retry.
+    for parcial in save_folder.glob(f"sigla_uf=*/estabelecimentos_{i}.csv"):
+        parcial.unlink()
 
     for filepath in Path(input_path).iterdir():
         if "estabele" in filepath.as_posix().lower():

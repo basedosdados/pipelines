@@ -159,6 +159,20 @@ def main(
                 nome_arquivo = item[0]
                 url_download = item[1]
 
+                # Apenas um marcador (um arquivo vazio)
+                # Evita baixar e processar de novo o que já ficou pronto.
+                marcador = (
+                    Path("tmp")
+                    / "br_rf_cnpj"
+                    / "done"
+                    / table
+                    / f"{folder_date}_{i}"
+                )
+                if marcador.exists():
+                    log(f"{nome_arquivo} já processado; pulando.")
+                    arquivos_baixados.append(nome_arquivo)
+                    continue
+
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(
@@ -208,6 +222,9 @@ def main(
                             i,
                             chunk_size,
                         )
+
+                    marcador.parent.mkdir(parents=True, exist_ok=True)
+                    marcador.touch()
         else:
             nome_arquivo = f"{table_configs['table_name']}"
             url_download = (

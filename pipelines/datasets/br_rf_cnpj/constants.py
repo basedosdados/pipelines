@@ -24,6 +24,12 @@ ATTEMPTS = 0
 DOWNLOAD_CHUNK_SIZE = 15 * 1024 * 1024
 DOWNLOAD_MAX_RETRIES = 5
 DOWNLOAD_MAX_PARALLEL = 5
+# Tentativas de baixar o zip inteiro quando ele chega corrompido (a extração falha)
+DOWNLOAD_ZIP_MAX_ATTEMPTS = 3
+# Listagem WebDAV (PROPFIND) da RF: lenta em horários de pico, então timeout e
+# retries mais folgados que o `timeout=30` anterior
+PROPFIND_TIMEOUT = 120
+PROPFIND_MAX_ATTEMPTS = 4
 DOWNLOAD_TIMEOUT = 10 * 60
 CSV_CHUNK_SIZE = 100_000
 
