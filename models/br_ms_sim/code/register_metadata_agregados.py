@@ -229,6 +229,14 @@ class Runner:
         )
 
 
+def check_upsert(slug: str, result: dict | None) -> None:
+    """bulk_upsert_columns devolve os erros em vez de levantar exceção."""
+    if result and result.get("errors"):
+        raise SystemExit(
+            f"{slug}: bulk_upsert_columns falhou: {result['errors']}"
+        )
+
+
 def read_table(table_id: str, env: str) -> tuple[dict, dict[str, dict]]:
     data = _gql(TABLE_QUERY, {"id": table_id}, env=env)
     table = data["allTable"]["edges"][0]["node"]
@@ -380,12 +388,15 @@ def main() -> None:
             if cbd is not None:
                 row["covered_by_dictionary"] = cbd
             rows.append(row)
-        run.do(
-            "colunas (descrições, unidades, dicionário)",
-            bd_write.bulk_upsert_columns,
-            table_id=table_id,
-            columns_json=json.dumps(rows, ensure_ascii=False),
-            update_only=True,
+        check_upsert(
+            slug,
+            run.do(
+                "colunas (descrições, unidades, dicionário)",
+                bd_write.bulk_upsert_columns,
+                table_id=table_id,
+                columns_json=json.dumps(rows, ensure_ascii=False),
+                update_only=True,
+            ),
         )
 
         for name, (*_, ent) in AGG_COLUMNS.items():
@@ -401,11 +412,14 @@ def main() -> None:
 
     print("\n=== microdados")
     micro_id = ds["tables"]["microdados"]["id"]
-    run.do(
-        "colunas",
-        bd_write.bulk_upsert_columns,
-        table_id=micro_id,
-        columns_json=json.dumps(MICRODADOS_COLUMNS, ensure_ascii=False),
+    check_upsert(
+        "microdados",
+        run.do(
+            "colunas",
+            bd_write.bulk_upsert_columns,
+            table_id=micro_id,
+            columns_json=json.dumps(MICRODADOS_COLUMNS, ensure_ascii=False),
+        ),
     )
     if args.apply:
         _, cols = read_table(micro_id, env)
