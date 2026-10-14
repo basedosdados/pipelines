@@ -119,6 +119,7 @@ def build_final(
         )
     ].copy()
     novos["escopo"] = None
+    novos = novos[~novos["id_natureza_juridica"].isin(["0000", "8885"])]
 
     print(f"Existentes: {len(existing)} | Baixados: {len(baixados)}")
     print(f"Códigos novos ({len(novos)}):")
@@ -152,12 +153,12 @@ if __name__ == "__main__":
     output_dir = root_dir / "tmp" / DATASET_ID / TABLE_ID / "output"
     output_dir.mkdir(exist_ok=True, parents=True)
 
-    existing = read_existing(args.billing_project_id)
-    baixados = download_naturezas()
-    final = build_final(existing, baixados)
+    # existing = read_existing(args.billing_project_id)
+    # baixados = download_naturezas()
+    # final = build_final(existing, baixados)
 
     output_path = output_dir / "data.csv"
-    final.to_csv(output_path, index=False, encoding="utf-8")
+    # final.to_csv(output_path, index=False, encoding="utf-8")
     print(f"Arquivo salvo em {output_path}")
 
     _upload_to_gcs(
