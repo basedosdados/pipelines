@@ -2,6 +2,7 @@
 Flows de br_ms_sim — Prefect 3.
 """
 
+from pipelines.datasets.br_ms_sim.constants import constants
 from pipelines.datasets.br_ms_sim.tasks import (
     clean_table,
     download_table,
@@ -24,6 +25,27 @@ from pipelines.utils.tasks import (
     run_dbt,
     upload_to_gcs,
 )
+
+
+def run_aggregates(dataset_id: str, target: str) -> None:
+    """Rematerializa as tabelas agregadas a partir do microdados.
+
+    Roda todas antes de testar qualquer uma: os testes leem tabelas irmãs.
+    """
+    for table in constants.AGGREGATE_TABLES.value:
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
+    for table in constants.AGGREGATE_TABLES.value:
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
 
 
 @flow(
@@ -93,6 +115,7 @@ def br_ms_sim__microdados(
         dbt_command="run/test",
         target="dev",
     )
+    run_aggregates(dataset_id=dataset_id, target="dev")
 
     if not materialize_after_dump:
         return
@@ -112,18 +135,20 @@ def br_ms_sim__microdados(
         dbt_command="run/test",
         target=target,
     )
+    run_aggregates(dataset_id=dataset_id, target=target)
 
     if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=AllFree(
-                date_column=YearOnly(col="ano"),
-                date_format=DateFormat.YEAR,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
+        for table in [table_id, *constants.AGGREGATE_TABLES.value]:
+            register_table_materialization_task(
+                dataset_id=dataset_id,
+                table_id=table,
+                coverage=AllFree(
+                    date_column=YearOnly(col="ano"),
+                    date_format=DateFormat.YEAR,
+                ),
+                env="prod",
+                bq_project="basedosdados",
+            )
 
 
 # `memory` não existe no template do work pool, que só conhece o par abaixo, e
