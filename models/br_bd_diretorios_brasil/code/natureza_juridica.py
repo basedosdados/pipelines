@@ -153,12 +153,12 @@ if __name__ == "__main__":
     output_dir = root_dir / "tmp" / DATASET_ID / TABLE_ID / "output"
     output_dir.mkdir(exist_ok=True, parents=True)
 
-    # existing = read_existing(args.billing_project_id)
-    # baixados = download_naturezas()
-    # final = build_final(existing, baixados)
+    existing = read_existing(args.billing_project_id)
+    baixados = download_naturezas()
+    final = build_final(existing, baixados)
 
-    output_path = output_dir / "data.csv"
-    # final.to_csv(output_path, index=False, encoding="utf-8")
+    output_path = output_dir / "natureza_juridica.csv"
+    final.to_csv(output_path, index=False, encoding="utf-8")
     print(f"Arquivo salvo em {output_path}")
 
     _upload_to_gcs(
