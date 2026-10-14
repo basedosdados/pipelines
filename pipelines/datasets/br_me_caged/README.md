@@ -5,8 +5,7 @@ publicados pelo Ministério do Trabalho e Emprego: cada linha é uma admissão o
 desligamento de emprego formal.
 
 - Fonte: FTP anônimo `ftp.mtps.gov.br`, pasta `pdet/microdados/NOVO CAGED/`
-- Código: `pipelines/datasets/br_me_caged/flows.py`, `pipelines/crawler/me_caged/` e
-  `models/br_me_caged/`
+- Código: `pipelines/datasets/br_me_caged/` e `models/br_me_caged/`
 
 ## A fonte
 
@@ -72,8 +71,8 @@ execução:
    fonte **antes do download**. Isso não trava a próxima tentativa, porque a
    verificação do passo 2 olha a cobertura da tabela, não esse registro. Se o flow
    falhar depois, a cobertura não anda e a execução seguinte tenta de novo.
-4. **Baixa os meses que faltam**: `generate_yearmonth_range` lista os meses entre o fim
-   da cobertura e o último publicado, e `crawl_novo_caged_ftp` baixa só o `.7z` da
+4. **Baixa os meses que faltam**: `generate_year_month_range` lista os meses entre o fim
+   da cobertura e o último publicado, e `download_caged_ftp` baixa só o `.7z` da
    tabela em cada um. Os arquivos que falham vão para `failed_downloads`, registrada no
    log; se nenhum arquivo do mês for baixado, a execução para com erro.
 5. **Gera as partições**: `build_partitions` grava um CSV por `ano`, `mes` e
@@ -130,20 +129,20 @@ baixar começam depois da cobertura, e as tabelas incrementais ignoram meses que
 têm. Para reprocessar:
 
 1. gere os CSVs do mês e suba para a staging de dev com as próprias funções do
-   crawler, rodando a partir de uma pasta fora do repositório (o crawler grava em
+   conjunto, rodando a partir de uma pasta fora do repositório (elas gravam em
    `tmp/`):
 
    ```python
-   from pipelines.crawler.me_caged.tasks import (
+   from pipelines.datasets.br_me_caged.tasks import (
        build_partitions,
        build_table_paths,
-       crawl_novo_caged_ftp,
+       download_caged_ftp,
    )
    from pipelines.utils.tasks import upload_to_gcs
 
    table_id = "microdados_movimentacao"
    _, output_dir = build_table_paths.fn(table_id)
-   crawl_novo_caged_ftp.fn("202512", table_id)
+   download_caged_ftp.fn("202512", table_id)
    path = build_partitions.fn(table_id=table_id, table_output_dir=output_dir)
    upload_to_gcs.fn(
        data_path=path,

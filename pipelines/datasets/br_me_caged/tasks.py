@@ -17,12 +17,12 @@ from tqdm import tqdm
 from unidecode import unidecode
 
 from pipelines.constants import constants
-from pipelines.crawler.me_caged.constants import (
+from pipelines.datasets.br_me_caged.constants import (
     constants as caged_constants,
 )
-from pipelines.crawler.me_caged.utils import (
+from pipelines.datasets.br_me_caged.utils import (
     download_file,
-    verify_yearmonth,
+    verify_year_month,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
@@ -120,19 +120,18 @@ def get_table_last_date(
     return data_api
 
 
-@task
-def generate_yearmonth_range(
+def generate_year_month_range(
     start_date: str | datetime.date, end_date: str | datetime.date
 ) -> list:
     """
-    Generate a list of yearmonth strings between start_date and end_date (inclusive).
+    Generate a list of year_month strings between start_date and end_date (inclusive).
 
     Parameters:
     start_date (str): Start date in format 'YYYYMM'
     end_date (str): End date in format 'YYYYMM'
 
     Returns:
-    list: List of yearmonth strings in chronological order
+    list: List of year_month strings in chronological order
 
     Raises:
     ValueError: If date format is incorrect or start_date is after end_date
@@ -143,7 +142,6 @@ def generate_yearmonth_range(
     if isinstance(end_date, datetime.date):
         end_date = end_date.strftime("%Y%m")
 
-    # Validate input format
     if not (
         len(start_date) == 6
         and len(end_date) == 6
@@ -152,30 +150,76 @@ def generate_yearmonth_range(
     ):
         raise ValueError("Dates must be in 'YYYYMM' format")
 
-    # Convert to datetime objects
     start = datetime.datetime.strptime(start_date, "%Y%m")
     end = datetime.datetime.strptime(end_date, "%Y%m")
 
-    # Validate date order
     if start > end:
         raise ValueError("Start date must be before or equal to end date")
 
-    # Generate list of yearmonths
-    yearmonths = []
+    year_months = []
     current = start
     current += relativedelta(months=1)
     while current <= end:
-        yearmonths.append(current.strftime("%Y%m"))
+        year_months.append(current.strftime("%Y%m"))
         current += relativedelta(months=1)
 
-    log(f"Yearnonths to be searched: {yearmonths}")
+    log(f"Yearnonths to be searched: {year_months}")
 
-    return yearmonths
+    return year_months
 
 
 @task
-def crawl_novo_caged_ftp(
-    yearmonth: str,
+def resolve_year_months(
+    backfill_year_months: list[str] | None,
+    table_last_date: datetime.date,
+    source_last_date: datetime.date,
+) -> list[str]:
+    """Decide quais meses a execução vai carregar.
+
+    Sem backfill, são os meses posteriores ao último coberto em produção, até o
+    último publicado. Com backfill, são os meses pedidos, em ordem, e a
+    cobertura não entra na conta.
+
+    Args:
+        backfill_year_months: Meses a recarregar, no formato `AAAAMM`, ou None.
+        table_last_date: Último mês coberto em produção.
+        source_last_date: Último mês publicado na fonte.
+
+    Returns:
+        Os meses a carregar, no formato `AAAAMM`, em ordem crescente.
+
+    Raises:
+        ValueError: Se algum mês pedido não estiver no formato `AAAAMM` ou
+            ficar fora do que a fonte publica, de 202001 ao último mês
+            publicado.
+    """
+    if not backfill_year_months:
+        return generate_year_month_range(table_last_date, source_last_date)
+
+    year_months = sorted(set(backfill_year_months))
+    for year_month in year_months:
+        datetime.datetime.strptime(year_month, "%Y%m")
+
+    first_year_month = "202001"
+    last_year_month = source_last_date.strftime("%Y%m")
+    out_of_range = [
+        year_month
+        for year_month in year_months
+        if not (first_year_month <= year_month <= last_year_month)
+    ]
+    if out_of_range:
+        raise ValueError(
+            f"A fonte publica de {first_year_month} a {last_year_month}, "
+            f"e estes meses estão fora: {out_of_range}"
+        )
+
+    log(f"Meses do backfill: {year_months}")
+    return year_months
+
+
+@task
+def download_caged_ftp(
+    year_month: str,
     table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
 ) -> list:
@@ -183,26 +227,26 @@ def crawl_novo_caged_ftp(
     Downloads specified .7z files from a CAGED dataset FTP server.
 
     Parameters:
-        yearmonth (str): the month to download data from (e.g., '202301' for January 2023)
+        year_month (str): the month to download data from (e.g., '202301' for January 2023)
         ftp_host (str): the FTP host to connect to (default: "ftp.mtps.gov.br")
 
     Returns:
         List: Lists of unsuccessfully downloaded files
     """
-    log(f"Verificando dados do mês: {yearmonth}")
-    verify_yearmonth(yearmonth)
+    log(f"Verificando dados do mês: {year_month}")
+    verify_year_month(year_month)
     ftp = ftplib.FTP(ftp_host)
     ftp.login()
-    ftp.cwd(f"{caged_constants.REMOTE_DIR.value}/{int(yearmonth[0:4])}/")
+    ftp.cwd(f"{caged_constants.REMOTE_DIR.value}/{int(year_month[0:4])}/")
 
     available_months = ftp.nlst()
-    if yearmonth not in available_months:
+    if year_month not in available_months:
         raise ValueError(
-            f"Month {yearmonth} is not available in the directory for the year {yearmonth[0:4]}"
+            f"Month {year_month} is not available in the directory for the year {year_month[0:4]}"
         )
 
-    ftp.cwd(yearmonth)
-    log(f"Baixando para o mês: {yearmonth}")
+    ftp.cwd(year_month)
+    log(f"Baixando para o mês: {year_month}")
 
     filenames = [f for f in ftp.nlst() if f.endswith(".7z")]
 
@@ -214,7 +258,7 @@ def crawl_novo_caged_ftp(
             log(f"Baixando o arquivo: {file}")
             success, corrupt_file = download_file(
                 ftp,
-                yearmonth,
+                year_month,
                 file,
                 caged_constants.DATASET_DIR.value
                 / "microdados_movimentacao"
@@ -232,7 +276,7 @@ def crawl_novo_caged_ftp(
             log(f"Baixando o arquivo: {file}")
             success, corrupt_file = download_file(
                 ftp,
-                yearmonth,
+                year_month,
                 file,
                 caged_constants.DATASET_DIR.value
                 / "microdados_movimentacao_fora_prazo"
@@ -250,7 +294,7 @@ def crawl_novo_caged_ftp(
             log(f"Baixando o arquivo: {file}")
             success, corrupt_file = download_file(
                 ftp,
-                yearmonth,
+                year_month,
                 file,
                 caged_constants.DATASET_DIR.value
                 / "microdados_movimentacao_excluida"

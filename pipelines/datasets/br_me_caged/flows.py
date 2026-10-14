@@ -4,13 +4,13 @@ Flows para br_me_caged — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.me_caged.tasks import (
+from pipelines.datasets.br_me_caged.tasks import (
     build_partitions,
     build_table_paths,
-    crawl_novo_caged_ftp,
-    generate_yearmonth_range,
+    download_caged_ftp,
     get_source_last_date,
     get_table_last_date,
+    resolve_year_months,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -38,6 +38,7 @@ def _run_me_caged(
     update_metadata: bool,
     target: str,
     force_run: bool,
+    backfill_year_months: list[str] | None,
 ) -> None:
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
@@ -45,38 +46,41 @@ def _run_me_caged(
 
     source_last_date = get_source_last_date()
 
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
+    if not backfill_year_months:
+        if not force_run:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=source_last_date,
+                env="prod",
+                date_format="%Y-%m",
+                compare_against="coverage",
+            )
+            if not has_new_data:
+                print(f"No updates for table {table_id}!")
+                return
+
+        commit_source_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=source_last_date,
             env="prod",
             date_format="%Y-%m",
-            compare_against="coverage",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
         )
-        if not has_new_data:
-            print(f"No updates for table {table_id}!")
-            return
-
-    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-    # novo publicado, mesmo que a tabela não tenha sido atualizada.
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=source_last_date,
-        env="prod",
-        date_format="%Y-%m",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
 
     table_last_date = get_table_last_date(dataset_id, table_id)
-    _input_dir, output_dir = build_table_paths(table_id)
-    yearmonths = generate_yearmonth_range(table_last_date, source_last_date)
+    year_months = resolve_year_months(
+        backfill_year_months=backfill_year_months,
+        table_last_date=table_last_date,
+        source_last_date=source_last_date,
+    )
 
-    for ym in yearmonths:
-        failed = crawl_novo_caged_ftp(ym, table_id)
+    _input_dir, output_dir = build_table_paths(table_id)
+
+    for ym in year_months:
+        failed = download_caged_ftp(ym, table_id)
         print(f"crawl {ym} → failed_downloads={failed}")
 
     filepath = build_partitions(table_id=table_id, table_output_dir=output_dir)
@@ -139,6 +143,7 @@ def _caged_flow(table_id: str, cron: str):
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
+        backfill_year_months: list[str] | None = None,
     ) -> None:
         _run_me_caged(
             dataset_id=dataset_id,
@@ -147,6 +152,7 @@ def _caged_flow(table_id: str, cron: str):
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
+            backfill_year_months=backfill_year_months,
         )
 
     _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]

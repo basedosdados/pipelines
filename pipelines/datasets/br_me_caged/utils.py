@@ -65,6 +65,6 @@ def download_file(
         return False, corrupt_file
 
 
-def verify_yearmonth(yearmonth: str):
-    if len(yearmonth) != 6 or not yearmonth.isdigit():
-        raise ValueError("yearmonth must be a string in the format 'YYYYMM'")
+def verify_year_month(year_month: str):
+    if len(year_month) != 6 or not year_month.isdigit():
+        raise ValueError("year_month must be a string in the format 'YYYYMM'")
