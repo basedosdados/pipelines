@@ -30,7 +30,8 @@ from pipelines.utils.tasks import (
 def run_aggregates(dataset_id: str, target: str) -> None:
     """Rematerializa as tabelas agregadas a partir do microdados.
 
-    Roda todas antes de testar qualquer uma: os testes leem tabelas irmãs.
+    Chamada depois do run/test do microdados, porque as agregadas leem dele.
+    Segue a convenção do repositório de rodar todas antes de testar qualquer uma.
     """
     for table in constants.AGGREGATE_TABLES.value:
         run_dbt(
