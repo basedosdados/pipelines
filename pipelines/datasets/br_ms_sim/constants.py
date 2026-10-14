@@ -76,6 +76,15 @@ class constants(Enum):
         },
     }
 
+    # Modelos dbt calculados a partir do microdados. São tabelas, não views:
+    # só acompanham o microdados se forem rematerializadas depois dele.
+    AGGREGATE_TABLES = [
+        "municipio",
+        "municipio_causa",
+        "municipio_causa_idade",
+        "municipio_causa_idade_sexo_raca",
+    ]
+
     DATE_COLUMNS = [
         "data_obito",
         "data_nascimento",
