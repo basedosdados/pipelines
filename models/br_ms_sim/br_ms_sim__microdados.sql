@@ -120,44 +120,33 @@ with
             safe_cast(alt_causa as string) alt_causa,
             safe_cast(coalesce(dado_preliminar, '0') as string) dado_preliminar
         from {{ set_datalake_project("br_ms_sim_staging.microdados") }} as t
-    ),
-    -- Óbitos cujo município de residência é de outra UF que a do arquivo.
-    fora_da_uf as (
-        select
-            f.ano,
-            f.sigla_uf,
-            f.sequencial_obito,
-            f.id_municipio_residencia,
-            f.data_obito,
-            f.data_nascimento,
-            f.sexo,
-            f.causa_basica,
-            f.id_municipio_ocorrencia,
-            uf.sigla as sigla_uf_residencia
-        from fonte as f
-        inner join
-            `basedosdados.br_bd_diretorios_brasil.uf` as uf
-            on uf.id_uf = left(f.id_municipio_residencia, 2)
-        where uf.sigla != f.sigla_uf
-    ),
-    -- Os que também estão no arquivo da UF de residência são o mesmo óbito.
-    duplicados as (
-        select distinct x.ano, x.sigla_uf, x.sequencial_obito
-        from fora_da_uf as x
-        inner join
-            fonte as f
-            on f.ano = x.ano
-            and f.sigla_uf = x.sigla_uf_residencia
-            and f.id_municipio_residencia = x.id_municipio_residencia
-            and f.data_obito is not distinct from x.data_obito
-            and f.data_nascimento is not distinct from x.data_nascimento
-            and f.sexo is not distinct from x.sexo
-            and f.causa_basica is not distinct from x.causa_basica
-            and f.id_municipio_ocorrencia is not distinct from x.id_municipio_ocorrencia
     )
 select
     f.* replace (
-        coalesce(x.sigla_uf_residencia, f.sigla_uf) as sigla_uf,
+        -- Óbitos de residentes do TO que vieram no arquivo de GO (1999 e 2001).
+        -- Lista fechada, levantada na investigação do README (seção 7.3).
+        case
+            when
+                f.sigla_uf = 'GO'
+                and concat(f.ano, '-', f.sequencial_obito) in (
+                    '1999-127',
+                    '1999-189',
+                    '1999-234',
+                    '1999-7740',
+                    '1999-10754',
+                    '1999-11192',
+                    '1999-11954',
+                    '1999-16090',
+                    '1999-19278',
+                    '1999-20120',
+                    '2001-23818',
+                    '2001-23821',
+                    '2001-23828',
+                    '2001-23894'
+                )
+            then 'TO'
+            else f.sigla_uf
+        end as sigla_uf,
         -- De-para da tabela de municípios do TabWin do SIM (MUNICBR.CNV).
         case
             -- Subdivisões das capitais usadas pelo DATASUS até 1998.
@@ -176,14 +165,20 @@ select
         end as id_municipio_residencia
     )
 from fonte as f
-left join
-    fora_da_uf as x
-    on x.ano = f.ano
-    and x.sigla_uf = f.sigla_uf
-    and x.sequencial_obito = f.sequencial_obito
-left join
-    duplicados as d
-    on d.ano = f.ano
-    and d.sigla_uf = f.sigla_uf
-    and d.sequencial_obito = f.sequencial_obito
-where d.sequencial_obito is null
+-- Os mesmos óbitos de 2001 também estão no arquivo do TO: a cópia de GO sai.
+where
+    not (
+        f.sigla_uf = 'GO'
+        and concat(f.ano, '-', f.sequencial_obito) in (
+            '2001-23816',
+            '2001-23817',
+            '2001-23819',
+            '2001-23820',
+            '2001-23822',
+            '2001-23823',
+            '2001-23824',
+            '2001-23825',
+            '2001-23826',
+            '2001-23829'
+        )
+    )

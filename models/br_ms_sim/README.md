@@ -633,7 +633,7 @@ Até 2005 a fonte grava o município de residência com 7 dígitos, e alguns có
 | XX00000 (município ignorado, só a UF) | 68.489 | 1996–2005 | nulo |
 | 5306006 (não existe no de-para) | 1 | 2003 | nulo |
 
-Óbitos de residentes do TO gravados no arquivo de GO (10 em 1999, 14 em 2001) passam para TO. Os 10 de 2001 que também estão no arquivo do TO, com os mesmos dados, são o mesmo óbito e são descartados.
+Óbitos de residentes do TO gravados no arquivo de GO (10 em 1999, 14 em 2001) passam para TO. Os 10 de 2001 que também estão no arquivo do TO, com os mesmos dados, são o mesmo óbito e são descartados. A correção é uma lista fechada no modelo, pelo `sequencial_obito` de cada uma dessas 24 linhas, e não uma regra aplicada a todos os registros: um caso novo de óbito na UF errada precisa ser investigado e acrescentado à lista.
 
 As tabelas agregadas (`municipio*`) são calculadas a partir do `microdados` e não excluem nenhum óbito: sem município IBGE, `id_municipio` fica nulo.
 
