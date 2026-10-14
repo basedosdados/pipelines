@@ -1,0 +1,108 @@
+---
+version: 2
+models:
+  - name: us_nyuad_cora__speech
+    description: >-
+      Speeches in the United States Congressional Record from 1873 to March 2026 (43rd
+      to 119th Congresses), one row per attributed utterance, from the Congressional
+      Oratory Research Archive (CORA) by Rabbani and Kaufman (NYU Abu Dhabi). Includes
+      full text, speaker identification (Bioguide), party, state, cited bills and
+      resolutions, and a model-assigned Comparative Agendas Project major topic.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [speech_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - bills
+            - joint_resolutions
+            - concurrent_resolutions
+            - simple_resolutions
+    columns:
+      - name: year
+        description: >-
+          Year of the speech
+        tests: [not_null]
+      - name: date
+        description: >-
+          Date of the session in which the speech was delivered
+        tests: [not_null]
+      - name: congress
+        description: >-
+          Number of the United States Congress (43rd to 119th)
+      - name: session
+        description: >-
+          Session of the Congress (1 or 2)
+      - name: chamber
+        description: >-
+          Section of the Congressional Record (House, Senate or Extension)
+      - name: speech_id
+        description: >-
+          CORA identifier of the speech
+        tests: [not_null]
+      - name: bioguide_id
+        description: >-
+          Identifier of the speaker in the Biographical Directory of the United States
+          Congress (Bioguide)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__congress_member')
+              field: id_bioguide
+      - name: state_id
+        description: >-
+          FIPS code of the state or territory represented by the speaker
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: state_abbreviation
+        description: >-
+          Postal abbreviation of the state or territory represented by the speaker
+      - name: speaker_name_raw
+        description: >-
+          Name of the speaker as printed in the Congressional Record
+      - name: speaker_first_name
+        description: >-
+          First name of the speaker
+      - name: speaker_last_name
+        description: >-
+          Last name of the speaker
+      - name: party
+        description: >-
+          Party of the speaker
+      - name: gender
+        description: >-
+          Gender of the speaker
+      - name: cap_major_topic
+        description: >-
+          Major topic of the speech under the Comparative Agendas Project (CAP) classification
+      - name: speech_text
+        description: >-
+          Full text of the speech
+      - name: bills
+        description: >-
+          Bills cited in the speech, comma-separated
+      - name: joint_resolutions
+        description: >-
+          Joint resolutions cited in the speech, comma-separated
+      - name: concurrent_resolutions
+        description: >-
+          Concurrent resolutions cited in the speech, comma-separated
+      - name: simple_resolutions
+        description: >-
+          Simple resolutions cited in the speech, comma-separated
+      - name: volume
+        description: >-
+          Volume of the Congressional Record
+      - name: pages
+        description: >-
+          Page range of the source document in the Congressional Record
+      - name: source_document_id
+        description: >-
+          Identifier of the source document in GovInfo
+      - name: source_url
+        description: >-
+          URL of the source page of the speech
+      - name: pdf_url
+        description: >-
+          URL of the source PDF of the speech
