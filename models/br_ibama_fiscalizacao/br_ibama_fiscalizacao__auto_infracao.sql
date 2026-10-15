@@ -21,7 +21,14 @@ with
             safe_cast(id_auto as string) id_auto,
             safe_cast(numero_auto_infracao as string) numero_auto_infracao,
             safe_cast(serie_auto_infracao as string) serie_auto_infracao,
-            safe_cast(data_auto as date) data_auto,
+            -- An act dated after its own extraction is a typo. None occur today,
+            -- but one would push the BD Pro window, computed from max(data_auto),
+            -- past every row.
+            if(
+                safe_cast(data_auto as date) > safe_cast(data_extracao as date),
+                null,
+                safe_cast(data_auto as date)
+            ) data_auto,
             safe_cast(tipo_auto as string) tipo_auto,
             safe_cast(tipo_infracao as string) tipo_infracao,
             safe_cast(gravidade as string) gravidade,
