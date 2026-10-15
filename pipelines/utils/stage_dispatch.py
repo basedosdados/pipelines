@@ -194,26 +194,14 @@ def _is_local() -> bool:
 
 
 def _run_flow_locally(deployment_full_name: str, parameters: dict) -> Any:
-    """Roda o próximo estágio localmente, sem passar por `run_deployment()`.
+    """Roda o próximo estágio chamando a função do flow direto (`.fn`),
+    sem passar por `run_deployment()`.
 
-    `run_deployment()` (mesmo com `as_subflow=True`) e uma chamada direta
-    de `@flow` de dentro de outro flow já em execução usam o mesmo
-    mecanismo interno pra registrar o vínculo pai-filho — uma "tarefa
-    fantasma" de rastreio criada via `client.create_task_run()` — que
-    quebra com `422 Unprocessable Entity` contra o servidor Prefect local
-    (`scripts/dev_local.sh`). Confirmado isoladamente: reproduz igual com
-    um subflow puro, sem deployment nenhum envolvido; não reproduz fora de
-    um flow run, nem contra o servidor via `curl` direto — parece uma
-    interação específica do motor de flows do Prefect 3.5.0 com o cliente
-    HTTP nesse cenário (servidor SQLite local), não um bug no dataset.
-
-    Chamar a função crua por trás do `@flow` (`.fn`) evita essa tarefa
-    fantasma por completo: as tasks de dentro rodam normalmente (viram
-    task runs do flow que despachou), só não aparecem como um flow filho
-    separado na UI local — sem importância pra teste local, onde o que
-    importa é a lógica rodar de ponta a ponta. `validate_parameters()`
-    garante a mesma coerção de tipos (`dict` -> `CoverageSpec`, etc.) que
-    `run_deployment()` faria no caminho real.
+    `run_deployment()` chamado de dentro de um flow já em execução quebra
+    com `422 Unprocessable Entity` contra o servidor Prefect local
+    (`scripts/dev_local.sh`) — não ocorre em produção. `validate_parameters()`
+    aplica a mesma coerção de tipos que `run_deployment()` faria
+    (`dict` -> `CoverageSpec`, etc.).
 
     Args:
         deployment_full_name: `"<flow name>/<deployment name>"`, mesmo
