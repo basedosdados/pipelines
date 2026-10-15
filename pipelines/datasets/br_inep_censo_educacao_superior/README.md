@@ -423,8 +423,11 @@ do staging:
 
 Antes da primeira execução, o tratamento rodou em todos os anos das duas tabelas
 e cada coluna foi comparada com prod (linhas, valores preenchidos, somas e
-valores distintos). Com o item 6, as únicas diferenças esperadas são a revisão de
-2023 do Inep e os defeitos abaixo.
+valores distintos). Resultado em 2026-10-15: **30 dos 32 pares tabela-ano são
+idênticos a prod**. Os outros dois são as correções intencionais: `curso` 2023
+(revisão do Inep, 14 colunas de vagas e inscritos) e `ies` 2024 (os `'nan'` e o
+CEP abaixo). Diferenças de formato que os agregados não captam (zero à esquerda,
+aspas, `.0`) foram conferidas valor a valor em 2024.
 
 ### Defeitos de prod corrigidos pela recarga
 
@@ -436,7 +439,7 @@ número ou não trataram nulos e aspas:
 | `curso` | `id_curso_cine` | 2024 | `"0115L07"` (com aspas) | `0115L07` |
 | `curso` | `id_area_geral`, `id_area_especifica`, `id_area_detalhada` | 2023, 2024 | `4`, `42`, `421` | `04`, `042`, `0421` |
 | `ies` | `cep` | 2024 | `78060900.0`; 278 sem o zero à esquerda | `78060900`, 8 dígitos |
-| `ies` | `sigla`, `numero`, `complemento` | 2024 | texto `'nan'` (464 valores) | nulo |
+| `ies` | `sigla`, `numero`, `complemento`, `cep` | 2024 | texto `'nan'` (459 + 1 + 4 + 26 = 490 valores) | nulo |
 | `curso` | vagas e inscritos (14 colunas) | 2023 | versão anterior à revisão do Inep | versão revisada |
 
 ## Pendências
