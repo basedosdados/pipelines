@@ -10,6 +10,7 @@ retomada de downloads interrompidos.
 """
 
 import datetime
+import io
 import re
 from collections.abc import Iterable, Iterator
 from email.utils import parsedate_to_datetime
@@ -17,6 +18,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import pandas as pd
+import requests
 
 from pipelines.datasets.br_inep_censo_educacao_superior.constants import (
     constants,
@@ -145,21 +147,39 @@ def download_censo(ano: int, input_dir: Path) -> Path:
 
 
 def ler_arquitetura(table_id: str) -> pd.DataFrame:
-    """Lê a arquitetura versionada da tabela.
+    """Lê a arquitetura da tabela na planilha do Drive.
 
     A arquitetura é o de-para entre o CSV do Inep (`original_name`) e a tabela da
-    BD (`name`), na ordem das colunas da tabela.
+    BD (`name`), na ordem das colunas da tabela. A planilha é exportada como CSV
+    (primeira aba) e lida como texto.
 
     Args:
         table_id: `curso` ou `ies`.
 
     Returns:
         As colunas `name`, `bigquery_type` e `original_name`, uma linha por coluna.
+
+    Raises:
+        ValueError: Se a resposta não for um CSV, o que acontece quando a
+            planilha deixa de estar compartilhada por link (o Google devolve a
+            página de login).
     """
-    caminho = constants.ARCHITECTURE_DIR.value / f"{table_id}.csv"
-    return pd.read_csv(caminho, dtype=str)[
-        ["name", "bigquery_type", "original_name"]
-    ]
+    planilha = constants.ARCHITECTURE_SHEETS.value[table_id]
+    url = planilha.removesuffix("/edit") + "/export?format=csv"
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+    if "text/csv" not in response.headers.get("content-type", ""):
+        raise ValueError(
+            f"a arquitetura da {table_id} não veio como CSV; confira se {planilha} "
+            "está compartilhada como 'qualquer pessoa com o link pode ver'"
+        )
+
+    arquitetura = pd.read_csv(
+        io.StringIO(response.content.decode("utf-8")),
+        dtype=str,
+        keep_default_na=False,
+    )
+    return arquitetura[["name", "bigquery_type", "original_name"]]
 
 
 def extrair_csv(zip_path: Path, table_id: str) -> Path:

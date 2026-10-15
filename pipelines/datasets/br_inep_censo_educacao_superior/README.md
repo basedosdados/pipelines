@@ -64,8 +64,7 @@ para GET** (`allowed_methods=("GET",)`). Por isso a leitura de cabeçalhos usa
 | `tasks.py` | `get_latest_update` e `extract_load_data` de cada tabela | feito |
 | `flows.py` | ligação com o `CheckThenExtractLoadPipeline`, uma pipeline por tabela | feito |
 | `models/br_inep_censo_educacao_superior/` | modelos dbt `curso`, `ies` e `dicionario` | existentes |
-| `models/br_inep_censo_educacao_superior/code/architecture/curso.csv` | de-para Inep → BD da `curso` (ver "Arquitetura da `curso`") | feito |
-| `models/br_inep_censo_educacao_superior/code/architecture/ies.csv` | de-para Inep → BD da `ies` (ver "Arquitetura da `ies`") | feito |
+| [planilha da `curso`](https://docs.google.com/spreadsheets/d/1txedBwUea1blHZKutvodNmwMcDJCwXMrj5n4LLoCj5M/edit) e [planilha da `ies`](https://docs.google.com/spreadsheets/d/1659-uPwzBQ6qzSrteieQ4tXC-4Ksl2iLMxh1aU2bU04/edit), no Drive | de-para Inep → BD de cada tabela, lido pela pipeline (ver "Arquitetura da `curso`") | feito |
 | `models/br_inep_censo_educacao_superior/code/` | scripts de tratamento manuais, da carga de 2024 | serão substituídos pela pipeline |
 
 A pipeline segue o modelo em estágios: `check_update` → `extract_and_load` →
@@ -190,15 +189,25 @@ Inep. As quatro colunas têm uma observação na arquitetura dizendo isso.
 
 ## Arquitetura da `curso`
 
-`models/br_inep_censo_educacao_superior/code/architecture/curso.csv` é o de-para
-entre o CSV do Inep (`original_name`) e a tabela da BD (`name`). O tratamento
-copia **só** as colunas listadas aqui, na ordem daqui. O que o Inep publica fora
-desta lista é descartado.
+A [planilha de arquitetura da `curso`](https://docs.google.com/spreadsheets/d/1txedBwUea1blHZKutvodNmwMcDJCwXMrj5n4LLoCj5M/edit) é o de-para entre o CSV do
+Inep (`original_name`) e a tabela da BD (`name`). O tratamento copia **só** as
+colunas listadas nela, na ordem dela. O que o Inep publica fora desta lista é
+descartado.
+
+**As arquiteturas ficam só no Drive** (decisão de 2026-10-15, com a Laura), e a
+pipeline as lê em toda execução (`ler_arquitetura`, links em
+`ARCHITECTURE_SHEETS` em `constants.py`). Por isso:
+
+- a planilha precisa estar compartilhada como "qualquer pessoa com o link pode
+  ver"; sem isso, a leitura falha com erro;
+- uma edição na planilha vale na execução seguinte, sem passar por PR;
+- **a ordem das linhas é a ordem das colunas no staging**: não reordene nem
+  apague linhas; colunas novas entram no fim (ver "Staging").
 
 ### Origem e validação
 
-O arquivo vem da planilha usada na carga manual de 2024 (o `arquitetura_apoio.csv`
-dos scripts em `code/`), indicada pela Laura. Antes de adotá-la, ela foi
+O conteúdo vem da planilha usada na carga manual de 2024 (o `arquitetura_apoio.csv`
+dos scripts em `code/`), encontrada no Drive. Antes de adotá-la, ela foi
 conferida contra os dados de 2024 (2026-10-15):
 
 - os 193 `name` são exatamente as colunas da tabela de prod, na mesma ordem;
@@ -270,10 +279,10 @@ cargas antigas desses anos estão em dia com a fonte.
 
 ## Arquitetura da `ies`
 
-`models/br_inep_censo_educacao_superior/code/architecture/ies.csv`, 73 colunas (71 de prod + 2 novas).
+[Planilha de arquitetura da `ies`](https://docs.google.com/spreadsheets/d/1659-uPwzBQ6qzSrteieQ4tXC-4Ksl2iLMxh1aU2bU04/edit), 73 colunas (71 de prod + 2 novas).
 Uma linha da `ies` é uma instituição em um ano (chave `ano` + `id_ies`).
 
-O arquivo vem da planilha usada na carga manual de 2024, indicada pela Laura, e
+O conteúdo vem da planilha usada na carga manual de 2024, encontrada no Drive, e
 foi conferido contra os dados de 2024 (2026-10-15):
 
 - os 71 `name` são exatamente as colunas da tabela de prod, na mesma ordem;

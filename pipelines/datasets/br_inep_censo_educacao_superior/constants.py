@@ -3,12 +3,8 @@ Constantes de br_inep_censo_educacao_superior.
 """
 
 from enum import Enum
-from pathlib import Path
 
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-
-# Raiz do repositório: as arquiteturas versionadas são a fonte única do esquema.
-_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class constants(Enum):
@@ -24,13 +20,15 @@ class constants(Enum):
     SOURCE_LINK = "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
     DOWNLOAD_LINK = "https://download.inep.gov.br/microdados/microdados_censo_da_educacao_superior_{ano}.zip"
 
-    ARCHITECTURE_DIR = (
-        _REPO_ROOT
-        / "models"
-        / "br_inep_censo_educacao_superior"
-        / "code"
-        / "architecture"
-    )
+    # Planilhas de arquitetura no Drive, a fonte do esquema: o tratamento lê delas
+    # quais colunas pegar do CSV do Inep, como renomear e em que ordem gravar.
+    # Precisam estar compartilhadas como "qualquer pessoa com o link pode ver",
+    # porque a pipeline lê sem login. A ordem das linhas é a ordem das colunas
+    # no staging: não reordene nem apague linhas.
+    ARCHITECTURE_SHEETS = {
+        "curso": "https://docs.google.com/spreadsheets/d/1txedBwUea1blHZKutvodNmwMcDJCwXMrj5n4LLoCj5M/edit",
+        "ies": "https://docs.google.com/spreadsheets/d/1659-uPwzBQ6qzSrteieQ4tXC-4Ksl2iLMxh1aU2bU04/edit",
+    }
 
     # Trecho do nome do CSV de cada tabela dentro do zip. O nome completo muda
     # entre anos (inclusive a caixa da extensão), por isso a busca é por trecho.
