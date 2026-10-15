@@ -238,6 +238,10 @@ br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_check_update.deploy
     Etapa.CHECK_UPDATE,
     constants_exportacao_servicos.TABLE_ID.value,
 )
+# Sem cron, ao contrário das irmãs: a série da fonte termina em 2015-04-28 e
+# não recebe operação nova desde então. A tabela entra como carga única, por
+# disparo manual. Se a fonte voltar a publicar, basta acrescentar
+# deploy_schedules aqui — o resto do flow já está pronto para o poll.
 
 
 @flow(
