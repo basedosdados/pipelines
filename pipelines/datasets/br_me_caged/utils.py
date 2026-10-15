@@ -1,6 +1,8 @@
 import ftplib
+import re
 from pathlib import Path
 
+import pandas as pd
 import py7zr
 
 from pipelines.utils.utils import log
@@ -68,3 +70,87 @@ def download_file(
 def verify_year_month(year_month: str):
     if len(year_month) != 6 or not year_month.isdigit():
         raise ValueError("year_month must be a string in the format 'YYYYMM'")
+
+
+def count_data_rows(path: str | Path) -> int:
+    """Conta as linhas não vazias de um arquivo, sem o cabeçalho.
+
+    Args:
+        path: Caminho do arquivo.
+
+    Returns:
+        O número de linhas de dado.
+    """
+    total_rows = 0
+
+    with open(path, mode="rb") as f:
+        for row in f:
+            if row.strip() != b"":
+                total_rows += 1
+
+    return total_rows - 1
+
+
+def year_month_from_filename(path: str | Path) -> str:
+    """Extrai o mês do nome de um arquivo do CAGED.
+
+    Args:
+        path: Caminho do arquivo, como `CAGEDMOV202608.txt`.
+
+    Returns:
+        O mês no formato `AAAAMM`.
+    """
+    # pyrefly: ignore [missing-attribute]
+    return re.search(r"\d+", Path(path).name).group()
+
+
+def month_partition_paths(
+    table_output_dir: str | Path, year_month: str
+) -> list[Path]:
+    """Lista os `data.csv` das partições de UF de um mês.
+
+    Args:
+        table_output_dir: Pasta com as partições `ano=/mes=/sigla_uf=/data.csv`.
+        year_month: Mês no formato `AAAAMM`.
+
+    Returns:
+        Os caminhos dos `data.csv` do mês.
+    """
+    year = year_month[:4]
+    month = int(year_month[-2:])
+    return list(
+        Path(table_output_dir).glob(
+            f"ano={year}/mes={month}/sigla_uf=*/data.csv"
+        )
+    )
+
+
+def count_competence_violations(
+    competences: pd.DataFrame, table_id: str, year_month: str
+) -> int:
+    """Conta as linhas cuja competência quebra a regra da tabela.
+
+    Args:
+        competences: Colunas de competência de uma partição.
+        table_id: Tabela do conjunto.
+        year_month: Mês do arquivo, no formato `AAAAMM`.
+
+    Returns:
+        O número de linhas fora da regra, contando competência nula.
+
+    Raises:
+        ValueError: Se a tabela não tiver regra de competência.
+    """
+    competence = competences["competenciamov"].str[:6]
+
+    if table_id == "microdados_movimentacao":
+        valid = competence == year_month
+    elif table_id == "microdados_movimentacao_fora_prazo":
+        valid = competence < year_month
+    elif table_id == "microdados_movimentacao_excluida":
+        declaration = competences["competenciadec"].str[:6]
+        valid = (competence <= year_month) & (declaration <= year_month)
+    else:
+        raise ValueError(f"Tabela sem regra de competência: {table_id}")
+
+    return (~valid).sum()

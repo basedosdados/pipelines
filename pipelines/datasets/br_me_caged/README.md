@@ -42,8 +42,8 @@ que cada uma registra e no que `ano` e `mes` querem dizer:
 Para o saldo de um mês com todos os ajustes, some as duas primeiras tabelas e subtraia
 a terceira, agrupando pelo mês da movimentação.
 
-O crawler troca o código da UF pela sigla e descarta `regiao`, `unidadesalariocodigo` e
-`valorsalariofixo`. O modelo dbt converte o município de 6 para 7 dígitos, cruzando com
+O `build_partitions` troca o código da UF pela sigla e descarta `regiao`,
+`unidadesalariocodigo` e `valorsalariofixo`. O modelo dbt converte o município de 6 para 7 dígitos, cruzando com
 `br_bd_diretorios_brasil.municipio`.
 
 `microdados_movimentacao` e `_fora_prazo` são **incrementais**: cada `dbt run` só
@@ -71,10 +71,10 @@ execução:
    fonte **antes do download**. Isso não trava a próxima tentativa, porque a
    verificação do passo 2 olha a cobertura da tabela, não esse registro. Se o flow
    falhar depois, a cobertura não anda e a execução seguinte tenta de novo.
-4. **Baixa os meses que faltam**: `generate_year_month_range` lista os meses entre o fim
-   da cobertura e o último publicado, e `download_caged_ftp` baixa só o `.7z` da
-   tabela em cada um. Os arquivos que falham vão para `failed_downloads`, registrada no
-   log; se nenhum arquivo do mês for baixado, a execução para com erro.
+4. **Escolhe e baixa os meses**: `resolve_year_months` devolve os meses entre o fim da
+   cobertura e o último publicado, e `download_caged_ftp` baixa só o `.7z` da tabela em
+   cada um. Os arquivos que falham vão para `failed_downloads`, registrada no log; se
+   nenhum arquivo do mês for baixado, a execução para com erro.
 5. **Gera as partições**: `build_partitions` grava um CSV por `ano`, `mes` e
    `sigla_uf`.
 6. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
@@ -83,6 +83,9 @@ execução:
    produção.
 7. **Atualiza a cobertura**: `register_table_materialization_task` lê o último mês da
    tabela de produção e atualiza a cobertura no site.
+
+Com `backfill_year_months`, os passos 2 e 3 não acontecem, e o passo 4 baixa os meses
+pedidos em vez dos que faltam.
 
 A cobertura tem duas partes: os 6 meses mais recentes ficam restritos ao BD Pro e o
 restante é aberto. O passo 7 recalcula esse corte a cada mês e recria as regras de
@@ -108,55 +111,37 @@ cobrem um atraso da fonte. A execução das 17h pega a publicação do mesmo dia
 | `update_metadata` | `True` | `False` para não registrar cobertura nem a publicação da fonte |
 | `target` | `prod` | define onde roda o segundo `dbt run`; o upload e o registro de cobertura continuam indo para produção |
 | `force_run` | `False` | `True` para pular a verificação de novidade (passo 2) |
+| `backfill_year_months` | `None` | lista de meses `AAAAMM` a baixar e carregar, sem a verificação de novidade e sem registrar a publicação da fonte; um mês fora do intervalo de 202001 ao último publicado faz o flow parar com erro |
 
-Para testar no pool de dev sem gravar nada em produção:
+Para testar no pool de dev sem gravar nada em produção, com um mês já publicado:
 
 ```json
-{"materialize_after_dump": false, "update_metadata": false, "force_run": true}
+{"backfill_year_months": ["202608"], "materialize_after_dump": false, "update_metadata": false}
 ```
 
-O teste só baixa dados quando a fonte tem um mês que a tabela de produção ainda não
-tem, porque os meses a baixar vêm da cobertura. Com a tabela em dia, não há o que
-baixar.
+Com `force_run` e sem backfill, os meses a baixar vêm da cobertura: com a tabela em dia,
+não há arquivo para subir, e o flow para com erro no upload.
 
 ## Rodar manualmente e reprocessar
 
 **Meses atrasados:** basta rodar o flow com os parâmetros padrão. Todos os meses que
 faltam entram na mesma execução.
 
-**Um mês já carregado** não é reprocessado pelo flow, nem com `force_run`: os meses a
-baixar começam depois da cobertura, e as tabelas incrementais ignoram meses que já
-têm. Para reprocessar:
+**Um mês já carregado** volta para a staging com o backfill, mas a
+`microdados_movimentacao` e a `_fora_prazo` só mudam depois de reconstruídas: as tabelas
+incrementais ignoram meses que já têm. Para reprocessar:
 
-1. gere os CSVs do mês e suba para a staging de dev com as próprias funções do
-   conjunto, rodando a partir de uma pasta fora do repositório (elas gravam em
-   `tmp/`):
+1. rode o flow da tabela com o mês no backfill:
 
-   ```python
-   from pipelines.datasets.br_me_caged.tasks import (
-       build_partitions,
-       build_table_paths,
-       download_caged_ftp,
-   )
-   from pipelines.utils.tasks import upload_to_gcs
-
-   table_id = "microdados_movimentacao"
-   _, output_dir = build_table_paths.fn(table_id)
-   download_caged_ftp.fn("202512", table_id)
-   path = build_partitions.fn(table_id=table_id, table_output_dir=output_dir)
-   upload_to_gcs.fn(
-       data_path=path,
-       dataset_id="br_me_caged",
-       table_id=table_id,
-       bucket_name="basedosdados-dev",
-       dump_mode="append",
-   )
+   ```json
+   {"backfill_year_months": ["202512"], "materialize_after_dump": false, "update_metadata": false}
    ```
 
-   O mês novo substitui o antigo no mesmo caminho e os outros ficam como estão;
-2. reconstrua a tabela em dev com `dbt run --select br_me_caged__<tabela>
-   --full-refresh`, que lê a staging inteira de novo, e confira o resultado. A
-   `_excluida` não precisa da opção;
+   O mês novo substitui o antigo na staging de dev, no mesmo caminho, e os outros ficam
+   como estão. A `_excluida` já sai reconstruída deste passo;
+2. na `movimentacao` e na `_fora_prazo`, reconstrua a tabela em dev com
+   `dbt run --select br_me_caged__<tabela> --full-refresh`, que lê a staging inteira de
+   novo, e confira o resultado;
 3. em produção, use os flows utilitários do Prefect, que rodam com as credenciais do
    worker. Rode fora da janela do cron e na ordem abaixo:
    1. `BD Utils: Transfere arquivos do bucket basedosdados-dev para basedosdados`,

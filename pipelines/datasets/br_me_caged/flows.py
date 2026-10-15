@@ -7,6 +7,8 @@ from prefect.schedules import Cron
 from pipelines.datasets.br_me_caged.tasks import (
     build_partitions,
     build_table_paths,
+    check_competence_month,
+    check_rows_written,
     download_caged_ftp,
     get_source_last_date,
     get_table_last_date,
@@ -77,13 +79,21 @@ def _run_me_caged(
         source_last_date=source_last_date,
     )
 
-    _input_dir, output_dir = build_table_paths(table_id)
+    input_dir, output_dir = build_table_paths(table_id)
 
     for ym in year_months:
         failed = download_caged_ftp(ym, table_id)
         print(f"crawl {ym} → failed_downloads={failed}")
 
     filepath = build_partitions(table_id=table_id, table_output_dir=output_dir)
+
+    check_rows_written(table_input_dir=input_dir, table_output_dir=output_dir)
+
+    check_competence_month(
+        table_id=table_id,
+        table_input_dir=input_dir,
+        table_output_dir=output_dir,
+    )
 
     upload_to_gcs(
         data_path=filepath,

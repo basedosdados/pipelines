@@ -21,8 +21,12 @@ from pipelines.datasets.br_me_caged.constants import (
     constants as caged_constants,
 )
 from pipelines.datasets.br_me_caged.utils import (
+    count_competence_violations,
+    count_data_rows,
     download_file,
+    month_partition_paths,
     verify_year_month,
+    year_month_from_filename,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
@@ -374,3 +378,97 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             log(f"Failed to read: {filepath} due to: {e}", "error")
     # pyrefly: ignore [bad-return]
     return table_output_dir
+
+
+@task
+def check_rows_written(
+    table_input_dir: str | Path, table_output_dir: str | Path
+) -> None:
+    """Confere se as linhas de cada `.txt` foram gravadas nas partições do mês.
+
+    Args:
+        table_input_dir: Pasta com os `.txt` baixados, um por mês.
+        table_output_dir: Pasta com as partições `ano=/mes=/sigla_uf=/data.csv`.
+
+    Raises:
+        ValueError: Se, em algum mês, as linhas gravadas diferirem das lidas.
+    """
+    files = Path(table_input_dir).glob("*txt")
+
+    months_list = []
+
+    for f in files:
+        file_date = year_month_from_filename(f)
+        partition_paths = month_partition_paths(table_output_dir, file_date)
+
+        rows_read = count_data_rows(f)
+
+        rows_written = 0
+
+        for path in partition_paths:
+            rows_written += count_data_rows(path)
+
+        log(f"{file_date}: {rows_read} linhas lidas, {rows_written} gravadas")
+
+        if rows_read != rows_written:
+            months_list.append(
+                f"Mês: {file_date}, "
+                f"com {rows_read} linhas lidas, "
+                f"mas com {rows_written} linhas escritas"
+            )
+
+    if months_list:
+        raise ValueError(
+            f"Contagem de linhas não bate nos seguintes meses: \n{months_list}"
+        )
+
+
+@task
+def check_competence_month(
+    table_id: str,
+    table_input_dir: str | Path,
+    table_output_dir: str | Path,
+) -> None:
+    """Confere se a competência das linhas casa com o mês do arquivo.
+
+    Na `movimentacao`, a competência é o próprio mês do arquivo; na
+    `_fora_prazo`, um mês anterior; na `_excluida`, nem a competência nem o
+    mês da declaração passam do mês do arquivo.
+
+    Args:
+        table_id: Tabela do conjunto.
+        table_input_dir: Pasta com os `.txt` baixados, um por mês.
+        table_output_dir: Pasta com as partições `ano=/mes=/sigla_uf=/data.csv`.
+
+    Raises:
+        ValueError: Se alguma linha quebrar a regra da tabela.
+    """
+    files = Path(table_input_dir).glob("*txt")
+
+    months_list = []
+
+    for f in files:
+        file_date = year_month_from_filename(f)
+
+        violations = 0
+
+        for path in month_partition_paths(table_output_dir, file_date):
+            competences = pd.read_csv(
+                path,
+                usecols=lambda column: column.startswith("competencia"),
+                dtype=str,
+            )
+            violations += count_competence_violations(
+                competences, table_id, file_date
+            )
+
+        log(f"{file_date}: {violations} linhas com competência fora da regra")
+
+        if violations:
+            months_list.append(f"Mês: {file_date}, com {violations} linhas")
+
+    if months_list:
+        raise ValueError(
+            "Competência fora da regra da tabela nos seguintes meses: \n"
+            f"{months_list}"
+        )
