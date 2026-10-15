@@ -23,8 +23,25 @@ select
     safe_cast(id_ies as string) id_ies,
     safe_cast(initcap(nome_curso) as string) nome_curso,
     safe_cast(id_curso as string) id_curso,
-    safe_cast(nome_curso_cine as string) nome_curso_cine,
-    safe_cast(id_curso_cine as string) id_curso_cine,
+    -- Nos arquivos de staging gravados antes da pipeline (2009 a 2023), as duas
+    -- colunas estão em posições trocadas; nos gravados por ela, não. A troca é
+    -- decidida pelo conteúdo, e não pelo ano, para valer nos dois casos: só o
+    -- código CINE tem o formato 0000A00. O trim tira as aspas que a carga manual
+    -- de 2024 deixou no código.
+    safe_cast(
+        if(
+            regexp_contains(trim(nome_curso_cine, '"'), r'^\d{4}[A-Z]\d{2}$'),
+            trim(id_curso_cine, '"'),
+            trim(nome_curso_cine, '"')
+        ) as string
+    ) nome_curso_cine,
+    safe_cast(
+        if(
+            regexp_contains(trim(nome_curso_cine, '"'), r'^\d{4}[A-Z]\d{2}$'),
+            trim(nome_curso_cine, '"'),
+            trim(id_curso_cine, '"')
+        ) as string
+    ) id_curso_cine,
     safe_cast(id_area_geral as string) id_area_geral,
     safe_cast(nome_area_geral as string) nome_area_geral,
     safe_cast(id_area_especifica as string) id_area_especifica,
