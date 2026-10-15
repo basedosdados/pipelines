@@ -100,6 +100,9 @@ class constants(Enum):  # pylint: disable=c0103
         "99": "UF não identificada",
     }
 
+    IGNORED_MUNICIPALITY_CODE = "999999"
+    MAX_UNKNOWN_MUNICIPALITY_SHARE = 0.001
+
     FULL_MONTHS = {
         "janeiro": 1,
         "fevereiro": 2,

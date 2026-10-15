@@ -23,6 +23,7 @@ from pipelines.datasets.br_me_caged.constants import (
 from pipelines.datasets.br_me_caged.utils import (
     count_competence_violations,
     count_data_rows,
+    count_unknown_municipalities,
     download_file,
     month_partition_paths,
     verify_year_month,
@@ -471,4 +472,126 @@ def check_competence_month(
         raise ValueError(
             "Competência fora da regra da tabela nos seguintes meses: \n"
             f"{months_list}"
+        )
+
+
+@task
+def check_states_present(
+    table_input_dir: str | Path, table_output_dir: str | Path
+) -> None:
+    """Confere se as 27 UFs têm linhas em todo mês.
+
+    Args:
+        table_input_dir: Pasta com os `.txt` baixados, um por mês.
+        table_output_dir: Pasta com as partições `ano=/mes=/sigla_uf=/data.csv`.
+
+    Raises:
+        ValueError: Se, em algum mês, faltar alguma UF.
+    """
+    files_list = Path(table_input_dir).glob("*txt")
+
+    months_list = []
+
+    expected_ufs = set(caged_constants.UF_DICT.value.values())
+
+    expected_ufs.remove("UF não identificada")
+
+    for f in files_list:
+        date_in_name = year_month_from_filename(f)
+
+        partition_paths = month_partition_paths(
+            table_output_dir=table_output_dir, year_month=date_in_name
+        )
+
+        partitions_ufs = set()
+
+        for partition in partition_paths:
+            if count_data_rows(partition) > 0:
+                partitions_ufs.add(partition.parent.name.split("=")[1])
+
+        missing_ufs = expected_ufs - partitions_ufs
+
+        if missing_ufs:
+            months_list.append(
+                f"Para o mês {date_in_name}, "
+                f"as UFs não estão presentes {sorted(missing_ufs)}"
+            )
+
+    if months_list:
+        raise ValueError(f"UFs ausentes nos seguintes meses: \n{months_list}")
+
+
+@task
+def get_directory_municipality_codes() -> set[str]:
+    """Busca os códigos de 6 dígitos do diretório de municípios.
+
+    Returns:
+        Os valores de `id_municipio_6` do `br_bd_diretorios_brasil.municipio`.
+    """
+    directory = bd.read_sql(
+        "select id_municipio_6 "
+        "from `basedosdados.br_bd_diretorios_brasil.municipio`",
+        from_file=True,
+    )
+    return set(directory["id_municipio_6"].dropna().astype(str))
+
+
+@task
+def check_municipality_codes(
+    table_input_dir: str | Path,
+    table_output_dir: str | Path,
+    directory_codes: set[str],
+) -> None:
+    """Confere se os códigos de município das partições existem no diretório.
+
+    Até `MAX_UNKNOWN_MUNICIPALITY_SHARE` das linhas do mês com código fora do
+    diretório, registra só um aviso no log.
+
+    Args:
+        table_input_dir: Pasta com os `.txt` baixados, um por mês.
+        table_output_dir: Pasta com as partições `ano=/mes=/sigla_uf=/data.csv`.
+        directory_codes: Códigos de 6 dígitos do diretório de municípios.
+
+    Raises:
+        ValueError: Se, em algum mês, os códigos fora do diretório passarem
+            do limite.
+    """
+    files = Path(table_input_dir).glob("*txt")
+    max_share = caged_constants.MAX_UNKNOWN_MUNICIPALITY_SHARE.value
+
+    months_list = []
+
+    for f in files:
+        file_date = year_month_from_filename(f)
+
+        rows = 0
+        unknown = 0
+
+        for path in month_partition_paths(table_output_dir, file_date):
+            municipalities = pd.read_csv(
+                path, usecols=["id_municipio"], dtype=str
+            )
+            rows += len(municipalities)
+            unknown += count_unknown_municipalities(
+                municipalities["id_municipio"], directory_codes
+            )
+
+        log(
+            f"{file_date}: {unknown} de {rows} linhas com município fora do "
+            "diretório"
+        )
+
+        if rows and unknown / rows > max_share:
+            months_list.append(f"Mês: {file_date}, com {unknown} de {rows}")
+        elif unknown:
+            log(
+                f"{file_date}: municípios fora do diretório abaixo do limite "
+                f"de {max_share:.1%}",
+                "warning",
+            )
+
+    if months_list:
+        raise ValueError(
+            f"Municípios fora do diretório acima de {max_share:.1%} das "
+            f"linhas nos seguintes meses: \n{months_list}"
         )

@@ -8,8 +8,11 @@ from pipelines.datasets.br_me_caged.tasks import (
     build_partitions,
     build_table_paths,
     check_competence_month,
+    check_municipality_codes,
     check_rows_written,
+    check_states_present,
     download_caged_ftp,
+    get_directory_municipality_codes,
     get_source_last_date,
     get_table_last_date,
     resolve_year_months,
@@ -93,6 +96,18 @@ def _run_me_caged(
         table_id=table_id,
         table_input_dir=input_dir,
         table_output_dir=output_dir,
+    )
+
+    directory_codes = get_directory_municipality_codes()
+
+    check_municipality_codes(
+        table_input_dir=input_dir,
+        table_output_dir=output_dir,
+        directory_codes=directory_codes,
+    )
+
+    check_states_present(
+        table_input_dir=input_dir, table_output_dir=output_dir
     )
 
     upload_to_gcs(

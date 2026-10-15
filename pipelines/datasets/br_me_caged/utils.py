@@ -5,6 +5,9 @@ from pathlib import Path
 import pandas as pd
 import py7zr
 
+from pipelines.datasets.br_me_caged.constants import (
+    constants as caged_constants,
+)
 from pipelines.utils.utils import log
 
 
@@ -154,3 +157,23 @@ def count_competence_violations(
         raise ValueError(f"Tabela sem regra de competência: {table_id}")
 
     return (~valid).sum()
+
+
+def count_unknown_municipalities(
+    municipality_codes: pd.Series, directory_codes: set[str]
+) -> int:
+    """Conta os códigos de município fora do diretório.
+
+    O código de município ignorado da fonte não entra na conta.
+
+    Args:
+        municipality_codes: Códigos de 6 dígitos de uma partição.
+        directory_codes: Códigos de 6 dígitos do diretório de municípios.
+
+    Returns:
+        O número de linhas com código fora do diretório, contando código nulo.
+    """
+    codes = municipality_codes.str[:6]
+    ignored = caged_constants.IGNORED_MUNICIPALITY_CODE.value
+    unknown = ~codes.isin(directory_codes) & (codes != ignored)
+    return unknown.sum()
