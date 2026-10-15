@@ -65,6 +65,7 @@ para GET** (`allowed_methods=("GET",)`). Por isso a leitura de cabeçalhos usa
 | `flows.py` | ligação com o `CheckThenExtractLoadPipeline`, uma pipeline por tabela | *(a fazer)* |
 | `models/br_inep_censo_educacao_superior/` | modelos dbt `curso`, `ies` e `dicionario` | existentes |
 | `models/br_inep_censo_educacao_superior/code/architecture/curso.csv` | de-para Inep → BD da `curso` (ver "Arquitetura da `curso`") | feito |
+| `models/br_inep_censo_educacao_superior/code/architecture/ies.csv` | de-para Inep → BD da `ies` (ver "Arquitetura da `ies`") | feito |
 | `models/br_inep_censo_educacao_superior/code/` | scripts de tratamento manuais, da carga de 2024 | serão substituídos pela pipeline |
 
 A pipeline segue o modelo em estágios: `check_update` → `extract_and_load` →
@@ -180,6 +181,13 @@ matriz do dicionário do Inep. Os dados não foram alterados, mas a
 `temporal_coverage` de cada coluna na arquitetura passou a indicar o período real
 (ver abaixo).
 
+**Caso extremo: processo seletivo.** O dicionário diz que `QT_VG_PROC_SELETIVO`,
+`QT_INSC_PROC_SELETIVO`, `QT_ING_PROC_SELETIVO` e `QT_ING_OUTRO_TIPO_SELECAO`
+foram coletadas de 2009 a 2013, mas os microdados publicados trazem **0 em todos
+os anos, inclusive nesse período**. Conferido em 2026-10-15 nos zips de 2009 a
+2013: soma 0 no Inep e 0 na BD. A carga da BD está correta; quem publica zero é o
+Inep. As quatro colunas têm uma observação na arquitetura dizendo isso.
+
 ## Arquitetura da `curso`
 
 `models/br_inep_censo_educacao_superior/code/architecture/curso.csv` é o de-para
@@ -253,6 +261,38 @@ Antes do início da cobertura, as colunas novas ficam **nulas** (decisão acima)
 |---|---|
 | `CO_UF`, `NO_UF`, `CO_REGIAO`, `NO_REGIAO`, `NO_MUNICIPIO`, `IN_CAPITAL` | vêm dos diretórios da BD a partir de `id_municipio` |
 | `QT_CURSO` | contagem auxiliar do Inep; a contagem de cursos é `count(distinct id_curso)` |
+
+### Anos antigos conferem com a BD
+
+Na mesma conferência de 2026-10-15, os anos de 2009 a 2013 têm na BD exatamente o
+mesmo número de linhas e o mesmo total de vagas que os zips atuais do Inep. As
+cargas antigas desses anos estão em dia com a fonte.
+
+## Arquitetura da `ies`
+
+`models/br_inep_censo_educacao_superior/code/architecture/ies.csv`, 71 colunas.
+Uma linha da `ies` é uma instituição em um ano (chave `ano` + `id_ies`).
+
+O arquivo vem da planilha usada na carga manual de 2024, indicada pela Laura, e
+foi conferido contra os dados de 2024 (2026-10-15):
+
+- os 71 `name` são exatamente as colunas da tabela de prod, na mesma ordem;
+- todos os `original_name` existem nos CSVs do Inep de 2023 e de 2024;
+- as 2.561 instituições de 2024 têm **valores idênticos** em todas as colunas.
+
+A única mudança em relação à planilha é a `temporal_coverage`, recalculada pelo
+dicionário do Inep (aba `cadastro_ies`) com o mesmo critério da `curso`. Ficaram
+explícitas 9 colunas de biblioteca: 7 começam em `2015(1)`,
+`indicador_biblioteca_assina_outras_bases` começa em `2018(1)` e
+`indicador_biblioteca_acesso_outras_bases` vai de `2009(1)2017`.
+
+Colunas do Inep fora da arquitetura:
+
+| Colunas | Situação |
+|---|---|
+| `CO_UF_IES`, `NO_UF_IES`, `CO_REGIAO_IES`, `NO_REGIAO_IES`, `CO_MESORREGIAO_IES`, `NO_MESORREGIAO_IES`, `CO_MICRORREGIAO_IES`, `NO_MICRORREGIAO_IES`, `NO_MUNICIPIO_IES`, `IN_CAPITAL_IES` | vêm dos diretórios da BD a partir de `id_municipio` |
+| `IN_COMUNITARIA`, `IN_CONFESSIONAL` (desde 2023) | *(a decidir)* — na `curso` foram incluídas |
+| `TP_REDE` (pública/privada, desde 2009) | *(a decidir)* — a `curso` tem `rede`; a `ies` não |
 
 ## Detecção de atualização
 
@@ -335,7 +375,8 @@ nomes da BD e as colunas da arquitetura, na ordem dela.
 
 - [ ] Tratamento: arquitetura → CSV de staging, com aviso no log para colunas da fonte ignoradas e colunas da arquitetura ausentes na fonte
 - [x] Arquitetura da `curso` no repositório, validada, com as 26 colunas novas e a cobertura corrigida
-- [ ] Arquitetura da `ies` (planilha sendo localizada)
+- [x] Arquitetura da `ies` no repositório, validada, com a cobertura corrigida
+- [ ] Decidir se `IN_COMUNITARIA`, `IN_CONFESSIONAL` e `TP_REDE` entram na `ies`
 - [ ] dbt (`curso.sql`, `schema.yml`) e metadados com as 26 colunas novas
 - [ ] `tasks.py` e `flows.py`
 - [ ] Execução em dev ponta a ponta, incluindo a leitura de arquivos com número de colunas diferente

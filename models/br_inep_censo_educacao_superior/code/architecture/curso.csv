@@ -26,7 +26,7 @@ quantidade_vagas_diurno,int64,Quantidade total de vagas oferecidas no turno diur
 quantidade_vagas_noturno,int64,Quantidade total de vagas oferecidas no turno noturno,,no,,,no,,QT_VG_TOTAL_NOTURNO
 quantidade_vagas_ead,int64,Quantidade total de vagas oferecidas no curso a distância,,no,,,no,,QT_VG_TOTAL_EAD
 quantidade_vagas_novas,int64,Quantidade de vagas novas oferecidas,2014(1),no,,,no,,QT_VG_NOVA
-quantidade_vagas_processos_seletivos,int64,Quantidade de vagas nos processos seletivos,2009(1)2013,no,,,no,,QT_VG_PROC_SELETIVO
+quantidade_vagas_processos_seletivos,int64,Quantidade de vagas nos processos seletivos,2009(1)2013,no,,,no,"O dicionário do Inep indica coleta de 2009 a 2013, mas os microdados publicados trazem 0 em todos os anos, inclusive nesse período (conferido em 2026-10-15). O valor não é informativo.",QT_VG_PROC_SELETIVO
 quantidade_vagas_remanescentes,int64,Quantidade de vagas remanescentes,2014(1),no,,,no,,QT_VG_REMANESC
 quantidade_vagas_programas_especiais,int64,Quantidade de vagas oferecidas para programas especiais,2014(1),no,,,no,,QT_VG_PROG_ESPECIAL
 quantidade_inscritos,int64,Quantidade total de inscritos,,no,,person,no,,QT_INSCRITO_TOTAL
@@ -34,7 +34,7 @@ quantidade_inscritos_diurno,int64,Quantidade total de inscritos no turno diurno,
 quantidade_inscritos_noturno,int64,Quantidade total de inscritos no turno noturno,,no,,person,no,,QT_INSCRITO_TOTAL_NOTURNO
 quantidade_inscritos_ead,int64,Quantidade total de inscritos no curso a distância,,no,,person,no,,QT_INSCRITO_TOTAL_EAD
 quantidade_inscritos_vagas_novas,int64,Quantidade de inscritos no processo seletivo de vagas novas,2014(1),no,,person,no,,QT_INSC_VG_NOVA
-quantidade_inscritos_processos_seletivos,int64,Quantidade de inscritos nos processos seletivos,2009(1)2013,no,,person,no,,QT_INSC_PROC_SELETIVO
+quantidade_inscritos_processos_seletivos,int64,Quantidade de inscritos nos processos seletivos,2009(1)2013,no,,person,no,"O dicionário do Inep indica coleta de 2009 a 2013, mas os microdados publicados trazem 0 em todos os anos, inclusive nesse período (conferido em 2026-10-15). O valor não é informativo.",QT_INSC_PROC_SELETIVO
 quantidade_inscritos_remanescentes,int64,Quantidade de inscritos no processo seletivo de vagas remanescentes,2014(1),no,,person,no,,QT_INSC_VG_REMANESC
 quantidade_inscritos_programas_especiais,int64,Quantidade de inscritos no processo seletivo de vagas oferecidas para programas especiais,2014(1),no,,person,no,,QT_INSC_VG_PROG_ESPECIAL
 quantidade_ingressantes,int64,Quantidade de ingressantes,,no,,person,no,,QT_ING
@@ -48,8 +48,8 @@ quantidade_ingressantes_enem,int64,Quantidade de ingressantes pelo ENEM,,no,,per
 quantidade_ingressantes_avaliacao_seriada,int64,Quantidade de ingressantes por meio da avaliação seriada,2013(1),no,,person,no,,QT_ING_AVALIACAO_SERIADA
 quantidade_ingressantes_selecao_simplificada,int64,Quantidade de ingressantes por meio de seleção simplificada,2014(1),no,,person,no,,QT_ING_SELECAO_SIMPLIFICA
 quantidade_ingressantes_egressos,int64,Quantidade de alunos que se formaram em um curso de Bacharelado Interdisciplinar ou Licenciatura Interdisciplinar e que ingressaram em um curso de terminalidade,2016(1),no,,person,no,,QT_ING_EGR
-quantidade_ingressantes_outro_tipo_selecao,int64,Quantidade de ingressantes em outro tipo de seleção,2009(1)2013,no,,person,no,,QT_ING_OUTRO_TIPO_SELECAO
-quantidade_ingressantes_processos_seletivos,int64,Quantidade de ingressantes nos processos seletivos,2009(1)2013,no,,person,no,,QT_ING_PROC_SELETIVO
+quantidade_ingressantes_outro_tipo_selecao,int64,Quantidade de ingressantes em outro tipo de seleção,2009(1)2013,no,,person,no,"O dicionário do Inep indica coleta de 2009 a 2013, mas os microdados publicados trazem 0 em todos os anos, inclusive nesse período (conferido em 2026-10-15). O valor não é informativo.",QT_ING_OUTRO_TIPO_SELECAO
+quantidade_ingressantes_processos_seletivos,int64,Quantidade de ingressantes nos processos seletivos,2009(1)2013,no,,person,no,"O dicionário do Inep indica coleta de 2009 a 2013, mas os microdados publicados trazem 0 em todos os anos, inclusive nesse período (conferido em 2026-10-15). O valor não é informativo.",QT_ING_PROC_SELETIVO
 quantidade_ingressantes_remanescentes,int64,Quantidade de ingressantes por meio de vagas remanescentes,2014(1),no,,person,no,,QT_ING_VG_REMANESC
 quantidade_ingressantes_programas_especiais,int64,Quantidade de ingressantes por meio de vagas para programas especiais,2014(1),no,,person,no,,QT_ING_VG_PROG_ESPECIAL
 quantidade_ingressantes_outras_formas,int64,Quantidade de ingressantes por outras formas de ingresso,,no,,person,no,,QT_ING_OUTRA_FORMA
