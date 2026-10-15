@@ -6,8 +6,10 @@ import datetime
 import os
 import re
 import zipfile
+import zlib
 from asyncio import Semaphore, gather, sleep
 from pathlib import Path
+from time import sleep as blocking_sleep
 
 import basedosdados as bd
 import pandas as pd
@@ -16,11 +18,48 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
-from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
+from pipelines.datasets.br_rf_cnpj.constants import (
+    COLUNAS_EMPRESAS,
+    COLUNAS_ESTABELECIMENTO,
+    COLUNAS_ESTABELECIMENTO_ORDEM,
+    COLUNAS_SIMPLES,
+    COLUNAS_SOCIOS,
+    COMPONENTS_SPECS,
+    DOWNLOAD_ZIP_MAX_ATTEMPTS,
+    HEADERS,
+    PROPFIND_MAX_ATTEMPTS,
+    PROPFIND_TIMEOUT,
+    UFS,
+    XML_BODY,
+)
 from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
 
-ufs = constants_cnpj.UFS.value
-timeout = constants_cnpj.TIMEOUT.value
+
+def _propfind(url: str) -> requests.Response:
+    """PROPFIND na listagem WebDAV da RF, com timeout folgado e retry com backoff."""
+    for attempt in range(PROPFIND_MAX_ATTEMPTS):
+        try:
+            response = requests.request(
+                method="PROPFIND",
+                url=url,
+                headers=HEADERS,
+                data=XML_BODY,
+                timeout=PROPFIND_TIMEOUT,
+                proxies=brasil_proxy_dict(),
+            )
+            response.raise_for_status()
+            return response
+        except (requests.Timeout, requests.ConnectionError) as e:
+            if attempt == PROPFIND_MAX_ATTEMPTS - 1:
+                raise
+            delay = 10 * 2**attempt
+            log(
+                f"Falha no PROPFIND {url} na tentativa {attempt + 1} "
+                f"({type(e).__name__}). Retentando em {delay} segundos...",
+                "warning",
+            )
+            blocking_sleep(delay)
+    raise AssertionError("inalcançável")
 
 
 def data_url(
@@ -37,15 +76,7 @@ def data_url(
 
         tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
-    link_data = requests.request(
-        method="PROPFIND",
-        url=url,
-        headers=constants_cnpj.HEADERS.value,
-        data=constants_cnpj.XML_BODY.value,
-        timeout=30,
-        proxies=brasil_proxy_dict(),
-    )
-    link_data.raise_for_status()
+    link_data = _propfind(url)
     soup = BeautifulSoup(link_data.text, "html.parser")
 
     last_modified_dates = [p for p in soup.find_all("d:prop")]
@@ -97,15 +128,7 @@ def get_table_files(table_name: str, url_base: str):
     """
     Get the files and its links of the specified table from the given BeautifulSoup object.
     """
-    link_data = requests.request(
-        method="PROPFIND",
-        url=url_base,
-        headers=constants_cnpj.HEADERS.value,
-        data=constants_cnpj.XML_BODY.value,
-        timeout=30,
-        proxies=brasil_proxy_dict(),
-    )
-    link_data.raise_for_status()
+    link_data = _propfind(url_base)
     soup = BeautifulSoup(link_data.text, "html.parser")
 
     pattern = re.compile(rf"{table_name}.+\.zip")
@@ -345,6 +368,18 @@ async def download_chunk(
                 )
                 response.raise_for_status()
 
+                # Evita que Um chunk corrompido atrapalhe a extração de todo o zip
+                # exige exatamente os bytes do range pedido.
+                expected_size = chunk_range[1] - chunk_range[0] + 1
+                if len(response.content) != expected_size or (
+                    response.status_code != 206 and chunk_range[0] > 0
+                ):
+                    raise HTTPError(
+                        f"Resposta inválida para o range {chunk_range[0]}-{chunk_range[1]}: "
+                        f"status={response.status_code}, "
+                        f"{len(response.content)} bytes (esperado {expected_size})"
+                    )
+
                 with open(save_path, "r+b") as fd:
                     fd.seek(chunk_range[0])
                     fd.write(response.content)
@@ -355,11 +390,17 @@ async def download_chunk(
                 )
 
                 return
-            except HTTPError:
-                delay = 2**attempt
+            except HTTPError as e:
+                # Timeouts e quedas de conexão não têm response; só erros HTTP têm status
+                status = getattr(
+                    getattr(e, "response", None), "status_code", None
+                )
+                # Backoff longo o bastante para atravessar instabilidades do servidor da RF
+                delay = min(5 * 2**attempt, 120)
                 log(
                     f"Falha no download do chunk {chunk_range[0]}-{chunk_range[1]} "
-                    f"na tentativa {attempt + 1}. Retentando em {delay} segundos..."
+                    f"na tentativa {attempt + 1} ({type(e).__name__}: {e!r}, status={status}). "
+                    f"Retentando em {delay} segundos..."
                 )
                 await sleep(delay)
 
@@ -386,24 +427,37 @@ async def download_unzip_csv(
     """
     log(f"Baixando o arquivo {url}")
     save_path = path / f"{Path(url).stem}.zip"
-    await download(
-        url,
-        save_path,
-        chunk_size=chunk_size,
-        max_retries=max_retries,
-        max_parallel=max_parallel,
-        timeout=timeout,
+
+    for attempt in range(DOWNLOAD_ZIP_MAX_ATTEMPTS):
+        await download(
+            url,
+            save_path,
+            chunk_size=chunk_size,
+            max_retries=max_retries,
+            max_parallel=max_parallel,
+            timeout=timeout,
+        )
+        try:
+            # testzip confere o CRC de todos os membros antes de extrair
+            with zipfile.ZipFile(save_path) as z:
+                bad_member = z.testzip()
+                if bad_member is not None:
+                    raise zipfile.BadZipFile(f"CRC inválido em {bad_member}")
+                z.extractall(path)
+            os.remove(save_path)
+            log("Dados extraídos com sucesso!")
+            return
+        except (zipfile.BadZipFile, zlib.error) as e:
+            log(
+                f"O arquivo {Path(url).stem} chegou corrompido na tentativa "
+                f"{attempt + 1}/{DOWNLOAD_ZIP_MAX_ATTEMPTS} ({e!r}).",
+                "warning",
+            )
+            os.remove(save_path)
+
+    raise RuntimeError(
+        f"{Path(url).stem}.zip corrompido após {DOWNLOAD_ZIP_MAX_ATTEMPTS} downloads"
     )
-
-    try:
-        with zipfile.ZipFile(save_path) as z:
-            z.extractall(path)
-        log("Dados extraídos com sucesso!")
-    except zipfile.BadZipFile:
-        log(f"O arquivo {Path(url).stem} não é um arquivo ZIP válido.")
-        # raise
-
-    os.remove(save_path)
 
 
 # ! Salva os dados CSV Estabelecimentos
@@ -426,10 +480,15 @@ def process_csv_estabelecimentos(
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
-    ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
-    colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
+    ordem = COLUNAS_ESTABELECIMENTO_ORDEM
+    colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
+
+    # A escrita abaixo é em modo append: sobra de uma tentativa que caiu no meio
+    # deste arquivo duplicaria linhas no retry.
+    for parcial in save_folder.glob(f"sigla_uf=*/estabelecimentos_{i}.csv"):
+        parcial.unlink()
 
     for filepath in Path(input_path).iterdir():
         if "estabele" in filepath.as_posix().lower():
@@ -478,7 +537,7 @@ def process_csv_estabelecimentos(
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
                 chunk["data_modificacao"] = data_coleta
-                for uf in constants_cnpj.UFS.value:
+                for uf in UFS:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = save_folder / f"sigla_uf={uf}"
@@ -518,7 +577,7 @@ def process_csv_empresas(
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
-    colunas = constants_cnpj.COLUNAS_EMPRESAS.value
+    colunas = COLUNAS_EMPRESAS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
@@ -586,7 +645,7 @@ def process_csv_socios(
     Returns:
         None
     """
-    colunas = constants_cnpj.COLUNAS_SOCIOS.value
+    colunas = COLUNAS_SOCIOS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
@@ -656,7 +715,7 @@ def process_csv_simples(
     Returns:
         None
     """
-    colunas = constants_cnpj.COLUNAS_SIMPLES.value
+    colunas = COLUNAS_SIMPLES
     save_folder = Path(output_path)
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"{sufixo}.csv"
@@ -894,14 +953,14 @@ def process_csv_dicionario(
     Args:
         input_path (Path): Directory containing the input CSV files.
         output_path (Path): Base directory for output.
-        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
 
     log(f"Save path: {save_path}")
-    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = COMPONENTS_SPECS[table_name]
     files = [
         fp
         for fp in Path(input_path).iterdir()
@@ -987,12 +1046,12 @@ def process_manual_dictionaries(output_path: Path, table_name: str):
 
     Args:
         output_path (Path): Base directory for output.
-        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
-    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = COMPONENTS_SPECS[table_name]
 
     chunk = pd.DataFrame(table_configs["chaves_valores"])
     for relationship in table_configs["relationships"]:
