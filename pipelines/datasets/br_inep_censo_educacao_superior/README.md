@@ -335,6 +335,12 @@ manual de 2024 atualizou a tabela em jan/2026 **sem recarregar 2023**. A regra
 execução recarrega todos os anos que mudaram antes de atualizar a data da tabela,
 e a regra passa a bastar.
 
+**Decisão (2026-10-15):** a primeira execução recarrega **todos os anos, 2009 a
+2024**, das duas tabelas, e não só 2023 e 2024. Motivos: a troca de posição das
+colunas CINE (ver "Staging") e os defeitos das cargas manuais (ver "Defeitos de
+prod corrigidos pela recarga"). A pipeline não deve depender de soluções
+pontuais deixadas pelas cargas anteriores.
+
 O que mudou em 2023 (comparação com a BD em 2026-10-13):
 
 | | Inep (revisado) | BD | diferença |
@@ -364,21 +370,84 @@ Isso define três regras para a pipeline:
    `if_exists="replace"`, o que substitui só o ano recarregado, desde que o
    caminho seja idêntico.
 3. **Colunas novas entram no fim.** A tabela externa CSV lê por posição, e o
-   `_sync_staging_schema` só acrescenta colunas no fim, sem reordenar. Os
-   arquivos de anos antigos terão menos colunas que os novos; se o BigQuery aceita
-   isso numa tabela CSV, só a execução em dev vai dizer. *(a validar)*
+   `_sync_staging_schema` só acrescenta colunas no fim, sem reordenar. Como a
+   primeira execução regrava todos os anos, todos os arquivos ficam com as
+   mesmas colunas, e não há arquivos com número de colunas diferente.
 
 O CSV de staging não é o CSV do Inep: tem separador `,`, codificação utf-8, os
 nomes da BD e as colunas da arquitetura, na ordem dela.
 
+### A troca de posição das colunas CINE (até 2023)
+
+Nos arquivos de staging de 2009 a 2023, `id_curso_cine` e `nome_curso_cine` estão
+em posições trocadas (9 e 10) em relação à tabela externa; são as únicas fora de
+ordem. Como a leitura é por posição, nesses anos o código caía em
+`nome_curso_cine` e o nome em `id_curso_cine`. O PR #1536 compensou isso no
+`curso.sql` com um `case when ano <= 2023` que troca as duas colunas.
+
+Essa regra é por ano, não por arquivo: um 2023 regravado na ordem certa seria
+trocado de novo. **Decisão (2026-10-15):** regravar todos os anos na ordem da
+arquitetura e **remover o `case` do `curso.sql`**. *(a fazer no dbt)*
+
+## Tratamento
+
+`tratar_tabela` (em `utils.py`) transforma o CSV do Inep de um ano no `data.csv`
+do staging:
+
+1. **Extrai o CSV** do zip, procurando por trecho do nome (`CADASTRO_CURSOS`,
+   `_IES_`), porque o nome completo muda entre anos.
+2. **Confere o cabeçalho** contra a arquitetura e avisa no log as colunas
+   descartadas e as ausentes. Foi por esses avisos que os nomes antigos abaixo
+   apareceram.
+3. **Lê em blocos de 100 mil linhas, tudo como texto.** Em blocos porque a
+   `curso` de 2024 lida de uma vez passa de 12 GB; em blocos, o pico fica em
+   1,4 GB. Como texto, porque é o que preserva CEPs e códigos com zero à esquerda.
+4. **Traduz nomes antigos do Inep** (`OLD_PREFIXES` em `constants.py`):
+   - `ies` 2009: `DOC_EX_*` → `QT_DOC_EX_*` e `QT_DOCENTE_*` → `QT_DOC_*`. Sem
+     isso, as 31 colunas de docentes de 2009 ficariam nulas;
+   - `curso` 2020: `CO_CINE_ROTULO2` → `CO_CINE_ROTULO`. Sem isso, o código CINE
+     de 2020 ficaria nulo.
+5. **Aplica a arquitetura**: renomeia, ordena, confere que todas as linhas são do
+   ano esperado e tira a coluna `ano`, que vai no caminho da partição.
+6. **Vazio em coluna de quantidade vira 0; coluna ausente fica nula.** Até 2019,
+   o Inep deixa vazio o que não se aplica (vagas e inscritos nas linhas de EaD por
+   município); de 2020 em diante, grava 0. Prod sempre teve 0 em todos os anos, e
+   a pipeline mantém isso (**decisão de 2026-10-15**: a `curso` é uma das tabelas
+   mais consultadas, e o que não precisa mudar não muda). Colunas que não existem
+   no CSV do ano, como as 26 novas antes de 2023/2024, continuam nulas.
+7. **Ajusta valores**: booleanos `1`/`0` → `True`/`False`; `id_municipio` com 7
+   dígitos; aspas retiradas do `id_curso_cine`.
+8. **Grava** `ano=<ano>/data.csv`.
+
+### Conferência com prod, ano a ano
+
+Antes da primeira execução, o tratamento rodou em todos os anos das duas tabelas
+e cada coluna foi comparada com prod (linhas, valores preenchidos, somas e
+valores distintos). Com o item 6, as únicas diferenças esperadas são a revisão de
+2023 do Inep e os defeitos abaixo.
+
+### Defeitos de prod corrigidos pela recarga
+
+Todos vêm das cargas manuais de 2023 e 2024, que leram colunas de texto como
+número ou não trataram nulos e aspas:
+
+| Tabela | Coluna | Anos | Em prod | Depois da recarga |
+|---|---|---|---|---|
+| `curso` | `id_curso_cine` | 2024 | `"0115L07"` (com aspas) | `0115L07` |
+| `curso` | `id_area_geral`, `id_area_especifica`, `id_area_detalhada` | 2023, 2024 | `4`, `42`, `421` | `04`, `042`, `0421` |
+| `ies` | `cep` | 2024 | `78060900.0`; 278 sem o zero à esquerda | `78060900`, 8 dígitos |
+| `ies` | `sigla`, `numero`, `complemento` | 2024 | texto `'nan'` (464 valores) | nulo |
+| `curso` | vagas e inscritos (14 colunas) | 2023 | versão anterior à revisão do Inep | versão revisada |
+
 ## Pendências
 
-- [ ] Tratamento: arquitetura → CSV de staging, com aviso no log para colunas da fonte ignoradas e colunas da arquitetura ausentes na fonte
+- [x] Tratamento: arquitetura → CSV de staging, com avisos no log; conferido com prod em todos os anos
 - [x] Arquitetura da `curso` no repositório, validada, com as 26 colunas novas e a cobertura corrigida
 - [x] Arquitetura da `ies` no repositório, validada, com a cobertura corrigida
 - [ ] Decidir se `IN_COMUNITARIA`, `IN_CONFESSIONAL` e `TP_REDE` entram na `ies`
-- [ ] dbt (`curso.sql`, `schema.yml`) e metadados com as 26 colunas novas
+- [ ] dbt: 26 colunas novas no `curso.sql` e no `schema.yml`, e remoção do `case` das colunas CINE
+- [ ] Metadados: colunas novas, cobertura por coluna e observações
 - [ ] `tasks.py` e `flows.py`
 - [ ] Execução em dev ponta a ponta, incluindo a leitura de arquivos com número de colunas diferente
-- [ ] Primeira execução com recarga de 2023 (e 2024)
+- [ ] Primeira execução recarregando todos os anos (2009 a 2024)
 - [ ] Carga de 2025, quando for publicada
