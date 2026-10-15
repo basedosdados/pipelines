@@ -167,7 +167,7 @@ A UI fica em `http://127.0.0.1:4200`. Se você não mudou nada ainda (ex. acabou
 > [!IMPORTANT]
 > **`check_update` precisa das credenciais do Vault mesmo rodando local** — ele registra o poll no backend (`poll_source_for_update_task`/`commit_source_update_task`), que autentica via `get_credentials_from_secret`/`VAULT_ADDRESS`/`VAULT_TOKEN`. Sem isso no ambiente, quebra com `AttributeError: 'NoneType' object has no attribute 'strip'`. `up` já carrega isso do `.env` do repositório sozinho (ver `.env.example`) — não precisa sourcear nada manualmente.
 
-**Flow monolítico (ainda não migrado pro pipeline em estágios)**: se estava entre os `.py` alterados, já foi deployado — dispare pela UI (próximo parágrafo). Pra um teste pontual sem deploy, o `@flow` também é uma função Python chamável direto (`materialize_after_dump=False`/`force_run=True`, ou nomes parecidos, garante que só escreve em dev):
+**Flow monolítico (ainda não migrado pro pipeline em estágios)**: roda pela UI igual a qualquer outro flow — não tem diferença entre monolítico e em estágios aqui, o botão "Run" funciona igual pra qualquer deployment. Se estava entre os `.py` alterados, já foi deployado (próximo parágrafo). Alternativa, pra um teste pontual sem deploy nenhum: o `@flow` também é uma função Python chamável direto (`materialize_after_dump=False`/`force_run=True`, ou nomes parecidos, garante que só escreve em dev):
 
 ```python
 from pipelines.datasets.br_fgv_igp.flows import br_fgv_igp__igp_di_mes
