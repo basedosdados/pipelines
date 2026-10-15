@@ -387,7 +387,9 @@ ordem. Como a leitura é por posição, nesses anos o código caía em
 
 Essa regra é por ano, não por arquivo: um 2023 regravado na ordem certa seria
 trocado de novo. **Decisão (2026-10-15):** regravar todos os anos na ordem da
-arquitetura e **remover o `case` do `curso.sql`**. *(a fazer no dbt)*
+arquitetura e **remover o `case` do `curso.sql`**. Feito. O modelo só funciona
+depois que a pipeline regravar o staging de todos os anos: os arquivos antigos
+ainda estão na ordem trocada e sem as colunas novas.
 
 ## Tratamento
 
@@ -448,7 +450,7 @@ número ou não trataram nulos e aspas:
 - [x] Arquitetura da `curso` no repositório, validada, com as 26 colunas novas e a cobertura corrigida
 - [x] Arquitetura da `ies` no repositório, validada, com a cobertura corrigida
 - [ ] Decidir se `IN_COMUNITARIA`, `IN_CONFESSIONAL` e `TP_REDE` entram na `ies`
-- [ ] dbt: 26 colunas novas no `curso.sql` e no `schema.yml`, e remoção do `case` das colunas CINE
+- [x] dbt: 26 colunas novas no `curso.sql` e no `schema.yml`, remoção do `case` das colunas CINE e partição até 2029 (`curso` e `ies`)
 - [ ] Metadados: colunas novas, cobertura por coluna e observações
 - [ ] `tasks.py` e `flows.py`
 - [ ] Execução em dev ponta a ponta, incluindo a leitura de arquivos com número de colunas diferente
