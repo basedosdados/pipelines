@@ -1,7 +1,7 @@
 """
 `Flow` da Base dos Dados — o `Flow` do Prefect 3 mais os atributos de deploy.
 
-`.github/workflows/scripts/deploy_flows.py` lê três atributos do objeto flow que o
+`.github/workflows/scripts/deploy_flows.py` lê quatro atributos do objeto flow que o
 `prefect.Flow` não declara:
 
 - `deploy_schedules`: lista de agendamentos (`prefect.schedules.Cron`), usada no
@@ -11,11 +11,13 @@
 - `deploy_tags`: tags extras de deploy (além de `"automated-deploy"`, sempre
   adicionada), usadas pra achar deployments relacionados no Prefect UI/CI sem
   abrir cada `flows.py` (ex. `deploy_tags(dataset_id, etapa)` em
-  `pipelines/utils/stage_dispatch.py`).
+  `pipelines/utils/stage_dispatch.py`);
+- `concurrency_limit`: máximo de runs simultâneas do deployment (opt-in;
+  `None`, o padrão, é sem limite).
 
 Atribuí-los a um `prefect.Flow` funciona em runtime, mas o Pyrefly acusa
 `missing-attribute`, já que a classe do Prefect não os declara. Este módulo
-declara os três numa subclasse de `prefect.Flow` e expõe um decorator `flow`
+declara os quatro numa subclasse de `prefect.Flow` e expõe um decorator `flow`
 que instancia essa subclasse. Use sempre este `flow` em `flows.py`, nunca o
 `prefect.flow`:
 
@@ -64,11 +66,15 @@ class Flow(PrefectFlow[P, R]):
         deploy_tags: Tags extras de deploy, além de `"automated-deploy"`
             (sempre adicionada por `deploy_flow()`). Vazio não adiciona
             nenhuma tag extra.
+        concurrency_limit: Máximo de runs deste deployment rodando ao mesmo
+            tempo, repassado ao `.deploy()`. `None` (o padrão) é o padrão do
+            Prefect — sem limite.
     """
 
     deploy_schedules: list[Schedule] | None
     job_variables: dict[str, Any] | None
     deploy_tags: list[str] | None
+    concurrency_limit: int | None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Constrói o flow e inicializa os atributos de deploy como `None`.
@@ -85,6 +91,7 @@ class Flow(PrefectFlow[P, R]):
         self.deploy_schedules = None
         self.job_variables = None
         self.deploy_tags = None
+        self.concurrency_limit = None
 
 
 # Uso sem parênteses (`@flow`). A assinatura da função decorada não é
