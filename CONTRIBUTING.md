@@ -162,6 +162,9 @@ Edite ou crie o dataset primeiro, depois:
 scripts/dev_local.sh up
 ```
 
+> [!NOTE]
+> **`scripts/dev_local.sh: comando não encontrado` ou `Permission denied`?** Rode `chmod +x scripts/dev_local.sh` uma vez, ou use `bash scripts/dev_local.sh up` direto — funciona independente do bit de execução.
+
 A UI fica em `http://127.0.0.1:4200`. Se você não mudou nada ainda (ex. acabou de trocar de branch e quer testar um dataset que não é seu), o `up` não deploya nenhum dataset sozinho — mexa no dataset primeiro, ou force tudo: `scripts/dev_local.sh up --all` (deploya os ~330 flows do repositório, mais lento). Se 1-2 flows falharem no deploy com `503` (SQLite local sob concorrência, não um erro do flow em si), o script avisa qual foi e você redeploya só aquele.
 
 > [!IMPORTANT]

@@ -21,6 +21,19 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Falha rápido e claro em vez de uma cascata de erros confusos (servidor
+# e worker rodam em `nohup ... &`, então um `uv` não encontrado neles
+# falha em silêncio, só visível no log — e o script seguiria até o fim
+# imprimindo "Infra local pronta" mesmo sem nada ter funcionado de
+# verdade). Causa comum: terminal aberto antes do PATH do `uv` ser
+# configurado — abra um terminal novo (ou rode `uv --version` aqui pra
+# confirmar) antes de tentar de novo.
+if ! command -v uv > /dev/null 2>&1; then
+    echo "ERRO: 'uv' não encontrado no PATH deste terminal." >&2
+    echo "Confirme rodando 'uv --version' aqui — se também falhar, abra um terminal novo (ou reinstale/reconfigure o uv) antes de rodar este script." >&2
+    exit 1
+fi
+
 # PREFECT_HOME escopado ao projeto, não ~/.prefect global — evita colidir
 # com a config real (que aponta pro Prefect de verdade da BD) e evita um
 # bug real já visto: ~/.prefect pertencer a outro usuário/root em algumas
@@ -52,6 +65,19 @@ mkdir -p "$PID_DIR"
 _is_running() {
     local pid_file="$1"
     [ -f "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null
+}
+
+# Confere que o processo subido em `nohup ... &` continua vivo depois do
+# `sleep` — sem isso, uma falha silenciosa em background (ex. `uv` não
+# encontrado nesse subprocesso específico) passa despercebida e o script
+# segue até o fim dizendo "Infra local pronta" mesmo sem nada no ar.
+_require_alive() {
+    local pid_file="$1" log_file="$2" label="$3"
+    if ! _is_running "$pid_file"; then
+        echo "ERRO: $label caiu logo depois de subir. Veja o motivo em: $log_file" >&2
+        tail -n 20 "$log_file" >&2 2>/dev/null || true
+        exit 1
+    fi
 }
 
 # Lista os .py alterados em relação a origin/main — commitados nesta branch
@@ -119,6 +145,7 @@ cmd_up() {
         echo $! > "$PID_DIR/server.pid"
         disown
         sleep 8
+        _require_alive "$PID_DIR/server.pid" "$SERVER_LOG" "Servidor Prefect"
     fi
 
     if ! uv run prefect work-pool inspect "$POOL_NAME" > /dev/null 2>&1; then
@@ -142,6 +169,7 @@ cmd_up() {
         echo $! > "$PID_DIR/worker.pid"
         disown
         sleep 5
+        _require_alive "$PID_DIR/worker.pid" "$WORKER_LOG" "Worker"
     fi
 
     # --workers baixo (default do script é 8): o backend aqui é SQLite via
