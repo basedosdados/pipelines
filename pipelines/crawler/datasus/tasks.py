@@ -7,6 +7,7 @@ import os
 import subprocess
 from datetime import date, datetime
 from ftplib import FTP
+from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
@@ -97,10 +98,16 @@ def check_files_to_parse(
             if file.split("/")[-1][4:8] == year_month_to_parse
         ]
     else:
+        # aceita "2507", "202507" e "2025-07"
+        yymm = year_month_to_extract.replace("-", "")[-4:]
+        if not (
+            len(yymm) == 4 and yymm.isdigit() and 1 <= int(yymm[2:]) <= 12
+        ):
+            raise ValueError(
+                f"year_month_to_extract inválido: {year_month_to_extract!r}"
+            )
         list_files = [
-            file
-            for file in available_dbs
-            if file.split("/")[-1][4:8] in year_month_to_extract
+            file for file in available_dbs if file.split("/")[-1][4:8] == yymm
         ]
 
     log(
@@ -347,9 +354,17 @@ def read_dbf_save_parquet_chunks(
     table_id: str,
     dataset_id: str,
     chunk_size: int = 100000,
+    name_by_source_file: bool = False,
 ) -> str:
     """
     Convert dbc to parquet
+
+    Args:
+        name_by_source_file: nomeia o parquet pelo arquivo do FTP
+            (`producao_ambulatorial_PASP2507a_0.parquet`), e não pela
+            posição dele na lista. Assim, recarregar o mês sobrescreve os
+            arquivos em vez de duplicar, mesmo que a lista do FTP tenha
+            mudado.
     """
     log(f"--------- Decompressing {table_id} .DBF files")
 
@@ -358,10 +373,11 @@ def read_dbf_save_parquet_chunks(
     log(f"----counter {_counter}")
     for file in tqdm(dbf_file_list):
         log(f"-------- Reading {file}")
+        file_id = Path(file).stem if name_by_source_file else _counter
         dbf_to_parquet(
             dbf=file,
             table_id=table_id,
-            counter=_counter,
+            file_id=file_id,
             chunk_size=chunk_size,
         )
         _counter += 1

@@ -198,7 +198,10 @@ def _run_dbf_to_parquet(
     )
     decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
     files_path = read_dbf_save_parquet_chunks(
-        file_list=dbc_files, table_id=table_id, dataset_id=dataset_id
+        file_list=dbc_files,
+        table_id=table_id,
+        dataset_id=dataset_id,
+        name_by_source_file=True,
     )
 
     upload_to_gcs(
