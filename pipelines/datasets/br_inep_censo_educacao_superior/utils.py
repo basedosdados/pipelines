@@ -91,6 +91,40 @@ def last_modified(ano: int) -> datetime.datetime:
     return parsedate_to_datetime(cabecalho)
 
 
+def anos_publicados() -> list[int]:
+    """Lista as edições que a pipeline acompanha, do primeiro ano da BD ao último publicado.
+
+    Returns:
+        Os anos, em ordem crescente.
+    """
+    return list(range(constants.FIRST_YEAR.value, get_source_max_year() + 1))
+
+
+def anos_alterados(
+    publicacoes: dict[int, datetime.datetime],
+    ultima_atualizacao: datetime.date | None,
+) -> list[int]:
+    """Escolhe as edições publicadas pelo Inep depois da última atualização da tabela.
+
+    Cobre os dois casos de uma vez: uma edição nova e a republicação de uma
+    edição antiga têm `Last-Modified` posterior à última carga.
+
+    Args:
+        publicacoes: `Last-Modified` de cada ano, como devolvido por `last_modified`.
+        ultima_atualizacao: `Table.Update.latest` da tabela na BD. `None` quando
+            a tabela nunca foi atualizada: aí todos os anos entram.
+
+    Returns:
+        Os anos a recarregar, em ordem crescente.
+    """
+    return sorted(
+        ano
+        for ano, publicado_em in publicacoes.items()
+        if ultima_atualizacao is None
+        or publicado_em.date() > ultima_atualizacao
+    )
+
+
 def download_censo(ano: int, input_dir: Path) -> Path:
     """Baixa o zip do Censo da Educação Superior do ano.
 

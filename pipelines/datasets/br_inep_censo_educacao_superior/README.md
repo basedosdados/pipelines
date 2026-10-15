@@ -61,8 +61,8 @@ para GET** (`allowed_methods=("GET",)`). Por isso a leitura de cabeçalhos usa
 |---|---|---|
 | `constants.py` | URLs da fonte | feito |
 | `utils.py` | funções puras: detecção, download e (a fazer) tratamento | parcial |
-| `tasks.py` | `get_latest_update` e `extract_load_data` de cada tabela | *(a fazer)* |
-| `flows.py` | ligação com o `CheckThenExtractLoadPipeline`, uma pipeline por tabela | *(a fazer)* |
+| `tasks.py` | `get_latest_update` e `extract_load_data` de cada tabela | feito |
+| `flows.py` | ligação com o `CheckThenExtractLoadPipeline`, uma pipeline por tabela | feito |
 | `models/br_inep_censo_educacao_superior/` | modelos dbt `curso`, `ies` e `dicionario` | existentes |
 | `models/br_inep_censo_educacao_superior/code/architecture/curso.csv` | de-para Inep → BD da `curso` (ver "Arquitetura da `curso`") | feito |
 | `models/br_inep_censo_educacao_superior/code/architecture/ies.csv` | de-para Inep → BD da `ies` (ver "Arquitetura da `ies`") | feito |
@@ -325,11 +325,20 @@ a linha com a BD: 0 diferenças). A de 2023 corrigiu 106 cursos. A pipeline não
 tenta distinguir as duas: recarregar um ano sem mudança custa um download e
 deixa o dado igual.
 
-Desenho *(a fazer em `tasks.py`)*:
+Como está implementado (`tasks.py`), para cada tabela:
 
-- `reference_date` = o maior `Last-Modified` entre os anos, comparado pelo
-  framework com a última atualização da tabela (`compare_against="table_update"`);
-- os anos a recarregar são os de `Last-Modified` posterior a essa data.
+- o **check_update** roda todo dia 15 (`curso` às 10:27, `ies` às 10:32);
+- ele lê o `Last-Modified` de 2009 até o último ano publicado e a última
+  atualização da tabela na BD (`Table.Update.latest`, em prod);
+- `reference_date` = o maior `Last-Modified`, comparado pelo framework com a
+  última atualização (`compare_against="table_update"`);
+- os anos a recarregar (`anos_alterados` em `utils.py`) são os de `Last-Modified`
+  posterior a essa data, e vão para o **extract_and_load** em
+  `download_params["anos"]`;
+- a promoção para prod atualiza `Table.Update.latest`, o que fecha o ciclo: a
+  execução seguinte só encontra anos novos se o Inep publicar de novo.
+
+Um `extract_and_load` sem anos falha com erro, em vez de terminar sem carregar nada.
 
 ### O legado de 2023 e a primeira execução
 
@@ -345,6 +354,13 @@ e a regra passa a bastar.
 colunas CINE (ver "Staging") e os defeitos das cargas manuais (ver "Defeitos de
 prod corrigidos pela recarga"). A pipeline não deve depender de soluções
 pontuais deixadas pelas cargas anteriores.
+
+Na prática, a primeira execução é um disparo manual do deployment de
+**extract_and_load** de cada tabela, com:
+
+```json
+{"download_params": {"anos": [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]}}
+```
 
 O que mudou em 2023 (comparação com a BD em 2026-10-13):
 
@@ -456,7 +472,7 @@ número ou não trataram nulos e aspas:
 - [x] Arquitetura da `ies` no repositório, validada, com a cobertura corrigida
 - [x] dbt: 26 colunas novas no `curso.sql` e no `schema.yml`, remoção do `case` das colunas CINE e partição até 2029 (`curso` e `ies`)
 - [ ] Metadados: colunas novas, cobertura por coluna e observações
-- [ ] `tasks.py` e `flows.py`
+- [x] `tasks.py` e `flows.py`
 - [ ] Execução em dev ponta a ponta, incluindo a leitura de arquivos com número de colunas diferente
 - [ ] Primeira execução recarregando todos os anos (2009 a 2024)
 - [ ] Carga de 2025, quando for publicada
