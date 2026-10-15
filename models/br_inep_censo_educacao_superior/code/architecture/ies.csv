@@ -70,3 +70,5 @@ quantidade_docentes_exercicio_cor_nao_declarada,int64,Quantidade de docentes em 
 quantidade_docentes_exercicio_brasileiro,int64,Quantidade de docentes em exercício - nacionalidade brasileira ou brasileira - nascido no exterior ou naturalizado,,no,,person,no,,QT_DOC_EX_BRA
 quantidade_docentes_exercicio_estrangeiro,int64,Quantidade de docentes em exercício - nacionalidade estrangeira,,no,,person,no,,QT_DOC_EX_EST
 quantidade_docentes_exercicio_deficiencia,int64,Quantidade de docentes em exercício - com deficiência,,no,,person,no,,QT_DOC_EX_COM_DEFICIENCIA
+indicador_comunitaria,boolean,Informa se a instituição privada é comunitária,2023(1),no,,,no,"Coletada pelo Inep a partir de 2023; nula nos anos anteriores. Em instituições públicas o valor é sempre falso, porque a classificação só se aplica a instituições privadas.",IN_COMUNITARIA
+indicador_confessional,boolean,Informa se a instituição privada é confessional,2023(1),no,,,no,"Coletada pelo Inep a partir de 2023; nula nos anos anteriores. Em instituições públicas o valor é sempre falso, porque a classificação só se aplica a instituições privadas.",IN_CONFESSIONAL

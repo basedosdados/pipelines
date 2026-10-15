@@ -270,7 +270,7 @@ cargas antigas desses anos estão em dia com a fonte.
 
 ## Arquitetura da `ies`
 
-`models/br_inep_censo_educacao_superior/code/architecture/ies.csv`, 71 colunas.
+`models/br_inep_censo_educacao_superior/code/architecture/ies.csv`, 73 colunas (71 de prod + 2 novas).
 Uma linha da `ies` é uma instituição em um ano (chave `ano` + `id_ies`).
 
 O arquivo vem da planilha usada na carga manual de 2024, indicada pela Laura, e
@@ -291,8 +291,13 @@ Colunas do Inep fora da arquitetura:
 | Colunas | Situação |
 |---|---|
 | `CO_UF_IES`, `NO_UF_IES`, `CO_REGIAO_IES`, `NO_REGIAO_IES`, `CO_MESORREGIAO_IES`, `NO_MESORREGIAO_IES`, `CO_MICRORREGIAO_IES`, `NO_MICRORREGIAO_IES`, `NO_MUNICIPIO_IES`, `IN_CAPITAL_IES` | vêm dos diretórios da BD a partir de `id_municipio` |
-| `IN_COMUNITARIA`, `IN_CONFESSIONAL` (desde 2023) | *(a decidir)* — na `curso` foram incluídas |
-| `TP_REDE` (pública/privada, desde 2009) | *(a decidir)* — a `curso` tem `rede`; a `ies` não |
+| `TP_REDE` (pública/privada; nos CSVs só desde 2023) | repete a `tipo_categoria_administrativa`: categorias 1, 2, 3 e 7 são sempre rede pública, 4 e 5 sempre privada |
+
+**Decisão (2026-10-15):** `IN_COMUNITARIA` e `IN_CONFESSIONAL` entram na `ies`,
+no fim, como `indicador_comunitaria` e `indicador_confessional` (os mesmos nomes
+da `curso`), com cobertura `2023(1)` e nulas antes disso. Não há registro de
+decisão para tê-las deixado de fora, e elas descrevem a instituição, que é o
+grão da `ies`. Em 2024: 86 instituições comunitárias e 56 confessionais.
 
 ## Detecção de atualização
 
@@ -449,7 +454,6 @@ número ou não trataram nulos e aspas:
 - [x] Tratamento: arquitetura → CSV de staging, com avisos no log; conferido com prod em todos os anos
 - [x] Arquitetura da `curso` no repositório, validada, com as 26 colunas novas e a cobertura corrigida
 - [x] Arquitetura da `ies` no repositório, validada, com a cobertura corrigida
-- [ ] Decidir se `IN_COMUNITARIA`, `IN_CONFESSIONAL` e `TP_REDE` entram na `ies`
 - [x] dbt: 26 colunas novas no `curso.sql` e no `schema.yml`, remoção do `case` das colunas CINE e partição até 2029 (`curso` e `ies`)
 - [ ] Metadados: colunas novas, cobertura por coluna e observações
 - [ ] `tasks.py` e `flows.py`

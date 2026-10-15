@@ -183,4 +183,6 @@ select
     safe_cast(
         quantidade_docentes_exercicio_deficiencia as int64
     ) quantidade_docentes_exercicio_deficiencia,
+    safe_cast(indicador_comunitaria as boolean) indicador_comunitaria,
+    safe_cast(indicador_confessional as boolean) indicador_confessional,
 from {{ set_datalake_project("br_inep_censo_educacao_superior_staging.ies") }} as t

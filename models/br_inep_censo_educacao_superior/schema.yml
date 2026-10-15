@@ -703,6 +703,7 @@ models:
           combination_of_columns: [ano, id_ies]
       - not_null_proportion_multiple_columns:
           at_least: 0.35
+          ignore_values: [indicador_comunitaria, indicador_confessional]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - tipo_organizacao_academica
@@ -894,3 +895,9 @@ models:
         description: Quantidade de docentes em exercício - nacionalidade estrangeira
       - name: quantidade_docentes_exercicio_deficiencia
         description: Quantidade de docentes em exercício - com deficiência
+      - name: indicador_comunitaria
+        description: >
+          Informa se a instituição privada é comunitária
+      - name: indicador_confessional
+        description: >-
+          Informa se a instituição privada é confessional
