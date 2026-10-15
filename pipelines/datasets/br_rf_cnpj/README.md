@@ -115,6 +115,42 @@ sócio PJ na fonte.
 
 Essa é uma mudança **na fonte**, não introduzida por esta pipeline.
 
+## 8. Robustez do download (zips corrompidos, timeouts e retries)
+
+Os arquivos de `estabelecimentos`, `empresas` e `socios` são grandes (o
+`Estabelecimentos0.zip` passa de 2 GB) e baixados em chunks paralelos com
+`Range`. Em outubro de 2026 o flow de estabelecimentos falhou porque zips
+chegaram corrompidos (`Error -3 while decompressing data`) e, nas tentativas
+seguintes, a listagem da Receita Federal estourou o timeout de 30 s. Execuções
+anteriores do mesmo dia já mostravam o padrão (`empresas` com chunk falhando após
+5 tentativas, `estabelecimentos` com o mesmo erro de descompressão). A hipótese
+mais provável é um chunk gravado com conteúdo errado no seu offset, que só
+aparecia na extração; ela não foi confirmada, então os avisos abaixo ajudam a
+identificá-la caso volte.
+
+O que mudou:
+
+- **Validação por chunk:** a resposta precisa ter exatamente os bytes do range
+  pedido; um `200` em offset maior que 0 também é rejeitado. Resposta inválida
+  cai no retry do chunk (aviso `Falha no download do chunk ...`).
+- **Validação do zip:** `testzip()` antes de extrair, tratando também
+  `zlib.error`. Se o zip chegar corrompido, só aquele arquivo é baixado de novo
+  (até `DOWNLOAD_ZIP_MAX_ATTEMPTS`, hoje 3) e, esgotadas as tentativas, a task
+  falha com `RuntimeError`. Antes, o `BadZipFile` era só logado e os dados
+  daquele arquivo se perdiam em silêncio.
+- **Listagem WebDAV (`PROPFIND`):** timeout de `PROPFIND_TIMEOUT` (120 s) e até
+  `PROPFIND_MAX_ATTEMPTS` (4) tentativas com backoff de 10, 20 e 40 s, tanto no
+  check de atualização quanto em `get_table_files`.
+- **Retry sem refazer o que já ficou pronto:** a task `main` tem `retries=3` e
+  recomeça do início. Cada arquivo processado deixa um marcador em
+  `tmp/br_rf_cnpj/done/<tabela>/<folder_date>_<i>` (fora de `input` e `output`), 
+  e o retry pula os arquivos já feitos. Como a escrita de `estabelecimentos` é 
+  em modo append, as sobras `estabelecimentos_<i>.csv` do arquivo que estava em 
+  processamento são apagadas  antes de reprocessá-lo, para não duplicar linhas.
+
+Os marcadores moram no `tmp/` do pod; como cada execução roda em um pod novo,
+não há risco de marcador de uma competência anterior.
+
 ## Resumo
 * Correção de encoding: os CSVs de origem da Receita Federal eram lidos incorretamente, gerando caracteres inválidos em campos de texto (ex.: razão social, nome fantasia). 
 * Reprocessamento histórico: dados de referência a partir de 2023 foram reprocessados para corrigir os registros afetados pelo erro de encoding.
@@ -122,3 +158,4 @@ Essa é uma mudança **na fonte**, não introduzida por esta pipeline.
 * Particionamento por data de referência: a partição das tabelas passou a ser baseada na data de referência do arquivo na fonte (competência dos dados), em vez da data de modificação do arquivo.
 * Preservação do histórico: dados anteriores a maio/2023, hoje indisponíveis na fonte original, foram preservados em tabelas legado e continuam incluídos na base a cada atualização completa da tabela.
 * Alerta de fonte: o documento do sócio pessoa jurídica (tabela `socios`, `tipo = "1"`) passou a ser publicado pela Receita Federal com 8 caracteres em vez dos 14 caracteres do CNPJ completo, a partir da competência 2026-08.
+* Robustez do download: chunks e zips são validados, o zip corrompido é baixado de novo só para aquele arquivo, a listagem da Receita Federal tem timeout maior com retry, e um retry da task não refaz os arquivos já processados.
