@@ -33,7 +33,7 @@ on:
         default: false
         type: boolean
       force:
-        description: Re-copy a mirror even if the destination blob count matches
+        description: Re-copy a mirror even if the destination content already matches
         required: false
         default: false
         type: boolean
