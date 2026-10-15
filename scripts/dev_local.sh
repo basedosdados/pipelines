@@ -44,6 +44,19 @@ POOL_NAME="local-dev"
 PID_DIR="$PREFECT_HOME/pids"
 SERVER_LOG="$PREFECT_HOME/server.log"
 WORKER_LOG="$PREFECT_HOME/worker.log"
+DEPLOY_LOG="$PREFECT_HOME/last_deploy.log"
+
+# Falha rápido e claro em vez de "Permission denied" sem contexto ao
+# gravar server.pid/server.log — acontece se uma execução anterior rodou
+# como outro usuário (ex. sudo por engano), deixando .prefect-local/ de
+# propriedade dele.
+if [ -e "$PREFECT_HOME" ] && [ ! -w "$PREFECT_HOME" ]; then
+    echo "ERRO: '$PREFECT_HOME' existe mas não é gravável por você." >&2
+    echo "Causa provável: uma execução anterior rodou como outro usuário (ex. sudo por engano)." >&2
+    echo "Resolva com: sudo chown -R \"\$USER\" $PREFECT_HOME" >&2
+    echo "ou, mais simples (o estado ali é descartável): rm -rf $PREFECT_HOME" >&2
+    exit 1
+fi
 
 # Flows genéricos/compartilhados (pipelines/utils/) que qualquer dataset
 # migrado pode disparar via run_deployment() no meio da cadeia
@@ -78,6 +91,19 @@ _require_alive() {
         tail -n 20 "$log_file" >&2 2>/dev/null || true
         exit 1
     fi
+}
+
+# Roda um deploy mostrando a saída normalmente (`tee`) e, se falhar,
+# acrescenta as linhas "✗ Falha ao registrar ..." no acumulador
+# `failures` da função que chamou (variável `local` do bash é visível
+# pra quem ela chama) — pra listar no aviso final em vez de só dizer
+# "1+ flow falhou" sem dizer quais.
+_run_deploy() {
+    if uv run .github/workflows/scripts/deploy_flows.py "$@" --workers 4 2>&1 | tee "$DEPLOY_LOG"; then
+        return 0
+    fi
+    failures+="$(grep '✗ Falha' "$DEPLOY_LOG" || true)"$'\n'
+    return 1
 }
 
 # Lista os .py alterados em relação a origin/main — commitados nesta branch
@@ -178,17 +204,13 @@ cmd_up() {
     # com 8. `if !` em vez de deixar o `set -e` do topo do arquivo abortar
     # o `up` inteiro por causa de 1-2 flows que falharem — o resto já foi
     # registrado, e dá pra redeployar só o que faltou com --files depois.
-    local deployed=1
+    local deployed=1 failures=""
     if [ "$deploy_mode" = "--all" ]; then
         echo "Deployando TODOS os flows pro pool local (--all) ..."
-        if ! uv run .github/workflows/scripts/deploy_flows.py --local --all --workers 4; then
-            deployed=0
-        fi
+        _run_deploy --local --all || deployed=0
     else
         echo "Deployando flows genéricos compartilhados (build_and_promote, run_dbt_model, transfer pra prod) ..."
-        if ! uv run .github/workflows/scripts/deploy_flows.py --local --files "${ALWAYS_DEPLOY_FILES[@]}" --workers 4; then
-            deployed=0
-        fi
+        _run_deploy --local --files "${ALWAYS_DEPLOY_FILES[@]}" || deployed=0
 
         local changed
         changed="$(_changed_python_files)"
@@ -199,15 +221,14 @@ cmd_up() {
             echo "Deployando flows dos arquivos alterados em relação a origin/main:"
             echo "$changed" | sed 's/^/  /'
             # shellcheck disable=SC2086
-            if ! uv run .github/workflows/scripts/deploy_flows.py --local --changed $changed --workers 4; then
-                deployed=0
-            fi
+            _run_deploy --local --changed $changed || deployed=0
         fi
     fi
 
     if [ "$deployed" -eq 0 ]; then
         echo
-        echo "Aviso: 1+ flow falhou ao deployar (ver log acima, normalmente 503 por concorrência no SQLite local)."
+        echo "Aviso: 1+ flow falhou ao deployar (motivo exato abaixo — às vezes é 503 por concorrência no SQLite local, mas nem sempre):"
+        echo "$failures" | sed '/^$/d'
         echo "Redeploye só ele com: uv run .github/workflows/scripts/deploy_flows.py --local --files <arquivo>"
     fi
 

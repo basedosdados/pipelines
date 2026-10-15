@@ -207,6 +207,14 @@ Quando terminar:
 scripts/dev_local.sh down
 ```
 
+#### Problemas conhecidos
+
+> [!WARNING]
+> **`.prefect-local/` de propriedade de outro usuário.** Acontece se uma execução anterior rodou o script com `sudo` por engano — `up` detecta isso antes de começar e já avisa com o comando certo pra resolver (`sudo chown -R "$USER" .prefect-local` ou, mais simples, `rm -rf .prefect-local` pra recomeçar do zero — o estado ali é descartável).
+
+> [!NOTE]
+> **Deploy falhou.** `up` já lista qual(is) flow(s) falharam e o motivo exato no aviso final — nem sempre é o `503` de concorrência do SQLite local (ver aviso acima); pode ser um erro real do próprio flow. Redeploye só o que faltou com `deploy_flows.py --local --files <arquivo>` depois de investigar.
+
 ### Testar uma pipeline na nuvem
 
 Faça a cópia do arquivo `.env.example` para um novo arquivo nomeado `.env`:
