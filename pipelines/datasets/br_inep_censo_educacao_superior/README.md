@@ -64,6 +64,7 @@ para GET** (`allowed_methods=("GET",)`). Por isso a leitura de cabeçalhos usa
 | `tasks.py` | `get_latest_update` e `extract_load_data` de cada tabela | *(a fazer)* |
 | `flows.py` | ligação com o `CheckThenExtractLoadPipeline`, uma pipeline por tabela | *(a fazer)* |
 | `models/br_inep_censo_educacao_superior/` | modelos dbt `curso`, `ies` e `dicionario` | existentes |
+| `models/br_inep_censo_educacao_superior/code/architecture/curso.csv` | de-para Inep → BD da `curso` (ver "Arquitetura da `curso`") | feito |
 | `models/br_inep_censo_educacao_superior/code/` | scripts de tratamento manuais, da carga de 2024 | serão substituídos pela pipeline |
 
 A pipeline segue o modelo em estágios: `check_update` → `extract_and_load` →
@@ -160,7 +161,8 @@ arquitetura, e as demais são descartadas sem aviso.
 
 **Decisão (2026-10-13, com a Laura):** incluir as 26 colunas, no **fim** da
 arquitetura (ver "Staging" abaixo), com descrições que expliquem o significado e
-a relação com as colunas existentes. *(a fazer)*
+a relação com as colunas existentes. Feito na arquitetura em 2026-10-15 (ver
+"Arquitetura da `curso`"); falta o dbt e os metadados.
 
 **Decisão (2026-10-14):** nos anos anteriores à sua criação, as colunas novas
 ficam **nulas**, não zeradas: o dado não existe nesses anos. É o comportamento
@@ -174,7 +176,83 @@ O Inep preenche com **0**, e não com nulo, as variáveis nos anos anteriores à
 criação, e a BD herdou isso. Exemplo: `quantidade_vagas_novas` é 0 em 2009–2013
 porque a variável só existe desde 2014. Um 0 nesses anos significa "não
 coletado", não "nenhuma vaga". O início de coleta de cada variável está na
-matriz do dicionário do Inep. Fora do escopo desta pipeline: não tratado.
+matriz do dicionário do Inep. Os dados não foram alterados, mas a
+`temporal_coverage` de cada coluna na arquitetura passou a indicar o período real
+(ver abaixo).
+
+## Arquitetura da `curso`
+
+`models/br_inep_censo_educacao_superior/code/architecture/curso.csv` é o de-para
+entre o CSV do Inep (`original_name`) e a tabela da BD (`name`). O tratamento
+copia **só** as colunas listadas aqui, na ordem daqui. O que o Inep publica fora
+desta lista é descartado.
+
+### Origem e validação
+
+O arquivo vem da planilha usada na carga manual de 2024 (o `arquitetura_apoio.csv`
+dos scripts em `code/`), indicada pela Laura. Antes de adotá-la, ela foi
+conferida contra os dados de 2024 (2026-10-15):
+
+- os 193 `name` são exatamente as colunas da tabela de prod, na mesma ordem;
+- todos os `original_name` existem no CSV do Inep de 2023; em 2024 faltam só as 3 `RVETNICO`;
+- juntando as 720.349 linhas do Inep e da BD pela chave, as 189 colunas comparáveis
+  têm **valores idênticos** linha a linha, incluindo as que o tratamento altera
+  (`id_municipio`, `indicador_gratuito`, `tipo_grau_academico`).
+
+### O que mudou em relação à planilha
+
+1. **Removidas as duas colunas auxiliares sem nome** (ex.: `'NU_ANO_CENSO':'ano'`),
+   que só serviam para montar o dicionário de renomeação no Colab. Nada as lia.
+2. **`temporal_coverage` recalculada** pela matriz "coleta por ano" do dicionário
+   do Inep. Na planilha, todas as linhas tinham `(1)`. Agora a coluna fica vazia
+   quando cobre o mesmo período da tabela (convenção da BD) e explícita nas 50
+   que diferem: por exemplo, `quantidade_vagas_novas` = `2014(1)`,
+   `..._processos_seletivos` = `2009(1)2013`, `..._reserva_vaga_etnico` = `2009(1)2023`.
+3. **Observação nas 3 colunas `..._reserva_vaga_etnico`**, explicando a
+   descontinuação e apontando a sucessora `..._ppi`.
+4. **26 colunas novas, no fim**, seguindo o padrão de nomes que já existia.
+
+### As 26 colunas novas: como os nomes foram formados
+
+As colunas de reserva de vagas seguem `<medida>_reserva_vaga_<grupo>`, o mesmo
+padrão de `..._reserva_vaga_rede_publica` e das demais:
+
+| Medida na BD | No Inep |
+|---|---|
+| `quantidade_ingressantes_` | `QT_ING_` |
+| `quantidade_matriculas_` | `QT_MAT_` |
+| `quantidade_concluintes_` | `QT_CONC_` |
+
+| Grupo na BD | No Inep | Significado |
+|---|---|---|
+| `_ppi` | `RVPPI` | pretos, pardos ou indígenas |
+| `_quilombola` | `RVQUILO` | quilombolas |
+| `_refugiado` | `RVREFU` | refugiados, apátridas ou portadores de visto humanitário |
+| `_povos_tradicionais` | `RVPOVT` | povos e comunidades tradicionais |
+| `_idoso` | `RVIDOSO` | idosos |
+| `_internacional` | `RVINTERN` | estudantes internacionais |
+| `_medalhista` | `RVMEDAL` | medalhistas em olimpíadas científicas e competições de conhecimento |
+| `_trans` | `RVTRANS` | pessoas transgênero e/ou travestis |
+
+Exemplo: `QT_MAT_RVPPI` → `quantidade_matriculas_reserva_vaga_ppi`. São 3 medidas
+× 8 grupos = 24 colunas, todas `int64`, em pessoas, com cobertura `2024(1)`.
+
+As outras duas são indicadores da instituição, no mesmo formato de
+`indicador_gratuito` (`boolean`, `1`/`0` do Inep viram verdadeiro/falso):
+
+| BD | Inep | Cobertura | Observação |
+|---|---|---|---|
+| `indicador_comunitaria` | `IN_COMUNITARIA` | `2023(1)` | sempre falso em instituições públicas: a classificação só se aplica às privadas |
+| `indicador_confessional` | `IN_CONFESSIONAL` | `2023(1)` | idem |
+
+Antes do início da cobertura, as colunas novas ficam **nulas** (decisão acima).
+
+### O que continua fora, de propósito
+
+| Colunas do Inep | Por quê |
+|---|---|
+| `CO_UF`, `NO_UF`, `CO_REGIAO`, `NO_REGIAO`, `NO_MUNICIPIO`, `IN_CAPITAL` | vêm dos diretórios da BD a partir de `id_municipio` |
+| `QT_CURSO` | contagem auxiliar do Inep; a contagem de cursos é `count(distinct id_curso)` |
 
 ## Detecção de atualização
 
@@ -256,7 +334,9 @@ nomes da BD e as colunas da arquitetura, na ordem dela.
 ## Pendências
 
 - [ ] Tratamento: arquitetura → CSV de staging, com aviso no log para colunas da fonte ignoradas e colunas da arquitetura ausentes na fonte
-- [ ] Arquitetura, dbt e metadados com as 26 colunas novas e suas descrições
+- [x] Arquitetura da `curso` no repositório, validada, com as 26 colunas novas e a cobertura corrigida
+- [ ] Arquitetura da `ies` (planilha sendo localizada)
+- [ ] dbt (`curso.sql`, `schema.yml`) e metadados com as 26 colunas novas
 - [ ] `tasks.py` e `flows.py`
 - [ ] Execução em dev ponta a ponta, incluindo a leitura de arquivos com número de colunas diferente
 - [ ] Primeira execução com recarga de 2023 (e 2024)
