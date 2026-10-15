@@ -151,13 +151,18 @@ uv run manage.py list-pipelines
 > [!NOTE]
 > As funções `run_local`/`run_cloud` citadas em versões antigas deste guia não existem mais — eram do Prefect 1. O jeito atual (Prefect 3) é o que segue.
 
-O Prefect 3 sempre precisa de algum backend (servidor) pra rodar qualquer `@task`/`@flow`, mesmo fora de um deployment — não dá pra chamar a função "pura", sem mais nada, como no Prefect 1. `scripts/dev_local.sh` sobe esse backend localmente (servidor + work pool + worker, tudo rodando na sua própria máquina, sem precisar de Docker nem de nada além do que o `uv sync` já instalou), deploya sozinho os flows genéricos compartilhados (`build_and_promote`, `run_dbt_model`, transferência pra prod — sempre, mesmo sem mudança neles, já que qualquer dataset migrado depende deles) e os flows dos `.py` alterados em relação a `origin/main` (commitados ou não — inclusive arquivo novo não rastreado):
+O Prefect 3 sempre precisa de algum backend (servidor) pra rodar qualquer `@task`/`@flow`, mesmo fora de um deployment — não dá pra chamar a função "pura", sem mais nada, como no Prefect 1. `scripts/dev_local.sh` sobe esse backend localmente (servidor + work pool + worker, tudo rodando na sua própria máquina, sem precisar de Docker nem de nada além do que o `uv sync` já instalou).
+
+> [!IMPORTANT]
+> Só tem o que testar pra um dataset **que você já editou, ou acabou de criar** — o `up` deploya automaticamente o que for diferente de `origin/main` (commitado ou não, inclusive arquivo novo), mais os flows genéricos compartilhados (`build_and_promote`, `run_dbt_model`, transferência pra prod — sempre, mesmo sem mudança). Sem nenhuma mudança, ele sobe o servidor mas não deploya dataset nenhum.
+
+Edite ou crie o dataset primeiro, depois:
 
 ```sh
 scripts/dev_local.sh up
 ```
 
-A UI fica em `http://127.0.0.1:4200`. Se você não mudou nada ainda (ex. acabou de trocar de branch), o `up` não deploya nenhum dataset sozinho — mexa no dataset primeiro, ou force tudo: `scripts/dev_local.sh up --all` (deploya os ~330 flows do repositório, mais lento). Se 1-2 flows falharem no deploy com `503` (SQLite local sob concorrência, não um erro do flow em si), o script avisa qual foi e você redeploya só aquele.
+A UI fica em `http://127.0.0.1:4200`. Se você não mudou nada ainda (ex. acabou de trocar de branch e quer testar um dataset que não é seu), o `up` não deploya nenhum dataset sozinho — mexa no dataset primeiro, ou force tudo: `scripts/dev_local.sh up --all` (deploya os ~330 flows do repositório, mais lento). Se 1-2 flows falharem no deploy com `503` (SQLite local sob concorrência, não um erro do flow em si), o script avisa qual foi e você redeploya só aquele.
 
 > [!IMPORTANT]
 > **`check_update` precisa das credenciais do Vault mesmo rodando local** — ele registra o poll no backend (`poll_source_for_update_task`/`commit_source_update_task`), que autentica via `get_credentials_from_secret`/`VAULT_ADDRESS`/`VAULT_TOKEN`. Sem isso no ambiente, quebra com `AttributeError: 'NoneType' object has no attribute 'strip'`. `up` já carrega isso do `.env` do repositório sozinho (ver `.env.example`) — não precisa sourcear nada manualmente.
