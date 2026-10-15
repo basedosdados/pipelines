@@ -5,12 +5,11 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2009, "end": 2025, "interval": 1},
+            "range": {"start": 2009, "end": 2029, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
 }}
--- atualizado em 2026-01-27
 select
     safe_cast(ano as int64) ano,
     safe_cast(sigla_uf as string) sigla_uf,
@@ -24,18 +23,8 @@ select
     safe_cast(id_ies as string) id_ies,
     safe_cast(initcap(nome_curso) as string) nome_curso,
     safe_cast(id_curso as string) id_curso,
-    -- Staging até 2023: código CINE em nome_curso_cine e nome em id_curso_cine.
-    -- A partir de 2024 coincide com o dicionário; unificamos semântica no modelo.
-    case
-        when safe_cast(ano as int64) <= 2023
-        then safe_cast(id_curso_cine as string)
-        else safe_cast(nome_curso_cine as string)
-    end as nome_curso_cine,
-    case
-        when safe_cast(ano as int64) <= 2023
-        then safe_cast(nome_curso_cine as string)
-        else safe_cast(id_curso_cine as string)
-    end as id_curso_cine,
+    safe_cast(nome_curso_cine as string) nome_curso_cine,
+    safe_cast(id_curso_cine as string) id_curso_cine,
     safe_cast(id_area_geral as string) id_area_geral,
     safe_cast(nome_area_geral as string) nome_area_geral,
     safe_cast(id_area_especifica as string) id_area_especifica,
@@ -425,4 +414,78 @@ select
     safe_cast(
         quantidade_concluintes_mobilidade_academica as int64
     ) quantidade_concluintes_mobilidade_academica,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_ppi as int64
+    ) quantidade_ingressantes_reserva_vaga_ppi,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_quilombola as int64
+    ) quantidade_ingressantes_reserva_vaga_quilombola,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_refugiado as int64
+    ) quantidade_ingressantes_reserva_vaga_refugiado,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_povos_tradicionais as int64
+    ) quantidade_ingressantes_reserva_vaga_povos_tradicionais,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_idoso as int64
+    ) quantidade_ingressantes_reserva_vaga_idoso,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_internacional as int64
+    ) quantidade_ingressantes_reserva_vaga_internacional,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_medalhista as int64
+    ) quantidade_ingressantes_reserva_vaga_medalhista,
+    safe_cast(
+        quantidade_ingressantes_reserva_vaga_trans as int64
+    ) quantidade_ingressantes_reserva_vaga_trans,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_ppi as int64
+    ) quantidade_matriculas_reserva_vaga_ppi,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_quilombola as int64
+    ) quantidade_matriculas_reserva_vaga_quilombola,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_refugiado as int64
+    ) quantidade_matriculas_reserva_vaga_refugiado,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_povos_tradicionais as int64
+    ) quantidade_matriculas_reserva_vaga_povos_tradicionais,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_idoso as int64
+    ) quantidade_matriculas_reserva_vaga_idoso,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_internacional as int64
+    ) quantidade_matriculas_reserva_vaga_internacional,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_medalhista as int64
+    ) quantidade_matriculas_reserva_vaga_medalhista,
+    safe_cast(
+        quantidade_matriculas_reserva_vaga_trans as int64
+    ) quantidade_matriculas_reserva_vaga_trans,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_ppi as int64
+    ) quantidade_concluintes_reserva_vaga_ppi,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_quilombola as int64
+    ) quantidade_concluintes_reserva_vaga_quilombola,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_refugiado as int64
+    ) quantidade_concluintes_reserva_vaga_refugiado,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_povos_tradicionais as int64
+    ) quantidade_concluintes_reserva_vaga_povos_tradicionais,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_idoso as int64
+    ) quantidade_concluintes_reserva_vaga_idoso,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_internacional as int64
+    ) quantidade_concluintes_reserva_vaga_internacional,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_medalhista as int64
+    ) quantidade_concluintes_reserva_vaga_medalhista,
+    safe_cast(
+        quantidade_concluintes_reserva_vaga_trans as int64
+    ) quantidade_concluintes_reserva_vaga_trans,
+    safe_cast(indicador_comunitaria as boolean) indicador_comunitaria,
+    safe_cast(indicador_confessional as boolean) indicador_confessional,
 from {{ set_datalake_project("br_inep_censo_educacao_superior_staging.curso") }} as t
