@@ -3,18 +3,22 @@
 `Etapa`, `SourceInspection`, `ExtractAndLoad`: tipos compartilhados entre
 as etapas. `deploy_tags`/`deployment_name`/`_flow_name`: convenção de nome
 de deployment. `check_update_and_dispatch`/`dispatch_build_and_promote`:
-dispatch entre etapas via `run_deployment()`. `pipeline_factory`/
+dispatch entre etapas via `run_deployment()` (ou, no pool local, chamando
+o próximo estágio direto — ver `_run_flow_locally()`). `pipeline_factory`/
 `CheckThenExtractLoadPipeline`: interface recomendada pra um `flows.py` de
 dataset na variante padrão (check_update e extract_and_load separados).
 """
 
 import datetime
+import importlib.util
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
+from typing import Any
 
 from prefect import runtime
+from prefect.client.orchestration import get_client
 from prefect.deployments import run_deployment
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
@@ -176,6 +180,72 @@ def _dev_prefix() -> str:
     return "dev-" if "env:dev" in runtime.flow_run.tags else ""
 
 
+def _is_local() -> bool:
+    """`True` quando o flow run atual está no pool local do `scripts/dev_local.sh`.
+
+    Lê a tag `env:local` (já disponível no contexto do flow run, sem
+    chamada de API), que `deploy_flow()` (`deploy_flows.py`) adiciona só
+    quando o deploy é feito com `--local` — mesmo padrão de `_dev_prefix()`.
+
+    Returns:
+        `True` se a tag `env:local` está presente nas tags do flow run.
+    """
+    return "env:local" in runtime.flow_run.tags
+
+
+def _run_flow_locally(deployment_full_name: str, parameters: dict) -> Any:
+    """Roda o próximo estágio localmente, sem passar por `run_deployment()`.
+
+    `run_deployment()` (mesmo com `as_subflow=True`) e uma chamada direta
+    de `@flow` de dentro de outro flow já em execução usam o mesmo
+    mecanismo interno pra registrar o vínculo pai-filho — uma "tarefa
+    fantasma" de rastreio criada via `client.create_task_run()` — que
+    quebra com `422 Unprocessable Entity` contra o servidor Prefect local
+    (`scripts/dev_local.sh`). Confirmado isoladamente: reproduz igual com
+    um subflow puro, sem deployment nenhum envolvido; não reproduz fora de
+    um flow run, nem contra o servidor via `curl` direto — parece uma
+    interação específica do motor de flows do Prefect 3.5.0 com o cliente
+    HTTP nesse cenário (servidor SQLite local), não um bug no dataset.
+
+    Chamar a função crua por trás do `@flow` (`.fn`) evita essa tarefa
+    fantasma por completo: as tasks de dentro rodam normalmente (viram
+    task runs do flow que despachou), só não aparecem como um flow filho
+    separado na UI local — sem importância pra teste local, onde o que
+    importa é a lógica rodar de ponta a ponta. `validate_parameters()`
+    garante a mesma coerção de tipos (`dict` -> `CoverageSpec`, etc.) que
+    `run_deployment()` faria no caminho real.
+
+    Args:
+        deployment_full_name: `"<flow name>/<deployment name>"`, mesmo
+            formato de `run_deployment(name=...)`.
+        parameters: parâmetros a passar pra função do próximo estágio.
+
+    Returns:
+        O que a função do próximo estágio devolver.
+    """
+    with get_client(sync_client=True) as client:
+        deployment = client.read_deployment_by_name(deployment_full_name)
+
+    if deployment.entrypoint is None:
+        raise RuntimeError(
+            f"Deployment '{deployment_full_name}' não tem entrypoint registrado "
+            "— não dá pra resolver o flow pra chamar localmente."
+        )
+    file_path, func_name = deployment.entrypoint.split(":")
+    spec = importlib.util.spec_from_file_location(func_name, file_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(
+            f"Não foi possível carregar '{file_path}' pra rodar "
+            f"'{deployment_full_name}' localmente."
+        )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    target_flow = getattr(module, func_name)
+
+    validated = target_flow.validate_parameters(parameters)
+    return target_flow.fn(**validated)
+
+
 def deployment_name(
     dataset_id: str, etapa: Etapa, deployment: str | None = None
 ) -> str:
@@ -193,7 +263,9 @@ def deployment_name(
             quando quem despacha rodou em dev (só a service account do
             pool prod tem permissão de escrita real pra promover dado) —
             por isso não leva o prefixo `dev-`, ao contrário das outras
-            etapas.
+            etapas. Exceção: no pool local, `deploy_flows.py` prefixa
+            `dev-` em **tudo** (inclusive `build_and_promote`, que lá não
+            existe separado por ambiente) — `_is_local()` cobre esse caso.
         deployment: sobrescreve a segunda metade (depois da barra), quando
             a variável do flow não se chama literalmente `<etapa>`.
 
@@ -201,7 +273,8 @@ def deployment_name(
         O identificador `"<flow name>/<deployment name>"`.
     """
     if etapa == Etapa.BUILD_AND_PROMOTE:
-        return "build_and_promote/build_and_promote"
+        prefix = "dev-" if _is_local() else ""
+        return f"build_and_promote/{prefix}build_and_promote"
     prefix = _dev_prefix()
     return (
         f"{_flow_name(dataset_id, etapa)}/{prefix}{deployment or str(etapa)}"
@@ -225,7 +298,9 @@ def check_update_and_dispatch(
     `poll_source_for_update_task` decide se há dado novo comparando
     `reference_date` contra o alvo de comparação no backend; se houver,
     comita o Update (`commit_source_update_task`) e dispara o deployment
-    de `next_etapa` via `run_deployment()` (`timeout=0`, `as_subflow=True`).
+    de `next_etapa` via `run_deployment()` (`timeout=0`, `as_subflow=True`)
+    — ou, no pool local (`_is_local()`), chama a função do próximo estágio
+    direto, sem passar por `run_deployment()` (ver `_run_flow_locally()`).
 
     Args:
         prefect_dataset_id: convenção de nome usada por `deployment_name()`
@@ -274,12 +349,16 @@ def check_update_and_dispatch(
         "reference_date": reference_date.isoformat(),
         **(extra_download_params or {}),
     }
-    run_deployment(
-        name=deployment_name(prefect_dataset_id, next_etapa, next_deployment),
-        parameters={"download_params": download_params},
-        timeout=0,
-        as_subflow=True,
-    )
+    name = deployment_name(prefect_dataset_id, next_etapa, next_deployment)
+    if _is_local():
+        _run_flow_locally(name, {"download_params": download_params})
+    else:
+        run_deployment(
+            name=name,
+            parameters={"download_params": download_params},
+            timeout=0,
+            as_subflow=True,
+        )
     return True
 
 
@@ -289,7 +368,8 @@ def dispatch_build_and_promote(
     result: ExtractAndLoad,
     env: str = "prod",
 ) -> None:
-    """Dispara o `build_and_promote` genérico via `run_deployment()`.
+    """Dispara o `build_and_promote` genérico via `run_deployment()` (ou,
+    no pool local, chamando a função direto — ver `_run_flow_locally()`).
 
     `promote_to_prod` não vem de `result`: é derivado de `_dev_prefix()` —
     quem despachou (o `extract_and_load` chamando esta função) só promove
@@ -304,25 +384,30 @@ def dispatch_build_and_promote(
         result: o que `extract_load_data` do dataset devolveu.
         env: backend de destino.
     """
-    run_deployment(
-        name=deployment_name(dataset_id, Etapa.BUILD_AND_PROMOTE),
-        parameters={
-            "dataset_id": dataset_id,
-            "table_id": table_id,
-            "coverage": result.coverage,
-            "env": env,
-            "bq_project": metadata_constants.MODE_PROJECT.value[
-                result.prefect_mode
-            ],
-            "prefect_mode": result.prefect_mode,
-            "promote_to_prod": not _dev_prefix(),
-            "partition_folders": result.partition_folders,
-            "dump_mode": result.dump_mode,
-            "source_format": result.source_format,
-        },
-        timeout=0,
-        as_subflow=True,
-    )
+    parameters = {
+        "dataset_id": dataset_id,
+        "table_id": table_id,
+        "coverage": result.coverage,
+        "env": env,
+        "bq_project": metadata_constants.MODE_PROJECT.value[
+            result.prefect_mode
+        ],
+        "prefect_mode": result.prefect_mode,
+        "promote_to_prod": not _dev_prefix(),
+        "partition_folders": result.partition_folders,
+        "dump_mode": result.dump_mode,
+        "source_format": result.source_format,
+    }
+    name = deployment_name(dataset_id, Etapa.BUILD_AND_PROMOTE)
+    if _is_local():
+        _run_flow_locally(name, parameters)
+    else:
+        run_deployment(
+            name=name,
+            parameters=parameters,
+            timeout=0,
+            as_subflow=True,
+        )
 
 
 def pipeline_factory(

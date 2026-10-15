@@ -233,9 +233,15 @@ def deploy_flow(
     # prefixo `dev-` na hora de despachar o próximo estágio da cadeia
     # (issue #1867/#1932) — sem isso, o dispatch check_update→extract_and_load
     # e extract_and_load→build_and_promote só acha o nome certo em prod.
+    # `env:local`: sinal extra, só quando `local=True` — `local-dev` já
+    # cai em `env:dev` (contém "dev"), mas `stage_dispatch.py` precisa
+    # distinguir "dev de verdade" de "pool local" pra decidir se despacha
+    # o próximo estágio via `run_deployment()` ou chama a função direto
+    # (ver `_is_local()`/`_run_flow_locally()` em `stage_dispatch.py`).
     tags = [
         "automated-deploy",
         f"env:{'dev' if is_dev else 'prod'}",
+        *(["env:local"] if local else []),
         *extra_tags,
     ]
 
