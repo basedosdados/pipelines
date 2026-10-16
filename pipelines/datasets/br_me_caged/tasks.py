@@ -30,6 +30,7 @@ from pipelines.datasets.br_me_caged.utils import (
     year_month_from_filename,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 from pipelines.utils.utils import log
 
 utils_constants = constants
@@ -56,7 +57,6 @@ def build_table_paths(
 @task
 def get_source_last_date(
     ftp_host: str = caged_constants.FTP_HOST.value,
-    # pyrefly: ignore [bad-return]
 ) -> datetime.date:
     """
     This task reaches 'ftp.mtps.gov.br' subfolders looking for most recent year and month
@@ -71,31 +71,30 @@ def get_source_last_date(
     ftp.login()
     ftp.encoding = "latin-1"
     ftp.cwd(caged_constants.REMOTE_DIR.value)
-    try:
-        folder_items = ftp.nlst()
-        year_folders = [
-            # pyrefly: ignore [missing-attribute]
-            int(re.search(r"\d{4}", item).group(0))
-            for item in folder_items
-            if re.search(r"\d{4}", item)
-        ]
 
-        year_folders.sort(reverse=True)
-        ftp.cwd(str(year_folders[0]))
-        folder_items = ftp.nlst()
-        month_folders = [
-            # pyrefly: ignore [missing-attribute]
-            int(re.search(r"^(?:\d{4})(\d{2})$", item).group(1))
-            for item in folder_items
-            if re.search(r"^(?:\d{4})(\d{2})$", item)
-        ]
-        month_folders.sort(reverse=True)
-        last_date = datetime.datetime(
-            year=year_folders[0], month=month_folders[0], day=1
-        )
-        return last_date.date()
-    except Exception as ErrorNlst:
-        log(f"Unable to access CAGED subfolders due to {ErrorNlst}")
+    folder_items = ftp.nlst()
+    year_folders = [
+        # pyrefly: ignore [missing-attribute]
+        int(re.search(r"\d{4}", item).group(0))
+        for item in folder_items
+        if re.search(r"\d{4}", item)
+    ]
+
+    year_folders.sort(reverse=True)
+    ftp.cwd(str(year_folders[0]))
+    folder_items = ftp.nlst()
+    month_folders = [
+        # pyrefly: ignore [missing-attribute]
+        int(re.search(r"^(?:\d{4})(\d{2})$", item).group(1))
+        for item in folder_items
+        if re.search(r"^(?:\d{4})(\d{2})$", item)
+    ]
+    month_folders.sort(reverse=True)
+    last_date = datetime.datetime(
+        year=year_folders[0], month=month_folders[0], day=1
+    )
+
+    return last_date.date()
 
 
 @task
@@ -595,3 +594,94 @@ def check_municipality_codes(
             f"Municípios fora do diretório acima de {max_share:.1%} das "
             f"linhas nos seguintes meses: \n{months_list}"
         )
+
+
+def get_latest_update() -> SourceInspection:
+    """Etapa check_update das três tabelas.
+
+    Returns:
+        O último mês publicado no FTP, comparado com a cobertura da tabela.
+    """
+    last_month_published = get_source_last_date()
+
+    return SourceInspection(
+        reference_date=last_month_published,
+    )
+
+
+def extract_load_data(table_id: str, download_params: dict) -> ExtractAndLoad:
+    """Etapa extract_and_load de uma tabela.
+
+    Args:
+        table_id: Tabela do conjunto.
+        download_params: Parâmetros do check_update, com os meses a carregar
+            em `year_months`, no formato `AAAAMM`.
+
+    Returns:
+        A pasta particionada por `ano`, `mes` e `sigla_uf` e a cobertura da
+        tabela.
+    """
+    input_dir, output_dir = build_table_paths(table_id)
+
+    for ym in download_params["year_months"]:
+        failed = download_caged_ftp(ym, table_id)
+        print(f"crawl {ym} → failed_downloads={failed}")
+
+    filepath = build_partitions(table_id=table_id, table_output_dir=output_dir)
+
+    check_rows_written(table_input_dir=input_dir, table_output_dir=output_dir)
+
+    check_competence_month(
+        table_id=table_id,
+        table_input_dir=input_dir,
+        table_output_dir=output_dir,
+    )
+
+    directory_codes = get_directory_municipality_codes()
+
+    check_municipality_codes(
+        table_input_dir=input_dir,
+        table_output_dir=output_dir,
+        directory_codes=directory_codes,
+    )
+
+    check_states_present(
+        table_input_dir=input_dir, table_output_dir=output_dir
+    )
+
+    return ExtractAndLoad(
+        coverage=caged_constants.COVERAGE.value.model_dump(),
+        data_path=filepath,
+        dump_mode="append",
+        source_format="csv",
+    )
+
+
+def microdados_movimentacao_extract_load_data(
+    download_params: dict,
+) -> ExtractAndLoad:
+    """Etapa extract_and_load da microdados_movimentacao."""
+    return extract_load_data(
+        table_id=caged_constants.MOVIMENTACAO_TABLE_ID.value,
+        download_params=download_params,
+    )
+
+
+def microdados_movimentacao_fora_prazo_extract_load_data(
+    download_params: dict,
+) -> ExtractAndLoad:
+    """Etapa extract_and_load da microdados_movimentacao_fora_prazo."""
+    return extract_load_data(
+        table_id=caged_constants.FORA_PRAZO_TABLE_ID.value,
+        download_params=download_params,
+    )
+
+
+def microdados_movimentacao_excluida_extract_load_data(
+    download_params: dict,
+) -> ExtractAndLoad:
+    """Etapa extract_and_load da microdados_movimentacao_excluida."""
+    return extract_load_data(
+        table_id=caged_constants.EXCLUIDA_TABLE_ID.value,
+        download_params=download_params,
+    )

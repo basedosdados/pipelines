@@ -5,8 +5,18 @@ Constants for br_me_caged
 from enum import Enum
 from pathlib import Path
 
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    PartBdpro,
+    YearMonth,
+)
+
 
 class constants(Enum):  # pylint: disable=c0103
+    DATASET_ID = "br_me_caged"
+    MOVIMENTACAO_TABLE_ID = "microdados_movimentacao"
+    FORA_PRAZO_TABLE_ID = "microdados_movimentacao_fora_prazo"
+    EXCLUIDA_TABLE_ID = "microdados_movimentacao_excluida"
     FTP_HOST = "ftp.mtps.gov.br"
     REMOTE_DIR = "pdet/microdados/NOVO CAGED"
 
@@ -138,6 +148,10 @@ class constants(Enum):  # pylint: disable=c0103
         ],
     }
 
+    COVERAGE = PartBdpro(
+        date_column=YearMonth(year="ano", month="mes"),
+        date_format=DateFormat.YEAR_MONTH,
+    )
     TMP_DIR = Path("tmp")
     DATASET_DIR = TMP_DIR / "br_me_caged"
 
