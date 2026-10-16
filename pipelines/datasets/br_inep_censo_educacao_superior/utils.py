@@ -360,7 +360,7 @@ def ajustar_valores(
 
     - Booleanos (`bigquery_type` `boolean`): `1`/`0` viram `True`/`False`, que o
       `safe_cast(... as boolean)` do dbt entende.
-    - `id_municipio`: código IBGE com 7 dígitos.
+    - `id_municipio`: código IBGE com 7 dígitos (o `0` de 2022 fica como está).
     - `id_curso_cine`: o Inep grava o código entre aspas (`"0115L07"`), de
       propósito, para planilhas não o converterem em número. As aspas saem.
 
@@ -377,7 +377,10 @@ def ajustar_valores(
     for coluna in booleanos:
         df[coluna] = df[coluna].replace({"1": "True", "0": "False"})
 
-    preenchido = df["id_municipio"] != ""
+    # Em 2022 o Inep grava 0 no município das linhas sem município (EaD nacional);
+    # prod sempre teve 0 nesses casos, e o teste de relacionamento do dbt ignora
+    # justamente '0'. Completar para 0000000 quebraria o teste.
+    preenchido = ~df["id_municipio"].isin(["", "0"])
     df.loc[preenchido, "id_municipio"] = df.loc[
         preenchido, "id_municipio"
     ].str.zfill(7)
