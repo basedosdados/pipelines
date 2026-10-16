@@ -358,23 +358,6 @@ def download_registry(
     )
 
 
-def download_all(input_dir: Path) -> dict[str, date]:
-    """Download every registry's latest snapshot into ``input_dir``.
-
-    Args:
-        input_dir: Directory to extract all registry CSVs into.
-
-    Returns:
-        Mapping of table slug to the snapshot date of the file that feeds it.
-    """
-    snapshots: dict[str, date] = {}
-    for registry, table_slugs in constants.REGISTRIES.value.items():
-        snap = download_registry(registry, input_dir)
-        for slug in table_slugs:
-            snapshots[slug] = snap
-    return snapshots
-
-
 def find_csv(input_dir: Path, slug: str) -> Path:
     """Find the extracted CSV that feeds a given table slug.
 
@@ -474,35 +457,28 @@ def build_dicionario(output_dir: Path) -> Path:
     return tdir
 
 
-def clean_all(input_dir: Path, output_dir: Path) -> dict:
-    """Build every table from the already-downloaded registry CSVs.
+def build_table(slug: str, input_dir: Path, output_dir: Path) -> Path:
+    """Build one table's partitioned parquet from its already-downloaded CSV.
 
-    The single entry point shared by the recurring pipeline (via
-    :func:`pipelines.datasets.br_cgu_sancoes.tasks.clean_sancoes`). Each table's
-    ``data_extracao`` is read from its own CSV filename, since registries update
-    on independent schedules and a run may mix snapshot dates.
+    The per-table entry point the recurring pipeline's extract_and_load calls
+    (see :func:`pipelines.datasets.br_cgu_sancoes.tasks.make_extract_load_data`)
+    — each table's flow downloads its own registry independently (see
+    :func:`download_registry`) and builds only its own table, never the other
+    five (1-flow-per-table, see the module banner in ``constants.py``).
 
     Args:
-        input_dir: Directory holding the extracted registry CSVs.
+        slug: Table slug (key of ``TABLE_COLS``).
+        input_dir: Directory holding the extracted registry CSV that feeds
+            ``slug`` (from :func:`download_registry`).
         output_dir: Root output directory.
 
     Returns:
-        Mapping of table slug to output directory, plus ``"snapshots"`` (a
-        ``{slug: "YYYY-MM-DD"}`` map) and ``"max_date"`` — the latest extraction
-        date across all tables, used to poll/commit the source update.
+        The table's output directory,
+        ``<output_dir>/<slug>/data_extracao=<YYYY-MM-DD>/``.
     """
-    result: dict = {}
-    snapshots: dict[str, str] = {}
-    for slug, cols in TABLE_COLS.items():
-        csv_path = find_csv(input_dir, slug)
-        snapshot = snapshot_from_filename(csv_path)
-        df = process_table(csv_path, cols, snapshot, name=slug)
-        typed = to_arrow(df, cols)
-        result[slug] = write_partitioned_string(
-            typed, slug, snapshot, output_dir
-        )
-        snapshots[slug] = snapshot.isoformat()
-    result["dicionario"] = build_dicionario(output_dir)
-    result["snapshots"] = snapshots
-    result["max_date"] = max(snapshots.values())
-    return result
+    cols = TABLE_COLS[slug]
+    csv_path = find_csv(input_dir, slug)
+    snapshot = snapshot_from_filename(csv_path)
+    df = process_table(csv_path, cols, snapshot, name=slug)
+    typed = to_arrow(df, cols)
+    return write_partitioned_string(typed, slug, snapshot, output_dir)

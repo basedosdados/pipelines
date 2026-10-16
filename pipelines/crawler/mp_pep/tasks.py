@@ -428,7 +428,22 @@ def make_partitions(df: pd.DataFrame) -> str:
     retries=c.TASK_MAX_RETRIES.value,
     retry_delay_seconds=c.TASK_RETRY_DELAY.value,
 )
-def is_up_to_date(headless: bool = True) -> bool:
+def get_page_reference_date(headless: bool = True) -> datetime.date:
+    """Lê, via Selenium, a data de referência exibida no painel — sem baixar dado.
+
+    Abre `constants.TARGET`, acha o elemento `div` cujo `title` termina em 4
+    dígitos (ano) e devolve o mês/ano ali exibido como `date` (dia 1). Extraído
+    de `is_up_to_date` (que fazia essa leitura e já comparava contra o
+    backend); aqui fica só a leitura da página, pra servir o check_update do
+    pipeline em estágios (`pipelines.datasets.br_mp_pep.tasks`), que delega a
+    comparação com o backend pra `poll_source_for_update_task`.
+
+    Args:
+        headless: roda o Chrome sem interface gráfica.
+
+    Returns:
+        Data de referência (dia 1 do mês) exibida no painel.
+    """
     options = webdriver.ChromeOptions()
 
     options.add_argument("--no-sandbox")
@@ -512,6 +527,17 @@ def is_up_to_date(headless: bool = True) -> bool:
     date_website = datetime.date(int(year), month, day=1)
 
     log(f"Last date website: {text}, parsed as {date_website}")
+
+    return date_website
+
+
+@task(
+    retries=c.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=c.TASK_RETRY_DELAY.value,
+)
+def is_up_to_date(headless: bool = True) -> bool:
+    date_website = get_page_reference_date(headless=headless)
+
     backend = bd.Backend(graphql_url=get_url("prod"))
     last_date_in_api = get_api_most_recent_date(
         dataset_id="br_mp_pep",
