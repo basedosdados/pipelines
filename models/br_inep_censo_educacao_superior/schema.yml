@@ -12,6 +12,32 @@ models:
             - quantidade_ingressantes_reserva_vaga_etnico
             - quantidade_matriculas_reserva_vaga_etnico
             - quantidade_concluintes_reserva_vaga_etnico
+            - quantidade_ingressantes_reserva_vaga_ppi
+            - quantidade_ingressantes_reserva_vaga_quilombola
+            - quantidade_ingressantes_reserva_vaga_refugiado
+            - quantidade_ingressantes_reserva_vaga_povos_tradicionais
+            - quantidade_ingressantes_reserva_vaga_idoso
+            - quantidade_ingressantes_reserva_vaga_internacional
+            - quantidade_ingressantes_reserva_vaga_medalhista
+            - quantidade_ingressantes_reserva_vaga_trans
+            - quantidade_matriculas_reserva_vaga_ppi
+            - quantidade_matriculas_reserva_vaga_quilombola
+            - quantidade_matriculas_reserva_vaga_refugiado
+            - quantidade_matriculas_reserva_vaga_povos_tradicionais
+            - quantidade_matriculas_reserva_vaga_idoso
+            - quantidade_matriculas_reserva_vaga_internacional
+            - quantidade_matriculas_reserva_vaga_medalhista
+            - quantidade_matriculas_reserva_vaga_trans
+            - quantidade_concluintes_reserva_vaga_ppi
+            - quantidade_concluintes_reserva_vaga_quilombola
+            - quantidade_concluintes_reserva_vaga_refugiado
+            - quantidade_concluintes_reserva_vaga_povos_tradicionais
+            - quantidade_concluintes_reserva_vaga_idoso
+            - quantidade_concluintes_reserva_vaga_internacional
+            - quantidade_concluintes_reserva_vaga_medalhista
+            - quantidade_concluintes_reserva_vaga_trans
+            - indicador_comunitaria
+            - indicador_confessional
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - tipo_dimensao
@@ -529,6 +555,123 @@ models:
       - name: quantidade_concluintes_mobilidade_academica
         description: Quantidade de concluintes que se vincularam temporariamente a
           outra instituição, sendo ela nacional ou internacional
+      - name: quantidade_ingressantes_reserva_vaga_ppi
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - pretos, pardos
+          ou indígenas
+      - name: quantidade_ingressantes_reserva_vaga_quilombola
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - quilombolas
+      - name: quantidade_ingressantes_reserva_vaga_refugiado
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - refugiados, apátridas
+          ou portadores de visto humanitário
+      - name: quantidade_ingressantes_reserva_vaga_povos_tradicionais
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - povos e comunidades
+          tradicionais
+      - name: quantidade_ingressantes_reserva_vaga_idoso
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - idosos
+      - name: quantidade_ingressantes_reserva_vaga_internacional
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - estudantes internacionais
+      - name: quantidade_ingressantes_reserva_vaga_medalhista
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - medalhistas em
+          olimpíadas científicas e competições de conhecimento
+      - name: quantidade_ingressantes_reserva_vaga_trans
+        description: >
+          Quantidade de ingressantes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - pessoas transgênero
+          e/ou travestis
+      - name: quantidade_matriculas_reserva_vaga_ppi
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - pretos, pardos
+          ou indígenas
+      - name: quantidade_matriculas_reserva_vaga_quilombola
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - quilombolas
+      - name: quantidade_matriculas_reserva_vaga_refugiado
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - refugiados, apátridas
+          ou portadores de visto humanitário
+      - name: quantidade_matriculas_reserva_vaga_povos_tradicionais
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - povos e comunidades
+          tradicionais
+      - name: quantidade_matriculas_reserva_vaga_idoso
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - idosos
+      - name: quantidade_matriculas_reserva_vaga_internacional
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - estudantes internacionais
+      - name: quantidade_matriculas_reserva_vaga_medalhista
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - medalhistas em
+          olimpíadas científicas e competições de conhecimento
+      - name: quantidade_matriculas_reserva_vaga_trans
+        description: >
+          Quantidade de matrículas - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - pessoas transgênero
+          e/ou travestis
+      - name: quantidade_concluintes_reserva_vaga_ppi
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - pretos, pardos
+          ou indígenas
+      - name: quantidade_concluintes_reserva_vaga_quilombola
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - quilombolas
+      - name: quantidade_concluintes_reserva_vaga_refugiado
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - refugiados, apátridas
+          ou portadores de visto humanitário
+      - name: quantidade_concluintes_reserva_vaga_povos_tradicionais
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - povos e comunidades
+          tradicionais
+      - name: quantidade_concluintes_reserva_vaga_idoso
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - idosos
+      - name: quantidade_concluintes_reserva_vaga_internacional
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - estudantes internacionais
+      - name: quantidade_concluintes_reserva_vaga_medalhista
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - medalhistas em
+          olimpíadas científicas e competições de conhecimento
+      - name: quantidade_concluintes_reserva_vaga_trans
+        description: >
+          Quantidade de concluintes - alunos que participam do programa de reserva
+          de vagas ou programa diferenciado de destinação de vagas - pessoas transgênero
+          e/ou travestis
+      - name: indicador_comunitaria
+        description: >
+          Informa se a instituição privada é comunitária
+      - name: indicador_confessional
+        description: >
+          Informa se a instituição privada é confessional
   - name: br_inep_censo_educacao_superior__dicionario
     description: Dicionário para tradução dos códigos do conjunto br_inep_censo_educacao_superior.
       Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
@@ -560,6 +703,7 @@ models:
           combination_of_columns: [ano, id_ies]
       - not_null_proportion_multiple_columns:
           at_least: 0.35
+          ignore_values: [indicador_comunitaria, indicador_confessional]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - tipo_organizacao_academica
@@ -751,3 +895,9 @@ models:
         description: Quantidade de docentes em exercício - nacionalidade estrangeira
       - name: quantidade_docentes_exercicio_deficiencia
         description: Quantidade de docentes em exercício - com deficiência
+      - name: indicador_comunitaria
+        description: >
+          Informa se a instituição privada é comunitária
+      - name: indicador_confessional
+        description: >-
+          Informa se a instituição privada é confessional
