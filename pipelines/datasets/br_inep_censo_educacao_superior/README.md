@@ -3,8 +3,7 @@
 Este documento registra o contexto, as decisões e os problemas conhecidos do
 conjunto `br_inep_censo_educacao_superior`, para quem for mantê-lo depois.
 
-> **Em construção** (PR #2204, issue #2181). As seções marcadas com *(a fazer)*
-> descrevem o que foi decidido mas ainda não está implementado.
+A pipeline foi criada no PR #2204 (issue #2181).
 
 ---
 
@@ -59,13 +58,12 @@ para GET** (`allowed_methods=("GET",)`). Por isso a leitura de cabeçalhos usa
 
 | Arquivo | Papel | Estado |
 |---|---|---|
-| `constants.py` | URLs da fonte | feito |
-| `utils.py` | funções puras: detecção, download e (a fazer) tratamento | parcial |
+| `constants.py` | URLs da fonte, links das planilhas de arquitetura, nomes antigos do Inep e cobertura | feito |
+| `utils.py` | funções puras: detecção, download e tratamento | feito |
 | `tasks.py` | `get_latest_update` e `extract_load_data` de cada tabela | feito |
 | `flows.py` | ligação com o `CheckThenExtractLoadPipeline`, uma pipeline por tabela | feito |
-| `models/br_inep_censo_educacao_superior/` | modelos dbt `curso`, `ies` e `dicionario` | existentes |
+| `models/br_inep_censo_educacao_superior/` | modelos dbt `curso`, `ies` e `dicionario` | atualizados |
 | [planilha da `curso`](https://docs.google.com/spreadsheets/d/1txedBwUea1blHZKutvodNmwMcDJCwXMrj5n4LLoCj5M/edit) e [planilha da `ies`](https://docs.google.com/spreadsheets/d/1659-uPwzBQ6qzSrteieQ4tXC-4Ksl2iLMxh1aU2bU04/edit), no Drive | de-para Inep → BD de cada tabela, lido pela pipeline (ver "Arquitetura da `curso`") | feito |
-| `models/br_inep_censo_educacao_superior/code/` | scripts de tratamento manuais, da carga de 2024 | serão substituídos pela pipeline |
 
 A pipeline segue o modelo em estágios: `check_update` → `extract_and_load` →
 `build_and_promote` (genérico, em `pipelines/utils/metadata/flows.py`).
@@ -162,7 +160,7 @@ arquitetura, e as demais são descartadas sem aviso.
 **Decisão (2026-10-13, com a Laura):** incluir as 26 colunas, no **fim** da
 arquitetura (ver "Staging" abaixo), com descrições que expliquem o significado e
 a relação com as colunas existentes. Feito na arquitetura em 2026-10-15 (ver
-"Arquitetura da `curso`"); falta o dbt e os metadados.
+"Arquitetura da `curso`") e no dbt; faltam os metadados.
 
 **Decisão (2026-10-14):** nos anos anteriores à sua criação, as colunas novas
 ficam **nulas**, não zeradas: o dado não existe nesses anos. É o comportamento
@@ -207,7 +205,7 @@ pipeline as lê em toda execução (`ler_arquitetura`, links em
 ### Origem e validação
 
 O conteúdo vem da planilha usada na carga manual de 2024 (o `arquitetura_apoio.csv`
-dos scripts em `code/`), encontrada no Drive. Antes de adotá-la, ela foi
+dos scripts manuais da carga de 2024, que a pipeline substituiu e foram removidos do repositório), encontrada no Drive. Antes de adotá-la, ela foi
 conferida contra os dados de 2024 (2026-10-15):
 
 - os 193 `name` são exatamente as colunas da tabela de prod, na mesma ordem;
@@ -416,10 +414,14 @@ ordem. Como a leitura é por posição, nesses anos o código caía em
 `curso.sql` com um `case when ano <= 2023` que troca as duas colunas.
 
 Essa regra é por ano, não por arquivo: um 2023 regravado na ordem certa seria
-trocado de novo. **Decisão (2026-10-15):** regravar todos os anos na ordem da
-arquitetura e **remover o `case` do `curso.sql`**. Feito. O modelo só funciona
-depois que a pipeline regravar o staging de todos os anos: os arquivos antigos
-ainda estão na ordem trocada e sem as colunas novas.
+trocado de novo. **Decisão (2026-10-15):** o `curso.sql` decide a troca **pelo
+conteúdo**: só o código CINE tem o formato `0000A00` (vale para 100% dos valores,
+de 2009 a 2024), então as colunas só são trocadas quando `nome_curso_cine` tem
+cara de código. A regra funciona com o staging antigo e com o gravado pela
+pipeline, o que permite mesclar com o `table-approve` antes da primeira carga em
+prod. Aplicada ao staging de prod (conferido em 2026-10-15), reproduz a tabela de prod em
+todas as linhas de 2009 a 2023. O `trim` na mesma expressão tira as aspas que a
+carga manual deixou no código de 2024.
 
 ## Tratamento
 
@@ -474,14 +476,66 @@ número ou não trataram nulos e aspas:
 | `ies` | `sigla`, `numero`, `complemento`, `cep` | 2024 | texto `'nan'` (459 + 1 + 4 + 26 = 490 valores) | nulo |
 | `curso` | vagas e inscritos (14 colunas) | 2023 | versão anterior à revisão do Inep | versão revisada |
 
+## Operação
+
+### Os estágios
+
+Cada tabela tem dois flows próprios, encadeados com o `build_and_promote`, que é
+um deployment único para toda a BD:
+
+```
+check_update (dia 15: curso 10:27, ies 10:32)
+ └─▶ extract_and_load   (anos publicados depois da última atualização)
+      └─▶ build_and_promote   (dbt e promoção para prod)
+```
+
+Cada estágio dispara o seguinte com `run_deployment` (`as_subflow=True`,
+`timeout=0`): na interface do Prefect eles aparecem como execuções filhas, mas
+rodam em pods separados e podem ser disparados sozinhos.
+
+### Testar em dev
+
+1. Coloque o label `deploy-flow` no PR: os 4 flows vão para o pool de dev, sem
+   agendamento.
+2. Dispare só o **`extract_and_load`** de cada tabela, com os anos à mão (ver "O
+   legado de 2023 e a primeira execução"). Confira se os arquivos do staging de
+   dev batem com o esperado.
+3. **O `build_and_promote` roda o dbt da `main`**, não o da branch: ele não é
+   publicado a partir do PR. Antes do merge, o dbt da branch só é validado
+   localmente (`uv run dbt run` e `uv run dbt test`, target dev). Depois de uma
+   execução no pool, rode o dbt da branch localmente para restaurar as tabelas
+   de dev.
+4. **Não dispare o `check_update` antes de existir o `RawDataSource.Update` das
+   duas fontes.** Mesmo rodando em dev, ele grava metadados em prod e, se esse
+   registro não existir, cria-o com unidade "mês" (o framework fixa esse valor),
+   o que marcaria uma fonte anual como mensal. Crie o registro antes, com unidade
+   ano e frequência 1.
+
+O servidor do Inep é instável: um ano pode levar vários minutos para baixar. O
+`download_zip` do ENEM espera até 30 minutos por dados antes de tentar de novo, e
+esse limite foi mantido de propósito.
+
+### Merge e prod
+
+1. O staging de dev precisa estar com **todos os anos** gravados pelo código da
+   pipeline: o `table-approve` copia o staging de dev para prod.
+2. Registre os metadados em prod (colunas novas, cobertura por coluna,
+   observações e o `RawDataSource.Update` anual).
+3. Mescle com o label `table-approve`.
+4. Os flows entram em prod **pausados**. Dispare o `extract_and_load` de cada
+   tabela com todos os anos, confira as tabelas de prod e ative o agendamento em
+   `https://backend.basedosdados.org/admin/admin_data_tools/disabledflowschedule/`.
+
 ## Pendências
 
 - [x] Tratamento: arquitetura → CSV de staging, com avisos no log; conferido com prod em todos os anos
 - [x] Arquitetura da `curso` no repositório, validada, com as 26 colunas novas e a cobertura corrigida
 - [x] Arquitetura da `ies` no repositório, validada, com a cobertura corrigida
 - [x] dbt: 26 colunas novas no `curso.sql` e no `schema.yml`, remoção do `case` das colunas CINE e partição até 2029 (`curso` e `ies`)
-- [ ] Metadados: colunas novas, cobertura por coluna e observações
+- [ ] Metadados em prod: colunas novas, cobertura por coluna, observações e `RawDataSource.Update` anual das duas fontes
 - [x] `tasks.py` e `flows.py`
-- [ ] Execução em dev ponta a ponta, incluindo a leitura de arquivos com número de colunas diferente
-- [ ] Primeira execução recarregando todos os anos (2009 a 2024)
+- [x] Execução em dev: `extract_and_load` e `build_and_promote` das duas tabelas no pool (2026-10-16); dbt da branch local, 12/12 testes
+- [ ] `check_update` em dev, depois do `RawDataSource.Update` anual
+- [x] Scripts manuais de tratamento removidos do repositório
+- [ ] Primeira execução em prod recarregando todos os anos (2009 a 2024) e ativação do agendamento
 - [ ] Carga de 2025, quando for publicada
