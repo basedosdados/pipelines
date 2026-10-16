@@ -1,66 +1,160 @@
 """
 Flows de br_ms_sim — Prefect 3.
-
-Migrado por completo pro pipeline em estágios (staged pipeline):
-check_update -> extract_and_load -> build_and_promote. Lógica específica do
-dataset mora em `tasks.py`/`utils.py`, constantes em `constants.py` — aqui só
-a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 """
 
-from pipelines.datasets.br_ms_sim.constants import (
-    DATASET_ID,
-    MICRODADOS_TABLE_ID,
-)
+from pipelines.datasets.br_ms_sim.constants import constants
 from pipelines.datasets.br_ms_sim.tasks import (
-    extract_load_data,
-    get_latest_update,
+    clean_table,
+    download_table,
+    get_source_max_year,
+    resolve_year_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.stage_dispatch import (
-    CheckThenExtractLoadPipeline,
-    Etapa,
-    deploy_tags,
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    YearOnly,
+)
+from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
+)
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
+    run_dbt,
+    upload_to_gcs,
 )
 
-_microdados_pipeline = CheckThenExtractLoadPipeline(
-    dataset_id=DATASET_ID,
-    table_id=MICRODADOS_TABLE_ID,
-    get_latest_update=get_latest_update,
-    extract_load_data=extract_load_data,
-    # Cobertura anual (`YearOnly`) — mesma granularidade do flow antigo.
-    date_format="%Y",
+
+def run_aggregates(dataset_id: str, target: str) -> None:
+    """Rematerializa as tabelas agregadas a partir do microdados.
+
+    Chamada depois do run/test do microdados, porque as agregadas leem dele.
+    Segue a convenção do repositório de rodar todas antes de testar qualquer uma.
+    """
+    for table in constants.AGGREGATE_TABLES.value:
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
+    for table in constants.AGGREGATE_TABLES.value:
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
+
+
+@flow(
+    name="br_ms_sim__microdados",
+    log_prints=True,
 )
+def br_ms_sim__microdados(
+    dataset_id: str = "br_ms_sim",
+    table_id: str = "microdados",
+    ano: int | None = None,
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    """Carrega um ano do SIM, do FTP do DATASUS até a materialização."""
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
 
+    backfill = ano is not None
+    source_max_year = get_source_max_year()
+    ano = int(ano if backfill else source_max_year)
 
-@flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
-def br_ms_sim_microdados_check_update() -> None:
-    _microdados_pipeline.run_check_update()
+    if not force_run and not backfill:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_year,
+            env="prod",
+            date_format=DateFormat.YEAR,
+            compare_against="coverage",
+        )
+        if not has_new_data:
+            print(f"Não há atualizações para a tabela {table_id}!")
+            return
 
+    if not backfill:
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_year,
+            env="prod",
+            date_format=DateFormat.YEAR,
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
 
-br_ms_sim_microdados_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
-)
-# Sem schedule no P0 — manter sem cron no P3 (`deploy_schedules` fica `None`,
-# mesmo comportamento de antes: o flow monolítico antigo também não tinha
-# cron neste repo).
+    source = resolve_year_source(ano)
+    print(f"Carregando {ano} a partir do diretório {source}")
 
+    download_table(table_id=table_id, ano=ano, source=source)
+    filepath = clean_table(table_id=table_id, ano=ano, source=source)
 
-@flow(name=_microdados_pipeline.extract_and_load_flow_name, log_prints=True)
-def br_ms_sim_microdados_download(download_params: dict) -> None:
-    _microdados_pipeline.run_extract_and_load(download_params)
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+        source_format="csv",
+    )
 
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+    run_aggregates(dataset_id=dataset_id, target="dev")
 
-br_ms_sim_microdados_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
-)
-_microdados_pipeline.extract_load_deployment = (
-    br_ms_sim_microdados_download.fn.__name__
-)
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+        source_format="csv",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+    run_aggregates(dataset_id=dataset_id, target=target)
+
+    if update_metadata:
+        for table in [table_id, *constants.AGGREGATE_TABLES.value]:
+            register_table_materialization_task(
+                dataset_id=dataset_id,
+                table_id=table,
+                coverage=AllFree(
+                    date_column=YearOnly(col="ano"),
+                    date_format=DateFormat.YEAR,
+                ),
+                env="prod",
+                bq_project="basedosdados",
+            )
+
 
 # `memory` não existe no template do work pool, que só conhece o par abaixo, e
 # chave fora do template é descartada em silêncio — o pod ficaria no padrão.
-# Isolado na etapa de download (parte pesada): check_update só lista o FTP.
-br_ms_sim_microdados_download.job_variables = {
+br_ms_sim__microdados.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",
 }

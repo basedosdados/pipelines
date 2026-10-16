@@ -1,72 +1,21 @@
 """
-Flows para br_rf_cnpj — Prefect 3.
-
-Migrado pro pipeline em estágios (staged pipeline): check_update ->
-extract_and_load -> build_and_promote, uma dupla de flows por tabela
-(empresas, socios, estabelecimentos, simples, dicionario). Lógica
-específica do dataset mora em `tasks.py` — aqui só a fiação
-(`CheckThenExtractLoadPipeline` + `@flow`).
-
-NOTA (gap de migração — não resolvido aqui): o flow monolítico antigo, só
-pra `estabelecimentos`, também atualizava `br_bd_diretorios_brasil.empresa`
-(`run_dbt` + `download_data_to_gcs` + `register_table_materialization_task`
-com `AllBdpro`) logo depois de promover `estabelecimentos` pra prod — e
-`br_bd_diretorios_brasil` não tem nenhum flow próprio que faça isso. Nesta
-arquitetura, essa promoção acontece dentro do `build_and_promote` genérico
-(`pipelines/utils/metadata/flows.py`), despachado de forma assíncrona
-(`run_deployment(..., timeout=0)`) só depois que `extract_and_load`
-termina — não existe mais, dentro de `br_rf_cnpj`, um ponto síncrono de
-onde disparar esse refresh depois que a promoção de verdade aconteceu
-(rodar o refresh durante `extract_and_load` leria `estabelecimentos` antes
-dele estar materializado em prod). Reproduzir isso direito exige mexer no
-`build_and_promote` compartilhado (afeta todo dataset já migrado) ou dar a
-`br_bd_diretorios_brasil` seu próprio check_update orientado pelo
-`Table.Update` de `br_rf_cnpj.estabelecimentos` — ambos fora do escopo
-desta migração (só arquivos de `br_rf_cnpj`). Esse refresh NÃO foi
-reproduzido aqui.
+Flows for br_rf_cnpj — Prefect 3.
 """
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_rf_cnpj.tasks import DATASET_ID, make_pipeline
+from pipelines.datasets.br_rf_cnpj.constants import (
+    CHECK_UPDATE_CRON,
+    DATASET_ID,
+    DICIONARIO_TABLE_ID,
+    EMPRESAS_TABLE_ID,
+    ESTABELECIMENTOS_TABLE_ID,
+    SIMPLES_TABLE_ID,
+    SOCIOS_TABLE_ID,
+)
+from pipelines.datasets.br_rf_cnpj.tasks import make_pipeline
 from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
-
-# ──────────────────────────────────────────────────────────────────────────────
-# dicionario
-# check_update: br_rf_cnpj__dicionario
-# extract_and_load: br_rf_cnpj__dicionario
-# ──────────────────────────────────────────────────────────────────────────────
-
-_dicionario_pipeline = make_pipeline("dicionario")
-
-
-@flow(name=_dicionario_pipeline.check_update_flow_name, log_prints=True)
-def br_rf_cnpj_dicionario_check_update() -> None:
-    _dicionario_pipeline.run_check_update()
-
-
-br_rf_cnpj_dicionario_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, "dicionario"
-)
-# Mesmo cron do flow monolítico antigo.
-br_rf_cnpj_dicionario_check_update.deploy_schedules = [
-    Cron("35 14 * * *", timezone="America/Sao_Paulo")
-]
-
-
-@flow(name=_dicionario_pipeline.extract_and_load_flow_name, log_prints=True)
-def br_rf_cnpj_dicionario_download(download_params: dict) -> None:
-    _dicionario_pipeline.run_extract_and_load(download_params)
-
-
-br_rf_cnpj_dicionario_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "dicionario"
-)
-_dicionario_pipeline.extract_load_deployment = (
-    br_rf_cnpj_dicionario_download.fn.__name__
-)
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # empresas
@@ -74,7 +23,7 @@ _dicionario_pipeline.extract_load_deployment = (
 # extract_and_load: br_rf_cnpj__empresas
 # ──────────────────────────────────────────────────────────────────────────────
 
-_empresas_pipeline = make_pipeline("empresas")
+_empresas_pipeline = make_pipeline(EMPRESAS_TABLE_ID)
 
 
 @flow(name=_empresas_pipeline.check_update_flow_name, log_prints=True)
@@ -83,11 +32,11 @@ def br_rf_cnpj_empresas_check_update() -> None:
 
 
 br_rf_cnpj_empresas_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, "empresas"
+    DATASET_ID, Etapa.CHECK_UPDATE, EMPRESAS_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo.
+
 br_rf_cnpj_empresas_check_update.deploy_schedules = [
-    Cron("0 6 * * *", timezone="America/Sao_Paulo")
+    Cron(CHECK_UPDATE_CRON[EMPRESAS_TABLE_ID], timezone="America/Sao_Paulo")
 ]
 
 
@@ -97,11 +46,76 @@ def br_rf_cnpj_empresas_download(download_params: dict) -> None:
 
 
 br_rf_cnpj_empresas_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "empresas"
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EMPRESAS_TABLE_ID
 )
 _empresas_pipeline.extract_load_deployment = (
     br_rf_cnpj_empresas_download.fn.__name__
 )
+
+# ──────────────────────────────────────────────────────────────────────────────
+# estabelecimentos
+# check_update: br_rf_cnpj__estabelecimentos
+# extract_and_load: br_rf_cnpj__estabelecimentos
+# ──────────────────────────────────────────────────────────────────────────────
+
+_estabelecimentos_pipeline = make_pipeline(ESTABELECIMENTOS_TABLE_ID)
+
+
+@flow(name=_estabelecimentos_pipeline.check_update_flow_name, log_prints=True)
+def br_rf_cnpj_estabelecimentos_check_update() -> None:
+    _estabelecimentos_pipeline.run_check_update()
+
+
+br_rf_cnpj_estabelecimentos_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, ESTABELECIMENTOS_TABLE_ID
+)
+
+br_rf_cnpj_estabelecimentos_check_update.deploy_schedules = [
+    Cron(
+        CHECK_UPDATE_CRON[ESTABELECIMENTOS_TABLE_ID],
+        timezone="America/Sao_Paulo",
+    )
+]
+
+
+@flow(
+    name=_estabelecimentos_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def br_rf_cnpj_estabelecimentos_download(download_params: dict) -> None:
+    _estabelecimentos_pipeline.run_extract_and_load(download_params)
+
+
+br_rf_cnpj_estabelecimentos_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTABELECIMENTOS_TABLE_ID
+)
+_estabelecimentos_pipeline.extract_load_deployment = (
+    br_rf_cnpj_estabelecimentos_download.fn.__name__
+)
+
+## Precisa resolver isso
+# # estabelecimentos: atualiza diretório de estabelecimentos
+# if table_id == "estabelecimentos":
+#     run_dbt(
+#         dataset_id="br_bd_diretorios_brasil",
+#         table_id="empresa",
+#         dbt_command="run/test",
+#         target=target,
+#     )
+#     download_data_to_gcs(
+#         dataset_id="br_bd_diretorios_brasil",
+#         table_id="empresa",
+#     )
+#     if update_metadata:
+#         register_table_materialization_task(
+#             dataset_id="br_bd_diretorios_brasil",
+#             table_id="empresa",
+#             coverage=AllBdpro(
+#                 date_column=DateOnly(col="data_referencia"),
+#                 date_format=DateFormat.YEAR_MD,
+#             ),
+#             env="prod",
+#             bq_project="basedosdados",
+#         )
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -110,7 +124,7 @@ _empresas_pipeline.extract_load_deployment = (
 # extract_and_load: br_rf_cnpj__socios
 # ──────────────────────────────────────────────────────────────────────────────
 
-_socios_pipeline = make_pipeline("socios")
+_socios_pipeline = make_pipeline(SOCIOS_TABLE_ID)
 
 
 @flow(name=_socios_pipeline.check_update_flow_name, log_prints=True)
@@ -119,11 +133,11 @@ def br_rf_cnpj_socios_check_update() -> None:
 
 
 br_rf_cnpj_socios_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, "socios"
+    DATASET_ID, Etapa.CHECK_UPDATE, SOCIOS_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo.
+
 br_rf_cnpj_socios_check_update.deploy_schedules = [
-    Cron("0 7 * * *", timezone="America/Sao_Paulo")
+    Cron(CHECK_UPDATE_CRON[SOCIOS_TABLE_ID], timezone="America/Sao_Paulo")
 ]
 
 
@@ -133,12 +147,11 @@ def br_rf_cnpj_socios_download(download_params: dict) -> None:
 
 
 br_rf_cnpj_socios_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "socios"
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, SOCIOS_TABLE_ID
 )
 _socios_pipeline.extract_load_deployment = (
     br_rf_cnpj_socios_download.fn.__name__
 )
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # simples
@@ -146,7 +159,7 @@ _socios_pipeline.extract_load_deployment = (
 # extract_and_load: br_rf_cnpj__simples
 # ──────────────────────────────────────────────────────────────────────────────
 
-_simples_pipeline = make_pipeline("simples")
+_simples_pipeline = make_pipeline(SIMPLES_TABLE_ID)
 
 
 @flow(name=_simples_pipeline.check_update_flow_name, log_prints=True)
@@ -155,11 +168,11 @@ def br_rf_cnpj_simples_check_update() -> None:
 
 
 br_rf_cnpj_simples_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, "simples"
+    DATASET_ID, Etapa.CHECK_UPDATE, SIMPLES_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo.
+
 br_rf_cnpj_simples_check_update.deploy_schedules = [
-    Cron("0 8 * * *", timezone="America/Sao_Paulo")
+    Cron(CHECK_UPDATE_CRON[SIMPLES_TABLE_ID], timezone="America/Sao_Paulo")
 ]
 
 
@@ -169,7 +182,7 @@ def br_rf_cnpj_simples_download(download_params: dict) -> None:
 
 
 br_rf_cnpj_simples_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "simples"
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, SIMPLES_TABLE_ID
 )
 _simples_pipeline.extract_load_deployment = (
     br_rf_cnpj_simples_download.fn.__name__
@@ -177,43 +190,36 @@ _simples_pipeline.extract_load_deployment = (
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# estabelecimentos
-# check_update: br_rf_cnpj__estabelecimentos
-# extract_and_load: br_rf_cnpj__estabelecimentos
-#
-# Ver nota no topo do arquivo: o refresh de `br_bd_diretorios_brasil.empresa`
-# que o flow monolítico antigo fazia depois de promover esta tabela não foi
-# reproduzido.
+# dicionario
+# check_update: br_rf_cnpj__dicionario
+# extract_and_load: br_rf_cnpj__dicionario
 # ──────────────────────────────────────────────────────────────────────────────
 
-_estabelecimentos_pipeline = make_pipeline("estabelecimentos")
+_dicionario_pipeline = make_pipeline(DICIONARIO_TABLE_ID)
 
 
-@flow(name=_estabelecimentos_pipeline.check_update_flow_name, log_prints=True)
-def br_rf_cnpj_estabelecimentos_check_update() -> None:
-    _estabelecimentos_pipeline.run_check_update()
+@flow(name=_dicionario_pipeline.check_update_flow_name, log_prints=True)
+def br_rf_cnpj_dicionario_check_update() -> None:
+    _dicionario_pipeline.run_check_update()
 
 
-br_rf_cnpj_estabelecimentos_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, "estabelecimentos"
+br_rf_cnpj_dicionario_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, DICIONARIO_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo.
-br_rf_cnpj_estabelecimentos_check_update.deploy_schedules = [
-    Cron("0 9 * * *", timezone="America/Sao_Paulo")
+
+br_rf_cnpj_dicionario_check_update.deploy_schedules = [
+    Cron(CHECK_UPDATE_CRON[DICIONARIO_TABLE_ID], timezone="America/Sao_Paulo")
 ]
 
 
-@flow(
-    name=_estabelecimentos_pipeline.extract_and_load_flow_name,
-    log_prints=True,
-)
-def br_rf_cnpj_estabelecimentos_download(download_params: dict) -> None:
-    _estabelecimentos_pipeline.run_extract_and_load(download_params)
+@flow(name=_dicionario_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_rf_cnpj_dicionario_download(download_params: dict) -> None:
+    _dicionario_pipeline.run_extract_and_load(download_params)
 
 
-br_rf_cnpj_estabelecimentos_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "estabelecimentos"
+br_rf_cnpj_dicionario_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DICIONARIO_TABLE_ID
 )
-_estabelecimentos_pipeline.extract_load_deployment = (
-    br_rf_cnpj_estabelecimentos_download.fn.__name__
+_dicionario_pipeline.extract_load_deployment = (
+    br_rf_cnpj_dicionario_download.fn.__name__
 )

@@ -15,10 +15,10 @@ Tabelas:
 
 ## Estrutura (compartilhada)
 
-- **Crawler (Prefect 3):** `pipelines/crawler/bndes/{constants,utils,tasks,flows}.py`. Cada tabela com pipeline tem sua própria config (`constants` / `constants_administracao_publica`), seu transform + `clean` e seu `_run` em `flows.py`. Funções genéricas (`download_csv`, `get_source_last_modified`) são compartilhadas entre as tabelas.
-- **Wrapper `@flow` + schedule por tabela:** `pipelines/datasets/br_bndes_operacoes_contratadas/flows.py` (cron **semanal**, segunda 06h BRT).
-- **Exceção: `operacoes_pre_embarque`**, que segue o desenho de diretório único. `constants.py`, `utils.py` e `tasks.py` ficam em `pipelines/datasets/br_bndes_operacoes_contratadas/` e servem só a ela; o corpo do flow fica no próprio `@flow`. O cron é `25 2 * * 1` (segunda, 02h25 BRT).
-- **Poll deferido** (`poll_source_for_update` + `commit_source_update`): grava o Poll ao detectar novidade, mas só comita o Update **depois** de materializar — evita adiantar o Update e travar runs futuras se o flow falhar no meio.
+- **Código (Prefect 3):** `pipelines/datasets/br_bndes_operacoes_contratadas/{constants,utils,tasks,flows}.py`. Cada tabela tem sua classe em `constants.py` (`constants_<tabela>`), seu transform e `clean` em `utils.py` e suas tasks em `tasks.py`. A `operacoes_indiretas_automaticas` e a `operacoes_nao_automaticas` dividem as funções genéricas, que acham a classe da tabela por `TABLES_CONSTANTS`. `get_source_last_modified` serve às seis tabelas e `download_csv` às cinco antigas; a `operacoes_pre_embarque` baixa pelo próprio `download_table`. O download é conferido pelo MD5 que o CKAN publica (`result.hash`) em todas, menos na `operacoes_exportacao_servicos`, que baixa pelo `/datastore/dump` e é conferida pela contagem de linhas.
+- **Dois flows por tabela** em `flows.py`, no modelo em estágios: `check_update`, com o cron, e `extract_and_load`, montados por `CheckThenExtractLoadPipeline` com as funções `<tabela>_get_latest_update` e `<tabela>_extract_load_data` de `tasks.py`. O dbt, a promoção para prod e o registro dos metadados ficam no `build_and_promote` compartilhado. Crons **diários** (BRT): indiretas `5 6 * * *`, não automáticas `10 6 * * *`, administração pública `20 6 * * *`, bens `25 6 * * *` e pré-embarque `25 2 * * *`; a `operacoes_exportacao_servicos` não tem cron.
+- **Poll deferido** (`poll_source_for_update` + `commit_source_update`): o poll grava o Poll e detecta novidade; o commit grava o Update da fonte logo em seguida, **antes** de baixar e materializar. O poll compara com o `Table.Update` e nunca lê o Update da fonte, então adiantá-lo não trava runs futuras, e o metadado da fonte mostra que havia dado novo publicado mesmo que o flow falhe no meio.
+- **Cobertura temporal pela data da operação** (`AllFree` + `DateOnly` + `DateFormat.YEAR_MD`): `data_contratacao` na `operacoes_indiretas_automaticas`, na `operacoes_nao_automaticas`, na `operacoes_exportacao_bens` e na `operacoes_pre_embarque`; `data_nivel_atual` na `operacoes_administracao_publica`, a mesma coluna de onde sai o `ano`. Nenhuma tabela tem coluna de mês, que o `YearMonth` exigiria, então a faixa sai com dia (por exemplo, 2002-01-08 a 2026-08-31 na `operacoes_pre_embarque`). O flow só atualiza o fim da faixa; o início é registrado à mão no backend. A `operacoes_exportacao_servicos`, carga única, fica por ano.
 - **Staging 100% STRING:** o `clean` grava Parquet todo string; a tipagem fica a cargo do `safe_cast` no dbt. (Parquet tipado quebra o upload: `... does not match target STRING_PIECE`.) Partição por `ano`.
 - **DBT:** `models/br_bndes_operacoes_contratadas/` (um `.sql` por tabela + `schema.yml` único).
 - **Observation level = `transaction`** (grão de operação/subcrédito; a BD não tem entidade "operação").
@@ -27,7 +27,7 @@ Tabelas:
 
 ### O que é
 
-Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada** (não há identificador único de operação na fonte). Cobertura nacional, **2002-01 a 2026-05**, ~2,36 milhões de linhas. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do cliente é sempre CNPJ).
+Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada** (não há identificador único de operação na fonte). Cobertura nacional, **a partir de 2002-01**. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do cliente é sempre CNPJ).
 
 ### Fonte
 
@@ -44,19 +44,19 @@ CSV consolidado do Portal de Dados Abertos do BNDES (CKAN), recurso `612faa0b-b6
 
 ### Limitações conhecidas
 
-- **Precisão do poll (data, não datetime).** O `last_modified` do CKAN (com microssegundos) é truncado para **data** no poll (`SOURCE_DATE_FORMAT = "%Y-%m-%d"` em `flows.py`). Se a fonte publicar **duas vezes no mesmo dia**, a 2ª revisão teria a mesma data da 1ª e seria pulada. **Impacto desprezível** com o cron **semanal**: cada run pega a versão mais recente (o CSV é regenerado/cumulativo) e o framework de poll compartilhado coerce para data de qualquer forma — o fix teria que ser no framework, não aqui. Documentado por indicação de code review.
-- **Workspace em `/tmp` fixo.** `INPUT_PATH`/`OUTPUT_PATH` são compartilhados; o `download_csv` retoma via `Range` e o `clean` faz `rmtree` do output antes de reescrever. Runs concorrentes se atropelariam — mas o flow é semanal/single-run e isso segue a convenção dos outros crawlers do repo. O `download_csv` valida o tamanho final (falha alto em vez de corromper silenciosamente).
+- **Precisão do poll (data, não datetime).** O `last_modified` do CKAN (com microssegundos) é truncado para **data** em `get_source_last_modified` (`utils.py`), antes de chegar ao poll. Se a fonte publicar **duas vezes no mesmo dia**, a 2ª revisão teria a mesma data da 1ª e seria pulada. Com o cron **diário**, a 2ª revisão só se perde se sair no mesmo dia e depois do run; cada run pega a versão mais recente (o CSV é regenerado/cumulativo) e o framework de poll compartilhado coerce para data de qualquer forma — o fix teria que ser no framework, não aqui. Documentado por indicação de code review.
+- **Workspace em `/tmp` fixo.** `INPUT_PATH`/`OUTPUT_PATH` são compartilhados; o `download_csv` retoma via `Range` e o `clean` faz `rmtree` do output antes de reescrever. Runs concorrentes se atropelariam — mas o flow é diário/single-run e isso segue a convenção dos outros crawlers do repo. O `download_csv` valida o tamanho final, e a task confere em seguida o MD5 contra o `result.hash` do recurso; se não bater, apaga o arquivo e falha, e a nova tentativa baixa do zero em vez de retomar.
 - **Datas inválidas em `data_contratacao`** virariam `ano` nulo e **não** entram no Parquet (não dá pra particionar por nulo). Hoje são **0** (CSV == xlsx verificado ao centavo), e o `clean` **loga e descarta explicitamente** essas linhas quando ocorrem (não é mais silencioso).
 
 ### Metadados
 
-Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code review para promover a `published`). Descrições PT/EN/ES, coverage **2002-01 a 2026-05** (ano-mês, refletindo a atualização mensal da fonte), cloud table em `basedosdados.br_bndes_operacoes_contratadas`. A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
+Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code review para promover a `published`). Descrições PT/EN/ES, cobertura pela `data_contratacao` (ver "Estrutura"), cloud table em `basedosdados.br_bndes_operacoes_contratadas`. A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
 
 ## operacoes_administracao_publica
 
 ### O que é
 
-Operações do BNDES com **entes da Administração Pública Direta** (União, Administração Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional, **1994–2026**, ~4,7 mil linhas (após o filtro CONTRATADA). Fonte: conjunto CKAN `operacoes-com-entes-da-administracao-publica-direta`, recurso `ea4e5da3-e586-4225-a460-c5aa09e36100` (~1,17 MB, `;` / cp1252). Sinal de atualização = `last_modified` do recurso, mensal.
+Operações do BNDES com **entes da Administração Pública Direta** (União, Administração Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional, **1994–2026**. Fonte: conjunto CKAN `operacoes-com-entes-da-administracao-publica-direta`, recurso `ea4e5da3-e586-4225-a460-c5aa09e36100` (~1,17 MB, `;` / cp1252). Sinal de atualização = `last_modified` do recurso, mensal.
 
 ### Decisões de modelagem
 
@@ -70,7 +70,7 @@ Operações do BNDES com **entes da Administração Pública Direta** (União, A
 
 ### O que é
 
-Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador). Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo número de operação equivale ao valor total da operação. Cobertura nacional, **2002-01 a 2026-06**, ~2,3 mil linhas.
+Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador). Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo número de operação equivale ao valor total da operação. Cobertura nacional, **a partir de 2002-01**.
 
 ### Fonte
 
@@ -139,7 +139,7 @@ Mesmo conjunto CKAN `operacoes-exportacao` da irmã de bens, recurso `d158033b-f
 
 ### Carga única, sem cron
 
-**A série termina em 2015-04-28 e não recebe operação nova desde então.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. O `@flow` existe e está completo, com poll e tudo o mais, mas **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
+**A série termina em 2015-04-28 e não recebe operação nova desde então.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. Os dois flows existem e estão completos, com poll e tudo o mais, mas o `check_update` está **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` ao `check_update` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
 
 ### Decisões de modelagem
 
@@ -204,4 +204,4 @@ O poll compara o `last_modified` com o `Table.Update` (`compare_against="table_u
 
 ## operacoes_nao_automaticas
 
-Operações contratadas na forma **direta e indireta não automática**; cada contrato pode ter um ou mais subcréditos e **cada linha é um subcrédito** (grão = subcrédito). Onboardada antes desta sprint; o crawler a atende pelo config genérico `constants.TABLES_CONFIGS`, com o mesmo `_run_operacoes` da `operacoes_indiretas_automaticas`. Decisões de modelagem não documentadas neste README.
+Operações contratadas na forma **direta e indireta não automática**; cada contrato pode ter um ou mais subcréditos e **cada linha é um subcrédito** (grão = subcrédito). Onboardada antes desta sprint; usa as mesmas tasks genéricas da `operacoes_indiretas_automaticas`, escolhidas pelo `table_id`, com a classe `constants_nao_automaticas`. Decisões de modelagem não documentadas neste README.
