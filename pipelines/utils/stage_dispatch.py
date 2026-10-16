@@ -433,6 +433,9 @@ def pipeline_factory(
     """
 
     def make(table_id: str, **overrides) -> CheckThenExtractLoadPipeline:
+        """Cria o pipeline de `table_id`, usando as fábricas fixadas em
+        `pipeline_factory`.
+        """
         return CheckThenExtractLoadPipeline(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -506,6 +509,7 @@ class CheckThenExtractLoadPipeline:
         date_format: str = "%Y-%m-%d",
         extract_load_deployment: str | None = None,
     ) -> None:
+        """Inicializa o pipeline — ver atributos na docstring da classe."""
         self.dataset_id = dataset_id
         self.table_id = table_id
         self.get_latest_update = get_latest_update

@@ -39,6 +39,9 @@ fi
 # bug real já visto: ~/.prefect pertencer a outro usuário/root em algumas
 # máquinas, quebrando o SQLite com "unable to open database file".
 export PREFECT_HOME="$PWD/.prefect-local"
+# Se customizar via PREFECT_LOCAL_PORT, exporte o mesmo valor em todo
+# comando desta sessão (up/down/status) — down identifica o processo
+# pela porta, então um valor diferente do usado no up não o encontra.
 PORT="${PREFECT_LOCAL_PORT:-4200}"
 POOL_NAME="local-dev"
 PID_DIR="$PREFECT_HOME/pids"
