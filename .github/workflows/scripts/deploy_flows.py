@@ -229,6 +229,12 @@ def deploy_flow(
         # `job_variables` no flow — setar explicitamente sempre sobrescreve.
         job_variables = CHECK_UPDATE_JOB_VARIABLES
 
+    # Opt-in por flow: limita quantas runs DESTE deployment rodam ao mesmo
+    # tempo. `None` (o padrão) é o próprio padrão do Prefect — sem limite —,
+    # então flows que não setam o atributo mantêm exatamente o comportamento
+    # anterior.
+    concurrency_limit = flow.concurrency_limit
+
     try:
         # pyrefly: ignore [missing-attribute]
         flow.from_source(
@@ -243,6 +249,7 @@ def deploy_flow(
             tags=tags,
             schedules=schedules,
             job_variables=job_variables,
+            concurrency_limit=concurrency_limit,
             build=False,
             paused=True,  # schedules activated by backend sync (prod) or manually (dev)
         )
