@@ -37,4 +37,6 @@ select
     safe_cast(descricao_plano_amostral as string) descricao_plano_amostral,
     safe_cast(descricao_sistema_controle as string) descricao_sistema_controle,
     safe_cast(descricao_area_abrangencia as string) descricao_area_abrangencia
-from {{ set_datalake_project("br_tse_eleicoes_staging.pesquisa_eleitoral") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.pesquisa_eleitoral") }} as t
+    -- Staging re-synced: id_municipio filled for Boa Esperança do Norte (TSE 73709).
