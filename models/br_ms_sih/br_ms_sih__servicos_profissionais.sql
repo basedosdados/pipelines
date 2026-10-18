@@ -104,7 +104,17 @@ left join
     ) as mun
     on sih.sp_m_hosp = mun.id_municipio_6
 {% if is_incremental() %}
-        {%- set max_year_result = run_query("select max(ano) from " ~ this) -%}
+        {#- Lido dos metadados de partição: `max(ano)` varre a coluna inteira
+            (~20 GB em servicos_profissionais). -#}
+        {%- set max_year_result = run_query(
+            "select max(safe_cast(partition_id as int64)) from `"
+            ~ this.database
+            ~ "`.`"
+            ~ this.schema
+            ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
+            ~ this.identifier
+            ~ "' and total_rows > 0"
+        ) -%}
         {%- set max_year = 0 -%}
         {%- if execute and max_year_result.rows[0][0] -%}
             {%- set max_year = max_year_result.rows[0][0] -%}
