@@ -6,6 +6,11 @@
     mediana dos `baseline_months` meses anteriores da mesma UF. Retorna as
     UF-mês com zero linhas ou com menos de `min_share` dessa mediana.
 
+    As `grace_months` competências mais recentes ficam de fora: o DATASUS
+    publica o mês primeiro com UFs faltando ou parciais e o completa depois, e
+    o pipeline recarrega esses meses quando isso acontece. Um buraco que
+    sobrevive à carência é falha de carga, e o teste falha.
+
     Uma UF que não aparece num mês entra com zero linhas, porque a grade de
     meses × UFs é montada à parte e não a partir dos dados.
 
@@ -18,7 +23,8 @@
     uf_column="sigla_uf",
     window_months=24,
     baseline_months=12,
-    min_share=0.5
+    min_share=0.5,
+    grace_months=2
 ) %}
 
     {%- set ufs = [
@@ -111,6 +117,8 @@
     where
         scored.competencia
         > date_sub(max_month.competencia, interval {{ window_months }} month)
+        and scored.competencia
+        <= date_sub(max_month.competencia, interval {{ grace_months }} month)
         and (scored.n = 0 or scored.n < {{ min_share }} * scored.mediana_anterior)
 
 {% endtest %}
