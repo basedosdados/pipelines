@@ -32,3 +32,4 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.resultados_candidato") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
+    -- Staging re-synced: id_municipio filled for Boa Esperança do Norte (TSE 73709).
