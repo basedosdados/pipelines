@@ -4,6 +4,7 @@ Tasks for br_ms_cnes
 
 import asyncio
 import os
+import re
 import subprocess
 from datetime import date, datetime
 from ftplib import FTP
@@ -23,6 +24,8 @@ from pipelines.crawler.datasus.utils import (
     download_chunks,
     just_the_year_parser,
     list_datasus_dbc_files,
+    list_datasus_dbc_files_with_mtime,
+    months_window,
     post_process_dados_complementares,
     post_process_equipamento,
     post_process_equipe,
@@ -37,6 +40,7 @@ from pipelines.crawler.datasus.utils import (
     post_process_profissional,
     post_process_regra_contratual,
     post_process_servico_especializado,
+    select_partitions_to_reprocess,
     year_month_sigla_uf_parser,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
@@ -98,16 +102,9 @@ def check_files_to_parse(
             if file.split("/")[-1][4:8] == year_month_to_parse
         ]
     else:
-        # aceita "2507", "202507" e "2025-07"
-        yymm = year_month_to_extract.replace("-", "")[-4:]
-        if not (
-            len(yymm) == 4 and yymm.isdigit() and 1 <= int(yymm[2:]) <= 12
-        ):
-            raise ValueError(
-                f"year_month_to_extract inválido: {year_month_to_extract!r}"
-            )
+        yymms = parse_year_months(year_month_to_extract)
         list_files = [
-            file for file in available_dbs if file.split("/")[-1][4:8] == yymm
+            file for file in available_dbs if file.split("/")[-1][4:8] in yymms
         ]
 
     log(
@@ -115,6 +112,122 @@ def check_files_to_parse(
     )
 
     return list_files
+
+
+def parse_year_months(year_month_to_extract: str) -> set[str]:
+    """Competences to extract, as YYMM.
+
+    Accepts one or more months separated by spaces or commas, each as
+    "2507", "202507" or "2025-07".
+    """
+    yymms = set()
+    for token in re.split(r"[\s,]+", year_month_to_extract.strip()):
+        yymm = token.replace("-", "")[-4:]
+        if not (
+            len(yymm) == 4 and yymm.isdigit() and 1 <= int(yymm[2:]) <= 12
+        ):
+            raise ValueError(
+                f"year_month_to_extract inválido: {year_month_to_extract!r}"
+            )
+        yymms.add(yymm)
+    return yymms
+
+
+def _staging_bucket(dataset_id: str, table_id: str, bucket_name: str):
+    # Mesmas credenciais e billing project do upload_to_gcs.
+    return bd.Storage(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    ).bucket
+
+
+@task(retries=2, retry_delay_seconds=60)
+def select_files_to_reprocess(
+    dataset_id: str,
+    table_id: str,
+    bucket_name: str,
+    reprocess_months: int,
+    max_months_per_run: int,
+) -> tuple[list[str], date | None]:
+    """Files of every UF-month whose staging copy is missing or older than the FTP.
+
+    DATASUS publishes a preliminary file for each UF and competence, publishes
+    late UFs after the rest, and rewrites the files for up to a year. Taking
+    only the month after the table's coverage, once, misses all three. This
+    looks back `reprocess_months` competences and compares each FTP file's
+    modification time with its partition in staging.
+
+    Returns:
+        The files to download, and the latest competence published on the FTP
+        (the source max date, which revisions do not move).
+    """
+    backend = bd.Backend(graphql_url=get_url("prod"))
+    latest = get_api_most_recent_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format="%Y-%m",
+        backend=backend,
+    )
+    months = months_window(latest, reprocess_months)
+    log(f"------- Janela de reprocessamento: {months[0]}..{months[-1]} (YYMM)")
+
+    ftp_files = list_datasus_dbc_files_with_mtime(
+        datasus_database=datasus_constants.DATASUS_DATABASE.value[dataset_id],
+        datasus_database_table=datasus_constants.DATASUS_DATABASE_TABLE.value[
+            table_id
+        ],
+    )
+    published = [f for f in ftp_files if f.split("/")[-1][4:8] in months]
+    source_max_date = get_datasus_source_max_date.fn(published)
+
+    prefix = f"staging/{dataset_id}/{table_id}/"
+    staging_updated: dict[str, datetime] = {}
+    for blob in _staging_bucket(dataset_id, table_id, bucket_name).list_blobs(
+        prefix=prefix
+    ):
+        partition = "/".join(blob.name[len(prefix) :].split("/")[:-1])
+        if (
+            partition not in staging_updated
+            or blob.updated < staging_updated[partition]
+        ):
+            staging_updated[partition] = blob.updated
+
+    files = select_partitions_to_reprocess(
+        ftp_files=ftp_files,
+        staging_updated=staging_updated,
+        months=months,
+        max_months=max_months_per_run,
+    )
+    log(
+        f"------- {len(files)} arquivo(s) novos ou reescritos no FTP desde a "
+        f"última carga em gs://{bucket_name}/{prefix}: {files}"
+    )
+    return files, source_max_date
+
+
+@task(retries=2, retry_delay_seconds=30)
+def clear_staging_partitions(
+    file_list: list[str], dataset_id: str, table_id: str, bucket_name: str
+) -> None:
+    """Delete the staging partition of each FTP file before it is uploaded again.
+
+    `upload_to_gcs` only appends. Without this, a rewritten file with fewer
+    chunks, or a partition loaded under the old positional names, would leave
+    stale parquet next to the new one, and the month would be read twice.
+    """
+    bucket = _staging_bucket(dataset_id, table_id, bucket_name)
+    for partition in sorted(
+        {year_month_sigla_uf_parser(file=f) for f in file_list}
+    ):
+        prefix = f"staging/{dataset_id}/{table_id}/{partition}/"
+        blobs = list(bucket.list_blobs(prefix=prefix))
+        if blobs:
+            bucket.delete_blobs(blobs)
+        log(
+            f"------- {len(blobs)} blob(s) removidos de gs://{bucket_name}/{prefix}"
+        )
 
 
 @task(retries=2, retry_delay_seconds=30)
@@ -203,7 +316,11 @@ def access_ftp_download_files_async(
             )
             for file in tqdm(file_list)
         ]
-        log("Tanto faz...")
+        missing = [f for f in dbc_files_path_list if not os.path.exists(f)]
+        if missing:
+            raise FileNotFoundError(
+                f"{len(missing)} arquivo(s) do FTP não foram baixados: {missing}"
+            )
         log(
             f"------ The following files were downloaded: {dbc_files_path_list}"
         )

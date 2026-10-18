@@ -7,6 +7,7 @@ from typing import Literal
 from pipelines.crawler.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
+    clear_staging_partitions,
     decompress_dbc,
     decompress_dbf,
     get_datasus_source_max_date,
@@ -14,6 +15,7 @@ from pipelines.crawler.datasus.tasks import (
     list_datasus_table_without_date,
     pre_process_files,
     read_dbf_save_parquet_chunks,
+    select_files_to_reprocess,
 )
 from pipelines.utils.metadata.domain import (
     AllFree,
@@ -150,18 +152,41 @@ def _run_dbf_to_parquet(
     fonte_label: Literal["SIA", "SIH"],
     force_run: bool,
     year_month_to_extract: str = "",
+    reprocess_months: int = 0,
+    max_months_per_run: int = 6,
 ) -> None:
-    """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
+    """Shared logic for SIA/SIH (DBF→Parquet pipeline).
+
+    With `reprocess_months > 0`, each run looks back that many competences
+    and reloads every UF-month whose FTP file is new or newer than its staging
+    copy, replacing the staging partition. The dbt model then rebuilds the
+    affected years. With `reprocess_months = 0` (SIA), only the month after the
+    table's coverage is loaded, as before.
+    """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    ftp_files = check_files_to_parse(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        year_month_to_extract=year_month_to_extract,
-    )
-    source_max_date = get_datasus_source_max_date(ftp_files)
+    replace_partitions = reprocess_months > 0
+    reprocess = replace_partitions and not year_month_to_extract
+
+    if reprocess:
+        ftp_files, source_max_date = select_files_to_reprocess(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados"
+            if materialize_after_dump
+            else "basedosdados-dev",
+            reprocess_months=reprocess_months,
+            max_months_per_run=max_months_per_run,
+        )
+    else:
+        ftp_files = check_files_to_parse(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            year_month_to_extract=year_month_to_extract,
+        )
+        source_max_date = get_datasus_source_max_date(ftp_files)
 
     if not force_run:
         has_new_data = poll_source_for_update_task(
@@ -172,6 +197,10 @@ def _run_dbf_to_parquet(
             date_format="%Y-%m",
             compare_against="coverage",
         )
+        # Uma competência reescrita não move a data máxima da fonte, então
+        # quem decide é haver arquivo novo ou reescrito no FTP.
+        if reprocess:
+            has_new_data = bool(ftp_files)
         if not has_new_data:
             print(f"Fonte {fonte_label} sem novidade — encerrando")
             return
@@ -204,6 +233,20 @@ def _run_dbf_to_parquet(
         name_by_source_file=True,
     )
 
+    dbt_vars = None
+    if replace_partitions:
+        dbt_vars = {
+            "br_ms_sih_min_ano": min(
+                int("20" + f.split("/")[-1][4:6]) for f in ftp_files
+            )
+        }
+        clear_staging_partitions(
+            file_list=ftp_files,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados-dev",
+        )
+
     upload_to_gcs(
         data_path=files_path,
         dataset_id=dataset_id,
@@ -217,11 +260,19 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         dbt_command="run/test",
         target="dev",
+        _vars=dbt_vars,
     )
 
     if not materialize_after_dump:
         return
 
+    if replace_partitions:
+        clear_staging_partitions(
+            file_list=ftp_files,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+        )
     upload_to_gcs(
         data_path=files_path,
         dataset_id=dataset_id,
@@ -235,6 +286,7 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         dbt_command="run/test",
         target="prod",
+        _vars=dbt_vars,
     )
 
     if update_metadata:
