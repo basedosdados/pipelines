@@ -69,22 +69,16 @@ from {{ set_datalake_project("world_wb_mides_staging.licitacao_item") }} as t
 -- overlay in `code/upload_mg.py`; procurement has no such mirror, so it is done
 -- in SQL instead.
 --
--- The staging partition ano=2019/sigla_uf=CE holds no CE data: it is a copy of
--- ano=2019/sigla_uf=RS (994,327 rows, every id_municipio a 43xxxxx RS code,
--- measured 2026-10-18). The legacy partition step in `code/licitacao_item.ipynb`
--- reused `uf` for both loops, so the RS frame was written under sigla_uf=CE.
--- No other state-year in staging disagrees with its municipality's UF. The rows
--- are dropped here rather than relabelled, since the genuine RS 2019 rows are
--- already present under sigla_uf=RS.
+-- The staging partition ano=2019/sigla_uf=CE was rebuilt on 2026-10-18 by
+-- `code/rebuild_licitacao_item_ce.py`. Until then it held a copy of RS 2019
+-- (994,327 rows): the legacy partition step in `code/licitacao_item.ipynb`
+-- reused `uf` for both loops, so the RS frame was also written under CE.
 where
-    (t.sigla_uf != 'CE' or coalesce(starts_with(t.id_municipio, '23'), true))
-    and (
-        t.sigla_uf != 'MG'
-        or not exists (
-            select 1
-            from mg_cobertura as c
-            where c.id_municipio = t.id_municipio and c.ano = safe_cast(t.ano as int64)
-        )
+    t.sigla_uf != 'MG'
+    or not exists (
+        select 1
+        from mg_cobertura as c
+        where c.id_municipio = t.id_municipio and c.ano = safe_cast(t.ano as int64)
     )
 
 union all
