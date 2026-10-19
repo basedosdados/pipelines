@@ -8,12 +8,29 @@ from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 
 DATASET_ID = "br_ms_sim"
 
-# Única tabela do dataset hoje.
+# Única tabela com extract_and_load próprio — as agregadas (ver
+# AGGREGATE_TABLES mais abaixo) são derivadas dela via dbt.
 MICRODADOS_TABLE_ID = "microdados"
 
 # Mesma coverage usada por `register_table_materialization_task` no flow
 # monolítico antigo — granularidade anual.
 COVERAGE = AllFree(
+    date_column=YearOnly(col="ano"),
+    date_format=DateFormat.YEAR,
+)
+
+# Modelos dbt calculados a partir do microdados. São tabelas, não views: só
+# acompanham o microdados se forem rematerializadas depois dele — ver
+# `promote_primary_and_derived_tables` em `flows.py`. Mesma granularidade
+# anual do microdados, mesma coverage.
+AGGREGATE_TABLES = [
+    "municipio",
+    "municipio_causa",
+    "municipio_causa_idade",
+    "municipio_causa_idade_sexo_raca",
+]
+
+AGGREGATE_COVERAGE = AllFree(
     date_column=YearOnly(col="ano"),
     date_format=DateFormat.YEAR,
 )
@@ -89,15 +106,6 @@ class constants(Enum):
             "partition_columns": ["ano", "sigla_uf"],
         },
     }
-
-    # Modelos dbt calculados a partir do microdados. São tabelas, não views:
-    # só acompanham o microdados se forem rematerializadas depois dele.
-    AGGREGATE_TABLES = [
-        "municipio",
-        "municipio_causa",
-        "municipio_causa_idade",
-        "municipio_causa_idade_sexo_raca",
-    ]
 
     DATE_COLUMNS = [
         "data_obito",
