@@ -658,7 +658,7 @@ class constants_dicionario(Enum):
         {
             "id_tabela": "recurso_publico_mutuario",
             "nome_coluna": "tipo_beneficiario",
-            "url": "https://www.bcb.gov.br/htms/sicor/motivoDesclassificacao.csv",
+            "url": "https://www.bcb.gov.br/htms/sicor/TipoBeneficiario.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ",",
         },
