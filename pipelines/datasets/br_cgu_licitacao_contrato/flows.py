@@ -21,7 +21,7 @@ tabela, repetindo download/parse quando necessário (regra de ouro do
 pipeline em estágios), sem materialização em lote.
 
 O antigo `_run_cgu_licitacao_contrato` monolítico segue existindo em
-`pipelines/crawler/cgu/flows.py`, compartilhado com
+`pipelines/shared/cgu/flows.py`, compartilhado com
 `br_cgu_cartao_pagamento`/`br_cgu_servidores_publicos`/
 `br_cgu_beneficios_cidadao` (não removido daqui — os outros datasets da
 família ainda dependem dele, ainda não migrados).

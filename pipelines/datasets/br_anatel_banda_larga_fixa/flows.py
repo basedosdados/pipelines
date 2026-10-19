@@ -17,7 +17,7 @@ originais (desativados) seguem documentados em comentário em cada bloco,
 prontos para reativar quando a fonte for restaurada.
 
 O flow monolítico antigo (`_run_anatel_banda_larga_fixa`, que vivia em
-`pipelines/crawler/anatel/banda_larga_fixa/flows.py`) não tinha mais
+`pipelines/shared/anatel/banda_larga_fixa/flows.py`) não tinha mais
 consumidor no repositório e foi removido nesta limpeza — a lógica de
 check/download/unzip/clean que ele reusava já estava preservada em
 `tasks.py`/`utils.py` deste módulo.
@@ -54,7 +54,7 @@ br_anatel_banda_larga_fixa_microdados_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
 )
 # Mesmo cron do flow monolítico antigo (`_anatel_blf_flow(cron="0 15 * * *")`
-# em `pipelines/crawler/anatel/banda_larga_fixa` — único dos 4 com schedule
+# em `pipelines/shared/anatel/banda_larga_fixa` — único dos 4 com schedule
 # ativo, por ser o único que não regride com a revisão histórica da fonte).
 br_anatel_banda_larga_fixa_microdados_check_update.deploy_schedules = [
     Cron("0 15 * * *", timezone="America/Sao_Paulo")

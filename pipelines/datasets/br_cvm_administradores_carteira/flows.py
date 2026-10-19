@@ -13,7 +13,7 @@ Check diferente do padrão usual — ver `tasks.py` e
 compara a contagem de linhas contra o que já está publicado no BigQuery.
 
 O antigo flow monolítico `_run_cvm_administradores_carteira` (e a pasta
-`pipelines/crawler/cvm_administradores_carteira/` como um todo) foi
+`pipelines/shared/cvm_administradores_carteira/` como um todo) foi
 removido: estava obsoleto desde esta migração pro pipeline em estágios e
 não tinha mais nenhum consumidor.
 """

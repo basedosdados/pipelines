@@ -6,7 +6,7 @@ from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 
 DATASET_ID = "br_ms_sinan"
 
-# Única tabela do dataset hoje (ver `pipelines/crawler/datasus/constants.py`
+# Única tabela do dataset hoje (ver `pipelines/shared/datasus/constants.py`
 # -> `DATASUS_DATABASE_TABLE`, que só mapeia "microdados_dengue").
 MICRODADOS_DENGUE_TABLE_ID = "microdados_dengue"
 

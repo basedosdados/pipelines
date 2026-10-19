@@ -8,7 +8,7 @@ DATASET_ID = "br_cgu_servidores_executivo_federal"
 
 # As 7 tabelas do dataset — migradas pro pipeline em estágios (staged
 # pipeline), substituindo o antigo `_run_cgu_servidores_publicos` monolítico
-# (que segue existindo em `pipelines/crawler/cgu/flows.py`, compartilhado com
+# (que segue existindo em `pipelines/shared/cgu/flows.py`, compartilhado com
 # outros datasets br_cgu_* ainda não migrados). Cada tabela combina um ou
 # mais subsistemas do Portal da Transparência (SIAPE, BACEN, Militares,
 # DEFESA, Reserva/Reforma — ver README.md, seção "Tabelas e Subsistemas") e
@@ -26,7 +26,7 @@ OBSERVACOES_TABLE_ID = "observacoes"
 
 # Mesma coverage pras 7 tabelas — todas mensais (ano/mes), sem diferença de
 # tier. Mesma granularidade do antigo `_part_bdpro_year_month("ano", "mes")`
-# em `pipelines/crawler/cgu/flows.py`.
+# em `pipelines/shared/cgu/flows.py`.
 COVERAGE = PartBdpro(
     date_column=YearMonth(year="ano", month="mes"),
     date_format=DateFormat.YEAR_MONTH,

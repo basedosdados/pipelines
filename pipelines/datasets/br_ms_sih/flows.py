@@ -7,7 +7,7 @@ tabela. Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 
 O antigo `_run_sihsus`/`_run_dbf_to_parquet` monolítico segue existindo em
-`pipelines/crawler/datasus/flows.py`, ainda usado por `br_ms_sia` (não
+`pipelines/shared/datasus/flows.py`, ainda usado por `br_ms_sia` (não
 migrado ainda) — não removido daqui.
 """
 

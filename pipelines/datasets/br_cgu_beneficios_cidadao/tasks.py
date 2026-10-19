@@ -4,7 +4,7 @@ Tasks for br_cgu_beneficios_cidadao.
 A fonte (Portal da Transparência) não expõe uma data de última atualização
 fora do próprio arquivo: descobrir se há mês novo exige checar a
 disponibilidade do ZIP mês a mês e baixá-lo quando disponível
-(`get_current_date_and_download_file`, em `pipelines/crawler/cgu/tasks.py`
+(`get_current_date_and_download_file`, em `pipelines/shared/cgu/tasks.py`
 — o ZIP é assíncrono, `source_url_is_available` faz polling até ficar
 pronto). A variante "check_and_download" que trataria esse caso à parte foi
 cancelada — decisão: todo dataset usa check_update -> extract_and_load,
@@ -21,15 +21,15 @@ par check_update/extract_and_load, sem materialização em lote.
 
 from collections.abc import Callable
 
-from pipelines.crawler.cgu.tasks import (
-    get_current_date_and_download_file,
-    read_and_partition_beneficios_cidadao,
-)
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import (
     COVERAGE,
     DATASET_ID,
     RELATIVE_MONTH,
     SOURCE_FORMAT,
+)
+from pipelines.shared.cgu.tasks import (
+    get_current_date_and_download_file,
+    read_and_partition_beneficios_cidadao,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,

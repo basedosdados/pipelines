@@ -6,7 +6,7 @@ the table_id-parametrized factory functions (``make_get_latest_update``/
 ``make_extract_load_data``) that wire them into ``pipeline_factory``
 (``pipelines.utils.stage_dispatch``) — one ``CheckThenExtractLoadPipeline``
 per table (microdados, vinculos, areas, cnaes). Originally split across
-``pipelines.crawler.rf`` (the shared crawler tasks, below) and this module
+``pipelines.shared.rf`` (the shared crawler tasks, below) and this module
 (the dataset-specific wrappers, below that); merged here since ``br_rf_cno``
 is the crawler's only consumer.
 """
@@ -274,7 +274,7 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
 
         Reuses `check_need_for_update` (definida acima neste módulo),
         unchanged from the old per-table flow (`_run_rf`, removido — era o
-        flow monolítico em `pipelines/crawler/rf/flows.py`, substituído por
+        flow monolítico em `pipelines/shared/rf/flows.py`, substituído por
         este `pipeline_factory`): a `HEAD` on `cno.zip`, not a
         date derived from the file's contents — see README's *Acesso à
         fonte e o WAF*.

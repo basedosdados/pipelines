@@ -4,14 +4,14 @@ Tasks for br_cgu_licitacao_contrato.
 
 from collections.abc import Callable
 
-from pipelines.crawler.cgu.tasks import (
-    get_current_date_and_download_file,
-    partition_data,
-)
 from pipelines.datasets.br_cgu_licitacao_contrato.constants import (
     COVERAGE,
     DATASET_ID,
     RELATIVE_MONTH,
+)
+from pipelines.shared.cgu.tasks import (
+    get_current_date_and_download_file,
+    partition_data,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -25,7 +25,7 @@ from pipelines.utils.stage_dispatch import (
 # `make_get_latest_update`/`make_extract_load_data` são fábricas parametrizadas
 # por `table_id` — a lógica é idêntica pras 7 tabelas, compartilhada com
 # br_cgu_cartao_pagamento/br_cgu_servidores_publicos via
-# `pipelines.crawler.cgu.tasks`. `get_current_date_and_download_file` não só
+# `pipelines.shared.cgu.tasks`. `get_current_date_and_download_file` não só
 # descobre a data de referência: ela também baixa o ZIP do mês (decisão da
 # migração — a variante "check_and_download", que reaproveitaria o download
 # do check_update no extract_and_load, foi cancelada). Por isso ela é chamada

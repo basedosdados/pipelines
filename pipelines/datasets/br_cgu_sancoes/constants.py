@@ -60,7 +60,7 @@ class constants(Enum):
 
     # The portal blocks non-browser clients (405) and the S3 layer returns a
     # bare 403 for a not-yet-generated / stale date. A browser User-Agent is
-    # mandatory; reuse the same string the sibling pipelines/crawler/cgu use.
+    # mandatory; reuse the same string the sibling pipelines/shared/cgu use.
     USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"

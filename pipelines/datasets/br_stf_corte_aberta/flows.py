@@ -3,9 +3,8 @@ Flows para br_stf_corte_aberta — Prefect 3.
 
 Migrado por completo pro pipeline em estágios (staged pipeline):
 check_update -> extract_and_load -> build_and_promote. Lógica específica do
-dataset mora em `tasks.py` (que reaproveita `pipelines.crawler.stf_corte_aberta`),
-constantes em `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline`
-+ `@flow`).
+dataset mora em `tasks.py`, constantes em `constants.py` — aqui só a fiação
+(`CheckThenExtractLoadPipeline` + `@flow`).
 
 Dataset com uma tabela só (`decisoes`) — ver `tasks.py` sobre o Selenium
 disparando download tanto no check_update quanto no extract_and_load (custo

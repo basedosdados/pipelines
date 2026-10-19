@@ -36,10 +36,10 @@ REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
 # Pastas cuja mudança pode afetar deploy de flows em mais de um dataset
 # (lógica compartilhada, ex. CheckThenExtractLoadPipeline em stage_dispatch.py,
-# ou um crawler usado por vários datasets como pipelines/crawler/datasus) —
+# ou um módulo usado por vários datasets como pipelines/shared/datasus) —
 # não dá pra saber quais datasets são afetados sem reprocessar tudo, então
 # escala pra --all nesse caso, em vez de arriscar deixar algo desatualizado.
-SHARED_PREFIXES = ("pipelines/utils/", "pipelines/crawler/")
+SHARED_PREFIXES = ("pipelines/utils/", "pipelines/shared/")
 
 # Perfil de recursos padrão pra qualquer flow com a tag "check_update"
 # (issue #1867, pendência da revisão #1932) que não sobrescreva

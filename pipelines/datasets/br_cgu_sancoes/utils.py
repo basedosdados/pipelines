@@ -292,7 +292,7 @@ def snapshot_ready(url: str) -> bool:
     The portal prepares the file asynchronously: 202 while generating, 200 (via
     a 302 to the S3 layer) when ready, and a bare 403/404 for a stale/wrong date.
     A browser User-Agent is mandatory (405 without one). Mirrors the readiness
-    poll in ``pipelines/crawler/cgu/utils.py::source_url_is_available``.
+    poll in ``pipelines/shared/cgu/utils.py::source_url_is_available``.
 
     Args:
         url: The portal ``/download-de-dados/<registry>/<YYYYMMDD>`` URL.

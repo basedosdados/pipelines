@@ -15,7 +15,7 @@ migradas aqui — por isso 3 pares check_update/extract_and_load
 independentes, sem materialização em lote.
 
 O antigo `_run_cgu_cartao_pagamento` monolítico segue existindo em
-`pipelines/crawler/cgu/flows.py`, compartilhado com outros datasets br_cgu_*
+`pipelines/shared/cgu/flows.py`, compartilhado com outros datasets br_cgu_*
 ainda não migrados (`br_cgu_servidores_executivo_federal`,
 `br_cgu_licitacao_contrato`) — não removido daqui.
 """

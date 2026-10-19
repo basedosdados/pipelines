@@ -4,14 +4,14 @@ Tasks for br_ms_sia.
 
 from collections.abc import Callable
 
-from pipelines.crawler.datasus.tasks import (
+from pipelines.datasets.br_ms_sia.constants import COVERAGE, DATASET_ID
+from pipelines.shared.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
     decompress_dbc,
     get_datasus_source_max_date,
     read_dbf_save_parquet_chunks,
 )
-from pipelines.datasets.br_ms_sia.constants import COVERAGE, DATASET_ID
 from pipelines.utils.metadata.tasks import task_get_api_most_recent_date
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,

@@ -4,17 +4,17 @@ Tasks for br_ms_sinan.
 
 import datetime
 
-from pipelines.crawler.datasus.tasks import (
+from pipelines.datasets.br_ms_sinan.constants import (
+    COVERAGE,
+    DATASET_ID,
+    MICRODADOS_DENGUE_TABLE_ID,
+)
+from pipelines.shared.datasus.tasks import (
     access_ftp_download_files_async,
     decompress_dbc,
     get_last_modified_date_in_sinan_tablen,
     list_datasus_table_without_date,
     read_dbf_save_parquet_chunks,
-)
-from pipelines.datasets.br_ms_sinan.constants import (
-    COVERAGE,
-    DATASET_ID,
-    MICRODADOS_DENGUE_TABLE_ID,
 )
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 

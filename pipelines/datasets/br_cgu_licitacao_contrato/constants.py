@@ -24,12 +24,12 @@ CONTRATO_TERMO_ADITIVO_TABLE_ID = "contrato_termo_aditivo"
 
 # Mesmo valor do parâmetro `relative_month` do flow monolítico antigo
 # (default em `_run_cgu_licitacao_contrato`,
-# `pipelines/crawler/cgu/flows.py`) — quantos meses somar à última data
+# `pipelines/shared/cgu/flows.py`) — quantos meses somar à última data
 # registrada nos metadados pra chegar no período a baixar.
 RELATIVE_MONTH = 1
 
 # Mesma coverage pras 7 tabelas — todas mensais, part_bdpro (ver
-# `_part_bdpro_year_month("ano", "mes")` em `pipelines/crawler/cgu/flows.py`,
+# `_part_bdpro_year_month("ano", "mes")` em `pipelines/shared/cgu/flows.py`,
 # usado por `_run_cgu_licitacao_contrato`).
 COVERAGE = PartBdpro(
     date_column=YearMonth(year="ano", month="mes"),

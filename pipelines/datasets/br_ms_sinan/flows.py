@@ -7,7 +7,7 @@ dataset mora em `tasks.py`, constantes em `constants.py` — aqui só a fiação
 (`CheckThenExtractLoadPipeline` + `@flow`).
 
 O antigo `_run_sinan` monolítico segue existindo em
-`pipelines/crawler/datasus/flows.py` (não removido daqui, já que outras
+`pipelines/shared/datasus/flows.py` (não removido daqui, já que outras
 funções desse módulo seguem em uso por outros crawlers DATASUS).
 """
 

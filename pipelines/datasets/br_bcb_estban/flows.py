@@ -7,9 +7,7 @@ tabela. Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 
 O antigo `_run_bcb_estban`/`_estban_flow` monolítico foi substituído por
-completo por este módulo — as tasks/utils de `pipelines/crawler/bcb_estban/`
-seguem existindo e são reaproveitadas aqui (`tasks.py`), sem reescrever a
-lógica de negócio.
+completo por este módulo.
 """
 
 from prefect.schedules import Cron

@@ -20,7 +20,7 @@ se faltar algum, mantém a data já conhecida pelo backend — o poll não vê
 novidade e o extract_and_load não é disparado nesse ciclo.
 
 O antigo `_run_cgu_servidores_publicos` monolítico segue existindo em
-`pipelines/crawler/cgu/flows.py`, compartilhado com outros datasets br_cgu_*
+`pipelines/shared/cgu/flows.py`, compartilhado com outros datasets br_cgu_*
 ainda não migrados (`br_cgu_licitacao_contrato`) — não removido daqui.
 """
 

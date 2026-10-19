@@ -17,7 +17,7 @@ per cycle: accepted redundancy for uniformity, since the 4 tables don't
 genuinely depend on each other (no cross-table dbt test tying them
 together).
 
-Originally split across ``pipelines.crawler.rf`` (the shared crawler
+Originally split across ``pipelines.shared.rf`` (the shared crawler
 constants, below as the ``constants`` enum) and this module (the dataset's
 own plain constants, above); merged here since ``br_rf_cno`` is the
 crawler's only consumer.
@@ -52,7 +52,7 @@ CHUNKSIZE = 100000
 # `data_extracao` (DATE) — idêntica ao
 # `PartBdpro(date_column=DateOnly(col="data_extracao"),
 # date_format=DateFormat.YEAR_MD)` que o `_run_rf` antigo (removido; era o
-# flow monolítico em `pipelines/crawler/rf/flows.py`, substituído pelo
+# flow monolítico em `pipelines/shared/rf/flows.py`, substituído pelo
 # `pipeline_factory` em `tasks.py`) passava pra toda table_id — mesma
 # coluna de data, mesmo `free_lag` default (6 meses), não é uma decisão
 # nova.

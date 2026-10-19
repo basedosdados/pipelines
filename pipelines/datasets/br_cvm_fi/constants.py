@@ -1,7 +1,7 @@
 """
 Constant values for br_cvm_fi.
 
-Reúne as constantes de scraping/parsing herdadas de `pipelines/crawler/cvm`
+Reúne as constantes de scraping/parsing herdadas de `pipelines/shared/cvm`
 (URLs de origem, mapeamentos de colunas por tabela) com as constantes do
 pipeline em estágios (staged pipeline) atual.
 """

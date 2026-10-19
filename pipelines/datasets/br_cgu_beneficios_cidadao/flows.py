@@ -13,7 +13,7 @@ novo (ver banner de `tasks.py`); `extract_and_load` baixa de novo, de forma
 independente.
 
 O flow monolítico antigo (`_run_cgu_beneficios_cidadao`, em
-`pipelines/crawler/cgu/flows.py`) segue existindo — ainda usado pelos
+`pipelines/shared/cgu/flows.py`) segue existindo — ainda usado pelos
 outros datasets `br_cgu_*` (cartão de pagamento, servidores, licitação e
 contrato), não migrados aqui.
 """

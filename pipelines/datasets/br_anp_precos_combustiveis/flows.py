@@ -7,10 +7,7 @@ dataset mora em `tasks.py`, constantes em `constants.py` — aqui só a fiação
 (`CheckThenExtractLoadPipeline` + `@flow`).
 
 Dataset com uma única tabela (`microdados`) — instância direta de
-`CheckThenExtractLoadPipeline`, sem fábrica. A lógica de download/transform
-(`get_data_source_anp_max_date`, `download_and_transform`, `make_partitions`)
-segue existindo em `pipelines/crawler/anp_precos_combustiveis/` —
-reaproveitada por `tasks.py`, não reescrita.
+`CheckThenExtractLoadPipeline`, sem fábrica.
 """
 
 from prefect.schedules import Cron

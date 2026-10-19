@@ -1,7 +1,7 @@
 """
 Tasks for br_cvm_fi.
 
-Reúne as tasks de scraping/parsing herdadas de `pipelines/crawler/cvm`
+Reúne as tasks de scraping/parsing herdadas de `pipelines/shared/cvm`
 (extract_links_and_dates, generate_links_to_download, download_unzip,
 clean_cvm_data e os helpers privados de limpeza) com as tasks do pipeline em
 estágios (staged pipeline) atual (make_get_latest_update/make_extract_load_data/

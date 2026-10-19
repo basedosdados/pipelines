@@ -17,7 +17,7 @@ via pandas (ambos pesados, diferente do flow antigo que fazia tudo de uma vez
 só).
 
 O flow monolítico antigo (`_run_anatel_telefonia_movel`, que vivia em
-`pipelines/crawler/anatel/telefonia_movel/flows.py`) não tinha mais
+`pipelines/shared/anatel/telefonia_movel/flows.py`) não tinha mais
 consumidor após esta migração e foi removido; as tasks daquele módulo foram
 incorporadas a `tasks.py` deste dataset.
 """

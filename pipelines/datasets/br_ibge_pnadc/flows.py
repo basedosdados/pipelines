@@ -29,20 +29,19 @@ padrão, com `dispatch_build_and_promote` normal, em vez do padrão de
 materialização em lote inline.
 
 As tabelas `educacao`/`rendimentos_outras_fontes` (`models/br_ibge_pnadc/`)
-não têm flow nenhum associado — nenhuma task em `pipelines/crawler/ibge_pnadc`
-ou `pipelines/datasets/br_ibge_pnadc` as referencia. Fora do escopo desta
-migração.
+não têm flow nenhum associado — nenhuma task em `pipelines/datasets/br_ibge_pnadc`
+as referencia. Fora do escopo desta migração.
 """
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.ibge_pnadc.tasks import build_table_paths
 from pipelines.datasets.br_ibge_pnadc.constants import (
     DATASET_ID,
     MICRODADOS_TABLE_ID,
 )
 from pipelines.datasets.br_ibge_pnadc.tasks import (
     build_dicionario_task,
+    build_table_paths,
     extract_load_data,
     get_latest_update,
 )

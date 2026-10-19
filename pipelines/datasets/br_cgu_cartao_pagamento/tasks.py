@@ -4,13 +4,13 @@ Tasks for br_cgu_cartao_pagamento.
 
 from collections.abc import Callable
 
-from pipelines.crawler.cgu.tasks import (
-    get_current_date_and_download_file,
-    partition_data,
-)
 from pipelines.datasets.br_cgu_cartao_pagamento.constants import (
     COVERAGE,
     DATASET_ID,
+)
+from pipelines.shared.cgu.tasks import (
+    get_current_date_and_download_file,
+    partition_data,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -23,7 +23,7 @@ from pipelines.utils.stage_dispatch import (
 #
 # `make_get_latest_update`/`make_extract_load_data` são fábricas parametrizadas
 # por `table_id` — a lógica é idêntica pras 3 tabelas, reaproveitando as
-# mesmas tasks compartilhadas de `pipelines.crawler.cgu.tasks` que o antigo
+# mesmas tasks compartilhadas de `pipelines.shared.cgu.tasks` que o antigo
 # `_run_cgu_cartao_pagamento` já usava.
 # ──────────────────────────────────────────────────────────────────────────────
 

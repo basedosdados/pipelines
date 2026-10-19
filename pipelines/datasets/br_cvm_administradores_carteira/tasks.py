@@ -1,7 +1,7 @@
 """Tasks for br_cvm_administradores_carteira — Prefect 3.
 
 `crawl`/`clean_table_*` fazem o download e a limpeza das três tabelas do
-dataset — migrados de `pipelines/crawler/cvm_administradores_carteira/`
+dataset — migrados de `pipelines/shared/cvm_administradores_carteira/`
 (pasta removida; este módulo é o único consumidor real daquele código desde
 a migração pro pipeline em estágios).
 

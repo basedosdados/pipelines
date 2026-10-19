@@ -12,17 +12,11 @@ intermediários e fechamento.
 
 ## Estrutura
 
-A coleta fica separada do flow, em `crawler/`:
-
 ```text
-pipelines/crawler/bcb_taxa_cambio/
-├── constants.py   URLs da API e da planilha de arquitetura
-├── utils.py       download, limpeza e escrita particionada
-└── tasks.py       @task envolvendo utils
-
 pipelines/datasets/br_bcb_taxa_cambio/
-├── constants.py   DATASET_ID/table_id e a Coverage (PartBdpro)
-├── tasks.py       get_latest_update/extract_load_data (lógica específica)
+├── constants.py   DATASET_ID/table_id, Coverage (PartBdpro) e URLs da API/planilha de arquitetura
+├── utils.py       download, limpeza e escrita particionada
+├── tasks.py       get_latest_update/extract_load_data (lógica específica) e as @task envolvendo utils
 ├── flows.py       a fiação: CheckThenExtractLoadPipeline + os dois @flow
 └── README.md      este arquivo
 

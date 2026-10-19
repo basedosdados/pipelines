@@ -4,16 +4,16 @@ Tasks for br_cgu_servidores_executivo_federal.
 
 from collections.abc import Callable
 
-from pipelines.crawler.cgu.tasks import (
-    get_current_date_and_download_file,
-    partition_data,
-    verify_all_url_exists_to_download,
-)
-from pipelines.crawler.cgu.utils import last_date_in_metadata
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
     COVERAGE,
     DATASET_ID,
 )
+from pipelines.shared.cgu.tasks import (
+    get_current_date_and_download_file,
+    partition_data,
+    verify_all_url_exists_to_download,
+)
+from pipelines.shared.cgu.utils import last_date_in_metadata
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -25,7 +25,7 @@ from pipelines.utils.stage_dispatch import (
 #
 # `make_get_latest_update`/`make_extract_load_data` são fábricas parametrizadas
 # por `table_id` — a lógica é idêntica pras 7 tabelas, reaproveitando as
-# mesmas tasks compartilhadas de `pipelines.crawler.cgu.tasks`/`.utils` que o
+# mesmas tasks compartilhadas de `pipelines.shared.cgu.tasks`/`.utils` que o
 # antigo `_run_cgu_servidores_publicos` já usava.
 # ──────────────────────────────────────────────────────────────────────────────
 
