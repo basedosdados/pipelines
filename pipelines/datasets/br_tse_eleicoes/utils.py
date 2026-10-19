@@ -2,7 +2,6 @@
 General purpose functions for the br_tse_eleicoes project
 """
 
-import tempfile
 import unicodedata
 import zipfile
 from datetime import datetime
@@ -94,10 +93,8 @@ class BrTseEleicoes:
         self.query = tse_constants.QUERY_COUNT_MODIFIED.value.format(
             table_id=table_id, mode=self.billing_project_id, year=year
         )
-        self.remove = {
-            remove.upper(): "" for remove in tse_constants.REMOVES.value
-        }
-        self.base_path = Path(tempfile.gettempdir(), "data", table_id)
+        self.remove = {remove: "" for remove in tse_constants.REMOVES.value}
+        self.base_path = Path("tmp", "data", table_id)
         self.path_input = self.base_path / "input"
         self.path_output = self.base_path / "output"
         self.df_main = self.df_complement = self.path_main = (
@@ -228,8 +225,11 @@ class Candidatos(BrTseEleicoes):
         base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
         base = base.fillna("")
         base.columns = tse_constants.ORDER.value.keys()
+
+        print(base["sigla_uf_nascimento"].unique())
         base = base.replace(self.remove, regex=False)
 
+        print(base["sigla_uf_nascimento"].unique())
         # Formatar datas
         base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
         base["data_nascimento"] = base["data_nascimento"].apply(
