@@ -5,20 +5,22 @@ Compara as colunas dos arquivos locais com o schema da staging no BigQuery e
 classifica cada divergência por formato: `warning` segue e avisa, `error`
 aborta o upload (`SchemaMismatchError`). Usado pelo `upload_to_gcs`.
 
-Organização, de baixo para cima: `Column` e `SourceFormat` (modelo),
+Organização, de baixo para cima: modelo (`Column`, `TableSchema`, `Finding`),
 `SchemaDiff` (fatos), regras (severidade), `SchemaCheckResult` (resultado),
-`LocalDataSchema` (leitura dos arquivos) e os pontos de entrada.
+leitura dos schemas (arquivos locais e staging) e `check`, o ponto de entrada.
 """
 
 import os
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, NamedTuple, Protocol
+from typing import NamedTuple
 
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from google.cloud import bigquery
 
 from pipelines.utils.utils import bq_safe_column_name
 
@@ -30,6 +32,19 @@ _TYPE_ALIASES = {"INTEGER": "INT64", "FLOAT": "FLOAT64", "BOOLEAN": "BOOL"}
 _OVERWRITE_NOTE = (
     "A staging foi recriada com o schema do arquivo. Revisar os modelos dbt "
     "dependentes."
+)
+
+_ARROW_TO_BQ: tuple[tuple[Callable[[pa.DataType], bool], str], ...] = (
+    (pa.types.is_boolean, "BOOL"),
+    (pa.types.is_integer, "INT64"),
+    (pa.types.is_floating, "FLOAT64"),
+    (pa.types.is_decimal, "NUMERIC"),
+    (pa.types.is_string, "STRING"),
+    (pa.types.is_large_string, "STRING"),
+    (pa.types.is_binary, "BYTES"),
+    (pa.types.is_large_binary, "BYTES"),
+    (pa.types.is_date, "DATE"),
+    (pa.types.is_time, "TIME"),
 )
 
 
@@ -46,7 +61,28 @@ class SourceFormat(StrEnum):
     PARQUET = "parquet"
 
 
-### MODELO
+# ── Modelo ────────────────────────────────────────────────────────────────────
+
+
+class Severity(StrEnum):
+    WARNING = "warning"
+    ERROR = "error"
+
+
+@dataclass(frozen=True)
+class Finding:
+    severity: Severity
+    message: str
+
+
+def _warning(message: str) -> Finding:
+    return Finding(Severity.WARNING, message)
+
+
+def _error(message: str) -> Finding:
+    return Finding(Severity.ERROR, message)
+
+
 @dataclass(frozen=True)
 class Column:
     """Coluna com nome e tipo já normalizados.
@@ -66,246 +102,23 @@ class Column:
         )
         return cls(bq_safe_column_name(name), normalized)
 
-    @classmethod
-    def coerce(cls, value: "ColumnLike") -> "Column":
-        if isinstance(value, cls):
-            return value
-        if isinstance(value, str):
-            # pyrefly: ignore [bad-argument-type]
-            return cls.of(value)
-        # pyrefly: ignore [bad-argument-type]
-        # pyrefly: ignore [not-iterable]
-        return cls.of(*value)
-
-
-ColumnLike = Column | str | tuple[str, str | None]
-
-
-class TypeMismatch(NamedTuple):
-    name: str
-    expected: str
-    source: str
-
 
 @dataclass(frozen=True)
-class SchemaDiff:
-    """Fatos da comparação, sem juízo de severidade.
+class TableSchema:
+    """Schema de um lado da comparação: a staging ou o upload.
 
-    `final` é o schema esperado depois do sync: a staging atual mais as
-    colunas novas, acrescentadas no fim.
+    Attributes:
+        columns: colunas sem as chaves de partição, que o BigQuery inclui
+            no fim de `table.schema` mas que não existem dentro dos arquivos.
+        partition_keys: chaves Hive, em ordem; `()` se não há partição e
+            `None` se não foi possível ler.
     """
 
-    source: tuple[str, ...]
-    expected: tuple[str, ...]
-    added: tuple[str, ...]
-    missing: tuple[str, ...]
-    reordered: bool
-    type_mismatches: tuple[TypeMismatch, ...]
-
-    @classmethod
-    def between(
-        cls, source: Sequence[Column], expected: Sequence[Column]
-    ) -> "SchemaDiff":
-        src = [c.name for c in source]
-        exp = [c.name for c in expected]
-        src_set, exp_set = set(src), set(exp)
-        src_types = {c.name: c.data_type for c in source if c.data_type}
-        exp_types = {c.name: c.data_type for c in expected if c.data_type}
-
-        common_in_src = [n for n in src if n in exp_set]
-        common_in_exp = [n for n in exp if n in src_set]
-        return cls(
-            source=tuple(src),
-            expected=tuple(exp),
-            added=tuple(n for n in src if n not in exp_set),
-            missing=tuple(n for n in exp if n not in src_set),
-            reordered=common_in_src != common_in_exp,
-            type_mismatches=tuple(
-                TypeMismatch(n, exp_types[n], src_types[n])
-                for n in common_in_src
-                if n in exp_types
-                and n in src_types
-                and exp_types[n] != src_types[n]
-            ),
-        )
-
-    @property
-    def final(self) -> tuple[str, ...]:
-        return self.expected + self.added
-
-    @property
-    def source_is_prefix_of_final(self) -> bool:
-        """Em CSV, coluna `i` do arquivo vai para a coluna `i` da tabela."""
-        return self.source == self.final[: len(self.source)]
+    columns: tuple[Column, ...]
+    partition_keys: tuple[str, ...] | None = ()
 
 
-# ── Regras de severidade ──────────────────────────────────────────────────────
-
-
-@dataclass
-class _Findings:
-    warnings: list[str] = field(default_factory=list)
-    errors: list[str] = field(default_factory=list)
-
-    def for_overwrite(self) -> "_Findings":
-        """No overwrite a staging é recriada, então nada bloqueia."""
-        warnings = [
-            f"overwrite, staging será recriada: {e}" for e in self.errors
-        ] + self.warnings
-        if warnings:
-            warnings.append(_OVERWRITE_NOTE)
-        return _Findings(warnings=warnings)
-
-
-def _listed(columns: Sequence[str]) -> str:
-    shown = ", ".join(columns[:MAX_COLUMNS_LISTED])
-    extra = len(columns) - MAX_COLUMNS_LISTED
-    return f"{shown} (+{extra})" if extra > 0 else shown
-
-
-def _added_message(diff: SchemaDiff) -> str:
-    return f"colunas novas acrescentadas à staging: {_listed(diff.added)}."
-
-
-def _missing_message(diff: SchemaDiff, hint: str = "") -> str:
-    return f"colunas ausentes no arquivo: {_listed(diff.missing)}.{hint}"
-
-
-def _type_message(diff: SchemaDiff) -> str:
-    detail = ", ".join(
-        f"{m.name} ({m.expected} -> {m.source})" for m in diff.type_mismatches
-    )
-    return f"tipo diferente da staging: {detail}."
-
-
-def _csv_findings(diff: SchemaDiff) -> _Findings:
-    """CSV é posicional: o header precisa ser um prefixo do schema final."""
-    findings = _Findings()
-    if not diff.source_is_prefix_of_final:
-        if diff.reordered:
-            findings.errors.append(
-                "a ordem das colunas do CSV difere da staging (a tabela é "
-                "posicional: os dados cairiam na coluna errada). "
-                f"Staging: {_listed(diff.expected)}. "
-                f"Arquivo: {_listed(diff.source)}."
-            )
-        else:
-            findings.errors.append(
-                "coluna nova ou faltando fora do fim do schema desloca as "
-                "colunas seguintes do CSV (tabela posicional). "
-                f"Novas: {_listed(diff.added) or '-'}. "
-                f"Faltando: {_listed(diff.missing) or '-'}."
-            )
-        return findings
-    if diff.added:
-        findings.warnings.append(_added_message(diff))
-    if diff.missing:
-        findings.errors.append(
-            _missing_message(
-                diff,
-                " O BigQuery recusaria a leitura das linhas curtas "
-                "(allow_jagged_rows=False).",
-            )
-        )
-    return findings
-
-
-def _parquet_findings(diff: SchemaDiff) -> _Findings:
-    """Parquet casa por nome: a ordem não afeta os dados, o tipo sim."""
-    findings = _Findings()
-    if diff.added:
-        findings.warnings.append(_added_message(diff))
-    if diff.missing:
-        findings.errors.append(_missing_message(diff))
-    if diff.reordered:
-        findings.warnings.append(
-            "a ordem das colunas mudou (Parquet casa por nome, sem impacto "
-            "nos dados)."
-        )
-    if diff.type_mismatches:
-        findings.errors.append(_type_message(diff))
-    return findings
-
-
-_RULES: dict[SourceFormat, Callable[[SchemaDiff], _Findings]] = {
-    SourceFormat.CSV: _csv_findings,
-    SourceFormat.PARQUET: _parquet_findings,
-}
-
-
-def _layout_findings(
-    staging_keys: tuple[str, ...] | None, local_keys: tuple[str, ...]
-) -> _Findings:
-    """Layout de partição: o BigQuery exige as mesmas chaves, na mesma ordem.
-
-    `staging_keys=None` significa que não deu para ler as chaves da staging;
-    o layout não é verificado, mas o aviso deixa isso visível.
-    """
-    if staging_keys is None:
-        return _Findings(
-            warnings=[
-                "não foi possível ler as chaves de partição da staging; "
-                "layout de partição não verificado."
-            ]
-        )
-    if staging_keys == local_keys:
-        return _Findings()
-    return _Findings(
-        errors=[
-            "layout de partição diferente: staging "
-            f"[{', '.join(staging_keys) or 'sem partição'}] x upload "
-            f"[{', '.join(local_keys) or 'sem partição'}]. O BigQuery exige "
-            "as mesmas chaves, na mesma ordem, em todos os arquivos."
-        ]
-    )
-
-
-# ── Resultado ─────────────────────────────────────────────────────────────────
-
-
-@dataclass(frozen=True)
-class SchemaCheckResult:
-    """Fatos (`diff`) e o que fazer com eles (`warnings` e `errors`)."""
-
-    diff: SchemaDiff
-    warnings: list[str] = field(default_factory=list)
-    errors: list[str] = field(default_factory=list)
-
-    @property
-    def has_changes(self) -> bool:
-        return bool(self.warnings or self.errors)
-
-    def render(self, title: str | None = None) -> str:
-        """Mensagem única, truncada para caber em um webhook."""
-        lines = [title or "Mudança de schema em staging"]
-        lines += [f"ERRO: {msg}" for msg in self.errors]
-        lines += [f"AVISO: {msg}" for msg in self.warnings]
-        text = "\n".join(lines)
-        if len(text) > MAX_MESSAGE_CHARS:
-            text = text[: MAX_MESSAGE_CHARS - 3] + "..."
-        return text
-
-    def raise_if_errors(self, title: str | None = None) -> None:
-        if self.errors:
-            raise SchemaMismatchError(self.render(title))
-
-
-# ── Arquivos locais ───────────────────────────────────────────────────────────
-
-_ARROW_TO_BQ: tuple[tuple[Callable[[pa.DataType], bool], str], ...] = (
-    (pa.types.is_boolean, "BOOL"),
-    (pa.types.is_integer, "INT64"),
-    (pa.types.is_floating, "FLOAT64"),
-    (pa.types.is_decimal, "NUMERIC"),
-    (pa.types.is_string, "STRING"),
-    (pa.types.is_large_string, "STRING"),
-    (pa.types.is_binary, "BYTES"),
-    (pa.types.is_large_binary, "BYTES"),
-    (pa.types.is_date, "DATE"),
-    (pa.types.is_time, "TIME"),
-)
-
-
+# ── Leitura dos schemas ───────────────────────────────────────────────────────
 def _arrow_to_bq_type(arrow_type: pa.DataType) -> str | None:
     """Mapeia um tipo do pyarrow para o tipo do BigQuery.
 
@@ -336,148 +149,342 @@ def _first_data_file(data_path: str | Path, fmt: SourceFormat) -> Path:
 
 
 @dataclass(frozen=True)
-class LocalDataSchema:
-    """O que os arquivos locais dizem sobre o schema, lido uma única vez.
-
-    Attributes:
-        source_format: formato dos arquivos.
-        partition_keys: chaves Hive (`chave=valor`) das pastas do upload, na
-            ordem em que aparecem e já normalizadas. Vêm só do caminho
-            relativo a `data_path`: um `=` numa pasta pai não é chave. As
-            chaves não estão no arquivo (`to_partitions` as remove).
-        types: tipo BigQuery por coluna normalizada, lido do schema do
-            Parquet. O header que a lib usa vira tudo `STRING`, então o tipo
-            real só está no arquivo. Vazio em CSV. Acesse por `type_of`.
-    """
-
-    source_format: SourceFormat
-    partition_keys: tuple[str, ...] = ()
-    types: dict[str, str | None] = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self, "source_format", SourceFormat(self.source_format)
-        )
-
-    def type_of(self, name: str) -> str | None:
-        """Tipo BigQuery da coluna, dado o nome como veio do arquivo."""
-        return self.types.get(bq_safe_column_name(name))
+class UploadSchema(TableSchema):
+    """Schema dos arquivos locais que serão carregados."""
 
     @classmethod
-    def read(
+    def from_files(
         cls, data_path: str | Path, source_format: str | SourceFormat
-    ) -> "LocalDataSchema":
+    ) -> "UploadSchema":
+        """Lê o header e as chaves de partição do primeiro arquivo.
+
+        As chaves vêm só das pastas `chave=valor` relativas a `data_path`
+        (`to_partitions` as remove do arquivo). Em Parquet, o tipo é o do
+        arquivo; em CSV não há tipo (a tabela é toda `STRING`).
+        """
         fmt = SourceFormat(source_format)
         file = _first_data_file(data_path, fmt)
-        relative = file.relative_to(_data_dir(data_path))
         keys = tuple(
             bq_safe_column_name(part.split("=")[0])
-            for part in relative.parts[:-1]
+            for part in file.relative_to(_data_dir(data_path)).parts[:-1]
             if "=" in part
         )
-        types: dict[str, str | None] = {}
         if fmt is SourceFormat.PARQUET:
-            types = {
-                bq_safe_column_name(f.name): _arrow_to_bq_type(f.data_type)
+            columns = tuple(
+                Column.of(f.name, _arrow_to_bq_type(f.type))
                 for f in pq.read_schema(file)
-            }
-        return cls(fmt, keys, types)
-
-
-# ── Pontos de entrada ─────────────────────────────────────────────────────────
-
-
-class SchemaFieldLike(Protocol):
-    """O que a checagem precisa de um `bigquery.SchemaField`."""
-
-    name: str
-    field_type: str
+            )
+        else:
+            names = pd.read_csv(file, nrows=0, dtype=str).columns
+            columns = tuple(Column.of(name) for name in names)
+        return cls(columns, keys)
 
 
 @dataclass(frozen=True)
-class StagingSchema:
-    """O schema atual da tabela externa de staging.
-
-    Attributes:
-        fields: campos de `table.schema`. Em tabelas particionadas, o
-            BigQuery inclui as chaves de partição no fim da lista.
-        partition_keys: chaves de partição, na ordem do BigQuery (que segue a
-            das pastas); `()` se a tabela não é particionada e `None` se não
-            foi possível ler.
-    """
-
-    fields: tuple[SchemaFieldLike, ...]
-    partition_keys: tuple[str, ...] | None = ()
+class StagingSchema(TableSchema):
+    """Schema atual da tabela externa de staging."""
 
     @classmethod
-    def from_table(cls, table: Any) -> "StagingSchema":
+    def from_table(cls, table: bigquery.Table) -> "StagingSchema":
         """Lê o schema e as chaves de partição de um `bigquery.Table`.
 
-        As chaves vêm de `partitionDefinition`, que o client Python não
-        expõe como atributo público (por isso o `_properties`, o JSON cru da
-        API). Ausente, a tabela não é particionada, a menos que
-        `hive_partitioning` (público) diga o contrário: aí as chaves são
-        desconhecidas, e não vazias.
+        `table.schema` inclui as chaves de partição no fim; elas saem de
+        `columns`. As chaves vêm de `partitionDefinition`, que o client não
+        expõe como atributo público (daí o `_properties`). Ausente, a tabela
+        não é particionada, a menos que `hive_partitioning` (público) diga o
+        contrário: aí as chaves são `None` (desconhecidas), e não `()`.
         """
-        properties = getattr(table, "_properties", None) or {}
-        definition = properties.get("partitionDefinition")
+        definition = table._properties.get("partitionDefinition")
         if definition:
-            keys: tuple[str, ...] | None = tuple(
-                bq_safe_column_name(column["field"])
-                for column in definition.get("partitionedColumn", [])
+            keys = tuple(
+                bq_safe_column_name(c["field"])
+                for c in definition.get("partitionedColumn", [])
             )
         else:
-            external = getattr(table, "external_data_configuration", None)
+            external = table.external_data_configuration
             hive = getattr(external, "hive_partitioning", None)
             keys = None if hive is not None else ()
-        return cls(tuple(table.schema), keys)
-
-
-def _compare(
-    source: Sequence[Column],
-    expected: Sequence[Column],
-    fmt: SourceFormat,
-    overwrite: bool,
-    ignore: frozenset[str] = frozenset(),
-    layout: _Findings | None = None,
-) -> SchemaCheckResult:
-    diff = SchemaDiff.between(
-        [c for c in source if c.name not in ignore],
-        [c for c in expected if c.name not in ignore],
-    )
-    findings = _RULES[fmt](diff)
-    if layout:
-        findings = _Findings(
-            warnings=layout.warnings + findings.warnings,
-            errors=layout.errors + findings.errors,
+        columns = tuple(Column.of(f.name, f.field_type) for f in table.schema)
+        return cls(
+            tuple(c for c in columns if c.name not in (keys or ())), keys
         )
-    if overwrite:
-        findings = findings.for_overwrite()
-    return SchemaCheckResult(diff, findings.warnings, findings.errors)
 
 
-def check_schema(
-    source: Sequence[ColumnLike],
-    expected: Sequence[ColumnLike],
-    source_format: str | SourceFormat = SourceFormat.CSV,
+class TypeMismatch(NamedTuple):
+    name: str
+    staging: str
+    upload: str
+
+
+@dataclass(frozen=True)
+class SchemaDiff:
+    """Comparação entre o upload e a staging, sem juízo de severidade.
+
+    Attributes:
+        upload: nomes das colunas dos arquivos locais, na ordem do arquivo.
+        staging: nomes das colunas da staging, na ordem da tabela.
+        added: colunas que o upload traz e a staging não tem.
+        missing: colunas que a staging tem e o upload não traz.
+        reordered: as colunas em comum aparecem em ordem diferente.
+        type_mismatches: colunas em comum com tipo diferente (só quando o
+            tipo é conhecido dos dois lados).
+        upload_keys: chaves de partição do upload (`None`: não lidas).
+        staging_keys: chaves de partição da staging (`None`: não lidas).
+    """
+
+    upload: tuple[str, ...]
+    staging: tuple[str, ...]
+    added: tuple[str, ...]
+    missing: tuple[str, ...]
+    reordered: bool
+    type_mismatches: tuple[TypeMismatch, ...]
+    upload_keys: tuple[str, ...] | None
+    staging_keys: tuple[str, ...] | None
+
+    @classmethod
+    def between(
+        cls, staging: StagingSchema, upload: UploadSchema
+    ) -> "SchemaDiff":
+        up = [c.name for c in upload.columns]
+        st = [c.name for c in staging.columns]
+        up_set, st_set = set(up), set(st)
+        up_types = {c.name: c.data_type for c in upload.columns if c.data_type}
+        st_types = {
+            c.name: c.data_type for c in staging.columns if c.data_type
+        }
+
+        common_in_up = [name for name in up if name in st_set]
+        common_in_st = [name for name in st if name in up_set]
+        return cls(
+            upload=tuple(up),
+            staging=tuple(st),
+            added=tuple(name for name in up if name not in st_set),
+            missing=tuple(name for name in st if name not in up_set),
+            reordered=common_in_up != common_in_st,
+            type_mismatches=tuple(
+                TypeMismatch(name, st_types[name], up_types[name])
+                for name in common_in_up
+                if name in st_types
+                and name in up_types
+                and st_types[name] != up_types[name]
+            ),
+            upload_keys=upload.partition_keys,
+            staging_keys=staging.partition_keys,
+        )
+
+    @property
+    def final(self) -> tuple[str, ...]:
+        """Schema esperado depois do sync: a staging mais as colunas novas."""
+        return self.staging + self.added
+
+    @property
+    def layout_unknown(self) -> bool:
+        """`None` é "não deu para ler", não "igual": o layout não é verificado."""
+        return self.upload_keys is None or self.staging_keys is None
+
+    @property
+    def layout_changed(self) -> bool:
+        return (
+            not self.layout_unknown and self.upload_keys != self.staging_keys
+        )
+
+    @property
+    def upload_is_prefix_of_final(self) -> bool:
+        """Em CSV, coluna `i` do arquivo vai para a coluna `i` da tabela."""
+        return self.upload == self.final[: len(self.upload)]
+
+
+# ── Regras de severidade ──────────────────────────────────────────────────────
+def _csv_findings(diff: SchemaDiff) -> list[Finding]:
+    """CSV é posicional: o header precisa ser um prefixo do schema final."""
+    if not diff.upload_is_prefix_of_final:
+        if diff.reordered:
+            return [
+                _error(
+                    "a ordem das colunas do CSV difere da staging (a tabela "
+                    "é posicional: os dados cairiam na coluna errada). "
+                    f"Staging: {_listed(diff.staging)}. "
+                    f"Arquivo: {_listed(diff.upload)}."
+                )
+            ]
+        return [
+            _error(
+                "coluna nova ou faltando fora do fim do schema desloca as "
+                "colunas seguintes do CSV (tabela posicional). "
+                f"Novas: {_listed(diff.added) or '-'}. "
+                f"Faltando: {_listed(diff.missing) or '-'}."
+            )
+        ]
+    findings = []
+    if diff.added:
+        findings.append(_warning(_added_message(diff)))
+    if diff.missing:
+        findings.append(
+            _error(
+                _missing_message(
+                    diff,
+                    " O BigQuery recusaria a leitura das linhas curtas "
+                    "(allow_jagged_rows=False).",
+                )
+            )
+        )
+    return findings
+
+
+def _parquet_findings(diff: SchemaDiff) -> list[Finding]:
+    """Parquet casa por nome: a ordem não afeta os dados, o tipo sim."""
+    findings = []
+    if diff.added:
+        findings.append(_warning(_added_message(diff)))
+    if diff.missing:
+        findings.append(_error(_missing_message(diff)))
+    if diff.reordered:
+        findings.append(
+            _warning(
+                "a ordem das colunas mudou (Parquet casa por nome, sem "
+                "impacto nos dados)."
+            )
+        )
+    if diff.type_mismatches:
+        findings.append(_error(_type_message(diff)))
+    return findings
+
+
+def _layout_findings(diff: SchemaDiff) -> list[Finding]:
+    """Layout de partição: o BigQuery exige as mesmas chaves, na mesma ordem.
+
+    Chaves `None` (não deu para ler) não são verificadas, mas o aviso deixa
+    isso visível.
+    """
+    if diff.layout_unknown:
+        return [
+            _warning(
+                "não foi possível ler as chaves de partição da staging ou do "
+                "upload; layout de partição não verificado."
+            )
+        ]
+    if diff.layout_changed:
+        staging = ", ".join(diff.staging_keys or ()) or "sem partição"
+        upload = ", ".join(diff.upload_keys or ()) or "sem partição"
+        return [
+            _error(
+                f"layout de partição diferente: staging [{staging}] x upload "
+                f"[{upload}]. O BigQuery exige as mesmas chaves, na mesma "
+                "ordem, em todos os arquivos."
+            )
+        ]
+    return []
+
+
+def _for_overwrite(findings: list[Finding]) -> list[Finding]:
+    """No overwrite a staging é recriada, então nada bloqueia."""
+    demoted = [
+        _warning(f"overwrite, staging será recriada: {f.message}")
+        for f in findings
+        if f.severity is Severity.ERROR
+    ]
+    kept = [f for f in findings if f.severity is Severity.WARNING]
+    result = demoted + kept
+    return [*result, _warning(_OVERWRITE_NOTE)] if result else result
+
+
+def _listed(columns: Sequence[str]) -> str:
+    shown = ", ".join(columns[:MAX_COLUMNS_LISTED])
+    extra = len(columns) - MAX_COLUMNS_LISTED
+    return f"{shown} (+{extra})" if extra > 0 else shown
+
+
+def _added_message(diff: SchemaDiff) -> str:
+    return f"colunas novas acrescentadas à staging: {_listed(diff.added)}."
+
+
+def _missing_message(diff: SchemaDiff, hint: str = "") -> str:
+    return f"colunas ausentes no arquivo: {_listed(diff.missing)}.{hint}"
+
+
+def _type_message(diff: SchemaDiff) -> str:
+    detail = ", ".join(
+        f"{m.name} ({m.staging} -> {m.upload})" for m in diff.type_mismatches
+    )
+    return f"tipo diferente da staging: {detail}."
+
+
+_RULES: dict[SourceFormat, Callable[[SchemaDiff], list[Finding]]] = {
+    SourceFormat.CSV: _csv_findings,
+    SourceFormat.PARQUET: _parquet_findings,
+}
+
+
+# ── Resultado ─────────────────────────────────────────────────────────────────
+@dataclass(frozen=True)
+class SchemaCheckResult:
+    """O que a checagem achou e as colunas que o sync deve acrescentar.
+
+    Attributes:
+        findings: avisos e erros, na ordem em que as regras os geraram.
+        added_columns: colunas do upload ausentes na staging, já normalizadas
+            e com o tipo do arquivo (`None` em CSV).
+    """
+
+    findings: tuple[Finding, ...] = ()
+    added_columns: tuple[Column, ...] = ()
+
+    @property
+    def warnings(self) -> list[str]:
+        return [
+            f.message for f in self.findings if f.severity is Severity.WARNING
+        ]
+
+    @property
+    def errors(self) -> list[str]:
+        return [
+            f.message for f in self.findings if f.severity is Severity.ERROR
+        ]
+
+    @property
+    def has_changes(self) -> bool:
+        return bool(self.warnings or self.errors)
+
+    def render(self, title: str | None = None) -> str:
+        """Mensagem única, truncada para caber em um webhook."""
+        lines = [title or "Mudança de schema em staging"]
+        lines += [f"ERRO: {msg}" for msg in self.errors]
+        lines += [f"AVISO: {msg}" for msg in self.warnings]
+        text = "\n".join(lines)
+        if len(text) > MAX_MESSAGE_CHARS:
+            text = text[: MAX_MESSAGE_CHARS - 3] + "..."
+        return text
+
+    def raise_if_errors(self, title: str | None = None) -> None:
+        if self.errors:
+            raise SchemaMismatchError(self.render(title))
+
+
+# ── Ponto de entrada ──────────────────────────────────────────────────────────
+
+
+def check(
+    staging: StagingSchema,
+    upload: UploadSchema,
+    source_format: str | SourceFormat,
     overwrite: bool = False,
 ) -> SchemaCheckResult:
-    """Compara as colunas do arquivo com o schema da staging.
+    """Compara o upload com a staging atual.
 
-    O schema final esperado é a staging atual mais as colunas novas no fim,
-    que é como `_sync_staging_schema` as acrescenta.
+    O schema final esperado é a staging mais as colunas novas no fim, que é
+    como o sync as acrescenta.
 
-    - CSV é posicional: o header do arquivo precisa ser um prefixo do schema
-      final. Coluna nova só é aceita (aviso) no fim; coluna faltando, ordem
-      trocada ou coluna nova no meio é erro.
-    - Parquet casa por nome: coluna nova e ordem trocada são avisos. Coluna
+    - CSV é posicional: o header precisa ser prefixo do schema final. Coluna
+      nova no fim é aviso; faltando, ordem trocada ou nova no meio é erro.
+    - Parquet casa por nome: coluna nova e ordem trocada são avisos; coluna
       faltando e tipo diferente (quando informado dos dois lados) são erros.
-    - `overwrite=True`: a staging é recriada a partir do arquivo, então
-      nenhuma divergência bloqueia; os erros viram avisos.
+    - Layout de partição diferente é erro.
+    - `overwrite=True`: a staging é recriada a partir do arquivo, então nada
+      bloqueia; os erros viram avisos.
 
     Args:
-        source: colunas do arquivo, como `nome`, `(nome, tipo)` ou `Column`.
-        expected: colunas da staging atual, no mesmo formato.
+        staging: schema atual da staging.
+        upload: schema dos arquivos que serão carregados.
         source_format: `"csv"` ou `"parquet"`.
         overwrite: se o upload recria a staging.
 
@@ -487,47 +494,15 @@ def check_schema(
     Raises:
         ValueError: `source_format` inválido.
     """
-    return _compare(
-        [Column.coerce(c) for c in source],
-        [Column.coerce(c) for c in expected],
-        SourceFormat(source_format),
-        overwrite,
-    )
-
-
-def check_staging_schema(
-    staging: StagingSchema,
-    incoming: Sequence[SchemaFieldLike],
-    local: LocalDataSchema,
-    overwrite: bool = False,
-) -> SchemaCheckResult:
-    """Compara as colunas do upload com o schema atual da staging.
-
-    Além das regras de `check_schema`, compara o layout de partição do
-    upload com o da staging. As chaves de partição ficam fora da comparação
-    de colunas, dos dois lados, e os tipos só entram em Parquet.
-
-    Args:
-        staging: schema atual da staging (`StagingSchema.from_table`).
-        incoming: campos inferidos do header do arquivo.
-        local: o que os arquivos locais dizem sobre o schema.
-        overwrite: se o upload recria a staging.
-    """
-    parquet = local.source_format is SourceFormat.PARQUET
-    return _compare(
-        [
-            Column.of(f.name, local.type_of(f.name) if parquet else None)
-            for f in incoming
-        ],
-        [
-            Column.of(f.name, f.field_type if parquet else None)
-            for f in staging.fields
-        ],
-        local.source_format,
-        overwrite,
-        ignore=frozenset(local.partition_keys)
-        | frozenset(staging.partition_keys or ()),
-        layout=_layout_findings(staging.partition_keys, local.partition_keys),
+    fmt = SourceFormat(source_format)
+    diff = SchemaDiff.between(staging, upload)
+    findings = _layout_findings(diff) + _RULES[fmt](diff)
+    if overwrite:
+        findings = _for_overwrite(findings)
+    added = set(diff.added)
+    return SchemaCheckResult(
+        tuple(findings),
+        tuple(c for c in upload.columns if c.name in added),
     )
 
 
