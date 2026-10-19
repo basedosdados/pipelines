@@ -10,7 +10,7 @@ from zipfile import ZipFile
 import pandas as pd
 import requests
 
-from pipelines.crawler.anatel.telefonia_movel.constants import (
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.utils.utils import log, to_partitions
@@ -97,7 +97,6 @@ def unzip_file():
     gc.collect()
 
 
-# ! TASK MICRODADOS
 def clean_csv_microdados(ano, semestre, table_id):
     log("Download dos dados...")
     # pyrefly: ignore [deprecated]
@@ -130,7 +129,6 @@ def clean_csv_microdados(ano, semestre, table_id):
     )
 
 
-# ! TASK BRASIL
 def clean_csv_brasil(table_id):
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
@@ -170,7 +168,6 @@ def clean_csv_brasil(table_id):
     )
 
 
-# ! TASK UF
 def clean_csv_uf(table_id):
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
@@ -207,7 +204,6 @@ def clean_csv_uf(table_id):
     )
 
 
-# ! TASK MUNICIPIO
 def clean_csv_municipio(table_id):
     densidade = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",

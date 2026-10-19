@@ -7,10 +7,10 @@ import os
 import pandas as pd
 from prefect import task
 
-from pipelines.crawler.anatel.telefonia_movel.constants import (
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
-from pipelines.crawler.anatel.telefonia_movel.utils import (
+from pipelines.datasets.br_anatel_telefonia_movel.utils import (
     clean_csv_brasil,
     clean_csv_microdados,
     clean_csv_municipio,

@@ -46,9 +46,11 @@ As 3 tabelas de densidade saem do **mesmo** `Densidade_Telefonia_Movel.csv`, fil
 
 ## Estrutura dos flows e o poll
 
-Cada tabela tem um flow próprio (`flows.py`), agendado em dias distintos, todos delegando a `_run_anatel_telefonia_movel` (`crawler/anatel/telefonia_movel/flows.py`).
+Cada tabela tem um flow próprio, agendado num dia da semana, e todos chamam `_run_anatel_telefonia_movel`, no mesmo `flows.py`. O código fica todo em `pipelines/datasets/br_anatel_telefonia_movel/`, sem diretório em `pipelines/crawler/`.
 
-**Poll por geografia + deferido (aplicado):** as 3 densidades saem do mesmo arquivo, então `get_max_date_in_table_microdados` (`tasks.py`) calcula a data máxima **filtrando pela geografia da tabela** — não o max do arquivo inteiro. E o poll é **deferido**: `poll_source_for_update_task` detecta a novidade e `commit_source_update_task` grava o `Update` **só após a materialização** (padrão do PR #1600, `br_ibge_inflacao`).
+**Poll por geografia:** as 3 densidades saem do mesmo arquivo, então `get_max_date_in_table_microdados` (`tasks.py`) calcula a data máxima **filtrando pela geografia da tabela** — não o max do arquivo inteiro.
+
+**"Última atualização na fonte original" gravada antes da carga:** quando o poll acha mês novo, `commit_source_update_task` grava o `RawDataSource.Update` logo em seguida, antes de baixar e materializar. Assim, se o flow falhar no meio, o metadado da fonte continua mostrando que a Anatel publicou dado novo. Isso não trava a tabela, porque o poll compara o mês da fonte com o último mês da tabela (`compare_against="coverage"`), que só avança quando a materialização termina (PR #1783).
 
 **Histórico do bug (contexto):** antes, a função retornava `df["data"].max()` do arquivo inteiro, então o `source_max_date` de cada densidade refletia a data de *outra* geografia (UF/Município), não a própria; e o poll era **eager** (gravava o `Update` antes de materializar). Uma falha de materialização carimbava o ponteiro adiantado e travava a tabela — foi o que travou a `densidade_brasil`.
 
