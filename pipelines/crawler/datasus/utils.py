@@ -6,9 +6,12 @@ import asyncio
 import gc
 import os
 import struct
-from datetime import datetime
+import time
+from collections import defaultdict
+from datetime import date, datetime
 from ftplib import FTP
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import aioftp
 import pandas as pd
@@ -52,7 +55,7 @@ def decode_column(value):
 
 
 def dbf_to_parquet(
-    dbf: str, table_id: str, counter: int, chunk_size: int
+    dbf: str, table_id: str, file_id: int | str, chunk_size: int
 ) -> str:
     """
     Parses DBF file into parquet to preserve memory
@@ -91,8 +94,8 @@ def dbf_to_parquet(
 
             # table = pa.Table.from_pandas(chunk_df)
 
-            log(f"---- {counter}")
-            parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
+            log(f"---- {file_id}")
+            parquet_filename = f"{table_id}_{file_id}_{counter_chunk}.parquet"
             parquet_filepath = os.path.join(output_path, parquet_filename)
 
             # pyrefly: ignore [unnecessary-type-conversion]
@@ -251,19 +254,154 @@ async def download_file(file: str, output_path: str) -> None:
         output_path (str): output path to save
     """
 
+    # O FTP do DATASUS derruba conexões com frequência. Antes, a falha era só
+    # logada e o arquivo ficava de fora sem aviso; agora tenta de novo e, se
+    # não der, propaga o erro.
+    attempts = 4
+    for attempt in range(1, attempts + 1):
+        try:
+            log(f"------- Downloading {file} ")
+            async with aioftp.Client.context(
+                host="ftp.datasus.gov.br",
+                # pyrefly: ignore [bad-argument-type]
+                parse_list_line_custom=line_file_parser,
+                # max wait time for data to be received from the server
+                socket_timeout=30,
+            ) as client:
+                await client.download(file, output_path)
+            return
+        except (aioftp.StatusCodeError, OSError) as e:
+            log(
+                f"Download de {file} falhou (tentativa {attempt}/{attempts}): {e!r}"
+            )
+            if attempt == attempts:
+                raise
+            await asyncio.sleep(30 * attempt)
+
+
+DATASUS_FTP_TZ = ZoneInfo("America/Sao_Paulo")
+
+DATASUS_FTP_DIRS = {
+    "SIA": "dissemin/publicos/SIASUS/200801_/Dados",
+    "SIH": "dissemin/publicos/SIHSUS/200801_/Dados",
+}
+
+
+def parse_datasus_list_line(line: str) -> tuple[str, datetime] | None:
+    """Parse one line of the DATASUS FTP `LIST` output.
+
+    The server is IIS-style: `02-08-26  02:17PM  5890232 RDRJ2501.dbc`. The
+    timestamp is local Brazilian time, so it is returned timezone-aware.
+    Returns None for directories and lines that do not parse.
+    """
+    parts = line.split()
+    if len(parts) < 4 or parts[2] == "<DIR>":
+        return None
     try:
-        log(f"------- Downloading {file} ")
-        async with aioftp.Client.context(
-            host="ftp.datasus.gov.br",
-            # pyrefly: ignore [bad-argument-type]
-            parse_list_line_custom=line_file_parser,
-            # max wait time for data to be received from the server
-            socket_timeout=30,
-        ) as client:
-            await client.download(file, output_path)
-    except aioftp.StatusCodeError as e:
-        # pyrefly: ignore [bad-argument-count, bad-argument-type]
-        log(e.expected_codes, e.received_codes, e.info)
+        modified = datetime.strptime(
+            f"{parts[0]} {parts[1]}", "%m-%d-%y %I:%M%p"
+        )
+    except ValueError:
+        return None
+    return " ".join(parts[3:]), modified.replace(tzinfo=DATASUS_FTP_TZ)
+
+
+def list_datasus_dbc_files_with_mtime(
+    datasus_database: str,
+    datasus_database_table: str,
+    attempts: int = 4,
+    wait_seconds: int = 60,
+) -> dict[str, datetime]:
+    """List a DATASUS FTP group with each file's last-modified time.
+
+    DATASUS rewrites a competence's files after first publication, so the
+    modification time, not the file name, says whether a month changed. The
+    FTP drops data connections often, so the listing is retried.
+
+    Returns:
+        dict: full FTP path -> last-modified time (timezone-aware)
+    """
+    folder = DATASUS_FTP_DIRS[datasus_database]
+    for attempt in range(1, attempts + 1):
+        lines: list[str] = []
+        try:
+            ftp = FTP("ftp.datasus.gov.br", timeout=120)
+            ftp.login()
+            ftp.retrlines(
+                f"LIST {folder}/{datasus_database_table}*.DBC", lines.append
+            )
+            ftp.close()
+            break
+        except (OSError, EOFError) as err:
+            log(f"FTP LIST falhou (tentativa {attempt}/{attempts}): {err!r}")
+            if attempt == attempts:
+                raise
+            time.sleep(wait_seconds)
+
+    files: dict[str, datetime] = {}
+    for line in lines:
+        parsed = parse_datasus_list_line(line)
+        if parsed is None:
+            continue
+        name, modified = parsed
+        files[f"{folder}/{name.split('/')[-1]}"] = modified
+    return files
+
+
+def months_window(latest: date, months_back: int) -> list[str]:
+    """Competences as YYMM, from `months_back - 1` months before `latest`
+    through the month after it."""
+    first = latest.year * 12 + latest.month - 1 - (months_back - 1)
+    last = latest.year * 12 + latest.month  # the month after `latest`
+    return [
+        f"{(m // 12) % 100:02d}{m % 12 + 1:02d}"
+        for m in range(first, last + 1)
+    ]
+
+
+def select_partitions_to_reprocess(
+    ftp_files: dict[str, datetime],
+    staging_updated: dict[str, datetime],
+    months: list[str],
+    max_months: int,
+) -> list[str]:
+    """Pick the FTP files whose staging partition is missing or older than them.
+
+    A partition (`ano=/mes=/sigla_uf=`) is reprocessed whole: if any of its
+    files is newer than the oldest staging blob in it, or it has no blobs,
+    every file of that partition is returned, since the caller replaces the
+    partition. Only the oldest `max_months` competences are returned, so a
+    backlog is drained over several runs instead of one very long run.
+
+    Args:
+        ftp_files: FTP path -> last-modified time
+        staging_updated: partition -> oldest blob update time in staging
+        months: competences to consider, as YYMM
+        max_months: cap on competences per run
+    """
+    by_partition: dict[str, list[str]] = defaultdict(list)
+    for file in ftp_files:
+        if file.split("/")[-1][4:8] in months:
+            by_partition[year_month_sigla_uf_parser(file=file)].append(file)
+
+    stale = {
+        partition: files
+        for partition, files in by_partition.items()
+        if partition not in staging_updated
+        or max(ftp_files[f] for f in files) > staging_updated[partition]
+    }
+
+    def competence(partition: str) -> tuple[int, int]:
+        fields = dict(part.split("=") for part in partition.split("/"))
+        return int(fields["ano"]), int(fields["mes"])
+
+    selected_months = sorted({competence(p) for p in stale})[:max_months]
+    return sorted(
+        file
+        for partition, files in stale.items()
+        if competence(partition) in selected_months
+        for file in files
+    )
 
 
 def line_file_parser(file_line) -> tuple[list, dict]:

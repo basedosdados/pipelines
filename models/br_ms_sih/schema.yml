@@ -3,6 +3,11 @@ version: 2
 models:
   - name: br_ms_sih__servicos_profissionais
     description: Sistema de Informações Hospitalares do SUS (SIH/SUS)
+    tests:
+      - custom_uf_month_completeness:
+          year_column: ano
+          month_column: mes
+          uf_column: sigla_uf
     columns:
       - name: ano
         description: Ano
@@ -21,7 +26,7 @@ models:
       - name: data_saida_iternacao
         description: Data do final da internação
       - name: sigla_uf
-        description: Sigla unidade da fedaração
+        description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
@@ -175,6 +180,18 @@ models:
         description: Valor
   - name: br_ms_sih__aihs_reduzidas
     description: Movimento de AIH - Arquivos Reduzidos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_aih
+            - tipo_aih
+            - sequencial_aih
+      - custom_uf_month_completeness:
+          year_column: ano
+          month_column: mes
+          uf_column: sigla_uf
     columns:
       - name: ano
         description: Ano de processamento da AIH, no formato aaaa
@@ -186,6 +203,17 @@ models:
         description: Mês de processamento da AIH, no formato mm
         tests:
           - not_null:
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
               config:
                 where: __most_recent_year_month__
       - name: id_aih

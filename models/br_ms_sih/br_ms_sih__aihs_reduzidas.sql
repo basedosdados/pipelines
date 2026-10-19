@@ -3,13 +3,14 @@
         alias="aihs_reduzidas",
         schema="br_ms_sih",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2008, "end": 2024, "interval": 1},
+            "range": {"start": 2008, "end": 2031, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+        pre_hook="{% if adapter.get_relation(this.database, this.schema, this.identifier) %}DROP ALL ROW ACCESS POLICIES ON {{ this }}{% else %}SELECT 1{% endif %}",
     )
 }}
 
@@ -17,7 +18,7 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
-    safe_cast(sigla_uf as int64) sigla_uf,
+    safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(n_aih as string) id_aih,
     safe_cast(ident as string) tipo_aih,
     case
@@ -349,7 +350,24 @@ select
 from {{ set_datalake_project("br_ms_sih_staging.aihs_reduzidas") }}
 
 {% if is_incremental() %}
-    where
-        date(cast(ano as int64), cast(mes as int64), 1)
-        > (select max(date(cast(ano as int64), cast(mes as int64), 1)) from {{ this }})
+        {#- Lido dos metadados de partição: `max(ano)` varre a coluna inteira
+            (~20 GB em servicos_profissionais). -#}
+        {%- set max_year_result = run_query(
+            "select max(safe_cast(partition_id as int64)) from `"
+            ~ this.database
+            ~ "`.`"
+            ~ this.schema
+            ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
+            ~ this.identifier
+            ~ "' and total_rows > 0"
+        ) -%}
+        {%- set max_year = 0 -%}
+        {%- if execute and max_year_result.rows[0][0] -%}
+            {%- set max_year = max_year_result.rows[0][0] -%}
+        {%- endif -%}
+    -- DATASUS reescreve cada competência por até 12 meses depois da primeira
+    -- publicação. Cada partição de ano tocada é refeita inteira a partir da
+    -- staging, então reprocessar é idempotente. `br_ms_sih_min_ano` amplia a
+    -- janela numa recarga.
+    where ano >= '{{ var("br_ms_sih_min_ano", max_year - 1) }}'
 {% endif %}
