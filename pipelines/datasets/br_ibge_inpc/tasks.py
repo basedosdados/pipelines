@@ -6,7 +6,7 @@ from collections.abc import Callable
 from datetime import date
 
 from pipelines.datasets.br_ibge_inpc.constants import COVERAGE, DATASET_ID
-from pipelines.utils.ibge_inflacao import (
+from pipelines.shared.ibge_inflacao.tasks import (
     check_for_updates,
     collect_data_utils,
     json_to_csv,

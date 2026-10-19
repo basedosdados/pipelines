@@ -8,7 +8,7 @@ Lógica específica do dataset mora em `tasks.py`, constantes em
 
 O antigo `_inpc_flow`/`_run_ibge_inflacao` monolítico foi removido; a lógica
 compartilhada com `br_ibge_ipca`/`br_ibge_ipca15` mora em
-`pipelines/utils/ibge_inflacao.py`.
+`pipelines/shared/ibge_inflacao/`.
 """
 
 from prefect.schedules import Cron
