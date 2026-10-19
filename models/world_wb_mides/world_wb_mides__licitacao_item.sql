@@ -68,12 +68,23 @@ from {{ set_datalake_project("world_wb_mides_staging.licitacao_item") }} as t
 -- This is the same per-municipality union the spend mirrors get from the GCS
 -- overlay in `code/upload_mg.py`; procurement has no such mirror, so it is done
 -- in SQL instead.
+--
+-- The staging partition ano=2019/sigla_uf=CE was rebuilt on 2026-10-18 by
+-- `code/rebuild_licitacao_item_ce.py`. Until then it held a copy of RS 2019
+-- (994,327 rows): the legacy partition step in `code/licitacao_item.ipynb`
+-- reused `uf` for both loops, so the RS frame was also written under CE. The CE
+-- filter below drops nothing from the rebuilt partition, where every row has a
+-- 23xxxxx municipality. It stays as a guard in case a staging copy still holds
+-- the old RS file, which would otherwise reappear as CE silently.
 where
-    t.sigla_uf != 'MG'
-    or not exists (
-        select 1
-        from mg_cobertura as c
-        where c.id_municipio = t.id_municipio and c.ano = safe_cast(t.ano as int64)
+    (t.sigla_uf != 'CE' or coalesce(starts_with(t.id_municipio, '23'), true))
+    and (
+        t.sigla_uf != 'MG'
+        or not exists (
+            select 1
+            from mg_cobertura as c
+            where c.id_municipio = t.id_municipio and c.ano = safe_cast(t.ano as int64)
+        )
     )
 
 union all
