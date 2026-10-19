@@ -519,6 +519,11 @@ de prod. Como o check de metadados só roda sobre arquivos `.sql` modificados, e
 
 ## Tabelas de domínio: `instituicao_financeira` e `fonte_recurso`
 
+`fonte_recurso` e `empreendimento` ficam na seção 1 da página do BCB, fora de
+`/DadosBrutos/`, e o scraping não as encontra. As URLs delas estão fixas em
+`SOURCE_URLS`, no `constants.py`. No poll, o tamanho da `fonte_recurso` é a
+soma do `Content-Length` dos dois arquivos.
+
 ### `br_bcb_sicor__instituicao_financeira`
 
 Diretório das 650 instituições financeiras do Sicor (`IFsSicor` no manual,

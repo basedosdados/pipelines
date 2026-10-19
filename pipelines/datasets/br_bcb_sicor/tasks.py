@@ -6,7 +6,7 @@ import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.crawler.bcb.utils import (
+from pipelines.datasets.br_bcb_sicor.utils import (
     build_sicor_download_df,
     create_dictionary,
     create_empreendimento,
