@@ -157,7 +157,8 @@ def ler_arquitetura(table_id: str) -> pd.DataFrame:
         table_id: `curso` ou `ies`.
 
     Returns:
-        As colunas `name`, `bigquery_type` e `original_name`, uma linha por coluna.
+        As colunas `name`, `bigquery_type`, `original_name` e `temporal_coverage`,
+        uma linha por coluna.
 
     Raises:
         ValueError: Se a resposta não for um CSV, o que acontece quando a
@@ -179,7 +180,44 @@ def ler_arquitetura(table_id: str) -> pd.DataFrame:
         dtype=str,
         keep_default_na=False,
     )
-    return arquitetura[["name", "bigquery_type", "original_name"]]
+    return arquitetura[
+        ["name", "bigquery_type", "original_name", "temporal_coverage"]
+    ]
+
+
+def colunas_obrigatorias(arquitetura: pd.DataFrame, ano: int) -> set[str]:
+    """Lista as colunas do Inep que precisam estar no CSV de um ano.
+
+    Usa a `temporal_coverage` da arquitetura: vazia é o mesmo período da tabela
+    (obrigatória em todo ano); `AAAA(1)` vale de AAAA em diante; `AAAA(1)BBBB`
+    vale de AAAA a BBBB. Fora desse período a coluna pode faltar e fica nula.
+
+    Args:
+        arquitetura: Saída de `ler_arquitetura`.
+        ano: Edição do Censo.
+
+    Returns:
+        Os `original_name` obrigatórios no ano.
+
+    Raises:
+        ValueError: Se alguma `temporal_coverage` não estiver num desses formatos.
+    """
+    obrigatorias = set()
+    for original, cobertura in zip(
+        arquitetura.original_name, arquitetura.temporal_coverage, strict=True
+    ):
+        if not cobertura:
+            obrigatorias.add(original)
+            continue
+        periodo = re.fullmatch(r"(\d{4})\(1\)(\d{4})?", cobertura)
+        if not periodo:
+            raise ValueError(
+                f"temporal_coverage inválida na arquitetura: {original} = {cobertura!r}"
+            )
+        inicio, fim = int(periodo.group(1)), periodo.group(2)
+        if inicio <= ano <= (int(fim) if fim else ano):
+            obrigatorias.add(original)
+    return obrigatorias
 
 
 def extrair_csv(zip_path: Path, table_id: str) -> Path:
@@ -232,19 +270,27 @@ def nome_atual(coluna: str, table_id: str) -> str:
 
 
 def verificar_colunas(
-    csv_path: Path, arquitetura: pd.DataFrame, table_id: str
+    csv_path: Path, arquitetura: pd.DataFrame, table_id: str, ano: int
 ) -> None:
-    """Compara o cabeçalho do CSV do Inep com a arquitetura e avisa no log.
+    """Compara o cabeçalho do CSV do Inep com a arquitetura antes da carga.
 
-    Não interrompe a execução. Avisa as colunas que o Inep publicou e a
-    arquitetura não lista (serão descartadas) e as que a arquitetura lista e o
-    Inep não publicou (ficarão nulas). É por esses avisos que uma mudança do Inep
-    aparece na primeira execução depois dela.
+    - Coluna obrigatória no ano (ver `colunas_obrigatorias`) ausente no CSV:
+      **a carga falha**. É o que acontece quando o Inep renomeia ou retira uma
+      variável; sem o erro, a coluna iria inteira nula para a BD.
+    - Coluna da arquitetura ausente fora do seu período: fica nula, como
+      esperado (ex.: colunas criadas pelo Inep depois daquele ano).
+    - Coluna do Inep fora da arquitetura: é descartada, com aviso no log. Uma
+      variável nova não interrompe a carga; só entra depois de incluída na
+      planilha.
 
     Args:
         csv_path: CSV extraído por `extrair_csv`.
         arquitetura: Saída de `ler_arquitetura`.
         table_id: `curso` ou `ies`.
+        ano: Edição do Censo.
+
+    Raises:
+        ValueError: Se faltar no CSV alguma coluna obrigatória no ano.
     """
     with open(csv_path, encoding=constants.ENCODING.value) as arquivo:
         cabecalho = [
@@ -255,17 +301,27 @@ def verificar_colunas(
         ]
 
     originais = set(arquitetura.original_name)
+    obrigatorias = colunas_obrigatorias(arquitetura, ano)
+    faltando = sorted(obrigatorias - set(cabecalho))
+    if faltando:
+        raise ValueError(
+            f"{csv_path.name}: {len(faltando)} colunas obrigatórias em {ano} "
+            f"não estão no CSV do Inep: {faltando}. Se o Inep renomeou a coluna, "
+            "acrescente o nome antigo em constants.OLD_PREFIXES; se deixou de "
+            "publicá-la, ajuste a temporal_coverage na planilha de arquitetura."
+        )
+
     ignoradas = sorted(set(cabecalho) - originais)
-    ausentes = sorted(originais - set(cabecalho))
+    fora_do_periodo = sorted(originais - obrigatorias - set(cabecalho))
     if ignoradas:
         print(
             f"AVISO {csv_path.name}: {len(ignoradas)} colunas da fonte fora da "
             f"arquitetura, descartadas: {ignoradas}"
         )
-    if ausentes:
+    if fora_do_periodo:
         print(
-            f"AVISO {csv_path.name}: {len(ausentes)} colunas da arquitetura "
-            f"ausentes na fonte, ficarão nulas: {ausentes}"
+            f"{csv_path.name}: {len(fora_do_periodo)} colunas fora do período "
+            f"de coleta em {ano}, ficarão nulas: {fora_do_periodo}"
         )
 
 
@@ -434,7 +490,7 @@ def tratar_tabela(
     arquitetura = ler_arquitetura(table_id)
     csv_path = extrair_csv(zip_path, table_id)
     try:
-        verificar_colunas(csv_path, arquitetura, table_id)
+        verificar_colunas(csv_path, arquitetura, table_id, ano)
         blocos = (
             ajustar_valores(
                 aplicar_arquitetura(bloco, arquitetura, ano), arquitetura

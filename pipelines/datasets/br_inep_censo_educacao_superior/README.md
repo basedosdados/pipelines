@@ -58,9 +58,14 @@ O tratamento:
 - converte indicadores `1`/`0` em verdadeiro/falso, padroniza `id_municipio` com 7
   dígitos e retira as aspas que o Inep coloca no código CINE.
 
-Colunas da fonte que não estão na arquitetura são descartadas, e colunas da
-arquitetura que faltam na fonte ficam nulas. As duas situações aparecem como aviso
-no log da execução.
+Antes de carregar, a pipeline compara o CSV do Inep com a arquitetura:
+
+- se faltar uma coluna que deveria existir naquele ano (pela `temporal_coverage` da
+  planilha), **a carga falha**. Isso acontece quando o Inep renomeia ou retira uma
+  variável; a correção é registrar o nome antigo em `OLD_PREFIXES` (`constants.py`)
+  ou ajustar a cobertura na planilha;
+- colunas fora do seu período de coleta ficam nulas;
+- colunas novas do Inep, ainda fora da arquitetura, são descartadas com aviso no log.
 
 ## Como ler a tabela `curso`
 
