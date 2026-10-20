@@ -14,13 +14,13 @@ Checking ``Last-Modified`` on the individual-contributions zips (2026-08-20)::
     2008       -> 2021-11-01    2024 -> 2026-03-08
     2016       -> 2022-10-16    2022 -> 2026-08-16   (four days earlier)
 
-Only the oldest cycles look settled. Since ``refresh_cycle`` downloads just the current
-cycle, an amendment filed today against 2022 never reaches these tables — the data is
-correct as of each cycle's last ingest, not as of today. Note the full table rebuild does
-**not** mitigate this: staging for past cycles never changes, so every rebuilt past
-partition is recomputed byte-identical. Fixing it means widening the refresh window to
-the current cycle plus one or two prior, which pairs naturally with an incremental
-(``insert_overwrite`` on ``year``) materialization.
+Only the oldest cycles look settled. Since each table's extract_and_load downloads just
+the current cycle, an amendment filed today against 2022 never reaches these tables — the
+data is correct as of each cycle's last ingest, not as of today. Note the full table
+rebuild does **not** mitigate this: staging for past cycles never changes, so every
+rebuilt past partition is recomputed byte-identical. Fixing it means widening the refresh
+window to the current cycle plus one or two prior, which pairs naturally with an
+incremental (``insert_overwrite`` on ``year``) materialization.
 
 The upload uses ``dump_mode="append"``. "overwrite" would delete the whole staging table
 and, via ``tb.delete(mode="all")``, the prod table with it — throwing away 45 years of
@@ -28,245 +28,399 @@ history to refresh one cycle. "append" with a deterministic blob path
 (``staging/<ds>/<table>/year=<CYCLE>/data.parquet``) replaces exactly the current
 cycle's partition, which is the intended semantics.
 
-The four transaction tables are high-frequency, so they carry the BD Pro rolling
-window: the most recent 6 months are pro-only, everything older is free. The
-registration tables (candidate, committee, candidate_committee_link) have no date
-column and stay fully free.
+Migrated to the one-pipeline-per-table_id shape: 7 independent check_update /
+extract_and_load pairs, one per refreshed table (candidate, committee,
+candidate_committee_link, contribution_individual, contribution_committee,
+committee_transaction, disbursement), wired through
+``CheckThenExtractLoadPipeline``/``pipeline_factory`` (see ``tasks.py``). ``dicionario``
+is not part of this: it is static, built once at onboarding and never rebuilt by the
+recurring pipeline (see ``constants.py``).
 
-Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
-The dev pool strips the schedule entirely. The prod pool keeps it but deploys
+Every FEC bulk file type is its own ZIP, so there is no shared download to decompose —
+each table's extract_and_load already downloads only its own file, same as before the
+split. The dataset's only same-dataset ``ref()`` is ``schema.yml``'s
+``custom_dictionary_coverage`` test on each of the 7 tables, which reads
+``ref('us_fec_campaign_finance__dicionario')``. Unlike ``br_bcb_ifdata`` (where the
+referenced sibling is rebuilt by the very same recurring flow every cycle, creating a
+real run-before-sibling-exists race), ``dicionario`` here is a permanent fixture of both
+dev and prod from onboarding and is never touched again — so the generic
+``dispatch_build_and_promote`` (one deployment per table, run+test per table
+independently) is safe to use as-is, no batched materialization needed.
+
+Two check strategies, split by table (see ``tasks.CONTENT_TABLES``):
+
+* contribution_individual / contribution_committee / committee_transaction /
+  disbursement (the four transaction tables): the source republishes the whole current
+  cycle daily regardless of whether new rows actually landed, so a cheap Last-Modified
+  HEAD isn't a reliable "new data" signal. check_update downloads and parses the current
+  cycle for just that one table and compares the real max ``transaction_date`` against
+  the table's own Coverage — paying the download cost twice (once in check_update, again
+  in extract_and_load) when there is new data, per the house decision to always keep the
+  two stages separate.
+* candidate / committee / candidate_committee_link (registration snapshots): their
+  Coverage is year-only (the two-year election cycle), which doesn't move within a
+  cycle, so comparing against it would silently stop refreshing them after the first run
+  of each cycle. check_update instead HEADs the table's own bulk ZIP and compares its
+  Last-Modified against ``Table.Update.latest`` (``compare_against="table_update"``) —
+  the same fix au_ato_abr uses for its rolling-window tables, and cheaper besides (no
+  download at all).
+
+The four transaction tables carry the BD Pro rolling window: the most recent 6 months
+are pro-only, everything older is free. The registration tables (candidate, committee,
+candidate_committee_link) have no date column and stay fully free.
+
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers all 14 flows below.
+The dev pool strips the schedules entirely. The prod pool keeps them but deploys
 ``paused=True``, and the backend sync leaves an unknown deployment paused — arming is a
 manual step in Django admin (``/admin/admin_data_tools/disabledflowschedule/``), not a
 consequence of merging.
 """
 
-import shutil
-import tempfile
-
 from prefect.schedules import Cron
 
-from pipelines.datasets.us_fec_campaign_finance.constants import constants
-from pipelines.datasets.us_fec_campaign_finance.tasks import (
-    refresh_current_cycle,
+from pipelines.datasets.us_fec_campaign_finance.constants import (
+    CANDIDATE_COMMITTEE_LINK_TABLE_ID,
+    CANDIDATE_TABLE_ID,
+    COMMITTEE_TABLE_ID,
+    COMMITTEE_TRANSACTION_TABLE_ID,
+    CONTRIBUTION_COMMITTEE_TABLE_ID,
+    CONTRIBUTION_INDIVIDUAL_TABLE_ID,
+    DISBURSEMENT_TABLE_ID,
+    constants,
 )
+from pipelines.datasets.us_fec_campaign_finance.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 DATASET_ID = constants.DATASET_ID.value
-
-# The table the source poll and the source Update are anchored on. It is the
-# highest-volume table and the one that moves first when the FEC publishes, so it
-# is the right proxy for "did the source release anything new".
-POLL_TABLE = "contribution_individual"
-
-# Coverage spec per table.
-#
-# The four transaction tables refresh daily, so the house rule paywalls their most
-# recent window: free up to source_max - 6 months, pro after that.
-# register_table_materialization_task recomputes free_end and re-issues the BigQuery
-# Row Access Policies on every run, so the window rolls forward by itself and the dbt
-# models stay untouched. part_bdpro requires BOTH a free (is_closed=False) and a pro
-# (is_closed=True) Coverage to already exist on the table, or assert_coverage_topology
-# raises before anything is written — both are created at onboarding.
-#
-# candidate / committee / candidate_committee_link are registration snapshots with no
-# date column, so a rolling window is not defined for them and they stay AllFree on
-# the cycle. dicionario is static and is not refreshed at all.
-_FREE_LAG = FreeLag(unit="months", value=6)
-
-_COVERAGE = {
-    "contribution_individual": PartBdpro(
-        date_column=DateOnly(col="transaction_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "contribution_committee": PartBdpro(
-        date_column=DateOnly(col="transaction_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "committee_transaction": PartBdpro(
-        date_column=DateOnly(col="transaction_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "disbursement": PartBdpro(
-        date_column=DateOnly(col="transaction_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    # Registration snapshots: their only temporal column is `year`, the two-year
-    # election cycle labelled by the even year it ends in, so coverage is
-    # expressed on it at year granularity.
-    "candidate": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "committee": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "candidate_committee_link": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
-
-
-@flow(name="us_fec_campaign_finance", log_prints=True)
-def us_fec_campaign_finance_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-    cycle: int | None = None,
-) -> None:
-    """Re-pull the current FEC election cycle and materialize every table.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the prod
-            staging bucket and run dbt against ``target="prod"``. Set False to
-            exercise only the dev half — required for a safe test run, since the
-            default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new data.
-        cycle: Refresh this cycle instead of the current one. For backfilling a
-            single past cycle by hand; leave unset on scheduled runs.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="us_fec_campaign_finance_")
-    try:
-        result = refresh_current_cycle(work_dir=work_dir, cycle=cycle)
-        max_date = result["max_date"]
-
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_date,
-            env="prod",
-            date_format="%Y-%m-%d",
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        # Commit the source Update before materializing: if the flow fails midway,
-        # the source metadata still records that new data was published.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_date,
-            env="prod",
-            date_format="%Y-%m-%d",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        tables = [t for t in constants.ALL_TABLES.value if t in result]
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Run every table, THEN test every table — never interleave per table. The
-            # custom_dictionary_coverage tests read the sibling dicionario model, so a
-            # per-table run/test would test a table before its sibling exists in a clean
-            # environment. Same class of bug as us_fed_fred's observation<->series FK.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="append",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload + run ALL tables first, THEN test (see the dev-phase note).
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table in tables:
-                # Indexed, not .get() with a default: every refreshed table must
-                # declare its own tier. A silent fallback here would register a
-                # PartBdpro table as free and quietly disable its paywall, so a
-                # missing spec should fail loudly instead.
-                coverage = _COVERAGE[table]
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-    finally:
-        # Covers both early returns (no new data, dev-only) and any exception.
-        shutil.rmtree(work_dir, ignore_errors=True)
-
 
 # The FEC reposts the current cycle's bulk files daily, but individual contributions
 # alone are multi-GB, so a daily full-cycle re-pull is wasteful. Weekly on Sunday at
 # 05:00 BRT keeps the lag under a week outside the pre-election crunch; the
-# source-poll guard makes a run with nothing new a cheap no-op.
-us_fec_campaign_finance_flow.deploy_schedules = [
-    Cron("20 5 * * 0", timezone="America/Sao_Paulo")
-]
+# check_update poll makes a week with nothing new a cheap no-op. Same cadence for all
+# 7 tables — matches the previous single-flow cron.
+_CHECK_UPDATE_SCHEDULE = [Cron("20 5 * * 0", timezone="America/Sao_Paulo")]
 
-# The current cycle's individual-contributions file is ~2 GB compressed and is parsed
-# in 1M-row chunks; size the worker to the parse peak plus parquet buffers.
-us_fec_campaign_finance_flow.job_variables = {"memory": "8Gi"}
+# contribution_individual's current-cycle file is ~2 GB compressed and is parsed in 1M-
+# row chunks; the other three transaction tables are smaller but still sizable, so size
+# every heavy table's worker the same as before the split. Both check_update (which
+# downloads and parses the file to find the real max transaction_date) and
+# extract_and_load pay this cost. The three registration snapshots (candidate,
+# committee, candidate_committee_link) are small and use the pool default instead.
+_HEAVY_JOB_VARIABLES = {"memory": "8Gi"}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# contribution_individual
+# check_update: us_fec_campaign_finance__contribution_individual
+# extract_and_load: us_fec_campaign_finance__contribution_individual
+# ──────────────────────────────────────────────────────────────────────────────
+
+_contribution_individual_pipeline = make_pipeline(
+    CONTRIBUTION_INDIVIDUAL_TABLE_ID
+)
+
+
+@flow(
+    name=_contribution_individual_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_contribution_individual_check_update() -> None:
+    _contribution_individual_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_contribution_individual_check_update.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.CHECK_UPDATE, CONTRIBUTION_INDIVIDUAL_TABLE_ID
+    )
+)
+us_fec_campaign_finance_contribution_individual_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+us_fec_campaign_finance_contribution_individual_check_update.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+
+
+@flow(
+    name=_contribution_individual_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_contribution_individual_download(
+    download_params: dict,
+) -> None:
+    _contribution_individual_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_contribution_individual_download.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, CONTRIBUTION_INDIVIDUAL_TABLE_ID
+    )
+)
+us_fec_campaign_finance_contribution_individual_download.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+_contribution_individual_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_contribution_individual_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# contribution_committee
+# check_update: us_fec_campaign_finance__contribution_committee
+# extract_and_load: us_fec_campaign_finance__contribution_committee
+# ──────────────────────────────────────────────────────────────────────────────
+
+_contribution_committee_pipeline = make_pipeline(
+    CONTRIBUTION_COMMITTEE_TABLE_ID
+)
+
+
+@flow(
+    name=_contribution_committee_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_contribution_committee_check_update() -> None:
+    _contribution_committee_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_contribution_committee_check_update.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.CHECK_UPDATE, CONTRIBUTION_COMMITTEE_TABLE_ID
+    )
+)
+us_fec_campaign_finance_contribution_committee_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+us_fec_campaign_finance_contribution_committee_check_update.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+
+
+@flow(
+    name=_contribution_committee_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_contribution_committee_download(
+    download_params: dict,
+) -> None:
+    _contribution_committee_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_contribution_committee_download.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, CONTRIBUTION_COMMITTEE_TABLE_ID
+    )
+)
+us_fec_campaign_finance_contribution_committee_download.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+_contribution_committee_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_contribution_committee_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# committee_transaction
+# check_update: us_fec_campaign_finance__committee_transaction
+# extract_and_load: us_fec_campaign_finance__committee_transaction
+# ──────────────────────────────────────────────────────────────────────────────
+
+_committee_transaction_pipeline = make_pipeline(COMMITTEE_TRANSACTION_TABLE_ID)
+
+
+@flow(
+    name=_committee_transaction_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_committee_transaction_check_update() -> None:
+    _committee_transaction_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_committee_transaction_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, COMMITTEE_TRANSACTION_TABLE_ID)
+)
+us_fec_campaign_finance_committee_transaction_check_update.deploy_schedules = (
+    _CHECK_UPDATE_SCHEDULE
+)
+us_fec_campaign_finance_committee_transaction_check_update.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+
+
+@flow(
+    name=_committee_transaction_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_committee_transaction_download(
+    download_params: dict,
+) -> None:
+    _committee_transaction_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_committee_transaction_download.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, COMMITTEE_TRANSACTION_TABLE_ID
+    )
+)
+us_fec_campaign_finance_committee_transaction_download.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+_committee_transaction_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_committee_transaction_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# disbursement
+# check_update: us_fec_campaign_finance__disbursement
+# extract_and_load: us_fec_campaign_finance__disbursement
+# ──────────────────────────────────────────────────────────────────────────────
+
+_disbursement_pipeline = make_pipeline(DISBURSEMENT_TABLE_ID)
+
+
+@flow(name=_disbursement_pipeline.check_update_flow_name, log_prints=True)
+def us_fec_campaign_finance_disbursement_check_update() -> None:
+    _disbursement_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_disbursement_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, DISBURSEMENT_TABLE_ID
+)
+us_fec_campaign_finance_disbursement_check_update.deploy_schedules = (
+    _CHECK_UPDATE_SCHEDULE
+)
+us_fec_campaign_finance_disbursement_check_update.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+
+
+@flow(name=_disbursement_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_fec_campaign_finance_disbursement_download(
+    download_params: dict,
+) -> None:
+    _disbursement_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_disbursement_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DISBURSEMENT_TABLE_ID
+)
+us_fec_campaign_finance_disbursement_download.job_variables = (
+    _HEAVY_JOB_VARIABLES
+)
+_disbursement_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_disbursement_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# candidate
+# check_update: us_fec_campaign_finance__candidate
+# extract_and_load: us_fec_campaign_finance__candidate
+# ──────────────────────────────────────────────────────────────────────────────
+
+_candidate_pipeline = make_pipeline(CANDIDATE_TABLE_ID)
+
+
+@flow(name=_candidate_pipeline.check_update_flow_name, log_prints=True)
+def us_fec_campaign_finance_candidate_check_update() -> None:
+    _candidate_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_candidate_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, CANDIDATE_TABLE_ID
+)
+us_fec_campaign_finance_candidate_check_update.deploy_schedules = (
+    _CHECK_UPDATE_SCHEDULE
+)
+
+
+@flow(name=_candidate_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_fec_campaign_finance_candidate_download(download_params: dict) -> None:
+    _candidate_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_candidate_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, CANDIDATE_TABLE_ID
+)
+_candidate_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_candidate_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# committee
+# check_update: us_fec_campaign_finance__committee
+# extract_and_load: us_fec_campaign_finance__committee
+# ──────────────────────────────────────────────────────────────────────────────
+
+_committee_pipeline = make_pipeline(COMMITTEE_TABLE_ID)
+
+
+@flow(name=_committee_pipeline.check_update_flow_name, log_prints=True)
+def us_fec_campaign_finance_committee_check_update() -> None:
+    _committee_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_committee_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, COMMITTEE_TABLE_ID
+)
+us_fec_campaign_finance_committee_check_update.deploy_schedules = (
+    _CHECK_UPDATE_SCHEDULE
+)
+
+
+@flow(name=_committee_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_fec_campaign_finance_committee_download(download_params: dict) -> None:
+    _committee_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_committee_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, COMMITTEE_TABLE_ID
+)
+_committee_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_committee_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# candidate_committee_link
+# check_update: us_fec_campaign_finance__candidate_committee_link
+# extract_and_load: us_fec_campaign_finance__candidate_committee_link
+# ──────────────────────────────────────────────────────────────────────────────
+
+_candidate_committee_link_pipeline = make_pipeline(
+    CANDIDATE_COMMITTEE_LINK_TABLE_ID
+)
+
+
+@flow(
+    name=_candidate_committee_link_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_candidate_committee_link_check_update() -> None:
+    _candidate_committee_link_pipeline.run_check_update()
+
+
+us_fec_campaign_finance_candidate_committee_link_check_update.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.CHECK_UPDATE, CANDIDATE_COMMITTEE_LINK_TABLE_ID
+    )
+)
+us_fec_campaign_finance_candidate_committee_link_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(
+    name=_candidate_committee_link_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def us_fec_campaign_finance_candidate_committee_link_download(
+    download_params: dict,
+) -> None:
+    _candidate_committee_link_pipeline.run_extract_and_load(download_params)
+
+
+us_fec_campaign_finance_candidate_committee_link_download.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, CANDIDATE_COMMITTEE_LINK_TABLE_ID
+    )
+)
+_candidate_committee_link_pipeline.extract_load_deployment = (
+    us_fec_campaign_finance_candidate_committee_link_download.fn.__name__
+)

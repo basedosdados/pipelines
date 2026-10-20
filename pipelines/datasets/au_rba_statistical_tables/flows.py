@@ -3,12 +3,50 @@ Flows for au_rba_statistical_tables — Prefect 3.
 
 Reserve Bank of Australia statistical tables. Every CSV carries the full history
 of its series, so each run is a **full replace** (``dump_mode="overwrite"``),
-not an incremental append. A single flow downloads all ~220 CSVs once and
-rebuilds all four tables.
+not an incremental append.
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
-`au_rba_statistical_tables_flow`; the dev pool ignores the schedule, the prod
-pool activates it.
+Migrated to check_update -> extract_and_load, SEM `build_and_promote`: ao
+contrário do shape padrão de um `pipeline_factory`/`CheckThenExtractLoadPipeline`
+(ver `pipelines/utils/stage_dispatch.py`), este dataset tem duas restrições que o
+building block genérico não resolve sozinho — o mesmo par de restrições de
+`br_bcb_ifdata`/`us_sec_edgar`.
+
+1. Download compartilhado e não decomponível: uma única varredura dos ~220 CSVs
+   (`download_all` + `clean_all`) produz as quatro tabelas juntas (`data`,
+   `series`, `series_break`, `dicionario`) — não dá para baixar/limpar uma
+   tabela de cada vez sem reprocessar a varredura inteira 4x. Por isso há só UM
+   `check_update` e UM `extract_and_load` para o dataset inteiro, não um par
+   por tabela.
+
+2. Ordem obrigatória no dbt: o teste `dbt_utils.expression_is_true` de `data`
+   referencia `ref('au_rba_statistical_tables__series')` (chave estrangeira
+   composta), e o `custom_dictionary_coverage` de `series_break` referencia
+   `ref('au_rba_statistical_tables__dicionario')` (ver
+   `models/au_rba_statistical_tables/schema.yml`) — então as quatro tabelas
+   precisam ser `run` antes de QUALQUER uma ser `test`ada (ver o docstring de
+   `_materialize` abaixo). O `dispatch_build_and_promote` genérico não serve
+   aqui: ele dispara um `build_and_promote` POR TABELA, cada um de forma
+   assíncrona e independente, o que reabriria exatamente essa race (teste de
+   uma tabela rodando antes de a outra existir). A solução é não usar
+   `dispatch_build_and_promote`: `extract_and_load` chama `_materialize`
+   diretamente, que sobe as 4 tabelas, roda `dbt run` de todas e só depois
+   `dbt test` de todas.
+
+`get_latest_update` (tasks.py) não tem sinal de frescor barato: a data de
+publicação só existe dentro de cada CSV, então o check_update baixa e faz o
+parse completo da fonte só pra ler esse carimbo — o mesmo trabalho que
+`extract_and_load` repete, de forma independente, pra baixar de verdade (ver o
+banner em tasks.py). Custo duplicado aceito em troca de um único formato de
+pipeline em todo o repo (check_update -> extract_and_load, mesmo quando o
+check precisa baixar dado).
+
+`register_table_materialization_task` também continua chamada diretamente
+dentro de `extract_and_load`, não via um `build_and_promote` genérico, pelo
+mesmo motivo do item 2.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows
+below; the dev pool ignores the check_update schedule, the prod pool activates
+it (deployed paused).
 """
 
 import shutil
@@ -20,13 +58,15 @@ from pipelines.datasets.au_rba_statistical_tables.constants import constants
 from pipelines.datasets.au_rba_statistical_tables.tasks import (
     clean_rba,
     download_rba,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
+from pipelines.utils.metadata.tasks import register_table_materialization_task
+from pipelines.utils.stage_dispatch import (
+    Etapa,
+    check_update_and_dispatch,
+    deploy_tags,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -36,6 +76,14 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = constants.POLL_TABLE.value
+ALL_TABLES = constants.ALL_TABLES.value
+
+# Name of the `au_rba_statistical_tables_extract_and_load` flow below
+# (`deploy_flows.py` registers a deployment under the Python variable name of
+# the `@flow`). Passed explicitly to `check_update_and_dispatch` because it's
+# literally `str(Etapa.EXTRACT_AND_LOAD)` already — kept explicit so it
+# doesn't depend on that coincidence.
+_EXTRACT_AND_LOAD_DEPLOYMENT = "au_rba_statistical_tables_extract_and_load"
 
 # Coverage spec per table.
 #
@@ -61,135 +109,126 @@ _COVERAGE = {
 }
 
 
-@flow(name="au_rba_statistical_tables", log_prints=True)
-def au_rba_statistical_tables_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Download the RBA statistical tables, rebuild all four tables, materialize them.
+def _materialize(target: str, bucket: str, paths: dict) -> None:
+    """Sobe o staging e materializa todas as tabelas, depois testa todas.
 
-    The RBA republishes the full history of each table on every release, so each
-    run is a full replace (``dump_mode="overwrite"``) rather than an incremental
-    append. The source poll short-circuits the run when the RBA has published
-    nothing since the last refresh, which makes a scheduled run a cheap no-op on
-    quiet days.
+    A separação entre `run` e `test` é obrigatória aqui, não estilística: o
+    `dbt_utils.expression_is_true` de `data` referencia
+    `ref('au_rba_statistical_tables__series')`, e o `custom_dictionary_coverage`
+    de `series_break` referencia `ref('au_rba_statistical_tables__dicionario')`.
+    Testando tabela a tabela, o teste da primeira roda antes de a irmã existir e
+    falha com `Not found: Table ... au_rba_statistical_tables.series`. Num
+    ambiente já povoado isso passa despercebido porque a irmã sobrou da build
+    anterior; só quebra num ambiente limpo, então a ordem precisa ser
+    estrutural.
+    """
+    for table in ALL_TABLES:
+        upload_to_gcs(
+            data_path=paths[table],
+            dataset_id=DATASET_ID,
+            table_id=table,
+            bucket_name=bucket,
+            dump_mode="overwrite",
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
 
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports nothing new.
+    for table in ALL_TABLES:
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
+
+
+@flow(name=f"{Etapa.CHECK_UPDATE}: {DATASET_ID}", log_prints=True)
+def au_rba_statistical_tables_check_update() -> bool:
+    """Baixa e faz o parse da fonte pra ler a data de publicação mais recente.
+
+    Ver o banner de `tasks.get_latest_update` pra por que esse estágio já baixa
+    e faz o parse completo dos ~220 CSVs, em vez de um poll barato.
+
+    Returns:
+        `True` se havia publicação nova (e `extract_and_load` foi disparado);
+        `False` caso contrário.
     """
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="statistical_tables"
+        prefix="Check Update: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+    )
+
+    result = get_latest_update()
+    print(f"max publication_date na fonte: {result.reference_date}")
+
+    return check_update_and_dispatch(
+        prefect_dataset_id=DATASET_ID,
+        dataset_id=DATASET_ID,
+        table_id=POLL_TABLE,
+        reference_date=result.reference_date,
+        next_deployment=_EXTRACT_AND_LOAD_DEPLOYMENT,
+        date_format="%Y-%m-%d",
+        compare_against=result.compare_against,
+    )
+
+
+au_rba_statistical_tables_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+# The RBA publishes on Sydney business days, typically late morning AEST — which
+# is the small hours in São Paulo. Run daily at 09:00 BRT, comfortably after.
+au_rba_statistical_tables_check_update.deploy_schedules = [
+    Cron("40 9 * * *", timezone="America/Sao_Paulo")
+]
+# check_update downloads and parses every CSV too (see tasks.py), holding the
+# same ~1.5M parsed observations in memory.
+au_rba_statistical_tables_check_update.job_variables = {"memory": "4Gi"}
+
+
+@flow(name=f"{Etapa.EXTRACT_AND_LOAD}: {DATASET_ID}", log_prints=True)
+def au_rba_statistical_tables_extract_and_load(
+    download_params: dict,
+    materialize_to_prod: bool = True,
+    update_metadata: bool = True,
+) -> None:
+    """Baixa os ~220 CSVs de novo, reconstrói as 4 tabelas e materializa em lote.
+
+    Args:
+        download_params: dict recebido do `check_update` via `run_deployment()`
+            — só carrega `reference_date` (a publicação que disparou esta run);
+            não é usado para decidir o que baixar (a fonte não tem parâmetro de
+            período, é sempre a varredura inteira), só para rastreabilidade.
+        materialize_to_prod: segue além da materialização em dev para escrever
+            o bucket de prod e rodar o dbt com `target="prod"`. Use False para
+            exercitar só a metade dev — necessário para uma run de teste
+            segura, já que o padrão escreve produção. Disparar este flow
+            manualmente com `materialize_to_prod=False` substitui o antigo
+            parâmetro `force_run` do flow monolítico: como `extract_and_load`
+            agora é disparável direto (sem depender do poll de `check_update`
+            achar publicação nova), rematerializar sob demanda não exige mais
+            uma flag separada.
+        update_metadata: registra cobertura das tabelas após a materialização
+            em prod. Sem efeito quando `materialize_to_prod` é False.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Extract and Load: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
 
     work_dir = tempfile.mkdtemp(prefix="au_rba_statistical_tables_")
     try:
         input_dir = download_rba(work_dir=work_dir)
         result = clean_rba(work_dir=work_dir, input_dir=input_dir)
-        max_pub = result["max_publication_date"]
 
-        # The freshness signal is the RBA's own "Publication date" stamp, the
-        # max across all series — a publication timestamp, not a coverage
-        # competência, so it is compared against Table.Update.latest rather than
-        # the coverage range. Comparing against coverage would stall the poll:
-        # the newest coverage date belongs to a forward-dated quarterly
-        # expectations series (G3), months ahead of the daily data.
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_pub,
-            env="prod",
-            date_format="%Y-%m-%d",
-            compare_against="table_update",
-        )
-        if not has_new_data and not force_run:
-            print(f"Nada novo na fonte (max publication_date = {max_pub}).")
-            return
+        _materialize("dev", "basedosdados-dev", result)
 
-        # Commit the source Update before materializing: if the flow dies
-        # mid-run, the source metadata still records that new data had been
-        # published, even though the tables were not refreshed.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_pub,
-            env="prod",
-            date_format="%Y-%m-%d",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
-            # Dev: upload + build EVERY table first, then test them all.
-            #
-            # Never interleave run/test per table. `data` carries a composite
-            # foreign-key test against `series`, and `series_break` a
-            # dictionary-coverage test against `dicionario` — both read sibling
-            # models. Interleaved, the first table's tests run before its sibling
-            # exists and fail with "Not found: Table ...". This is silent in a
-            # re-run where a stale sibling survives, and only bites in a clean
-            # environment, so it has to be structural.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
             return
 
-        # Prod: same two-pass shape.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
+        _materialize("prod", "basedosdados", result)
 
         if update_metadata:
             for table, coverage in _COVERAGE.items():
@@ -201,17 +240,14 @@ def au_rba_statistical_tables_flow(
                     bq_project="basedosdados",
                 )
     finally:
-        # Covers both early returns (no new data, dev-only) and any exception.
-        # The k8s work pool gives each run a fresh pod, but a process/local
-        # worker reuses its filesystem.
+        # Covers both the dev-only early return and any exception. The k8s
+        # work pool gives each run a fresh pod, but a process/local worker
+        # reuses its filesystem.
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# The RBA publishes on Sydney business days, typically late morning AEST — which
-# is the small hours in São Paulo. Run daily at 09:00 BRT, comfortably after;
-# the source-poll guard makes weekends and quiet days a no-op.
-au_rba_statistical_tables_flow.deploy_schedules = [
-    Cron("40 9 * * *", timezone="America/Sao_Paulo")
-]
+au_rba_statistical_tables_extract_and_load.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+)
 # The clean step holds ~1.5M parsed observations in memory before writing.
-au_rba_statistical_tables_flow.job_variables = {"memory": "4Gi"}
+au_rba_statistical_tables_extract_and_load.job_variables = {"memory": "4Gi"}

@@ -5,7 +5,7 @@ publicados pelo Ministério do Trabalho e Emprego: cada linha é uma admissão o
 desligamento de emprego formal.
 
 - Fonte: FTP anônimo `ftp.mtps.gov.br`, pasta `pdet/microdados/NOVO CAGED/`
-- Código: `pipelines/datasets/br_me_caged/flows.py`, `pipelines/crawler/me_caged/` e
+- Código: `pipelines/datasets/br_me_caged/flows.py`, `pipelines/shared/me_caged/` e
   `models/br_me_caged/`
 
 ## A fonte
@@ -134,7 +134,7 @@ têm. Para reprocessar:
    `tmp/`):
 
    ```python
-   from pipelines.crawler.me_caged.tasks import (
+   from pipelines.shared.me_caged.tasks import (
        build_partitions,
        build_table_paths,
        crawl_novo_caged_ftp,

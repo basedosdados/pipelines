@@ -1,6 +1,9 @@
-"""Prefect 3 tasks for us_sec_edgar — thin wrappers over utils.py."""
+"""Prefect 3 tasks for us_sec_edgar — thin wrappers over utils.py, plus the
+check_update entry point the staged pipeline dispatches through (see the
+module banner in flows.py)."""
 
 import os
+from datetime import date
 
 import basedosdados as bd
 from pandas_gbq.exceptions import GenericGBQException
@@ -15,6 +18,7 @@ from pipelines.datasets.us_sec_edgar.utils import (
     merge_observed,
     observed_from_rows,
 )
+from pipelines.utils.stage_dispatch import SourceInspection
 
 DATASET_ID = constants.DATASET_ID.value
 
@@ -39,6 +43,30 @@ def resolve_latest_quarter() -> dict:
         "quarter": quarter,
         "max_date": f"{year}-{quarter * 3:02d}",
     }
+
+
+def get_latest_update() -> SourceInspection:
+    """Resolve the newest quarter the SEC actually serves, for check_update.
+
+    Thin wrapper over `resolve_latest_quarter` that reshapes its result into
+    the `SourceInspection` the staged pipeline's `check_update_and_dispatch`
+    expects. `year`/`quarter` are round-tripped to `extract_and_load` via
+    `extra_download_params` rather than re-derived from `reference_date`
+    there, since re-probing the SEC index in extract_and_load could race a
+    new quarter landing in between.
+
+    Returns:
+        `SourceInspection` with `reference_date` set to the quarter's last
+        month (day fixed at 1, matching how `max_date` reads a year/quarter
+        column as `DATE(year, quarter * 3, 1)`), so the poll compares like
+        with like against the table's `Coverage`.
+    """
+    latest = resolve_latest_quarter()
+    year, quarter = int(latest["year"]), int(latest["quarter"])
+    return SourceInspection(
+        reference_date=date(year, quarter * 3, 1),
+        extra_download_params={"year": year, "quarter": quarter},
+    )
 
 
 @task(retries=2, retry_delay_seconds=60)
