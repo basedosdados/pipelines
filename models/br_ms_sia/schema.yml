@@ -4,6 +4,70 @@ models:
   - name: br_ms_sia__producao_ambulatorial
     description: Esta tabela contém o registro de processos ambulatorias realizados
       em todo sistema de saúde nacional - público e privado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf
+            - id_municipio
+            - id_estabelecimento_cnes
+            - tipo_regra_contratual
+            - id_equipe
+            - id_servico_especializado
+            - id_processamento_ambulatorial
+            - id_cns_executante
+            - id_cbo_2002
+            - codigo_autorizacao_apac
+            - codigo_ocorrencia
+            - tipo_financiamento_producao
+            - subtipo_financiamento_producao
+            - ano_processamento_procedimento
+            - mes_processamento_procedimento
+            - ano_realizacao_procedimento
+            - mes_realizacao_procedimento
+            - cid_principal_categoria
+            - cid_principal_subcategoria
+            - cid_secundario_categoria
+            - cid_secundario_subcategoria
+            - cid_causas_associadas_categoria
+            - cid_causas_associadas_subcategoria
+            - carater_atendimento
+            - id_paciente_proto
+            - sexo_paciente
+            - idade_paciente
+            - raca_cor_paciente
+            - etnia_paciente
+            - idade_minima_paciente
+            - idade_maxima_paciente
+            - compatibilidade_idade_procedimento
+            - complexidade_procedimento
+            - instrumento_registro
+            - valor_aprovado_procedimento
+            - quantidade_aprovada_procedimento
+            - valor_produzido_procedimento
+            - quantidade_produzida_procedimento
+            - valor_unitario_procedimento_vpa
+            - valor_unitario_procedimento_sigtap
+            - diferenca_valor_unitario
+            - valor_complemento_federal
+            - valor_complemento_local
+            - valor_incremento
+            - motivo_saida_paciente
+            - indicador_uf_residencia_paciente
+            - indicador_municipio_residencia_paciente
+            - indicador_incrementos_outros
+            - indicador_incrementos_urgencia
+            - indicador_obito
+            - indicador_encerramento
+            - indicador_permanencia
+            - indicador_alta
+            - indicador_transferencia
+            - tipo_situacao_produzida
+            - tipo_erro_quantidade_produzida
+            - flag_erro_corpo_apac
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
