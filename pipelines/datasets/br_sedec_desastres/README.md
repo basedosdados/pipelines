@@ -217,7 +217,7 @@ browser, o que deixa `ViewState`, sessão e postback a cargo do Chrome.
 
 A imagem do repo suporta: o `Dockerfile` instala `google-chrome-stable` e
 `webdriver-manager` é dependência pinada. Precedentes de selenium no repo:
-`pipelines/crawler/stf_corte_aberta/utils.py` e `pipelines/crawler/bcb/utils.py`,
+`pipelines/datasets/br_stf_corte_aberta/utils.py` e `pipelines/shared/bcb/utils.py`,
 ambos esperando com `time.sleep` fixo. Aqui a espera é por `WebDriverWait` e por
 `_wait_for_download`, que sonda o `.crdownload` até o arquivo fechar.
 
