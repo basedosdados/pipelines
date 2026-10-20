@@ -149,7 +149,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, LB, BH]
       - name: situacao
         description: Situação
       - name: tipo_eleicao
