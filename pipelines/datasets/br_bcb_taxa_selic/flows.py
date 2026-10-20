@@ -1,162 +1,55 @@
 """
-Flow br_bcb_taxa_selic — Prefect 3.
+Flows para br_bcb_taxa_selic — Prefect 3.
+
+Migrado pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote. Lógica específica do
+dataset mora em `tasks.py`, constantes em `constants.py` — aqui só a fiação
+(`CheckThenExtractLoadPipeline` + `@flow`).
+
+A série da Selic (BCB SGS 11) não aceita filtro por data — toda chamada
+devolve a série completa. Por isso `check_update` baixa o dado inteiro só
+pra achar a data mais recente, e `extract_and_load` baixa de novo de forma
+independente (custo duplicado aceito; a variante `check_and_download` que
+evitaria isso foi cancelada).
 """
 
-import os
-
-import pandas as pd
-import requests
-from prefect import task
 from prefect.schedules import Cron
 
+from pipelines.datasets.br_bcb_taxa_selic.constants import DATASET_ID, TABLE_ID
+from pipelines.datasets.br_bcb_taxa_selic.tasks import (
+    extract_load_data,
+    get_latest_update,
+)
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllBdpro,
-    DateFormat,
-    DateOnly,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
 
-DATASET_ID = "br_bcb_taxa_selic"
-TABLE_ID = "taxa_selic"
-API_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json"
-
-# BCB rejects requests sem User-Agent (HTTP 406)
-_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Accept": "application/json",
-}
-
-
-@task(retries=3, retry_delay_seconds=10)
-def get_selic_data() -> str:
-    response = requests.get(API_URL, headers=_HEADERS, timeout=30)
-    response.raise_for_status()
-    df = pd.DataFrame(response.json())
-
-    os.makedirs(f"tmp/{TABLE_ID}/input", exist_ok=True)
-    filepath = f"tmp/{TABLE_ID}/input/{TABLE_ID}.csv"
-    df.to_csv(filepath, index=False)
-    print(f"Dados salvos: {len(df)} linhas → {filepath}")
-    return filepath
-
-
-@task
-def treat_selic_data() -> dict:
-    df = pd.read_csv(f"tmp/{TABLE_ID}/input/{TABLE_ID}.csv")
-    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y").dt.date
-
-    os.makedirs(f"tmp/{TABLE_ID}/output", exist_ok=True)
-    filepath = f"tmp/{TABLE_ID}/output/{TABLE_ID}.csv"
-    df.to_csv(filepath, index=False)
-    max_date = str(df["data"].max())
-    print(f"Dados tratados: {len(df)} linhas, última data: {max_date}")
-    return {"save_output_path": filepath, "max_date": max_date}
-
-
-@flow(
-    name="br_bcb_taxa_selic__taxa_selic",
-    log_prints=True,
+_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=TABLE_ID,
+    get_latest_update=get_latest_update,
+    extract_load_data=extract_load_data,
 )
-def br_bcb_taxa_selic__taxa_selic(
-    dataset_id: str = DATASET_ID,
-    table_id: str = TABLE_ID,
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    get_selic_data()
-    file_info = treat_selic_data()
-
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=file_info["max_date"],
-            env="prod",
-            date_format="%Y-%m-%d",
-            compare_against="coverage",
-        )
-        if not has_new_data:
-            return
-
-    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-    # novo publicado, mesmo que a tabela não tenha sido atualizada.
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=file_info["max_date"],
-        env="prod",
-        date_format="%Y-%m-%d",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
-
-    upload_to_gcs(
-        data_path=file_info["save_output_path"],
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=file_info["save_output_path"],
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=AllBdpro(
-                date_column=DateOnly(col="data"),
-                date_format=DateFormat.YEAR_MD,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
 
 
-br_bcb_taxa_selic__taxa_selic.deploy_schedules = [
+@flow(name=_pipeline.check_update_flow_name, log_prints=True)
+def check_update() -> None:
+    _pipeline.run_check_update()
+
+
+check_update.deploy_tags = deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
+# Mesmo cron do flow monolítico antigo (main).
+check_update.deploy_schedules = [
     Cron("0 8 * * *", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_pipeline.extract_and_load_flow_name, log_prints=True)
+def extract_and_load(download_params: dict) -> None:
+    _pipeline.run_extract_and_load(download_params)
+
+
+extract_and_load.deploy_tags = deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD)

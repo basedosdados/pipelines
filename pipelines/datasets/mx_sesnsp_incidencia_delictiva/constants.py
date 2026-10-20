@@ -14,6 +14,13 @@ SharePoint download trick, and the label→token mapping.
 from enum import Enum
 from pathlib import Path
 
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    FreeLag,
+    PartBdpro,
+    YearMonth,
+)
+
 # Repo root, then the committed architecture CSVs (the single schema source of
 # truth — column order + bigquery_type per table).
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -74,3 +81,35 @@ class constants(Enum):
         / "code"
         / "architecture"
     )
+
+
+# Table ids. Kept here as plain literals (not Enum members) so `tasks.py`/
+# `flows.py` can import them directly — one independent check_update/
+# extract_and_load pair per table (see `pipelines.utils.stage_dispatch.
+# pipeline_factory`), same convention as `br_cgu_sancoes`.
+MUNICIPIO_DELITOS_TABLE_ID = "municipio_delitos"
+ESTATAL_DELITOS_TABLE_ID = "estatal_delitos"
+ESTATAL_VICTIMAS_TABLE_ID = "estatal_victimas"
+MUNICIPIO_VICTIMAS_TABLE_ID = "municipio_victimas"
+
+# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
+# through it, by `register_table_materialization_task`/`build_and_promote`.
+#
+# All four tables refresh monthly, so each carries the BD Pro rolling window:
+# the most recent 6 months are pro-only, everything older is free. Each run
+# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges, and
+# re-issues the BigQuery Row Access Policies, so the window slides forward on its
+# own.
+#
+# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+# Coverage to already exist on the table, or assert_coverage_topology raises
+# before anything is written. The frozen *_2015_2025 tables are not in this
+# pipeline and stay AllFree.
+COVERAGE = {
+    table: PartBdpro(
+        date_column=YearMonth(year="ano", month="mes"),
+        date_format=DateFormat.YEAR_MONTH,
+        free_lag=FreeLag(unit="months", value=6),
+    )
+    for table in constants.ALL_TABLES.value
+}

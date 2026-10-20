@@ -50,7 +50,7 @@ runs anteriores.
 
 ### A data da fonte vem de um `<h2>` raspado, não dos arquivos
 
-`parse_last_date` (`pipelines/crawler/me_comex_stat/tasks.py`) lê o seletor
+`parse_last_date` (`pipelines/datasets/br_me_comex_stat/tasks.py`) lê o seletor
 `#parent-fieldname-text > h2` da página de base bruta:
 
 ```text
@@ -71,7 +71,7 @@ Duas fragilidades para ter em mente:
 
 ### A validação contra os totais oficiais derruba a run
 
-`validate_table` (`pipelines/crawler/me_comex_stat/utils.py`) baixa o arquivo de
+`validate_table` (`pipelines/datasets/br_me_comex_stat/utils.py`) baixa o arquivo de
 conferência do MDIC (`*_TOTAIS_CONFERENCIA*.csv`) e compara, para o ano de
 referência, as somas de `valor_fob_dolar`, `peso_liquido_kg` e
 `quantidade_estatistica` mais a contagem de linhas. Qualquer divergência levanta
