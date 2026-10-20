@@ -4,6 +4,18 @@ Constantes de br_inep_enem.
 
 from enum import Enum
 
+from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+
+# Migrado pro pipeline em estágios (staged pipeline) — DATASET_ID e os
+# TABLE_ID abaixo seguem a convenção usada por `pipeline_factory`/
+# `CheckThenExtractLoadPipeline`, mesmo padrão de `br_ibge_ppm`/`br_ibge_ipca`.
+# `questionario_socioeconomico` fica fora: não tem flow agendado, de
+# propósito (ver README.md), então não entra no pipeline em estágios.
+DATASET_ID = "br_inep_enem"
+
+PARTICIPANTES_TABLE_ID = "participantes"
+RESULTADOS_TABLE_ID = "resultados"
+
 
 class constants(Enum):
     """Constantes de br_inep_enem."""
@@ -183,3 +195,14 @@ class constants(Enum):
     }
 
     BOOLEAN_COLUMNS = {"indicador_treineiro"}
+
+    # `participantes` e `resultados` só existem de 2024 em diante (ver
+    # README.md), ambas anuais e inteiramente públicas.
+    COVERAGE = {
+        "participantes": AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        ),
+        "resultados": AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        ),
+    }

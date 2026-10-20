@@ -4,7 +4,7 @@ Flows para br_me_caged — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.me_caged.tasks import (
+from pipelines.shared.me_caged.tasks import (
     build_partitions,
     build_table_paths,
     crawl_novo_caged_ftp,
