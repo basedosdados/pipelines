@@ -1,16 +1,45 @@
-"""Prefect 3 tasks for br_cgu_despesas_publicas — thin wrappers over utils.py."""
+"""Prefect 3 tasks for br_cgu_despesas_publicas — thin wrappers over utils.py.
 
-from datetime import UTC, datetime
+check_update/extract_and_load pair per table (execucao, favorecido): `probe_source`
+is a single HEAD request (no download) against the table's current-month URL, so
+check_update stays cheap even though extract_and_load re-pulls a whole trailing
+window. `months_back`/`full_refresh` are accepted as optional keys in
+`download_params` (defaulting to the same values the old monolithic flow used) so a
+manual direct trigger of the extract_and_load deployment can still ask for a wider
+or full backfill — check_update itself never sets them, same trade-off as
+`br_bcb_taxa_cambio`'s `anos` override.
+"""
+
+import tempfile
+from collections.abc import Callable
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from prefect import task
 
+from pipelines.datasets.br_cgu_despesas_publicas.constants import (
+    COVERAGE,
+    DATASET_ID,
+    FAVORECIDO_COVERAGE,
+    FAVORECIDO_TABLE_ID,
+    TABLE_ID,
+)
 from pipelines.datasets.br_cgu_despesas_publicas.utils import (
     clean_all,
     download_all,
     month_range,
     probe_latest,
 )
+from pipelines.utils.stage_dispatch import (
+    ExtractAndLoad,
+    SourceInspection,
+    pipeline_factory,
+)
+
+_COVERAGE_BY_TABLE = {
+    TABLE_ID: COVERAGE,
+    FAVORECIDO_TABLE_ID: FAVORECIDO_COVERAGE,
+}
 
 
 @task(retries=2, retry_delay_seconds=300)
@@ -76,3 +105,72 @@ def clean_despesas(
         table=table,
     )
     return {**result, "path": str(result["path"])}
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# As 2 tabelas (execucao, favorecido) — ver constants.py
+#
+# `make_get_latest_update`/`make_extract_load_data` são fábricas parametrizadas
+# por `table_id` — a lógica é idêntica pras 2 tabelas, só muda o endpoint e a
+# posição/formato da coluna de período dentro de `utils.PRODUCTS`.
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
+    def get_latest_update() -> SourceInspection:
+        max_modified = probe_source(table=table_id)
+        return SourceInspection(
+            reference_date=date.fromisoformat(max_modified),
+            compare_against="table_update",
+        )
+
+    return get_latest_update
+
+
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        # Opcionais, só usados num disparo manual direto do deployment de
+        # extract_and_load — check_update nunca os preenche via
+        # extra_download_params (ver banner do módulo).
+        months_back = download_params.get("months_back", 6)
+        full_refresh = download_params.get("full_refresh", False)
+
+        # Não limpo ao final (sem shutil.rmtree/finally): `data_path` aponta
+        # pra dentro de `work_dir` e só é lido (via upload_to_gcs) logo depois
+        # deste retorno, dentro do mesmo flow run — mesmo trade-off de
+        # au_ato_abr/au_geoscape_gnaf/br_cgu_sancoes.
+        work_dir = tempfile.mkdtemp(
+            prefix=f"br_cgu_despesas_publicas_{table_id}_"
+        )
+        downloaded = download_despesas(
+            work_dir=work_dir,
+            months_back=months_back,
+            full_refresh=full_refresh,
+            table=table_id,
+        )
+        result = clean_despesas(
+            work_dir=work_dir,
+            input_dir=downloaded["input_dir"],
+            months=downloaded["months"],
+            table=table_id,
+        )
+        print(
+            f"cleaned {len(result['rows'])} months, {result['total']:,} rows "
+            f"(through {result['max_period']})"
+        )
+
+        return ExtractAndLoad(
+            coverage=_COVERAGE_BY_TABLE[table_id].model_dump(),
+            data_path=result["path"],
+            dump_mode="append",
+            source_format="parquet",
+        )
+
+    return extract_load_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+)

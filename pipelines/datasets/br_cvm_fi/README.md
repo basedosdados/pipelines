@@ -93,7 +93,7 @@ continua funcionando, mas o intervalo precisa ser estendido.
 ## Estrutura no repositório
 
 Este conjunto está no split legado: as tasks e o corpo do flow vivem em
-`pipelines/crawler/cvm/`, e `pipelines/datasets/br_cvm_fi/flows.py` só fabrica os
+`pipelines/shared/cvm/`, e `pipelines/datasets/br_cvm_fi/flows.py` só fabrica os
 seis flows com `_cvm_fi_flow`, um por tabela, escalonados de dez em dez minutos a
 partir das 17h para não disputarem slot no BigQuery no mesmo instante.
 

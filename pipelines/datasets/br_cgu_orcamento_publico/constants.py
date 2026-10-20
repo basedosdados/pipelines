@@ -3,20 +3,38 @@
 Orçamento e execução da despesa do Governo Federal, publicados anualmente pelo
 Portal da Transparência (CGU) como um ZIP por exercício.
 
+Migrated to the staged pipeline (check_update -> extract_and_load ->
+build_and_promote), a single check_update/extract_and_load pair — one table,
+``orcamento`` — wired through ``CheckThenExtractLoadPipeline`` (see
+``flows.py``/``tasks.py``). The real check is a single HEAD request
+(``tasks.probe_source``) compared against ``Table.Update.latest``: a run that
+finds nothing new returns before downloading anything.
+
 Two things about this source drive the design:
 
 * **Past exercises are restated.** The portal regenerates every year's file on
   the same schedule — on 2026-09-09 the 2024 file carried 142 IBAMA rows and
   R$ 2,16 bi autorizado against the 139 rows / R$ 2,05 bi that had been ingested
   earlier. So the pipeline re-downloads the whole history on every run and
-  replaces the table (``dump_mode="overwrite"``), never appends.
+  replaces the table (``dump_mode="overwrite"``), never appends. Since every
+  partition (``ano_exercicio=<year>``) is rewritten on every run,
+  ``discover_partition_folders`` always finds the full set, so "overwrite the
+  downloaded partitions" and "overwrite the whole table" coincide here.
 * **The exercise year is not a useful freshness signal**, since it changes once
   a year while the contents change continuously. The poll uses the ZIP's
   ``Last-Modified`` header against ``Table.Update.latest`` instead.
+
+``extract_load_data`` does not clean up its ``work_dir`` afterwards (no
+``shutil.rmtree``/``finally``) — same accepted trade-off as
+``au_ato_abr``/``au_geoscape_gnaf``/``br_cgu_sancoes``: the whole source is a
+handful of megabytes, so the leftover scratch directory costs nothing a
+process worker would notice between runs.
 """
 
 from enum import Enum
 from pathlib import Path
+
+from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -124,3 +142,12 @@ class constants(Enum):
         / "code"
         / "architecture"
     )
+
+
+# Annual table, so no BD Pro rolling window: the paywall applies to tables
+# refreshed monthly or more often. Coverage is the exercise year. Used by
+# `ExtractAndLoad.coverage` (tasks.py) and, through it, by
+# `register_table_materialization_task`/`build_and_promote`.
+COVERAGE = AllFree(
+    date_column=YearOnly(col="ano_exercicio"), date_format=DateFormat.YEAR
+)

@@ -6,9 +6,9 @@ check_update -> extract_and_load -> build_and_promote, uma dupla de flows por ta
 Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 
-O antigo `_ipca_flow`/`_run_ibge_inflacao` monolítico segue existindo em
-`pipelines/crawler/ibge_inflacao/flows.py`, ainda usado por
-`br_ibge_ipca15`/`br_ibge_inpc` (não migrados ainda) — não removido daqui.
+O antigo `_ipca_flow`/`_run_ibge_inflacao` monolítico foi removido; a lógica
+compartilhada com `br_ibge_ipca15`/`br_ibge_inpc` mora em
+`pipelines/shared/ibge_inflacao/`.
 """
 
 from prefect.schedules import Cron
