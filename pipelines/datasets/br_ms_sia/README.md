@@ -65,3 +65,41 @@ O modelo `br_ms_sia__producao_ambulatorial` é incremental: cada `dbt run` inser
 mês seguinte ao maior mês que já está na tabela. Recarregar a staging de um mês passado
 não muda a tabela. Para refazer esse mês na tabela, é preciso apagá-lo e inseri-lo de novo
 a partir da staging.
+
+## Linhas idênticas
+
+O SIA/PA não tem identificador de registro, e os arquivos do FTP trazem linhas idênticas em
+todas as colunas. Por isso o `producao_ambulatorial` não tem chave única nem teste de
+unicidade de linhas.
+
+Medição em 2025-07, todas as UFs:
+
+| Onde | Colunas comparadas | Linhas | Distintas | Repetidas |
+|---|---|---|---|---|
+| Staging | 65 (todas as do arquivo, mais `ano`, `mes` e `sigla_uf`) | 70.903.570 | 49.822.817 | 21.080.753 |
+| Tabela | 59 (as do modelo) | 70.903.570 | 49.122.952 | 21.780.618 |
+
+As 699.865 repetidas a mais na tabela vêm das colunas que o modelo descarta ou transforma.
+Na staging, a repetição aparece em todas as UFs, de 15% no PI (47.517 de 314.945) a 39% no
+MT (817.257 de 2.078.910).
+
+```sql
+select
+    sigla_uf,
+    count(*) as linhas,
+    count(distinct to_json_string(t)) as linhas_distintas,
+    count(*) - count(distinct to_json_string(t)) as linhas_repetidas
+from `basedosdados-staging.br_ms_sia_staging.producao_ambulatorial` as t
+where ano = '2025' and mes = '7'
+group by rollup (sigla_uf)
+order by sigla_uf nulls first
+```
+
+```sql
+select
+    count(*) as linhas,
+    count(distinct to_json_string(t)) as linhas_distintas,
+    count(*) - count(distinct to_json_string(t)) as linhas_repetidas
+from `basedosdados.br_ms_sia.producao_ambulatorial` as t
+where ano = 2025 and mes = 7
+```
