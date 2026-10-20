@@ -1,0 +1,72 @@
+"""
+Constant values for br_stf_corte_aberta.
+"""
+
+from enum import Enum
+
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    FreeLag,
+    PartBdpro,
+)
+
+DATASET_ID = "br_stf_corte_aberta"
+DECISOES_TABLE_ID = "decisoes"
+
+# Mesma coverage do flow monolítico antigo (`register_table_materialization_task`
+# em flows.py): diária, com defasagem de 6 semanas pra parte recente virar BD pro.
+COVERAGE = PartBdpro(
+    date_column=DateOnly(col="data_decisao"),
+    date_format=DateFormat.YEAR_MD,
+    free_lag=FreeLag(unit="weeks", value=6),
+)
+
+
+class constants(Enum):
+    STF_INPUT = "/tmp/input/"
+    STF_OUTPUT = "/tmp/output/"
+
+    STF_LINK = (
+        "https://transparencia.stf.jus.br/extensions/decisoes/decisoes.html"
+    )
+
+    RENAME = {
+        "Ano da decisão": "ano",
+        "Classe": "classe",
+        "Número": "numero",
+        "Nome Ministro(a)": "relator",
+        "Processo": "link",
+        "Subgrupo andamento decisão": "subgrupo_andamento",
+        "Andamento decisão": "andamento",
+        "Observação do andamento": "observacao_andamento_decisao",
+        "Indicador virtual": "modalidade_julgamento",
+        "Indicador colegiado": "tipo_julgamento",
+        "Indicador eletrônico": "meio_tramitacao",
+        "Indicador de tramitação": "indicador_tramitacao",
+        "Assuntos do processo": "assunto_processo",
+        "Ramo direito": "ramo_direito",
+        "Data de autuação": "data_autuacao",
+        "Data da decisão": "data_decisao",
+        "Data baixa": "data_baixa_processo",
+    }
+
+    ORDEM = [
+        "ano",
+        "classe",
+        "numero",
+        "relator",
+        "link",
+        "subgrupo_andamento",
+        "andamento",
+        "observacao_andamento_decisao",
+        "modalidade_julgamento",
+        "tipo_julgamento",
+        "meio_tramitacao",
+        "indicador_tramitacao",
+        "assunto_processo",
+        "ramo_direito",
+        "data_autuacao",
+        "data_decisao",
+        "data_baixa_processo",
+    ]

@@ -2,149 +2,103 @@
 
 Relatório "Reconhecimentos vigentes" do S2ID (SEDEC/MIDR): os reconhecimentos
 federais de situação de emergência e estado de calamidade pública em vigor. A
-tabela é uma série de retratos, um por execução.
+tabela é uma série de retratos, um por execução, `dump_mode="append"`,
+particionada por `data_extracao`.
 
-Roda todo dia e grava o retrato do dia direto em prod. O S2ID barra IP
-estrangeiro, então o download sai pelo proxy brasileiro (`BRASIL_PROXY_URL`).
+Migrado pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote (genérico, dispatch via
+`CheckThenExtractLoadPipeline` — ver `pipelines/utils/stage_dispatch.py`).
+Dataset de uma tabela só (`reconhecimentos_vigentes` — ver `constants.py`), daí
+não haver a decomposição em pares por tabela do `pipeline_factory`: a
+"concatenação de 27 downloads" do levantamento original é dentro DESSA única
+tabela (1 export CSV por UF, concatenados em
+`utils.build_reconhecimentos_vigentes`), não 27 tabelas.
 
-Esta tabela não passa pelo `table-approve`: a action copia o staging de dev por
-cima do de prod e apagaria os retratos que só existem em prod.
+A fonte não expõe nenhum sinal de frescor mais barato que o download inteiro:
+"vigentes" é um retrato do momento, sem data de publicação própria, e a única
+data disponível é a que o próprio retrato carimba
+(`utils.build_reconhecimentos_vigentes`, sempre `date.today()`). Por isso
+`get_latest_update` (`tasks.py`) baixa e monta o retrato inteiro — os 27
+exports por UF, via Selenium atrás do proxy brasileiro — só para ler essa
+data, e `extract_load_data` repete o mesmo download de forma independente
+para materializar de verdade. Custo duplicado aceito, mesmo padrão (e mesma
+decisão) de `br_bcb_taxa_selic`/`au_rba_statistical_tables`: uma variante
+"check_and_download" que reaproveitaria um único download entre as duas
+etapas foi cogitada e cancelada — todo dataset usa o mesmo formato
+check_update -> extract_and_load, mesmo quando o check precisa baixar dado
+pra achar a data de referência.
 
-As decisões de desenho e o que ainda está aberto estão no README do diretório.
+O guarda do poll compara a `data_extracao` do retrato contra o fim da
+`Coverage` já registrada (`compare_against="coverage"`, o padrão de
+`SourceInspection`): um retrato novo passa, um segundo run no mesmo dia não —
+é o que evita duplicar o retrato do dia.
+
+A promoção pra prod (`build_and_promote` -> `transfer_files_to_prod_flow`)
+promove só a(s) pasta(s) de partição novas desta run
+(`ExtractAndLoad.partition_folders`, preenchido automaticamente pela cápsula a
+partir de `discover_partition_folders`), não o prefixo de staging inteiro —
+os retratos antigos, em prod, não são tocados. É um mecanismo diferente do da
+action `table-approve` (que espelha staging de dev por cima do de prod e
+apagaria os retratos que só existem em prod — por isso esta tabela nunca usou
+aquela action, ver README).
+
+As decisões de desenho e o que ainda está aberto estão no README do diretório
+(parte dele — deployment names e parâmetros de disparo manual — ficou
+desatualizada por esta migração; a atualização do README é trabalho
+pendente).
 """
-
-import shutil
-import tempfile
 
 from prefect.schedules import Cron
 
 from pipelines.datasets.br_sedec_desastres.constants import constants
 from pipelines.datasets.br_sedec_desastres.tasks import (
-    clean_reconhecimentos,
-    download_reconhecimentos,
+    extract_load_data,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
 
-DATE_FORMAT = constants.DATE_FORMAT.value
+DATASET_ID = constants.DATASET_ID.value
+TABLE_ID = constants.TABLE_ID.value
 
-_COVERAGE = AllFree(
-    date_column=DateOnly(col="data_extracao"),
-    date_format=DateFormat.YEAR_MD,
+_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=TABLE_ID,
+    get_latest_update=get_latest_update,
+    extract_load_data=extract_load_data,
 )
 
 
-@flow(name="br_sedec_desastres__reconhecimentos_vigentes", log_prints=True)
-def br_sedec_desastres__reconhecimentos_vigentes(
-    dataset_id: str = constants.DATASET_ID.value,
-    table_id: str = constants.TABLE_ID.value,
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    """Baixa o relatório do S2ID, remonta a tabela e materializa."""
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="br_sedec_desastres_")
-    try:
-        input_dir = download_reconhecimentos(work_dir=work_dir)
-        result = clean_reconhecimentos(work_dir=work_dir, input_dir=input_dir)
-        max_date = result["max_date"]
-        data_path = result[constants.TABLE_ID.value]
-
-        if not force_run:
-            has_new_data = poll_source_for_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=max_date,
-                env="prod",
-                date_format=DATE_FORMAT,
-                compare_against="coverage",
-            )
-            if not has_new_data:
-                return
-
-        # Comita o Update da fonte já aqui, antes de materializar: se o flow
-        # falhar no meio, o metadado da fonte ainda reflete que havia dado novo
-        # publicado, mesmo que a tabela não tenha sido atualizada.
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=max_date,
-            env="prod",
-            date_format=DATE_FORMAT,
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_after_dump,
-        )
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_after_dump:
-            upload_to_gcs(
-                data_path=data_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dbt_command="run/test",
-                target="dev",
-            )
-            return
-
-        upload_to_gcs(
-            data_path=data_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados",
-            dump_mode="append",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            target=target,
-        )
-
-        if update_metadata:
-            register_table_materialization_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                coverage=_COVERAGE,
-                env="prod",
-                bq_project="basedosdados",
-            )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
+@flow(name=_pipeline.check_update_flow_name, log_prints=True)
+def check_update() -> None:
+    _pipeline.run_check_update()
 
 
-br_sedec_desastres__reconhecimentos_vigentes.deploy_schedules = [
+check_update.deploy_tags = deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
+# Mesmo cron do flow monolítico antigo (main).
+check_update.deploy_schedules = [
     Cron("10 2 * * *", timezone="America/Sao_Paulo")
 ]
+# O check baixa os 27 exports via Selenium/Chrome (ver tasks.py) — mesma
+# margem de memória do flow monolítico antigo.
+check_update.job_variables = {
+    "memory_limit": "4Gi",
+    "memory_request": "1Gi",
+}
 
 
-br_sedec_desastres__reconhecimentos_vigentes.job_variables = {
+@flow(name=_pipeline.extract_and_load_flow_name, log_prints=True)
+def extract_and_load(download_params: dict) -> None:
+    _pipeline.run_extract_and_load(download_params)
+
+
+extract_and_load.deploy_tags = deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD)
+# Mesmo custo de Selenium/Chrome do check_update — baixa o retrato de novo.
+extract_and_load.job_variables = {
     "memory_limit": "4Gi",
     "memory_request": "1Gi",
 }

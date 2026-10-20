@@ -6,211 +6,183 @@ uploads the new snapshot to staging with ``dump_mode="overwrite"`` and the
 **incremental** dbt models append its ``extraction_date`` partition to the prod
 tables, so history accumulates.
 
-The run polls cheaply first (an HTTP HEAD on the ZIPs, compared against
-``Table.Update.latest``) and only downloads the ~1 GB payload when the source has
-actually republished — so a scheduled run is a cheap no-op between weekly releases.
+Migrated to the one-pipeline-per-table_id shape: 4 independent check_update /
+extract_and_load pairs (one per table — entity, other_name, dgr, dicionario),
+wired through ``CheckThenExtractLoadPipeline``/``pipeline_factory`` (see
+``tasks.py``). Each table's extract_and_load redownloads the two source ZIPs
+and reruns the whole streaming ``lxml.iterparse`` pass from scratch, keeping
+only its own table — redundant (a single pass already builds all 4 together,
+see ``utils.clean_all``), but uniform 1-flow-per-table is the rule now.
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_ato_abr_flow``; the
-dev pool ignores the schedule, the prod pool activates it (deployed paused).
+check_update polls cheaply first (an HTTP HEAD on the ZIPs, compared against
+``Table.Update.latest`` — see ``get_latest_update``'s docstring in tasks.py for
+why ``table_update`` rather than ``coverage``) and only dispatches its own
+extract_and_load — which downloads the ~1 GB payload — when the source has
+actually republished, so a scheduled run is a cheap no-op between weekly
+releases.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers all 8 flows
+below; the dev pool ignores the check_update schedules, the prod pool
+activates them (deployed paused).
 """
-
-import shutil
-import tempfile
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.au_ato_abr.constants import constants
-from pipelines.datasets.au_ato_abr.tasks import (
-    check_source_abr,
-    clean_abr,
-    download_abr,
+from pipelines.datasets.au_ato_abr.constants import (
+    DGR_TABLE_ID,
+    DICIONARIO_TABLE_ID,
+    ENTITY_TABLE_ID,
+    OTHER_NAME_TABLE_ID,
+    constants,
 )
+from pipelines.datasets.au_ato_abr.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
-#
-# The register refreshes weekly, so the three data tables carry the BD Pro
-# rolling window: the most recent `free_lag` of snapshots are pro-only, older
-# snapshots stay free. Each run recomputes free_end = source_end - free_lag,
-# rewrites both DateTimeRanges, and re-issues the BigQuery Row Access Policies,
-# so the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. The static onboard registered only the free
-# Coverage, so the pro Coverage must be created on each of entity/other_name/dgr
-# BEFORE this flow is armed (see the pipeline PR notes / ONBOARDING_PLAN.md).
-#
-# free_lag is a business choice: with weekly snapshots and a full register per
-# snapshot, the free tier always holds a complete (if lagged) register. 6 months
-# mirrors br_rf_cnpj; a shorter lag (e.g. FreeLag("weeks", 4)) narrows the
-# initial free-tier lockout at arm time. Confirm before arming.
-#
-# `dicionario` has no date column, so it takes no coverage spec.
-_PART_BDPRO = PartBdpro(
-    date_column=DateOnly(col="extraction_date"),
-    date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=6),
-)
-_COVERAGE = {
-    "entity": _PART_BDPRO,
-    "other_name": _PART_BDPRO,
-    "dgr": _PART_BDPRO,
-}
-
-
-@flow(name="au_ato_abr", log_prints=True)
-def au_ato_abr_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Refresh au_ato_abr with the latest weekly ABN Bulk Extract snapshot.
-
-    Polls the source (cheap HEAD) and short-circuits when nothing new has been
-    published, unless ``force_run``. On new data, downloads + cleans the snapshot,
-    uploads it to staging (``dump_mode="overwrite"``) and lets the incremental dbt
-    models append its ``extraction_date`` partition to the prod tables.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage (rolling BD Pro window) and commit the source update. Has no
-            effect when ``materialize_to_prod`` is False.
-        force_run: Download and materialize even when the source poll reports no
-            new snapshot.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="entity"
-    )
-
-    # Cheap poll first: is the source's publication newer than our last refresh?
-    source_date = check_source_abr()
-    has_new_data = poll_source_for_update_task(
-        dataset_id=DATASET_ID,
-        table_id="entity",
-        source_max_date=source_date,
-        env="prod",
-        date_format="%Y-%m-%d",
-        compare_against="table_update",
-    )
-    if not has_new_data and not force_run:
-        return
-
-    work_dir = tempfile.mkdtemp(prefix="au_ato_abr_")
-    try:
-        input_dir = download_abr(work_dir=work_dir)
-        result = clean_abr(work_dir=work_dir, input_dir=input_dir)
-        max_date = result["max_extraction_date"]
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging (overwrite with the new snapshot) + materialize/test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + materialize/test (incremental dbt appends the
-        # new extraction_date partition, keeping history).
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-            # Record the source Update (its max coverage date = the snapshot date).
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="entity",
-                source_max_date=max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-                update_metadata=update_metadata,
-                materialize_after_dump=materialize_to_prod,
-            )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
 # The source republishes weekly; the exact weekday drifts, so poll on several
-# days at 16:00 BRT. The HEAD-based source poll no-ops (no download) until a new
-# snapshot actually appears.
-au_ato_abr_flow.deploy_schedules = [
+# days at 16:00 BRT. The HEAD-based source poll no-ops (no download) until a
+# new snapshot actually appears. Same schedule for all 4 tables — one shared
+# weekly snapshot, same as before the per-table split.
+_CHECK_UPDATE_SCHEDULE = [
     Cron("30 16 * * 1,2,3,4", timezone="America/Sao_Paulo")
 ]
+
 # The clean step streams from the ZIPs and flushes in 400k-row chunks, but the
-# download is ~1 GB; give the worker headroom.
-au_ato_abr_flow.job_variables = {"memory": "8Gi"}
+# download is ~1 GB per table (each extract_and_load redownloads it on its
+# own); give the worker headroom.
+_JOB_VARIABLES = {"memory": "8Gi"}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# entity
+# check_update: au_ato_abr__entity
+# extract_and_load: au_ato_abr__entity
+# ──────────────────────────────────────────────────────────────────────────────
+
+_entity_pipeline = make_pipeline(ENTITY_TABLE_ID)
+
+
+@flow(name=_entity_pipeline.check_update_flow_name, log_prints=True)
+def au_ato_abr_entity_check_update() -> None:
+    _entity_pipeline.run_check_update()
+
+
+au_ato_abr_entity_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, ENTITY_TABLE_ID
+)
+au_ato_abr_entity_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(name=_entity_pipeline.extract_and_load_flow_name, log_prints=True)
+def au_ato_abr_entity_download(download_params: dict) -> None:
+    _entity_pipeline.run_extract_and_load(download_params)
+
+
+au_ato_abr_entity_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, ENTITY_TABLE_ID
+)
+au_ato_abr_entity_download.job_variables = _JOB_VARIABLES
+_entity_pipeline.extract_load_deployment = (
+    au_ato_abr_entity_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# other_name
+# check_update: au_ato_abr__other_name
+# extract_and_load: au_ato_abr__other_name
+# ──────────────────────────────────────────────────────────────────────────────
+
+_other_name_pipeline = make_pipeline(OTHER_NAME_TABLE_ID)
+
+
+@flow(name=_other_name_pipeline.check_update_flow_name, log_prints=True)
+def au_ato_abr_other_name_check_update() -> None:
+    _other_name_pipeline.run_check_update()
+
+
+au_ato_abr_other_name_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, OTHER_NAME_TABLE_ID
+)
+au_ato_abr_other_name_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(name=_other_name_pipeline.extract_and_load_flow_name, log_prints=True)
+def au_ato_abr_other_name_download(download_params: dict) -> None:
+    _other_name_pipeline.run_extract_and_load(download_params)
+
+
+au_ato_abr_other_name_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, OTHER_NAME_TABLE_ID
+)
+au_ato_abr_other_name_download.job_variables = _JOB_VARIABLES
+_other_name_pipeline.extract_load_deployment = (
+    au_ato_abr_other_name_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# dgr
+# check_update: au_ato_abr__dgr
+# extract_and_load: au_ato_abr__dgr
+# ──────────────────────────────────────────────────────────────────────────────
+
+_dgr_pipeline = make_pipeline(DGR_TABLE_ID)
+
+
+@flow(name=_dgr_pipeline.check_update_flow_name, log_prints=True)
+def au_ato_abr_dgr_check_update() -> None:
+    _dgr_pipeline.run_check_update()
+
+
+au_ato_abr_dgr_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, DGR_TABLE_ID
+)
+au_ato_abr_dgr_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(name=_dgr_pipeline.extract_and_load_flow_name, log_prints=True)
+def au_ato_abr_dgr_download(download_params: dict) -> None:
+    _dgr_pipeline.run_extract_and_load(download_params)
+
+
+au_ato_abr_dgr_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DGR_TABLE_ID
+)
+au_ato_abr_dgr_download.job_variables = _JOB_VARIABLES
+_dgr_pipeline.extract_load_deployment = au_ato_abr_dgr_download.fn.__name__
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# dicionario
+# check_update: au_ato_abr__dicionario
+# extract_and_load: au_ato_abr__dicionario
+# ──────────────────────────────────────────────────────────────────────────────
+
+_dicionario_pipeline = make_pipeline(DICIONARIO_TABLE_ID)
+
+
+@flow(name=_dicionario_pipeline.check_update_flow_name, log_prints=True)
+def au_ato_abr_dicionario_check_update() -> None:
+    _dicionario_pipeline.run_check_update()
+
+
+au_ato_abr_dicionario_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, DICIONARIO_TABLE_ID
+)
+au_ato_abr_dicionario_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(name=_dicionario_pipeline.extract_and_load_flow_name, log_prints=True)
+def au_ato_abr_dicionario_download(download_params: dict) -> None:
+    _dicionario_pipeline.run_extract_and_load(download_params)
+
+
+au_ato_abr_dicionario_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DICIONARIO_TABLE_ID
+)
+au_ato_abr_dicionario_download.job_variables = _JOB_VARIABLES
+_dicionario_pipeline.extract_load_deployment = (
+    au_ato_abr_dicionario_download.fn.__name__
+)
