@@ -11,10 +11,24 @@ The download URL carries a per-release resource UUID and build token
 (``.../resource/<uuid>/download/g-naf_<mon><yy>_allstates_gda2020_psv_<n>.zip``)
 that change every quarter, so the pipeline resolves the current resource from the
 CKAN ``package_show`` API at run time rather than hard-coding a URL.
+
+Each of the 4 tables (``ALL_TABLES`` below) gets its own check_update/
+extract_and_load pair (the repo-wide one-pipeline-per-table_id shape — see
+``pipeline_factory`` in ``pipelines.utils.stage_dispatch`` and
+``br_ibge_ipca`` for the reference layout), even though a single release zip
+builds all 4 at once (``clean_all`` in ``utils.py``). Redundant re-downloads
+are accepted in exchange for uniformity — see the banner in ``tasks.py``.
 """
 
 from enum import Enum
 from pathlib import Path
+
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    DateOnly,
+    NonHistorical,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -45,10 +59,9 @@ class constants(Enum):
         "?id=geocoded-national-address-file-g-naf"
     )
 
-    # The core (poll) table + the full table list. address_detail is the primary
-    # table the source-update poll is anchored on.
-    CORE_TABLE = "address_detail"
-    DATA_TABLES = ["address_detail", "street_locality", "locality"]
+    # The full table list — each gets its own check_update/extract_and_load
+    # pair (see flows.py); no single "core" table anchors a shared poll
+    # anymore.
     ALL_TABLES = [
         "address_detail",
         "street_locality",
@@ -80,3 +93,25 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "au_geoscape_gnaf" / "code" / "architecture"
     )
+
+
+# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
+# through it, by `register_table_materialization_task`/`build_and_promote`.
+#
+# G-NAF is CC-BY / Open-G-NAF, so every dated table is AllFree — the whole
+# stacked history is public. `snapshot_date` (a DATE) is the coverage column,
+# shared by the 3 data tables (same instance, read-only). `dicionario` has no
+# date column, so it takes `NonHistorical` instead — modeled on
+# `__TABLES__.last_modified_time`, not a `DateColumn`/`DateFormat` pair. The
+# old monolithic flow never registered any coverage for `dicionario` at all;
+# this is its first baseline, not a change to a previously decided value.
+_ALL_FREE = AllFree(
+    date_column=DateOnly(col="snapshot_date"),
+    date_format=DateFormat.YEAR_MD,
+)
+COVERAGE = {
+    "address_detail": _ALL_FREE,
+    "street_locality": _ALL_FREE,
+    "locality": _ALL_FREE,
+    "dicionario": NonHistorical(),
+}
