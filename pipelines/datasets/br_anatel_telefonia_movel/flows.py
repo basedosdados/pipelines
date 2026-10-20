@@ -16,8 +16,6 @@ from pipelines.utils.stage_dispatch import (
     deploy_tags,
 )
 
-DOWNLOAD_JOB_VARIABLES = {"memory_limit": "8Gi", "memory_request": "2Gi"}
-
 _microdados_pipeline = CheckThenExtractLoadPipeline(
     dataset_id=anatel_constants.DATASET_ID.value,
     table_id="microdados",
@@ -49,9 +47,6 @@ def br_anatel_telefonia_movel_microdados_download(
 
 br_anatel_telefonia_movel_microdados_download.deploy_tags = deploy_tags(
     anatel_constants.DATASET_ID.value, Etapa.EXTRACT_AND_LOAD, "microdados"
-)
-br_anatel_telefonia_movel_microdados_download.job_variables = (
-    DOWNLOAD_JOB_VARIABLES
 )
 _microdados_pipeline.extract_load_deployment = (
     br_anatel_telefonia_movel_microdados_download.fn.__name__
@@ -104,9 +99,6 @@ br_anatel_telefonia_movel_densidade_municipio_download.deploy_tags = (
         "densidade_municipio",
     )
 )
-br_anatel_telefonia_movel_densidade_municipio_download.job_variables = (
-    DOWNLOAD_JOB_VARIABLES
-)
 _densidade_municipio_pipeline.extract_load_deployment = (
     br_anatel_telefonia_movel_densidade_municipio_download.fn.__name__
 )
@@ -143,9 +135,6 @@ def br_anatel_telefonia_movel_densidade_uf_download(
 
 br_anatel_telefonia_movel_densidade_uf_download.deploy_tags = deploy_tags(
     anatel_constants.DATASET_ID.value, Etapa.EXTRACT_AND_LOAD, "densidade_uf"
-)
-br_anatel_telefonia_movel_densidade_uf_download.job_variables = (
-    DOWNLOAD_JOB_VARIABLES
 )
 _densidade_uf_pipeline.extract_load_deployment = (
     br_anatel_telefonia_movel_densidade_uf_download.fn.__name__
@@ -192,9 +181,6 @@ br_anatel_telefonia_movel_densidade_brasil_download.deploy_tags = deploy_tags(
     anatel_constants.DATASET_ID.value,
     Etapa.EXTRACT_AND_LOAD,
     "densidade_brasil",
-)
-br_anatel_telefonia_movel_densidade_brasil_download.job_variables = (
-    DOWNLOAD_JOB_VARIABLES
 )
 _densidade_brasil_pipeline.extract_load_deployment = (
     br_anatel_telefonia_movel_densidade_brasil_download.fn.__name__
