@@ -26,8 +26,8 @@ O crawler é compartilhado com os outros conjuntos do DATASUS:
 | Arquivo | Papel |
 |---|---|
 | `pipelines/datasets/br_ms_cnes/flows.py` | 13 flows, um por tabela, montados por `_cnes_flow(table_id, cron)` |
-| `pipelines/crawler/datasus/flows.py` | `_run_cnes` — a receita de fato (poll → download → clean → upload → dbt) |
-| `pipelines/crawler/datasus/tasks.py` | tasks de FTP, descompressão `.dbc`, limpeza |
+| `pipelines/shared/datasus/flows.py` | `_run_cnes` — a receita de fato (poll → download → clean → upload → dbt) |
+| `pipelines/shared/datasus/tasks.py` | tasks de FTP, descompressão `.dbc`, limpeza |
 | `models/br_ms_cnes/` | 14 modelos dbt (13 tabelas + `dicionario`) |
 | `models/br_ms_cnes/code/update_dicionario.py` | manutenção do dicionário (ver abaixo) |
 

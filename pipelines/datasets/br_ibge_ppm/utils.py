@@ -494,6 +494,36 @@ def clean_table(table_id: str, ano: str) -> Path:
     return output_dir
 
 
+def assemble_data_path(table_id: str, output_dirs: list[Path]) -> Path:
+    """Reúne num só diretório as partições de todos os anos de uma execução.
+
+    O pipeline em estágios sobe um único `data_path` por execução de
+    extract_and_load, mas `clean_table` devolve um `output/<ano>/` por ano —
+    e uma execução sem backfill costuma processar mais de um ano (o IBGE
+    revisa o ano anterior a cada divulgação, ver `resolve_years`). Esta
+    função move a pasta `ano=<ano>` de cada `output_dir` pra uma raiz
+    compartilhada, que o upload então enxerga como as partições Hive
+    atualizadas nesta execução.
+
+    Args:
+        table_id: Slug da tabela.
+        output_dirs: Diretórios devolvidos por `clean_table`, um por ano
+            processado nesta execução.
+
+    Returns:
+        O diretório compartilhado, no formato esperado por `upload_to_gcs`.
+    """
+    combined_dir = Path(constants.PATH.value) / table_id / "combined"
+    shutil.rmtree(combined_dir, ignore_errors=True)
+    combined_dir.mkdir(parents=True, exist_ok=True)
+
+    for output_dir in output_dirs:
+        for leaf in output_dir.iterdir():
+            shutil.move(str(leaf), str(combined_dir / leaf.name))
+
+    return combined_dir
+
+
 def build_schema(table_id: str) -> pa.Schema:
     """Monta o schema do parquet da tabela, sem as colunas de partição.
 
