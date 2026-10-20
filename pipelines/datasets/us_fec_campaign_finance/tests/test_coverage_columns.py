@@ -2,7 +2,8 @@
 
 This exists because of a real failure. The partition was renamed `cycle` -> `year`
 across the architecture, the dbt models, the parquet and the backend, but the three
-`AllFree` specs in flows.py kept `YearOnly(col="cycle")`. Nothing caught it:
+`AllFree` specs (then in flows.py, now in constants.py) kept `YearOnly(col="cycle")`.
+Nothing caught it:
 
 - `pyrefly` cannot: "cycle" is a valid string.
 - The dev validation run cannot: it is triggered with `update_metadata=False`, which
@@ -17,8 +18,10 @@ specs against them closes the gap without needing BigQuery.
 
 import pytest
 
-from pipelines.datasets.us_fec_campaign_finance.constants import constants
-from pipelines.datasets.us_fec_campaign_finance.flows import _COVERAGE
+from pipelines.datasets.us_fec_campaign_finance.constants import (
+    COVERAGE,
+    constants,
+)
 from pipelines.datasets.us_fec_campaign_finance.utils import (
     architecture_columns,
 )
@@ -34,10 +37,10 @@ def _spec_columns(spec) -> list[str]:
     ]
 
 
-@pytest.mark.parametrize("table", sorted(_COVERAGE))
+@pytest.mark.parametrize("table", sorted(COVERAGE))
 def test_coverage_column_exists_in_architecture(table):
     columns = set(architecture_columns(table))
-    for name in _spec_columns(_COVERAGE[table]):
+    for name in _spec_columns(COVERAGE[table]):
         assert name in columns, (
             f"{table}: coverage spec references column {name!r}, which is not in "
             f"the architecture. register_table_materialization_task would fail at "
@@ -46,8 +49,9 @@ def test_coverage_column_exists_in_architecture(table):
 
 
 def test_every_refreshed_table_has_a_coverage_spec():
-    """The flow indexes `_COVERAGE[table]`, so a missing spec is a KeyError mid-run."""
-    missing = set(constants.ALL_TABLES.value) - set(_COVERAGE)
+    """`tasks.make_extract_load_data` indexes `COVERAGE[table]`, so a missing spec
+    is a KeyError mid-run."""
+    missing = set(constants.ALL_TABLES.value) - set(COVERAGE)
     assert not missing, (
         f"tables refreshed with no coverage spec: {sorted(missing)}"
     )
@@ -55,7 +59,7 @@ def test_every_refreshed_table_has_a_coverage_spec():
 
 def test_no_coverage_spec_for_tables_the_flow_never_refreshes():
     """A spec for an unrefreshed table is dead config and usually a typo."""
-    extra = set(_COVERAGE) - set(constants.ALL_TABLES.value)
+    extra = set(COVERAGE) - set(constants.ALL_TABLES.value)
     assert not extra, (
         f"coverage specs for tables not in ALL_TABLES: {sorted(extra)}"
     )

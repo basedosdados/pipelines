@@ -4,7 +4,7 @@ Flow br_cnj_improbidade_administrativa — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
+from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     get_max_date,
     is_up_to_date,
     main_task,

@@ -28,7 +28,7 @@ to date. Add this only after static onboarding is verified in dev.
 ## Procedure
 
 1. **Read the reference**: `pipelines/datasets/br_ibge_ipca/flows.py` and
-   `pipelines/crawler/ibge_inflacao/flows.py` (the recipe), plus
+   `pipelines/shared/ibge_inflacao/flows.py` (the recipe), plus
    `pipelines/datasets/us_bls_cpi/` (parquet, full-replace reference). Confirm
    the shared-util signatures from `pipelines/utils/tasks.py` and
    `pipelines/utils/metadata/{tasks,domain}.py` — do not guess them.

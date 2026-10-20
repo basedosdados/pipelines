@@ -1,160 +1,86 @@
 """
 Flows de br_ms_sim — Prefect 3.
+
+Migrado pro pipeline em estágios via `CheckThenExtractLoadPipeline`.
+`extract_and_load` usa `run_extract_and_load_with_derived_tables` em vez
+de `run_extract_and_load` — motivo completo no docstring daquele método
+(`pipelines/utils/stage_dispatch.py`): 4 tabelas agregadas
+(`constants.AGGREGATE_TABLES`) não têm extração própria, só `dbt run/test`
+lendo do `microdados` recém-carregado.
+
+O `dicionario` (`models/br_ms_sim/br_ms_sim__dicionario.sql`) fica de fora
+de propósito — tem ciclo de materialização próprio, não depende do
+`microdados` a cada carga.
 """
 
-from pipelines.datasets.br_ms_sim.constants import constants
+from pipelines.datasets.br_ms_sim.constants import (
+    AGGREGATE_COVERAGE,
+    AGGREGATE_TABLES,
+    COVERAGE,
+    DATASET_ID,
+    MICRODADOS_TABLE_ID,
+)
 from pipelines.datasets.br_ms_sim.tasks import (
-    clean_table,
-    download_table,
-    get_source_max_year,
-    resolve_year_source,
+    extract_load_data,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearOnly,
+from pipelines.utils.metadata.domain import DateFormat
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+
+_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=MICRODADOS_TABLE_ID,
+    prefect_dataset_id=DATASET_ID,
+    get_latest_update=get_latest_update,
+    extract_load_data=extract_load_data,
+    date_format=DateFormat.YEAR,
 )
 
 
-def run_aggregates(dataset_id: str, target: str) -> None:
-    """Rematerializa as tabelas agregadas a partir do microdados.
+@flow(name=_pipeline.check_update_flow_name, log_prints=True)
+def br_ms_sim_check_update() -> bool:
+    """Poll do ano mais recente na fonte, dispara extract_and_load."""
+    return _pipeline.run_check_update()
 
-    Chamada depois do run/test do microdados, porque as agregadas leem dele.
-    Segue a convenção do repositório de rodar todas antes de testar qualquer uma.
+
+br_ms_sim_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+# Sem deploy_schedules: o flow monolítico antigo também não tinha cron —
+# mesmo comportamento preservado (disparo manual/externo).
+
+
+@flow(name=_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_ms_sim_extract_and_load(download_params: dict) -> None:
+    """Baixa o ano do `reference_date` e materializa microdados + agregadas.
+
+    Args:
+        download_params: recebido do check_update via `run_deployment()` —
+            usa `reference_date` pra decidir o ano a baixar. Também aceita
+            disparo manual direto (ex. `{"reference_date": "2015-01-01"}`)
+            pra reprocessar um ano específico, no lugar do antigo parâmetro
+            `ano` do flow monolítico.
     """
-    for table in constants.AGGREGATE_TABLES.value:
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table,
-            dbt_command="run",
-            target=target,
-        )
-    for table in constants.AGGREGATE_TABLES.value:
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table,
-            dbt_command="test",
-            target=target,
-        )
+    _pipeline.run_extract_and_load_with_derived_tables(
+        download_params,
+        coverage=COVERAGE,
+        derived_table_ids=AGGREGATE_TABLES,
+        derived_coverage=AGGREGATE_COVERAGE,
+    )
 
 
-@flow(
-    name="br_ms_sim__microdados",
-    log_prints=True,
+br_ms_sim_extract_and_load.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-def br_ms_sim__microdados(
-    dataset_id: str = "br_ms_sim",
-    table_id: str = "microdados",
-    ano: int | None = None,
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    """Carrega um ano do SIM, do FTP do DATASUS até a materialização."""
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    backfill = ano is not None
-    source_max_year = get_source_max_year()
-    ano = int(ano if backfill else source_max_year)
-
-    if not force_run and not backfill:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_max_year,
-            env="prod",
-            date_format=DateFormat.YEAR,
-            compare_against="coverage",
-        )
-        if not has_new_data:
-            print(f"Não há atualizações para a tabela {table_id}!")
-            return
-
-    if not backfill:
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_max_year,
-            env="prod",
-            date_format=DateFormat.YEAR,
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_after_dump,
-        )
-
-    source = resolve_year_source(ano)
-    print(f"Carregando {ano} a partir do diretório {source}")
-
-    download_table(table_id=table_id, ano=ano, source=source)
-    filepath = clean_table(table_id=table_id, ano=ano, source=source)
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-        source_format="csv",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target="dev",
-    )
-    run_aggregates(dataset_id=dataset_id, target="dev")
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-        source_format="csv",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target=target,
-    )
-    run_aggregates(dataset_id=dataset_id, target=target)
-
-    if update_metadata:
-        for table in [table_id, *constants.AGGREGATE_TABLES.value]:
-            register_table_materialization_task(
-                dataset_id=dataset_id,
-                table_id=table,
-                coverage=AllFree(
-                    date_column=YearOnly(col="ano"),
-                    date_format=DateFormat.YEAR,
-                ),
-                env="prod",
-                bq_project="basedosdados",
-            )
-
-
 # `memory` não existe no template do work pool, que só conhece o par abaixo, e
 # chave fora do template é descartada em silêncio — o pod ficaria no padrão.
-br_ms_sim__microdados.job_variables = {
+br_ms_sim_extract_and_load.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",
 }
+_pipeline.extract_load_deployment = br_ms_sim_extract_and_load.fn.__name__
