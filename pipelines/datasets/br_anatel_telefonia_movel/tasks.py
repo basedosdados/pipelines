@@ -2,6 +2,9 @@
 Tasks for dataset br_anatel_telefonia_movel
 """
 
+from collections.abc import Callable
+from datetime import date
+
 import polars as pl
 from prefect import task
 
@@ -14,6 +17,7 @@ from pipelines.datasets.br_anatel_telefonia_movel.utils import (
     download_csv_from_zip,
     normalize_label,
 )
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
 @task(retries=5, retry_delay_seconds=10)
@@ -34,7 +38,7 @@ def join_tables_in_function(table_id: str, csv_path: str) -> str:
 
 
 @task(retries=5, retry_delay_seconds=10)
-def get_max_date_in_table_microdados(table_id, csv_path: str):
+def get_max_date_in_table_microdados(table_id: str, csv_path: str) -> date:
 
     df = pl.scan_csv(csv_path, separator=";", infer_schema_length=0)
 
@@ -48,7 +52,7 @@ def get_max_date_in_table_microdados(table_id, csv_path: str):
             == level
         )
 
-    date = (
+    max_date = (
         df.select(
             pl.date(
                 pl.col("Ano").cast(pl.Int32), pl.col("Mês").cast(pl.Int32), 1
@@ -59,4 +63,48 @@ def get_max_date_in_table_microdados(table_id, csv_path: str):
         .item()
     )
 
-    return date
+    return max_date
+
+
+def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
+    """Monta a etapa check_update de uma tabela.
+
+    Args:
+        table_id: Tabela que a etapa verifica.
+
+    Returns:
+        A função que baixa o CSV da tabela e devolve o mês mais recente dele.
+    """
+
+    def get_latest_update() -> SourceInspection:
+        csv_path = download_csv(table_id=table_id)
+        reference_date = get_max_date_in_table_microdados(
+            table_id=table_id, csv_path=csv_path
+        )
+        return SourceInspection(reference_date=reference_date)
+
+    return get_latest_update
+
+
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    """Monta a etapa extract_and_load de uma tabela.
+
+    Args:
+        table_id: Tabela que a etapa baixa e limpa.
+
+    Returns:
+        A função que baixa e limpa o CSV da tabela e devolve a pasta de saída.
+    """
+
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        csv_path = download_csv(table_id=table_id)
+        data_path = join_tables_in_function(
+            table_id=table_id, csv_path=csv_path
+        )
+        return ExtractAndLoad(
+            coverage=anatel_constants.COVERAGE.value.model_dump(),
+            data_path=data_path,
+            dump_mode="append",
+        )
+
+    return extract_load_data

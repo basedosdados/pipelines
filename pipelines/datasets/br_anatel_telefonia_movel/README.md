@@ -87,15 +87,22 @@ Por padrão, o polars usa uma thread por CPU disponível. O flow não define `PO
 
 ## Estrutura dos flows e o poll
 
-Cada tabela tem um flow próprio, agendado num dia diferente da semana, e todos chamam `_run_anatel_telefonia_movel`, no mesmo `flows.py`. O código fica todo em `pipelines/datasets/br_anatel_telefonia_movel/`, sem diretório em `pipelines/crawler/`.
+Os flows seguem o modelo em estágios (`CheckThenExtractLoadPipeline`, em `pipelines/utils/stage_dispatch.py`). Cada tabela tem dois, em `flows.py`:
 
-O run começa pelo download, porque o mês mais recente da fonte sai do CSV da própria tabela. `get_max_date_in_table_microdados` (`tasks.py`) calcula esse mês no CSV do semestre, para o `microdados`, e no CSV de densidade **filtrado pela geografia da tabela**, para as densidades.
+| Flow | Agendamento | O que faz | Memória |
+| --- | --- | --- | --- |
+| `br_anatel_telefonia_movel_<tabela>_check_update` | um dia da semana, às 16h30 | baixa o CSV da tabela, calcula o mês mais recente e compara com a cobertura da tabela; se a fonte estiver à frente, grava o `RawDataSource.Update` e dispara o `download` | padrão do deploy para `check_update` (1Gi) |
+| `br_anatel_telefonia_movel_<tabela>_download` | disparado pelo `check_update` | baixa o CSV de novo, limpa e sobe para a staging de dev; o `build_and_promote` genérico materializa, testa e promove para prod | `memory_limit` de 8Gi |
 
-**"Última atualização na fonte original" gravada antes da carga:** quando o poll acha mês novo, `commit_source_update_task` grava o `RawDataSource.Update` logo em seguida, antes da limpeza e da materialização. Assim, se o flow falhar no meio, o metadado da fonte continua mostrando que a Anatel publicou dado novo. Isso não trava a tabela, porque o poll compara o mês da fonte com o último mês da tabela (`compare_against="coverage"`), que só avança quando a materialização termina (PR #1783).
+O `check_update` baixa o CSV porque o mês mais recente da fonte só aparece dentro dele. `get_max_date_in_table_microdados` (`tasks.py`) calcula esse mês no CSV do semestre, para o `microdados`, e no CSV de densidade **filtrado pela geografia da tabela**, para as densidades. No microdados, o `build_and_promote` promove para prod só as partições `ano=/mes=` gravadas no run; nas densidades, que não têm partição, promove a tabela inteira.
+
+O código fica todo em `pipelines/datasets/br_anatel_telefonia_movel/`, sem diretório em `pipelines/crawler/`.
+
+**"Última atualização na fonte original" gravada antes da carga:** quando o `check_update` acha mês novo, grava o `RawDataSource.Update` antes de disparar o `download`. Se o `download` falhar, o metadado da fonte continua mostrando que a Anatel publicou dado novo. Isso não trava a tabela, porque o `check_update` compara o mês da fonte com o último mês da tabela (`compare_against="coverage"`), que só avança quando a materialização termina (PR #1783).
 
 **Histórico do bug (contexto):** antes, a função retornava `df["data"].max()` do arquivo inteiro, então o `source_max_date` de cada densidade refletia a data de *outra* geografia (UF/Município), não a própria; e o poll era **eager** (gravava o `Update` antes de materializar). Uma falha de materialização carimbava o ponteiro adiantado e travava a tabela — foi o que travou a `densidade_brasil`.
 
-**Parâmetros:** em prod, rodar com defaults; `force_run=True` força a ingestão de um mês, útil para destravar/backfill.
+**Carga sem mês novo:** para recarregar uma tabela sem passar pelo `check_update`, dispara-se o `<tabela>_download` direto, com `download_params={"reference_date": "2026-08-01"}`. O `download` não lê a data: ele sempre baixa o semestre mais recente ou o CSV de densidade inteiro. Num deployment de dev (`dev-...`), o `build_and_promote` não promove para prod.
 
 ---
 
@@ -120,7 +127,6 @@ Densidade nacional (1 linha por mês).
 **Problema identificado — tabela travada em 2026-01** (as outras densidades foram até 2026-03):
 - **Não** é ausência na fonte — o arquivo tem `"Brasil"` para todos os meses. É o **bug do poll** (ver seção acima): o ponteiro do brasil foi carimbado adiantado e o flow passou a retornar antes de materializar (falhas de junho/2026).
 - **Fix permanente (aplicado):** poll por geografia + deferido (ver seção acima), que impede o ponteiro de avançar sem materialização bem-sucedida.
-- **Recuperação da tabela já travada (pós-deploy):** disparar uma vez com `force_run=True` — o ponteiro já foi queimado antes do fix, então o `force_run` materializa 2026-02..05 e ressincroniza.
 
 ### br_anatel_telefonia_movel__densidade_uf
 

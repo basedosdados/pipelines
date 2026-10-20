@@ -1,155 +1,201 @@
-"""Flows for br_anatel_telefonia_movel — Prefect 3."""
+"""Flows de br_anatel_telefonia_movel — Prefect 3, modelo em estágios."""
 
 from prefect.schedules import Cron
 
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    constants as anatel_constants,
+)
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
-    download_csv,
-    get_max_date_in_table_microdados,
-    join_tables_in_function,
+    make_extract_load_data,
+    make_get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    PartBdpro,
-    YearMonth,
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+
+DOWNLOAD_JOB_VARIABLES = {"memory_limit": "8Gi", "memory_request": "2Gi"}
+
+_microdados_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=anatel_constants.DATASET_ID.value,
+    table_id="microdados",
+    get_latest_update=make_get_latest_update("microdados"),
+    extract_load_data=make_extract_load_data("microdados"),
+    date_format="%Y-%m",
 )
 
 
-def _run_anatel_telefonia_movel(
-    dataset_id: str,
-    table_id: str,
-    materialize_after_dump: bool,
-    update_metadata: bool,
-    target: str,
-    force_run: bool,
+@flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
+def br_anatel_telefonia_movel_microdados_check_update() -> None:
+    _microdados_pipeline.run_check_update()
+
+
+br_anatel_telefonia_movel_microdados_check_update.deploy_tags = deploy_tags(
+    anatel_constants.DATASET_ID.value, Etapa.CHECK_UPDATE, "microdados"
+)
+br_anatel_telefonia_movel_microdados_check_update.deploy_schedules = [
+    Cron("30 16 * * 1", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_microdados_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_anatel_telefonia_movel_microdados_download(
+    download_params: dict,
 ) -> None:
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    csv_path = download_csv(table_id=table_id)
-
-    data_source_max_date = get_max_date_in_table_microdados(
-        table_id=table_id, csv_path=csv_path
-    )
-
-    has_new_data = poll_source_for_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=data_source_max_date,
-        env="prod",
-        date_format="%Y-%m",
-        compare_against="coverage",
-    )
-
-    if not has_new_data and not force_run:
-        print(f"Não há atualizações para a tabela {table_id}!")
-        return
-
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=data_source_max_date,
-        env="prod",
-        date_format="%Y-%m",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
-
-    filepath = join_tables_in_function(table_id=table_id, csv_path=csv_path)
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
+    _microdados_pipeline.run_extract_and_load(download_params)
 
 
-def _anatel_tm_flow(table_id: str, cron: str):
-    @flow(
-        name=f"br_anatel_telefonia_movel__{table_id}",
-        log_prints=True,
-    )
-    def _flow(
-        dataset_id: str = "br_anatel_telefonia_movel",
-        table_id: str = table_id,
-        materialize_after_dump: bool = True,
-        update_metadata: bool = True,
-        target: str = "prod",
-        force_run: bool = False,
-    ) -> None:
-        _run_anatel_telefonia_movel(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            materialize_after_dump=materialize_after_dump,
-            update_metadata=update_metadata,
-            target=target,
-            force_run=force_run,
-        )
-
-    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
-    _flow.job_variables = {"memory_limit": "8Gi", "memory_request": "2Gi"}
-    return _flow
-
-
-br_anatel_telefonia_movel__microdados = _anatel_tm_flow(
-    table_id="microdados", cron="30 16 * * 1"
+br_anatel_telefonia_movel_microdados_download.deploy_tags = deploy_tags(
+    anatel_constants.DATASET_ID.value, Etapa.EXTRACT_AND_LOAD, "microdados"
 )
-br_anatel_telefonia_movel__densidade_municipio = _anatel_tm_flow(
-    table_id="densidade_municipio", cron="30 16 * * 2"
+br_anatel_telefonia_movel_microdados_download.job_variables = (
+    DOWNLOAD_JOB_VARIABLES
 )
-br_anatel_telefonia_movel__densidade_uf = _anatel_tm_flow(
-    table_id="densidade_uf", cron="30 16 * * 3"
+_microdados_pipeline.extract_load_deployment = (
+    br_anatel_telefonia_movel_microdados_download.fn.__name__
 )
-br_anatel_telefonia_movel__densidade_brasil = _anatel_tm_flow(
-    table_id="densidade_brasil", cron="30 16 * * 4"
+
+
+_densidade_municipio_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=anatel_constants.DATASET_ID.value,
+    table_id="densidade_municipio",
+    get_latest_update=make_get_latest_update("densidade_municipio"),
+    extract_load_data=make_extract_load_data("densidade_municipio"),
+    date_format="%Y-%m",
+)
+
+
+@flow(
+    name=_densidade_municipio_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_anatel_telefonia_movel_densidade_municipio_check_update() -> None:
+    _densidade_municipio_pipeline.run_check_update()
+
+
+br_anatel_telefonia_movel_densidade_municipio_check_update.deploy_tags = (
+    deploy_tags(
+        anatel_constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        "densidade_municipio",
+    )
+)
+br_anatel_telefonia_movel_densidade_municipio_check_update.deploy_schedules = [
+    Cron("30 16 * * 2", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_densidade_municipio_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_anatel_telefonia_movel_densidade_municipio_download(
+    download_params: dict,
+) -> None:
+    _densidade_municipio_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_telefonia_movel_densidade_municipio_download.deploy_tags = (
+    deploy_tags(
+        anatel_constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        "densidade_municipio",
+    )
+)
+br_anatel_telefonia_movel_densidade_municipio_download.job_variables = (
+    DOWNLOAD_JOB_VARIABLES
+)
+_densidade_municipio_pipeline.extract_load_deployment = (
+    br_anatel_telefonia_movel_densidade_municipio_download.fn.__name__
+)
+
+
+_densidade_uf_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=anatel_constants.DATASET_ID.value,
+    table_id="densidade_uf",
+    get_latest_update=make_get_latest_update("densidade_uf"),
+    extract_load_data=make_extract_load_data("densidade_uf"),
+    date_format="%Y-%m",
+)
+
+
+@flow(name=_densidade_uf_pipeline.check_update_flow_name, log_prints=True)
+def br_anatel_telefonia_movel_densidade_uf_check_update() -> None:
+    _densidade_uf_pipeline.run_check_update()
+
+
+br_anatel_telefonia_movel_densidade_uf_check_update.deploy_tags = deploy_tags(
+    anatel_constants.DATASET_ID.value, Etapa.CHECK_UPDATE, "densidade_uf"
+)
+br_anatel_telefonia_movel_densidade_uf_check_update.deploy_schedules = [
+    Cron("30 16 * * 3", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_densidade_uf_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_anatel_telefonia_movel_densidade_uf_download(
+    download_params: dict,
+) -> None:
+    _densidade_uf_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_telefonia_movel_densidade_uf_download.deploy_tags = deploy_tags(
+    anatel_constants.DATASET_ID.value, Etapa.EXTRACT_AND_LOAD, "densidade_uf"
+)
+br_anatel_telefonia_movel_densidade_uf_download.job_variables = (
+    DOWNLOAD_JOB_VARIABLES
+)
+_densidade_uf_pipeline.extract_load_deployment = (
+    br_anatel_telefonia_movel_densidade_uf_download.fn.__name__
+)
+
+
+_densidade_brasil_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=anatel_constants.DATASET_ID.value,
+    table_id="densidade_brasil",
+    get_latest_update=make_get_latest_update("densidade_brasil"),
+    extract_load_data=make_extract_load_data("densidade_brasil"),
+    date_format="%Y-%m",
+)
+
+
+@flow(name=_densidade_brasil_pipeline.check_update_flow_name, log_prints=True)
+def br_anatel_telefonia_movel_densidade_brasil_check_update() -> None:
+    _densidade_brasil_pipeline.run_check_update()
+
+
+br_anatel_telefonia_movel_densidade_brasil_check_update.deploy_tags = (
+    deploy_tags(
+        anatel_constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        "densidade_brasil",
+    )
+)
+br_anatel_telefonia_movel_densidade_brasil_check_update.deploy_schedules = [
+    Cron("30 16 * * 4", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_densidade_brasil_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_anatel_telefonia_movel_densidade_brasil_download(
+    download_params: dict,
+) -> None:
+    _densidade_brasil_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_telefonia_movel_densidade_brasil_download.deploy_tags = deploy_tags(
+    anatel_constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    "densidade_brasil",
+)
+br_anatel_telefonia_movel_densidade_brasil_download.job_variables = (
+    DOWNLOAD_JOB_VARIABLES
+)
+_densidade_brasil_pipeline.extract_load_deployment = (
+    br_anatel_telefonia_movel_densidade_brasil_download.fn.__name__
 )
