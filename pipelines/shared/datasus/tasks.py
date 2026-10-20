@@ -98,16 +98,10 @@ def check_files_to_parse(
             if file.split("/")[-1][4:8] == year_month_to_parse
         ]
     else:
-        # aceita "2507", "202507" e "2025-07"
-        yymm = year_month_to_extract.replace("-", "")[-4:]
-        if not (
-            len(yymm) == 4 and yymm.isdigit() and 1 <= int(yymm[2:]) <= 12
-        ):
-            raise ValueError(
-                f"year_month_to_extract inválido: {year_month_to_extract!r}"
-            )
         list_files = [
-            file for file in available_dbs if file.split("/")[-1][4:8] == yymm
+            file
+            for file in available_dbs
+            if file.split("/")[-1][4:8] in year_month_to_extract
         ]
 
     log(
