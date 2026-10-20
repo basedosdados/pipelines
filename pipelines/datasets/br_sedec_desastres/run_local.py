@@ -86,7 +86,7 @@ def check_flow_importable() -> None:
     try:
         from pipelines.datasets.br_sedec_desastres import flows
 
-        flow = flows.extract_and_load
+        flow = flows.br_sedec_desastres_extract_and_load
         log.info(f"flows.py importa OK — flow: {flow.name}")
     except ImportError as e:
         log.warning(f"flows.py NÃO importa nesta venv: {e}")
