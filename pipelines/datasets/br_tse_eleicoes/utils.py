@@ -2,6 +2,7 @@
 General purpose functions for the br_tse_eleicoes project
 """
 
+import tempfile
 import unicodedata
 import zipfile
 from datetime import datetime
