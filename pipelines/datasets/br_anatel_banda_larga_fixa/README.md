@@ -28,7 +28,7 @@ domicílios) nos níveis Brasil, UF e município.
 ## Causa raiz do congelamento (ponto crítico)
 
 O flow desistia sozinho **antes de materializar**, por causa do poll eager
-`register_source_poll_task` (`pipelines/crawler/anatel/banda_larga_fixa/flows.py`). Esse
+`register_source_poll_task` (`pipelines/shared/anatel/banda_larga_fixa/flows.py`). Esse
 poll comparava duas grandezas incompatíveis:
 
 | lado da comparação                 | valor                 | o que é                                |
@@ -48,7 +48,7 @@ eager tinha um segundo defeito: gravava o `Update` no momento da checagem, mesmo
 flow morresse antes de materializar.
 
 **Fix aplicado.** Migração para o poll **deferido**, espelhando
-`pipelines/crawler/ibge_inflacao/flows.py`:
+`pipelines/shared/ibge_inflacao/flows.py`:
 
 - `poll_source_for_update_task` apenas **detecta** a novidade antes de materializar;
 - `commit_source_update_task` grava o `Update` **só depois** da materialização em prod.
@@ -171,7 +171,7 @@ com 12 meses × ~5.570 municípios é seguro reativar o schedule/`force_run` das
 Um flow por tabela em `pipelines/datasets/br_anatel_banda_larga_fixa/flows.py`, gerado
 por `_anatel_blf_flow(table_id, cron)`. O `microdados` tem cron diário; as 3 densidades
 vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
-`_run_anatel_banda_larga_fixa` (`pipelines/crawler/anatel/banda_larga_fixa/flows.py`).
+`_run_anatel_banda_larga_fixa` (`pipelines/shared/anatel/banda_larga_fixa/flows.py`).
 
 ### Parâmetros de execução
 
@@ -205,5 +205,5 @@ vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
   `unique_combination`). Em espera junto da decisão sobre o apagão da fonte (PRUV).
   Rastreado na issue #1608.
 
-> O `telefonia_movel` (`pipelines/crawler/anatel/telefonia_movel/flows.py`) tem o
+> O `telefonia_movel` (`pipelines/shared/anatel/telefonia_movel/flows.py`) tem o
 > **mesmo** poll eager — o mesmo fix se aplica lá, em correção à parte.

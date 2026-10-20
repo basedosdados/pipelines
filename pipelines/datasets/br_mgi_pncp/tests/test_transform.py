@@ -1163,30 +1163,43 @@ class TestJobVariablesReachThePod:
     def test_the_memory_ask_uses_the_key_the_pool_reads(self):
         from pipelines.datasets.br_mgi_pncp import flows
 
-        jv = flows.br_mgi_pncp_flow.job_variables
-        assert jv is not None, "br_mgi_pncp_flow sets no job_variables"
-        assert "memory_limit" in jv, (
-            "job_variables sets no memory_limit, so the pod gets the pool's "
-            f"4Gi default however large `memory` is; got {jv}"
-        )
-        assert jv["memory_limit"] == jv.get("memory"), (
-            "memory and memory_limit disagree, which makes the deployment "
-            "record lie about what the pod will actually get"
-        )
+        # Both stages hold a full lookback window in memory (check_update
+        # harvests it to judge freshness, extract_and_load re-harvests it
+        # independently to load it — see the flows.py module banner), so both
+        # carry the same job_variables.
+        for name in (
+            "br_mgi_pncp_check_update",
+            "br_mgi_pncp_extract_and_load",
+        ):
+            jv = getattr(flows, name).job_variables
+            assert jv is not None, f"{name} sets no job_variables"
+            assert "memory_limit" in jv, (
+                "job_variables sets no memory_limit, so the pod gets the "
+                f"pool's 4Gi default however large `memory` is; got {jv}"
+            )
+            assert jv["memory_limit"] == jv.get("memory"), (
+                "memory and memory_limit disagree, which makes the "
+                "deployment record lie about what the pod will actually get"
+            )
 
     def test_no_job_variable_is_silently_dropped(self):
         from pipelines.datasets.br_mgi_pncp import flows
 
         # `memory` is kept deliberately: harmless, and it is what a reader
         # greps for. Everything else must be a real template variable.
-        unknown = (
-            set(flows.br_mgi_pncp_flow.job_variables or {})
-            - self.POOL_VARIABLES
-            - {"memory"}
-        )
-        assert not unknown, (
-            f"not variables of the work pool template: {sorted(unknown)}"
-        )
+        for name in (
+            "br_mgi_pncp_check_update",
+            "br_mgi_pncp_extract_and_load",
+        ):
+            unknown = (
+                set(getattr(flows, name).job_variables or {})
+                - self.POOL_VARIABLES
+                - {"memory"}
+            )
+            assert not unknown, (
+                f"{name}: not variables of the work pool template: "
+                f"{sorted(unknown)}"
+            )
 
 
 class TestPartNamesDoNotCollideAcrossRuns:
@@ -1322,11 +1335,15 @@ class TestDicionarioIsDerivedFromTheModels:
         flows_src = (
             Path(__file__).resolve().parents[1] / "flows.py"
         ).read_text()
-        upload_block = flows_src[flows_src.index("uploads = ") :]
-        assert "uploads = constants.FACT_TABLES.value" in upload_block
-        assert "data_path=summaries[table]" in upload_block
-        assert "for table in tables:\n                upload_to_gcs" not in (
-            flows_src
+        # `_materialize` is the single place both the dev and prod stages
+        # upload from (see flows.py) — the invariant only needs to hold there.
+        start = flows_src.index("def _materialize(")
+        materialize_src = flows_src[start : flows_src.index("\n@flow", start)]
+        assert "for table in constants.FACT_TABLES.value:" in materialize_src
+        assert "data_path=summaries[table]" in materialize_src
+        assert (
+            "for table in constants.ALL_TABLES.value:\n        upload_to_gcs"
+            not in flows_src
         ), (
             "the upload loop is back on ALL_TABLES, which has no dicionario data"
         )

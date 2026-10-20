@@ -3,188 +3,225 @@ Flows for mx_sesnsp_incidencia_delictiva — Prefect 3.
 
 Mexican monthly crime counts from SESNSP. Only the four new-methodology tables
 that gain a month on every release are refreshed here — the three
-``*_2015_2025`` legacy tables are frozen. Each SESNSP release ships the full
-current-year history, so every run is a full replace (dump_mode="overwrite"),
-not an incremental append. A single flow scrapes the rotating SharePoint tokens,
-downloads and cleans the four tables, and materializes them. Schedule targets the
-monthly SESNSP release window (~20th).
+``*_2015_2025`` legacy tables are frozen and never touched by this pipeline.
+Each SESNSP release ships the full current-year history, so every run is a
+full replace (``dump_mode="overwrite"``), not an incremental append.
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
-`mx_sesnsp_incidencia_delictiva_flow`; the dev pool ignores the schedule, the
-prod pool activates it.
+Migrated to the one-pipeline-per-table_id shape: 4 independent check_update /
+extract_and_load pairs (municipio_delitos, estatal_delitos, estatal_victimas,
+municipio_victimas), wired through ``CheckThenExtractLoadPipeline``/
+``pipeline_factory`` (see ``tasks.py``). The originally-planned
+"check_and_download" variant was cancelled — every table uses the standard
+check_update -> extract_and_load shape, even though check_update must itself
+scrape the rotating SharePoint tokens and download the table's zip (several
+hundred MB) to read off the latest published month, and extract_and_load
+downloads it again, independently (accepted duplicated cost, same as
+``br_cgu_sancoes``/``au_ato_abr``/``au_geoscape_gnaf``).
+
+No real cross-table dbt dependency exists between the four tables: every
+model in ``models/mx_sesnsp_incidencia_delictiva/*.sql`` selects from its own
+staging source with no ``ref()`` to a sibling table — the only ``ref()``s in
+``schema.yml`` point at ``br_bd_diretorios_mx`` (an external directory, not a
+sibling table in this dataset). So the repo-wide "1 flow per table" default
+applies cleanly here, with no ``dispatch_build_and_promote``-bypassing group
+flow needed.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers all 8 flows
+below; the dev pool ignores the schedules, the prod pool activates them.
 """
-
-import shutil
-import tempfile
 
 from prefect.schedules import Cron
 
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.constants import (
+    ESTATAL_DELITOS_TABLE_ID,
+    ESTATAL_VICTIMAS_TABLE_ID,
+    MUNICIPIO_DELITOS_TABLE_ID,
+    MUNICIPIO_VICTIMAS_TABLE_ID,
     constants,
 )
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.tasks import (
-    clean_sesnsp,
-    download_sesnsp,
+    make_pipeline,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
-#
-# All four tables refresh monthly, so each carries the BD Pro rolling window:
-# the most recent 6 months are pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges, and
-# re-issues the BigQuery Row Access Policies, so the window slides forward on its
-# own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. The frozen *_2015_2025 tables are not in this
-# pipeline and stay AllFree.
-_COVERAGE = {
-    table: PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for table in constants.ALL_TABLES.value
-}
-
-
-@flow(name="mx_sesnsp_incidencia_delictiva", log_prints=True)
-def mx_sesnsp_incidencia_delictiva_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Download the SESNSP files, rebuild the four ongoing tables, materialize them.
-
-    Each SESNSP release ships the full current-year history, so every run is a
-    full replace (``dump_mode="overwrite"``) rather than an incremental append.
-    The source poll short-circuits the run when SESNSP has not published a new
-    month, which makes a scheduled run a cheap no-op between releases.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new month.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="incidencia_delictiva"
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="mx_sesnsp_")
-    try:
-        input_dir = download_sesnsp(work_dir=work_dir)
-        result = clean_sesnsp(work_dir=work_dir, input_dir=input_dir)
-        max_ym = result["max_year_month"]
-
-        tables = constants.ALL_TABLES.value
-
-        # Skip the run when SESNSP has not published a newer month (unless
-        # forced). All four tables share the same release month; poll on one.
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id="municipio_delitos",
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging + materialize/test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run/test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-            # All four tables share one raw source and one release month; commit
-            # the source update once, last, after prod succeeded.
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="municipio_delitos",
-                source_max_date=max_ym,
-                env="prod",
-                date_format="%Y-%m",
-            )
-    finally:
-        # Covers both early returns (no new data, dev-only) and any exception.
-        # The k8s work pool gives each run a fresh pod, but a process/local
-        # worker reuses its filesystem — the download is several hundred MB.
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
 # SESNSP releases monthly, ~20th of the month, Mexico City time. Poll across a
 # few days; the source-poll guard no-ops until a new month actually appears.
-mx_sesnsp_incidencia_delictiva_flow.deploy_schedules = [
+# Same schedule for all 4 tables — one shared monthly cadence, same as the old
+# monolithic flow.
+_CHECK_UPDATE_SCHEDULE = [
     Cron("20 9 20,21,22,23,24 * *", timezone="America/Mexico_City")
 ]
+
 # The municipal melt holds ~1.7M rows in pandas; give the worker headroom.
-mx_sesnsp_incidencia_delictiva_flow.job_variables = {"memory": "8Gi"}
+# Only the municipio_* tables run that melt (check_update and extract_and_load
+# both clean the full CSV) — the estatal_* tables are far smaller and run with
+# the default memory.
+_MUNICIPAL_JOB_VARIABLES = {"memory": "8Gi"}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# municipio_delitos
+# check_update: mx_sesnsp_incidencia_delictiva__municipio_delitos
+# extract_and_load: mx_sesnsp_incidencia_delictiva__municipio_delitos
+# ──────────────────────────────────────────────────────────────────────────────
+
+_municipio_delitos_pipeline = make_pipeline(MUNICIPIO_DELITOS_TABLE_ID)
+
+
+@flow(name=_municipio_delitos_pipeline.check_update_flow_name, log_prints=True)
+def mx_sesnsp_incidencia_delictiva_municipio_delitos_check_update() -> None:
+    _municipio_delitos_pipeline.run_check_update()
+
+
+mx_sesnsp_incidencia_delictiva_municipio_delitos_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIO_DELITOS_TABLE_ID)
+)
+mx_sesnsp_incidencia_delictiva_municipio_delitos_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+mx_sesnsp_incidencia_delictiva_municipio_delitos_check_update.job_variables = (
+    _MUNICIPAL_JOB_VARIABLES
+)
+
+
+@flow(
+    name=_municipio_delitos_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def mx_sesnsp_incidencia_delictiva_municipio_delitos_download(
+    download_params: dict,
+) -> None:
+    _municipio_delitos_pipeline.run_extract_and_load(download_params)
+
+
+mx_sesnsp_incidencia_delictiva_municipio_delitos_download.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD, MUNICIPIO_DELITOS_TABLE_ID)
+)
+mx_sesnsp_incidencia_delictiva_municipio_delitos_download.job_variables = (
+    _MUNICIPAL_JOB_VARIABLES
+)
+_municipio_delitos_pipeline.extract_load_deployment = (
+    mx_sesnsp_incidencia_delictiva_municipio_delitos_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# estatal_delitos
+# check_update: mx_sesnsp_incidencia_delictiva__estatal_delitos
+# extract_and_load: mx_sesnsp_incidencia_delictiva__estatal_delitos
+# ──────────────────────────────────────────────────────────────────────────────
+
+_estatal_delitos_pipeline = make_pipeline(ESTATAL_DELITOS_TABLE_ID)
+
+
+@flow(name=_estatal_delitos_pipeline.check_update_flow_name, log_prints=True)
+def mx_sesnsp_incidencia_delictiva_estatal_delitos_check_update() -> None:
+    _estatal_delitos_pipeline.run_check_update()
+
+
+mx_sesnsp_incidencia_delictiva_estatal_delitos_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, ESTATAL_DELITOS_TABLE_ID)
+)
+mx_sesnsp_incidencia_delictiva_estatal_delitos_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(
+    name=_estatal_delitos_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def mx_sesnsp_incidencia_delictiva_estatal_delitos_download(
+    download_params: dict,
+) -> None:
+    _estatal_delitos_pipeline.run_extract_and_load(download_params)
+
+
+mx_sesnsp_incidencia_delictiva_estatal_delitos_download.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTATAL_DELITOS_TABLE_ID)
+)
+_estatal_delitos_pipeline.extract_load_deployment = (
+    mx_sesnsp_incidencia_delictiva_estatal_delitos_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# estatal_victimas
+# check_update: mx_sesnsp_incidencia_delictiva__estatal_victimas
+# extract_and_load: mx_sesnsp_incidencia_delictiva__estatal_victimas
+# ──────────────────────────────────────────────────────────────────────────────
+
+_estatal_victimas_pipeline = make_pipeline(ESTATAL_VICTIMAS_TABLE_ID)
+
+
+@flow(name=_estatal_victimas_pipeline.check_update_flow_name, log_prints=True)
+def mx_sesnsp_incidencia_delictiva_estatal_victimas_check_update() -> None:
+    _estatal_victimas_pipeline.run_check_update()
+
+
+mx_sesnsp_incidencia_delictiva_estatal_victimas_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, ESTATAL_VICTIMAS_TABLE_ID)
+)
+mx_sesnsp_incidencia_delictiva_estatal_victimas_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+
+
+@flow(
+    name=_estatal_victimas_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def mx_sesnsp_incidencia_delictiva_estatal_victimas_download(
+    download_params: dict,
+) -> None:
+    _estatal_victimas_pipeline.run_extract_and_load(download_params)
+
+
+mx_sesnsp_incidencia_delictiva_estatal_victimas_download.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTATAL_VICTIMAS_TABLE_ID)
+)
+_estatal_victimas_pipeline.extract_load_deployment = (
+    mx_sesnsp_incidencia_delictiva_estatal_victimas_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# municipio_victimas
+# check_update: mx_sesnsp_incidencia_delictiva__municipio_victimas
+# extract_and_load: mx_sesnsp_incidencia_delictiva__municipio_victimas
+# ──────────────────────────────────────────────────────────────────────────────
+
+_municipio_victimas_pipeline = make_pipeline(MUNICIPIO_VICTIMAS_TABLE_ID)
+
+
+@flow(
+    name=_municipio_victimas_pipeline.check_update_flow_name, log_prints=True
+)
+def mx_sesnsp_incidencia_delictiva_municipio_victimas_check_update() -> None:
+    _municipio_victimas_pipeline.run_check_update()
+
+
+mx_sesnsp_incidencia_delictiva_municipio_victimas_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIO_VICTIMAS_TABLE_ID)
+)
+mx_sesnsp_incidencia_delictiva_municipio_victimas_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+mx_sesnsp_incidencia_delictiva_municipio_victimas_check_update.job_variables = _MUNICIPAL_JOB_VARIABLES
+
+
+@flow(
+    name=_municipio_victimas_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def mx_sesnsp_incidencia_delictiva_municipio_victimas_download(
+    download_params: dict,
+) -> None:
+    _municipio_victimas_pipeline.run_extract_and_load(download_params)
+
+
+mx_sesnsp_incidencia_delictiva_municipio_victimas_download.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, MUNICIPIO_VICTIMAS_TABLE_ID
+    )
+)
+mx_sesnsp_incidencia_delictiva_municipio_victimas_download.job_variables = (
+    _MUNICIPAL_JOB_VARIABLES
+)
+_municipio_victimas_pipeline.extract_load_deployment = (
+    mx_sesnsp_incidencia_delictiva_municipio_victimas_download.fn.__name__
+)
