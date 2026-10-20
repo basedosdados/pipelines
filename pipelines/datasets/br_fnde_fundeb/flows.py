@@ -1,141 +1,120 @@
-"""Flow do br_fnde_fundeb — Prefect 3.
+"""Flows do br_fnde_fundeb — Prefect 3.
 
-Atualiza o exercício corrente dos Indicadores do SIOPE a partir do produto 54 da
-Plataforma Antonieta de Barros. Contexto da fonte, decisões de modelagem e a
-divisão entre carga histórica e atualização estão no README do conjunto.
+Migrado por completo pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote, uma dupla de flows por
+tabela (indicador_estadual, indicador_municipal). Lógica específica do
+dataset mora em `tasks.py`/`utils.py`, constantes em `constants.py` — aqui só
+a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
+
+O `dicionario` não entra neste flow — as 112 linhas são fixas e carregadas à
+parte, manualmente (ver README do conjunto, seção "Carga e atualização").
+Embora `custom_dictionary_coverage` em `indicador_estadual`/
+`indicador_municipal` referencie `ref('br_fnde_fundeb__dicionario')`, essa
+tabela não é produzida por este pipeline — já existe, persistente, em dev e
+prod, carregada antes de este flow existir — então o `build_and_promote`
+genérico (um deployment por tabela, assíncrono) não corre o risco de testar
+`indicador_estadual`/`indicador_municipal` antes de `dicionario` existir, ao
+contrário do caso de `br_bcb_ifdata` (onde as 4 tabelas, dicionário incluso,
+são recriadas juntas a cada run).
 """
 
 from prefect.schedules import Cron
 
 from pipelines.datasets.br_fnde_fundeb.constants import constants
-from pipelines.datasets.br_fnde_fundeb.tasks import (
-    check_source_siope,
-    clean_siope,
-    download_siope,
-)
+from pipelines.datasets.br_fnde_fundeb.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearBimester,
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
+
+DATASET_ID = constants.DATASET_ID.value
+TABLE_STATE = constants.TABLE_STATE.value
+TABLE_MUNICIPALITY = constants.TABLE_MUNICIPALITY.value
+
+# ──────────────────────────────────────────────────────────────────────────────
+# indicador_estadual
+# check_update: br_fnde_fundeb__indicador_estadual
+# extract_and_load: br_fnde_fundeb__indicador_estadual
+# ──────────────────────────────────────────────────────────────────────────────
+
+_indicador_estadual_pipeline = make_pipeline(TABLE_STATE)
+
+
+@flow(
+    name=_indicador_estadual_pipeline.check_update_flow_name, log_prints=True
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
+def br_fnde_fundeb_indicador_estadual_check_update() -> None:
+    _indicador_estadual_pipeline.run_check_update()
+
+
+br_fnde_fundeb_indicador_estadual_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, TABLE_STATE
 )
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
-
-DATE_FORMAT = constants.DATE_FORMAT.value
-
-TABLES = [
-    constants.TABLE_STATE.value,
-    constants.TABLE_MUNICIPALITY.value,
-]
-
-POLL_TABLE = constants.TABLE_MUNICIPALITY.value
-
-_COVERAGE = PartBdpro(
-    date_column=YearBimester(year="ano", bimester="bimestre"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-
-
-@flow(name="br_fnde_fundeb", log_prints=True)
-def br_fnde_fundeb(
-    dataset_id: str = constants.DATASET_ID.value,
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Baixa o exercício corrente do SIOPE, remonta as tabelas e materializa.
-
-    Encerra sem baixar nada quando a plataforma não regravou o arquivo desde a
-    última materialização.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=POLL_TABLE
-    )
-
-    source_date = check_source_siope(
-        product_id=constants.PRODUCT_CURRENT.value
-    )
-    has_new_data = poll_source_for_update_task(
-        dataset_id=dataset_id,
-        table_id=POLL_TABLE,
-        source_max_date=source_date,
-        env="prod",
-        date_format=DATE_FORMAT,
-        compare_against="table_update",
-    )
-    if not has_new_data and not force_run:
-        return
-
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=POLL_TABLE,
-        source_max_date=source_date,
-        env="prod",
-        date_format=DATE_FORMAT,
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_to_prod,
-    )
-
-    work_dir = constants.WORK_DIR.value
-
-    source_path = download_siope(
-        work_dir=work_dir, product_id=constants.PRODUCT_CURRENT.value
-    )
-    result = clean_siope(work_dir=work_dir, source_path=source_path)
-
-    for table_id in TABLES:
-        upload_to_gcs(
-            data_path=result[table_id],
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados-dev",
-            dump_mode="append",
-            source_format="parquet",
-        )
-
-    run_dbt(dataset_id=dataset_id, dbt_command="run/test", target="dev")
-
-    if not materialize_to_prod:
-        return
-
-    for table_id in TABLES:
-        upload_to_gcs(
-            data_path=result[table_id],
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados",
-            dump_mode="append",
-            source_format="parquet",
-        )
-
-    run_dbt(dataset_id=dataset_id, dbt_command="run/test", target="prod")
-
-    if not update_metadata:
-        return
-
-    for table_id in TABLES:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=_COVERAGE,
-            env="prod",
-            bq_project="basedosdados",
-        )
-
-
-br_fnde_fundeb.deploy_schedules = [
+# Mesmo cron do flow monolítico antigo (main): dias 5, 12, 19 e 26.
+br_fnde_fundeb_indicador_estadual_check_update.deploy_schedules = [
     Cron("17 10 5,12,19,26 * *", timezone="America/Sao_Paulo")
 ]
 
-br_fnde_fundeb.job_variables = {"memory": "4Gi"}
+
+@flow(
+    name=_indicador_estadual_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_fnde_fundeb_indicador_estadual_download(download_params: dict) -> None:
+    _indicador_estadual_pipeline.run_extract_and_load(download_params)
+
+
+br_fnde_fundeb_indicador_estadual_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, TABLE_STATE
+)
+_indicador_estadual_pipeline.extract_load_deployment = (
+    br_fnde_fundeb_indicador_estadual_download.fn.__name__
+)
+# Mesma folga de memória do flow monolítico antigo — o histórico (não baixado
+# aqui) passa de 1 GB descomprimido; o exercício corrente é bem menor.
+br_fnde_fundeb_indicador_estadual_download.job_variables = {"memory": "4Gi"}
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# indicador_municipal
+# check_update: br_fnde_fundeb__indicador_municipal
+# extract_and_load: br_fnde_fundeb__indicador_municipal
+# ──────────────────────────────────────────────────────────────────────────────
+
+_indicador_municipal_pipeline = make_pipeline(TABLE_MUNICIPALITY)
+
+
+@flow(
+    name=_indicador_municipal_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_fnde_fundeb_indicador_municipal_check_update() -> None:
+    _indicador_municipal_pipeline.run_check_update()
+
+
+br_fnde_fundeb_indicador_municipal_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, TABLE_MUNICIPALITY
+)
+# Mesmo cron do flow monolítico antigo (main): dias 5, 12, 19 e 26.
+br_fnde_fundeb_indicador_municipal_check_update.deploy_schedules = [
+    Cron("17 10 5,12,19,26 * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_indicador_municipal_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_fnde_fundeb_indicador_municipal_download(
+    download_params: dict,
+) -> None:
+    _indicador_municipal_pipeline.run_extract_and_load(download_params)
+
+
+br_fnde_fundeb_indicador_municipal_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, TABLE_MUNICIPALITY
+)
+_indicador_municipal_pipeline.extract_load_deployment = (
+    br_fnde_fundeb_indicador_municipal_download.fn.__name__
+)
+# Mesma folga de memória do flow monolítico antigo — o histórico (não baixado
+# aqui) passa de 1 GB descomprimido; o exercício corrente é bem menor.
+br_fnde_fundeb_indicador_municipal_download.job_variables = {"memory": "4Gi"}

@@ -15,7 +15,7 @@ e é atualizada com frequência **diária**.
 - **Fonte:** `arquivos.receitafederal.gov.br/public.php/dav/files/.../CAFIR/`
 - **Pipeline:** `pipelines/datasets/br_rf_cafir/` (`constants.py`, `utils.py`,
   `tasks.py`, `flows.py`) — segue a estrutura padrão. O antigo
-  `pipelines/crawler/rf_cafir/` foi removido; todo o código foi migrado.
+  `pipelines/shared/rf_cafir/` foi removido; todo o código foi migrado.
 - **Flow:** `pipelines/datasets/br_rf_cafir/flows.py` — cron diário (`0 0 * * *`)
 - **Permissionamento:** `PartBdpro` sobre `data_referencia` (janela recente paga)
 - **Proxy:** a Receita bloqueia IPs de fora do Brasil, e o cluster roda em

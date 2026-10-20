@@ -1,9 +1,43 @@
-"""Flow trimestral do br_bcb_ifdata (IF.data — Banco Central)."""
+"""Flows do br_bcb_ifdata (IF.data — Banco Central) — Prefect 3.
+
+Migrado para check_update -> extract_and_load, SEM `build_and_promote`: ao
+contrário do shape padrão de um `pipeline_factory`/`CheckThenExtractLoadPipeline`
+(ver `pipelines/utils/stage_dispatch.py`), este dataset tem duas restrições que o
+building block genérico não resolve sozinho.
+
+1. Download compartilhado e não decomponível: `clean_all()` varre as ~105
+   competências da fonte numa passada só e produz as quatro tabelas juntas
+   (`dicionario`, `instituicao`, `coluna`, `relatorio`) — não dá para baixar/
+   limpar uma tabela de cada vez sem reprocessar a série inteira 4x. Por isso
+   há só UM `check_update` e UM `extract_and_load` para o dataset inteiro
+   (mesma ideia de `au_geoscape_gnaf`), não um par por tabela.
+
+2. Ordem obrigatória no dbt: `custom_dictionary_coverage` de `instituicao` e
+   `coluna` referencia `ref('br_bcb_ifdata__dicionario')`, e `relationships` de
+   `relatorio` referencia `ref('br_bcb_ifdata__instituicao')` — então as
+   quatro tabelas precisam ser `run` antes de QUALQUER uma ser `test`ada (ver o
+   docstring de `_materialize` abaixo). O `dispatch_build_and_promote`
+   genérico não serve aqui mesmo com um único `extract_and_load`: ele dispara
+   um `build_and_promote` POR TABELA, cada um de forma assíncrona e
+   independente (cada deployment roda `run` + `test` só da sua própria
+   tabela, sem esperar as irmãs) — isso reabriria exatamente a race que este
+   dataset já bateu (teste de uma tabela rodando antes de a outra existir).
+   A solução adotada é não usar `dispatch_build_and_promote`: `extract_and_load`
+   chama `_materialize` diretamente, que sobe as 4 tabelas, roda `dbt run` de
+   todas e só depois `dbt test` de todas — exatamente a lógica do antigo flow
+   monolítico, preservada aqui, só reparticionada para depois do poll de
+   `check_update` em vez de antes dele.
+
+`register_table_materialization_task` (atualização de cobertura/Update no
+backend) também continua chamada diretamente dentro de `extract_and_load`, não
+via um `build_and_promote` genérico, pelo mesmo motivo.
+"""
 
 from __future__ import annotations
 
 import shutil
 import tempfile
+from datetime import date
 
 from prefect.schedules import Cron
 
@@ -19,10 +53,11 @@ from pipelines.utils.metadata.domain import (
     PartBdpro,
     YearMonth,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
+from pipelines.utils.metadata.tasks import register_table_materialization_task
+from pipelines.utils.stage_dispatch import (
+    Etapa,
+    check_update_and_dispatch,
+    deploy_tags,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -33,6 +68,13 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 ALL_TABLES = constants.ALL_TABLES.value
 POLL_TABLE = constants.POLL_TABLE.value
+
+# Nome do deployment de `br_bcb_ifdata_extract_and_load` abaixo (`deploy_flows.py`
+# registra um deployment com o nome da variável Python do `@flow`). Passado
+# explicitamente para `check_update_and_dispatch` porque `Etapa.deployment_name()`
+# default já bateria com `str(Etapa.EXTRACT_AND_LOAD)` — mantido explícito para
+# não depender de coincidência com a convenção.
+_EXTRACT_AND_LOAD_DEPLOYMENT = "br_bcb_ifdata_extract_and_load"
 
 # Os dois trimestres mais recentes ficam fechados para assinantes BD Pro; o
 # resto da série é livre. `free_lag` de 6 meses são exatamente 2 competências
@@ -98,58 +140,77 @@ def _materialize(target: str, bucket: str, paths: dict) -> None:
         )
 
 
-@flow(name="br_bcb_ifdata", log_prints=True)
-def br_bcb_ifdata_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Reconstrói o IF.data inteiro e materializa.
+@flow(name=f"{Etapa.CHECK_UPDATE}: {DATASET_ID}", log_prints=True)
+def br_bcb_ifdata_check_update() -> bool:
+    """Poll da competência mais recente na fonte, dispara extract_and_load.
 
-    A reconstrução é completa a cada run, não incremental: na data-base de
-    dezembro o BCB republica os dados contábeis dos últimos quatro trimestres,
-    então competências já carregadas mudam depois. Por isso `dump_mode` é
-    `overwrite`. O poll da fonte transforma uma run agendada em no-op barato
-    entre publicações.
-
-    Args:
-        materialize_to_prod: segue além da materialização em dev para escrever
-            o bucket de prod e rodar o dbt com `target="prod"`. Use False para
-            exercitar só a metade dev — necessário para uma run de teste
-            segura, já que o padrão escreve produção.
-        update_metadata: registra cobertura das tabelas após a materialização
-            em prod. Sem efeito quando `materialize_to_prod` é False.
-        force_run: materializa mesmo quando o poll não vê competência nova.
+    Returns:
+        `True` se havia competência nova (e `extract_and_load` foi
+        disparado); `False` caso contrário.
     """
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="br_bcb_ifdata"
+        prefix="Check Update: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
 
     max_ym = get_source_max_period()
     print(f"competência mais recente na fonte: {max_ym}")
+    year, month = (int(part) for part in max_ym.split("-"))
 
-    has_new_data = poll_source_for_update_task(
+    return check_update_and_dispatch(
+        prefect_dataset_id=DATASET_ID,
         dataset_id=DATASET_ID,
         table_id=POLL_TABLE,
-        source_max_date=max_ym,
-        env="prod",
+        reference_date=date(year, month, 1),
+        next_deployment=_EXTRACT_AND_LOAD_DEPLOYMENT,
         date_format="%Y-%m",
-        compare_against="coverage",
     )
-    if not has_new_data and not force_run:
-        print("Não há novas competências na fonte.")
-        return
 
-    # Grava o Update da fonte antes de baixar: se o flow falhar no meio, o
-    # metadado ainda registra que havia competência nova publicada.
-    commit_source_update_task(
+
+br_bcb_ifdata_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+# O IF.data publica cerca de 90 dias após o fim do trimestre (a competência
+# 2026-03 saiu em 2026-06-01). Poller nos primeiros dias de cada mês às 16:00
+# BRT; a trava do poll no-opa até uma competência nova aparecer de fato.
+br_bcb_ifdata_check_update.deploy_schedules = [
+    Cron("50 16 1,2,3,4,5 * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=f"{Etapa.EXTRACT_AND_LOAD}: {DATASET_ID}", log_prints=True)
+def br_bcb_ifdata_extract_and_load(
+    download_params: dict,
+    materialize_to_prod: bool = True,
+    update_metadata: bool = True,
+) -> None:
+    """Reconstrói o IF.data inteiro (4 tabelas) e materializa em lote.
+
+    A reconstrução é completa a cada run, não incremental: na data-base de
+    dezembro o BCB republica os dados contábeis dos últimos quatro trimestres,
+    então competências já carregadas mudam depois. Por isso `dump_mode` é
+    `overwrite` dentro de `_materialize`.
+
+    Args:
+        download_params: dict recebido do `check_update` via `run_deployment()`
+            — só carrega `reference_date` (a competência que disparou esta
+            run); `clean_all` sempre refaz a série inteira, então o valor não
+            é usado para decidir o que baixar, só para rastreabilidade.
+        materialize_to_prod: segue além da materialização em dev para escrever
+            o bucket de prod e rodar o dbt com `target="prod"`. Use False para
+            exercitar só a metade dev — necessário para uma run de teste
+            segura, já que o padrão escreve produção. Disparar este flow
+            manualmente com `materialize_to_prod=False` substitui o antigo
+            parâmetro `force_run` do flow monolítico: como `extract_and_load`
+            agora é disparável direto (sem depender do poll de
+            `check_update` achar competência nova), rematerializar sob
+            demanda não exige mais uma flag separada.
+        update_metadata: registra cobertura das tabelas após a materialização
+            em prod. Sem efeito quando `materialize_to_prod` é False.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Extract and Load: ",
         dataset_id=DATASET_ID,
-        table_id=POLL_TABLE,
-        source_max_date=max_ym,
-        env="prod",
-        date_format="%Y-%m",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_to_prod,
+        table_id="br_bcb_ifdata",
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_bcb_ifdata_")
@@ -176,12 +237,9 @@ def br_bcb_ifdata_flow(
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# O IF.data publica cerca de 90 dias após o fim do trimestre (a competência
-# 2026-03 saiu em 2026-06-01). Poller nos primeiros dias de cada mês às 16:00
-# BRT; a trava do poll no-opa até uma competência nova aparecer de fato.
-br_bcb_ifdata_flow.deploy_schedules = [
-    Cron("50 16 1,2,3,4,5 * *", timezone="America/Sao_Paulo")
-]
+br_bcb_ifdata_extract_and_load.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+)
 # A limpeza percorre 105 competências, mantendo no máximo uma na memória
 # (~1M células), mas o crosswalk do IBGE e o índice ficam residentes.
-br_bcb_ifdata_flow.job_variables = {"memory": "4Gi"}
+br_bcb_ifdata_extract_and_load.job_variables = {"memory": "4Gi"}
