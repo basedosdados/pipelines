@@ -186,6 +186,14 @@ def sync_table_coverage(
             dataset_id,
             table_id,
         )
+        bq.refresh_open_download(
+            # pyrefly: ignore [bad-argument-type]
+            coverage,
+            # pyrefly: ignore [bad-argument-type]
+            ranges.free_end,
+            dataset_id,
+            table_id,
+        )
 
     if not bq.can_read_metadata(bq_project):
         log("Pulando Table.Update: billing != bq_project", "warning")

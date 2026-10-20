@@ -16,6 +16,7 @@ from google.cloud import bigquery
 from google.cloud.bigquery import TableReference
 from prefect import task
 
+from pipelines.constants import constants
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
 from pipelines.utils.utils import log
 from pipelines.utils.vault import get_credentials_from_secret
@@ -406,6 +407,32 @@ def _execute_query_in_bigquery(
     extract_job.result()
 
 
+# `api.basedosdados.org` deixou de servir o GraphQL do backend (responde 400
+# "Missing required parameters: key, category, endpoint, parameters"), e o
+# `bd.Backend` embrulha esse erro numa mensagem genérica sobre o config.toml.
+BACKEND_GRAPHQL_URL = constants.API_URL.value["prod"]
+
+ONE_CLICK_OPEN_MAX_BYTES = 100_000_000
+ONE_CLICK_MAX_BYTES = 1_000_000_000
+
+
+def _has_pro_coverage(data: dict) -> bool | None:
+    """Lê a resposta (já simplificada pelo `bd.Backend`) da query de Coverages.
+
+    O `_simplify_response` troca todo `edges` por `items`, inclusive o aninhado:
+    `coverages` chega como `{"items": [...]}`, não como lista.
+
+    Returns:
+        True/False conforme exista Coverage `isClosed`; None se a tabela não
+        veio na resposta.
+    """
+    tables = (data.get("allTable") or {}).get("items") or []
+    if not tables:
+        return None
+    coverages = ((tables[0] or {}).get("coverages") or {}).get("items") or []
+    return any((c or {}).get("isClosed") for c in coverages)
+
+
 def _table_expects_bdpro_paywall(dataset_id: str, table_id: str) -> bool:
     """Diz se a tabela deveria estar paywalled, segundo o backend.
 
@@ -424,9 +451,7 @@ def _table_expects_bdpro_paywall(dataset_id: str, table_id: str) -> bool:
     from pipelines.utils.utils import log
 
     try:
-        backend = bd.Backend(
-            graphql_url="https://api.basedosdados.org/api/v1/graphql"
-        )
+        backend = bd.Backend(graphql_url=BACKEND_GRAPHQL_URL)
         django_table_id = backend._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
@@ -435,15 +460,14 @@ def _table_expects_bdpro_paywall(dataset_id: str, table_id: str) -> bool:
                 edges {{ node {{ coverages {{ edges {{ node {{
                     isClosed }} }} }} }} }} }} }}"""
         )
-        items = data.get("allTable", {}).get("items", [])
-        if not items:
+        has_pro = _has_pro_coverage(data)
+        if has_pro is None:
             log(
                 "Tabela não encontrada no backend — assumindo paywall "
                 "(fail closed), export open ignorado"
             )
             return True
-        coverages = items[0].get("coverages", []) or []
-        return any(c.get("isClosed") for c in coverages)
+        return has_pro
     except Exception as e:
         log(
             f"Não foi possível consultar as Coverages no backend ({e}) — "
@@ -483,9 +507,7 @@ def download_data_to_gcs(
     # Views retornam num_bytes=0 — consulta o tamanho via Django API
     if num_bytes == 0:
         log("Tabela é uma view, consultando tamanho via API Django")
-        b = bd.Backend(
-            graphql_url="https://api.basedosdados.org/api/v1/graphql"
-        )
+        b = bd.Backend(graphql_url=BACKEND_GRAPHQL_URL)
         django_table_id = b._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
@@ -500,7 +522,7 @@ def download_data_to_gcs(
         num_bytes = items[0]["uncompressedFileSize"] or 0
 
     # pyrefly: ignore [unsupported-operation]
-    if num_bytes > 1_000_000_000:
+    if num_bytes > ONE_CLICK_MAX_BYTES:
         log("Tabela > 1 GB — sem download disponível")
         return
 
@@ -510,7 +532,7 @@ def download_data_to_gcs(
     query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
 
     # pyrefly: ignore [unsupported-operation]
-    if num_bytes >= 100_000_000:
+    if num_bytes >= ONE_CLICK_OPEN_MAX_BYTES:
         log("Tabela entre 100 MB e 1 GB — apenas BDPro")
         _execute_query_in_bigquery(
             billing_project_id,
@@ -538,9 +560,10 @@ def download_data_to_gcs(
         if _table_expects_bdpro_paywall(dataset_id, table_id):
             log(
                 "Tabela tem Coverage pro mas está sem row access policy "
-                "bdpro_filter (provavelmente apagada pelo CREATE OR REPLACE do "
-                "dbt run) — export open IGNORADO para não publicar dados BD "
-                "Pro; exportando apenas BDPro"
+                "bdpro_filter (apagada pelo CREATE OR REPLACE do dbt run) — "
+                "exportando apenas BDPro aqui; o arquivo open (só linhas "
+                "free) é regravado depois das policies, em "
+                "register_table_materialization"
             )
             _execute_query_in_bigquery(
                 billing_project_id,
@@ -583,3 +606,57 @@ def download_data_to_gcs(
             location,
         )
         log("Exportação BDPro concluída")
+
+
+def export_free_rows_to_open(
+    dataset_id: str,
+    table_id: str,
+    free_filter: str,
+    project_id: str = "basedosdados",
+    billing_project_id: str | None = None,
+    location: str = "US",
+) -> None:
+    """Grava o arquivo open do one-click download só com as linhas free.
+
+    Para tabelas part_bdpro < 100 MB. O filtro vai na própria query, então o
+    resultado não depende de quais row access policies existem nem de que
+    grupos a service account integra.
+
+    Args:
+        dataset_id: GCP dataset id.
+        table_id: slug da tabela.
+        free_filter: predicado SQL das linhas free — o mesmo da policy
+            `allusers_filter` (ver `metadata.bq.free_rows_predicate`).
+        project_id: projeto BigQuery da tabela.
+        billing_project_id: projeto de billing; `None` usa `project_id`.
+        location: região do BigQuery.
+    """
+    billing_project_id = billing_project_id or project_id
+    client = _google_client(billing_project_id, from_file=True, reauth=False)
+
+    bq_table = client["bigquery"].get_table(
+        TableReference.from_string(f"{project_id}.{dataset_id}.{table_id}")
+    )
+    num_bytes = bq_table.num_bytes or 0
+    if num_bytes == 0 or num_bytes >= ONE_CLICK_OPEN_MAX_BYTES:
+        log(
+            f"Tabela com {num_bytes} bytes — fora da faixa do export open "
+            "(view ou >= 100 MB), nada a regravar"
+        )
+        return
+
+    url_open = get_credentials_from_secret("url_download_data")[
+        "URL_DOWNLOAD_OPEN"
+    ]
+    query = (
+        f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}` "
+        f"WHERE {free_filter}"
+    )
+    log(f"Exportando dados abertos (só linhas free: {free_filter})")
+    _execute_query_in_bigquery(
+        billing_project_id,
+        query,
+        f"{url_open}{dataset_id}/{table_id}/{table_id}.csv.gz",
+        location,
+    )
+    log("Exportação open (free) concluída")

@@ -157,6 +157,7 @@ def test_sync_part_bdpro_writes_coverages_table_update_and_rap():
 
     assert client.written_entities == ["coverage", "coverage", "table_update"]
     assert len(bq.rap_calls) == 1
+    assert len(bq.open_export_calls) == 1
 
 
 def test_sync_table_update_grava_cobertura_nao_last_modified():
@@ -192,6 +193,7 @@ def test_sync_all_free_no_rap():
 
     assert client.written_entities == ["coverage", "table_update"]
     assert bq.rap_calls == []
+    assert bq.open_export_calls == []
 
 
 def test_sync_non_historical_stamps_last_modified():

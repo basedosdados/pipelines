@@ -247,14 +247,28 @@ def update_row_access_policy(
         sleep(1)
     log("BDpro filter was included")
 
-    query_date_column = format_date_column(date_column_name)
-    all_free_last_date = format_date_parameters(free_parameters, date_format)
+    free_filter = free_rows_filter(
+        date_column_name, date_format, free_parameters
+    )
 
-    query_allusers_access = f'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("allUsers") FILTER USING ({query_date_column}<="{all_free_last_date}")'
+    query_allusers_access = f'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter  ON  `{project_id}.{dataset_id}.{table_id}` GRANT TO ("allUsers") FILTER USING ({free_filter})'
     job = client["bigquery"].query(query_allusers_access)
     while not job.done():
         sleep(1)
     log("All users filter was included")
+
+
+def free_rows_filter(
+    date_column_name: dict, date_format: str, free_parameters: dict
+) -> str:
+    """Predicado SQL das linhas free — o mesmo da policy `allusers_filter`.
+
+    Usado pela policy e pelo export open do one-click download, para que os
+    dois nunca divirjam sobre o que é free.
+    """
+    query_date_column = format_date_column(date_column_name)
+    all_free_last_date = format_date_parameters(free_parameters, date_format)
+    return f'{query_date_column}<="{all_free_last_date}"'
 
 
 def format_date_parameters(free_parameters: dict, date_format: str) -> str:

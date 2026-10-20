@@ -218,6 +218,10 @@ def test_part_bdpro_writes_coverages_table_update_and_rap():
     # free + pro coverage, depois table_update (W**), RAP aplicada (W***)
     assert client.written_entities == ["coverage", "coverage", "table_update"]
     assert len(bq.rap_calls) == 1
+    # o arquivo open é regravado com o mesmo free_end da policy (6 meses atrás)
+    assert bq.open_export_calls == [
+        (datetime.date(2025, 12, 1), "br_x", "tab")
+    ]
 
 
 def test_all_free_writes_only_free_coverage_and_table_update_no_rap():
@@ -238,6 +242,8 @@ def test_all_free_writes_only_free_coverage_and_table_update_no_rap():
 
     assert client.written_entities == ["coverage", "table_update"]
     assert bq.rap_calls == []  # all_free não aplica RAP (R13)
+    # all_free: o export do run_dbt já grava o open completo
+    assert bq.open_export_calls == []
 
 
 def test_table_update_skipped_when_cannot_read_metadata():

@@ -59,6 +59,13 @@ class BQReader(Protocol):
         dataset_id: str,
         table_id: str,
     ) -> None: ...
+    def refresh_open_download(
+        self,
+        coverage: PartBdpro,
+        free_end: datetime.date,
+        dataset_id: str,
+        table_id: str,
+    ) -> None: ...
 
 
 def register_source_poll(
@@ -297,9 +304,19 @@ def register_table_materialization(
     for dtr in ranges.to_list():
         client.upsert_coverage_datetime_range(dtr)
 
-    # Row Access Policies só para part_bdpro.
+    # Row Access Policies só para part_bdpro — e, com o free_end em mãos, o
+    # arquivo open do one-click download (o export do run_dbt não o grava para
+    # tabelas paywalled).
     if policy.needs_row_access_policy(coverage):
         bq.apply_row_access_policies(
+            # pyrefly: ignore [bad-argument-type]
+            coverage,
+            # pyrefly: ignore [bad-argument-type]
+            ranges.free_end,
+            dataset_id,
+            table_id,
+        )
+        bq.refresh_open_download(
             # pyrefly: ignore [bad-argument-type]
             coverage,
             # pyrefly: ignore [bad-argument-type]

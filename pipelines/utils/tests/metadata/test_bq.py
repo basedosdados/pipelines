@@ -8,7 +8,7 @@ delegação correta. Sem BigQuery real.
 import datetime
 from unittest.mock import patch
 
-from pipelines.utils.metadata.bq import BigQueryReader
+from pipelines.utils.metadata.bq import BigQueryReader, free_rows_predicate
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -84,3 +84,47 @@ def test_apply_rap_end_parameters_monthly_has_no_day(mock_rap):
         _monthly(), datetime.date(2025, 12, 1), "br_x", "tab"
     )
     assert mock_rap.call_args.args[6] == {"endYear": 2025, "endMonth": 12}
+
+
+def test_free_rows_predicate_matches_allusers_policy():
+    """O export open e a policy allusers_filter usam o mesmo predicado."""
+    assert (
+        free_rows_predicate(_monthly(), datetime.date(2026, 3, 1))
+        == 'DATE(ano,mes,1)<="2026-3-01"'
+    )
+    assert (
+        free_rows_predicate(_daily(), datetime.date(2025, 12, 31))
+        == 'data<="2025-12-31"'
+    )
+
+
+@patch("pipelines.utils.tasks.export_free_rows_to_open")
+def test_refresh_open_download_exports_free_rows(mock_export):
+    bq = BigQueryReader(billing_project_id="proj", bq_project="basedosdados")
+    bq.refresh_open_download(
+        _monthly(), datetime.date(2026, 3, 1), "br_x", "tab"
+    )
+    kwargs = mock_export.call_args.kwargs
+    assert kwargs["free_filter"] == 'DATE(ano,mes,1)<="2026-3-01"'
+    assert (kwargs["dataset_id"], kwargs["table_id"]) == ("br_x", "tab")
+
+
+@patch("pipelines.utils.tasks.export_free_rows_to_open")
+def test_refresh_open_download_skips_outside_prod(mock_export):
+    """Só o projeto prod tem one-click download."""
+    bq = BigQueryReader(billing_project_id="d", bq_project="basedosdados-dev")
+    bq.refresh_open_download(
+        _monthly(), datetime.date(2026, 3, 1), "br_x", "tab"
+    )
+    mock_export.assert_not_called()
+
+
+@patch(
+    "pipelines.utils.tasks.export_free_rows_to_open",
+    side_effect=RuntimeError("boom"),
+)
+def test_refresh_open_download_failure_does_not_raise(_mock_export):
+    bq = BigQueryReader(billing_project_id="proj", bq_project="basedosdados")
+    bq.refresh_open_download(
+        _monthly(), datetime.date(2026, 3, 1), "br_x", "tab"
+    )

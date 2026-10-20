@@ -193,6 +193,7 @@ class FakeBQ:
         self._last_modified = last_modified
         self._can_read = can_read
         self.rap_calls: list[tuple] = []
+        self.open_export_calls: list[tuple] = []
 
     def read_max_date(
         self, dataset_id: str, table_id: str, coverage: CoverageSpec
@@ -219,6 +220,15 @@ class FakeBQ:
         table_id: str,
     ) -> None:
         self.rap_calls.append((coverage, free_end, dataset_id, table_id))
+
+    def refresh_open_download(
+        self,
+        coverage: PartBdpro,
+        free_end: datetime.date,
+        dataset_id: str,
+        table_id: str,
+    ) -> None:
+        self.open_export_calls.append((free_end, dataset_id, table_id))
 
 
 @pytest.fixture
