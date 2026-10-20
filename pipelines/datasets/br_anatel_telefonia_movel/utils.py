@@ -2,12 +2,14 @@
 General purpose functions for the br_anatel_telefonia_movel project of the pipelines
 """
 
+from __future__ import annotations
+
 import re
 import unicodedata
-from collections.abc import Buffer
 from io import SEEK_SET, BufferedReader, RawIOBase
 from os import makedirs
 from os.path import join
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import polars as pl
@@ -17,6 +19,9 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.utils.utils import log
+
+if TYPE_CHECKING:
+    from collections.abc import Buffer
 
 
 class HttpRangeFile(RawIOBase):
