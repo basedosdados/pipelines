@@ -68,7 +68,10 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
         decompress_dbc(file_list=dbc_files, dataset_id=DATASET_ID)
         files_path = read_dbf_save_parquet_chunks(
-            file_list=dbc_files, table_id=table_id, dataset_id=DATASET_ID
+            file_list=dbc_files,
+            table_id=table_id,
+            dataset_id=DATASET_ID,
+            name_by_source_file=True,
         )
 
         return ExtractAndLoad(
