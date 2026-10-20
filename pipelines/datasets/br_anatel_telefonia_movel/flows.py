@@ -3,11 +3,9 @@
 from prefect.schedules import Cron
 
 from pipelines.datasets.br_anatel_telefonia_movel.tasks import (
+    download_csv,
     get_max_date_in_table_microdados,
-    get_semester,
-    get_year_full,
     join_tables_in_function,
-    unzip,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -30,8 +28,6 @@ from pipelines.utils.tasks import (
 def _run_anatel_telefonia_movel(
     dataset_id: str,
     table_id: str,
-    ano: int | None,
-    semestre: int | None,
     materialize_after_dump: bool,
     update_metadata: bool,
     target: str,
@@ -41,12 +37,10 @@ def _run_anatel_telefonia_movel(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    unzip()
-    new_year = get_year_full(ano)
-    new_semester = get_semester(semestre)
+    csv_path = download_csv(table_id=table_id)
 
     data_source_max_date = get_max_date_in_table_microdados(
-        table_id=table_id, ano=new_year, semestre=new_semester
+        table_id=table_id, csv_path=csv_path
     )
 
     has_new_data = poll_source_for_update_task(
@@ -72,9 +66,7 @@ def _run_anatel_telefonia_movel(
         materialize_after_dump=materialize_after_dump,
     )
 
-    filepath = join_tables_in_function(
-        table_id=table_id, ano=new_year, semestre=new_semester
-    )
+    filepath = join_tables_in_function(table_id=table_id, csv_path=csv_path)
 
     upload_to_gcs(
         data_path=filepath,
@@ -130,8 +122,6 @@ def _anatel_tm_flow(table_id: str, cron: str):
     def _flow(
         dataset_id: str = "br_anatel_telefonia_movel",
         table_id: str = table_id,
-        ano: int | None = None,
-        semestre: int | None = None,
         materialize_after_dump: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
@@ -140,8 +130,6 @@ def _anatel_tm_flow(table_id: str, cron: str):
         _run_anatel_telefonia_movel(
             dataset_id=dataset_id,
             table_id=table_id,
-            ano=ano,
-            semestre=semestre,
             materialize_after_dump=materialize_after_dump,
             update_metadata=update_metadata,
             target=target,

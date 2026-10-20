@@ -2,18 +2,132 @@
 General purpose functions for the br_anatel_telefonia_movel project of the pipelines
 """
 
-import gc
-import os
+import re
 import unicodedata
+from collections.abc import Buffer
+from io import SEEK_SET, BufferedReader, RawIOBase
+from os import makedirs
+from os.path import join
 from zipfile import ZipFile
 
-import pandas as pd
-import requests
+import polars as pl
+from httpx import Client
 
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log
+
+
+class HttpRangeFile(RawIOBase):
+    """Arquivo remoto lido por faixas de bytes, com a interface de `io.RawIOBase`.
+
+    Cada leitura pede ao servidor só o trecho que começa na posição atual,
+    pelo cabeçalho HTTP `Range`.
+
+    Args:
+        client: Cliente httpx usado nas requisições.
+        url: Endereço do arquivo remoto.
+    """
+
+    def __init__(self, client: Client, url: str) -> None:
+        super().__init__()
+        self.client = client
+        self.url = url
+        response = self.client.head(self.url).raise_for_status()
+        self.position = 0
+        self.size = int(response.headers["content-length"])
+
+    def readable(self) -> bool:
+        """Informa que o arquivo aceita leitura."""
+        return True
+
+    def seekable(self) -> bool:
+        """Informa que o arquivo aceita mudar a posição de leitura."""
+        return True
+
+    def tell(self) -> int:
+        """Devolve a posição de leitura atual, em bytes do começo do arquivo."""
+        return self.position
+
+    def seek(self, offset: int, whence: int = SEEK_SET) -> int:
+        """Move a posição de leitura e devolve a posição nova.
+
+        Args:
+            offset: Quantos bytes andar. Negativo anda para trás.
+            whence: De onde contar: 0 (`SEEK_SET`) do começo, 1 (`SEEK_CUR`)
+                da posição atual e 2 (`SEEK_END`) do fim do arquivo.
+
+        Returns:
+            A posição nova, em bytes contados do começo do arquivo.
+
+        Raises:
+            ValueError: Se `whence` não for 0, 1 ou 2, ou se a posição nova
+                ficar negativa.
+        """
+
+        new_position: int
+
+        match whence:
+            case 0:
+                new_position = offset
+            case 1:
+                new_position = self.position + offset
+            case 2:
+                new_position = self.size + offset
+            case _:
+                raise ValueError(f"Valor de whence inválido: {whence}")
+
+        if new_position < 0:
+            raise ValueError(f"Valor de posição negativo: {new_position}")
+
+        self.position = new_position
+
+        return new_position
+
+    def readinto(self, buffer: Buffer) -> int:
+        """Preenche o buffer com os bytes que começam na posição atual.
+
+        Pede ao servidor um trecho com no máximo o tamanho do buffer.
+
+        Args:
+            buffer: Área de memória a preencher, a partir do começo.
+
+        Returns:
+            Quantos bytes foram escritos no buffer, ou 0 no fim do arquivo.
+
+        Raises:
+            httpx.HTTPStatusError: Se o servidor responder com erro.
+            OSError: Se o servidor ignorar o cabeçalho `Range` e não responder 206.
+        """
+        if self.position >= self.size:
+            return 0
+
+        memory_view_buffer = memoryview(buffer)
+
+        start: int = self.position
+        end: int = min(
+            self.position + len(memory_view_buffer) - 1, self.size - 1
+        )
+
+        headers = {"Range": f"bytes={start}-{end}"}
+
+        with self.client.stream(
+            "GET", url=self.url, headers=headers
+        ) as response:
+            response.raise_for_status()
+
+            if response.status_code != 206:
+                raise OSError("O servidor ignorou o Range.")
+
+            data = response.read()
+            n = len(data)
+
+        memory_view_buffer[:n] = data
+
+        self.position += n
+
+        return n
 
 
 def normalize_label(value: str) -> str:
@@ -49,204 +163,174 @@ def normalize_label(value: str) -> str:
     return normalized_value
 
 
-def download_zip_file():
-    response = requests.get(
-        "https://dados.gov.br/api/publico/conjuntos-dados/acessos-autorizadas-smp",
-        cookies=anatel_constants.COOEKIES.value,
+def get_zip_url() -> str:
+    """Busca na API do dados.gov.br a URL do ZIP com os dados de acessos.
+
+    Returns:
+        A URL do primeiro recurso em formato CSV do conjunto.
+
+    Raises:
+        httpx.HTTPStatusError: Se a API responder com erro.
+        ValueError: Se a API não listar nenhum recurso em formato CSV.
+    """
+
+    with Client(
+        cookies=anatel_constants.COOKIES.value,
         headers=anatel_constants.HEADERS.value,
-    )
-    r = response.json()
-    for recurso in r["resources"]:
-        if recurso["format"] == "CSV":
-            download_url = recurso["url"]
+        timeout=10,
+        follow_redirects=True,
+    ) as client:
+        response = (
+            client.get(anatel_constants.URL.value).raise_for_status().json()
+        )
+
+        for resource in response["resources"]:
+            if resource["format"] == "CSV":
+                return resource["url"]
+
+        raise ValueError("A API não trouxe um CSV.")
+
+
+def get_csv_file_from_zip(names: list[str], table_id: str) -> str:
+    """Escolhe, entre os arquivos do ZIP, o CSV que a tabela lê.
+
+    As tabelas de densidade leem o `Densidade_Telefonia_Movel.csv`. O microdados
+    lê o semestre mais recente, no formato `Acessos_Telefonia_Movel_2026_1S.csv`.
+    Como o formato do nome é fixo, a ordem alfabética coincide com a do tempo.
+
+    Args:
+        names: Nomes dos arquivos do ZIP, como devolve `ZipFile.namelist()`.
+        table_id: Tabela que vai ler o arquivo.
+
+    Returns:
+        O nome do arquivo dentro do ZIP.
+
+    Raises:
+        ValueError: Se o ZIP não tiver o arquivo que a tabela lê.
+    """
+
+    selected_names = []
+
+    if table_id != "microdados" and "Densidade_Telefonia_Movel.csv" in names:
+        return "Densidade_Telefonia_Movel.csv"
+    elif table_id == "microdados":
+        for name in names:
+            if re.fullmatch(r"Acessos_Telefonia_Movel_\d{4}_[12]S\.csv", name):
+                selected_names.append(name)
+
+    if selected_names == []:
+        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
+
+    most_recent_microdados_csv = max(selected_names)
+
+    return most_recent_microdados_csv
+
+
+def download_csv_from_zip(table_id: str) -> str:
+    """Baixa do ZIP da Anatel só o CSV que a tabela lê.
+
+    O ZIP é lido direto no servidor, por faixas de bytes, sem ser baixado
+    inteiro. Cada requisição traz até 8 MiB, e o arquivo escolhido é gravado em
+    `INPUT_PATH` com o mesmo nome que tem dentro do ZIP.
+
+    Args:
+        table_id: Tabela que vai ler o arquivo.
+
+    Returns:
+        O caminho do CSV gravado.
+
+    Raises:
+        httpx.HTTPStatusError: Se a API ou o servidor da Anatel responderem com
+            erro.
+        OSError: Se o servidor da Anatel ignorar o cabeçalho `Range`.
+        ValueError: Se a API não listar o ZIP ou se o ZIP não tiver o arquivo
+            que a tabela lê.
+    """
+
+    url = get_zip_url()
+
+    with Client(
+        cookies=anatel_constants.COOKIES.value,
+        headers=anatel_constants.HEADERS.value,
+        timeout=10,
+        follow_redirects=True,
+    ) as client:
+        buffer_size = 8 * 2**20
+
+        anatel_file = BufferedReader(HttpRangeFile(client, url), buffer_size)
+
+        with ZipFile(anatel_file) as zip_file:
+            csv_file = get_csv_file_from_zip(zip_file.namelist(), table_id)
+
             log(
-                f"Baixando {download_url} em {anatel_constants.INPUT_PATH.value}"
+                f"Baixando {csv_file} de {url} em {anatel_constants.INPUT_PATH.value}"
             )
 
-    with open(
-        os.path.join(
-            anatel_constants.INPUT_PATH.value, "acessos_telefonia_movel.zip"
-        ),
-        "wb",
-    ) as file:
-        response = requests.get(
-            # pyrefly: ignore [unbound-name]
-            download_url,
-            cookies=anatel_constants.COOEKIES.value,
-            headers=anatel_constants.HEADERS.value,
+            csv_path = zip_file.extract(
+                csv_file, path=anatel_constants.INPUT_PATH.value
+            )
+
+            return csv_path
+
+
+def clean_csv_microdados(csv_path: str, table_id: str) -> None:
+
+    df = pl.scan_csv(csv_path, separator=";", infer_schema_length=0)
+
+    renamed_df = df.rename(anatel_constants.RENAME_COLUMNS_MICRODADOS.value)
+
+    selected_cols_df = renamed_df.with_columns(
+        pl.col("produto").str.to_lowercase()
+    ).select(anatel_constants.ORDER_COLUMNS_MICRODADOS.value)
+
+    one_month_per_row_table = (
+        selected_cols_df.select("ano", "mes").unique().collect()
+    )
+
+    for year, month in one_month_per_row_table.iter_rows():
+        path = join(
+            anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
+            f"ano={year}",
+            f"mes={month}",
         )
-        file.write(response.content)
 
-    log("Download concluído com sucesso!")
+        makedirs(path, exist_ok=True)
+
+        df_without_year_and_month = selected_cols_df.filter(
+            (pl.col("ano") == year) & (pl.col("mes") == month)
+        ).drop("ano", "mes")
+
+        df_without_year_and_month.sink_csv(join(path, "data.csv"))
 
 
-def unzip_file():
-    os.makedirs(anatel_constants.INPUT_PATH.value, exist_ok=True)
-    download_zip_file()
-    zip_file_path = os.path.join(
-        anatel_constants.INPUT_PATH.value, "acessos_telefonia_movel.zip"
+def clean_csv_densidade(csv_path: str, table_id: str) -> None:
+
+    df = pl.scan_csv(csv_path, separator=";", infer_schema_length=0)
+
+    level = anatel_constants.DENSITY_GEOGRAPHIC_LEVEL.value[table_id]
+
+    filtered_df = df.filter(
+        pl.col("Nível Geográfico Densidade").map_elements(
+            normalize_label, return_dtype=pl.Utf8
+        )
+        == level
     )
 
-    try:
-        with ZipFile(zip_file_path, "r") as zip_ref:
-            zip_ref.extractall(anatel_constants.INPUT_PATH.value)
-    except Exception as e:
-        print(f"Erro ao baixar ou extrair o arquivo ZIP: {e!s}")
-
-    os.remove(zip_file_path)
-    gc.collect()
-
-
-def clean_csv_microdados(ano, semestre, table_id):
-    log("Download dos dados...")
-    # pyrefly: ignore [deprecated]
-    os.system(f"mkdir -p {anatel_constants.INPUT_PATH.value}")
-
-    df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
-        sep=";",
-        encoding="utf-8",
+    renamed_df = filtered_df.rename(
+        anatel_constants.RENAME_COLUMNS_DENSIDADE.value
     )
 
-    df = df.rename(columns=anatel_constants.RENAME_COLUMNS_MICRODADOS.value)
+    cleaned_df = renamed_df.with_columns(
+        pl.col("densidade").str.replace(",", ".")
+    ).select(anatel_constants.DENSITY_COLUMNS.value[table_id])
 
-    df = df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1)
-
-    df["produto"] = df["produto"].str.lower()
-
-    df["id_municipio"] = df["id_municipio"].astype(str)
-
-    df["ddd"] = pd.to_numeric(df["ddd"], downcast="integer").astype(str)
-
-    df["cnpj"] = df["cnpj"].astype(str)
-
-    df = df[anatel_constants.ORDER_COLUMNS_MICRODADOS.value]
-
-    to_partitions(
-        df,
-        partition_columns=["ano", "mes"],
-        savepath=anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
+    makedirs(
+        anatel_constants.TABLES_OUTPUT_PATH.value[table_id], exist_ok=True
     )
 
-
-def clean_csv_brasil(table_id):
-    densidade = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
-        sep=";",
-        encoding="utf-8",
+    cleaned_df.sink_csv(
+        join(
+            anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
+            f"{table_id}.csv",
+        )
     )
-
-    densidade = densidade.rename(
-        columns={"Nível Geográfico Densidade": "geografia"}
-    )
-
-    densidade_brasil = densidade[
-        densidade["geografia"].map(normalize_label) == "brasil"
-    ]
-
-    densidade_brasil = densidade_brasil[
-        anatel_constants.ORDER_COLUMNS_BRASIL.value
-    ]
-
-    densidade_brasil = densidade_brasil.rename(
-        columns=anatel_constants.RENAME_COLUMNS_BRASIL.value
-    )
-
-    densidade_brasil["densidade"] = (
-        densidade_brasil["densidade"]
-        .astype(str)
-        .str.replace(",", ".")
-        .astype(float)
-    )
-
-    densidade_brasil.to_csv(
-        f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_brasil.csv",
-        index=False,
-        sep=",",
-        encoding="utf-8",
-        na_rep="",
-    )
-
-
-def clean_csv_uf(table_id):
-    densidade = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
-        sep=";",
-        encoding="utf-8",
-    )
-
-    densidade = densidade.rename(
-        columns={"Nível Geográfico Densidade": "geografia"}
-    )
-
-    densidade_uf = densidade[
-        densidade["geografia"].map(normalize_label) == "uf"
-    ]
-
-    densidade_uf = densidade_uf[anatel_constants.ORDER_COLUMNS_UF.value]
-
-    densidade_uf = densidade_uf.rename(
-        columns=anatel_constants.RENAME_COLUMNS_UF.value
-    )
-
-    densidade_uf["densidade"] = (
-        densidade_uf["densidade"]
-        .astype(str)
-        .str.replace(",", ".")
-        .astype(float)
-    )
-    densidade_uf.to_csv(
-        f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_uf.csv",
-        index=False,
-        sep=",",
-        encoding="utf-8",
-        na_rep="",
-    )
-
-
-def clean_csv_municipio(table_id):
-    densidade = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
-        sep=";",
-        encoding="utf-8",
-    )
-    densidade = densidade.rename(
-        columns={"Nível Geográfico Densidade": "geografia"}
-    )
-    densidade_municipio = densidade[
-        densidade["geografia"].map(normalize_label) == "municipio"
-    ]
-
-    densidade_municipio = densidade_municipio[
-        anatel_constants.ORDER_COLUMNS_MUNICIPIO.value
-    ]
-    densidade_municipio = densidade_municipio.rename(
-        columns=anatel_constants.RENAME_COLUMNS_MUNICIPIO.value
-    )
-    densidade_municipio["densidade"] = (
-        densidade_municipio["densidade"]
-        .astype(str)
-        .str.replace(",", ".")
-        .astype(float)
-    )
-    densidade_municipio.to_csv(
-        f"{anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}densidade_municipio.csv",
-        index=False,
-        sep=",",
-        encoding="utf-8",
-        na_rep="",
-    )
-
-
-def get_year():
-    lista = []
-    for x in os.listdir(anatel_constants.INPUT_PATH.value):
-        parts = x.split("_")
-        if len(parts) > 3:
-            x = parts[3]
-            if len(x) == 4:
-                lista.append(x)
-
-    max_year = max(lista)
-    log(f"Ano máximo: {max_year}")
-    return max_year

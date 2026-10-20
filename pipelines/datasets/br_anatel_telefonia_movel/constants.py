@@ -10,7 +10,7 @@ class constants(Enum):
     Constant values for the br_anatel_telefonia_movel project
     """
 
-    COOEKIES = {
+    COOKIES = {
         "_ga": "GA1.1.1373815678.1744670764",
         "SLG_G_WPT_TO": "pt",
         "SLG_GWPT_Show_Hide_tmp": "1",
@@ -38,7 +38,7 @@ class constants(Enum):
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0",
     }
 
-    URL = "https://dados.gov.br/dados/conjuntos-dados/acessos-autorizadas-smp"
+    URL = "https://dados.gov.br/api/publico/conjuntos-dados/acessos-autorizadas-smp"
 
     INPUT_PATH = "/tmp/data/input/"
 
@@ -47,6 +47,32 @@ class constants(Enum):
         "densidade_brasil": "/tmp/data/BRASIL/output/",
         "densidade_uf": "/tmp/data/UF/output/",
         "densidade_municipio": "/tmp/data/MUNICIPIO/output/",
+    }
+
+    DENSITY_GEOGRAPHIC_LEVEL = {
+        "densidade_brasil": "brasil",
+        "densidade_uf": "uf",
+        "densidade_municipio": "municipio",
+    }
+
+    RENAME_COLUMNS_DENSIDADE = {
+        "Ano": "ano",
+        "Mês": "mes",
+        "UF": "sigla_uf",
+        "Código IBGE": "id_municipio",
+        "Densidade": "densidade",
+    }
+
+    DENSITY_COLUMNS = {
+        "densidade_brasil": ["ano", "mes", "densidade"],
+        "densidade_uf": ["ano", "mes", "sigla_uf", "densidade"],
+        "densidade_municipio": [
+            "ano",
+            "mes",
+            "sigla_uf",
+            "id_municipio",
+            "densidade",
+        ],
     }
 
     ORDER_COLUMNS_MICRODADOS = [
@@ -85,32 +111,3 @@ class constants(Enum):
         "Tipo de Produto": "produto",
         "Acessos": "acessos",
     }
-
-    DROP_COLUMNS_MICRODADOS = ["grupo_economico", "municipio", "ddd_chip"]
-
-    ORDER_COLUMNS_MUNICIPIO = ["Ano", "Mês", "UF", "Código IBGE", "Densidade"]
-
-    RENAME_COLUMNS_MUNICIPIO = {
-        "Ano": "ano",
-        "Mês": "mes",
-        "UF": "sigla_uf",
-        "Código IBGE Município": "id_municipio",
-        "Densidade": "densidade",
-    }
-
-    RENAME_COLUMNS_UF = {
-        "Ano": "ano",
-        "Mês": "mes",
-        "UF": "sigla_uf",
-        "Densidade": "densidade",
-    }
-
-    ORDER_COLUMNS_UF = ["Ano", "Mês", "UF", "Densidade"]
-
-    RENAME_COLUMNS_BRASIL = {
-        "Ano": "ano",
-        "Mês": "mes",
-        "Densidade": "densidade",
-    }
-
-    ORDER_COLUMNS_BRASIL = ["Ano", "Mês", "Densidade"]

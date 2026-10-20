@@ -2,120 +2,61 @@
 Tasks for dataset br_anatel_telefonia_movel
 """
 
-import os
-
-import pandas as pd
+import polars as pl
 from prefect import task
 
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    clean_csv_brasil,
+    clean_csv_densidade,
     clean_csv_microdados,
-    clean_csv_municipio,
-    clean_csv_uf,
-    get_year,
+    download_csv_from_zip,
     normalize_label,
-    unzip_file,
 )
-from pipelines.utils.utils import log
 
 
 @task(retries=5, retry_delay_seconds=10)
-def join_tables_in_function(table_id, semestre, ano):
-    # pyrefly: ignore [deprecated]
-    os.system(
-        f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
-    )
+def download_csv(table_id: str) -> str:
+    """Baixa do ZIP da Anatel o CSV que a tabela lê e devolve o caminho dele."""
+    return download_csv_from_zip(table_id)
+
+
+@task(retries=5, retry_delay_seconds=10)
+def join_tables_in_function(table_id: str, csv_path: str) -> str:
     if table_id == "microdados":
-        clean_csv_microdados(ano=ano, semestre=semestre, table_id=table_id)
+        clean_csv_microdados(csv_path=csv_path, table_id=table_id)
 
-    elif table_id == "densidade_brasil":
-        clean_csv_brasil(table_id=table_id)
-
-    elif table_id == "densidade_uf":
-        clean_csv_uf(table_id=table_id)
-
-    elif table_id == "densidade_municipio":
-        clean_csv_municipio(table_id=table_id)
+    else:
+        clean_csv_densidade(csv_path=csv_path, table_id=table_id)
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
 
 
 @task(retries=5, retry_delay_seconds=10)
-def get_max_date_in_table_microdados(table_id, ano, semestre):
-    if table_id == "microdados":
-        log(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv"
-        )
-        df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
-            sep=";",
-            encoding="utf-8",
-            dtype=str,
-        )
-        df["data"] = df["Ano"] + "-" + df["Mês"]
+def get_max_date_in_table_microdados(table_id, csv_path: str):
 
-        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
+    df = pl.scan_csv(csv_path, separator=";", infer_schema_length=0)
 
-        return df["data"].max()
+    if table_id != "microdados":
+        level = anatel_constants.DENSITY_GEOGRAPHIC_LEVEL.value[table_id]
 
-    else:
-        log(
-            f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv"
+        df = df.filter(
+            pl.col("Nível Geográfico Densidade").map_elements(
+                normalize_label, return_dtype=pl.Utf8
+            )
+            == level
         )
 
-        df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
-            sep=";",
-            encoding="utf-8",
-            dtype=str,
+    date = (
+        df.select(
+            pl.date(
+                pl.col("Ano").cast(pl.Int32), pl.col("Mês").cast(pl.Int32), 1
+            )
         )
+        .max()
+        .collect()
+        .item()
+    )
 
-        table_level = {
-            "densidade_brasil": "Brasil",
-            "densidade_uf": "UF",
-            "densidade_municipio": "Municipio",
-        }
-
-        level = table_level[table_id]
-
-        geography = df["Nível Geográfico Densidade"]
-
-        df = df[
-            geography.map(normalize_label) == normalize_label(level)
-        ].copy()
-
-        df["data"] = df["Ano"] + "-" + df["Mês"]
-
-        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
-
-        return df["data"].max()
-
-
-@task(retries=5, retry_delay_seconds=10)
-def unzip():
-    return unzip_file()
-
-
-@task
-def get_year_full(year):
-    log("Obtendo o ano...")
-    if year is None:
-        return get_year()
-
-
-@task
-def get_semester(semester):
-    log("Obtendo o semestre...")
-    ano = get_year()
-    if semester is None:
-        if os.path.exists(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_2S.csv"
-        ):
-            log("Segundo semestre")
-            return 2
-        else:
-            log("Primeiro semestre")
-            return 1
+    return date
