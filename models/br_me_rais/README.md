@@ -225,7 +225,7 @@ Isso já aconteceu duas vezes:
 | Quando | O quê |
 | :--- | :--- |
 | 05/2026 | Diagnosticado em vínculos 2025 e corrigido em `VINCULOS_RENAME` (#1557) |
-| 06/2026 | A correção se perdeu ao migrar o arquivo de `pipelines/datasets/` para `pipelines/crawler/` |
+| 06/2026 | A correção se perdeu ao migrar o arquivo de `pipelines/datasets/` para `pipelines/shared/` |
 | 08/2026 | Reportado de novo, agora em estabelecimentos 2023 e 2025 — 25 milhões de linhas publicadas com a coluna nula |
 
 Duas defesas foram acrescentadas depois disso:

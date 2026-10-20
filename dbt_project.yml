@@ -555,9 +555,6 @@ models:
     br_me_cno:
       +materialized: table
       +schema: br_me_cno
-    br_me_cnpj:
-      +materialized: table
-      +schema: br_me_cnpj
     br_me_comex_stat:
       +materialized: table
       +schema: br_me_comex_stat

@@ -86,7 +86,7 @@ def check_flow_importable() -> None:
     try:
         from pipelines.datasets.br_sedec_desastres import flows
 
-        flow = flows.br_sedec_desastres__reconhecimentos_vigentes
+        flow = flows.extract_and_load
         log.info(f"flows.py importa OK — flow: {flow.name}")
     except ImportError as e:
         log.warning(f"flows.py NÃO importa nesta venv: {e}")
@@ -212,8 +212,9 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         max_date: Data do retrato promovido, no formato ``AAAA-MM-DD``. Quando
             ``None``, vem da maior partição em ``output/``.
     """
-    # A spec de cobertura vem do flow, para não existirem duas definições dela.
-    from pipelines.datasets.br_sedec_desastres.flows import _COVERAGE
+    # A spec de cobertura vem de constants.py, para não existirem duas definições
+    # dela — tasks.py (extract_load_data) e flows.py usam a mesma.
+    from pipelines.datasets.br_sedec_desastres.constants import COVERAGE
     from pipelines.utils.metadata.bq import BigQueryReader
     from pipelines.utils.metadata.tasks import (
         commit_source_update_task,
@@ -231,7 +232,7 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         BigQueryReader(
             billing_project_id=BILLING_PROJECT, bq_project="basedosdados"
         )
-        .read_max_date(DATASET_ID, TABLE_ID, _COVERAGE)
+        .read_max_date(DATASET_ID, TABLE_ID, COVERAGE)
         .strftime(DATE_FORMAT)
     )
     if prod_max != max_date:
@@ -264,7 +265,7 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
     register_table_materialization_task.fn(
         dataset_id=DATASET_ID,
         table_id=TABLE_ID,
-        coverage=_COVERAGE,
+        coverage=COVERAGE,
         env="prod",
         bq_project="basedosdados",
         # Lê a tabela de prod, mas fatura em dev: a credencial local não tem
