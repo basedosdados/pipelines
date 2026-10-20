@@ -16,7 +16,7 @@ Os dados de origem são segmentados em **subsistemas** (SIAPE, BACEN, Militares,
 
 ## Particularidades da Fonte (pontos críticos)
 
-Estas duas características do Portal da Transparência foram a causa raiz da defasagem que travou a atualização das tabelas. Ambas estão tratadas na função `source_url_is_available` (`pipelines/crawler/cgu/utils.py`).
+Estas duas características do Portal da Transparência foram a causa raiz da defasagem que travou a atualização das tabelas. Ambas estão tratadas na função `source_url_is_available` (`pipelines/shared/cgu/utils.py`).
 
 ### 1. Bloqueio por falta de User-Agent (HTTP 405)
 
@@ -31,7 +31,7 @@ O portal prepara o arquivo de forma assíncrona: responde **HTTP 202** enquanto 
 **Tratamento:** `source_url_is_available` faz *retry* enquanto a resposta for 202 (`max_retries` tentativas com `wait_seconds` de espera) e só considera a URL disponível ao receber 200.
 
 ```python
-# pipelines/crawler/cgu/utils.py
+# pipelines/shared/cgu/utils.py
 headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
 # 200 -> pronto | 202 -> preparando (retry) | outro -> indisponível
 ```
@@ -44,7 +44,7 @@ headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
 
 O Portal publica os subsistemas de um mesmo mês em **datas escalonadas**. Uma tabela que combina vários subsistemas (ex.: `observacoes`, com 9 pacotes) só pode ser ingerida quando **todos** os seus subsistemas estiverem disponíveis.
 
-O gate `verify_all_url_exists_to_download` (`pipelines/crawler/cgu/tasks.py`) exige que todas as URLs da tabela estejam disponíveis antes de iniciar o download. Se algum subsistema ainda não foi publicado, o flow encerra sem persistir e tenta novamente no próximo run.
+O gate `verify_all_url_exists_to_download` (`pipelines/shared/cgu/tasks.py`) exige que todas as URLs da tabela estejam disponíveis antes de iniciar o download. Se algum subsistema ainda não foi publicado, o flow encerra sem persistir e tenta novamente no próximo run.
 
 - **Decisão de produto:** mantém-se o comportamento tudo-ou-nada — **não há ingestão parcial de mês**. Um mês só entra quando está completo, evitando materializações incompletas.
 - No gate, o *retry* é curto (`max_retries=1`, `wait_seconds=10`), pois o objetivo ali é apenas checar disponibilidade, não aguardar a geração do ZIP.
@@ -54,7 +54,7 @@ O gate `verify_all_url_exists_to_download` (`pipelines/crawler/cgu/tasks.py`) ex
 
 ## Estrutura dos Flows
 
-Cada tabela tem um flow próprio (`pipelines/datasets/br_cgu_servidores_executivo_federal/flows.py`), gerado por `_flow_factory(table_id, cron)` e agendado em horários distintos da manhã para escalonar a carga. Todos delegam a `_run_cgu_servidores_publicos` (`pipelines/crawler/cgu/flows.py`).
+Cada tabela tem um flow próprio (`pipelines/datasets/br_cgu_servidores_executivo_federal/flows.py`), gerado por `_flow_factory(table_id, cron)` e agendado em horários distintos da manhã para escalonar a carga. Todos delegam a `_run_cgu_servidores_publicos` (`pipelines/shared/cgu/flows.py`).
 
 ### Parâmetros de execução
 
@@ -72,7 +72,7 @@ Cada tabela tem um flow próprio (`pipelines/datasets/br_cgu_servidores_executiv
 
 ## Tabelas e Subsistemas
 
-Mapeamento definido em `get_source` (`pipelines/crawler/cgu/utils.py`).
+Mapeamento definido em `get_source` (`pipelines/shared/cgu/utils.py`).
 
 | Tabela | Subsistemas combinados |
 |--------|------------------------|

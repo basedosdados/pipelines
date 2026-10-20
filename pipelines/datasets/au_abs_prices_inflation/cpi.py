@@ -110,6 +110,23 @@ def download_all(out_dir: str, session=None) -> str:
     return out_dir
 
 
+def download_frequency(frequency: str, out_dir: str, session=None) -> str:
+    """Download only the source workbooks one CPI frequency needs.
+
+    `download_all` fetches every workbook of the release up front; the
+    recurring pipeline instead keeps `cpi_quarterly`/`cpi_monthly` as two
+    independent check_update/extract_and_load pairs (one-flow-per-table is
+    the repo-wide rule, see `pipelines.datasets.au_abs_prices_inflation.tasks`),
+    so each only downloads the workbooks `clean_frequency(frequency, ...)`
+    actually reads -- `SOURCE_TABLES` already lists them disjointly per
+    frequency, so this is not a wasteful duplicate of `download_all`.
+    """
+    slug = resolve_release_slug(session)
+    for f in constants.SOURCE_TABLES.value[frequency]:
+        download_table(slug, f, out_dir, session)
+    return out_dir
+
+
 # --------------------------------------------------------------------------- #
 # Parse one ABS time-series workbook
 # --------------------------------------------------------------------------- #
@@ -322,6 +339,23 @@ def _is_prev_period(frequency, df, prev_year, prev_period):
     return same_year | year_wrap
 
 
+def max_year_month(df: pd.DataFrame, frequency: str) -> str:
+    """Latest ``"YYYY-MM"`` period in one cleaned CPI frequency's DataFrame.
+
+    Drives the source-update poll for that frequency's table. ``quarterly``
+    still reports a year-*month* string (quarter * 3): the poll compares it
+    against the registered coverage, and the coverage for a ``YearQuarter``
+    column is stored as ``MAX(DATE(year, quarter * 3, 1))`` formatted the same
+    way -- polling at a coarser granularity than the coverage is stored at
+    compares mismatched clocks.
+    """
+    period_col = PERIOD_COL[frequency]
+    last = df.sort_values(["year", period_col]).iloc[-1]
+    if frequency == "monthly":
+        return f"{int(last['year']):04d}-{int(last['month']):02d}"
+    return f"{int(last['year']):04d}-{int(last['quarter']) * 3:02d}"
+
+
 def clean_all(input_dir: str, output_dir: str) -> dict[str, str]:
     """Build every table into partitioned parquet under output_dir.
 
@@ -340,8 +374,7 @@ def clean_all(input_dir: str, output_dir: str) -> dict[str, str]:
         write_partitioned(df, table, str(output_dir))
         result[table] = str(Path(output_dir) / table)
         if freq == "monthly":
-            last = df.sort_values(["year", "month"]).iloc[-1]
-            max_ym = f"{int(last['year']):04d}-{int(last['month']):02d}"
+            max_ym = max_year_month(df, freq)
     # pyrefly: ignore [unsupported-operation]
     result["max_year_month"] = max_ym
     return result

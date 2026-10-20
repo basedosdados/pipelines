@@ -438,39 +438,48 @@ def latest_available_quarter(
 
 
 def clean_quarters(
+    table: str,
     quarters: list[tuple[int, int]],
     work_dir: Path,
     session=None,
-) -> dict[str, str | None]:
-    """Download + clean the given quarters for all three tables.
+) -> str | None:
+    """Download + clean the given quarters for ONE table.
 
-    For each table and quarter present at the source, downloads the ZIP into
+    For each quarter present at the source, downloads the ZIP into
     ``<work_dir>/input`` and streams it to partitioned Parquet under
     ``<work_dir>/output/<table>/ano=<Y>/trimestre=<Q>/``. Each ZIP is deleted
     right after cleaning so peak disk stays near a single file (SIDA ZIPs reach
     1.3 GB).
 
-    Returns a mapping of table slug to its output directory (a hive-partitioned
-    tree ready for ``upload_to_gcs``), or ``None`` for a table with no data in
-    the requested quarters (e.g. some early quarters lack FGTS).
+    Each of the three tables is downloaded independently (separate ZIP per
+    table per quarter) — called once per table by
+    ``tasks.make_extract_load_data``, each with its own quarter range (a
+    table's own catch-up range need not match the other two, e.g. some early
+    quarters lack FGTS).
+
+    Args:
+        table: table slug (one of ``TABLES``).
+        quarters: ``(year, quarter)`` pairs to ingest, in any order.
+        work_dir: per-run scratch dir.
+        session: optional shared ``requests`` session.
+
+    Returns:
+        The table's output directory (a hive-partitioned tree ready for
+        ``upload_to_gcs``), or ``None`` if none of the requested quarters is
+        present at the source for this table.
     """
     input_dir = Path(work_dir) / "input"
     output_dir = Path(work_dir) / "output"
     s = session or requests.Session()
-    result: dict[str, str | None] = {}
-    for table in TABLES:
-        produced = False
-        for year, quarter in quarters:
-            if not source_exists(year, quarter, table, session=s):
-                log.info(
-                    "%s %sQ%s absent at source, skipping", table, year, quarter
-                )
-                continue
-            zip_path = download_quarter(
-                year, quarter, table, input_dir, session=s
+    produced = False
+    for year, quarter in quarters:
+        if not source_exists(year, quarter, table, session=s):
+            log.info(
+                "%s %sQ%s absent at source, skipping", table, year, quarter
             )
-            clean_quarter_zip(zip_path, table, year, quarter, output_dir)
-            zip_path.unlink(missing_ok=True)
-            produced = True
-        result[table] = str(output_dir / table) if produced else None
-    return result
+            continue
+        zip_path = download_quarter(year, quarter, table, input_dir, session=s)
+        clean_quarter_zip(zip_path, table, year, quarter, output_dir)
+        zip_path.unlink(missing_ok=True)
+        produced = True
+    return str(output_dir / table) if produced else None

@@ -1,68 +1,77 @@
 """
-Tasks for br-bcb-taxa-selic
+Tasks for br_bcb_taxa_selic.
 """
 
+import os
+
+import pandas as pd
+import requests
 from prefect import task
 
-from pipelines.datasets.br_bcb_taxa_selic.utils import (
-    get_selic_data,
-    read_input_csv,
-    save_input,
-    save_output,
-    treat_selic_df,
-)
+from pipelines.datasets.br_bcb_taxa_selic.constants import COVERAGE, TABLE_ID
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
+
+API_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json"
+
+# BCB rejeita requests sem User-Agent (HTTP 406).
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json",
+}
 
 
-@task
-def get_data_taxa_selic(table_id: str) -> str:
-    """
-    Retrieves data from an API for multiple currencies, concatenates the resulting dataframes,
-    saves the final dataframe to a file, and returns the full file path.
+@task(retries=3, retry_delay_seconds=10)
+def download_selic_data() -> pd.DataFrame:
+    """Baixa a série completa da Selic (BCB SGS 11) e já trata a coluna de data.
 
-    Args:
-        table_id (str): The identifier for the table.
-
-    Returns:
-        str: The full file path where the data is saved.
-    """
-
-    df = get_selic_data()
-
-    full_filepath = save_input(df, table_id)
-    print(f"input saved in {full_filepath}")
-
-    # Return the full file path
-    return full_filepath
-
-
-@task
-def treat_data_taxa_selic(table_id: str) -> str:
-    """
-    Reads input data from a CSV file, performs data treatment on the dataframe,
-    saves the treated dataframe to a file, and returns the full file path.
-
-    Args:
-        table_id (str): The identifier for the table.
+    A API não aceita filtro por intervalo nessa série — toda chamada
+    devolve a série inteira. `get_latest_update` e `extract_load_data`
+    cada um chama isso de forma independente (custo de download
+    duplicado aceito, variante `check_and_download` foi cancelada).
 
     Returns:
-        str: The full file path where the treated data is saved.
+        DataFrame com a coluna `data` já convertida pra `date`.
     """
+    response = requests.get(API_URL, headers=_HEADERS, timeout=30)
+    response.raise_for_status()
+    df = pd.DataFrame(response.json())
+    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y").dt.date
+    return df
 
-    # Read input data from a CSV file
-    df = read_input_csv(table_id)
 
-    # Perform data treatment on the dataframe
-    df = treat_selic_df(df, table_id)
-    max_date = df["data"].max()
+def get_latest_update() -> SourceInspection:
+    """Baixa a série da Selic só pra descobrir a data de referência mais recente.
 
-    # Save the treated dataframe to a file and obtain the full file path
-    full_filepath = save_output(df, table_id)
+    Returns:
+        `SourceInspection` com a data máxima encontrada na coluna `data`.
+    """
+    df = download_selic_data()
+    return SourceInspection(reference_date=df["data"].max())
 
-    file_info = {
-        "save_output_path": full_filepath,
-        "max_date": max_date.strftime("%Y-%m-%d"),
-    }
 
-    # Return the full file path
-    # pyrefly: ignore [bad-return]
-    return file_info
+def extract_load_data(download_params: dict) -> ExtractAndLoad:
+    """Baixa a série da Selic de novo e escreve o CSV pra upload.
+
+    Args:
+        download_params: recebido do check_update — não usado aqui, a
+            série não aceita filtro por data (sempre vem inteira).
+
+    Returns:
+        `ExtractAndLoad` com a coverage da tabela e o caminho do CSV.
+    """
+    df = download_selic_data()
+
+    folder = f"tmp/{TABLE_ID}/output"
+    os.makedirs(folder, exist_ok=True)
+    filepath = f"{folder}/{TABLE_ID}.csv"
+    df.to_csv(filepath, index=False)
+    print(f"Dados tratados: {len(df)} linhas → {filepath}")
+
+    return ExtractAndLoad(
+        coverage=COVERAGE.model_dump(),
+        data_path=filepath,
+    )
