@@ -708,3 +708,67 @@ class CheckThenExtractLoadPipeline:
             result=download_result,
             env=self.env,
         )
+
+    def run_extract_and_load_with_derived_tables(
+        self,
+        download_params: dict,
+        *,
+        coverage: CoverageSpec,
+        derived_table_ids: list[str],
+        derived_coverage: CoverageSpec | dict[str, CoverageSpec],
+    ) -> None:
+        """Corpo completo do estágio extract_and_load — tabela mãe + derivadas.
+
+        Mesmo papel de `run_extract_and_load`, pra quando a tabela mãe tem
+        tabelas derivadas sem extração própria — só `dbt run/test` lendo
+        dela (ex. agregados calculados a partir de um `microdados`).
+        Termina em `promote_primary_and_derived_tables` em vez de
+        `dispatch_build_and_promote` (que só sabe materializar uma tabela
+        por vez, cada uma baixando seu próprio staging de dev — as
+        derivadas não têm nenhum). Ver `promote_primary_and_derived_tables`
+        pro motivo completo.
+
+        Não preenche `partition_folders` (ao contrário de
+        `run_extract_and_load`) — `promote_primary_and_derived_tables`
+        ainda não tem suporte a promover só uma fatia particionada: hoje
+        só serve pra tabela mãe sem partição.
+
+        Args:
+            download_params: dict recebido do estágio anterior via
+                `run_deployment()` — sempre tem `reference_date`.
+            coverage: `CoverageSpec` da tabela mãe.
+            derived_table_ids: tabelas derivadas, sem download próprio —
+                só `dbt run/test` lendo da mãe.
+            derived_coverage: `CoverageSpec` das derivadas. Uma só,
+                aplicada a todas, ou um dict `{table_id: CoverageSpec}`
+                quando elas não compartilham a mesma cobertura.
+        """
+        rename_flow_run_dataset_table(
+            prefix="Extract and Load: ",
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
+        )
+
+        download_result = self.extract_load_data(download_params)
+
+        upload_to_gcs(
+            data_path=download_result.data_path,
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
+            bucket_name="basedosdados-dev",
+            dump_mode=download_result.dump_mode,
+            source_format=download_result.source_format,
+        )
+
+        promote_primary_and_derived_tables(
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
+            data_path=download_result.data_path,
+            coverage=coverage,
+            derived_table_ids=derived_table_ids,
+            derived_coverage=derived_coverage,
+            env=self.env,
+            prefect_mode=download_result.prefect_mode,
+            dump_mode=download_result.dump_mode,
+            source_format=download_result.source_format,
+        )
