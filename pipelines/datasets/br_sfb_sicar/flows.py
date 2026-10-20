@@ -22,13 +22,13 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from prefect.schedules import Cron
 
-from pipelines.crawler.sfb_sicar.constants import Constants
-from pipelines.crawler.sfb_sicar.tasks import (
+from pipelines.datasets.br_sfb_sicar.constants import Constants
+from pipelines.datasets.br_sfb_sicar.tasks import (
     clean_uf_theme,
     download_uf_theme,
     get_release_dates_task,
 )
-from pipelines.crawler.sfb_sicar.utils import (
+from pipelines.datasets.br_sfb_sicar.utils import (
     container_memory_limit_gb,
     max_release_iso,
 )

@@ -314,36 +314,41 @@ def build_release(release: str, input_dir: str) -> pd.DataFrame:
     )
 
 
+def max_year_month(df: pd.DataFrame) -> str:
+    """Latest ``"YYYY-MM"`` period across one release's observations.
+
+    Drives that release's source-update poll. The string is a year-*month*,
+    not a year-quarter, because the poll compares it against the registered
+    coverage, and the coverage for a ``YearQuarter`` column is stored as
+    ``MAX(DATE(year, quarter * 3, 1))`` formatted ``"%Y-%m"``. Polling at a
+    coarser granularity than the coverage is stored at compares mismatched
+    clocks, and the guard then either never fires or fires on every run.
+
+    Rows with no quarter (the Wage Price Index's financial-year series) are
+    ignored: BigQuery computes the coverage as
+    ``MAX(DATE(year, quarter * 3, 1))``, where a NULL quarter yields NULL, so
+    those rows do not move the coverage either.
+    """
+    periods = df.loc[df["quarter"].notna(), ["year", "quarter"]]
+    year, quarter = periods.sort_values(["year", "quarter"]).iloc[-1]
+    return f"{int(year):04d}-{int(quarter) * 3:02d}"
+
+
 def clean_all(
     input_dir: str, output_dir: str, releases=None
 ) -> dict[str, str]:
     """Build every release into partitioned parquet under ``output_dir``.
 
     Returns a mapping of output table slug to its partition root, plus
-    ``"<release>__max_year_month"`` for each release -- the latest period it
-    contains, as ``"YYYY-MM"``, which drives that release's source-update poll.
-
-    That string is a year-*month*, not a year-quarter, because the poll
-    compares it against the registered coverage, and the coverage for a
-    ``YearQuarter`` column is stored as ``MAX(DATE(year, quarter * 3, 1))``
-    formatted ``"%Y-%m"``. Polling at a coarser granularity than the coverage
-    is stored at compares mismatched clocks, and the guard then either never
-    fires or fires on every run.
+    ``"<release>__max_year_month"`` for each release -- see
+    ``max_year_month``.
     """
     result: dict[str, str] = {}
     for release in releases or COLUMNS:
         df = build_release(release, input_dir)
         write_partitioned(df, release, output_dir)
         result[release] = str(Path(output_dir) / release)
-        # Ignore rows with no quarter (the Wage Price Index's financial-year
-        # series): BigQuery computes the coverage as
-        # MAX(DATE(year, quarter * 3, 1)), where a NULL quarter yields NULL,
-        # so those rows do not move the coverage either.
-        periods = df.loc[df["quarter"].notna(), ["year", "quarter"]]
-        year, quarter = periods.sort_values(["year", "quarter"]).iloc[-1]
-        result[f"{release}__max_year_month"] = (
-            f"{int(year):04d}-{int(quarter) * 3:02d}"
-        )
+        result[f"{release}__max_year_month"] = max_year_month(df)
     return result
 
 

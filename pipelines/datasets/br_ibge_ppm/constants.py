@@ -7,6 +7,16 @@ from enum import Enum
 
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 
+# Migrado pro pipeline em estágios (staged pipeline) — DATASET_ID e os
+# TABLE_ID abaixo seguem a convenção usada por `pipeline_factory`/
+# `CheckThenExtractLoadPipeline`, mesmo padrão de `br_ibge_ipca`.
+DATASET_ID = "br_ibge_ppm"
+
+EFETIVO_REBANHOS_TABLE_ID = "efetivo_rebanhos"
+PRODUCAO_ORIGEM_ANIMAL_TABLE_ID = "producao_origem_animal"
+PRODUCAO_AQUICULTURA_TABLE_ID = "producao_aquicultura"
+PRODUCAO_PECUARIA_TABLE_ID = "producao_pecuaria"
+
 
 class constants(Enum):
     """Constantes de br_ibge_ppm."""

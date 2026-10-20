@@ -1,11 +1,28 @@
-"""Prefect 3 tasks for br_mf_divida_ativa — thin wrappers over utils.py."""
+"""Prefect 3 tasks for br_mf_divida_ativa — thin wrappers over utils.py.
 
-import datetime
+As 3 tabelas (nao_previdenciario / previdenciario / fgts) — ver constants.py.
+
+PGFN publica as 3 juntas a cada trimestre, mas em um ZIP por tabela — o
+download É decomponível por tabela (``download_quarter(table=...)``). O que
+NÃO é decomponível é a sonda de "qual é o trimestre mais novo publicado": só a
+SIDA (nao_previdenciario) é garantida presente em todo trimestre (ver
+docstring de ``latest_available_quarter``, e o antigo ``ANCHOR_TABLE`` do flow
+monolítico) — por isso ``get_latest_update`` é uma função só, compartilhada
+pelas 3 tabelas via ``lambda _: get_latest_update`` em ``make_pipeline``.
+
+``extract_load_data(table_id)`` já é por tabela: cada chamada relê a própria
+Coverage já registrada da SUA tabela (``task_get_api_most_recent_date``) e
+baixa todo trimestre mais novo que ela — não só o mais recente — igual ao
+catch-up de br_bcb_agencia/br_bcb_estban (mais de um trimestre de atraso é
+baixado de uma vez na mesma chamada).
+"""
+
+import tempfile
+from collections.abc import Callable
+from datetime import date
 from pathlib import Path
-from typing import Literal
 
-from prefect import task
-
+from pipelines.datasets.br_mf_divida_ativa.constants import COVERAGE, constants
 from pipelines.datasets.br_mf_divida_ativa.utils import (
     FIRST_QUARTER,
     FIRST_YEAR,
@@ -14,89 +31,92 @@ from pipelines.datasets.br_mf_divida_ativa.utils import (
     latest_available_quarter,
     quarter_date_str,
 )
-from pipelines.utils.metadata.client import MetadataClient
+from pipelines.utils.metadata.tasks import task_get_api_most_recent_date
+from pipelines.utils.stage_dispatch import (
+    ExtractAndLoad,
+    SourceInspection,
+    pipeline_factory,
+)
+
+DATASET_ID = constants.DATASET_ID.value
 
 
-@task
-def discover_new_quarters(
-    dataset_id: str,
-    table_id: str,
-    env: Literal["dev", "prod", "staging"] = "prod",
-) -> dict:
-    """Find which source quarters have not been ingested yet.
+def get_latest_update() -> SourceInspection:
+    """Sonda a fonte (via SIDA) pelo trimestre mais novo publicado.
 
-    Probes the source for the newest available quarter, then reads the registered
-    ``RawDataSource.Update.latest`` (a coverage date, seeded at onboarding and
-    advanced by :func:`commit_source_update_task`). Every quarter strictly newer
-    than that boundary — up to and including the newest available — is returned,
-    so a missed scheduled run catches up on all the quarters it skipped rather
-    than silently dropping one. The Update boundary (not a re-scan of the table)
-    is what keeps each quarter's partition from being appended to staging twice.
-
-    Args:
-        dataset_id: GCP/BigQuery dataset id.
-        table_id: probe table (SIDA, present every quarter) that anchors the
-            single raw data source the boundary is read from.
-        env: backend to read the source update from.
+    Compartilhada pelas 3 tabelas — só a SIDA garante presença em todo
+    trimestre, então é a única sonda confiável pra decidir "existe trimestre
+    novo publicado" (ver ``latest_available_quarter``).
 
     Returns:
-        ``{"quarters": [[year, quarter], ...], "available": [year, quarter] |
-        None, "max_date": "YYYY-MM-01" | None}``. ``quarters`` is empty when the
-        source has nothing newer than the boundary (or the boundary is unseeded —
-        see the note below).
+        ``SourceInspection`` com ``reference_date`` no primeiro dia do último
+        mês do trimestre mais novo (ex. 2026 Q2 -> 2026-06-01).
+        ``compare_against="coverage"`` — igual ao flow monolítico antigo —
+        cada tabela compara essa data contra a SUA PRÓPRIA Coverage.
+
+    Raises:
+        RuntimeError: a fonte está inacessível (nem o primeiro trimestre
+            responde).
     """
     available = latest_available_quarter()
     if available is None:
-        print("Source unreachable — no quarters found.")
-        return {"quarters": [], "available": None, "max_date": None}
-
-    client = MetadataClient(env=env)
-    last = client.get_raw_source_update_latest(dataset_id, table_id)
-
-    if last is None:
-        # Unseeded RawDataSource.Update: refuse to guess a boundary and re-ingest
-        # history (that would duplicate staging partitions). Seed the source
-        # Update at onboarding to the last loaded quarter; until then this is a
-        # no-op. See prefect-pipeline-conventions "Update and Poll records".
-        print(
-            "RawDataSource.Update.latest is unset — seed it to the last loaded "
-            "quarter before the pipeline can detect new data. Skipping."
+        raise RuntimeError(
+            "PGFN source unreachable — could not find even the first quarter."
         )
-        new: list[list[int]] = []
-    else:
-        candidates = all_quarters((FIRST_YEAR, FIRST_QUARTER), available)
-        new = [
-            [y, q]
-            for (y, q) in candidates
-            if datetime.date(y, q * 3, 1) > last
-        ]
-
-    print(
-        f"newest at source={available}, registered boundary={last}, "
-        f"new quarters={new}"
+    return SourceInspection(
+        reference_date=date.fromisoformat(quarter_date_str(*available)),
+        compare_against="coverage",
     )
-    return {
-        "quarters": new,
-        "available": list(available),
-        "max_date": quarter_date_str(*available),
-    }
 
 
-@task(retries=2, retry_delay_seconds=60)
-def clean_quarters_task(quarters: list, work_dir: str) -> dict:
-    """Download + clean the given quarters for all three tables.
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    """Fábrica do extract_and_load de uma tabela — catch-up por Coverage própria."""
 
-    Retries twice: the PGFN endpoint occasionally drops connections on the larger
-    SIDA ZIPs (``download_quarter`` also retries per file).
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        reference_date = date.fromisoformat(download_params["reference_date"])
+        available = (reference_date.year, reference_date.month // 3)
 
-    Args:
-        quarters: list of ``[year, quarter]`` pairs to ingest.
-        work_dir: per-run scratch dir; inputs land in ``<work_dir>/input`` and
-            partitioned Parquet under ``<work_dir>/output/<table>/``.
+        # Catch-up por tabela: relê a Coverage já registrada desta tabela (não
+        # a sonda compartilhada acima), pra baixar TODO trimestre mais novo
+        # que ela, não só o mais recente — uma tabela que ficou pra trás (ex.
+        # uma falha isolada num run anterior) se recupera sozinha.
+        api_max_date = task_get_api_most_recent_date(
+            dataset_id=DATASET_ID, table_id=table_id, date_format="%Y-%m"
+        )
+        candidates = all_quarters((FIRST_YEAR, FIRST_QUARTER), available)
+        new_quarters = (
+            candidates
+            if api_max_date is None
+            else [
+                (y, q)
+                for (y, q) in candidates
+                if date(y, q * 3, 1) > api_max_date
+            ]
+        )
 
-    Returns:
-        Mapping of table slug to its partitioned output directory (str), or
-        ``None`` for a table absent from the requested quarters.
-    """
-    pairs = [(int(y), int(q)) for y, q in quarters]
-    return clean_quarters(pairs, Path(work_dir))
+        work_dir = tempfile.mkdtemp(prefix=f"br_mf_divida_ativa_{table_id}_")
+        data_path = clean_quarters(table_id, new_quarters, Path(work_dir))
+        if data_path is None:
+            raise RuntimeError(
+                f"{table_id}: source has none of {new_quarters} "
+                "(missing/unpublished for this table)."
+            )
+
+        return ExtractAndLoad(
+            coverage=COVERAGE[table_id].model_dump(),
+            data_path=data_path,
+            dump_mode="append",
+            source_format="parquet",
+        )
+
+    return extract_load_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    # Checagem única compartilhada pelas 3 tabelas — ver docstring do módulo.
+    lambda _table_id: get_latest_update,
+    make_extract_load_data,
+    # Mesmo date_format do flow monolítico antigo (poll/commit do boundary).
+    date_format="%Y-%m-%d",
+)
