@@ -226,10 +226,8 @@ class Candidatos(BrTseEleicoes):
         base = base.fillna("")
         base.columns = tse_constants.ORDER.value.keys()
 
-        print(base["sigla_uf_nascimento"].unique())
         base = base.replace(self.remove, regex=False)
 
-        print(base["sigla_uf_nascimento"].unique())
         # Formatar datas
         base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
         base["data_nascimento"] = base["data_nascimento"].apply(
