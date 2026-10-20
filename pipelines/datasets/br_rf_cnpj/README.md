@@ -15,7 +15,7 @@ acentuação.
 
 A correção lê o CSV de origem como `latin1` e regrava o CSV intermediário como
 `utf-8`, preservando a acentuação corretamente (ver `process_csv_*` em
-`pipelines/crawler/rf_cnpj/utils.py`).
+`pipelines/shared/rf_cnpj/utils.py`).
 
 ## 2. Necessidade de reprocessamento desde 2023
 
@@ -62,7 +62,7 @@ O conteúdo vem de duas origens, unidas no modelo:
   com a publicação mensal: arquivo de `Qualificacoes`, `Paises` e `Motivos`.
   Esses arquivos são baixados
   e processados por `process_csv_dicionario`
-  (`pipelines/crawler/rf_cnpj/utils.py`), que lê cada CSV `chave;valor` e adiciona `id_tabela`/`nome_coluna` para identificar a qual tabela e coluna cada código pertence.
+  (`pipelines/shared/rf_cnpj/utils.py`), que lê cada CSV `chave;valor` e adiciona `id_tabela`/`nome_coluna` para identificar a qual tabela e coluna cada código pertence.
 - **Entradas manuais** (`dicionario_not_found`, no modelo dbt), cobrindo
   chaves que aparecem nos dados reais mas não constam nos arquivos oficiais
   da Receita Federal (ex.: códigos `36`, `994`/`393`, `8`/`9`/`32` sem

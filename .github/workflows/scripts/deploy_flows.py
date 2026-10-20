@@ -13,11 +13,18 @@ Uso:
   # Deploy de todos os flows (recuperação manual, ex. depois de um drift)
   uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados --branch main --all
 
+  # Deploy pro servidor Prefect local (scripts/dev_local.sh up), lendo o
+  # código do disco em vez de clonar do GitHub — nenhum commit/push
+  # necessário. --pool/--branch são ignorados nesse modo.
+  uv run .github/workflows/scripts/deploy_flows.py --local --files pipelines/datasets/meu_dataset/flows.py
+
 Nome do deployment: em prod, é `<flow_name>` (mesmo nome de sempre — não
 mude, `sync-deployments`/`set_deployment_schedule_active` no backend
-dependem disso). Em dev, é `dev-<flow_name>`, um registro separado do de
-prod — nunca compartilham o mesmo nome, pra um deploy de PR não "roubar"
-o deployment de prod movendo-o pro pool dev.
+dependem disso). Em dev (inclusive `--local`, cujo pool se chama
+`local-dev` — contém "dev", então cai no mesmo caminho), é
+`dev-<flow_name>`, um registro separado do de prod — nunca compartilham
+o mesmo nome, pra um deploy de PR não "roubar" o deployment de prod
+movendo-o pro pool dev.
 """
 
 import argparse
@@ -32,14 +39,20 @@ from prefect.runner.storage import GitRepository
 
 from pipelines.utils.flow import Flow
 
+# Nome do work pool local criado por `scripts/dev_local.sh up`. Contém
+# "dev" de propósito — `deploy_flow()` decide comportamento de dev
+# (prefixo `dev-`, sem schedule, tag `env:dev`) checando `"dev" in
+# pool_name`, e isso já cobre este pool sem precisar de lógica própria.
+LOCAL_POOL_NAME = "local-dev"
+
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
 # Pastas cuja mudança pode afetar deploy de flows em mais de um dataset
 # (lógica compartilhada, ex. CheckThenExtractLoadPipeline em stage_dispatch.py,
-# ou um crawler usado por vários datasets como pipelines/crawler/datasus) —
+# ou um módulo usado por vários datasets como pipelines/shared/datasus) —
 # não dá pra saber quais datasets são afetados sem reprocessar tudo, então
 # escala pra --all nesse caso, em vez de arriscar deixar algo desatualizado.
-SHARED_PREFIXES = ("pipelines/utils/", "pipelines/crawler/")
+SHARED_PREFIXES = ("pipelines/utils/", "pipelines/shared/")
 
 # Perfil de recursos padrão pra qualquer flow com a tag "check_update"
 # (issue #1867, pendência da revisão #1932) que não sobrescreva
@@ -173,6 +186,7 @@ def deploy_flow(
     file_path: str,
     pool_name: str,
     branch_name: str,
+    local: bool = False,
 ) -> tuple[bool, str]:
     """Registra um flow no Prefect 3.
 
@@ -185,14 +199,20 @@ def deploy_flow(
         flow: Objeto `Flow` do Prefect já carregado do arquivo.
         flow_name: Nome do flow.
         file_path: Caminho do arquivo onde o flow foi encontrado.
-        pool_name: Work Pool de destino (`basedosdados` ou `basedosdados-dev`).
+        pool_name: Work Pool de destino (`basedosdados` ou `basedosdados-dev`,
+            ignorado quando `local=True` — usa sempre `LOCAL_POOL_NAME`).
         branch_name: Branch do repositório a partir da qual o Prefect vai
-            ler o código do flow em runtime.
+            ler o código do flow em runtime. Ignorado quando `local=True`.
+        local: Deploya pro servidor/worker locais (`scripts/dev_local.sh`),
+            lendo o código direto do disco (`source=<raiz do repo>`) em vez
+            de clonar do GitHub — nenhum commit/push necessário pra testar
+            uma mudança ainda não commitada.
 
     Returns:
         Tupla `(sucesso, mensagem)` pronta pra impressão.
     """
     entrypoint = f"{file_path}:{flow_name}"
+    pool_name = LOCAL_POOL_NAME if local else pool_name
     is_dev = "dev" in pool_name
 
     # O Prefect identifica um deployment por `<flow>/<name>`, não pelo work
@@ -213,9 +233,15 @@ def deploy_flow(
     # prefixo `dev-` na hora de despachar o próximo estágio da cadeia
     # (issue #1867/#1932) — sem isso, o dispatch check_update→extract_and_load
     # e extract_and_load→build_and_promote só acha o nome certo em prod.
+    # `env:local`: sinal extra, só quando `local=True` — `local-dev` já
+    # cai em `env:dev` (contém "dev"), mas `stage_dispatch.py` precisa
+    # distinguir "dev de verdade" de "pool local" pra decidir se despacha
+    # o próximo estágio via `run_deployment()` ou chama a função direto
+    # (ver `_is_local()`/`_run_flow_locally()` em `stage_dispatch.py`).
     tags = [
         "automated-deploy",
         f"env:{'dev' if is_dev else 'prod'}",
+        *(["env:local"] if local else []),
         *extra_tags,
     ]
 
@@ -229,13 +255,23 @@ def deploy_flow(
         # `job_variables` no flow — setar explicitamente sempre sobrescreve.
         job_variables = CHECK_UPDATE_JOB_VARIABLES
 
+    # Local lê do disco (raiz do repo, cwd de quem chama este script) — sem
+    # isso, o worker local tentaria clonar `REPO_URL`, incluindo só o que já
+    # foi commitado/pusheado, o oposto do que "testar antes de commitar"
+    # precisa. `GitRepository` segue valendo pros pools reais (dev/prod).
+    source = (
+        str(Path.cwd())
+        if local
+        else GitRepository(
+            url=REPO_URL,
+            branch=branch_name,
+        )
+    )
+
     try:
         # pyrefly: ignore [missing-attribute]
         flow.from_source(
-            source=GitRepository(
-                url=REPO_URL,
-                branch=branch_name,
-            ),
+            source=source,
             entrypoint=entrypoint,
         ).deploy(
             name=deployment_name,
@@ -290,9 +326,24 @@ def main() -> None:
     foi especificado, ou com código 1 se algum flow falhou ao registrar.
     """
     parser = argparse.ArgumentParser(description="Deploy de flows Prefect 3")
-    parser.add_argument("--pool", required=True, help="Nome do Work Pool")
     parser.add_argument(
-        "--branch", required=True, help="Branch do repositório"
+        "--local",
+        action="store_true",
+        help=(
+            "Deploya pro servidor/worker locais (scripts/dev_local.sh up), "
+            "lendo o código do disco em vez de clonar do GitHub. Dispensa "
+            "--pool/--branch."
+        ),
+    )
+    parser.add_argument(
+        "--pool",
+        required=False,
+        help="Nome do Work Pool (obrigatório sem --local)",
+    )
+    parser.add_argument(
+        "--branch",
+        required=False,
+        help="Branch do repositório (obrigatório sem --local)",
     )
     parser.add_argument(
         "--files",
@@ -319,6 +370,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if not args.local and (not args.pool or not args.branch):
+        parser.error("--pool e --branch são obrigatórios sem --local")
+
     files_to_process = []
 
     if args.all:
@@ -339,8 +393,12 @@ def main() -> None:
         print("Nenhum arquivo especificado. Use --files, --changed ou --all.")
         sys.exit(0)
 
-    print(f"\nWork Pool : {args.pool}")
-    print(f"Branch    : {args.branch}")
+    if args.local:
+        print(f"\nWork Pool : {LOCAL_POOL_NAME} (local)")
+        print("Fonte     : disco (sem clone/branch)")
+    else:
+        print(f"\nWork Pool : {args.pool}")
+        print(f"Branch    : {args.branch}")
     print(f"Arquivos  : {len(files_to_process)}")
     print(f"Workers   : {args.workers}\n")
 
@@ -370,7 +428,13 @@ def main() -> None:
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
         futures = {
             executor.submit(
-                deploy_flow, flow_obj, name, file_path, args.pool, args.branch
+                deploy_flow,
+                flow_obj,
+                name,
+                file_path,
+                args.pool,
+                args.branch,
+                args.local,
             ): name
             for flow_obj, name, file_path in to_deploy
         }

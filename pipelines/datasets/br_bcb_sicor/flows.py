@@ -4,8 +4,10 @@ Flows para br_bcb_sicor — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.bcb.flows import _run_bcb_sicor
-from pipelines.crawler.bcb.tasks import create_load_dictionary
+from pipelines.datasets.br_bcb_sicor.tasks import (
+    _run_bcb_sicor,
+    create_load_dictionary,
+)
 from pipelines.utils.flow import flow
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
