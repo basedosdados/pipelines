@@ -2,7 +2,6 @@ import re
 import time
 from io import StringIO
 from pathlib import Path
-from typing import cast
 
 import pandas as pd
 import pyarrow as pa
@@ -17,7 +16,13 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from pipelines.datasets.br_bcb_sicor.constants import Constants
+from pipelines.datasets.br_bcb_sicor.constants import (
+    TABLES_CONSTANTS,
+    constants_dicionario,
+    constants_empreendimento,
+    constants_fonte_recurso,
+    constants_operacao,
+)
 from pipelines.utils.schema_validator import validate_schema
 from pipelines.utils.utils import log
 
@@ -34,7 +39,7 @@ def get_sicor_download_links():
         list: A list of URLs for the download files.
     """
 
-    url = Constants.URL.value
+    url = constants_operacao.URL.value
 
     options = Options()
     options.add_argument("--headless=new")
@@ -98,7 +103,6 @@ def build_sicor_download_df(links: list) -> pd.DataFrame:
         pd.DataFrame: DataFrame with columns [id_tabela, link, tipo_liberacao_arquivo, ano, mes, content_length]
     """
     data = []
-    mapping = Constants.sicor_to_bd_table_names.value
 
     storage_options = STORAGE_OPTIONS
 
@@ -108,8 +112,8 @@ def build_sicor_download_df(links: list) -> pd.DataFrame:
         clean_name = re.sub(r"\d+", "", name_no_ext).strip("_")
 
         id_tabela = None
-        for table_id, info in mapping.items():
-            raw_name = info["table_raw_name"]
+        for table_id, table_constants in TABLES_CONSTANTS.items():
+            raw_name = table_constants.TABLE_RAW_NAME.value
             if clean_name.lower().endswith(raw_name.lower()):
                 id_tabela = table_id
                 break
@@ -160,12 +164,8 @@ def filter_sicor_links(
     """
     table_df = links_df[links_df["id_tabela"] == table_id].copy()
 
-    # Tabelas de domínio publicadas fora de /DadosBrutos/ não aparecem no
-    # scraping, então sua linha é sintetizada aqui a partir das URLs fixas em
-    # `Constants.tabelas_dominio_urls`. Uma tabela pode ter mais de uma URL
-    # (ver `fonte_recurso`); `get_sicor_table_size` soma os `content_length`.
-    dominio_urls = Constants.tabelas_dominio_urls.value.get(table_id)
-    if dominio_urls:
+    source_urls = getattr(TABLES_CONSTANTS[table_id], "SOURCE_URLS", None)
+    if source_urls is not None:
         return pd.DataFrame(
             [
                 {
@@ -173,7 +173,7 @@ def filter_sicor_links(
                     "link": link,
                     "content_length": get_content_length(link),
                 }
-                for link in dominio_urls
+                for link in source_urls.value
             ]
         )
 
@@ -216,7 +216,9 @@ def create_folder_structure(id_tabela: str) -> Path:
         Path: The created directory path.
     """
     path = Path().cwd()
-    output_path = path / Constants.OUTPUT_FOLDER.value / id_tabela
+    output_path = (
+        path / TABLES_CONSTANTS[id_tabela].OUTPUT_FOLDER.value / id_tabela
+    )
 
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -241,10 +243,7 @@ def create_tables(
     Returns:
         str: The download directory path.
     """
-    config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
-
-    # pyrefly: ignore [unsupported-operation]
-    renames = config["table_schema"]
+    renames = TABLES_CONSTANTS[id_tabela].TABLE_SCHEMA.value
 
     colunas_originais = list(renames.keys())
 
@@ -252,7 +251,7 @@ def create_tables(
 
     for _col_original, col_final in renames.items():
         tipo_pa = pa.string()
-        pyarrow_fields.append(pa.field(str(col_final), tipo_pa))
+        pyarrow_fields.append(pa.field(col_final, tipo_pa))
 
     explicit_schema = pa.schema(pyarrow_fields)
 
@@ -331,11 +330,8 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
     Returns:
         str: The download directory path.
     """
-    link = Constants.tabelas_dominio_urls.value["empreendimento"][0]
-    config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
-
-    # pyrefly: ignore [unsupported-operation]
-    renames = config["table_schema"]
+    link = constants_empreendimento.SOURCE_URLS.value[0]
+    renames = constants_empreendimento.TABLE_SCHEMA.value
 
     colunas_originais = list(renames.keys())
 
@@ -383,16 +379,12 @@ def create_fonte_recurso(id_tabela: str, download_dir: Path) -> None:
         id_tabela (str): ID da tabela (`fonte_recurso`).
         download_dir (Path): diretório onde o CSV será salvo.
     """
-    # O valor do Enum não é tipado, então o cast é o que informa ao verificador
-    # de tipos o que `sicor_to_bd_table_names` realmente guarda.
-    config = cast(
-        dict[str, dict[str, str]],
-        Constants.sicor_to_bd_table_names.value[id_tabela],
+    renames = constants_fonte_recurso.TABLE_SCHEMA.value
+    renames_publicos = (
+        constants_fonte_recurso.TABLE_SCHEMA_RECURSO_PUBLICO.value
     )
-    renames = config["table_schema"]
-    renames_publicos = config["table_schema_recurso_publico"]
 
-    url_todas, url_publicas = Constants.tabelas_dominio_urls.value[id_tabela]
+    url_todas, url_publicas = constants_fonte_recurso.SOURCE_URLS.value
 
     log(f"Downloading and merging {url_todas} and {url_publicas}...")
 
@@ -482,13 +474,13 @@ def parse_cobertura(row):
 
 def create_dictionary() -> str:
     """
-    Creates the dictionary table using the metadata defined in Constants.dicionario.
+    Creates the dictionary table using the metadata defined in constants_dicionario.COLUMN_SOURCES.
 
     Returns:
         str: The generated dictionary directory path.
     """
     all_data = []
-    dicionario_config = Constants.dicionario.value
+    dicionario_config = constants_dicionario.COLUMN_SOURCES.value
 
     headers = STORAGE_OPTIONS
 
@@ -570,7 +562,12 @@ def create_dictionary() -> str:
 
     final_df = pd.concat(all_data, ignore_index=True)
 
-    output_dir = create_folder_structure("dicionario")
+    output_dir = (
+        Path().cwd()
+        / constants_dicionario.OUTPUT_FOLDER.value
+        / constants_dicionario.TABLE_ID.value
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / "dicionario.csv"
     final_df.to_csv(output_path, index=False, encoding="utf-8", sep=",")
 
