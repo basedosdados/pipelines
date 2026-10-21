@@ -59,6 +59,7 @@ models:
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
+        tests: [is_row_count_increasing]
       - name: cnpj_basico
         description: CNPJ básico
         tests: [not_null]
@@ -92,21 +93,29 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [cnpj_basico]
     columns:
-      - name: data_referencia
-        description: Data de referência (ano-mês) do dado.
       - name: cnpj_basico
         description: CNPJ Básico
         tests: [not_null]
-        config:
-          where: __most_recent_date_cnpj__
       - name: opcao_simples
         description: Opção pelo Simples Nacional
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+              config:
+                severity: error
       - name: data_opcao_simples
         description: Data de Opção pelo Simples Nacional
       - name: data_exclusao_simples
         description: Data de Exclusão do Simples Nacional
       - name: opcao_mei
         description: Opção pelo MEI
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+              config:
+                severity: error
       - name: data_opcao_mei
         description: Data de Opção pelo MEI
       - name: data_exclusao_mei
@@ -186,6 +195,11 @@ models:
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
+          - not_null:
+              config:
+                severity: error
+                where: >-
+                  __most_recent_date_cnpj__ and sigla_uf not in ('EX', 'BR')
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
