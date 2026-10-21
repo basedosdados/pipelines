@@ -4,11 +4,17 @@ Tasks de br_ms_sim.
 Cada task embrulha uma função de `utils.py`, onde fica a lógica.
 """
 
+import datetime
 from pathlib import Path
 
 from prefect import task
 
 from pipelines.datasets.br_ms_sim import utils
+from pipelines.datasets.br_ms_sim.constants import (
+    COVERAGE,
+    MICRODADOS_TABLE_ID,
+)
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
 @task(retries=3, retry_delay_seconds=30)
@@ -63,3 +69,40 @@ def clean_table(table_id: str, ano: int, source: str) -> Path:
         O diretório particionado, no formato esperado por `upload_to_gcs`.
     """
     return utils.clean_table(table_id=table_id, ano=ano, source=source)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# microdados — única tabela do dataset hoje.
+#
+# `get_source_max_year` é a checagem real do flow monolítico antigo: lista o
+# diretório do FTP (`list_ftp_years`), sem baixar nenhum `.dbc` — barata o
+# bastante pra rodar a cada ciclo de check_update.
+#
+# `extract_load_data` reaproveita a mesma sequência de antes
+# (`resolve_year_source` -> `download_table` -> `clean_table`), só que a
+# partir do `reference_date` recebido do check_update em vez de recalcular
+# `get_source_max_year()` de novo.
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def get_latest_update() -> SourceInspection:
+    source_max_year = get_source_max_year()
+    reference_date = datetime.date(int(source_max_year), 1, 1)
+    return SourceInspection(reference_date=reference_date)
+
+
+def extract_load_data(download_params: dict) -> ExtractAndLoad:
+    ano = datetime.date.fromisoformat(download_params["reference_date"]).year
+    source = resolve_year_source(ano)
+
+    download_table(table_id=MICRODADOS_TABLE_ID, ano=ano, source=source)
+    filepath = clean_table(
+        table_id=MICRODADOS_TABLE_ID, ano=ano, source=source
+    )
+
+    return ExtractAndLoad(
+        coverage=COVERAGE.model_dump(),
+        data_path=str(filepath),
+        dump_mode="append",
+        source_format="csv",
+    )
