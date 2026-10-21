@@ -22,14 +22,6 @@ union all
 union all
 {{
     dicionario_not_found(
-        id_tabela="recurso_publico_mutuario",
-        nome_coluna="tipo_beneficiario",
-        chave=["14", "15", "16", "17", "18"],
-    )
-}}
-union all
-{{
-    dicionario_not_found(
         id_tabela="operacoes_desclassificadas",
         nome_coluna="id_motivo_desclassificacao",
         chave=["0", "201", "14"],
