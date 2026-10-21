@@ -4,7 +4,7 @@ Flows for br_cvm_oferta_publica_distribuicao — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.cvm_oferta_publica_distribuicao.tasks import (
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
 )
