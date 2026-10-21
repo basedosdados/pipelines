@@ -123,6 +123,52 @@ Resultado esperado depois dele — a coluna só tem valor a partir do arquivo qu
 
 ---
 
+## Detecção de dado novo
+
+A fonte não informa até que mês vai o dado sem que o arquivo seja baixado. Por isso cada flow
+decide se há novidade pelo tamanho dos arquivos da tabela:
+
+1. Soma o `Content-Length` dos arquivos da tabela. Nas tabelas com um arquivo por ano
+   (`operacao`, `saldo` e `recurso_publico_gleba`), só o arquivo do ano mais recente entra na
+   soma.
+2. `poll_source_size_for_update_task` grava a "Última verificação da fonte original"
+   (`RawDataSource.Poll`) e compara a soma com o último tamanho guardado no Redis, que mantém os
+   10 últimos de cada tabela:
+   - maior, ou primeira vez: o flow segue;
+   - igual: o flow termina sem baixar nada;
+   - menor em até 5% (`SOURCE_SIZE_SHRINK_TOLERANCE`): tratado como republicação, e o flow segue;
+   - menor em mais de 5%: `ValueError`, porque pode ser coluna removida ou recodificação.
+3. No fim, depois que prod foi atualizada, `commit_source_size_update_task` grava o tamanho novo
+   no Redis e a "Última atualização na fonte original" (`RawDataSource.Update.latest`) com a
+   data do dia.
+
+Gravar o tamanho só no fim é o que permite retentar: se o flow cair antes disso, o Redis continua
+com o tamanho anterior, e a execução seguinte vê o arquivo maior e roda de novo.
+
+### Por que o conjunto não usa o modelo em estágios
+
+No modelo em estágios (`check_update` → `extract_and_load` → `build_and_promote`), cada etapa
+dispara a seguinte com `run_deployment(timeout=0)` e termina. Quem atualiza prod é o
+`build_and_promote`, um flow só para todos os conjuntos (`pipelines/utils/metadata/flows.py`).
+Quando prod termina de ser atualizada, nenhum flow do sicor está rodando, e não há onde chamar
+`commit_source_size_update_task`.
+
+Gravar o tamanho no `check_update`, antes de baixar, acaba com a retentativa: se o
+`extract_and_load` ou o `build_and_promote` falhar, a execução seguinte vê o mesmo tamanho e não
+roda, e a tabela fica parada até o BCB publicar de novo. Além disso, o `check_update` do modelo
+só compara datas (`poll_source_for_update_task`); não há variante por tamanho.
+
+A migração depende de uma destas mudanças:
+
+- uma etapa que promova dentro do próprio `extract_and_load` e só termine depois de prod, como a
+  `promote_primary_and_derived_tables` da PR #2201. Com ela, o tamanho pode ser gravado no fim
+  do `extract_and_load`;
+- trocar o tamanho por uma data publicada pela fonte. O BCB envia `Last-Modified` nos arquivos,
+  mas não se sabe se ele muda quando um arquivo é regravado sem alteração de conteúdo; nesse
+  caso o flow rodaria sem dado novo.
+
+---
+
 ## Tabelas e Particularidades
 
 ### br_bcb_sicor__operacao
@@ -518,6 +564,11 @@ de prod. Como o check de metadados só roda sobre arquivos `.sql` modificados, e
 ---
 
 ## Tabelas de domínio: `instituicao_financeira` e `fonte_recurso`
+
+`fonte_recurso` e `empreendimento` ficam na seção 1 da página do BCB, fora de
+`/DadosBrutos/`, e o scraping não as encontra. As URLs delas estão fixas em
+`SOURCE_URLS`, no `constants.py`. No poll, o tamanho da `fonte_recurso` é a
+soma do `Content-Length` dos dois arquivos.
 
 ### `br_bcb_sicor__instituicao_financeira`
 
