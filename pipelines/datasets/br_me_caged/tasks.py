@@ -337,47 +337,43 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
     for filepath in tqdm(input_files):
         log(f"Reading: {filepath}")
         filename = filepath.name
-        try:
-            df = pd.read_csv(filepath, sep=";", dtype={"uf": str})
-            # pyrefly: ignore [missing-attribute]
-            date = re.search(r"\d+", filename).group()
-            ano = date[:4]
-            mes = int(date[-2:])
-            df.columns = [unidecode(col) for col in df.columns]
-            df = df.rename(columns=caged_constants.RENAME_DICT.value)
+        df = pd.read_csv(filepath, sep=";", dtype={"uf": str})
+        # pyrefly: ignore [missing-attribute]
+        date = re.search(r"\d+", filename).group()
+        ano = date[:4]
+        mes = int(date[-2:])
+        df.columns = [unidecode(col) for col in df.columns]
+        df = df.rename(columns=caged_constants.RENAME_DICT.value)
 
-            log(f"Renaming dataframe columns to: {df.columns}")
-            df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
+        log(f"Renaming dataframe columns to: {df.columns}")
+        df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
 
-            for state in caged_constants.UF_DICT.value.values():
-                data = df[df["sigla_uf"] == state]
-                data = data.drop(
-                    caged_constants.COLUMNS_TO_DROP.value[table_id],
-                    axis=1,
-                )
-                output_dir = (
-                    Path(table_output_dir)
-                    / f"ano={ano}"
-                    / f"mes={mes}"
-                    / f"sigla_uf={state}"
-                )
-                columns_to_select = [
-                    col
-                    for col in caged_constants.COLUMNS_TO_SELECT.value
-                    if col in data.columns
-                ]
-                output_dir.mkdir(exist_ok=True, parents=True)
-                output_path = str(output_dir / "data.csv")
-                data[columns_to_select].to_csv(
-                    output_path,
-                    index=False,
-                )
-                del data
-            del df
-        except Exception as e:
-            log(f"Failed to read: {filepath} due to: {e}", "error")
-    # pyrefly: ignore [bad-return]
-    return table_output_dir
+        for state in caged_constants.UF_DICT.value.values():
+            data = df[df["sigla_uf"] == state]
+            data = data.drop(
+                caged_constants.COLUMNS_TO_DROP.value[table_id],
+                axis=1,
+            )
+            output_dir = (
+                Path(table_output_dir)
+                / f"ano={ano}"
+                / f"mes={mes}"
+                / f"sigla_uf={state}"
+            )
+            columns_to_select = [
+                col
+                for col in caged_constants.COLUMNS_TO_SELECT.value
+                if col in data.columns
+            ]
+            output_dir.mkdir(exist_ok=True, parents=True)
+            output_path = str(output_dir / "data.csv")
+            data[columns_to_select].to_csv(
+                output_path,
+                index=False,
+            )
+            del data
+        del df
+    return str(table_output_dir)
 
 
 @task
