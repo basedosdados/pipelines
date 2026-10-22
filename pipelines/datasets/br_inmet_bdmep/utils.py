@@ -1,269 +1,218 @@
 """
-General purpose functions for the br_inmet_bdmep project
+Funções de download e tratamento do br_inmet_bdmep.
 """
 
 import re
 import zipfile
-from datetime import datetime, time
+from datetime import date, datetime
+from pathlib import Path
 
-import numpy as np
-import pandas as pd
-import requests
-from bs4 import BeautifulSoup
+import httpx
+import polars as pl
 from unidecode import unidecode
 
 from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
 from pipelines.utils.utils import log
 
 
-def get_latest_dowload_link() -> str:
-    try:
-        reponse = requests.get(ConstantsMicrodados.URL.value)
-
-        soup = BeautifulSoup(reponse.text, "html.parser")
-        latest_dowload_link = soup.select("article.post-preview a:last-child")[
-            -1
-        ].get("href")
-
-        return latest_dowload_link
-
-    except IndexError:
-        raise Exception(
-            "Nenhum link para download foi encontrado. Verifique o site e o select usado"
-        ) from None
-
-
-def get_date_from_path(path: str) -> datetime:
-    try:
-        match_data = re.compile(r"(\d{2}-\d{2}-\d{4})\.CSV$").search(path)
-        # pyrefly: ignore [missing-attribute]
-        date = datetime.strptime(match_data.group(1), "%d-%m-%Y")
-        return date
-
-    except AttributeError:
-        raise Exception(
-            "O 'path' que foi passado não respeita mais o padrão estabecelido. Data não encontrada!"
-        ) from None
-
-
-def new_names(base: pd.DataFrame, oldname: str, newname: str):
+def download_year_zip(year: int, input_dir: Path) -> int:
     """
-    Esta função renomeia a coluna oldname do DataFrame base para newname.
+    Baixa e descompacta o ZIP de dados históricos do INMET de um ano. Se o
+    ZIP do ano ainda não existir na fonte, baixa o do ano anterior.
 
     Args:
+        year (int): ano do ZIP a baixar.
+        input_dir (Path): diretório onde o ZIP é salvo e descompactado.
 
-    `base` : DataFrame do Pandas
-    O DataFrame no qual a coluna deve ser renomeada.
+    Returns:
+        int: ano do ZIP baixado.
 
-    `oldname` : string
-    O nome atual da coluna a ser renomeada.
-
-    `newname` : string
-    O novo nome que será atribuído à coluna.
-    Retorno:
-
-    `names(base)` : lista de strings
-    Retorna uma lista contendo os nomes das colunas do DataFrame base após a renomeação. Se mais de uma coluna com o nome oldname for encontrada, a função retorna a lista de todos os nomes das colunas em base.
-
+    Raises:
+        FileNotFoundError: se a fonte não tiver o ZIP do ano nem o do ano
+            anterior.
     """
-    # x = [i for i, name in enumerate(base.columns) if name == oldname]
-    # pyrefly: ignore [no-matching-overload]
-    x = re.search(oldname, base.columns)
+    input_dir.mkdir(parents=True, exist_ok=True)
 
-    if len(x) > 1:
-        return base.columns.tolist()
+    for candidate_year in (year, year - 1):
+        url = ConstantsMicrodados.DOWNLOAD_URL.value.format(
+            year=candidate_year
+        )
+        zip_path = input_dir / f"{candidate_year}.zip"
 
-    else:
-        base = base.rename(columns={oldname: newname})
-        return base.columns.tolist()
+        with httpx.stream(
+            method="GET",
+            url=url,
+            headers=ConstantsMicrodados.HEADERS.value,
+            timeout=60,
+            follow_redirects=True,
+        ) as response:
+            if response.status_code == 404:
+                log(f"{url} não encontrado")
+                continue
+            response.raise_for_status()
+
+            log("Iniciando Download...")
+            with open(zip_path, "wb") as file:
+                for chunk in response.iter_bytes(chunk_size=1024 * 1024):
+                    file.write(chunk)
+
+        with zipfile.ZipFile(zip_path) as archive:
+            archive.extractall(input_dir)
+
+        log("Dados baixados.")
+        return candidate_year
+
+    raise FileNotFoundError(
+        f"A fonte não tem o ZIP de {year} nem o de {year - 1}"
+    )
 
 
-def lowercase_columns(df):
-    df = df.rename(columns=lambda x: unidecode(x.lower()))
-    return df
-
-
-def change_names(base: pd.DataFrame):
+def list_station_files(input_dir: Path) -> list[Path]:
     """
-    Altera os nomes das colunas de um DataFrame baseado em um conjunto
-    de regras pré-definidas.
+    Lista os CSVs de estação descompactados do ZIP.
 
     Args:
-        base (pandas.DataFrame): DataFrame com as colunas que serão
-            renomeadas.
+        input_dir (Path): diretório onde o ZIP foi descompactado.
 
     Returns:
-        List[str]: Lista com os novos nomes das colunas.
+        list[Path]: caminhos dos CSVs, em ordem alfabética.
 
-    Regras:
-        - Torna os nomes das colunas em letras minúsculas.
-        - Remove caracteres acentuados e substitui por caracteres ASCII
-          equivalentes.
-        - Renomeia as colunas baseado em padrões específicos
+    Raises:
+        FileNotFoundError: se o diretório não tiver nenhum CSV.
     """
-    base = lowercase_columns(base)
-    # base.columns = base.columns.map(lambda x: x.translate(x, string.ascii_letters, 'ASCII'))
-    base = rename_cols_with_regex(base, "data", "data")
-    base = rename_cols_with_regex(base, "^hora", "hora")
-    base = rename_cols_with_regex(
-        base, "precipitacao.*total", "precipitacao_total"
-    )
-    base = rename_cols_with_regex(base, "pressao.*nivel", "pressao_atm_hora")
-    base = rename_cols_with_regex(base, "pressao.*max", "pressao_atm_max")
-    base = rename_cols_with_regex(base, "pressao.*min", "pressao_atm_min")
-    base = rename_cols_with_regex(base, "radiacao", "radiacao_global")
-    base = rename_cols_with_regex(
-        base, "temperatura.*bulbo.*horaria", "temperatura_bulbo_hora"
-    )
-    base = rename_cols_with_regex(
-        base, "temperatura maxima", "temperatura_max"
-    )
-    base = rename_cols_with_regex(
-        base, "temperatura minima", "temperatura_min"
-    )
-    base = rename_cols_with_regex(
-        base, "temperatura do ponto de orvalho", "temperatura_orvalho_hora"
-    )
-    base = rename_cols_with_regex(
-        base, "temperatura orvalho min", "temperatura_orvalho_min"
-    )
-    base = rename_cols_with_regex(
-        base, "temperatura orvalho max", "temperatura_orvalho_max"
-    )
-    base = rename_cols_with_regex(
-        base, "umidade relativa.*horaria", "umidade_rel_hora"
-    )
-    base = rename_cols_with_regex(base, "umidade rel. max", "umidade_rel_max")
-    base = rename_cols_with_regex(base, "umidade rel. min", "umidade_rel_min")
-    base = rename_cols_with_regex(base, "vento.*direcao", "vento_direcao")
-    base = rename_cols_with_regex(
-        base, "vento.*rajada.* maxima", "vento_rajada_max"
-    )
-    base = rename_cols_with_regex(
-        base, "vento.*velocidade", "vento_velocidade"
-    )
-
-    return base
+    station_files = sorted(input_dir.glob("*.CSV"))
+    if not station_files:
+        raise FileNotFoundError(f"Nenhum CSV de estação em {input_dir}")
+    return station_files
 
 
-def rename_cols_with_regex(df, regex, new_name):
+def get_date_from_path(path: Path) -> date:
     """
-    Renomeia as colunas de um dataframe que correspondem a um regex.
+    Extrai a data final do nome do CSV de uma estação
+    (`..._01-01-2026_A_30-09-2026.CSV`).
 
-    Parameters:
-    df (pandas.DataFrame): O dataframe para renomear as colunas.
-    regex (str): O regex para procurar nas colunas do dataframe.
-    new_name (str): O novo nome para atribuir às colunas que correspondem ao regex.
+    Args:
+        path (Path): caminho do CSV.
 
     Returns:
-    pandas.DataFrame: O dataframe com as colunas renomeadas.
+        date: data final do período coberto pelo arquivo.
+
+    Raises:
+        ValueError: se o nome do arquivo não terminar em `DD-MM-AAAA.CSV`.
     """
-    pattern = re.compile(regex)
-    col_names = df.columns.tolist()
-    renamed_cols = [
-        new_name if pattern.search(col) else col for col in col_names
+    match = re.search(r"(\d{2}-\d{2}-\d{4})\.CSV$", path.name)
+    if match is None:
+        raise ValueError(f"Data não encontrada no nome de {path.name}")
+    return datetime.strptime(match.group(1), "%d-%m-%Y").date()
+
+
+def get_max_date(input_dir: Path) -> date:
+    """
+    Devolve a data final mais recente entre os CSVs de estação.
+
+    Args:
+        input_dir (Path): diretório onde o ZIP foi descompactado.
+
+    Returns:
+        date: maior data final entre os nomes dos arquivos.
+    """
+    return max(
+        get_date_from_path(path) for path in list_station_files(input_dir)
+    )
+
+
+def rename_columns(columns: list[str]) -> list[str]:
+    """
+    Converte os nomes de coluna do INMET nos nomes da tabela, aplicando em
+    ordem os padrões de `RENAME_PATTERNS` aos nomes em minúsculas e sem
+    acento.
+
+    Args:
+        columns (list[str]): nomes de coluna do CSV da estação.
+
+    Returns:
+        list[str]: nomes renomeados, na mesma ordem.
+    """
+    names = [unidecode(column.lower()) for column in columns]
+    for pattern, new_name in ConstantsMicrodados.RENAME_PATTERNS.value:
+        regex = re.compile(pattern)
+        names = [new_name if regex.search(name) else name for name in names]
+    return names
+
+
+def parse_measure(column: str) -> pl.Expr:
+    """
+    Converte uma coluna de medida em número, trocando a vírgula decimal por
+    ponto e o valor `-9999` por nulo.
+
+    Args:
+        column (str): nome da coluna, já renomeada.
+
+    Returns:
+        pl.Expr: expressão com o valor em `Float64`, com o mesmo nome.
+    """
+    value = pl.col(column).str.replace(",", ".", literal=True).cast(pl.Float64)
+    return pl.when(value != -9999).then(value).alias(column)
+
+
+def read_station_file(path: Path) -> pl.DataFrame:
+    """
+    Lê o CSV de uma estação no formato da tabela `microdados`. O código da
+    estação vem da quarta linha do cabeçalho (`CODIGO (WMO)`).
+
+    Args:
+        path (Path): caminho do CSV.
+
+    Returns:
+        pl.DataFrame: dados da estação, com as colunas de `COLUMNS_ORDER`.
+    """
+    with open(path, encoding=ConstantsMicrodados.ENCODING.value) as file:
+        header = [next(file) for _ in range(8)]
+    id_estacao = header[3].split(";")[1].strip()
+
+    station = pl.read_csv(
+        path,
+        separator=";",
+        skip_rows=8,
+        encoding=ConstantsMicrodados.ENCODING.value,
+        infer_schema_length=0,
+    )
+    station.columns = rename_columns(station.columns)
+
+    expressions = [
+        pl.col("data").str.replace_all("/", "-").str.to_date("%Y-%m-%d"),
+        (pl.col("hora").str.slice(0, 2) + ":00:00").alias("hora"),
+        pl.lit(id_estacao).alias("id_estacao"),
     ]
-    df.columns = renamed_cols
-    return df
+    expressions.extend(
+        parse_measure(column)
+        for column in ConstantsMicrodados.COLUMNS_ORDER.value[3:]
+    )
+
+    return station.select(expressions)
 
 
-def convert_to_time(hora: str):
-    # hora_str = "0100 UTC"
-    hora_parts = hora.split()[0]  # extrai "0100" da string original
-    hora_obj = time(
-        hour=int(hora_parts[:2]), minute=0, second=0
-    )  # cria um objeto time com a hora
-
-    return hora_obj.strftime("%H:%M:%S")
-
-
-def get_clima_info(file: str) -> pd.DataFrame:
+def build_year_csv(input_dir: Path, output_dir: Path, year: int) -> Path:
     """
-    Extrai informações climáticas de um arquivo em formato .txt e retorna um dataframe com as informações.
+    Grava os CSVs de estação de um ano num único CSV em `ano=<year>/`,
+    lendo e escrevendo uma estação por vez.
 
     Args:
-        file (str): O caminho e nome do arquivo a ser lido.
+        input_dir (Path): diretório onde o ZIP foi descompactado.
+        output_dir (Path): raiz das partições.
+        year (int): ano do ZIP.
 
     Returns:
-        pd.DataFrame: Um dataframe com as informações climáticas.
+        Path: caminho do CSV gravado.
     """
+    partition_dir = output_dir / f"ano={year}"
+    partition_dir.mkdir(parents=True, exist_ok=True)
+    file_path = partition_dir / f"microdados_{year}.csv"
 
-    # lê o arquivo de clima
-    clima = pd.read_csv(
-        file, sep=";", skiprows=8, decimal=",", encoding="ISO-8859-1"
-    )
+    with open(file_path, "wb") as file:
+        for index, station_file in enumerate(list_station_files(input_dir)):
+            read_station_file(station_file).write_csv(
+                file, include_header=index == 0
+            )
 
-    # lê as informações de cabeçalho
-    caract = pd.read_csv(
-        file,
-        sep=";",
-        nrows=8,
-        header=None,
-        names=["caract", "value"],
-        encoding="ISO-8859-1",
-    )
-
-    # remove a coluna V20 do dataframe clima
-    clima = clima.drop(columns=["Unnamed: 19"])
-
-    # renomeia as colunas do dataframe clima
-    clima = change_names(clima)
-
-    # adiciona as informações da estação no dataframe clima
-    clima["id_estacao"] = caract.loc[3, "value"]
-
-    # substitui valores -9999 por NaN
-    clima = clima.replace(to_replace=-9999, value=np.nan)
-
-    # converte a coluna data para datetime
-    if all(clima["data"].str.contains("/")):
-        clima["data"] = clima["data"].apply(
-            lambda x: datetime.strptime(str(x), "%Y/%m/%d")
-        )
-    else:
-        clima["data"] = clima["data"].apply(
-            lambda x: datetime.strptime(str(x), "%Y-%m-%d")
-        )
-
-    # converte as colunas de 3 a 19 para float
-    clima.iloc[:, 3:19] = clima.iloc[:, 3:19].astype(float)
-
-    # converte a coluna hora para o formato "HH:00:00"
-    clima["hora"] = clima["hora"].apply(lambda x: convert_to_time(x))
-
-    return clima
-
-
-def download_inmet(latest_dowload_link: str) -> None:
-    """
-    Realiza o download dos dados históricos de uma determinado ano do INMET (Instituto Nacional de Meteorologia)
-    e descompacta o arquivo em um diretório local.
-
-    Args:
-        latest_dowload_link (str): O link para o qual deseja-se baixar os dados históricos.
-
-    Returns:
-        None
-    """
-
-    response = requests.get(latest_dowload_link, stream=True)
-
-    response.raise_for_status()
-
-    save_path = (
-        ConstantsMicrodados.PATH_INPUT.value
-        / latest_dowload_link.split("/")[-1]
-    )
-
-    ConstantsMicrodados.PATH_INPUT.value.mkdir(parents=True, exist_ok=True)
-
-    log("Iniciando Download...")
-
-    with open(save_path, "wb") as fd:
-        for chunk in response.iter_content(chunk_size=1024 * 1024):
-            fd.write(chunk)
-
-    with zipfile.ZipFile(save_path) as z:
-        z.extractall(ConstantsMicrodados.PATH_INPUT.value)
-
-    log("Dados baixados.")
+    return file_path
