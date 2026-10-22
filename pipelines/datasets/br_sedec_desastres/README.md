@@ -44,7 +44,7 @@ arquivar o `s2id` é trabalho pendente.
 
 Pela convenção `<org>_<slug>`, esse nome exige uma organização `sedec`, que não
 existia no backend e foi criada. O dataset tem slug `desastres` sob a org `sedec`, e
-o id do BigQuery é `br_sedec_desastres`. Ver a seção Metadados.
+o id do BigQuery é `br_sedec_desastres`.
 
 ### 2. Retrato × histórico: a tabela acumula retratos
 
@@ -453,8 +453,7 @@ diretórios de outros países. Arquitetura commitada, script de limpeza local e
 Em consequência:
 
 - **a planilha de arquitetura não é versionada**, em **xlsx** (o padrão), com uma
-  cópia como Planilha Google no Drive, exigida pelo
-  `upload_columns_from_sheet` (ver Metadados). Como o código não pode lê-la, o schema
+  cópia como Planilha Google no Drive. Como o código não pode lê-la, o schema
   (ordem, tipos, `original_name`) vive no `COLUNAS` da classe de cada tabela no `constants.py`, e toda alteração na
   planilha precisa ser refletida lá;
 - **não há carga inicial separada.** Todo retrato sai das mesmas tasks de download
@@ -463,43 +462,6 @@ Em consequência:
   `@task` do flow via `.fn()` e escreve em `tmp/br_sedec_desastres/` (ver
   "Atualização diária" abaixo). O que ele não cobre é a fiação do `flows.py`: a
   ordem das etapas, o guarda do poll e os retornos antecipados.
-
-## Metadados
-
-Registrados em prod, com o dataset em `status = published`.
-
-Registros criados: a organização `sedec`, o dataset de slug `desastres` sob ela, uma
-raw data source apontando para `https://s2id.mi.gov.br/paginas/relatorios/`, a tabela
-`reconhecimentos_vigentes` com as oito colunas, e três observation levels — `day`,
-`municipality` e `disaster`. Os ids ficam fora deste arquivo; obtê-los é
-`get_dataset("desastres", env="prod")`.
-
-Os três observation levels estão ligados às colunas do grão: `data_extracao`,
-`id_municipio` e `id_cobrade`. Sem esse vínculo o site exibe "Não informado".
-
-Cobertura: área `br`, uma Coverage com `is_closed=False` e um DateTimeRange que
-começa em 2026-08-06, o primeiro retrato. O fim não fica aberto porque `end_year` é obrigatório na
-API; o `register_table_materialization_task` reescreve a faixa a cada run.
-
-A tabela tem uma única raw source. Tabela com duas fontes ligadas quebra o poll,
-porque `_raw_source_id` levanta erro quando a query casa mais de um nó. A raw source
-do portal de dados abertos do MDR (`dadosabertos.mdr.gov.br`) permanece ligada ao
-dataset `s2id`.
-
-### Limitações do registro por MCP
-
-O `bigqueryType` das colunas só é escrito pelo `upload_columns_from_sheet`. Nem
-`bulk_upsert_columns` nem `update_column` têm campo de tipo, e o primeiro também não
-escreve `temporal_coverage` nem `is_partition`. Como o `upload_columns_from_sheet` lê
-a planilha do Google exportada em CSV, a arquitetura precisa estar no Drive:
-arquitetura apenas em xlsx local não permite tipar as colunas.
-
-A planilha alimenta somente o `descriptionPt`. As descrições em inglês e espanhol
-são escritas num segundo call, de `bulk_upsert_columns`. Reexecutar o upload da
-planilha sobrescreve o PT e mantém EN e ES no valor anterior.
-
-Nenhuma ferramenta de leitura devolve a descrição de uma coluna: o `get_dataset` traz
-apenas id e nome. Conferir descrição de coluna exige o Django admin.
 
 ## Atualização diária
 
