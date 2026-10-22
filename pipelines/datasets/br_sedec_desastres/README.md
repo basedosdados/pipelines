@@ -413,6 +413,9 @@ cobertura. Em janeiro, baixa também o ano anterior, para não perder as portari
 publicadas nos últimos dias de dezembro. Se houver portaria nova, o `extract_and_load`
 baixa os mesmos anos de novo, e o `build_and_promote` promove só essas partições.
 
+A tabela é toda livre: `reconhecimentos_realizados.COVERAGE` é `AllFree`, com uma
+Coverage só (`is_closed=False`) e nenhuma Row Access Policy.
+
 **Backfill.** Disparar à mão o deployment
 `extract_and_load: br_sedec_desastres__reconhecimentos_realizados/br_sedec_desastres_reconhecimentos_realizados_extract_and_load`
 com os anos nos parâmetros (no pool de dev, o nome do deployment leva o prefixo
@@ -597,7 +600,3 @@ o import falha (`uv venv --python 3.11`).
       como `month`, para `day`, com `frequency=1`. Num Update que já existe, o flow
       reescreve só o `latest`, então a troca feita à mão se mantém.
 - [ ] Arquivar o dataset `s2id` de prod, que não tem tabelas (decisão 1).
-- [ ] Definir a faixa de acesso da `reconhecimentos_realizados`, declarada como
-      `PartBdpro` de seis meses em `reconhecimentos_realizados.COVERAGE`. Se o `PartBdpro` for
-      mantido, criar a Coverage paga (`is_closed=True`) no backend antes do primeiro
-      run de prod.

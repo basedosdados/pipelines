@@ -2,12 +2,7 @@
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 
 _VIGENTES_PAINEL = (
     "//h3[contains(normalize-space(.), 'Reconhecimentos vigentes')]"
@@ -265,7 +260,7 @@ class reconhecimentos_realizados(Enum):
         "25500": "Transporte passageiros e cargas não perigosas aquaviário",
     }
 
-    COVERAGE = PartBdpro(
+    COVERAGE = AllFree(
         date_column=DateOnly(col=COLUNA_DATA),
         date_format=DateFormat.YEAR_MD,
     )
