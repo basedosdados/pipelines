@@ -1,6 +1,23 @@
 -- Geolocalização das seções (Pindograma). Até 2026-10 era uma view criada fora do
 -- dbt que convertia zona e secao para INT64; aqui são STRING, como no resto do
 -- dataset, para que os joins com resultados e perfil do eleitorado funcionem.
+--
+-- O arquivo de 2022 tem ~2 mil coordenadas sem o ponto decimal (-30606.0 em vez
+-- de -30.606), que fazem st_geogpoint falhar. O par lat/lon de uma fonte vira nulo
+-- quando um dos dois está fora de [-90, 90] x [-180, 180]; todo o resto segue a
+-- lógica da view original, inclusive o coalesce sobre os textos brutos.
+{% set fontes = [
+    "tse",
+    "comp_tse",
+    "inep",
+    "local",
+    "ad",
+    "pl",
+    "google",
+    "places",
+    "google_approx",
+    "ibge_approx",
+] %}
 {{
     config(
         schema="br_tse_eleicoes",
@@ -14,6 +31,37 @@
         cluster_by=["sigla_uf"],
     )
 }}
+
+with
+    t as (
+        select
+            sigla_uf,
+            id_municipio,
+            zona,
+            secao,
+            ano,
+            {% for f in fontes %}
+                if(
+                    coalesce(
+                        abs(safe_cast({{ f }}_lat as float64)) > 90
+                        or abs(safe_cast({{ f }}_lon as float64)) > 180,
+                        false
+                    ),
+                    null,
+                    {{ f }}_lat
+                ) {{ f }}_lat,
+                if(
+                    coalesce(
+                        abs(safe_cast({{ f }}_lat as float64)) > 90
+                        or abs(safe_cast({{ f }}_lon as float64)) > 180,
+                        false
+                    ),
+                    null,
+                    {{ f }}_lon
+                ) {{ f }}_lon{{ "," if not loop.last }}
+            {% endfor %}
+        from {{ set_datalake_project("br_tse_eleicoes_staging.local_secao") }}
+    )
 
 select
     safe_cast(sigla_uf as string) sigla_uf,
@@ -107,4 +155,4 @@ select
     st_geogpoint(
         safe_cast(ibge_approx_lon as float64), safe_cast(ibge_approx_lat as float64)
     ) ibge_povoados
-from {{ set_datalake_project("br_tse_eleicoes_staging.local_secao") }} as t
+from t
