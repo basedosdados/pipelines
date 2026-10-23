@@ -231,6 +231,9 @@ models:
       - name: indicador_coordenada_valida
         description: >-
           Indica se o ponto publicado cai dentro do polígono do município declarado
+      - name: geometria
+        description: >-
+          Polígono da área embargada
       - name: indicador_desembargado
         description: >-
           Indica se a área foi desembargada
