@@ -20,7 +20,7 @@ select
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(ddd as string) ddd,
     safe_cast(id_municipio as string) id_municipio,
-    safe_cast(cnpj as string) cnpj,
+    lpad(safe_cast(cnpj as string), 14, '0') cnpj,
     safe_cast(empresa as string) empresa,
     safe_cast(porte_empresa as string) porte_empresa,
     safe_cast(tecnologia as string) tecnologia,
