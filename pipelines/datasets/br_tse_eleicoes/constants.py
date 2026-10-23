@@ -46,13 +46,13 @@ class constants(Enum):
         "#NE",
         "NÃO DIVULGÁVEL",
         "Não Divulgável",
+        "Não divulgável",
         "-1",
         "-4",
         "-3",
     ]
 
     # Candidtos
-
     CANDIDATOS_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_{year}.zip"
     COMPLEMENTR_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_{year}.zip"
 
