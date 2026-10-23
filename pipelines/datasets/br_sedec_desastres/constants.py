@@ -1,115 +1,62 @@
-"""Constantes do pipeline recorrente br_sedec_desastres (Prefect 3).
-
-Relatório "Reconhecimentos vigentes" do S2ID (Sistema Integrado de Informações
-sobre Desastres), mantido pela SEDEC, vinculada ao MIDR.
-
-O contexto da fonte e as decisões de desenho — as fechadas e as que seguem
-abertas — estão em `pipelines/datasets/br_sedec_desastres/README.md`.
-"""
+"""Constantes do br_sedec_desastres."""
 
 from enum import Enum
 
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 
-# Cabeçalho do painel do relatório e o div de conteúdo que o segue. Servem de
-# prefixo para escopar os XPaths ao painel certo: a página tem 13 painéis de
-# relatório, e vários repetem os mesmos rótulos ("Todas as tipologias de
-# desastres" aparece em 5). XPath sem escopo casa o primeiro, que está num painel
-# fechado — e aí o Selenium espera por um elemento invisível até o timeout.
-_PANEL = "//h3[contains(normalize-space(.), 'Reconhecimentos vigentes')]"
-_CONTENT = f"{_PANEL}/following-sibling::div[contains(@class,'ui-accordion-content')][1]"
+_VIGENTES_PAINEL = (
+    "//h3[contains(normalize-space(.), 'Reconhecimentos vigentes')]"
+)
+_VIGENTES_CONTEUDO = f"{_VIGENTES_PAINEL}/following-sibling::div[contains(@class,'ui-accordion-content')][1]"
+
+_REALIZADOS_PAINEL = (
+    "//h3[contains(normalize-space(.), 'Reconhecimentos realizados')]"
+)
+_REALIZADOS_CONTEUDO = f"{_REALIZADOS_PAINEL}/following-sibling::div[contains(@class,'ui-accordion-content')][1]"
+_REALIZADOS_PERIODO = f"{_REALIZADOS_CONTEUDO}//td[starts-with(normalize-space(.), '* Período')]/following-sibling::td[1]"
 
 
 class constants(Enum):
-    """Constantes do pipeline br_sedec_desastres.
-
-    Nome da classe em minúsculo segue a convenção do repo para enums de
-    constantes de dataset.
-    """
+    """Constantes comuns às tabelas do br_sedec_desastres."""
 
     DATASET_ID = "br_sedec_desastres"
 
-    TABLE_ID = "reconhecimentos_vigentes"
-    ALL_TABLES = ["reconhecimentos_vigentes"]
-
-    # Formato das datas trocadas com o backend (poll e update da fonte). Vive
-    # aqui porque o flow e o run_local.py precisam do mesmo valor.
     DATE_FORMAT = "%Y-%m-%d"
 
-    # Página do relatório. A fonte é uma aplicação JSF/PrimeFaces: o export sai
-    # de um postback no formulário, não de uma URL de download estável — daí a
-    # raspagem via browser (selenium), e não via requests.
     BASE_URL = "https://s2id.mi.gov.br/paginas/relatorios/"
-
-    # Âncoras de texto do painel do relatório. Ainda SEM USO: são o estado final
-    # da raspagem (ancorar por texto), não o atual.
-    PANEL_TITLE = "Reconhecimentos vigentes"
-    EXPORT_BUTTON_LABEL = "Exportar CSV"
-
-    # Caminhos (XPath) dos elementos, na ordem em que são clicados. Concentrados
-    # aqui porque são o acoplamento com o HTML da fonte — é o que quebra quando a
-    # página muda.
-    #
-    # Os que dependem de rótulo são escopados por _CONTENT (ver acima); os
-    # demais usam id `abas:sanfonas:*`, gerado pelo JSF e portanto sujeito a
-    # trocar quando a página mudar.
-    #
-    # Verificados contra o HTML em 2026-08-04: cada um casa **exatamente um**
-    # elemento, e todos estão dentro do painel de vigentes (os irmãos do botão
-    # são j_idt145=PDF e j_idt146=XLS). Ao editar qualquer valor daqui, revalidar
-    # a contagem — um XPath que casa 2+ não falha, escolhe o primeiro.
-    XPATHS = {
-        "painel": _PANEL,
-        # Marca os 65 COBRADEs de uma vez. Ancorado no texto do <label for=...>,
-        # que é estável, mas OBRIGATORIAMENTE escopado ao painel: esse mesmo
-        # rótulo existe em 5 painéis, e sem o escopo o match cai no primeiro
-        # ("Danos informados"), que está fechado.
-        "todas_tipologias": (
-            f"{_CONTENT}"
-            "//label[normalize-space(.)='Todas as tipologias de desastres']"
-        ),
-        # O <select> nativo do estado fica dentro de um
-        # div.ui-helper-hidden-accessible, ou seja, escondido — o Select() do
-        # selenium levanta ElementNotInteractableException nele. A interação é:
-        # clicar no widget para abrir o painel, depois clicar no <li> do estado.
-        # Ler o select oculto ainda serve para pegar o par (sigla, nome).
-        #
-        # Achado pelas opções que ele contém, e não pelo id: o id do JSF muda
-        # quando a página muda, e já mudou — em 08/2026 o select era
-        # `j_idt142` e `j_idt146` era o botão XLS; hoje `j_idt146` é o select.
-        "estado_select_oculto": (
-            f"{_CONTENT}//select[option[@value='AC'] and option[@value='SP']]"
-        ),
-        # Os dois abaixo levam o id do widget, derivado do select em tempo de
-        # execução por `_base_do_estado`.
-        "estado_widget": "//*[@id='{base}']",
-        "estado_item": "//div[@id='{base}_panel']//li[@data-label='{uf_nome}']",
-        # Pelo rótulo, escopado ao painel: `btnExportarCsv` é o CSV de OUTRO
-        # relatório da mesma página, e ancorar nele baixa o arquivo errado sem
-        # erro nenhum.
-        "exportar_csv": (
-            f"{_CONTENT}//button[span[normalize-space(.)='Exportar CSV']]"
-        ),
-    }
 
     USER_AGENT = (
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     )
 
-    # Prazos em segundos: espera por elemento na página, e espera pelo arquivo
-    # baixado terminar de escrever.
     ELEMENT_TIMEOUT = 120
     DOWNLOAD_TIMEOUT = 300
 
-    # Ordem, tipo e nome de origem das colunas da tabela final.
-    #
-    # Espelha a planilha de arquitetura, que não é versionada junto do pipeline —
-    # por isso o schema precisa estar aqui, e não lido de um CSV. Ao mexer na
-    # planilha, mexer aqui também.
-    #
-    # `original_name` vazio = coluna que não vem da fonte. COBRADE aparece duas
-    # vezes de propósito: um campo da fonte que virá duas colunas.
+
+class reconhecimentos_vigentes(Enum):
+    """Constantes da tabela reconhecimentos_vigentes."""
+
+    TABLE_ID = "reconhecimentos_vigentes"
+
+    XPATHS = {
+        "painel": _VIGENTES_PAINEL,
+        "todas_tipologias": (
+            f"{_VIGENTES_CONTEUDO}"
+            "//label[normalize-space(.)='Todas as tipologias de desastres']"
+        ),
+        "estado_select_oculto": (
+            f"{_VIGENTES_CONTEUDO}"
+            "//select[option[@value='AC'] and option[@value='SP']]"
+        ),
+        "estado_widget": "//*[@id='{base}']",
+        "estado_item": "//div[@id='{base}_panel']//li[@data-label='{uf_nome}']",
+        "exportar_csv": (
+            f"{_VIGENTES_CONTEUDO}"
+            "//button[span[normalize-space(.)='Exportar CSV']]"
+        ),
+    }
+
     COLUNAS = [
         {
             "name": "data_extracao",
@@ -149,32 +96,171 @@ class constants(Enum):
         },
     ]
 
-    # Onde a tabela final e o staging divergem: {coluna da arquitetura: coluna do
-    # parquet}.
-    #
-    # `id_municipio` é produzido no modelo dbt, pelo join contra
-    # `basedosdados.br_bd_diretorios_brasil.municipio` — padrão do repo, ver
-    # models/br_bndes_operacoes_contratadas/
-    # br_bndes_operacoes_contratadas__operacoes_administracao_publica.sql.
-    # O staging carrega `nome_municipio`, que é a chave desse join e, como no
-    # BNDES, não sobrevive à tabela final (o nome já vive no diretório).
-    #
-    # A substituição herda o `bigquery_type` da coluna da arquitetura; aqui as
-    # duas são STRING, então não há perda. Se algum dia os tipos divergirem, este
-    # atalho deixa de valer.
     STAGING_SUBSTITUICOES = {"id_municipio": "nome_municipio"}
 
+    COVERAGE = AllFree(
+        date_column=DateOnly(col="data_extracao"),
+        date_format=DateFormat.YEAR_MD,
+    )
 
-# Cobertura da tabela: fora do Enum acima por não ser um valor hashable simples
-# (é um modelo Pydantic) — mesma convenção de `br_bcb_taxa_selic/constants.py` e
-# `br_ibge_ipca/constants.py`. `tasks.py`/`flows.py`/`run_local.py` importam daqui,
-# uma definição só.
-#
-# `AllFree`, não a janela BD Pro que a cadência diária acionaria por padrão: numa
-# série de retratos, o paywall da janela recente restringiria ao BD Pro o estado
-# atual dos reconhecimentos e liberaria só os retratos com mais de seis meses (ver
-# README, decisão 3).
-COVERAGE = AllFree(
-    date_column=DateOnly(col="data_extracao"),
-    date_format=DateFormat.YEAR_MD,
-)
+
+class reconhecimentos_realizados(Enum):
+    """Constantes da tabela reconhecimentos_realizados."""
+
+    TABLE_ID = "reconhecimentos_realizados"
+
+    PRIMEIRO_ANO = 2013
+
+    COLUNA_DATA = "data_dou"
+
+    XPATHS = {
+        "painel": _REALIZADOS_PAINEL,
+        "data_inicial": f"{_REALIZADOS_PERIODO}/span[1]/input",
+        "data_final": f"{_REALIZADOS_PERIODO}/span[2]/input",
+        "todas_tipologias": (
+            f"{_REALIZADOS_CONTEUDO}"
+            "//label[normalize-space(.)='Todas as tipologias de desastres']"
+        ),
+        "todos_estados": (
+            f"{_REALIZADOS_CONTEUDO}"
+            "//label[normalize-space(.)='Todas os estados']"
+        ),
+        "exportar_csv": (
+            f"{_REALIZADOS_CONTEUDO}"
+            "//button[span[normalize-space(.)='Exportar CSV']]"
+        ),
+    }
+
+    COLUNAS = [
+        {"name": "ano", "bigquery_type": "INT64", "original_name": ""},
+        {"name": "sigla_uf", "bigquery_type": "STRING", "original_name": "UF"},
+        {
+            "name": "id_municipio",
+            "bigquery_type": "STRING",
+            "original_name": "Código IBGE",
+        },
+        {
+            "name": "id_cobrade",
+            "bigquery_type": "STRING",
+            "original_name": "Desastre",
+        },
+        {
+            "name": "nome_cobrade",
+            "bigquery_type": "STRING",
+            "original_name": "Desastre",
+        },
+        {
+            "name": "situacao",
+            "bigquery_type": "STRING",
+            "original_name": "SE/ECP",
+        },
+        {"name": "rito", "bigquery_type": "STRING", "original_name": "Rito"},
+        {
+            "name": "numero_decreto",
+            "bigquery_type": "STRING",
+            "original_name": "Nº do Decreto",
+        },
+        {
+            "name": "data_decreto",
+            "bigquery_type": "DATE",
+            "original_name": "Data do Decreto",
+        },
+        {
+            "name": "numero_portaria",
+            "bigquery_type": "STRING",
+            "original_name": "Nº da Portaria",
+        },
+        {
+            "name": "data_portaria",
+            "bigquery_type": "DATE",
+            "original_name": "Data da Portaria",
+        },
+        {
+            "name": "numero_dou",
+            "bigquery_type": "STRING",
+            "original_name": "Nº do D.O.U.",
+        },
+        {
+            "name": "data_dou",
+            "bigquery_type": "DATE",
+            "original_name": "Data do D.O.U.",
+        },
+        {
+            "name": "numero_processo",
+            "bigquery_type": "STRING",
+            "original_name": "Processo",
+        },
+    ]
+
+    COBRADE = {
+        "11110": "Tremor de terra",
+        "11120": "Tsunami",
+        "11200": "Emanação vulcânica",
+        "11311": "Quedas, Tombamentos e rolamentos - Blocos",
+        "11312": "Quedas, Tombamentos e rolamentos - Lascas",
+        "11313": "Quedas, Tombamentos e rolamentos - Matacões",
+        "11314": "Quedas, Tombamentos e rolamentos - Lajes",
+        "11321": "Deslizamentos",
+        "11331": "Corridas de Massa - Solo/Lama",
+        "11332": "Corridas de Massa - Rocha/detrito",
+        "11340": "Subsidências e colapsos",
+        "11410": "Erosão Costeira/Marinha",
+        "11420": "Erosão de Margem Fluvial",
+        "11431": "Erosão Continental - Laminar",
+        "11432": "Erosão Continental - Ravinas",
+        "11433": "Erosão Continental - Boçorocas",
+        "12100": "Inundações",
+        "12200": "Enxurradas",
+        "12300": "Alagamentos",
+        "13111": "Ciclones - Ventos Costeiros (Mobilidade de Dunas)",
+        "13112": "Ciclones - Marés de Tempestade (Ressacas)",
+        "13120": "Frentes Frias/Zonas de Convergência",
+        "13211": "Tempestade Local/Convectiva - Tornados",
+        "13212": "Tempestade Local/Convectiva - Tempestade de Raios",
+        "13213": "Tempestade Local/Convectiva - Granizo",
+        "13214": "Tempestade Local/Convectiva - Chuvas Intensas",
+        "13215": "Tempestade Local/Convectiva - Vendaval",
+        "13310": "Onda de Calor",
+        "13321": "Onda de Frio - Friagem",
+        "13322": "Onda de Frio - Geadas",
+        "14110": "Estiagem",
+        "14120": "Seca",
+        "14131": "Incêndio Florestal - Incêndios em Parques, Áreas de Proteção Ambiental e Áreas de Preservação Permanente Nacionais, Estaduais ou Municipais",
+        "14132": "Incêndio Florestal - Incêndios em áreas não protegidas, com reflexos na qualidade do ar",
+        "14140": "Baixa Umidade do Ar",
+        "15110": "Doenças infecciosas virais",
+        "15120": "Doenças infecciosas bacterianas",
+        "15130": "Doenças infecciosas parasíticas",
+        "15140": "Doenças infecciosas fúngicas",
+        "15210": "Infestações de animais",
+        "15221": "Infestações de algas - Marés vermelhas",
+        "15222": "Infestações de algas - Ciano bactérias em reservatórios",
+        "15230": "Outras Infestações",
+        "21110": "Queda de satélite (radionuclídeos)",
+        "21210": "Fontes radioativas em processos de produção",
+        "21310": "Outras fontes de liberação de radionuclídeos para o meio ambiente",
+        "22110": "Liberação de produtos químicos para a atmosfera causada por explosão ou incêndio",
+        "22210": "Liberação de produtos químicos nos sistemas de água potável",
+        "22220": "Derramamento de produtos químicos em ambiente lacustre, fluvial e marinho",
+        "22310": "Liberação produtos químicos e contaminação como conseqüência de ações militares.",
+        "22410": "Transporte de produtos perigosos rodoviário",
+        "22420": "Transporte de produtos perogosos ferroviário",
+        "22430": "Transporte de produtos perigosos aéreo",
+        "22440": "Transporte de produtos perigosos dutoviário",
+        "22450": "Transporte de produtos perigosos marítimo",
+        "22460": "Transporte de produtos perigosos aquaviário",
+        "23110": "Incêndios em plantas e distritos industriais, parques e depósitos",
+        "23120": "Incêndios em aglomerados residenciais",
+        "24100": "Colapso de edificações",
+        "24200": "Rompimento/colapso de barragens",
+        "25100": "Transporte passageiros e cargas não perigosas rodoviário",
+        "25200": "Transporte passageiros e cargas não perigosas ferroviário",
+        "25300": "Transporte passageiros e cargas não perigosas aéreo",
+        "25400": "Transporte de passageiros e cargas não perigosas marítimo",
+        "25500": "Transporte passageiros e cargas não perigosas aquaviário",
+    }
+
+    COVERAGE = AllFree(
+        date_column=DateOnly(col=COLUNA_DATA),
+        date_format=DateFormat.YEAR_MD,
+    )
