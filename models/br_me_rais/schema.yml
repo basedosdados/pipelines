@@ -85,6 +85,14 @@ models:
             - cbo_1994
             - grau_instrucao_1985_2005
             - id_municipio_trabalho
+      - custom_row_count_variation:
+          history: basedosdados.br_me_rais.microdados_vinculos
+          granularity: year
+          min_annual_change: -0.10
+          max_annual_change: 0.15
+          config:
+            severity: warn
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -260,7 +268,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: classe
-              ignore_values: ['99999', '86305']
+              ignore_values: ['99999', '86305', '00000']
               tags: [cnae_2]
               config:
                 where: __most_recent_year__
@@ -307,11 +315,27 @@ models:
             - tipo_estabelecimento
             - natureza_estabelecimento
           dictionary_model: ref('br_me_rais__dicionario')
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
             where: __most_recent_year__
           ignore_values: [natureza_estabelecimento, subatividade_ibge]
+      - custom_row_count_variation:
+          history: basedosdados.br_me_rais.microdados_estabelecimentos
+          granularity: year
+          min_annual_change: -0.10
+          max_annual_change: 0.15
+          config:
+            severity: warn
+            where: __most_recent_year__
+      - custom_cross_table_aggregate_match:
+          compare_model: ref('br_me_rais__microdados_vinculos')
+          expression: sum(quantidade_vinculos_ativos)
+          compare_expression: countif(vinculo_ativo_3112 = '1')
+          group_by: sigla_uf
+          proportion_allowed_difference: 0.03
     columns:
       - name: ano
         description: Ano
@@ -319,6 +343,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -326,12 +352,16 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               ignore_values: [IGNORADO]
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: quantidade_vinculos_ativos
         description: Estoque de vínculos ativos em 31/12.
       - name: quantidade_vinculos_clt
@@ -361,6 +391,14 @@ models:
         description: Código Nacional de Atividades Econômicas 1.0
       - name: cnae_2
         description: Código Nacional de Atividades Econômicas 2.
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+              ignore_values: ['99999', '86305', '00000']
+              tags: [cnae_2]
+              config:
+                where: __most_recent_year__
       - name: cnae_2_subclasse
         description: Subclasse do Código Nacional de Atividades Econômicas 2.0
         tests:
@@ -369,6 +407,8 @@ models:
               field: subclasse
               ignore_values: ['9999997', 00000-1, '8630505', '3312101', '9999999']  # cnae excluídas: https://www.lefisc.com.br/dim/plantoes/22-07-2020/Decreto10410.htm
               tags: [cnae_2_subclasse]
+              config:
+                where: __most_recent_year__
       - name: subsetor_ibge
         description: Subsetor IBGE
       - name: subatividade_ibge
@@ -377,6 +417,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__subatividade_ibge')
               field: id_subatividade
+              config:
+                where: __most_recent_year__
       - name: cep
         description: Código de Endereçamento Postal
       - name: bairros_sp
