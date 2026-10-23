@@ -93,6 +93,101 @@ Isso não atrapalha o gate, porque o gate compara contra o `Table.Update`, que �
 por tabela. Mas explica uma coisa que confunde ao olhar o site: as quatro exibem
 a mesma "última atualização na fonte original" mesmo tendo coberturas diferentes.
 
+## Testes
+
+Os testes ficam em duas camadas: checagens em Python, que rodam no clean antes do
+upload, e testes do dbt, que rodam no `build_and_promote`.
+
+### Checagens antes do upload
+
+Rodam dentro de `clean_br_me_comex_stat` (`pipelines/datasets/br_me_comex_stat/tasks.py`).
+O `upload_to_gcs` só começa depois que o clean termina, então qualquer erro
+interrompe a run antes de subir arquivo.
+
+1. `check_year_matches_filename` (`utils.py` do conjunto) confere que toda linha
+   tem o `ano` do nome do arquivo (`EXP_2026.csv`, `IMP_2026_MUN.csv`). Roda logo
+   depois do rename, antes de gravar as partições.
+2. `validate_table` compara somas e contagem de linhas com o arquivo de
+   conferência do MDIC, como descrito em "A validação contra os totais oficiais
+   derruba a run". Só compara quando o arquivo tem um `ano` só, o que o passo 1
+   garante.
+3. `check_rows_written` (`pipelines/shared/testes_dados/`) roda depois de todos os
+   arquivos e compara as linhas lidas com as linhas dos `data.csv` gravados nas
+   partições. Detecta linha perdida (coluna de partição vazia) e linha a mais (o
+   `to_partitions` grava em modo de acréscimo).
+
+### Testes do dbt
+
+Ficam em `models/br_me_comex_stat/schema.yml`. Nas quatro tabelas de dado, todos
+rodam só no mês mais recente (`where: __most_recent_year_month__`). Uma falha
+interrompe o `build_and_promote`, e o mês não chega a prod.
+
+| Teste | Colunas | Detalhe |
+|---|---|---|
+| `dbt_utils.unique_combination_of_columns` | Chave de cada tabela | |
+| `not_null_proportion_multiple_columns` | Todas | `at_least: 0.90` |
+| `relationships` | `id_sh4` | Diretório do sistema harmonizado |
+| `relationships` | `id_municipio` | Diretório de municípios |
+| `relationships` | `id_unidade` | Diretório de NCM |
+| `relationships` | `sigla_uf`, `sigla_uf_ncm` | Diretório de UF, campo `sigla`, sem o código `EX` |
+| `custom_relationships` | `sigla_pais_iso3` | Diretório de países; ignora `ANT`, `CSK`, `SCG` e `PCZ` |
+| `custom_relationships` | `id_ncm` | Diretório de NCM; ignora `85492100`, `90189097`, `26011220` e `29159070` |
+| `custom_dictionary_coverage` | `id_pais` nas quatro tabelas; `id_via` e `id_urf` nas duas de NCM | `dicionario` |
+| `dbt_utils.accepted_range` | `peso_liquido_kg`, `valor_fob_dolar`, `quantidade_estatistica`, `valor_frete`, `valor_seguro`, onde existirem | Mínimo 0 |
+
+- Em 2026 o maior percentual de nulos foi 0,52%, em `sigla_uf_ncm` da
+  `ncm_exportacao`, onde o modelo transforma o código `ND` em nulo.
+- Os testes de UF excluem o código `EX`, que a fonte usa e o diretório de UF não
+  tem: `where: __most_recent_year_month__ and sigla_uf != 'EX'`, e o mesmo com
+  `sigla_uf_ncm`.
+- O `custom_relationships` reprova com um único valor fora do diretório.
+- Todas as colunas do `accepted_range` têm zeros, e nenhuma tem valor negativo.
+
+No `dicionario` os testes rodam sem filtro de mês: unicidade,
+`not_null_proportion_multiple_columns` (`at_least: 0.90`) e `accepted_values`:
+
+| Coluna | Valores aceitos |
+|---|---|
+| `id_tabela` | `municipio_exportacao`, `municipio_importacao`, `ncm_exportacao`, `ncm_importacao` |
+| `nome_coluna` | `id_pais`, `id_via`, `id_urf` |
+
+Não há teste de `ano` nem de `mes`. Com o filtro do mês mais recente, o teste só
+veria valores válidos, e o filtro do modelo incremental (`date(ano, mes, 1)` maior
+que o máximo da tabela) já descarta linha com `ano` ou `mes` nulo.
+
+### Manutenção do dicionário
+
+Nenhum flow atualiza o `dicionario`. Código novo de país, via ou URF reprova o
+`custom_dictionary_coverage` até ser incluído à mão no arquivo da staging de dev,
+gravado por cima do mesmo arquivo:
+
+```text
+gs://basedosdados-dev/staging/br_me_comex_stat/dicionario/dicionario.csv
+```
+
+Prod recebe pelo `table-approve`, que só sincroniza a staging de modelo cujo
+`.sql` mudou na PR.
+
+Formato das entradas:
+
+- Na staging a coluna se chama `coluna`; o modelo renomeia para `nome_coluna`.
+- O rótulo vem das tabelas auxiliares do MDIC
+  ([`PAIS.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/PAIS.csv),
+  [`URF.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/URF.csv)), sem o
+  código na frente, com a inicial de cada palavra em maiúscula e sem acento:
+  `0812003 - DRF TAUBATE` vira `Drf Taubate`.
+- `cobertura_temporal` é `(1)`.
+
+### Diretório de NCM
+
+Os quatro códigos em `ignore_values` do `id_ncm` são códigos que a fonte usa e o
+diretório de NCM (`br_bd_diretorios_mundo.nomenclatura_comum_mercosul`) não tem.
+Nenhum flow atualiza esse diretório: ele é carregado à mão por
+`models/br_bd_diretorios_mundo/code/download_sh4_ncm.py`, a partir do
+[`NCM.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv) do MDIC.
+NCM novo do MDIC reprova o `custom_relationships` do `id_ncm` até o diretório ser
+recarregado ou o código entrar no `ignore_values`.
+
 ---
 
 ## Pipeline: a armadilha que já congelou este conjunto

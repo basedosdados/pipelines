@@ -1,6 +1,7 @@
 """Utils for the Brazilian Comex Stat pipeline."""
 
 import os
+import re
 import time as tm
 from datetime import datetime
 from typing import Literal
@@ -73,6 +74,29 @@ def download_data(
 
         # Sleep for 8 secs in between iterations
         tm.sleep(8)
+
+
+def check_year_matches_filename(
+    dataframe: pd.DataFrame, filename: str
+) -> None:
+    """Confere se todas as linhas têm o `ano` do nome do arquivo.
+
+    Args:
+        dataframe: Arquivo lido, com as colunas já renomeadas.
+        filename: Nome do arquivo baixado, como `EXP_2026.csv` ou
+            `IMP_2026_MUN.csv`.
+
+    Raises:
+        ValueError: Quando alguma linha tem outro `ano`.
+    """
+    file_year = int(re.findall(r"\d{4}", filename)[0])
+    other_years = dataframe.loc[dataframe["ano"] != file_year, "ano"]
+
+    if not other_years.empty:
+        raise ValueError(
+            f"{len(other_years)} linha(s) de {filename} com `ano` diferente "
+            f"de {file_year}: {other_years.unique()[:5].tolist()}"
+        )
 
 
 def download_validation(
