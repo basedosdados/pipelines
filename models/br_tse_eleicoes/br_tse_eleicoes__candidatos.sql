@@ -12,7 +12,7 @@
         },
     )
 }}
-
+-- Testado em 2026-08-21 com os arquivos do TSE
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_eleicao as string) id_eleicao,
