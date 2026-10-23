@@ -124,14 +124,20 @@ def _sync_staging_schema(
     client = tb.client["bigquery_staging"]
     table = client.get_table(tb.table_full_name["staging"])
 
-    current = {_bq_safe_column_name(field.name) for field in table.schema}
+    # BigQuery column names are case-insensitive, and so is the match between
+    # a parquet column and the external schema: `amount_IIJA` in the table
+    # already reads a file's `amount_iija`. Comparing case-sensitively would
+    # try to add the second spelling and fail with "already exists in schema".
+    current = {
+        _bq_safe_column_name(field.name).lower() for field in table.schema
+    }
     new_fields = [
         bigquery.SchemaField(
             name=_bq_safe_column_name(field.name),
             field_type=field.field_type,
         )
         for field in incoming
-        if _bq_safe_column_name(field.name) not in current
+        if _bq_safe_column_name(field.name).lower() not in current
     ]
 
     if not new_fields:

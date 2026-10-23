@@ -1,0 +1,708 @@
+{
+ "assistance_transaction": {
+  "action_type_code": {
+   "action_type_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "action_type_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "code": "action_type_code",
+   "inverted": false,
+   "label": "action_type_description"
+  },
+  "assistance_type_code": {
+   "assistance_type_code_scores": {
+    "key_hits": 0.5882352941176471,
+    "label_hits": 0.0
+   },
+   "assistance_type_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.5882352941176471
+   },
+   "code": "assistance_type_code",
+   "inverted": false,
+   "label": "assistance_type_description"
+  },
+  "business_funds_indicator_code": {
+   "business_funds_indicator_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "business_funds_indicator_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "code": "business_funds_indicator_code",
+   "inverted": false,
+   "label": "business_funds_indicator_description"
+  },
+  "business_types_code": {
+   "business_types_code_scores": {
+    "key_hits": 0.12,
+    "label_hits": 0.0
+   },
+   "business_types_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.115
+   },
+   "code": "business_types_code",
+   "inverted": false,
+   "label": "business_types_description"
+  },
+  "correction_delete_indicator_code": {
+   "code": "correction_delete_indicator_code",
+   "correction_delete_indicator_code_scores": {
+    "key_hits": 0.3333333333333333,
+    "label_hits": 0.0
+   },
+   "correction_delete_indicator_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.0
+   },
+   "inverted": false,
+   "label": "correction_delete_indicator_description"
+  },
+  "record_type_code": {
+   "code": "record_type_code",
+   "inverted": false,
+   "label": "record_type_description",
+   "record_type_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "record_type_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  }
+ },
+ "contract_transaction": {
+  "a76_fair_act_action_code": {
+   "a76_fair_act_action_code_scores": {
+    "key_hits": 0.5,
+    "label_hits": 0.5
+   },
+   "a76_fair_act_action_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "code": "a76_fair_act_action_code",
+   "inverted": false,
+   "label": "a76_fair_act_action"
+  },
+  "action_type_code": {
+   "action_type_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.76
+   },
+   "action_type_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "code": "action_type",
+   "inverted": true,
+   "label": "action_type_code"
+  },
+  "award_type_code": {
+   "award_type_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "award_type_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.5
+   },
+   "code": "award_type_code",
+   "inverted": false,
+   "label": "award_type"
+  },
+  "clinger_cohen_act_planning_code": {
+   "clinger_cohen_act_planning_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "clinger_cohen_act_planning_scores": {
+    "key_hits": 0.4,
+    "label_hits": 0.0
+   },
+   "code": "clinger_cohen_act_planning",
+   "inverted": true,
+   "label": "clinger_cohen_act_planning_code"
+  },
+  "commercial_item_acquisition_procedures_code": {
+   "code": "commercial_item_acquisition_procedures_code",
+   "commercial_item_acquisition_procedures_code_scores": {
+    "key_hits": 0.8,
+    "label_hits": 0.0
+   },
+   "commercial_item_acquisition_procedures_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.5
+   },
+   "inverted": false,
+   "label": "commercial_item_acquisition_procedures"
+  },
+  "consolidated_contract_code": {
+   "code": "consolidated_contract",
+   "consolidated_contract_code_scores": {
+    "key_hits": 0.14285714285714285,
+    "label_hits": 0.8571428571428571
+   },
+   "consolidated_contract_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "consolidated_contract_code"
+  },
+  "construction_wage_rate_requirements_code": {
+   "code": "construction_wage_rate_requirements_code",
+   "construction_wage_rate_requirements_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "construction_wage_rate_requirements_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "inverted": false,
+   "label": "construction_wage_rate_requirements"
+  },
+  "contingency_humanitarian_or_peacekeeping_operation_code": {
+   "code": "contingency_humanitarian_or_peacekeeping_operation_code",
+   "contingency_humanitarian_or_peacekeeping_operation_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "contingency_humanitarian_or_peacekeeping_operation_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "inverted": false,
+   "label": "contingency_humanitarian_or_peacekeeping_operation"
+  },
+  "contract_bundling_code": {
+   "code": "contract_bundling",
+   "contract_bundling_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "contract_bundling_scores": {
+    "key_hits": 0.8888888888888888,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "contract_bundling_code"
+  },
+  "contract_financing_code": {
+   "code": "contract_financing",
+   "contract_financing_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "contract_financing_scores": {
+    "key_hits": 0.6666666666666666,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "contract_financing_code"
+  },
+  "contracting_officers_determination_of_business_size_code": {
+   "code": "contracting_officers_determination_of_business_size_code",
+   "contracting_officers_determination_of_business_size_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "contracting_officers_determination_of_business_size_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "inverted": false,
+   "label": "contracting_officers_determination_of_business_size"
+  },
+  "cost_accounting_standards_clause_code": {
+   "code": "cost_accounting_standards_clause_code",
+   "cost_accounting_standards_clause_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "cost_accounting_standards_clause_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.75
+   },
+   "inverted": false,
+   "label": "cost_accounting_standards_clause"
+  },
+  "cost_or_pricing_data_code": {
+   "code": "cost_or_pricing_data",
+   "cost_or_pricing_data_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "cost_or_pricing_data_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "cost_or_pricing_data_code"
+  },
+  "domestic_or_foreign_entity_code": {
+   "code": "domestic_or_foreign_entity",
+   "domestic_or_foreign_entity_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "domestic_or_foreign_entity_scores": {
+    "key_hits": 0.8333333333333334,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "domestic_or_foreign_entity_code"
+  },
+  "epa_designated_product_code": {
+   "code": "epa_designated_product",
+   "epa_designated_product_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "epa_designated_product_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "epa_designated_product_code"
+  },
+  "evaluated_preference_code": {
+   "code": "evaluated_preference",
+   "evaluated_preference_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.6666666666666666
+   },
+   "evaluated_preference_scores": {
+    "key_hits": 0.8333333333333334,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "evaluated_preference_code"
+  },
+  "extent_competed_code": {
+   "code": "extent_competed",
+   "extent_competed_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "extent_competed_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "extent_competed_code"
+  },
+  "fair_opportunity_limited_sources_code": {
+   "code": "fair_opportunity_limited_sources_code",
+   "fair_opportunity_limited_sources_code_scores": {
+    "key_hits": 0.8,
+    "label_hits": 0.0
+   },
+   "fair_opportunity_limited_sources_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.7272727272727273
+   },
+   "inverted": false,
+   "label": "fair_opportunity_limited_sources"
+  },
+  "fed_biz_opps_code": {
+   "code": "fed_biz_opps",
+   "fed_biz_opps_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.75
+   },
+   "fed_biz_opps_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "fed_biz_opps_code"
+  },
+  "foreign_funding": {
+   "code": "foreign_funding",
+   "foreign_funding_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.75
+   },
+   "foreign_funding_scores": {
+    "key_hits": 0.6,
+    "label_hits": 0.0
+   },
+   "inverted": false,
+   "label": "foreign_funding_description"
+  },
+  "government_furnished_property_code": {
+   "code": "government_furnished_property_code",
+   "government_furnished_property_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "government_furnished_property_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "inverted": false,
+   "label": "government_furnished_property"
+  },
+  "idv_type_code": {
+   "code": "idv_type",
+   "idv_type_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "idv_type_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "inverted": true,
+   "label": "idv_type_code"
+  },
+  "information_technology_commercial_item_category_code": {
+   "code": "information_technology_commercial_item_category_code",
+   "information_technology_commercial_item_category_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "information_technology_commercial_item_category_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.6363636363636364
+   },
+   "inverted": false,
+   "label": "information_technology_commercial_item_category"
+  },
+  "inherently_governmental_functions": {
+   "code": "inherently_governmental_functions",
+   "inherently_governmental_functions_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "inherently_governmental_functions_scores": {
+    "key_hits": 0.10810810810810811,
+    "label_hits": 0.0
+   },
+   "inverted": false,
+   "label": "inherently_governmental_functions_description"
+  },
+  "interagency_contracting_authority_code": {
+   "code": "interagency_contracting_authority_code",
+   "interagency_contracting_authority_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "interagency_contracting_authority_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "inverted": false,
+   "label": "interagency_contracting_authority"
+  },
+  "labor_standards_code": {
+   "code": "labor_standards",
+   "inverted": true,
+   "label": "labor_standards_code",
+   "labor_standards_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "labor_standards_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "local_area_set_aside_code": {
+   "code": "local_area_set_aside",
+   "inverted": true,
+   "label": "local_area_set_aside_code",
+   "local_area_set_aside_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "local_area_set_aside_scores": {
+    "key_hits": 0.6666666666666666,
+    "label_hits": 0.0
+   }
+  },
+  "materials_supplies_articles_equipment_code": {
+   "code": "materials_supplies_articles_equipment_code",
+   "inverted": false,
+   "label": "materials_supplies_articles_equipment",
+   "materials_supplies_articles_equipment_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "materials_supplies_articles_equipment_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "multi_year_contract_code": {
+   "code": "multi_year_contract",
+   "inverted": true,
+   "label": "multi_year_contract_code",
+   "multi_year_contract_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "multi_year_contract_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "multiple_or_single_award_idv_code": {
+   "code": "multiple_or_single_award_idv_code",
+   "inverted": false,
+   "label": "multiple_or_single_award_idv",
+   "multiple_or_single_award_idv_code_scores": {
+    "key_hits": 0.6666666666666666,
+    "label_hits": 0.0
+   },
+   "multiple_or_single_award_idv_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "national_interest_action_code": {
+   "code": "national_interest_action",
+   "inverted": true,
+   "label": "national_interest_action_code",
+   "national_interest_action_code_scores": {
+    "key_hits": 0.02631578947368421,
+    "label_hits": 0.9210526315789473
+   },
+   "national_interest_action_scores": {
+    "key_hits": 0.9736842105263158,
+    "label_hits": 0.02631578947368421
+   }
+  },
+  "other_than_full_and_open_competition_code": {
+   "code": "other_than_full_and_open_competition_code",
+   "inverted": false,
+   "label": "other_than_full_and_open_competition",
+   "other_than_full_and_open_competition_code_scores": {
+    "key_hits": 0.6538461538461539,
+    "label_hits": 0.0
+   },
+   "other_than_full_and_open_competition_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.5
+   }
+  },
+  "parent_award_single_or_multiple_code": {
+   "code": "parent_award_single_or_multiple_code",
+   "inverted": false,
+   "label": "parent_award_single_or_multiple",
+   "parent_award_single_or_multiple_code_scores": {
+    "key_hits": 0.6666666666666666,
+    "label_hits": 0.0
+   },
+   "parent_award_single_or_multiple_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "parent_award_type_code": {
+   "code": "parent_award_type_code",
+   "inverted": false,
+   "label": "parent_award_type",
+   "parent_award_type_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "parent_award_type_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "performance_based_service_acquisition_code": {
+   "code": "performance_based_service_acquisition_code",
+   "inverted": false,
+   "label": "performance_based_service_acquisition",
+   "performance_based_service_acquisition_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "performance_based_service_acquisition_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "place_of_manufacture_code": {
+   "code": "place_of_manufacture",
+   "inverted": true,
+   "label": "place_of_manufacture_code",
+   "place_of_manufacture_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.7058823529411765
+   },
+   "place_of_manufacture_scores": {
+    "key_hits": 0.75,
+    "label_hits": 0.0
+   }
+  },
+  "purchase_card_as_payment_method_code": {
+   "code": "purchase_card_as_payment_method_code",
+   "inverted": false,
+   "label": "purchase_card_as_payment_method",
+   "purchase_card_as_payment_method_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "purchase_card_as_payment_method_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "recovered_materials_sustainability_code": {
+   "code": "recovered_materials_sustainability_code",
+   "inverted": false,
+   "label": "recovered_materials_sustainability",
+   "recovered_materials_sustainability_code_scores": {
+    "key_hits": 0.9230769230769231,
+    "label_hits": 0.0
+   },
+   "recovered_materials_sustainability_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.75
+   }
+  },
+  "research_code": {
+   "code": "research",
+   "inverted": true,
+   "label": "research_code",
+   "research_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.8571428571428571
+   },
+   "research_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "sam_exception": {
+   "code": "sam_exception",
+   "inverted": false,
+   "label": "sam_exception_description",
+   "sam_exception_description_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.4666666666666667
+   },
+   "sam_exception_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "sea_transportation_code": {
+   "code": "sea_transportation",
+   "inverted": true,
+   "label": "sea_transportation_code",
+   "sea_transportation_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   },
+   "sea_transportation_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "simplified_procedures_for_certain_commercial_items_code": {
+   "code": "simplified_procedures_for_certain_commercial_items_code",
+   "inverted": false,
+   "label": "simplified_procedures_for_certain_commercial_items",
+   "simplified_procedures_for_certain_commercial_items_code_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   },
+   "simplified_procedures_for_certain_commercial_items_scores": {
+    "key_hits": 0.0,
+    "label_hits": 1.0
+   }
+  },
+  "solicitation_procedures_code": {
+   "code": "solicitation_procedures",
+   "inverted": true,
+   "label": "solicitation_procedures_code",
+   "solicitation_procedures_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.9
+   },
+   "solicitation_procedures_scores": {
+    "key_hits": 0.6,
+    "label_hits": 0.0
+   }
+  },
+  "subcontracting_plan_code": {
+   "code": "subcontracting_plan",
+   "inverted": true,
+   "label": "subcontracting_plan_code",
+   "subcontracting_plan_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.8888888888888888
+   },
+   "subcontracting_plan_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "type_of_contract_pricing_code": {
+   "code": "type_of_contract_pricing",
+   "inverted": true,
+   "label": "type_of_contract_pricing_code",
+   "type_of_contract_pricing_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.6956521739130435
+   },
+   "type_of_contract_pricing_scores": {
+    "key_hits": 0.8888888888888888,
+    "label_hits": 0.0
+   }
+  },
+  "type_of_idc_code": {
+   "code": "type_of_idc",
+   "inverted": true,
+   "label": "type_of_idc_code",
+   "type_of_idc_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.75
+   },
+   "type_of_idc_scores": {
+    "key_hits": 1.0,
+    "label_hits": 0.0
+   }
+  },
+  "type_of_set_aside_code": {
+   "code": "type_of_set_aside_code",
+   "inverted": false,
+   "label": "type_of_set_aside",
+   "type_of_set_aside_code_scores": {
+    "key_hits": 0.96,
+    "label_hits": 0.0
+   },
+   "type_of_set_aside_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.84
+   }
+  },
+  "undefinitized_action_code": {
+   "code": "undefinitized_action",
+   "inverted": true,
+   "label": "undefinitized_action_code",
+   "undefinitized_action_code_scores": {
+    "key_hits": 0.0,
+    "label_hits": 0.5
+   },
+   "undefinitized_action_scores": {
+    "key_hits": 0.6,
+    "label_hits": 0.0
+   }
+  }
+ }
+}

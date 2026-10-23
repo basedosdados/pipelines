@@ -1,0 +1,248 @@
+{
+ "assistance_transaction": {
+  "covered": [
+   "action_type_code",
+   "business_funds_indicator_code",
+   "record_type_code"
+  ],
+  "gaps": {
+   "assistance_type_code": [
+    "F004 (67,084)",
+    "F006 (13,255)",
+    "F001 (11,841)",
+    "F003 (6,713)",
+    "F002 (6,166)",
+    "-1 (2,895)",
+    "F010 (32)"
+   ],
+   "business_types_code": [
+    "PR (2,167,057)",
+    "RM (146,935)",
+    "MR (117,141)",
+    "PM (58,693)",
+    "QR (31,260)",
+    "MX (19,461)",
+    "HA (16,573)",
+    "OMX (13,226)"
+   ],
+   "correction_delete_indicator_code": [
+    "L (875,071)",
+    "_ (114)"
+   ]
+  }
+ },
+ "contract_transaction": {
+  "covered": [
+   "action_type",
+   "airport_authority",
+   "alaskan_native_corporation_owned_firm",
+   "alaskan_native_servicing_institution",
+   "american_indian_owned_business",
+   "asian_pacific_american_owned_business",
+   "award_type_code",
+   "black_american_owned_business",
+   "c8a_program_participant",
+   "city_local_government",
+   "community_developed_corporation_owned_firm",
+   "community_development_corporation",
+   "consolidated_contract",
+   "construction_wage_rate_requirements_code",
+   "contingency_humanitarian_or_peacekeeping_operation_code",
+   "contracting_officers_determination_of_business_size_code",
+   "corporate_entity_not_tax_exempt",
+   "corporate_entity_tax_exempt",
+   "cost_accounting_standards_clause_code",
+   "cost_or_pricing_data",
+   "council_of_governments",
+   "county_local_government",
+   "domestic_shelter",
+   "dot_certified_disadvantage",
+   "economically_disadvantaged_women_owned_small_business",
+   "educational_institution",
+   "emerging_small_business",
+   "epa_designated_product",
+   "extent_competed",
+   "fed_biz_opps",
+   "federal_agency",
+   "federally_funded_research_and_development_corp",
+   "for_profit_organization",
+   "foreign_government",
+   "foreign_owned",
+   "foundation",
+   "government_furnished_property_code",
+   "hispanic_american_owned_business",
+   "hispanic_servicing_institution",
+   "historically_black_college",
+   "historically_underutilized_business_zone_hubzone_firm",
+   "hospital_flag",
+   "housing_authorities_public_tribal",
+   "idv_type",
+   "indian_tribe_federally_recognized",
+   "information_technology_commercial_item_category_code",
+   "inter_municipal_local_government",
+   "interagency_contracting_authority_code",
+   "international_organization",
+   "interstate_entity",
+   "joint_venture_economic_disadvantaged_women_owned_small_bus",
+   "joint_venture_women_owned_small_business",
+   "labor_standards",
+   "labor_surplus_area_firm",
+   "land_grant_college_1862",
+   "land_grant_college_1890",
+   "land_grant_college_1994",
+   "limited_liability_corporation",
+   "local_government_owned",
+   "manufacturer_of_goods",
+   "materials_supplies_articles_equipment_code",
+   "minority_institution",
+   "minority_owned_business",
+   "multi_year_contract",
+   "municipality_local_government",
+   "native_american_owned_business",
+   "native_hawaiian_organization_owned_firm",
+   "native_hawaiian_servicing_institution",
+   "nonprofit_organization",
+   "other_minority_owned_business",
+   "other_not_for_profit_organization",
+   "parent_award_type_code",
+   "partnership_or_limited_liability_partnership",
+   "performance_based_service_acquisition_code",
+   "planning_commission",
+   "port_authority",
+   "private_university_or_college",
+   "purchase_card_as_payment_method_code",
+   "receives_contracts",
+   "receives_contracts_and_financial_assistance",
+   "receives_financial_assistance",
+   "research",
+   "sam_exception",
+   "sba_certified_8a_joint_venture",
+   "school_district_local_government",
+   "school_of_forestry",
+   "sea_transportation",
+   "self_certified_small_disadvantaged_business",
+   "service_disabled_veteran_owned_business",
+   "simplified_procedures_for_certain_commercial_items_code",
+   "small_agricultural_cooperative",
+   "small_business_competitiveness_demonstration_program",
+   "small_disadvantaged_business",
+   "sole_proprietorship",
+   "state_controlled_institution_of_higher_learning",
+   "subchapter_scorporation",
+   "subcontinent_asian_asian_indian_american_owned_business",
+   "subcontracting_plan",
+   "the_ability_one_program",
+   "township_local_government",
+   "transit_authority",
+   "tribal_college",
+   "tribally_owned_firm",
+   "type_of_idc",
+   "us_federal_government",
+   "us_government_entity",
+   "us_local_government",
+   "us_state_government",
+   "us_tribal_government",
+   "veteran_owned_business",
+   "veterinary_college",
+   "veterinary_hospital",
+   "woman_owned_business",
+   "women_owned_small_business"
+  ],
+  "gaps": {
+   "a76_fair_act_action_code": [
+    "NO (20,406,530)",
+    "YES (52,350)"
+   ],
+   "clinger_cohen_act_planning": [
+    "N: NO (20,178,041)",
+    "Y: YES (357,223)",
+    ": (6,476)"
+   ],
+   "commercial_item_acquisition_procedures_code": [
+    "E (248)"
+   ],
+   "contract_bundling": [
+    "N (2)"
+   ],
+   "contract_financing": [
+    "B (396)",
+    "N (12)",
+    "X (2)"
+   ],
+   "domestic_or_foreign_entity": [
+    "X (235)"
+   ],
+   "evaluated_preference": [
+    "B (4)"
+   ],
+   "fair_opportunity_limited_sources_code": [
+    "LSRC (4,104)",
+    "SSRC (1,486)"
+   ],
+   "foreign_funding": [
+    "N (352)",
+    "Y (4)"
+   ],
+   "inherently_governmental_functions": [
+    "NA (66)",
+    "IGF (19)",
+    "N (16)",
+    "TO (7)",
+    "NONE (6)",
+    "0T (5)",
+    "IT (5)",
+    "OF (5)"
+   ],
+   "local_area_set_aside": [
+    "BSDF (6)"
+   ],
+   "multiple_or_single_award_idv_code": [
+    "A (2)"
+   ],
+   "national_interest_action": [
+    "O23R (2)"
+   ],
+   "other_than_full_and_open_competition_code": [
+    "NDO (2,223)",
+    "FOO (866)",
+    "8AN (474)",
+    "BI (112)",
+    "MG (69)",
+    "NZS (13)",
+    "HZS (3)",
+    "XX (3)"
+   ],
+   "parent_award_single_or_multiple_code": [
+    "A (11)"
+   ],
+   "place_of_manufacture": [
+    "! (2,855)",
+    "U (10)",
+    "S (1)",
+    "1 (1)"
+   ],
+   "recovered_materials_sustainability_code": [
+    "M (4,037)"
+   ],
+   "solicitation_procedures": [
+    "SP2 (108)",
+    "NONE (36)",
+    "DDP (4)",
+    "K (2)",
+    "N (1)",
+    "M (1)"
+   ],
+   "type_of_contract_pricing": [
+    "NO (898,508)",
+    "O (3)"
+   ],
+   "type_of_set_aside_code": [
+    "SDB (369)"
+   ],
+   "undefinitized_action": [
+    "N (353)",
+    "Y (3)"
+   ]
+  }
+ }
+}
