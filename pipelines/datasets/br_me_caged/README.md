@@ -5,8 +5,7 @@ publicados pelo Ministério do Trabalho e Emprego: cada linha é uma admissão o
 desligamento de emprego formal.
 
 - Fonte: FTP anônimo `ftp.mtps.gov.br`, pasta `pdet/microdados/NOVO CAGED/`
-- Código: `pipelines/datasets/br_me_caged/flows.py`, `pipelines/shared/me_caged/` e
-  `models/br_me_caged/`
+- Código: `pipelines/datasets/br_me_caged/` e `models/br_me_caged/`
 
 ## A fonte
 
@@ -43,8 +42,8 @@ que cada uma registra e no que `ano` e `mes` querem dizer:
 Para o saldo de um mês com todos os ajustes, some as duas primeiras tabelas e subtraia
 a terceira, agrupando pelo mês da movimentação.
 
-O crawler troca o código da UF pela sigla e descarta `regiao`, `unidadesalariocodigo` e
-`valorsalariofixo`. O modelo dbt converte o município de 6 para 7 dígitos, cruzando com
+O `build_partitions` troca o código da UF pela sigla e descarta `regiao`,
+`unidadesalariocodigo` e `valorsalariofixo`. O modelo dbt converte o município de 6 para 7 dígitos, cruzando com
 `br_bd_diretorios_brasil.municipio`.
 
 `microdados_movimentacao` e `_fora_prazo` são **incrementais**: cada `dbt run` só
@@ -61,103 +60,96 @@ arquivo e rodar `dbt run --select br_me_caged__dicionario`.
 
 ## Como o flow funciona
 
-Há um flow por tabela, todos com a mesma lógica (`_run_me_caged`, em `flows.py`). Cada
-execução:
+O conjunto segue o modelo em etapas. Cada tabela tem dois flows em `flows.py`, montados
+por `CheckThenExtractLoadPipeline`, e a terceira etapa é o `build_and_promote`
+compartilhado. Cada etapa roda num pod próprio e dispara a seguinte:
 
-1. **Descobre o último mês publicado**: `get_source_last_date` lista as pastas do FTP.
-2. **Verifica se há novidade**: `poll_source_for_update_task` compara esse mês com o
-   fim da cobertura da tabela em produção, no formato `%Y-%m`. Se a fonte não estiver
-   à frente, o flow termina sem baixar nada.
-3. **Registra a publicação da fonte**: `commit_source_update_task` grava o `Update` da
-   fonte **antes do download**. Isso não trava a próxima tentativa, porque a
-   verificação do passo 2 olha a cobertura da tabela, não esse registro. Se o flow
-   falhar depois, a cobertura não anda e a execução seguinte tenta de novo.
-4. **Baixa os meses que faltam**: `generate_yearmonth_range` lista os meses entre o fim
-   da cobertura e o último publicado, e `crawl_novo_caged_ftp` baixa só o `.7z` da
-   tabela em cada um. Os arquivos que falham vão para `failed_downloads`, registrada no
-   log; se nenhum arquivo do mês for baixado, a execução para com erro.
-5. **Gera as partições**: `build_partitions` grava um CSV por `ano`, `mes` e
-   `sigla_uf`.
-6. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
-   `basedosdados-dev` e o dbt roda e testa em dev; só então vão para o bucket
-   `basedosdados` e o dbt roda e testa em produção. Uma falha em dev impede a ida para
-   produção.
-7. **Atualiza a cobertura**: `register_table_materialization_task` lê o último mês da
-   tabela de produção e atualiza a cobertura no site.
+1. **`br_me_caged_<tabela>_check_update`**, com o cron: `get_latest_update` lista as
+   pastas do FTP e devolve o último mês publicado. O código compartilhado compara esse
+   mês com o fim da cobertura da tabela em produção, no formato `%Y-%m`. Se a fonte não
+   estiver à frente, o flow termina. Se estiver, grava o `Update` da fonte e dispara o
+   `_download` com o mês publicado em `reference_date`. O `Update` da fonte é gravado
+   antes do download e não trava a próxima tentativa, porque a comparação olha a
+   cobertura da tabela, não esse registro: se uma etapa seguinte falhar, a cobertura não
+   anda, e a execução seguinte tenta de novo.
+2. **`br_me_caged_<tabela>_download`**: `run_download` decide os meses com
+   `resolve_year_months`, do fim da cobertura até o `reference_date`, ou os de
+   `year_months`, quando vierem no `download_params`. Sem mês, o flow termina sem upload
+   nem dbt. Com meses, `extract_load_data` baixa só o `.7z` da tabela em cada um
+   (`download_caged_ftp`) e grava um CSV por `ano`, `mes` e `sigla_uf`
+   (`build_partitions`). Se nenhum arquivo do mês for baixado, a execução para com
+   erro. O código compartilhado sobe os CSVs para a staging de `basedosdados-dev` e
+   dispara o `build_and_promote`.
+3. **`build_and_promote`**: roda o `dbt run` e o `dbt test` em dev, copia para
+   `basedosdados` só as partições desta execução, roda o dbt em produção e atualiza a
+   cobertura no site. Um deployment `dev-` nunca chega a esta cópia: o
+   `build_and_promote` que ele dispara para depois do dbt em dev.
 
 A cobertura tem duas partes: os 6 meses mais recentes ficam restritos ao BD Pro e o
-restante é aberto. O passo 7 recalcula esse corte a cada mês e recria as regras de
-acesso no BigQuery, então a janela anda sozinha.
+restante é aberto (`PartBdpro` com `YearMonth`, em `constants.COVERAGE`). O
+`build_and_promote` recalcula esse corte a cada carga e recria as regras de acesso no
+BigQuery, então a janela anda sozinha.
 
-**Execução verde não quer dizer que ingeriu.** Quando não há novidade, o flow
-termina com sucesso do mesmo jeito. Para saber se entrou dado, procure no log as
-mensagens `Há atualizações na fonte original` e `dbt run OK`, ou veja se a cobertura
-andou.
+**Execução verde não quer dizer que ingeriu.** Quando não há novidade, o
+`check_update` termina com sucesso do mesmo jeito, sem disparar o `_download`. Para
+saber se entrou dado, procure o `_download` e o `build_and_promote` da tabela no
+Prefect, a mensagem `dbt run OK` no log, ou veja se a cobertura andou.
 
 ## Agendamento
 
-`0 8,17 1-4,26-31 * *`, no horário de Brasília: às 8h e às 17h dos dias 26 a 31 e 1 a
-4. A janela acompanha a publicação, que sai entre os dias 27 e 30; os dias 1 a 4
-cobrem um atraso da fonte. A execução das 17h pega a publicação do mesmo dia, e a das
-8h é uma segunda tentativa. Fora dessa janela não haveria o que baixar.
+Só o `check_update` tem horário, no horário de Brasília:
+
+| tabela | cron |
+|---|---|
+| `microdados_movimentacao` | `5 8,17 1-4,26-31 * *` |
+| `microdados_movimentacao_fora_prazo` | `10 8,17 1-4,26-31 * *` |
+| `microdados_movimentacao_excluida` | `45 8,17 1-4,26-31 * *` |
+
+Às 8h e às 17h dos dias 26 a 31 e 1 a 4, em minutos diferentes para as três não
+disputarem o BigQuery. A janela acompanha a publicação, que sai entre os dias 27 e 30;
+os dias 1 a 4 cobrem um atraso da fonte. A execução das 17h pega a publicação do mesmo
+dia, e a das 8h é uma segunda tentativa. Fora dessa janela não haveria o que baixar.
 
 ## Parâmetros
 
-| parâmetro | padrão | quando mudar |
-|---|---|---|
-| `materialize_after_dump` | `True` | `False` para parar depois do dbt em dev, sem levar nada para produção |
-| `update_metadata` | `True` | `False` para não registrar cobertura nem a publicação da fonte |
-| `target` | `prod` | define onde roda o segundo `dbt run`; o upload e o registro de cobertura continuam indo para produção |
-| `force_run` | `False` | `True` para pular a verificação de novidade (passo 2) |
+O `check_update` não tem parâmetros. O `_download` recebe um `download_params`:
 
-Para testar no pool de dev sem gravar nada em produção:
+| chave | o que é |
+|---|---|
+| `reference_date` | último mês publicado, como `"2026-08-01"`; o `check_update` preenche, e um disparo manual precisa informar |
+| `year_months` | opcional: lista de meses `AAAAMM` a baixar e carregar, no lugar dos que faltam na cobertura; um mês fora do intervalo de 202001 ao `reference_date` faz o flow parar com erro |
+
+Para testar no pool de dev sem levar nada para produção, com um mês já publicado,
+dispare o `dev-br_me_caged_<tabela>_download` com:
 
 ```json
-{"materialize_after_dump": false, "update_metadata": false, "force_run": true}
+{"download_params": {"reference_date": "2026-08-01", "year_months": ["202608"]}}
 ```
 
-O teste só baixa dados quando a fonte tem um mês que a tabela de produção ainda não
-tem, porque os meses a baixar vêm da cobertura. Com a tabela em dia, não há o que
-baixar.
+Ele roda o `_download` e o `build_and_promote` até o dbt em dev. O `check_update` não tem
+teste equivalente: o poll e o `Update` da fonte vão para o backend de produção mesmo
+num deployment `dev-`.
 
 ## Rodar manualmente e reprocessar
 
-**Meses atrasados:** basta rodar o flow com os parâmetros padrão. Todos os meses que
+**Meses atrasados:** basta disparar o `check_update` da tabela. Todos os meses que
 faltam entram na mesma execução.
 
-**Um mês já carregado** não é reprocessado pelo flow, nem com `force_run`: os meses a
-baixar começam depois da cobertura, e as tabelas incrementais ignoram meses que já
-têm. Para reprocessar:
+**Um mês já carregado** volta para a staging pelo `_download` com o mês em
+`year_months`, mas a `microdados_movimentacao` e a `_fora_prazo` só mudam depois de
+reconstruídas: as tabelas incrementais ignoram meses que já têm. Para reprocessar:
 
-1. gere os CSVs do mês e suba para a staging de dev com as próprias funções do
-   crawler, rodando a partir de uma pasta fora do repositório (o crawler grava em
-   `tmp/`):
+1. dispare o `dev-br_me_caged_<tabela>_download` com o mês:
 
-   ```python
-   from pipelines.shared.me_caged.tasks import (
-       build_partitions,
-       build_table_paths,
-       crawl_novo_caged_ftp,
-   )
-   from pipelines.utils.tasks import upload_to_gcs
-
-   table_id = "microdados_movimentacao"
-   _, output_dir = build_table_paths.fn(table_id)
-   crawl_novo_caged_ftp.fn("202512", table_id)
-   path = build_partitions.fn(table_id=table_id, table_output_dir=output_dir)
-   upload_to_gcs.fn(
-       data_path=path,
-       dataset_id="br_me_caged",
-       table_id=table_id,
-       bucket_name="basedosdados-dev",
-       dump_mode="append",
-   )
+   ```json
+   {"download_params": {"reference_date": "2026-08-01", "year_months": ["202512"]}}
    ```
 
-   O mês novo substitui o antigo no mesmo caminho e os outros ficam como estão;
-2. reconstrua a tabela em dev com `dbt run --select br_me_caged__<tabela>
-   --full-refresh`, que lê a staging inteira de novo, e confira o resultado. A
-   `_excluida` não precisa da opção;
+   O mês novo substitui o antigo na staging de dev, no mesmo caminho, e os outros ficam
+   como estão. A `_excluida` já sai reconstruída deste passo;
+2. na `movimentacao` e na `_fora_prazo`, reconstrua a tabela em dev com
+   `dbt run --select br_me_caged__<tabela> --full-refresh`, que lê a staging inteira de
+   novo, e confira o resultado;
 3. em produção, use os flows utilitários do Prefect, que rodam com as credenciais do
    worker. Rode fora da janela do cron e na ordem abaixo:
    1. `BD Utils: Transfere arquivos do bucket basedosdados-dev para basedosdados`,
@@ -176,6 +168,3 @@ têm. Para reprocessar:
       ```json
       {"tier": "part_bdpro", "date_column": {"kind": "year_month", "year": "ano", "month": "mes"}, "date_format": "%Y-%m", "free_lag": {"unit": "months", "value": 6}}
       ```
-
-   Não use o `force_run` para recriar as regras de acesso: com a tabela em dia, não
-   há mês a baixar, e o flow para antes do passo 7.

@@ -578,6 +578,72 @@ models:
         description: Votos nulos apurados separadamente
       - name: zona
         description: Zona eleitoral
+  - name: br_tse_eleicoes__local_secao
+    description: >-
+      Geolocalização das seções eleitorais, produzida pelo Pindograma a partir de
+      várias fontes (TSE, INEP, IBGE/CNEFE, Google). Cerca de 0,06% das
+      combinações de ano, município, zona e seção aparecem mais de uma vez na
+      fonte original.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [ano, id_municipio, zona, secao]
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ibge_cnefe_endereco
+            - ibge_cnefe_local
+            - google_relaxado
+            - google_centro_geometrico
+            - ibge_povoados
+    columns:
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: zona
+        description: Zona eleitoral
+      - name: secao
+        description: Seção eleitoral
+      - name: ano
+        description: Ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: melhor_urbano
+        description: Melhor localização para seções em áreas urbanas
+      - name: melhor_rural
+        description: Melhor localização para seções em áreas rurais
+      - name: tse_recente
+        description: Localização segundo os dados mais recentes do TSE
+      - name: tse_distribuido
+        description: Localização segundo os dados distribuídos pelo TSE
+      - name: escolas_inep
+        description: Localização segundo o cadastro de escolas do INEP
+      - name: escolas_municipais
+        description: Localização segundo cadastros municipais de escolas
+      - name: ibge_cnefe_endereco
+        description: Localização segundo o endereço no CNEFE do IBGE
+      - name: ibge_cnefe_local
+        description: Localização segundo o local no CNEFE do IBGE
+      - name: google
+        description: Localização segundo a API de geocodificação do Google
+      - name: google_relaxado
+        description: Localização segundo a busca relaxada do Google Places
+      - name: google_centro_geometrico
+        description: Centro geométrico aproximado segundo o Google
+      - name: ibge_povoados
+        description: Localização aproximada segundo os povoados do IBGE
   - name: br_tse_eleicoes__partidos
     description: 'Dados de partidos em eleições brasileiras a nível de partido. ATENÇÃO:
       a coluna `sequencial_coligacao` identifica as linhas, mas fora isso há duplicadas
