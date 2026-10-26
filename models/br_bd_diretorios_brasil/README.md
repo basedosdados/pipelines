@@ -180,3 +180,50 @@ Depois de um run em dev, confira na tabela:
 | `id_escola` de `br_inep_censo_escolar.escola` fora da nova | 0 |
 | `id_escola` repetido | 0 |
 | `id_municipio` nulo | 0 |
+
+## 4. cbo_2002
+
+### Fonte
+
+Estrutura CBO (CSV), publicada pelo MTE em
+`https://cbo.mte.gov.br/cbosite/pages/downloads.jsf`. O site pede captcha, então
+o zip é baixado à mão e passado como argumento para `code/cbo_2002.py`. O zip
+traz um CSV por nível da hierarquia: grande grupo (1 dígito), subgrupo principal
+(2), subgrupo (3), família (4) e ocupação (6).
+
+### Atualização
+
+O script monta uma linha por ocupação com a hierarquia completa e marca todas
+como `indicador_cbo_2002_ativa = 1`. Os códigos da tabela de prod que não estão
+mais na estrutura oficial são mantidos com `indicador_cbo_2002_ativa = 0`, para
+que os dados antigos que os usam continuem traduzidos. O parquet tem sempre o
+mesmo nome (`diretorio_cbo_2002.parquet`), então o upload substitui o arquivo da
+staging de dev. Prod é atualizado pelo `table-approve` no merge.
+
+### trim nas descrições
+
+O modelo aplica `initcap(trim(...))` em `descricao_subgrupo`,
+`descricao_subgrupo_principal` e `descricao_grande_grupo`. Nos CSVs da fonte,
+essas três descrições vêm completadas com espaços até 130 caracteres, e o
+modelo só aplicava `initcap`. Antes da atualização de 23/10/2026, a tabela de
+prod tinha espaços sobrando em 2.727 descrições de subgrupo, 2.798 de subgrupo
+principal e em todas as 2.812 de grande grupo, o que fazia falhar qualquer
+filtro ou join pelo texto (`descricao_grande_grupo = 'Membros Das Forças
+Armadas, Policiais E Bombeiros Militares'` não encontrava nada). As descrições
+de ocupação e de família não têm esse problema.
+
+### Testes
+
+| Teste | O que confere |
+|---|---|
+| `unique_combination_of_columns` em `cbo_2002` | cada código aparece uma vez |
+| `not_null_proportion_multiple_columns` com `at_least: 0.95` | cada coluna tem pelo menos 95% de preenchimento |
+
+O teste de preenchimento usa o mesmo limite do `cnae_2`. Hoje todas as colunas
+estão 100% preenchidas. O teste pega uma carga em que um dos CSVs não foi lido,
+ou em que a hierarquia não casou com as ocupações, o que deixaria as descrições
+daquele nível vazias.
+
+`cbo_2002` também é referência dos testes de relacionamento de `br_me_rais`,
+`br_ms_cnes`, `br_ms_sia` e `br_ms_sih`. Depois de atualizar o diretório, rode
+esses testes em dev para ver se algum código usado nos dados ficou de fora.
