@@ -131,6 +131,7 @@ models:
         description: Data de Exclusão do Simples Nacional
         tests:
           - date_in_range:
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
       - name: opcao_mei
@@ -151,6 +152,7 @@ models:
         description: Data de Exclusão do MEI
         tests:
           - date_in_range:
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
       - name: data_modificacao
