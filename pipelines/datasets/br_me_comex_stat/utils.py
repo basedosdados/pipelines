@@ -124,7 +124,7 @@ def download_validation(
 
     with open(f"{output_path}/{filename}", "wb") as f:
         f.write(response.content)
-    return output_path
+    return f"{output_path}/{filename}"
 
 
 def validate_table(
@@ -157,98 +157,78 @@ def validate_table(
     else:
         raise ValueError("Invalid trade_type detected in filename.")
 
-    # Download and prepare validation files
-    download_validation(
+    validation_path = download_validation(
         path, table_type, trade_type, comex_constants.VALIDATION_LINK.value
     )
+    df_validation = pd.read_csv(validation_path, sep=";")
+    log(f"Using validation file: {validation_path}", "info")
 
-    table_name = "validation"
-    validation_dir = f"{path}{table_name}/input/"
-    validation_file_list = os.listdir(validation_dir)
+    rename_validation = {
+        "ARQUIVO": "nome_arquivo",
+        "CO_ANO": "ano",
+        "QT_ESTAT": "quantidade_estatistica",
+        "KG_LIQUIDO": "peso_liquido_kg",
+        "VL_FOB": "valor_fob_dolar",
+        "NUMERO_LINHAS": "linhas",
+    }
+    df_validation = df_validation.rename(columns=rename_validation)
 
-    for validation_file in validation_file_list:
-        if (
-            # pyrefly: ignore [unnecessary-type-conversion]
-            table_type in str(validation_file).lower()
-            and trade_type in str(validation_file).lower()  # pyrefly: ignore [unnecessary-type-conversion]
-        ):
-            df_validation = pd.read_csv(
-                f"{validation_dir}{validation_file}", sep=";"
-            )
-            log(f"Using validation file: {validation_file}", "info")
+    if len(dataframe["ano"].unique()) == 1:
+        ano = dataframe["ano"].unique()[0]
+        log(f"Unique reference year detected: {ano}", "info")
 
-            # Rename columns to standardized schema
-            rename_validation = {
-                "ARQUIVO": "nome_arquivo",
-                "CO_ANO": "ano",
-                "QT_ESTAT": "quantidade_estatistica",
-                "KG_LIQUIDO": "peso_liquido_kg",
-                "VL_FOB": "valor_fob_dolar",
-                "NUMERO_LINHAS": "linhas",
-            }
-            df_validation = df_validation.rename(columns=rename_validation)
+        cols_to_evaluate = [
+            col
+            for col in [
+                "peso_liquido_kg",
+                "valor_fob_dolar",
+                "quantidade_estatistica",
+            ]
+            if col in dataframe
+        ]
 
-            # Ensure the dataframe has only one reference year
-            if len(dataframe["ano"].unique()) == 1:
-                ano = dataframe["ano"].unique()[0]
-                log(f"Unique reference year detected: {ano}", "info")
+        df_grouped = dataframe[cols_to_evaluate].sum().to_frame().T
+        df_grouped = df_grouped.reset_index(drop=True)
 
-                cols_to_evaluate = [
-                    col
-                    for col in [
-                        "peso_liquido_kg",
-                        "valor_fob_dolar",
-                        "quantidade_estatistica",
-                    ]
-                    if col in dataframe
-                ]
+        df_val = df_validation.loc[
+            df_validation["ano"] == ano, cols_to_evaluate
+        ].reset_index(drop=True)
 
-                # Aggregate dataframe values for comparison
-                df_grouped = dataframe[cols_to_evaluate].sum().to_frame().T
-                df_grouped = df_grouped.reset_index(drop=True)
+        for col in cols_to_evaluate:
+            wrangled_value = df_grouped.loc[0, col]
+            validation_value = df_val.loc[0, col]
 
-                # Extract validation totals for the same year
-                df_val = df_validation.loc[
-                    df_validation["ano"] == ano, cols_to_evaluate
-                ].reset_index(drop=True)
-
-                # Column-by-column validation
-                for col in cols_to_evaluate:
-                    wrangled_value = df_grouped.loc[0, col]
-                    validation_value = df_val.loc[0, col]
-
-                    if wrangled_value == validation_value:
-                        log(
-                            f"VALIDATION: Sum for '{col}' matches between dataframe and validation file for year {ano}.",
-                            "info",
-                        )
-                    else:
-                        log(
-                            f"VALIDATION: Sum mismatch for '{col}': dataframe={wrangled_value}, validation={validation_value} (year {ano}).",
-                            "warning",
-                        )
-                        raise ValueError(
-                            f"Validation failed: mismatch in column '{col}' for year {ano}."
-                        )
-
-                # Validate row counts
-                validation_rows = int(
-                    df_validation.loc[
-                        df_validation["ano"] == ano, "linhas"
-                    ].to_numpy()[0]
+            if wrangled_value == validation_value:
+                log(
+                    f"VALIDATION: Sum for '{col}' matches between dataframe and validation file for year {ano}.",
+                    "info",
                 )
-                dataframe_rows = len(dataframe)
+            else:
+                log(
+                    f"VALIDATION: Sum mismatch for '{col}': dataframe={wrangled_value}, validation={validation_value} (year {ano}).",
+                    "warning",
+                )
+                raise ValueError(
+                    f"Validation failed: mismatch in column '{col}' for year {ano}."
+                )
 
-                if validation_rows == dataframe_rows:
-                    log(
-                        f"VALIDATION: Row count matches: dataframe={dataframe_rows}, validation={validation_rows}.",
-                        level="info",
-                    )
-                else:
-                    log(
-                        f"VALIDATION: Row count mismatch: dataframe={dataframe_rows}, validation={validation_rows}.",
-                        level="warning",
-                    )
-                    raise ValueError(
-                        f"Validation failed: row count mismatch for year {ano}."
-                    )
+        validation_rows = int(
+            df_validation.loc[
+                df_validation["ano"] == ano, "linhas"
+            ].to_numpy()[0]
+        )
+        dataframe_rows = len(dataframe)
+
+        if validation_rows == dataframe_rows:
+            log(
+                f"VALIDATION: Row count matches: dataframe={dataframe_rows}, validation={validation_rows}.",
+                level="info",
+            )
+        else:
+            log(
+                f"VALIDATION: Row count mismatch: dataframe={dataframe_rows}, validation={validation_rows}.",
+                level="warning",
+            )
+            raise ValueError(
+                f"Validation failed: row count mismatch for year {ano}."
+            )
