@@ -16,6 +16,7 @@ que qualquer ano dos dados usa para resolver um `id_`.
 | Tabela | Código no repo |
 |---|---|
 | `escola` | flow `br_bd_diretorios_brasil__escola` em `pipelines/datasets/br_bd_diretorios_brasil/` |
+| `cbo_2002` | `code/cbo_2002.py` (recebe o zip "Estrutura CBO (CSV)", baixado à mão por causa do captcha) |
 | `cid_10` | `code/cid_10.py` |
 | `cnae_2` | `code/cnae_2.py` |
 | `instituicao_ensino_superior` | `code/[update]instituicao_ensino_superior.ipynb` |
