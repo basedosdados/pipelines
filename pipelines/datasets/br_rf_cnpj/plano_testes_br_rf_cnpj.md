@@ -10,16 +10,7 @@
   - `id_municipio` sai vazio do Python e é preenchido por um join no dbt (`b.id_municipio_rf`).
   - `fill_left_zeros` usa `astype(str).str.zfill`, e o `cnpj` é montado por concatenação.
 
-## Fase 0: preparação
-
-1. Criar a branch `testes/br_rf_cnpj`.
-2. Rodar `dbt test -s br_rf_cnpj` uma vez para registrar a linha de base e saber o que já falha.
-3. Definir a convenção de severidade:
-   - `error` para integridade, chaves e datas impossíveis;
-   - `warn` para formato (e-mail, telefone) e para cruzamentos entre tabelas, até medirmos a taxa real.
-4. Medir antes de escrever o limiar. Para cada teste novo, rodar uma query exploratória no BigQuery na partição mais recente e só então fixar o `at_least` ou o `proportion_allowed_failures`. Isso evita testes que nascem quebrados.
-
-## Fase 1: testes de integridade do pipeline (Python)
+### Fase 1: testes de integridade do pipeline (Python)
 
 Rodam **antes da carga**, em `pipelines/datasets/br_rf_cnpj/`, e devem falhar o flow.
 
@@ -34,7 +25,14 @@ Rodam **antes da carga**, em `pipelines/datasets/br_rf_cnpj/`, e devem falhar o 
    - Isso será feito em um outro PR para todas as tabelas e datasets
 4. **Testes unitários** com `pytest` e CSVs mínimos para (1) e (2), pois são lógica Python pura e não dependem do BQ.
 
-## Fase 2: testes dbt simples, só em YAML (baixo risco)
+## Testes dbt
+
+1. Definir a convenção de severidade:
+   - `error` para integridade, chaves e datas impossíveis;
+   - `warn` para formato (e-mail, telefone), por exemplo
+2. Medir antes de escrever o limiar. Para cada teste novo, rodar uma query exploratória no BigQuery na partição mais recente e só então fixar o `at_least` ou o `proportion_allowed_failures`. Isso evita testes que nascem quebrados.
+
+### Fase 2: testes dbt simples, só em YAML (baixo risco)
 
 Tudo em `models/br_rf_cnpj/schema.yml`, com `config.where: __most_recent_date_cnpj__`.
 
@@ -45,7 +43,7 @@ Tudo em `models/br_rf_cnpj/schema.yml`, com `config.where: __most_recent_date_cn
 | `id_municipio` não nulo se `sigla_uf` não é EX/BR | `dbt_utils.expression_is_true` ou `not_null` com `where` combinado | Combinar `__most_recent_date_cnpj__ and sigla_uf not in ('EX','BR')`. O macro faz `replace` simples e deve funcionar. Validar com `dbt compile`. |
 | `simples`: filtro na unicidade | Avaliar `where` | Snapshot único. Manter sem filtro de partição, mas confirmar o custo da query. |
 
-## Fase 3: testes de formato e datas
+### Fase 3: testes de formato e datas
 
 Criar **dois genéricos novos** em `tests-dbt/generic/` para evitar muitos testes repetidos:
 
@@ -68,11 +66,12 @@ Aplicação das datas:
   - `tipo='1'` exige CNPJ de 14 dígitos
   - `tipo='2'` exige CPF mascarado
   - `tipo='3'` fica livre. Confirmar com amostra o que vem em estrangeiros.
-- **Caracteres inválidos (issue 1533):** teste `no_invalid_chars` para `razao_social`, `email`, `logradouro` etc. Antes de escrever o regex, ler a issue e levantar quais caracteres aparecem na prática (ex.: `�`, controles `\x00-\x1f`). Começar em `warn`. A coluna `endereco` não existe nos modelos atuais, só `logradouro`. Ajustar a lista para as colunas que de fato existem.
-- **`not_null_proportion_multiple_columns` nas 5 tabelas:** o macro marca como falha a coluna com proporção de nulos acima de `1 - at_least`. Para cada tabela, rodar com os padrões, listar as colunas que falham e decidir caso a caso se vão para `ignore_values` (colunas naturalmente vazias, como `complemento`, `fax`, `data_exclusao_*`) ou se indicam bug. Observação: o macro compara `column_name not in (...)`, então `ignore_values` é uma lista de **nomes de colunas**, apesar do nome.
+.
 
-## Fase 4: unicidade e cruzamento entre tabelas
+### Fase 4: unicidade e testes restantes
 
+- **Caracteres inválidos (issue 1533):** teste `no_invalid_chars` para `razao_social`, `email`, `logradouro` etc. Antes de escrever o regex, ler a issue e levantar quais caracteres aparecem na prática (ex.: `�`, controles `\x00-\x1f`). Começar em `warn`.
+- **`not_null_proportion_multiple_columns` nas 5 tabelas:** o macro marca como falha a coluna com proporção de nulos acima de `1 - at_least`. Para cada tabela, rodar com os padrões, listar as colunas que falham e decidir caso a caso se vão para `ignore_values` (colunas naturalmente vazias, como `complemento`, `fax`, `data_exclusao_*`) ou se indicam bug. Observação: o macro compara `column_name not in (...)`, então `ignore_values` é uma lista de **nomes de colunas**, apesar do nome
 - **`socios`: chave de unicidade.** Não existe chave natural declarada. Candidatas a testar na partição recente:
   - `(cnpj_basico, tipo, documento, nome, qualificacao, data_entrada_sociedade)`
   - com e sem `cpf_representante_legal`
@@ -84,7 +83,7 @@ Aplicação das datas:
   - Atenção: `simples` é snapshot e `empresas` é particionada, então a comparação tem que ser com a partição mais recente de `empresas`. Isso pode pedir um genérico novo com `where` na tabela destino, ou um modelo/CTE auxiliar com `data_referencia = (select max ...)`. Verificar se `custom_relationships` aceita um `to` filtrado.
 
 
-## Fase 5: CNPJ alfanumérico (investigação, antes de qualquer código)
+### Fase 5: CNPJ alfanumérico (investigação, antes de qualquer código)
 
 A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
 
@@ -93,7 +92,7 @@ A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
 - **Dígito verificador:** o cálculo muda (módulo 11 sobre valores ASCII − 48). Se algum teste ou rotina valida o DV, precisa ser ajustado.
 - **Novos testes:** formato `^[A-Z0-9]{12}[0-9]{2}$` para `cnpj` e `^[A-Z0-9]{8}$` para `cnpj_basico`.
 
-## Decisões tomadas
+### Decisões tomadas
 
 1. **Datas: manter o teste `date_in_range` e não aplicar `validate_date_range` nos modelos.**
    - **Contexto:** os modelos de `br_rf_cnpj` só usam `safe_cast(... as date)`, que zera formato inválido mas deixa passar datas bem formadas e absurdas (ex.: `1850-01-01`, datas futuras). A macro `validate_date_range` hoje só é usada em `br_tse_*` e `br_ms_sia`.
@@ -102,15 +101,6 @@ A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
    - **Quando reabrir:** se o teste falhar por valores sentinela da fonte (ex.: `0000-00-00`, `9999-12-31`), avaliar tratar no SQL do modelo. Se a macro for adotada, manter o `not_null_proportion_multiple_columns` para pegar aumento súbito de nulos.
    - **Pendente:** medir na partição mais recente se existem sentinelas antes de subir a severidade de `warn` para `error`, e decidir sobre `data_modificacao` (hoje fora dos testes por omissão).
 
-## Decisões em aberto
+### Decisões em aberto
 
 1. **Chave de `socios`:** medir as combinações candidatas no BQ (consulta de leitura, com custo) antes de fechar o teste?
-
-## Relatório
-### a. Teste de ddd
-
-LENGHT(ddd_1) : Ocorrências
-1:	2529466
-3: 	793493
-4: 	175544
-2: 	34
