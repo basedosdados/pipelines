@@ -333,9 +333,10 @@ models:
       - custom_cross_table_aggregate_match:
           compare_model: ref('br_me_rais__microdados_vinculos')
           expression: sum(quantidade_vinculos_ativos)
-          compare_expression: countif(vinculo_ativo_3112 = '1')
+          compare_expression: countif(vinculo_ativo_3112 = '1' and coalesce(indicador_vinculo_abandonado,
+            '0') != '1')
           group_by: sigla_uf
-          proportion_allowed_difference: 0.03
+          proportion_allowed_difference: 0.005
     columns:
       - name: ano
         description: Ano

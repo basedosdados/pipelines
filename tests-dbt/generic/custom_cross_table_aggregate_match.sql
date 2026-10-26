@@ -4,62 +4,47 @@
     expression,
     compare_expression,
     group_by,
-    year_column="ano",
     proportion_allowed_difference=0.0
 ) %}
 
     {#- Compara, por grupo, uma agregação do modelo com a de outro modelo, no
-        ano mais recente presente nos dois. -#}
-    {% set tested_year = 0 %}
+        ano mais recente presente nos dois. O ano é buscado antes para que a
+        consulta leia só a partição dele. -#}
+    {% set ano = 0 %}
     {% if execute %}
         {% set year_query %}
             select least(
-                (select max({{ year_column }}) from {{ model }}),
-                (select max({{ year_column }}) from {{ compare_model }})
+                (select max(ano) from {{ model }}),
+                (select max(ano) from {{ compare_model }})
             )
         {% endset %}
-        {% set tested_year = run_query(year_query).rows[0][0] | int %}
-        {% do log(
-            "----- Comparação entre "
-            ~ model
-            ~ " e "
-            ~ compare_model
-            ~ " em "
-            ~ year_column
-            ~ " = "
-            ~ tested_year,
-            info=True,
-        ) %}
+        {% set ano = run_query(year_query).rows[0][0] | int %}
     {% endif %}
 
     with
         tested as (
             select {{ group_by }} as grupo, {{ expression }} as valor
             from {{ model }}
-            where {{ year_column }} = {{ tested_year }}
+            where ano = {{ ano }}
             group by 1
         ),
 
         compared as (
             select {{ group_by }} as grupo, {{ compare_expression }} as valor_comparado
             from {{ compare_model }}
-            where {{ year_column }} = {{ tested_year }}
+            where ano = {{ ano }}
             group by 1
         )
 
     select
-        {{ tested_year }} as {{ year_column }},
+        {{ ano }} as ano,
         grupo,
-        valor,
-        valor_comparado,
-        safe_divide(valor, valor_comparado) - 1 as diferenca
+        coalesce(valor, 0) as valor,
+        coalesce(valor_comparado, 0) as valor_comparado
     from tested
     full outer join compared using (grupo)
     where
-        valor is null
-        or valor_comparado is null
-        or (valor_comparado = 0 and valor != 0)
-        or abs(safe_divide(valor, valor_comparado) - 1)
-        > {{ proportion_allowed_difference }}
+        abs(coalesce(valor, 0) - coalesce(valor_comparado, 0))
+        > {{ proportion_allowed_difference }} * coalesce(valor_comparado, 0)
 
 {% endtest %}
