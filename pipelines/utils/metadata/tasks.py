@@ -19,7 +19,10 @@ from pipelines.constants import constants
 from pipelines.utils.metadata.bq import BigQueryReader
 from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import constants as metadata_constants
-from pipelines.utils.metadata.coverage import CoverageSpec, coverage_from_backend
+from pipelines.utils.metadata.coverage import (
+    CoverageSpec,
+    coverage_from_backend,
+)
 from pipelines.utils.metadata.poll import (
     check_source_is_ahead_of_table,
     register_source_coverage,

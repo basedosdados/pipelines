@@ -22,7 +22,6 @@ from tqdm import tqdm
 
 from pipelines.datasets.br_cvm_fi.constants import (
     DATASET_ID,
-    DATE_COLUMN_BY_TABLE,
 )
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.utils import (
@@ -32,7 +31,6 @@ from pipelines.datasets.br_cvm_fi.utils import (
     process_file,
     save_output,
 )
-from pipelines.utils.metadata.domain import AllBdpro, DateFormat, DateOnly
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -335,13 +333,7 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             input_dir=input_filepath, table_id=table_id, config_key=table_id
         )
 
-        coverage = AllBdpro(
-            date_column=DateOnly(col=DATE_COLUMN_BY_TABLE[table_id]),
-            date_format=DateFormat.YEAR_MD,
-        )
-
         return ExtractAndLoad(
-            coverage=coverage.model_dump(),
             data_path=output_filepath,
             dump_mode="append",
         )

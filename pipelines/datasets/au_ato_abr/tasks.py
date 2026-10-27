@@ -10,7 +10,7 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.au_ato_abr.constants import COVERAGE, constants
+from pipelines.datasets.au_ato_abr.constants import constants
 from pipelines.datasets.au_ato_abr.utils import (
     clean_all,
     download_zips,
@@ -149,7 +149,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=result[table_id],
             dump_mode="overwrite",
             source_format="parquet",

@@ -71,14 +71,6 @@ from pipelines.datasets.world_cricsheet.tasks import (
     get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -103,34 +95,9 @@ ALL_TABLES = constants.ALL_TABLES.value
 # coincidence.
 _EXTRACT_AND_LOAD_DEPLOYMENT = "world_cricsheet_extract_and_load"
 
-# Coverage spec per table.
-#
-# deliveries and matches refresh near-daily, so they carry the BD Pro rolling
-# window on their start_date DATE column: the most recent 6 months are pro-only,
-# everything older is free. Each run recomputes free_end = source_end - free_lag,
-# rewrites both DateTimeRanges, and re-issues the BigQuery Row Access Policies, so
-# the window slides forward on its own. part_bdpro requires BOTH a free
-# (is_closed=False) and a pro (is_closed=True) Coverage to already exist on the
-# table, or assert_coverage_topology raises before anything is written.
-#
-# match_players has only an annual `year` column (no fine date), so it stays
-# fully free. people is a non-temporal dimension and takes no coverage spec at
-# all (it is uploaded/materialized, but not registered here).
-_COVERAGE = {
-    "deliveries": PartBdpro(
-        date_column=DateOnly(col="start_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "matches": PartBdpro(
-        date_column=DateOnly(col="start_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "match_players": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# people is a non-temporal dimension and takes no coverage spec at all (it is
+# uploaded/materialized, but not registered here).
+TABLES_WITH_COVERAGE = ["deliveries", "matches", "match_players"]
 
 # The deliveries build streams 11.4M rows and the bundle extracts to several GB;
 # give the worker headroom. check_update does the same download + rebuild (see
@@ -288,11 +255,10 @@ def world_cricsheet_extract_and_load(
         _materialize("prod", "basedosdados", result)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

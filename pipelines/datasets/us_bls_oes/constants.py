@@ -10,8 +10,6 @@ See models/us_bls_oes/ONBOARDING_PLAN.md for the full design.
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-
 # Repo root, then the committed architecture CSVs (the single schema source of
 # truth — column order + bigquery_type per table).
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -243,11 +241,3 @@ class constants(Enum):
 # Module-level mirror of the Enum member above, for the staged pipeline wiring
 # (`flows.py`/`tasks.py`) — same convention as `br_ibge_ipca`'s `constants.py`.
 DATASET_ID = constants.DATASET_ID.value
-
-# Coverage spec per table. OEWS is annual, so neither table takes a BD Pro
-# rolling window — that applies to tables refreshed monthly or more often. Both
-# are AllFree with a single free Coverage.
-_ALL_FREE = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
-COVERAGE = {table: _ALL_FREE for table in constants.DATA_TABLES.value}

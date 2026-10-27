@@ -135,7 +135,6 @@ def _run(
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=COVERAGE[table],
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -10,7 +10,6 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.au_geoscape_gnaf.constants import COVERAGE
 from pipelines.datasets.au_geoscape_gnaf.utils import (
     clean_all,
     download_zip,
@@ -159,7 +158,6 @@ def make_extract_load_data(
             snapshot_date=download_params["reference_date"],
         )
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=result[table_id],
             dump_mode="overwrite",
             source_format="parquet",

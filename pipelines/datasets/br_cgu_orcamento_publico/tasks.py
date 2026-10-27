@@ -19,7 +19,6 @@ from pathlib import Path
 from prefect import task
 
 from pipelines.datasets.br_cgu_orcamento_publico.constants import (
-    COVERAGE,
     constants,
 )
 from pipelines.datasets.br_cgu_orcamento_publico.utils import (
@@ -121,7 +120,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     )
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=result["path"],
         dump_mode="overwrite",
         source_format="csv",

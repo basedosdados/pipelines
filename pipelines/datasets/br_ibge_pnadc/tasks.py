@@ -21,7 +21,6 @@ from prefect import task
 from tqdm import tqdm
 
 from pipelines.datasets.br_ibge_pnadc.constants import (
-    MICRODADOS_COVERAGE,
     MICRODADOS_TABLE_ID,
 )
 from pipelines.datasets.br_ibge_pnadc.constants import (
@@ -294,7 +293,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     build_partitions(input_dir, output_dir)
 
     return ExtractAndLoad(
-        coverage=MICRODADOS_COVERAGE.model_dump(),
         data_path=str(output_dir),
         dump_mode="append",
     )

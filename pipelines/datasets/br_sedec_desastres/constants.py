@@ -9,8 +9,6 @@ abertas — estão em `pipelines/datasets/br_sedec_desastres/README.md`.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-
 # Cabeçalho do painel do relatório e o div de conteúdo que o segue. Servem de
 # prefixo para escopar os XPaths ao painel certo: a página tem 13 painéis de
 # relatório, e vários repetem os mesmos rótulos ("Todas as tipologias de
@@ -163,18 +161,3 @@ class constants(Enum):
     # duas são STRING, então não há perda. Se algum dia os tipos divergirem, este
     # atalho deixa de valer.
     STAGING_SUBSTITUICOES = {"id_municipio": "nome_municipio"}
-
-
-# Cobertura da tabela: fora do Enum acima por não ser um valor hashable simples
-# (é um modelo Pydantic) — mesma convenção de `br_bcb_taxa_selic/constants.py` e
-# `br_ibge_ipca/constants.py`. `tasks.py`/`flows.py`/`run_local.py` importam daqui,
-# uma definição só.
-#
-# `AllFree`, não a janela BD Pro que a cadência diária acionaria por padrão: numa
-# série de retratos, o paywall da janela recente restringiria ao BD Pro o estado
-# atual dos reconhecimentos e liberaria só os retratos com mais de seis meses (ver
-# README, decisão 3).
-COVERAGE = AllFree(
-    date_column=DateOnly(col="data_extracao"),
-    date_format=DateFormat.YEAR_MD,
-)

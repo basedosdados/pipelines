@@ -18,12 +18,6 @@ from pipelines.datasets.au_ato_taxation_statistics.utils import (
     download_all,
     release_year,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    NonHistorical,
-    YearOnly,
-)
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -38,23 +32,6 @@ DATASET_ID = constants.DATASET_ID.value
 DATA_TABLE_IDS = list(constants.TABLE_SELECTORS.value)
 GST_TABLE_ID = "gst_industry"
 DICIONARIO_TABLE_ID = "dicionario"
-
-# Coverage spec per table, used by `ExtractAndLoad.coverage` (below) and,
-# through it, by `register_table_materialization_task`/`build_and_promote`.
-#
-# This dataset releases annually, and the BD Pro rolling window applies only
-# to tables refreshed monthly or faster, so every fact table stays fully free
-# — no pro Coverage and no Row Access Policies. `dicionario` has no date
-# column, so it takes `NonHistorical` instead — modeled on
-# `__TABLES__.last_modified_time`, not a `DateColumn`/`DateFormat` pair (same
-# pattern as au_ato_abr's and au_geoscape_gnaf's constants.py).
-_ALL_FREE = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
-COVERAGE: dict[str, AllFree | NonHistorical] = {
-    **{table: _ALL_FREE for table in DATA_TABLE_IDS},
-    DICIONARIO_TABLE_ID: NonHistorical(),
-}
 
 
 @task(retries=2, retry_delay_seconds=30)
@@ -214,7 +191,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         result = clean_taxstats(work_dir=work_dir, input_dir=input_dir)
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=result[table_id],
             dump_mode="overwrite",
             source_format="parquet",

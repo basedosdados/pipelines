@@ -55,7 +55,6 @@ ignores the schedules, the prod pool activates them.
 
 import shutil
 import tempfile
-from collections.abc import Mapping
 
 from prefect.schedules import Cron
 
@@ -66,13 +65,6 @@ from pipelines.datasets.us_nih_reporter.tasks import (
     probe_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    CoverageSpec,
-    DateFormat,
-    NonHistorical,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -86,35 +78,22 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
-#
-# The four year-partitioned tables key their coverage on `year`, which is
-# non-null on every row by construction. patent_link and clinical_study_link
-# have no date column at all — the source ships them as one snapshot covering
-# every fiscal year — so they take NonHistorical, which derives a single
-# coverage from the BigQuery table's last_modified. dicionario is a register
-# with no coverage of its own and is absent here.
-_YEARLY = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
+# dicionario has no date column, so it is absent from these lists: a table
+# absent here gets no coverage registered.
+_ANNUAL_TABLES_WITH_COVERAGE = [
+    "project",
+    "project_abstract",
+    "publication",
+    "publication_link",
+]
 
-_ANNUAL_COVERAGE = {
-    "project": _YEARLY,
-    "project_abstract": _YEARLY,
-    "publication": _YEARLY,
-    "publication_link": _YEARLY,
-}
-
-_LINK_COVERAGE = {
-    "patent_link": NonHistorical(),
-    "clinical_study_link": NonHistorical(),
-}
+_LINK_TABLES_WITH_COVERAGE = ["patent_link", "clinical_study_link"]
 
 
 def _materialize(
     families: list[str],
     tables: list[str],
-    coverage: Mapping[str, CoverageSpec],
+    coverage_tables: list[str],
     anchor_table: str,
     materialize_to_prod: bool,
     update_metadata: bool,
@@ -130,8 +109,8 @@ def _materialize(
             ``constants.FAMILIES``.
         tables: Clean tables this group builds, uploads and tests, in build
             order — every one is built before any is tested.
-        coverage: Clean table -> its ``CoverageSpec``, registered after a
-            successful prod materialization. A table absent from this mapping
+        coverage_tables: Clean tables whose coverage is registered after a
+            successful prod materialization. A table absent from this list
             gets no coverage registered, which is how ``dicionario`` is handled.
         anchor_table: Table whose raw data source the poll and the source-update
             commit are read from and written to.
@@ -222,11 +201,10 @@ def _materialize(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, spec in coverage.items():
+            for table in coverage_tables:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=spec,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -258,7 +236,7 @@ def us_nih_reporter_flow(
     _materialize(
         families=constants.ANNUAL_FAMILIES.value,
         tables=constants.ANNUAL_TABLES.value,
-        coverage=_ANNUAL_COVERAGE,
+        coverage_tables=_ANNUAL_TABLES_WITH_COVERAGE,
         anchor_table=constants.PROJECT.value,
         materialize_to_prod=materialize_to_prod,
         update_metadata=update_metadata,
@@ -287,7 +265,7 @@ def us_nih_reporter_links_flow(
     _materialize(
         families=constants.LINK_FAMILIES.value,
         tables=constants.LINK_TABLES.value,
-        coverage=_LINK_COVERAGE,
+        coverage_tables=_LINK_TABLES_WITH_COVERAGE,
         anchor_table=constants.PATENT_LINK.value,
         materialize_to_prod=materialize_to_prod,
         update_metadata=update_metadata,

@@ -41,7 +41,6 @@ from pipelines.datasets.us_fema_openfema.tasks import (
     write_dicionario_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -54,11 +53,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-_ALL_FREE = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
-_COVERAGE = {table: _ALL_FREE for table in constants.SOURCES.value}
 
 
 @flow(name="us_fema_openfema", log_prints=True)
@@ -151,7 +145,6 @@ def us_fema_openfema_flow(
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                coverage=_COVERAGE[table],
                 env="prod",
                 bq_project="basedosdados",
             )

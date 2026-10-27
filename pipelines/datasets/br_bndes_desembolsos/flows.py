@@ -10,7 +10,7 @@ from pipelines.datasets.br_bndes_desembolsos.tasks import (
     get_source_last_modified,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearMonth
+from pipelines.utils.metadata.domain import DateFormat
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -106,10 +106,6 @@ def br_bndes_desembolsos__mensal(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllFree(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

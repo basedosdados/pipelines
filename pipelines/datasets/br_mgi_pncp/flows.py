@@ -72,13 +72,6 @@ from pipelines.datasets.br_mgi_pncp.tasks import (
     max_publication_date,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.stage_dispatch import (
     Etapa,
@@ -100,68 +93,6 @@ POLL_TABLE = "contratacao"
 # `str(Etapa.EXTRACT_AND_LOAD)` already — kept explicit so it doesn't depend on
 # that coincidence.
 _EXTRACT_AND_LOAD_DEPLOYMENT = "br_mgi_pncp_extract_and_load"
-
-# Coverage spec per table.
-#
-# PNCP refreshes daily, so the house rule puts the recent window behind BD Pro:
-# the most recent 6 months are pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
-# re-issues the BigQuery Row Access Policies, so the window slides on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. Those must be created before the flow is armed.
-#
-# The window keys on the publication date rather than the `ano` partition: a
-# 6-month lag is meaningless against a year-granular column.
-#
-# plano_contratacao_anual is forward-looking planning data published a year
-# ahead, so paywalling its recent window would paywall essentially all of it —
-# it stays free. dicionario has no date column and takes no spec at all.
-_PART_BDPRO = PartBdpro(
-    date_column=DateOnly(col="data_publicacao"),
-    date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=6),
-)
-
-# instrumento_cobranca has NO data_publicacao column -- only data_emissao,
-# data_inclusao and data_atualizacao -- so it cannot share _PART_BDPRO.
-# register_table_materialization_task reads the max of this column straight
-# from BigQuery, so the wrong name fails the first metadata run rather than
-# degrading quietly. It keys on data_inclusao, which is also what its `ano`
-# partition derives from (PARTITION_SOURCE), keeping the paywall window and
-# the partitioning on the same clock.
-_PART_BDPRO_INCLUSAO = PartBdpro(
-    date_column=DateOnly(col="data_inclusao"),
-    date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=6),
-)
-
-_COVERAGE = {
-    "contratacao": _PART_BDPRO,
-    "contrato": _PART_BDPRO,
-    "ata_registro_preco": _PART_BDPRO,
-    "instrumento_cobranca": _PART_BDPRO_INCLUSAO,
-    "plano_contratacao_anual": AllFree(
-        date_column=DateOnly(col="data_publicacao"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-}
-
-
-def coverage_registrations(tables):
-    """Pair each materialised table with the coverage spec to register.
-
-    Driven by the tables a run actually materialised, NOT by _COVERAGE.
-    Iterating the spec dict would try to register a DEFERRED table (see
-    constants.DEFERRED_TABLES): registration reads the table's max date
-    straight from BigQuery, so it fails on a table with no data, no dbt model
-    and no BigQuery table at all.
-
-    Tables with no spec are skipped rather than raising -- `dicionario` is in
-    the run scope and deliberately has none, having no date column.
-    """
-    return [(t, _COVERAGE[t]) for t in tables if t in _COVERAGE]
 
 
 def _harvest_all(work_dir: str, lookback_days: int) -> dict:
@@ -375,13 +306,10 @@ def br_mgi_pncp_extract_and_load(
         _materialize("prod", "basedosdados", summaries, dbt_vars)
 
         if update_metadata:
-            for table, coverage in coverage_registrations(
-                constants.ALL_TABLES.value
-            ):
+            for table in constants.FACT_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

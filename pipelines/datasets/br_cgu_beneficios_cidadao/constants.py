@@ -2,8 +2,6 @@
 Constant values for br_cgu_beneficios_cidadao.
 """
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_cgu_beneficios_cidadao"
 
 # As 3 tabelas ativas do dataset — cada uma com download independente (URL
@@ -29,22 +27,4 @@ SOURCE_FORMAT = {
     NOVO_BOLSA_FAMILIA_TABLE_ID: "parquet",
     GARANTIA_SAFRA_TABLE_ID: "parquet",
     BPC_TABLE_ID: "csv",
-}
-
-# Coluna de ano/mês usada como cobertura de cada tabela — mesma convenção do
-# antigo `dict_for_table()` (`pipelines/shared/cgu/tasks.py`), repassada a
-# `_part_bdpro_year_month()` em `pipelines/shared/cgu/flows.py`.
-COVERAGE = {
-    NOVO_BOLSA_FAMILIA_TABLE_ID: PartBdpro(
-        date_column=YearMonth(year="ano_competencia", month="mes_competencia"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    GARANTIA_SAFRA_TABLE_ID: PartBdpro(
-        date_column=YearMonth(year="ano_referencia", month="mes_referencia"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    BPC_TABLE_ID: PartBdpro(
-        date_column=YearMonth(year="ano_competencia", month="mes_competencia"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
 }

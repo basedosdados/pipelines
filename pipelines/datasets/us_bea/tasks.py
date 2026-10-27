@@ -10,7 +10,6 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.us_bea.constants import COVERAGE
 from pipelines.datasets.us_bea.utils import (
     gi_latest_year_quarter,
     nipa_latest_year_month,
@@ -209,7 +208,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             raise ValueError(f"us_bea: unknown table_id {table_id!r}")
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=data_path,
             dump_mode="overwrite",
             source_format="parquet",

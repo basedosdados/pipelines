@@ -37,7 +37,6 @@ from pipelines.datasets.us_cms_hcris.tasks import (
     source_max_date_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -57,15 +56,9 @@ STAGED_TABLES = constants.STAGED_TABLES.value
 # or more sources -- the poll would fail before doing anything.
 POLL_TABLE = "report"
 
-# HCRIS refreshes quarterly, which is less often than monthly, so no table
-# takes the BD Pro rolling window: everything is free. `dicionario` has no date
-# column and takes no spec at all.
-COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in ("report", "report_value", "hospital_financial")
-}
+# Tables registered with the backend. `dicionario` has no date column and
+# takes no coverage spec at all.
+COVERAGE_TABLES = ("report", "report_value", "hospital_financial")
 
 
 @flow(name="us_cms_hcris", log_prints=True)
@@ -136,11 +129,10 @@ def us_cms_hcris_flow(
         if not materialize_to_prod or not update_metadata:
             return
 
-        for table, coverage in COVERAGE.items():
+        for table in COVERAGE_TABLES:
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                coverage=coverage,
                 env="prod",
                 bq_project="basedosdados",
             )

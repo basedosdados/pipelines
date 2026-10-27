@@ -15,13 +15,6 @@ from pipelines.shared.datasus.tasks import (
     pre_process_files,
     read_dbf_save_parquet_chunks,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -133,10 +126,6 @@ def _run_cnes(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
@@ -238,10 +227,6 @@ def _run_dbf_to_parquet(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
@@ -343,10 +328,6 @@ def _run_sinan(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllFree(
-                date_column=DateOnly(col="data_notificacao"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

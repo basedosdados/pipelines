@@ -27,14 +27,6 @@ from pipelines.datasets.us_census_bps.tasks import (
     download_bps,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -51,64 +43,20 @@ DATASET_ID = constants.DATASET_ID.value
 # The table whose coverage the source poll compares against.
 POLL_TABLE = "permit_state_monthly"
 
-# Coverage spec per table.
-#
-# Data Basis paywalls the trailing window of any table that refreshes monthly
-# or more often, so the four live monthly tables are part_bdpro with the
-# standard six-month free lag: each run recomputes free_end = source_end -
-# free_lag, rewrites both DateTimeRanges and re-issues the BigQuery row access
-# policies, so the window slides on its own.
-#
-# part_bdpro requires a free (is_closed=False) *and* a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. Both were registered at onboarding.
-#
-# The MSA tables ended in 2003 and have nothing recent to gate, so they stay
-# free even though one of them is monthly. The annual tables are
-# lower-frequency and stay free. `dicionario` has no date column and takes no
-# spec at all.
-_MONTHLY = YearMonth(year="year", month="month")
-_ANNUAL = YearOnly(col="year")
-_COVERAGE = {
-    "permit_place_monthly": PartBdpro(
-        date_column=_MONTHLY,
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "permit_county_monthly": PartBdpro(
-        date_column=_MONTHLY,
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "permit_cbsa_monthly": PartBdpro(
-        date_column=_MONTHLY,
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "permit_state_monthly": PartBdpro(
-        date_column=_MONTHLY,
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "permit_msa_monthly": AllFree(
-        date_column=_MONTHLY, date_format=DateFormat.YEAR_MONTH
-    ),
-    "permit_place_annual": AllFree(
-        date_column=_ANNUAL, date_format=DateFormat.YEAR
-    ),
-    "permit_county_annual": AllFree(
-        date_column=_ANNUAL, date_format=DateFormat.YEAR
-    ),
-    "permit_cbsa_annual": AllFree(
-        date_column=_ANNUAL, date_format=DateFormat.YEAR
-    ),
-    "permit_msa_annual": AllFree(
-        date_column=_ANNUAL, date_format=DateFormat.YEAR
-    ),
-    "permit_state_annual": AllFree(
-        date_column=_ANNUAL, date_format=DateFormat.YEAR
-    ),
-}
+# Tables registered with the backend (excludes `dicionario`, which has no date
+# column and takes no coverage spec at all).
+_COVERAGE_TABLES = (
+    "permit_place_monthly",
+    "permit_county_monthly",
+    "permit_cbsa_monthly",
+    "permit_state_monthly",
+    "permit_msa_monthly",
+    "permit_place_annual",
+    "permit_county_annual",
+    "permit_cbsa_annual",
+    "permit_msa_annual",
+    "permit_state_annual",
+)
 
 
 def _materialize(result: dict, bucket: str, target: str) -> None:
@@ -218,11 +166,10 @@ def us_census_bps_flow(
         _materialize(result, "basedosdados", "prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _COVERAGE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

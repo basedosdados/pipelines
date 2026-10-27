@@ -28,11 +28,6 @@ from pipelines.datasets.us_hhs_nppes.tasks import (
     download_nppes,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -46,26 +41,8 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
-#
-# All tables are **AllFree** for now. NPPES refreshes monthly, so the house rule
-# would paywall the most recent window to BD Pro — but that rule assumes a series
-# long enough to split. With a single onboarded snapshot, a 6-month free_lag puts
-# free_end (2026-02-09) *before* the only snapshot (2026-08-09), producing an
-# inverted free range and locking the whole dataset behind Pro. That is the
-# go-live failure br_senado_dados_abertos_administrativos hit.
-#
-# Switch to PartBdpro once several snapshots have accumulated. That change is not
-# just this dict: `assert_coverage_topology` requires all_free to have a free
-# Coverage and **no pro**, and part_bdpro to have both — so the pro Coverage must
-# be created on each table in the same change, or the first run hard-fails.
-#
 # `dicionario` has no date column, so it takes no coverage spec.
-_ALL_FREE = AllFree(
-    date_column=DateOnly(col="extraction_date"),
-    date_format=DateFormat.YEAR_MD,
-)
-_COVERAGE = {table: _ALL_FREE for table in constants.PARTITIONED_TABLES.value}
+TABLES_WITH_COVERAGE = constants.PARTITIONED_TABLES.value
 
 
 @flow(name="us_hhs_nppes", log_prints=True)
@@ -176,11 +153,10 @@ def us_hhs_nppes_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

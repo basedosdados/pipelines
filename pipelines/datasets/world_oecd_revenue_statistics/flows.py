@@ -26,7 +26,6 @@ from pipelines.datasets.world_oecd_revenue_statistics.tasks import (
     download_revenue,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -40,13 +39,8 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# revenue is annual → fully free (no BD Pro rolling window; that is for tables
-# refreshed monthly or more often). dicionario has no date column → no coverage.
-_COVERAGE = {
-    "revenue": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# dicionario has no date column → no coverage.
+TABLES_WITH_COVERAGE = ["revenue"]
 
 
 @flow(name="world_oecd_revenue_statistics", log_prints=True)
@@ -117,11 +111,10 @@ def world_oecd_revenue_statistics_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

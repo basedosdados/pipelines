@@ -614,8 +614,7 @@ def extract_load_data(table_id: str, download_params: dict) -> ExtractAndLoad:
             em `year_months`, no formato `AAAAMM`.
 
     Returns:
-        A pasta particionada por `ano`, `mes` e `sigla_uf` e a cobertura da
-        tabela.
+        A pasta particionada por `ano`, `mes` e `sigla_uf`.
     """
     input_dir, output_dir = build_table_paths(table_id)
 
@@ -646,7 +645,6 @@ def extract_load_data(table_id: str, download_params: dict) -> ExtractAndLoad:
     )
 
     return ExtractAndLoad(
-        coverage=caged_constants.COVERAGE.value.model_dump(),
         data_path=filepath,
         dump_mode="append",
         source_format="csv",

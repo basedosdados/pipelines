@@ -24,7 +24,6 @@ import requests
 from prefect import task
 
 from pipelines.datasets.br_cgu_emendas_parlamentares.constants import (
-    COVERAGE,
     constants,
 )
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
@@ -191,7 +190,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     output_dir = convert_str_to_float()
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=str(output_dir),
         dump_mode="append",
         source_format="csv",

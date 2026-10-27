@@ -4,20 +4,11 @@ Constant values for br_bcb_estban.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_bcb_estban"
 
 # As 2 tabelas do dataset.
 AGENCIA_TABLE_ID = "agencia"
 MUNICIPIO_TABLE_ID = "municipio"
-
-# Mesma coverage pras 2 tabelas — mesmo PartBdpro(YearMonth) que o flow
-# monolítico antigo passava pra `register_table_materialization_task`.
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)
 
 
 class constants(Enum):

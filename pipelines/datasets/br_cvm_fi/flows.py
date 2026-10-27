@@ -33,11 +33,6 @@ from pipelines.datasets.br_cvm_fi.tasks import (
     make_pipeline,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllBdpro,
-    DateFormat,
-    DateOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -444,15 +439,9 @@ def _run_cvm_fi(
     )
 
     if update_metadata:
-        # date_column_name é parametrizado pelos flows de dataset; todos os
-        # callers passam {"date": <col>} (ver br_cvm_fi), logo DateOnly/YEAR_MD.
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllBdpro(
-                date_column=DateOnly(col=date_column_name["date"]),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
