@@ -429,6 +429,9 @@ O `custom_relationships` de `cbo_2002` não acusava o problema porque calcula
 abaixo de 0,5% e arredondavam para zero. O teste passou a acusar depois de limitado
 ao ano mais recente.
 
+O teste também acusou 20 ocupações novas da CBO, usadas em 2024 e 2025, que não
+estavam em `br_bd_diretorios_brasil.cbo_2002`. O diretório foi atualizado na #2248.
+
 ---
 
 ## 7. Observações sobre a divulgação dos dados
@@ -568,3 +571,67 @@ O macro aplica as mesmas normalizações de CNAE descritas nas seções 6.1 e 6.
 - **`cnae_1`**: LEFT JOIN contra `basedosdados.br_bd_diretorios_brasil.cnae_1` para corrigir códigos de 4 dígitos introduzidos em 2023/2024. O `coalesce` garante que anos anteriores (onde o código já tem 5 dígitos e não cruza com o JOIN) mantenham o valor original.
 - **`cnae_2`**: derivado diretamente de `cnae_2_subclasse` após padding — `left(lpad(cnae_2_subclasse, 7, '0'), 5)`.
 - **`cnae_2_subclasse`**: normalizado para 7 dígitos via `lpad(cnae_2_subclasse, 7, '0')`.
+
+## 11. Testes de qualidade
+
+### 11.1 Escopo: só o ano mais recente
+
+Quase todos os testes do `schema.yml` usam `where: __most_recent_year__`. Cada
+carga da RAIS acrescenta um ano, e é esse ano que precisa ser testado. Rodar sobre
+a série inteira custa mais e esconde erro: um problema num único ano se dilui na
+média, como aconteceu com os códigos de `cbo_2002` (§6.8) e com o
+`cnae_2_subclasse` vazio (§6.2).
+
+### 11.2 Consistência entre estabelecimentos e vínculos
+
+`custom_cross_table_aggregate_match`, na tabela de estabelecimentos. As duas
+tabelas trazem o estoque de 31/12, ou seja, os vínculos ativos no último dia do
+ano-base. Estabelecimentos traz esse estoque como total por estabelecimento
+(`quantidade_vinculos_ativos`); vínculos traz como marcação em cada linha
+(`vinculo_ativo_3112`). O teste soma um, conta o outro e compara por `sigla_uf` no
+ano mais recente presente nas duas tabelas.
+
+Ficam de fora da contagem os vínculos com `indicador_vinculo_abandonado = '1'`,
+coluna que existe desde 2023. O total de estabelecimentos não conta esses vínculos,
+mas vínculos marca parte deles como ativos em 31/12. A diferença entre as tabelas
+era exatamente o número de abandonados ativos:
+
+| Ano | Abandonados ativos em 31/12 |
+| :--- | ---: |
+| 2023 | 501.393 |
+| 2024 | 668.495 |
+| 2025 | 720.825 |
+
+Sem eles, as tabelas batem exatamente no total nacional de 2000 a 2025. Por UF, a
+única diferença foi em 2023, de 1 ou 2 linhas em 13 UFs; a maior em percentual foi
+0,28%, em `IGNORADO` (709 contra 711). Por isso a tolerância é de 0,5%
+(`proportion_allowed_difference: 0.005`). De 1985 a 1999 vínculos fica de 0,08% a
+1,7% abaixo de estabelecimentos, o que não afeta o teste, que olha só o ano mais
+recente.
+
+O teste pega carga incompleta ou duplicada: vínculos chega em sete arquivos
+regionais, e um arquivo faltando ou carregado duas vezes deixa as UFs da região
+com diferença de 100%.
+
+O ano é buscado com `run_query` antes da consulta principal. Usar uma subconsulta
+no filtro de ano impede o BigQuery de ler só a partição e faz o teste ler a tabela
+inteira (cerca de 35 GB contra 1,7 GB).
+
+### 11.3 Variação de volume
+
+`custom_row_count_variation` com `granularity: year`, nas duas tabelas de
+microdados. Compara as linhas do ano mais recente com as do ano anterior na tabela
+de produção e avisa se a variação sair de −10% a +15%. A faixa vem da série: desde
+2000, vínculos variou entre −7% e +11%.
+
+O teste tem `severity: warn` e não interrompe o flow, porque o volume pode mudar
+por motivo real. Em estabelecimentos, o único ano fora da faixa desde 2000 é 2023
+(+39%), quando a fonte mudou o universo de estabelecimentos.
+
+### 11.4 Sem teste de unicidade
+
+Os microdados públicos da RAIS não têm CNPJ, CPF nem outro identificador, então não
+há chave para testar. Mesmo tomando a linha inteira como chave, 31% dos
+estabelecimentos de 2025 são idênticos a outro (estabelecimentos sem empregados que,
+sem CNPJ, ficam iguais). O risco que a unicidade cobriria é o de carga duplicada, e
+esse já é coberto pelo teste da §11.2.
