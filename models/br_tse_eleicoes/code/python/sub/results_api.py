@@ -378,8 +378,7 @@ def _write(
     """
     out = INPUT_DIR / family / f"{family}_{ano}" / f"{family}_{ano}_{part}.csv"
     df = pd.DataFrame(rows, columns=cols)
-    kw = {"sep": ";", "index": False, "encoding": "latin-1", "quoting": 1,
-          "errors": "replace"}  # fmt: skip
+    append = False
     if out.exists():
         have = set(
             pd.read_csv(
@@ -391,11 +390,14 @@ def _write(
             df = df[~df["CD_ELEICAO"].astype(str).isin(have)]
             if df.empty:
                 return f"kept CDN {out.name}"
-            df.to_csv(out, header=False, mode="a", **kw)
-            return f"appended {len(df):,} rows to {out.name}"
+            append = True
     out.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(out, **kw)
-    return f"wrote {len(df):,} rows to {out.name}"
+    df.to_csv(
+        out, sep=";", index=False, encoding="latin-1", quoting=1,
+        errors="replace", header=not append, mode="a" if append else "w",
+    )  # fmt: skip
+    verb = "appended" if append else "wrote"
+    return f"{verb} {len(df):,} rows to {out.name}"
 
 
 def _write_candidatos(rows: list[dict], ano: int, part: str, eleicao: int):
