@@ -33,7 +33,7 @@ from datetime import date
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write
 
-from pipelines.datasets.world_noaa_ghcn.flows import _COVERAGE
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 from pipelines.utils.metadata.policy import (
     CoverageIds,
     assert_coverage_topology,
@@ -44,6 +44,19 @@ DATASET_SLUG = "ghcn_daily"
 TABLE = "observation"
 AREA_SLUG = "world"
 FIRST_YEAR = 1763
+
+# `observation`'s coverage spec, hand-built here (not fetched from the backend
+# — the whole point of this script is to CREATE the pro Coverage that
+# `coverage_from_backend` would need to already exist). Was `PartBdpro(
+# date_column=DateOnly(col="date"), date_format=DateFormat.YEAR_MD,
+# free_lag=FreeLag(unit="months", value=6))` back when `pipelines.datasets.
+# world_noaa_ghcn.flows._COVERAGE` existed; `free_lag` is now the fixed
+# 6-month `policy.PART_BDPRO_FREE_LAG`, same value.
+_OBSERVATION_SPEC = CoverageSpec(
+    tier="part_bdpro",
+    date_column_kind="date",
+    coverage_columns=[CoverageColumn(name="date", entity="date")],
+)
 
 
 def _range_fields(dump: dict, position: str) -> dict[str, int]:
@@ -101,7 +114,7 @@ def main() -> None:
         pro_id = pro["id"] if isinstance(pro, dict) else pro
         print(f"created pro Coverage {pro_id}")
 
-    spec = _COVERAGE[TABLE]
+    spec = _OBSERVATION_SPEC
     ids = CoverageIds(free=free_id, pro=pro_id)
     assert_coverage_topology(spec, ids)
     ranges = compute_coverage_ranges(spec, source_end, ids)
