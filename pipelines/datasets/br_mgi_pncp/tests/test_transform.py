@@ -764,54 +764,36 @@ class TestDeferredTableScope:
 
 
 class TestCoverageRegistrationScope:
-    """Coverage must be registered for exactly the tables a run materialises.
+    """Coverage is registered for exactly FACT_TABLES.
 
-    Two ways to get this wrong, both only visible on a prod run:
-    registering a DEFERRED table (the task reads its max date from BigQuery,
-    where it does not exist), or blowing up on `dicionario`, which is in the
-    run scope but deliberately has no coverage because it has no date column.
+    Two ways to get this wrong, both only visible on a prod run: registering
+    a DEFERRED table (the task reads its max date from BigQuery, where it
+    does not exist), or blowing up on `dicionario`, which is in the run scope
+    but deliberately has no coverage because it has no date column.
+
+    The flow's registration loop (`flows.br_mgi_pncp_extract_and_load`)
+    iterates `constants.FACT_TABLES.value` directly and calls
+    `register_table_materialization_task` without an explicit `coverage` --
+    it fetches the spec from the backend by `dataset_id`/`table_id` (see
+    `pipelines.utils.metadata.coverage.coverage_from_backend`). There is no
+    local spec anymore, so these tests check the table scope only.
     """
-
-    def _coverage(self):
-        from pipelines.datasets.br_mgi_pncp import flows
-
-        return flows._COVERAGE
 
     def test_no_deferred_table_is_in_the_registration_scope(self):
         for table in constants.DEFERRED_TABLES.value:
             assert table not in constants.ALL_TABLES.value
 
-    def test_every_scoped_table_either_has_coverage_or_is_dicionario(self):
-        cov = self._coverage()
-        for table in constants.ALL_TABLES.value:
-            assert table in cov or table == "dicionario", (
-                f"{table} is materialised but has no coverage spec and is "
-                "not the dicionario exemption"
-            )
+    def test_dicionario_is_not_registered(self):
+        assert "dicionario" not in constants.FACT_TABLES.value
 
-    def test_dicionario_has_no_coverage_spec(self):
-        assert "dicionario" not in self._coverage()
-
-    def test_registration_skips_tables_without_a_spec(self):
-        # Exercises the flow's own selection, not a copy of it.
-        from pipelines.datasets.br_mgi_pncp.flows import coverage_registrations
-
-        registered = [
-            t for t, _ in coverage_registrations(constants.ALL_TABLES.value)
-        ]
-        assert "dicionario" not in registered
-        assert set(registered) == set(constants.FACT_TABLES.value)
+    def test_registration_scope_is_within_all_tables(self):
+        assert set(constants.FACT_TABLES.value) <= set(
+            constants.ALL_TABLES.value
+        )
 
     def test_registration_never_includes_a_deferred_table(self):
-        from pipelines.datasets.br_mgi_pncp.flows import coverage_registrations
-
-        # Even if a deferred table were passed in by mistake, it has no place
-        # in the run scope -- assert the scope itself excludes it.
-        registered = [
-            t for t, _ in coverage_registrations(constants.ALL_TABLES.value)
-        ]
         for table in constants.DEFERRED_TABLES.value:
-            assert table not in registered
+            assert table not in constants.FACT_TABLES.value
 
 
 class TestUnservableWindowIsNotWrittenAsEmpty:
@@ -1098,45 +1080,6 @@ class TestContratacaoResizeBoundary:
             if lo >= rz[0]
         ]
         assert all((hi - lo).days <= 1 for lo, hi in wins[:-1])
-
-
-class TestCoverageDateColumnsExist:
-    """Every coverage spec must name a column the table actually has.
-
-    register_table_materialization_task reads `max(<date_column>)` straight
-    from BigQuery, so a wrong name is not a soft failure -- it breaks the
-    first run with metadata enabled, which is also the first run that applies
-    the BD Pro paywall. instrumento_cobranca shipped pointing at
-    data_publicacao, a column it does not have (it has data_emissao,
-    data_inclusao, data_atualizacao), and nothing in the local checks would
-    have caught it.
-    """
-
-    def test_every_spec_date_column_is_in_its_architecture(self):
-        from pipelines.datasets.br_mgi_pncp import flows
-
-        for table, spec in flows._COVERAGE.items():
-            # A date_column names one column (DateOnly/YearOnly) or two
-            # (YearMonth/YearQuarter); check whichever it carries.
-            dc = spec.date_column.model_dump()
-            names = {c["name"] for c in utils.read_architecture(table)}
-            for col in (v for k, v in dc.items() if k != "kind"):
-                assert col in names, (
-                    f"{table} coverage keys on {col!r}, which is not one "
-                    f"of its columns; date-ish columns are "
-                    f"{sorted(n for n in names if n.startswith('data_'))}"
-                )
-
-    def test_specs_cover_exactly_the_tables_that_get_materialised(self):
-        from pipelines.datasets.br_mgi_pncp import flows
-
-        # dicionario has no date column and deliberately no spec; deferred
-        # tables keep theirs so re-adding them needs no extra step.
-        scoped = set(constants.FACT_TABLES.value)
-        assert scoped <= set(flows._COVERAGE), (
-            f"no coverage spec for {scoped - set(flows._COVERAGE)}"
-        )
-        assert "dicionario" not in flows._COVERAGE
 
 
 class TestJobVariablesReachThePod:
