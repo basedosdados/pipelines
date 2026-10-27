@@ -1,153 +1,503 @@
-"""Constants for the br_senado_dados_abertos recurring pipeline (Prefect 3).
+"""Constantes de br_senado_dados_abertos: um Enum do conjunto e um por tabela."""
 
-Senado Federal legislative open data (senators, votes, bills, committees,
-parties, blocs, leaderships, Directing Board), sourced from the public
-Legislative Open Data API. See models/br_senado_dados_abertos/ for the design
-and the architecture source of truth (code/architecture_spec.py).
-
-Migrated to the staged pipeline (check_update -> extract_and_load ->
-build_and_promote, see ``pipelines.utils.stage_dispatch``) — 18 independent
-table_id pairs, see ``flows.py``'s module banner for the architecture
-rationale. Table ids below are plain literals (not Enum members) so
-``tasks.py``/``flows.py`` can import them directly, one per
-check_update/extract_and_load pair.
-"""
-
+from datetime import date
 from enum import Enum
-from pathlib import Path
 
-from pipelines.datasets.br_senado_dados_abertos.utils import (
-    ALL_TABLES,
-    DIMS,
-    PARTITIONED,
-)
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
-    FreeLag,
     NonHistorical,
     PartBdpro,
 )
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-
 
 class constants(Enum):
-    """Constants for the br_senado_dados_abertos pipeline (lowercase per the
-    repo-wide convention for dataset constant enums)."""
+    """Configuração da API e das regras comuns a todas as tabelas."""
 
     DATASET_ID = "br_senado_dados_abertos"
 
-    ALL_TABLES = ALL_TABLES
-    DIMS = DIMS
-    PARTITIONED = PARTITIONED
-
-    # Routine runs re-extract the current year plus this many prior years for
-    # the time-series tables (catches late edits); older partitions are left
-    # untouched in staging. Dimensions are always rebuilt in full.
-    REFRESH_PRIOR_YEARS = 1
-
-    # Architecture source of truth (column order + types), also used by the
-    # one-shot onboarding under models/.
-    ARCHITECTURE_DIR = (
-        _REPO_ROOT / "models" / "br_senado_dados_abertos" / "code"
+    API_URL = "https://legis.senado.leg.br/dadosabertos"
+    USER_AGENT = (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
     )
+    JSON_HEADERS = {"Accept": "application/json", "User-Agent": USER_AGENT}
+    XML_HEADERS = {"Accept": "application/xml", "User-Agent": USER_AGENT}
+    FETCH_WORKERS = 8
+
+    REFRESH_PRIOR_YEARS = 1
+    NO_NEW_DATA_DATE = date(1900, 1, 1)
+
+    CURRENT_LEG_REFERENCE = 57
+    CURRENT_LEG_REFERENCE_YEAR = 2023
+    LEG_START = 30
+
+    DIMS = [
+        "senador",
+        "partido",
+        "bloco",
+        "lideranca",
+        "comissao",
+        "mesa",
+        "senador_mandato",
+        "senador_filiacao",
+        "senador_comissao",
+        "senador_cargo",
+    ]
+    PARTITIONED = [
+        "votacao",
+        "votacao_parlamentar",
+        "votacao_orientacao_bancada",
+        "processo",
+        "relatoria",
+        "votacao_comissao",
+        "votacao_comissao_parlamentar",
+        "discurso",
+    ]
+    ALL_TABLES = DIMS + PARTITIONED
+
+    VOTO_MAP = {
+        "Sim": "voto_sim",
+        "Não": "voto_nao",
+        "Nao": "voto_nao",
+        "Abstenção": "voto_abstencao",
+    }
+    IDENTIFICACAO_PATTERN = r"^\s*(\S+)\s+([\w.]+)/(\d{4})"
 
 
-DATASET_ID = constants.DATASET_ID.value
+class constants_senador(Enum):
+    """Configuração da tabela senador."""
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Group A — 10 dimensions (== DIMS above): cadastro-style tables with no
-# publication date to poll — "always full-rebuild" by nature, not a bug (see
-# tasks.py `get_latest_update_group_a`). Same members as `DIMS`, named
-# individually for direct import in flows.py.
-# ──────────────────────────────────────────────────────────────────────────────
-PARTIDO_TABLE_ID = "partido"
-BLOCO_TABLE_ID = "bloco"
-LIDERANCA_TABLE_ID = "lideranca"
-COMISSAO_TABLE_ID = "comissao"
-MESA_TABLE_ID = "mesa"
-SENADOR_TABLE_ID = "senador"
-SENADOR_MANDATO_TABLE_ID = "senador_mandato"
-SENADOR_FILIACAO_TABLE_ID = "senador_filiacao"
-SENADOR_COMISSAO_TABLE_ID = "senador_comissao"
-SENADOR_CARGO_TABLE_ID = "senador_cargo"
+    TABLE_ID = "senador"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_senador",
+        "nome",
+        "nome_completo",
+        "sexo",
+        "forma_tratamento",
+        "sigla_partido",
+        "sigla_uf",
+        "email",
+        "url_foto",
+        "url_pagina",
+        "url_pagina_particular",
+        "id_publico_legislatura_atual",
+    ]
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Group B — 8 time series (== PARTITIONED above): real date signal, BD Pro
-# rolling window.
-# ──────────────────────────────────────────────────────────────────────────────
-VOTACAO_TABLE_ID = "votacao"
-VOTACAO_PARLAMENTAR_TABLE_ID = "votacao_parlamentar"
-VOTACAO_ORIENTACAO_BANCADA_TABLE_ID = "votacao_orientacao_bancada"
-PROCESSO_TABLE_ID = "processo"
-RELATORIA_TABLE_ID = "relatoria"
-VOTACAO_COMISSAO_TABLE_ID = "votacao_comissao"
-VOTACAO_COMISSAO_PARLAMENTAR_TABLE_ID = "votacao_comissao_parlamentar"
-DISCURSO_TABLE_ID = "discurso"
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Coverage — Group A: `NonHistorical` (see `pipelines.utils.metadata.domain`).
-# `register_table_materialization`/`sync_table_coverage` special-case this
-# tier: they update `Table.Update.latest` from the BigQuery table's own
-# `last_modified_time` and return immediately, WITHOUT touching
-# `Coverage.DateTimeRange` at all — the one mechanism the capsule already
-# supports for "materialize without re-registering coverage". The old
-# monolithic flow never called `register_table_materialization_task` for
-# these 10 tables at all (see the removed `_COVERAGE` dict, which only ever
-# covered the 8 Group B tables), so onboarding's original `Coverage` stays
-# exactly as it was — this is each table's first `Table.Update` baseline, not
-# a change to a previously decided value. Same precedent already used
-# elsewhere in this migration for a dimension/no-date table: `au_ato_abr`'s
-# `dicionario`, `br_cgu_sancoes`'s `dicionario`, `br_cvm_administradores_
-# carteira`'s `responsavel`.
-GROUP_A_COVERAGE = NonHistorical()
+class constants_partido(Enum):
+    """Configuração da tabela partido."""
 
-# Coverage — Group B: exact `PartBdpro` specs already armed in production,
-# reused unchanged from the pre-migration `flows.py` `_COVERAGE` dict. All
-# eight paywall their most recent 6 months; `register_table_materialization_
-# task` recomputes `free_end = source_end - free_lag` and re-issues the Row
-# Access Policies every run, so the window slides on its own.
-_PART_BDPRO_6M = FreeLag(unit="months", value=6)
-COVERAGE = {
-    VOTACAO_TABLE_ID: PartBdpro(
+    TABLE_ID = "partido"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_partido",
+        "sigla_partido",
+        "nome_partido",
+        "data_criacao",
+        "data_extincao",
+    ]
+
+
+class constants_bloco(Enum):
+    """Configuração da tabela bloco."""
+
+    TABLE_ID = "bloco"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_bloco",
+        "nome_bloco",
+        "nome_apelido",
+        "data_criacao",
+        "data_extincao",
+    ]
+
+
+class constants_lideranca(Enum):
+    """Configuração da tabela lideranca."""
+
+    TABLE_ID = "lideranca"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_lideranca",
+        "casa",
+        "id_senador",
+        "nome_parlamentar",
+        "sigla_tipo_lideranca",
+        "descricao_tipo_lideranca",
+        "sigla_tipo_unidade_lideranca",
+        "descricao_tipo_unidade_lideranca",
+        "id_partido_filiacao",
+        "sigla_partido_filiacao",
+        "nome_partido_filiacao",
+        "id_bloco",
+        "sigla_bloco",
+        "nome_bloco",
+        "numero_ordem_vice_lider",
+        "data_designacao",
+    ]
+
+
+class constants_comissao(Enum):
+    """Configuração da tabela comissao."""
+
+    TABLE_ID = "comissao"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_comissao",
+        "sigla_comissao",
+        "nome_comissao",
+        "sigla_casa",
+        "id_tipo_colegiado",
+        "sigla_tipo_colegiado",
+        "descricao_tipo_colegiado",
+        "publica",
+        "data_inicio",
+    ]
+
+
+class constants_mesa(Enum):
+    """Configuração da tabela mesa."""
+
+    TABLE_ID = "mesa"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_colegiado",
+        "sigla_colegiado",
+        "nome_colegiado",
+        "cargo",
+        "id_senador",
+        "nome_parlamentar",
+        "bancada",
+        "ordem",
+        "origem",
+    ]
+
+
+class constants_senador_mandato(Enum):
+    """Configuração da tabela senador_mandato."""
+
+    TABLE_ID = "senador_mandato"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_senador",
+        "id_mandato",
+        "sigla_uf",
+        "participacao",
+        "numero_legislatura_1",
+        "data_inicio_legislatura_1",
+        "data_fim_legislatura_1",
+        "numero_legislatura_2",
+        "data_inicio_legislatura_2",
+        "data_fim_legislatura_2",
+    ]
+
+
+class constants_senador_filiacao(Enum):
+    """Configuração da tabela senador_filiacao."""
+
+    TABLE_ID = "senador_filiacao"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_senador",
+        "id_partido",
+        "sigla_partido",
+        "data_filiacao",
+        "data_desfiliacao",
+    ]
+
+
+class constants_senador_comissao(Enum):
+    """Configuração da tabela senador_comissao."""
+
+    TABLE_ID = "senador_comissao"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_senador",
+        "id_comissao",
+        "sigla_comissao",
+        "sigla_casa",
+        "participacao",
+        "data_inicio",
+        "data_fim",
+    ]
+
+
+class constants_senador_cargo(Enum):
+    """Configuração da tabela senador_cargo."""
+
+    TABLE_ID = "senador_cargo"
+    COVERAGE = NonHistorical()
+    COLUMNS = [
+        "id_senador",
+        "id_comissao",
+        "sigla_comissao",
+        "id_cargo",
+        "descricao_cargo",
+        "data_inicio",
+        "data_fim",
+    ]
+
+
+class constants_votacao(Enum):
+    """Configuração da tabela votacao."""
+
+    TABLE_ID = "votacao"
+    START_YEAR = 1991
+    DATE_COLUMN = "data_sessao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_sessao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    VOTACAO_PARLAMENTAR_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_votacao",
+        "data_sessao",
+        "casa",
+        "id_processo",
+        "codigo_materia",
+        "identificacao_materia",
+        "sigla_materia",
+        "numero_materia",
+        "ano_materia",
+        "id_sessao",
+        "id_sessao_legislativa",
+        "numero_sessao",
+        "sequencial_sessao",
+        "sequencial_votacao",
+        "sigla_tipo_sessao",
+        "descricao_votacao",
+        "ementa",
+        "resultado_votacao",
+        "votacao_secreta",
+        "data_apresentacao",
+        "sigla_colegiado",
+        "nome_colegiado",
+        "voto_sim",
+        "voto_nao",
+        "voto_abstencao",
+        "voto_outro",
+    ]
+
+
+class constants_votacao_parlamentar(Enum):
+    """Configuração da tabela votacao_parlamentar."""
+
+    TABLE_ID = "votacao_parlamentar"
+    DATE_COLUMN = "data_sessao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_sessao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    VOTACAO_ORIENTACAO_BANCADA_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_votacao",
+        "data_sessao",
+        "id_senador",
+        "sigla_partido",
+        "sigla_uf",
+        "voto",
+        "descricao_voto",
+    ]
+
+
+class constants_votacao_orientacao_bancada(Enum):
+    """Configuração da tabela votacao_orientacao_bancada."""
+
+    TABLE_ID = "votacao_orientacao_bancada"
+    DATE_COLUMN = "data_votacao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_votacao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    PROCESSO_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_votacao_sve",
+        "sequencial_votacao",
+        "data_votacao",
+        "sigla_materia",
+        "numero_materia",
+        "ano_materia",
+        "bancada",
+        "orientacao",
+        "data_hora_orientacao",
+    ]
+
+
+class constants_processo(Enum):
+    """Configuração da tabela processo."""
+
+    TABLE_ID = "processo"
+    START_YEAR = 1900
+    DATE_COLUMN = "data_apresentacao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_apresentacao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    RELATORIA_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_processo",
+        "codigo_materia",
+        "identificacao",
+        "sigla",
+        "numero",
+        "autoria",
+        "ementa",
+        "objetivo",
+        "tipo_documento",
+        "tipo_conteudo",
+        "situacao_atual",
+        "sigla_tipo_deliberacao",
+        "ente_identificador",
+        "casa_identificadora",
+        "norma_gerada",
+        "apelido",
+        "tramitando",
+        "data_apresentacao",
+        "data_deliberacao",
+        "data_situacao_atual",
+        "data_ultima_atualizacao",
+        "ultima_informacao_atualizada",
+        "url_documento",
+    ]
+
+
+class constants_relatoria(Enum):
+    """Configuração da tabela relatoria."""
+
+    TABLE_ID = "relatoria"
+    START_YEAR = 2015
+    DATE_COLUMN = "data_designacao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_designacao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    VOTACAO_COMISSAO_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_relatoria",
+        "id_processo",
+        "codigo_materia",
+        "identificacao_processo",
+        "id_senador",
+        "sigla_casa_relator",
+        "id_colegiado",
+        "sigla_colegiado",
+        "nome_colegiado",
+        "id_tipo_colegiado",
+        "tipo_relator",
+        "id_tipo_relator",
+        "numero_autuacao",
+        "tipo_encerramento",
+        "data_designacao",
+        "data_destituicao",
+        "tramitando",
+    ]
+
+
+class constants_votacao_comissao(Enum):
+    """Configuração da tabela votacao_comissao."""
+
+    TABLE_ID = "votacao_comissao"
+    DATE_COLUMN = "data_reuniao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_reuniao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    VOTACAO_COMISSAO_PARLAMENTAR_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_votacao",
+        "id_comissao",
+        "sigla_colegiado",
+        "nome_colegiado",
+        "sigla_casa_colegiado",
+        "id_reuniao",
+        "numero_reuniao",
+        "tipo_reuniao",
+        "data_reuniao",
+        "identificacao_materia",
+        "sigla_materia",
+        "numero_materia",
+        "ano_materia",
+        "descricao",
+        "id_senador_presidente",
+        "voto_sim",
+        "voto_nao",
+        "voto_abstencao",
+    ]
+
+
+class constants_votacao_comissao_parlamentar(Enum):
+    """Configuração da tabela votacao_comissao_parlamentar."""
+
+    TABLE_ID = "votacao_comissao_parlamentar"
+    DATE_COLUMN = "data_reuniao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_reuniao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    DISCURSO_TABLE_ID: PartBdpro(
+    )
+    COLUMNS = [
+        "ano",
+        "id_votacao",
+        "data_reuniao",
+        "id_senador",
+        "sigla_partido",
+        "sigla_casa",
+        "voto",
+        "voto_presidente",
+    ]
+
+
+class constants_discurso(Enum):
+    """Configuração da tabela discurso."""
+
+    TABLE_ID = "discurso"
+    START_YEAR = 1997
+    DATE_COLUMN = "data_sessao"
+    COVERAGE = PartBdpro(
         date_column=DateOnly(col="data_sessao"),
         date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
+    )
+    COLUMNS = [
+        "ano",
+        "id_pronunciamento",
+        "id_sessao",
+        "data_sessao",
+        "sigla_casa",
+        "sigla_tipo_sessao",
+        "numero_sessao",
+        "id_senador",
+        "tipo_autor",
+        "sigla_partido",
+        "sigla_uf",
+        "sigla_tipo_uso_palavra",
+        "descricao_tipo_uso_palavra",
+        "resumo",
+        "indexacao",
+        "url_texto",
+    ]
+
+
+DIMS_CONSTANTS = {
+    "senador": constants_senador,
+    "partido": constants_partido,
+    "bloco": constants_bloco,
+    "lideranca": constants_lideranca,
+    "comissao": constants_comissao,
+    "mesa": constants_mesa,
+    "senador_mandato": constants_senador_mandato,
+    "senador_filiacao": constants_senador_filiacao,
+    "senador_comissao": constants_senador_comissao,
+    "senador_cargo": constants_senador_cargo,
 }
+PARTITIONED_CONSTANTS = {
+    "votacao": constants_votacao,
+    "votacao_parlamentar": constants_votacao_parlamentar,
+    "votacao_orientacao_bancada": constants_votacao_orientacao_bancada,
+    "processo": constants_processo,
+    "relatoria": constants_relatoria,
+    "votacao_comissao": constants_votacao_comissao,
+    "votacao_comissao_parlamentar": constants_votacao_comissao_parlamentar,
+    "discurso": constants_discurso,
+}
+TABLES_CONSTANTS = DIMS_CONSTANTS | PARTITIONED_CONSTANTS

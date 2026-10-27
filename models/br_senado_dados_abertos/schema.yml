@@ -9,7 +9,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [url_pagina_particular]
     columns:
       - name: id_senador
@@ -53,7 +53,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -129,7 +129,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -174,7 +174,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -225,7 +225,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [apelido, norma_gerada]
           config:
             where: __most_recent_year__
@@ -294,7 +294,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_partido]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_partido
         description: Código identificador do partido político
@@ -315,7 +315,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_bloco]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [data_extincao]
     columns:
       - name: id_bloco
@@ -337,7 +337,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_lideranca]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_lideranca
         description: Código identificador da liderança
@@ -380,7 +380,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_comissao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_comissao
         description: Código identificador do colegiado
@@ -409,7 +409,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_colegiado, cargo]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_colegiado
         description: Código identificador do colegiado da Mesa
@@ -440,7 +440,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_mandato]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -477,7 +477,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_partido, data_filiacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -499,7 +499,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_comissao, data_inicio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -529,7 +529,7 @@ models:
             - id_cargo
             - data_inicio
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -557,7 +557,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [tipo_encerramento, data_destituicao]
           config:
             where: __most_recent_year__
@@ -618,7 +618,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -678,7 +678,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -718,7 +718,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
