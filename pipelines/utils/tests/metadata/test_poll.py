@@ -10,14 +10,7 @@ import datetime
 
 import pytest
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-)
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.poll import (
     check_source_is_ahead_of_table,
@@ -132,9 +125,13 @@ def test_check_true_when_table_never_materialized():
 
 # =============================================== sync_table_coverage
 def _part_bdpro():
-    return PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
+    return CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year_month",
+        coverage_columns=[
+            CoverageColumn(name="ano", entity="year"),
+            CoverageColumn(name="mes", entity="month"),
+        ],
     )
 
 
@@ -184,8 +181,10 @@ def test_sync_all_free_no_rap():
         last_modified=datetime.datetime(2026, 7, 15),
         can_read=True,
     )
-    spec = AllFree(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
+    spec = CoverageSpec(
+        tier="all_free",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="data", entity="date")],
     )
     # pyrefly: ignore [bad-argument-type]
     sync_table_coverage(client, bq, "br_x", "tab", spec)
@@ -197,8 +196,9 @@ def test_sync_all_free_no_rap():
 def test_sync_non_historical_stamps_last_modified():
     client = FakeMetadataClient()
     bq = FakeBQ(last_modified=datetime.datetime(2026, 7, 15), can_read=True)
+    non_historical = CoverageSpec(tier="non_historical", date_column_kind="")
     # pyrefly: ignore [bad-argument-type]
-    sync_table_coverage(client, bq, "br_x", "tab", NonHistorical())
+    sync_table_coverage(client, bq, "br_x", "tab", non_historical)
 
     assert client.written_entities == ["table_update"]
     assert _table_update_latest(client) == datetime.datetime(2026, 7, 15)

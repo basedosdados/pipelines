@@ -27,7 +27,7 @@ import pytest
 if TYPE_CHECKING:
     # Só para anotar `FakeBQ` com as assinaturas de `BQReader`; em runtime o
     # conftest continua sem depender dos módulos testados.
-    from pipelines.utils.metadata.domain import CoverageSpec, PartBdpro
+    from pipelines.utils.metadata.coverage import CoverageSpec
 
 
 def node_response(query_class: str, _id: str | None) -> dict:
@@ -213,7 +213,7 @@ class FakeBQ:
 
     def apply_row_access_policies(
         self,
-        coverage: PartBdpro,
+        coverage: CoverageSpec,
         free_end: datetime.date,
         dataset_id: str,
         table_id: str,

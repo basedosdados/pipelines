@@ -20,7 +20,7 @@ import datetime
 
 from pipelines.utils.metadata import policy
 from pipelines.utils.metadata.client import MetadataClient
-from pipelines.utils.metadata.domain import CoverageSpec, NonHistorical
+from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.metadata.register import BQReader
 from pipelines.utils.utils import log
 
@@ -151,7 +151,7 @@ def sync_table_coverage(
         env=env, bq_project=bq_project, table_status=table_status
     )
 
-    if isinstance(coverage, NonHistorical):
+    if coverage.tier == "non_historical":
         last_modified = bq.last_modified(
             dataset_id=dataset_id, table_id=table_id
         )
