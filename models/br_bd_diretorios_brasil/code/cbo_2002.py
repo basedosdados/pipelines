@@ -126,6 +126,12 @@ if __name__ == "__main__":
     oficial = build_oficial(args.zip_path)
     final = build_final(existing, oficial)
 
+    if (
+        input("Confirma o upload para o staging? [s/N] ").strip().lower()
+        != "s"
+    ):
+        raise SystemExit("Upload cancelado")
+
     # Mesmo nome do arquivo já presente no staging, para que o upload o substitua.
     output_path = output_dir / "diretorio_cbo_2002.parquet"
     schema = pa.schema([(coluna, pa.string()) for coluna in FINAL_COLUMNS])
