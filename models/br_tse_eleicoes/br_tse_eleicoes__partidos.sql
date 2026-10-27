@@ -1,5 +1,5 @@
--- Dados de 2026 reprocessados em 2026-10-06 a partir dos arquivos do TSE
--- gerados em 05/10/2026, apos o 1o turno.
+-- 2026 recarregado em 2026-10-27: 2o turno (25/10/2026) e 1o turno a partir
+-- dos arquivos republicados pelo TSE em 25-26/10/2026.
 {{
     config(
         schema="br_tse_eleicoes",
