@@ -368,18 +368,34 @@ def _rows(job: tuple, d: dict, meta: dict, agregadas: dict) -> tuple:
 
 def _write(
     rows: list[dict], cols: list[str], family: str, ano: int, part: str
-):
+) -> str:
+    """Write API rows without clobbering CDN data.
+
+    The CDN file may already hold some elections (2026: the 1st round was
+    published on election day, before the 2nd round closed). Rows for an
+    eleição the file already has are dropped; the rest are appended to a
+    populated file, or written to a missing or header-only one.
+    """
     out = INPUT_DIR / family / f"{family}_{ano}" / f"{family}_{ano}_{part}.csv"
+    df = pd.DataFrame(rows, columns=cols)
+    kw = {"sep": ";", "index": False, "encoding": "latin-1", "quoting": 1,
+          "errors": "replace"}  # fmt: skip
+    if out.exists():
+        have = set(
+            pd.read_csv(
+                out, sep=";", encoding="latin-1", dtype=str,
+                usecols=["CD_ELEICAO"],
+            )["CD_ELEICAO"]
+        )  # fmt: skip
+        if have:
+            df = df[~df["CD_ELEICAO"].astype(str).isin(have)]
+            if df.empty:
+                return f"kept CDN {out.name}"
+            df.to_csv(out, header=False, mode="a", **kw)
+            return f"appended {len(df):,} rows to {out.name}"
     out.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows, columns=cols).to_csv(
-        out,
-        sep=";",
-        index=False,
-        encoding="latin-1",
-        quoting=1,
-        errors="replace",
-    )
-    return out
+    df.to_csv(out, **kw)
+    return f"wrote {len(df):,} rows to {out.name}"
 
 
 def _write_candidatos(rows: list[dict], ano: int, part: str, eleicao: int):
@@ -469,11 +485,11 @@ def build(
             print("    " + _write_candidatos(rows, ano, part, eleicao))
 
     for part, b in sorted(by_part.items()):
-        _write(b["d"], DETALHE_COLS, "detalhe_votacao_munzona", ano, part)
-        _write(b["p"], PARTIDO_COLS, "votacao_partido_munzona", ano, part)
-        print(
-            f"  wrote {part}: {len(b['d'])} detalhe rows, {len(b['p'])} partido rows"
-        )
+        for rows, cols, family in (
+            (b["d"], DETALHE_COLS, "detalhe_votacao_munzona"),
+            (b["p"], PARTIDO_COLS, "votacao_partido_munzona"),
+        ):
+            print(f"  {part}: " + _write(rows, cols, family, ano, part))
 
 
 def validate_against_official(api_dir: Path, official_dir: Path, family: str):
