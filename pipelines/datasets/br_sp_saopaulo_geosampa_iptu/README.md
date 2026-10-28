@@ -39,3 +39,10 @@ erro, pois isso indica mudança no endereço da fonte.
 
 O `check_update` devolve 1º de janeiro do ano encontrado, comparado contra o fim da
 cobertura da tabela no backend.
+
+### extract_and_load
+
+`baixar_ano` (`utils.py`) grava o ZIP do ano em disco em pedaços de 1 MB, extrai o
+único CSV que ele contém e apaga o ZIP. Se o arquivo baixado não for um ZIP, ou se
+tiver mais de um CSV, a função levanta um erro. O download de 2026 levou cerca de 4
+minutos e gerou um CSV de 938 MB, com 3.920.972 linhas.
