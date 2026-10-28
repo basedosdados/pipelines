@@ -18,13 +18,11 @@ from pipelines.utils.stage_dispatch import SourceInspection
     retry_delay_seconds=repo_constants.TASK_RETRY_DELAY.value,
 )
 def get_ultimo_ano_publicado() -> int:
-    """Wrapper Prefect de `ultimo_ano_publicado`, com retries para falhas
-    de rede."""
+    """wrapper prefect de `ultimo_ano_publicado`."""
     return ultimo_ano_publicado()
 
 
 def iptu_get_latest_update() -> SourceInspection:
-    """check_update da tabela `iptu`: devolve 1º de janeiro do ano mais
-    recente publicado, comparado contra a cobertura da tabela."""
+    """check_update da tabela `iptu`."""
     ano = get_ultimo_ano_publicado()
     return SourceInspection(reference_date=datetime.date(ano, 1, 1))
