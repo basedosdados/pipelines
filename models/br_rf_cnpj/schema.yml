@@ -19,7 +19,13 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj_basico
         description: CNPJ Básico
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: razao_social
@@ -76,7 +82,13 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj_basico
         description: CNPJ básico
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: tipo
@@ -132,7 +144,12 @@ models:
     columns:
       - name: cnpj_basico
         description: CNPJ Básico
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
       - name: opcao_simples
         description: Opção pelo Simples Nacional
         tests:
@@ -212,18 +229,42 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj
         description: CNPJ
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{12}[0-9]{2}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: cnpj_basico
         description: CNPJ Básico (8 primeiros dígitos)
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: cnpj_ordem
         description: CNPJ Ordem
+        tests:
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{4}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
       - name: cnpj_dv
         description: CNPJ Dígito Verificador
+        tests:
+          - regex_or_null:
+              pattern: ^[0-9]{2}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
       - name: identificador_matriz_filial
         description: Identificador de Matriz ou Filial
       - name: nome_fantasia

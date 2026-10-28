@@ -92,6 +92,12 @@ A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
 - **Dígito verificador:** o cálculo muda (módulo 11 sobre valores ASCII − 48). Se algum teste ou rotina valida o DV, precisa ser ajustado.
 - **Novos testes:** formato `^[A-Z0-9]{12}[0-9]{2}$` para `cnpj` e `^[A-Z0-9]{8}$` para `cnpj_basico`.
 
+**Resultado da investigação (2026-10-28):**
+
+- **Código:** o Python lê os CSVs com `dtype=str` e os modelos só usam `lpad(safe_cast(... as string), N, '0')`. Não há `cast` de CNPJ para número no `br_rf_cnpj` nem nos consumidores (CVM, SICOR, `br_bd_diretorios_brasil__empresa`). Nenhuma rotina ou teste valida o DV.
+- **Dado:** na partição 2026-10-01 de `estabelecimentos` (73,8M linhas) há 0 CNPJs com letras e 0 violações dos formatos alfanuméricos em `cnpj`, `cnpj_basico`, `cnpj_ordem` e `cnpj_dv`. Também 0 casos com `nan`.
+- **Testes adicionados:** `regex_or_null` com `severity: error` em `cnpj` (`^[A-Z0-9]{12}[0-9]{2}$`), `cnpj_basico` (`^[A-Z0-9]{8}$`, nas 4 tabelas), `cnpj_ordem` (`^[A-Z0-9]{4}$`) e `cnpj_dv` (`^[0-9]{2}$`). Em `simples` não há `where`, por ser snapshot único.
+
 ### Decisões tomadas
 
 1. **Datas: manter o teste `date_in_range` e não aplicar `validate_date_range` nos modelos.**
@@ -107,6 +113,12 @@ A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
    - **Alternativas descartadas:** manter o teste estrito (falharia sempre por um problema que não controlamos) e corrigir o dado no modelo (alteraria o publicado em silêncio e exigiria reprocessar).
    - **Observação:** o denominador é o total de linhas da tabela, não só as comparáveis. Isso deixa o teste um pouco mais permissivo, mas a diferença é irrelevante nessa escala.
    - **Quando reabrir:** se a taxa observada se aproximar do limite, ou se a RFB corrigir a origem (aí dá para voltar ao teste estrito).
+
+3. **CNPJ alfanumérico: só testes de formato; não validar o DV por enquanto.**
+   - **Contexto:** ver o resultado da investigação na Fase 5. A base ainda não tem letras, e nada no código quebra com elas.
+   - **Decisão:** testes de formato em `error`, já alfanuméricos, para pegar também o `"00000nan"` que o `fill_left_zeros` produziria com célula vazia.
+   - **Alternativa descartada por ora:** teste do DV (módulo 11 sobre `ASCII − 48`). Exigiria um genérico novo rodando em ~74M linhas, sem benefício enquanto não houver letras.
+   - **Quando reabrir:** no primeiro CNPJ com letra na base, implementar o teste do DV. Avaliar blindar o `fill_left_zeros` contra `NaN`, com teste `pytest`.
 
 ### Decisões em aberto
 
