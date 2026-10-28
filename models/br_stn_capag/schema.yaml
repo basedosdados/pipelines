@@ -1,0 +1,94 @@
+---
+version: 2
+models:
+  - name: br_stn_capag__municipios
+    description: >
+      Capacidade de Pagamento (CAPAG) dos municípios brasileiros, apurada pela
+      Secretaria do Tesouro Nacional (STN) a partir do Siconfi. Cada
+      `data_referencia` é um recorte publicado pela STN. Dentro de um  mesmo `ano`,
+      recortes mais recentes substituem os anteriores.  A `populacao` só existe até
+      2023.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, data_referencia, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da CAPAG
+        tests: [not_null]
+      - name: data_referencia
+        description: Data de referência do recorte publicado pela STN
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID do município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: populacao
+        description: População do município (disponível até 2023)
+      - name: indicador_endividamento
+        description: Indicador 1 - endividamento (dívida consolidada / receita corrente
+          líquida), em proporção
+      - name: nota_endividamento
+        description: Nota (A, B ou C) atribuída ao indicador de endividamento
+      - name: indicador_poupanca_corrente
+        description: Indicador 2 - poupança corrente (despesas correntes / receitas
+          correntes ajustadas), em proporção
+      - name: nota_poupanca_corrente
+        description: Nota (A, B ou C) atribuída ao indicador de poupança corrente
+      - name: indicador_liquidez
+        description: Indicador 3 - liquidez (obrigações financeiras / disponibilidade
+          de caixa), em proporção
+      - name: nota_liquidez
+        description: Nota (A, B ou C) atribuída ao indicador de liquidez
+      - name: nota_capag
+        description: Nota final da capacidade de pagamento, combinação das notas dos
+          três indicadores
+  - name: br_stn_capag__estados
+    description: >
+      Capacidade de Pagamento (CAPAG) dos estados brasileiros, apurada pela
+      Secretaria do Tesouro Nacional (STN). Cada `data_referencia` é a data de
+      criação do recurso no portal do Tesouro Transparente. Em 2018 a fonte não
+      traz as notas dos indicadores individuais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, data_referencia, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da CAPAG
+        tests: [not_null]
+      - name: data_referencia
+        description: Data de referência do recurso publicado pela STN
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: indicador_endividamento
+        description: Indicador 1 - endividamento, em proporção
+      - name: nota_endividamento
+        description: Nota atribuída ao indicador de endividamento
+      - name: indicador_poupanca_corrente
+        description: Indicador 2 - poupança corrente, em proporção
+      - name: nota_poupanca_corrente
+        description: Nota atribuída ao indicador de poupança corrente
+      - name: indicador_liquidez
+        description: Indicador 3 - liquidez, em proporção
+      - name: nota_liquidez
+        description: Nota atribuída ao indicador de liquidez
+      - name: nota_capag
+        description: Nota final da capacidade de pagamento (A+, A, B+, B, C ou D)
