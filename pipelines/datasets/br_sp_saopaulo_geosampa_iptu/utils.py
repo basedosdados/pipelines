@@ -6,11 +6,16 @@ import datetime
 import zipfile
 from pathlib import Path
 
+import pandas as pd
 import requests
 
 from pipelines.datasets.br_sp_saopaulo_geosampa_iptu.constants import (
+    COLUNAS_DECIMAIS,
+    COLUNAS_INTEIRAS,
+    COLUNAS_STAGING,
     HEADERS,
     MAX_ANOS_BUSCA,
+    RENAME,
     URL_TEMPLATE,
 )
 
@@ -69,3 +74,52 @@ def baixar_ano(ano: int, destino: Path) -> Path:
     finally:
         zip_path.unlink()
     return csv_path
+
+
+def formatar_data(serie: pd.Series) -> pd.Series:
+    """converte `dd/mm/aa` em `aaaa-mm-dd`; vazio continua vazio."""
+    partes = serie.str.extract(r"^(\d{2})/(\d{2})/(\d{2})$")
+    data = "20" + partes[2] + "-" + partes[1] + "-" + partes[0]
+    return data.fillna("")
+
+
+def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
+    """padroniza um csv do iptu (tudo string) para o formato do staging."""
+    df = df.rename(columns=RENAME)
+    df = df.apply(lambda col: col.str.strip())
+
+    for col in COLUNAS_DECIMAIS:
+        df[col] = df[col].str.replace(",", ".", regex=False)
+
+    for col in COLUNAS_INTEIRAS:
+        df[col] = (
+            df[col]
+            .str.replace(r"[.,]0+$", "", regex=True)
+            .str.replace(r"^0+(?=\d)", "", regex=True)
+        )
+
+    for col in ["cep", "numero_contribuinte"]:
+        df[col] = df[col].str.replace("-", "", regex=False)
+
+    df["data_cadastramento"] = formatar_data(df["data_cadastramento"])
+    return df[["ano", *COLUNAS_STAGING]]
+
+
+def tratar_ano(csv_path: Path, output_dir: Path, ano: int) -> Path:
+    """limpa o csv do ano em pedaços e grava em `ano=<ano>/data.csv`."""
+    destino = output_dir / f"ano={ano}"
+    destino.mkdir(parents=True, exist_ok=True)
+    saida = destino / "data.csv"
+    saida.unlink(missing_ok=True)
+
+    leitor = pd.read_csv(
+        csv_path,
+        sep=";",
+        dtype=str,
+        keep_default_na=False,
+        chunksize=200_000,
+    )
+    for i, pedaco in enumerate(leitor):
+        limpo = limpar_iptu(pedaco).drop(columns="ano")
+        limpo.to_csv(saida, index=False, mode="a", header=i == 0)
+    return output_dir

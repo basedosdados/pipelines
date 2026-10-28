@@ -46,3 +46,26 @@ cobertura da tabela no backend.
 único CSV que ele contém e apaga o ZIP. Se o arquivo baixado não for um ZIP, ou se
 tiver mais de um CSV, a função levanta um erro. O download de 2026 levou cerca de 4
 minutos e gerou um CSV de 938 MB, com 3.920.972 linhas.
+
+`tratar_ano` lê o CSV em pedaços de 200 mil linhas, para não carregar o arquivo
+inteiro na memória, e grava o resultado em `ano=<ano>/data.csv`, no mesmo formato
+dos anos já carregados no staging (CSV separado por vírgula, com cabeçalho e todas as
+colunas como texto). Ler o arquivo de 2026 de uma vez estoura 15 GB de RAM; em
+pedaços, o tratamento leva cerca de 1 minuto, com pico de 620 MB.
+
+`limpar_iptu` aplica as regras de padronização:
+
+- renomeia as colunas conforme `RENAME`, o que também unifica as duas grafias da
+  coluna de esquinas;
+- remove espaços no início e no fim de todos os valores;
+- troca a vírgula decimal por ponto em `COLUNAS_DECIMAIS`;
+- remove casas decimais nulas (`4394.00` → `4394`) e zeros à esquerda
+  (`0000136` → `136`) em `COLUNAS_INTEIRAS`, para que o `safe_cast` para `INT64` no
+  dbt não resulte em nulo;
+- remove o hífen de `cep` e `numero_contribuinte`;
+- converte `data_cadastramento` de `dd/mm/aa` para `aaaa-mm-dd`, mantendo vazios os
+  anos sem data.
+
+No arquivo de 2026, a saída tem 3.920.972 linhas, nenhum `numero_contribuinte`
+repetido e nenhum valor fora do formato esperado. A única coluna inteira com vazios é
+`numero_imovel` (86.558 linhas), que já vem vazia na fonte.
