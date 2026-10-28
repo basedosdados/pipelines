@@ -30,7 +30,10 @@ import databasis_mcp.tools.write as bd_mcp_write
 ARCH_DIR = Path(__file__).resolve().parent / "architecture"
 DATASET_SLUG = "jmed"
 GCP_DATASET_ID = "jp_yale_jmed"
-ORG_SLUG = "yale_university"
+# Yale University (area us). Staging is an older snapshot where the same
+# record is still called yale_university.
+ORG_SLUG = "yale"
+STAGING_ORG_SLUG = "yale_university"
 THEME_SLUGS = ["politics", "government"]
 AREA_SLUG = "jp"
 LICENSE_SLUG = "cc_by"
@@ -346,7 +349,9 @@ def main() -> None:
     status_under_review = ids["status"]["under_review"]
     status_published = ids["status"]["published"]
     org_id = bd_mcp_metadata.lookup_id(
-        category="organization", slug=ORG_SLUG, env=env
+        category="organization",
+        slug=STAGING_ORG_SLUG if env == "staging" else ORG_SLUG,
+        env=env,
     )["id"]
     theme_ids = [ids["theme"][t] for t in THEME_SLUGS]
     tag_ids = [
