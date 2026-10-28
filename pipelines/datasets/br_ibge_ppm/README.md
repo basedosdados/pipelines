@@ -147,6 +147,11 @@ agregado/variável, a coluna que a série alimenta e as categorias a pedir —, 
 ordem publicada, a coluna de partição, a de rótulo da categoria e o primeiro ano da série.
 `unit_column` marca a série de onde sai a `unidade`.
 
+As requisições saem pelo proxy brasileiro (`brasil_proxy_dict()`). O worker não consegue
+abrir conexão direta com `servicodados.ibge.gov.br`, que responde normalmente a partir de uma
+rede brasileira. Sem `BRASIL_PROXY_URL` definida, como numa máquina local, a sessão sai
+direto.
+
 ### Tratamento
 
 - A junção entre variáveis é externa. Quantidade e valor vêm de variáveis diferentes, e um
