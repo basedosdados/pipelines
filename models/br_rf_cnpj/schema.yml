@@ -89,6 +89,14 @@ models:
               config:
                 severity: error
                 where: __most_recent_date_cnpj__
+          - custom_relationships:
+              to: ref('br_rf_cnpj__empresas')
+              field: cnpj_basico
+              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
+              proportion_allowed_failures: 0.00001
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: tipo
@@ -150,6 +158,13 @@ models:
               pattern: ^[A-Z0-9]{8}$
               config:
                 severity: error
+          - custom_relationships:
+              to: ref('br_rf_cnpj__empresas')
+              field: cnpj_basico
+              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
+              proportion_allowed_failures: 0.000001
+              config:
+                severity: warn
       - name: opcao_simples
         description: Opção pelo Simples Nacional
         tests:
@@ -203,10 +218,10 @@ models:
   - name: br_rf_cnpj__estabelecimentos
     description: Estabelecimentos
     tests:
-      - dbt_utils.expression_is_true:
-          expression: >-
-            data_inicio_atividade is null or data_situacao_cadastral is null
-            or data_inicio_atividade <= data_situacao_cadastral
+      # Inconsistência na origem (RFB): 1065 casos em ~74M (~1,4e-5); tolera até 1e-4 das linhas
+      - custom_matching_rows_limit:
+          condition: data_inicio_atividade > data_situacao_cadastral
+          max_share: 0.0001
           config:
             severity: error
             where: __most_recent_date_cnpj__
@@ -246,6 +261,14 @@ models:
               pattern: ^[A-Z0-9]{8}$
               config:
                 severity: error
+                where: __most_recent_date_cnpj__
+          - custom_relationships:
+              to: ref('br_rf_cnpj__empresas')
+              field: cnpj_basico
+              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
+              proportion_allowed_failures: 0.0005
+              config:
+                severity: warn
                 where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__

@@ -33,8 +33,21 @@
 7. id_municipio nulo
 - Os 622 nulos são todos de MT.
 
+8. data_inicio_atividade > data_situacao_cadastral (estabelecimentos) — PRELIMINAR
+- O teste `expression_is_true` falhou com 1065 linhas na partição mais recente.
+- Verificação no :
+  - 10468291000362: situação 01 (nula) em 2008-11-12, início em 2024-09-24 (~5.800 dias).
+  - 25266246000726 e 25266246001374: mesma empresa, ambas com situação 03 (suspensa) em 2016-07-22 e inícios em 2023-11-27 e 2024-08-01. A mesma data de situação em filiais abertas depois sugere que a Receita copiou a data da empresa/matriz.
+  - 12920561001089 (situação 08, baixada, em 2023-12-31, início 2024-01-18) e 02511629003309 (baixada em 2026-06-01, início 2026-06-18): diferença de 17 a 18 dias, possivelmente baixa retroativa ou erro de digitação na origem.
+- Comparação com o BigQuery (amostra de 15 CNPJs, os primeiros casos encontrados na leitura parcial do arquivo bruto; partição mais recente de `estabelecimentos`, uma consulta filtrada por CNPJ): as 15 linhas têm data da situação, data de início e diferença em dias IDÊNTICAS às do arquivo bruto. A única diferença é a representação do código de situação (`08` no arquivo, `8` no BigQuery), por causa do `cast ... as int64` do modelo.
+- Mapeamento de colunas verificado no código: `COLUNAS_ESTABELECIMENTO` posiciona `data_situacao_cadastral` no índice 6 e `data_inicio_atividade` no índice 10, iguais ao layout da Receita. O restante do tratamento é só `to_datetime(format="%Y%m%d")` e `safe_cast(... as date)`. Nenhuma etapa troca ou altera as datas.
+- Conclusão: nesta amostra a inversão vem da fonte, e não do pipeline. A amostra não é aleatória (são os primeiros casos encontrados), então não permite estimar a proporção de casos de cada tipo: 9 de 15 são baixadas (08), 3 são nulas (01), 2 suspensas (03) e 1 inapta (04). Não foi feita comparação das 1065 linhas.
+- Encaminhamento sugerido: tratar como `simples`, com `custom_matching_rows_limit` e tolerância, em vez de corrigir o modelo. Taxa observada no dbt: 1065 em ~74M linhas (~1,4e-5). O limite ainda precisa ser decidido.
+- Pendente: a contagem completa no arquivo bruto (o arquivo ainda estava sendo escrito quando foi lido e a análise foi interrompida para evitar custo).
+
 Mudanças que isso sugere nos testes
 - DDD, telefone e CEP: sugiro um padrão mais flexível, algo que aceite o placeholder 0 e zeros à esquerda, ou tratar o formato no modelo sql. Preciso da sua decisão.
 - cpf_representante_legal: adicionar o regex ^\*{3}[0-9]{6}\*{2}$.
 - socios.documento: customizar o teste por tipo?
 
+arquivo bruto da Receita (`Estabelecimentos0`: coluna 7 = data da situação, coluna 11 = data de início). A leitura foi feita com o arquivo ainda sendo escrito, então os totais NÃO valem. Falta reexecutar com o arquivo completo. Os exemplos abaixo são linhas reais e completas

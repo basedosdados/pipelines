@@ -120,6 +120,20 @@ A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
    - **Alternativa descartada por ora:** teste do DV (módulo 11 sobre `ASCII − 48`). Exigiria um genérico novo rodando em ~74M linhas, sem benefício enquanto não houver letras.
    - **Quando reabrir:** no primeiro CNPJ com letra na base, implementar o teste do DV. Avaliar blindar o `fill_left_zeros` contra `NaN`, com teste `pytest`.
 
+4. **Ordem das datas em `estabelecimentos`: tolerar uma taxa mínima de violações em vez de exigir zero.**
+   - **Contexto:** `data_inicio_atividade > data_situacao_cadastral` ocorre em 1065 linhas da partição mais recente (~74M), cerca de 1,4e-5. Em uma amostra de 15 CNPJs (primeiros casos do arquivo bruto, não aleatória), as datas no BigQuery são idênticas às do arquivo da Receita, e o mapeamento de colunas do código confere. A inversão vem da fonte. Detalhes no item 8 do `relatorio.md`.
+   - **Decisão:** trocar o `dbt_utils.expression_is_true` estrito por `custom_matching_rows_limit` com `max_share: 0.0001` (≈7.400 linhas), mantendo `severity: error` e `where: __most_recent_date_cnpj__`. A folga é de ~7x sobre a taxa observada.
+   - **Alternativas descartadas:** manter o teste estrito (falha sempre por problema da fonte) e corrigir o dado no modelo (alteraria o publicado em silêncio e exigiria reprocessar).
+   - **Observação:** o limite é mais folgado que o de `simples` (1e-6) porque a taxa observada é cerca de 100x maior.
+   - **Pendente:** contagem completa no arquivo bruto e classificação dos casos por situação cadastral. Se a taxa se aproximar do limite, reabrir.
+
+5. **Relacionamento por `cnpj_basico` com `empresas`: `custom_relationships` em `warn`, contra a partição mais recente do pai.**
+   - **Contexto:** o `custom_relationships` fazia `from {{ to }}` sem filtro, ou seja, compararia contra todas as partições de `empresas`. Isso sairia caro e mascararia órfãos (CNPJ presente só em partição antiga). Taxas medidas uma vez nas partições mais recentes (`simples` é snapshot): `simples` 2 em 50,8M (~4e-8), `socios` 33 em 28,5M (~1,2e-6), `estabelecimentos` 4134 em 73,8M (~5,6e-5).
+   - **Decisão:** novo parâmetro opcional `to_where` no macro (padrão `None`, sem efeito nos demais datasets) e `custom_relationships` em `severity: warn` nas três tabelas, com `to_where` apontando para `max(data_referencia)` de `empresas`. Limiares com ~10x de folga: `simples` 1e-6, `socios` 1e-5, `estabelecimentos` 5e-4.
+   - **Alternativas descartadas:** `relationships` nativo (compara com todas as partições do pai e não tolera falhas) e criar um macro novo (duplicaria a lógica).
+   - **Observação:** os órfãos não foram investigados (ex.: empresas baixadas ou removidas da base de empresas). Se `empresas` e a tabela filha tiverem `data_referencia` diferentes, o teste pode dar falso positivo.
+   - **Pendente:** verificar a renderização do Jinja em `to_where` na primeira execução. Se os órfãos forem relevantes, investigar a causa antes de subir para `error`.
+
 ### Decisões em aberto
 
 1. **Chave de `socios`:** medir as combinações candidatas no BQ (consulta de leitura, com custo) antes de fechar o teste?
