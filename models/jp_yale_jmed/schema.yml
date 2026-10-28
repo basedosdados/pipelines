@@ -1,0 +1,213 @@
+---
+version: 2
+models:
+  - name: jp_yale_jmed__candidate
+    description: >-
+      Candidates in Japanese municipal assembly and mayoral elections from 2005 to
+      2025,
+      one row per candidate per election, from the Japanese Municipal Elections Dataset
+      (JMED) by Charles T. McClean (Yale University). Covers 21,111 elections across
+      2,027 municipalities with turnout, uncontested elections, and each candidate's
+      name, age, sex, party, incumbency status, vote total, and outcome.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [election_id, candidate_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [turnout, incumbent_status, incumbent_status_en]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('jp_yale_jmed__dicionario')
+          columns_covered_by_dictionary:
+            - unified
+            - uncontested
+            - incumbent
+            - elected
+            - sex
+    columns:
+      - name: year
+        description: >-
+          Year of the election
+        tests: [not_null]
+      - name: municipality_id
+        description: >-
+          JMED municipality identifier (e.g., M000001), shared across the elections
+          of a
+          continuing municipality
+        tests: [not_null]
+      - name: municipality_code
+        description: >-
+          Six-character National Local Government Code (全国地方公共団体コード) of the municipality
+          at the election date
+        tests: [not_null]
+      - name: prefecture_code
+        description: >-
+          Prefecture code (01 to 47)
+        tests: [not_null]
+      - name: election_id
+        description: >-
+          Election identifier (e.g., E0000001), shared across candidates and districts
+          within the same election
+        tests: [not_null]
+      - name: candidate_id
+        description: >-
+          Candidate identifier (e.g., C01_0000028), linking the same person across
+          elections
+        tests: [not_null]
+      - name: municipality_name
+        description: >-
+          Municipality name in Japanese
+      - name: municipality_name_en
+        description: >-
+          Municipality name in English
+      - name: municipality_type
+        description: >-
+          Municipality type: city, town, village or special_ward (Tokyo special wards)
+      - name: prefecture
+        description: >-
+          Prefecture name in Japanese
+      - name: prefecture_en
+        description: >-
+          Prefecture name in English
+      - name: district
+        description: >-
+          Electoral district: at-large for mayoral elections and municipality-wide
+          assembly elections; otherwise, the named assembly district
+      - name: election_date
+        description: >-
+          Election date; for uncontested elections, the scheduled polling date
+        tests: [not_null]
+      - name: unified
+        description: >-
+          Whether the election date coincides with an official unified local election
+          polling date (either round)
+      - name: election_type
+        description: >-
+          Election type: assembly election or mayoral election
+      - name: election_subtype
+        description: >-
+          Election subtype: regular (general election), by-election (fills vacancies
+          arising during a term), seat-increase (fills additional assembly seats)
+          or re-
+          election (repeated because the prior election did not yield enough valid
+          winners)
+      - name: number_of_seats
+        description: >-
+          Number of seats to be filled in the district
+      - name: number_of_candidates
+        description: >-
+          Number of candidates standing in the district
+      - name: uncontested
+        description: >-
+          Whether the election in the district was uncontested
+      - name: turnout
+        description: >-
+          Percentage of eligible voters in the district who cast a ballot (0 to 100)
+      - name: candidate_name
+        description: >-
+          Candidate name in Japanese for that election
+      - name: age
+        description: >-
+          Age of the candidate at the election
+      - name: sex
+        description: >-
+          Sex of the candidate
+      - name: party
+        description: >-
+          Party affiliation of the candidate in Japanese for that election
+      - name: party_en
+        description: >-
+          Party affiliation of the candidate in English
+      - name: incumbent
+        description: >-
+          Whether the candidate held the seat going into the election
+      - name: incumbent_status
+        description: >-
+          Candidate status in Japanese: 現職 (sitting incumbent), 新人 (newcomer), 元職
+          (former officeholder) or 前職 (immediately previous officeholder)
+      - name: incumbent_status_en
+        description: >-
+          Candidate status in English
+      - name: number_of_votes
+        description: >-
+          Votes received by the candidate
+      - name: district_vote_total
+        description: >-
+          Sum of candidate votes within the same election and district
+      - name: vote_share
+        description: >-
+          Candidate votes as a percentage (0 to 100) of district_vote_total
+      - name: elected
+        description: >-
+          Whether the candidate was elected
+  - name: jp_yale_jmed__municipal_history
+    description: >-
+      Changes to Japanese municipalities from 2005 to 2025 (mergers, absorptions,
+      splits, and changes to names, government codes, or boundaries), one row per
+      predecessor-successor link, from the Municipal History Dataset companion to
+      JMED.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - predecessor_id
+            - successor_id
+            - change_date
+            - change_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: predecessor_id
+        description: >-
+          JMED municipality identifier immediately before the change
+        tests: [not_null]
+      - name: predecessor_code
+        description: >-
+          Six-character National Local Government Code of the municipality immediately
+          before the change
+      - name: successor_id
+        description: >-
+          JMED municipality identifier immediately after the change
+        tests: [not_null]
+      - name: successor_code
+        description: >-
+          Six-character National Local Government Code of the municipality immediately
+          after the change
+      - name: predecessor_name
+        description: >-
+          Municipality name in Japanese immediately before the change
+      - name: successor_name
+        description: >-
+          Municipality name in Japanese immediately after the change
+      - name: change_date
+        description: >-
+          Date the change took effect
+        tests: [not_null]
+      - name: change_type
+        description: >-
+          Change type: merger, absorption, split, name_change, code_change,
+          name_and_code_change or boundary_change
+        tests: [not_null]
+  - name: jp_yale_jmed__dicionario
+    description: >-
+      Mapping between the coded keys of the dataset's columns and their meaning.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the table described by the dictionary entry
+      - name: nome_coluna
+        description: >-
+          Name of the column described by the dictionary entry
+      - name: chave
+        description: >-
+          Coded key value stored in the column
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Meaning of the coded key
