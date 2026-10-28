@@ -22,16 +22,19 @@ from urllib3.util.retry import Retry
 
 from pipelines.datasets.br_ibge_ppm.constants import constants
 from pipelines.utils.metadata.client import MetadataClient
+from pipelines.utils.utils import brasil_proxy_dict
 
 
 def build_session() -> requests.Session:
-    """Sessão que repete quando a API do IBGE falha.
+    """Sessão que repete quando a API do IBGE falha e sai pelo proxy brasileiro.
 
     Um pedido cobre os 5.570 municípios de uma vez, e o servidor responde 5xx
-    com alguma frequência nesse volume.
+    com alguma frequência nesse volume. Sem `BRASIL_PROXY_URL` definida, a
+    sessão sai direto.
 
     Returns:
-        A sessão, com repetição e espera crescente entre tentativas.
+        A sessão, com repetição, espera crescente entre tentativas e o proxy
+        brasileiro quando ele existe.
     """
     retry = Retry(
         total=5,
@@ -43,6 +46,9 @@ def build_session() -> requests.Session:
     )
     session = requests.Session()
     session.mount("https://", HTTPAdapter(max_retries=retry))
+    proxies = brasil_proxy_dict()
+    if proxies is not None:
+        session.proxies.update(proxies)
     return session
 
 
