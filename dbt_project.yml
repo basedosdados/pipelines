@@ -225,6 +225,9 @@ models:
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections
+    jp_yale_jmed:
+      +materialized: table
+      +schema: jp_yale_jmed
     us_anes_time_series:
       +materialized: table
       +schema: us_anes_time_series
