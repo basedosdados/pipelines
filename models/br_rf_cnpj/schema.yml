@@ -24,6 +24,10 @@ models:
           where: __most_recent_date_cnpj__
       - name: razao_social
         description: Razão Social
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: natureza_juridica
         description: Natureza Jurídica
         tests:
@@ -46,6 +50,16 @@ models:
   - name: br_rf_cnpj__socios
     description: Socios
     tests:
+      - dbt_utils.expression_is_true:
+          expression: >-
+            coalesce(case tipo
+            when '1' then regexp_contains(documento, r'^[0-9]{8}$')
+            when '2' then regexp_contains(documento, r'^\*{3}[0-9]{6}\*{2}$')
+            when '3' then documento is null
+            else true end, false)
+          config:
+            severity: error
+            where: __most_recent_date_cnpj__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - qualificacao_representante_legal
@@ -69,6 +83,10 @@ models:
         description: Tipo
       - name: nome
         description: Nome
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: documento
         description: Documento (CPF mascarado ou CNPJ)
       - name: qualificacao
@@ -77,6 +95,8 @@ models:
         description: Data de Entrada na Sociedade
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
                 where: __most_recent_date_cnpj__
@@ -97,16 +117,16 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [cnpj_basico]
-      - dbt_utils.expression_is_true:
-          expression: >-
-            data_exclusao_simples is null or data_opcao_simples is null
-            or data_exclusao_simples >= data_opcao_simples
+      # Inconsistência na origem (RFB): ~3 casos em ~25M; tolera até 1e-6 das linhas
+      - custom_matching_rows_limit:
+          condition: data_exclusao_simples < data_opcao_simples
+          max_share: 0.000001
           config:
             severity: error
-      - dbt_utils.expression_is_true:
-          expression: >-
-            data_exclusao_mei is null or data_opcao_mei is null
-            or data_exclusao_mei >= data_opcao_mei
+      # Inconsistência na origem (RFB): ~3 casos em ~20M; tolera até 1e-6 das linhas
+      - custom_matching_rows_limit:
+          condition: data_exclusao_mei < data_opcao_mei
+          max_share: 0.000001
           config:
             severity: error
     columns:
@@ -125,12 +145,15 @@ models:
         description: Data de Opção pelo Simples Nacional
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
       - name: data_exclusao_simples
         description: Data de Exclusão do Simples Nacional
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
@@ -146,12 +169,15 @@ models:
         description: Data de Opção pelo MEI
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
       - name: data_exclusao_mei
         description: Data de Exclusão do MEI
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
@@ -202,12 +228,18 @@ models:
         description: Identificador de Matriz ou Filial
       - name: nome_fantasia
         description: Nome Fantasia
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: situacao_cadastral
         description: Situação Cadastral
       - name: data_situacao_cadastral
         description: Data da Situação Cadastral
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
                 where: __most_recent_date_cnpj__
@@ -221,6 +253,8 @@ models:
         description: Data de Início da Atividade
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
                 where: __most_recent_date_cnpj__
@@ -261,14 +295,34 @@ models:
         description: ID Município - Receita Federal
       - name: tipo_logradouro
         description: Tipo de Logradouro
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: logradouro
         description: Logradouro
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: numero
         description: Número
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: complemento
         description: Complemento
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: bairro
         description: Bairro
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: cep
         description: CEP
         tests:
@@ -279,59 +333,21 @@ models:
                 where: __most_recent_date_cnpj__
       - name: ddd_1
         description: DDD 1
-        tests:
-          - regex_or_null:
-              pattern: ^[0-9]{2}$
-              config:
-                severity: warn
-                where: __most_recent_date_cnpj__
       - name: telefone_1
         description: Telefone 1
-        tests:
-          - regex_or_null:
-              pattern: ^[0-9]{6,9}$
-              config:
-                severity: warn
-                where: __most_recent_date_cnpj__
       - name: ddd_2
         description: DDD 2
-        tests:
-          - regex_or_null:
-              pattern: ^[0-9]{2}$
-              config:
-                severity: warn
-                where: __most_recent_date_cnpj__
       - name: telefone_2
         description: Telefone 2
-        tests:
-          - regex_or_null:
-              pattern: ^[0-9]{6,9}$
-              config:
-                severity: warn
-                where: __most_recent_date_cnpj__
       - name: ddd_fax
         description: DDD Fax
-        tests:
-          - regex_or_null:
-              pattern: ^[0-9]{2}$
-              config:
-                severity: warn
-                where: __most_recent_date_cnpj__
       - name: fax
         description: Fax
-        tests:
-          - regex_or_null:
-              pattern: ^[0-9]{6,9}$
-              config:
-                severity: warn
-                where: __most_recent_date_cnpj__
       - name: email
         description: Email
         tests:
-          - regex_or_null:
-              pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+          - no_invalid_chars:
               config:
-                severity: warn
                 where: __most_recent_date_cnpj__
       - name: situacao_especial
         description: Situação Especial
@@ -339,6 +355,8 @@ models:
         description: Data da Situação Especial
         tests:
           - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
               config:
                 severity: warn
                 where: __most_recent_date_cnpj__

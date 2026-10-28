@@ -101,6 +101,13 @@ A partir de 2026 o CNPJ passa a aceitar letras. Isso afeta:
    - **Quando reabrir:** se o teste falhar por valores sentinela da fonte (ex.: `0000-00-00`, `9999-12-31`), avaliar tratar no SQL do modelo. Se a macro for adotada, manter o `not_null_proportion_multiple_columns` para pegar aumento súbito de nulos.
    - **Pendente:** medir na partição mais recente se existem sentinelas antes de subir a severidade de `warn` para `error`, e decidir sobre `data_modificacao` (hoje fora dos testes por omissão).
 
+2. **Ordem das datas em `simples`: tolerar uma taxa mínima de violações em vez de exigir zero.**
+   - **Contexto:** `data_exclusao_simples < data_opcao_simples` e `data_exclusao_mei < data_opcao_mei` ocorrem na origem (RFB). Medido uma vez em `basedosdados.br_rf_cnpj.simples` (snapshot único, sem coluna de partição): 3 casos em ~25,6M linhas comparáveis (Simples) e 3 em ~20,1M (MEI), cerca de 1e-7. Total da tabela: ~50,8M linhas.
+   - **Decisão:** trocar os `dbt_utils.expression_is_true` estritos por `custom_matching_rows_limit` com `max_share: 0.000001` (≈50 linhas), mantendo `severity: error`. O limite dá folga de ~10x sobre a taxa observada: ruído da fonte passa, mas um aumento real de violações falha.
+   - **Alternativas descartadas:** manter o teste estrito (falharia sempre por um problema que não controlamos) e corrigir o dado no modelo (alteraria o publicado em silêncio e exigiria reprocessar).
+   - **Observação:** o denominador é o total de linhas da tabela, não só as comparáveis. Isso deixa o teste um pouco mais permissivo, mas a diferença é irrelevante nessa escala.
+   - **Quando reabrir:** se a taxa observada se aproximar do limite, ou se a RFB corrigir a origem (aí dá para voltar ao teste estrito).
+
 ### Decisões em aberto
 
 1. **Chave de `socios`:** medir as combinações candidatas no BQ (consulta de leitura, com custo) antes de fechar o teste?

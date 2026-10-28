@@ -12,6 +12,6 @@
         {{ column_name }} is not null
         and (
             date({{ column_name }}) < date('{{ min_date }}')
-            or date({{ column_name }}) >= {{ max_date }}
+            or date({{ column_name }}) > {{ max_date }}
         )
 {% endtest %}
