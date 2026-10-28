@@ -18,7 +18,7 @@ from tqdm.asyncio import tqdm as tqdm_asyncio
 
 from pipelines.shared.ibge_inflacao.constants import constants
 from pipelines.utils.metadata.tasks import task_get_api_most_recent_date
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 
 def build_url(
@@ -73,10 +73,15 @@ async def collect_data(
     periods: list[str],
     geo_level: str,
 ) -> None:
-    """Consulta dados da API IBGE e salva os resultados em JSON."""
+    """Consulta dados da API IBGE e salva os resultados em JSON.
+
+    As requisições saem pelo proxy brasileiro. Sem `BRASIL_PROXY_URL`
+    definida, a sessão sai direto.
+    """
     async with aiohttp.ClientSession(
         connector=TCPConnector(limit=100, force_close=True),
         timeout=ClientTimeout(total=1200),
+        proxy=brasil_proxy_url(),
     ) as session:
         for period in [periods]:
             log(
