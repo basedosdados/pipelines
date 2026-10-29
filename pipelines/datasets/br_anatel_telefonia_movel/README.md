@@ -91,7 +91,7 @@ Os flows seguem o modelo em estágios (`CheckThenExtractLoadPipeline`, em `pipel
 
 | Flow | Agendamento | O que faz | Memória |
 | --- | --- | --- | --- |
-| `br_anatel_telefonia_movel_<tabela>_check_update` | um dia da semana, às 16h30 | baixa o CSV da tabela, calcula o mês mais recente e compara com a cobertura da tabela; se a fonte estiver à frente, grava o `RawDataSource.Update` e dispara o `download` | padrão do deploy para `check_update` (1Gi) |
+| `br_anatel_telefonia_movel_<tabela>_check_update` | todo dia, entre 16h32 e 16h44 | baixa o CSV da tabela, calcula o mês mais recente e compara com a cobertura da tabela; se a fonte estiver à frente, grava o `RawDataSource.Update` e dispara o `download` | padrão do deploy para `check_update` (1Gi) |
 | `br_anatel_telefonia_movel_<tabela>_download` | disparado pelo `check_update` | baixa o CSV de novo, limpa e sobe para a staging de dev; o `build_and_promote` genérico materializa, testa e promove para prod | padrão do pool (4Gi e 2 CPUs) |
 
 O `check_update` baixa o CSV porque o mês mais recente da fonte só aparece dentro dele. `get_max_date_in_table_microdados` (`tasks.py`) calcula esse mês no CSV do semestre, para o `microdados`, e no CSV de densidade **filtrado pela geografia da tabela**, para as densidades. No microdados, o `build_and_promote` promove para prod só as partições `ano=/mes=` gravadas no run; nas densidades, que não têm partição, promove a tabela inteira.

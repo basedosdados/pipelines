@@ -9,6 +9,10 @@ import polars as pl
 from prefect import task
 
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
+    COVERAGE,
+    DATASET_ID,
+)
+from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
@@ -17,7 +21,11 @@ from pipelines.datasets.br_anatel_telefonia_movel.utils import (
     download_csv_from_zip,
     normalize_label,
 )
-from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
+from pipelines.utils.stage_dispatch import (
+    ExtractAndLoad,
+    SourceInspection,
+    pipeline_factory,
+)
 
 
 @task(retries=5, retry_delay_seconds=10)
@@ -102,9 +110,17 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             table_id=table_id, csv_path=csv_path
         )
         return ExtractAndLoad(
-            coverage=anatel_constants.COVERAGE.value.model_dump(),
+            coverage=COVERAGE.model_dump(),
             data_path=data_path,
             dump_mode="append",
         )
 
     return extract_load_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+    date_format="%Y-%m",
+)

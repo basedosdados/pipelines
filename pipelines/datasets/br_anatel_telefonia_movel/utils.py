@@ -33,6 +33,10 @@ class HttpRangeFile(RawIOBase):
     Args:
         client: Cliente httpx usado nas requisições.
         url: Endereço do arquivo remoto.
+
+    Raises:
+        httpx.HTTPStatusError: Se o servidor responder ao `HEAD` com erro.
+        OSError: Se o servidor não informar o tamanho do arquivo no `HEAD`.
     """
 
     def __init__(self, client: Client, url: str) -> None:
@@ -40,8 +44,13 @@ class HttpRangeFile(RawIOBase):
         self.client = client
         self.url = url
         response = self.client.head(self.url).raise_for_status()
+        content_length = response.headers.get("content-length")
+
+        if content_length is None:
+            raise OSError("O servidor não informou o tamanho do arquivo.")
+
         self.position = 0
-        self.size = int(response.headers["content-length"])
+        self.size = int(content_length)
 
     def readable(self) -> bool:
         """Informa que o arquivo aceita leitura."""
@@ -247,7 +256,8 @@ def download_csv_from_zip(table_id: str) -> str:
     Raises:
         httpx.HTTPStatusError: Se a API ou o servidor da Anatel responderem com
             erro.
-        OSError: Se o servidor da Anatel ignorar o cabeçalho `Range`.
+        OSError: Se o servidor da Anatel não informar o tamanho do ZIP ou
+            ignorar o cabeçalho `Range`.
         ValueError: Se a API não listar o ZIP ou se o ZIP não tiver o arquivo
             que a tabela lê.
     """
