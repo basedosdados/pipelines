@@ -3,12 +3,14 @@
 Um Enum do conjunto e um por tabela.
 """
 
+from datetime import date
 from enum import Enum
 
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
     DateOnly,
+    NonHistorical,
     PartBdpro,
     YearMonth,
     YearOnly,
@@ -16,10 +18,9 @@ from pipelines.utils.metadata.domain import (
 
 
 class constants(Enum):
-    """Configuração da API, do agendamento e das regras comuns às tabelas."""
+    """Configuração da API, da janela de extração e das regras comuns às tabelas."""
 
     DATASET_ID = "br_senado_dados_abertos_administrativos"
-    ANCHOR_TABLE = "senador"
 
     API_URL = "https://adm.senado.gov.br/adm-dadosabertos/api/v1"
     LEGIS_API_URL = "https://legis.senado.leg.br/dadosabertos"
@@ -31,9 +32,12 @@ class constants(Enum):
     FETCH_WORKERS = 8
     FETCH_FAIL_RATIO = 0.01
 
-    DAILY_CRON = "17 6 * * 0,2,3,4,5,6"
-    WEEKLY_CRON = "17 6 * * 1"
     REFRESH_PRIOR_YEARS = 1
+    NO_NEW_DATA_DATE = date(1900, 1, 1)
+    REFERENCE_DATE_TABLES = {
+        "suprido_transacao_objeto": "suprido_transacao",
+        "suprido_movimentacao_subtipo": "suprido_movimentacao",
+    }
 
     FIRST_YEAR_CEAPS = 2008
     FIRST_YEAR_REMUNERACAO = 2013
@@ -98,14 +102,13 @@ class constants(Enum):
     ]
     UNPARTITIONED = ["senador", "dicionario"]
     ALL_TABLES = UNPARTITIONED + SNAPSHOTS + PARTITIONED
-    STATIC_TABLES = ["dicionario"]
 
 
 class constants_senador(Enum):
     """Configuração da tabela senador."""
 
     TABLE_ID = "senador"
-    COVERAGE = None
+    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "nome_parlamentar",

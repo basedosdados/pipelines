@@ -42,8 +42,8 @@ conjunto é `dados_abertos_administrativos`.
 | `suprido_empenho` | Supridos | `ano` | `data` | diária |
 | `suprido_transacao` | Supridos | `ano` | `data` | diária |
 | `suprido_transacao_objeto` | Supridos | `ano` | `ano` | diária |
-| `suprido_movimentacao` | Supridos | `ano` | `data` | diária |
-| `suprido_movimentacao_subtipo` | Supridos | `ano` | `ano` | diária |
+| `suprido_movimentacao` | Supridos | `ano` | `data` | sem horário |
+| `suprido_movimentacao_subtipo` | Supridos | `ano` | `ano` | sem horário |
 | `quadro_pessoal` | Gestão | `data_extracao` | `data_extracao` | diária |
 | `diretor_coordenador` | Gestão | `data_extracao` | `data_extracao` | diária |
 | `previsao_aposentadoria` | Gestão | `data_extracao` | `data_extracao` | diária |
@@ -195,14 +195,46 @@ Os nomes das tabelas seguem os de `br_camara_dados_abertos` quando o conceito é
 
 ## Atualização
 
-Prefect 3, com dois flows em `flows.py`: `br_senado_dados_abertos_administrativos_daily` e
-`br_senado_dados_abertos_administrativos_weekly`. Os dois chamam `_run`; o semanal extrai também
-as filhas das contratações (`sub_resources=True`). A task `extract_and_clean`, de `tasks.py`,
-chama `clean_all`, de `utils.py`, que extrai e grava todas as tabelas. As funções de leitura da
-API e uma função de limpeza por tabela (`clean_<tabela>`) também ficam em `utils.py`.
+Prefect 3, no modelo em estágios: `check_update` → `extract_and_load` → `build_and_promote`. Cada
+uma das 39 tabelas com flow tem seu par `check_update`/`extract_and_load` em `flows.py`, montado
+por `make_pipeline`, de `tasks.py`. As funções de leitura da API e uma função de limpeza por
+tabela (`clean_<tabela>`) ficam em `utils.py`; a task `extract_table`, em `tasks.py`, escolhe a
+função de cada tabela. O `dicionario` não tem flow.
 
-Não há `check_update`: a API não tem data de publicação para comparar, e todo run extrai, carrega
-e materializa. O parâmetro `force_run` existe nos dois flows e não muda nada.
+### Tabelas que usam as mesmas chamadas
+
+Cada tabela refaz as chamadas de que precisa, mesmo quando outra tabela usa as mesmas:
+
+| Tabelas | Função que cada uma chama de novo |
+|---|---|
+| `senador`, `senador_gabinete`, `senador_escritorio_apoio`, `senador_auxilio_moradia` | `get_senador_reference` |
+| `servidor_hora_extra`, `servidor_hora_extra_dia` | `clean_servidor_hora_extra` |
+| as nove tabelas de contratação | `fetch_contratacoes` |
+| `contratacao_pagamento`, `contratacao_documento_fiscal`, `contratacao_pagamento_empenho` | `clean_contratacao_pagamento` |
+| `licitacao`, `licitacao_detalhamento` | `clean_licitacao` |
+| os seis `suprido_*` | `clean_supridos` |
+
+### Data de referência
+
+| Tabelas | Data de referência do `check_update` | Comparada com |
+|---|---|---|
+| `senador` | a data do dia | o `Table.Update` (`compare_against="table_update"`) |
+| as 28 de `data_extracao` | a data do dia | a cobertura |
+| as séries com `data` ou com `ano` e `mes` | a maior data da janela; numa série por mês, o primeiro dia do maior mês | a cobertura |
+| `suprido_transacao_objeto`, `suprido_movimentacao_subtipo` | a maior `data` da série irmã, em `REFERENCE_DATE_TABLES` | a cobertura |
+
+`senador` e as tabelas de `data_extracao` não têm data de publicação, e a carga é disparada em
+todo run. Nas tabelas de `data_extracao`, um segundo run no mesmo dia não recarrega, porque a
+cobertura já termina na data do dia.
+
+Nas séries, o `check_update` extrai a janela só para ler a maior data; quando há novidade, o
+`extract_and_load` extrai a janela de novo. Quando a janela vem vazia, a data de referência é
+1900-01-01, lida como "sem novidade".
+
+`suprido_transacao_objeto` e `suprido_movimentacao_subtipo` só têm `ano`, e uma cobertura por ano
+termina em 1º de janeiro: a maior data da própria série nunca passaria dela antes da virada do
+ano. Por isso usam a `data` de `suprido_transacao` e de `suprido_movimentacao`, que vêm da mesma
+chamada. Na prática, recarregam em todo run assim que o ano corrente tem algum registro.
 
 ### Janela de cada run
 
@@ -213,42 +245,37 @@ e materializa. O parâmetro `force_run` existe nos dois flows e não muda nada.
 
 ### Carga
 
-Cada tabela sobe para a staging com `upload_to_gcs`, em `dump_mode="overwrite"`, e a staging fica
-só com a janela do run. O modelo dbt substitui na tabela final só as partições da janela e deixa as
-outras como estão: o histórico se acumula na tabela final, não na staging. Rodar de novo no mesmo
-dia substitui as mesmas partições, sem duplicar.
+O `extract_and_load` sobe a tabela para a staging de `basedosdados-dev` com
+`dump_mode="overwrite"`, e a staging fica só com a janela do run. O `build_and_promote` roda o
+`dbt run` e o `dbt test` em dev e promove para prod só as partições gravadas no run. O modelo dbt
+substitui na tabela final só as partições da janela e deixa as outras como estão: o histórico se
+acumula na tabela final, não na staging. Rodar de novo no mesmo dia substitui as mesmas partições,
+sem duplicar.
 
-O run faz o `dbt run` de todas as tabelas e só depois o `dbt test` de todas, para que os testes de
-`relationships` com `senador` leiam a dimensão já refeita.
+Uma tabela de `data_extracao` que volta da API sem linhas faz o `extract_and_load` falhar em
+`save_table`, em vez de subir uma staging vazia.
 
-Ficam de fora da carga:
+Quatro tabelas testam `relationships` com `senador`: `despesa_ceaps`, `senador_gabinete`,
+`senador_escritorio_apoio` e `senador_auxilio_moradia`. O `check_update` de `senador` roda 21
+minutos antes do primeiro delas, para que o teste leia a dimensão já refeita.
 
-- tabela sem linha na janela: não gera parquet, e as partições que já existem ficam intactas;
-- `dicionario`, sempre: ele é montado com as rubricas dos supridos extraídos no run, e com a janela
-  de dois anos sairia menor que o da carga completa.
-
-| Parâmetro | Padrão | Efeito |
-|---|---|---|
-| `materialize_to_prod` | `True` | `True`: grava no bucket `basedosdados` e roda o dbt com `target="prod"`, sem passar por dev. `False`: grava em `basedosdados-dev`, roda o dbt em `dev` e termina antes dos metadados |
-| `update_metadata` | `True` | Só com `materialize_to_prod=True`: atualiza a cobertura de cada tabela carregada e a `Update` da fonte |
-| `force_run` | `False` | Sem efeito |
-
-Um run disparado sem parâmetros grava em prod e atualiza os metadados de prod.
+O `dicionario` fica de fora: ele é montado com as rubricas dos supridos, e com a janela de dois
+anos sairia menor que o da carga completa.
 
 ### Metadados
 
-Com `update_metadata=True`, `register_table_materialization_task` atualiza a cobertura de cada
-tabela carregada no run que tem `COVERAGE`. `commit_source_update_task` grava a data de extração
-como `Update` da fonte, resolvida pela tabela `senador`.
+O `check_update` grava o `Poll` da fonte de cada tabela e, quando há novidade, o `Update` da fonte
+com a data de referência, antes de disparar o `extract_and_load`. Cada tabela precisa de
+exatamente uma fonte original ligada no backend.
 
-Tabela fora da carga do run (vazia na janela, ou filha das contratações num run diário) não tem a
-cobertura atualizada naquele run. O flow não mexe nos metadados de `senador` e `dicionario`.
+O `build_and_promote` atualiza a cobertura da tabela. Em `senador`, que é `NonHistorical`, atualiza
+só o `Table.Update`.
 
 ### BD Pro
 
 36 tabelas restringem ao BD Pro os 6 meses mais recentes (`PartBdpro`, no `COVERAGE` da classe de
-cada tabela em `constants.py`). A cada run com metadados, `register_table_materialization_task`
-recalcula a faixa e reaplica as row access policies do BigQuery.
+cada tabela em `constants.py`). A cada carga, o `build_and_promote` recalcula a faixa e reaplica as
+row access policies do BigQuery.
 
 | Tabelas | Coluna de data | Granularidade | Faixa |
 |---|---|---|---|
@@ -256,7 +283,8 @@ recalcula a faixa e reaplica as row access policies do BigQuery.
 | `despesa_ceaps`, `servidor_hora_extra_dia`, `suprido_ato_concessao`, `suprido_empenho`, `suprido_transacao`, `suprido_movimentacao` | `data` | dia | `PartBdpro`, 6 meses |
 | `servidor_remuneracao`, `servidor_hora_extra` | `ano`, `mes` | mês | `PartBdpro`, 6 meses |
 | `suprido_transacao_objeto`, `suprido_movimentacao_subtipo` | `ano` | ano | `AllFree` |
-| `senador`, `dicionario` | — | — | sem cobertura no flow |
+| `senador` | — | — | `NonHistorical` |
+| `dicionario` | — | — | sem cobertura |
 
 Nas tabelas de `data_extracao`, a parte livre vai até 6 meses antes do snapshot mais recente.
 `suprido_transacao_objeto` e `suprido_movimentacao_subtipo` só têm `ano` como data, e uma faixa de
@@ -264,24 +292,38 @@ Nas tabelas de `data_extracao`, a parte livre vai até 6 meses antes do snapshot
 
 ### Agendamento
 
-Os dois flows rodam às 06:17, horário de Brasília (`America/Sao_Paulo`), em dias diferentes:
+Os horários, em Brasília (`America/Sao_Paulo`), estão no `deploy_schedules` de cada
+`check_update`, em `flows.py`:
 
-| Flow | Cron | Dias |
+| Tabelas | Dias | Horário |
 |---|---|---|
-| `br_senado_dados_abertos_administrativos_daily` | `17 6 * * 0,2,3,4,5,6` | domingo e de terça a sábado |
-| `br_senado_dados_abertos_administrativos_weekly` | `17 6 * * 1` | segunda-feira |
+| `senador` | todo dia | 10:27 |
+| as outras 29 tabelas diárias da tabela do início | todo dia | de 5 em 5 minutos, das 10:48 às 13:13 |
+| `contratacao_item` | segunda-feira | 13:18 |
+| `contratacao_garantia` | terça-feira | 13:18 |
+| `contratacao_pagamento` | quarta-feira | 13:18 |
+| `contratacao_documento_fiscal` | quinta-feira | 13:18 |
+| `contratacao_pagamento_empenho` | sexta-feira | 13:18 |
+| `contrato_aditivo` | sábado | 13:18 |
+| `ata_acionamento` | domingo | 13:18 |
+| `suprido_movimentacao`, `suprido_movimentacao_subtipo` | — | sem horário |
 
-Há um run por dia, nunca dois ao mesmo tempo. O run de segunda-feira faz tudo o que o diário faz e
-acrescenta as filhas das contratações.
+As filhas das contratações são semanais porque fazem uma chamada por contratação, 8 de cada vez
+(ver "Chamadas por entidade"). Cada uma roda num dia da semana: duas ao mesmo tempo passariam das
+10 conexões simultâneas que a API aguenta. `suprido_movimentacao` e `suprido_movimentacao_subtipo` não têm registro desde
+2020; o `check_update` delas só roda quando disparado à mão.
 
 ### Memória
 
-`clean_all` grava e libera uma tabela por vez, e as séries um ano por vez: `write_table` acrescenta
-a partição do ano sem apagar as anteriores. Como dicionários Python, `servidor_remuneracao` ocupa
-cerca de 2,5 KB por linha, o que dá cerca de 5,9 GB no histórico completo e cerca de 9 GB somada a
-`servidor_hora_extra_dia`. Montar todas as tabelas antes de gravar não cabe num worker de 4 GiB.
+Na carga completa, `clean_all` grava e libera uma tabela por vez, e as séries um ano por vez:
+`write_table` acrescenta a partição do ano sem apagar as anteriores. Como dicionários Python,
+`servidor_remuneracao` ocupa cerca de 2,5 KB por linha, o que dá cerca de 5,9 GB no histórico
+completo e cerca de 9 GB somada a `servidor_hora_extra_dia`. Montar todas as tabelas antes de
+gravar não cabe num worker de 4 GiB.
 
-Num run de rotina, o pico de memória é um ano de folha, entre 0,5 e 1 GB.
+Nos flows, `extract_table` monta a janela inteira de uma tabela antes de gravar. A maior é
+`servidor_remuneracao`: dois anos de folha, entre 1 e 2 GB pela mesma conta. O `check_update` das
+séries também monta a janela, para ler a maior data.
 
 ### Carga completa
 

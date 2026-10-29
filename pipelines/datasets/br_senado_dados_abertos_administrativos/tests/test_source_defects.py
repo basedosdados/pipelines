@@ -9,7 +9,6 @@ import pytest
 from pipelines.datasets.br_senado_dados_abertos_administrativos import utils
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
     TABLES_CONSTANTS,
-    constants,
     constants_servidor_cedido,
 )
 from pipelines.utils.metadata import policy
@@ -401,16 +400,14 @@ def test_senador_flags_em_exercicio_and_keeps_historical(monkeypatch):
     assert rows["3"]["nome_completo"] == "Antonio C. Valadares"
 
 
-def test_coverage_covers_exactly_the_partitioned_tables():
-    """Só as tabelas particionadas têm cobertura."""
-    covered = set()
+def test_coverage_covers_every_table_but_dicionario():
+    """Só o `dicionario`, que não tem flow, fica sem cobertura."""
+    uncovered = set()
     for table_id, table_constants in TABLES_CONSTANTS.items():
-        if table_constants.COVERAGE.value is not None:
-            covered.add(table_id)
+        if table_constants.COVERAGE.value is None:
+            uncovered.add(table_id)
 
-    assert covered == set(constants.SNAPSHOTS.value) | set(
-        constants.PARTITIONED.value
-    )
+    assert uncovered == {"dicionario"}
 
 
 def test_no_coverage_inverts_the_pro_range():
