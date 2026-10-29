@@ -9,11 +9,7 @@ from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.tasks import (
     download_files_from_bucket_folders,
 )
-from pipelines.utils.metadata.client import MetadataClient
-from pipelines.utils.metadata.coverage import (
-    CoverageSpec,
-    coverage_from_backend,
-)
+from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -112,10 +108,6 @@ def transfer_files_to_prod_flow(
         target="prod",
     )
 
-    if coverage is None:
-        # pyrefly: ignore [bad-argument-type]
-        client = MetadataClient(env=env)
-        coverage = coverage_from_backend(client, dataset_id, table_id)
     register_table_materialization_task(
         dataset_id=dataset_id,
         table_id=table_id,

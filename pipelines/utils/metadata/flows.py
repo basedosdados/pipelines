@@ -7,12 +7,8 @@ datasets/tabelas que o disparam.
 
 from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.flows import transfer_files_to_prod_flow
-from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import BUILD_AND_PROMOTE_JOB_VARIABLES
-from pipelines.utils.metadata.coverage import (
-    CoverageSpec,
-    coverage_from_backend,
-)
+from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -46,10 +42,6 @@ def update_temporal_coverage(
         bq_project: projeto BigQuery onde a tabela vive.
         prefect_mode: resolve o projeto de billing (`MODE_PROJECT`).
     """
-    if coverage is None:
-        # pyrefly: ignore [bad-argument-type]
-        client = MetadataClient(env=env)
-        coverage = coverage_from_backend(client, dataset_id, table_id)
     register_table_materialization_task(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -163,13 +155,9 @@ def build_and_promote(
             source_format=source_format,
         )
     elif update_metadata:
-        # pyrefly: ignore [bad-argument-type]
-        client = MetadataClient(env=env)
-        coverage = coverage_from_backend(client, dataset_id, table_id)
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=coverage,
             env=env,
             bq_project=bq_project,
             prefect_mode=prefect_mode,
