@@ -23,15 +23,6 @@ from pipelines.datasets.us_treasury_fiscaldata.tasks import (
     download_fiscaldata,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -44,53 +35,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# Coverage spec per table. Tables refreshed monthly or more often paywall their
-# most recent window to BD Pro (rolling free_lag of 6 months); the quarterly
-# exchange_rate stays fully free. part_bdpro requires BOTH a free
-# (is_closed=False) and a pro (is_closed=True) Coverage to already exist, or
-# assert_coverage_topology raises before anything is written — these are created
-# at metadata registration.
-_COVERAGE = {
-    "debt_outstanding": PartBdpro(
-        date_column=DateOnly(col="record_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "historical_debt_outstanding": AllFree(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-    ),
-    "mts_summary": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "mts_receipts": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "mts_outlays": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "mts_means_of_financing": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "average_interest_rate": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "exchange_rate": AllFree(
-        date_column=DateOnly(col="record_date"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-}
 
 
 @flow(name="us_treasury_fiscaldata", log_prints=True)
@@ -165,11 +109,10 @@ def us_treasury_fiscaldata_flow(
                 target=target,
             )
 
-            if materialize_to_prod and update_metadata and table in _COVERAGE:
+            if materialize_to_prod and update_metadata:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=_COVERAGE[table],
                     env="prod",
                     bq_project="basedosdados",
                 )

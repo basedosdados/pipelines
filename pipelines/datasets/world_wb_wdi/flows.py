@@ -67,12 +67,6 @@ from pipelines.datasets.world_wb_wdi.tasks import (
     get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    NonHistorical,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.stage_dispatch import (
     Etapa,
@@ -95,19 +89,6 @@ POLL_TABLE = constants.POLL_TABLE.value
 # `str(Etapa.EXTRACT_AND_LOAD)` already — kept explicit so it doesn't depend
 # on that coincidence.
 _EXTRACT_AND_LOAD_DEPLOYMENT = "world_wb_wdi_extract_and_load"
-
-# Coverage spec per table. WDI is fully open -> every dated table is AllFree.
-# The three dateless reference tables (indicators, country_indicator,
-# dicionario) take NonHistorical (a single last-modified coverage).
-_YEAR = AllFree(date_column=YearOnly(col="year"), date_format=DateFormat.YEAR)
-_COVERAGE = {
-    "data": _YEAR,
-    "footnote": _YEAR,
-    "indicator_time": _YEAR,
-    "indicators": NonHistorical(),
-    "country_indicator": NonHistorical(),
-    "dicionario": NonHistorical(),
-}
 
 
 def _materialize(target: str, bucket: str, paths: dict) -> None:
@@ -234,11 +215,10 @@ def world_wb_wdi_extract_and_load(
         _materialize("prod", "basedosdados", result)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in ALL_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

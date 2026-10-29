@@ -191,17 +191,3 @@ def verify_all_url_exists_to_download(
         log(f"A URL {url=} existe!")
 
     return True
-
-
-def dict_for_table(table_id: str) -> dict:
-    return {
-        "novo_bolsa_familia": {
-            "year": "ano_competencia",
-            "month": "mes_competencia",
-        },
-        "garantia_safra": {
-            "year": "ano_referencia",
-            "month": "mes_referencia",
-        },
-        "bpc": {"year": "ano_competencia", "month": "mes_competencia"},
-    }[table_id]

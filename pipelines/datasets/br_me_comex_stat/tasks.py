@@ -16,7 +16,6 @@ from bs4 import BeautifulSoup
 from prefect import task
 
 from pipelines.datasets.br_me_comex_stat.constants import (
-    COVERAGE,
     DATASET_ID,
     TABLE_SPECS,
 )
@@ -254,7 +253,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         # mas devolve `str` de verdade (mesma pendência do código original,
         # já marcada lá com `# pyrefly: ignore [bad-return]`).
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             # pyrefly: ignore [bad-argument-type]
             data_path=filepath,
         )

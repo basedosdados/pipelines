@@ -29,11 +29,6 @@ from pipelines.datasets.au_apra_superannuation.tasks import (
     download_superannuation,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -66,20 +61,6 @@ _POLL_TABLE = "financial_performance"
 # and each release ships the whole history, so the file names are identical run
 # to run and the semantics are the same -- without the delete.
 _DUMP_MODE = "append"
-
-# Coverage spec per table. Every table is quarterly, so all are AllFree. The
-# poll compares a "%Y-%m" string against the registered coverage, and the
-# coverage for a YearQuarter column is stored as MAX(DATE(year, quarter * 3, 1))
-# formatted the same way -- so `clean_all` reports the release's latest period
-# as a year-MONTH (see tasks._yq_to_ym). `dicionario` has no date column, so it
-# takes no coverage spec.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    )
-    for table in constants.DATA_TABLES.value
-}
 
 
 @flow(name="au_apra_superannuation", log_prints=True)
@@ -178,11 +159,10 @@ def au_apra_superannuation_flow(
             return
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

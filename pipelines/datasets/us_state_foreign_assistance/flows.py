@@ -26,7 +26,6 @@ from pipelines.datasets.us_state_foreign_assistance.tasks import (
     download_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -42,17 +41,8 @@ DATASET_ID = constants.DATASET_ID.value
 TABLES = constants.TABLES.value  # transaction, budget, dicionario
 POLL_TABLE = "transaction"
 
-# Both fact tables are annual (fiscal year) and refreshed quarterly, below the
-# monthly threshold for a BD Pro window, so they stay fully free. `dicionario`
-# has no date column and takes no coverage spec.
-_COVERAGE = {
-    "transaction": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "budget": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# `dicionario` has no date column and takes no coverage spec.
+TABLES_WITH_COVERAGE = ["transaction", "budget"]
 
 
 def _upload_and_run(result: dict, bucket_name: str, target: str) -> None:
@@ -155,11 +145,10 @@ def us_state_foreign_assistance_flow(
         _upload_and_run(result, bucket_name="basedosdados", target="prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -22,11 +22,6 @@ from pipelines.datasets.br_rf_cafir.tasks import (
     process_file,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -162,10 +157,6 @@ def br_rf_cafir__imoveis_rurais(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_referencia"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

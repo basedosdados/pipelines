@@ -24,6 +24,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
+
 HERE = Path(__file__).resolve().parent
 DATASET_ID = "us_osha_enforcement"
 SLUG = "enforcement"
@@ -109,6 +111,69 @@ SOURCE_END: dict[str, date] = {
     "accident": date(2025, 3, 28),
     "accident_injury": date(2025, 1, 1),
     "accident_narrative": date(2025, 1, 1),
+}
+
+# Coverage spec per table, hand-built here (not fetched from the backend — the
+# whole point of this script is to CREATE the pro Coverage that
+# `coverage_from_backend` would need to already exist). Every dated table is
+# part_bdpro; `dicionario` has no date column and is not in this dict. Was
+# `pipelines.datasets.us_osha_enforcement.flows._COVERAGE` before that module
+# moved to fetching coverage from the backend — `free_lag` is now the fixed
+# 6-month `policy.PART_BDPRO_FREE_LAG`, same value every table used.
+#
+# `violation_event` reports its partition `year`, not its own `event_date` (see
+# `flows.py`'s history for why), hence `date_column_kind="year"` there too.
+FLOW_COVERAGE: dict[str, CoverageSpec] = {
+    "inspection": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="open_date", entity="date")],
+    ),
+    "violation": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="issuance_date", entity="date")],
+    ),
+    "violation_event": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
+    "violation_text": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
+    "related_activity": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
+    "emphasis_code": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
+    "optional_code_info": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
+    "accident": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="event_date", entity="date")],
+    ),
+    "accident_injury": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
+    "accident_narrative": CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year",
+        coverage_columns=[CoverageColumn(name="year", entity="year")],
+    ),
 }
 
 DATASET_TEXT = {
@@ -263,9 +328,6 @@ def main(argv: list[str] | None = None) -> int:
     import databasis_mcp.tools.metadata as bd_mcp_metadata
     import databasis_mcp.tools.write as bd_mcp_write
 
-    from pipelines.datasets.us_osha_enforcement.flows import (
-        _COVERAGE as FLOW_COVERAGE,
-    )
     from pipelines.utils.metadata.policy import (
         CoverageIds,
         compute_coverage_ranges,

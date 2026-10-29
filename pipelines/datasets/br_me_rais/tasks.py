@@ -16,7 +16,6 @@ from prefect import task
 from pipelines.constants import constants as utils_constants
 from pipelines.datasets.br_me_rais.constants import constants as rais_constants
 from pipelines.datasets.br_me_rais.utils import download_rais_file
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.tasks import (
@@ -610,10 +609,6 @@ def _run_rais(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=effective_table_id,
-            coverage=AllFree(
-                date_column=YearOnly(col="ano"),
-                date_format=DateFormat.YEAR,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

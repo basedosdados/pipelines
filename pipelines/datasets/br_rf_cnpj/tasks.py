@@ -11,7 +11,6 @@ from prefect import task
 
 from pipelines.datasets.br_rf_cnpj.constants import (
     COMPONENTS_SPECS,
-    COVERAGE,
     CSV_CHUNK_SIZE,
     DATASET_ID,
     DOWNLOAD_CHUNK_SIZE,
@@ -105,7 +104,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             ),
         )
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=str(output_path),
         )
 

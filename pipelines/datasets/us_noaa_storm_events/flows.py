@@ -42,13 +42,6 @@ from pipelines.datasets.us_noaa_storm_events.tasks import (
     probe_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -63,53 +56,8 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 EVENT = constants.EVENT.value
 
-# Coverage spec per table.
-#
-# All three data tables refresh monthly, so all three carry the BD Pro rolling
-# window: the most recent slice is pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
-# re-issues the BigQuery Row Access Policies, so the window slides on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# The date column differs by table, and the choice is driven by nulls: the Row
-# Access Policy grants allUsers `<date_col> <= free_end`, and a NULL fails that
-# comparison, so any row with no date would be paywalled forever.
-#
-# * event uses begin_datetime, which is non-null on all 2,041,816 rows — a true
-#   6-month rolling window.
-# * fatality has fatality_datetime, but it is NULL on 12 rows where the source
-#   reports no day. Those 12 deaths would never become free, so the window keys
-#   on `year` instead, which is the non-null partition column.
-# * event_location has no date column at all beyond `year`.
-#
-# The two granularities differ slightly at the boundary — event's free window
-# ends mid-month while the other two end at a year boundary — which can leave a
-# recent fatality free while its event is not. That direction is harmless: it
-# never exposes a row the pro window is meant to cover.
-#
 # `dicionario` has no date column, so it takes no coverage spec at all.
-_FREE_LAG = FreeLag(unit="months", value=6)
-
-_COVERAGE = {
-    "event": PartBdpro(
-        date_column=DateOnly(col="begin_datetime"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "fatality": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "event_location": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-}
+TABLES_WITH_COVERAGE = ["event", "fatality", "event_location"]
 
 
 @flow(name="us_noaa_storm_events", log_prints=True)
@@ -238,11 +186,10 @@ def us_noaa_storm_events_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

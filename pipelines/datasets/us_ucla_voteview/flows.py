@@ -22,12 +22,6 @@ from pipelines.datasets.us_ucla_voteview.tasks import (
     download_voteview,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -46,20 +40,9 @@ DATASET_ID = constants.DATASET_ID.value
 # dictionary. Every table is run before any is tested (see _materialize).
 TABLES = ["dictionary", "parties", "members", "rollcalls", "votes"]
 
-# BD Pro rolling window on the two dated, weekly-refreshed tables: the most
-# recent 6 months of roll calls and votes are pro-only. Each run recomputes
-# free_end = max(date) - 6 months, rewrites both DateTimeRanges and re-issues the
-# Row Access Policies, so the window slides on its own. Both tables need a free
-# (is_closed=False) and a pro (is_closed=True) Coverage before the first run.
-#
 # members, parties and dictionary have no date column (members and parties are
 # keyed by Congress), so they take no coverage spec and stay free.
-_PRO_WINDOW = PartBdpro(
-    date_column=DateOnly(col="date"),
-    date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=6),
-)
-_COVERAGE = {"rollcalls": _PRO_WINDOW, "votes": _PRO_WINDOW}
+TABLES_WITH_COVERAGE = ["rollcalls", "votes"]
 
 
 def _materialize(result: dict, bucket_name: str, target: str) -> None:
@@ -144,11 +127,10 @@ def us_ucla_voteview_flow(
         _materialize(result, bucket_name="basedosdados", target="prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

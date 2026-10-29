@@ -14,7 +14,7 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.br_sedec_desastres.constants import COVERAGE, constants
+from pipelines.datasets.br_sedec_desastres.constants import constants
 from pipelines.datasets.br_sedec_desastres.utils import (
     clean_all,
     download_reconhecimentos_vigentes,
@@ -118,7 +118,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     shutil.rmtree(input_dir, ignore_errors=True)
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=result[TABLE_ID],
         dump_mode="append",
         source_format="parquet",

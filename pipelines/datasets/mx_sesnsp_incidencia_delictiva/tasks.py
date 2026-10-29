@@ -22,7 +22,6 @@ from datetime import date
 from pathlib import Path
 
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.constants import (
-    COVERAGE,
     constants,
 )
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.utils import (
@@ -106,7 +105,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         # Each SESNSP release ships the full current-year history, so every
         # run is a full replace, not an incremental append.
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=str(output_dir / table_id),
             dump_mode="overwrite",
             source_format="parquet",

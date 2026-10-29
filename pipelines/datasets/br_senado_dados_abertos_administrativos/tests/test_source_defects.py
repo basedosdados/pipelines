@@ -470,39 +470,59 @@ class TestCoverageMap:
     """Every time-tracked table carries a valid BD Pro rolling window.
 
     The paywall covers each table on its finest time column (data_extracao for
-    snapshots, data / ano+mes / ano for the series). A 6-month lag on a year-only
-    column would invert the pro range, so the two year-only series use a 1-year
-    lag; this pins that every spec computes a non-inverted pro range.
+    snapshots, data / ano+mes for the series — the two year-only series stay
+    AllFree, no sub-year window to express). This pins that every granularity
+    this dataset uses computes a non-inverted pro range.
+
+    There is no local coverage spec anymore (`register_table_materialization_task`
+    fetches it from the backend) — `utils.UNPARTITIONED`/`SNAPSHOTS`/`PARTITIONED`
+    are what `flows._run` now uses to decide registration scope, so that is what
+    these tests check. The day/month-granularity specs below are built by hand
+    (`pipelines.utils.metadata.coverage.CoverageSpec`) just to exercise
+    `policy.compute_coverage_ranges`'s date math for the two granularities this
+    dataset actually registers.
     """
 
     def test_covers_exactly_the_partitioned_tables(self):
         from pipelines.datasets.br_senado_dados_abertos_administrativos import (
-            flows,
             utils,
         )
 
-        assert set(flows._COVERAGE) == set(utils.SNAPSHOTS) | set(
-            utils.PARTITIONED
-        )
-        assert "senador" not in flows._COVERAGE
-        assert "dicionario" not in flows._COVERAGE
+        registered = set(utils.ALL_TABLES) - set(utils.UNPARTITIONED)
+        assert registered == set(utils.SNAPSHOTS) | set(utils.PARTITIONED)
+        assert "senador" in utils.UNPARTITIONED
+        assert "dicionario" in utils.UNPARTITIONED
 
     def test_no_spec_inverts_the_pro_range(self):
         import datetime as dt
 
-        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
-            flows,
-        )
         from pipelines.utils.metadata import policy
-        from pipelines.utils.metadata.domain import PartBdpro
+        from pipelines.utils.metadata.coverage import (
+            CoverageColumn,
+            CoverageSpec,
+        )
         from pipelines.utils.metadata.policy import CoverageIds
 
         ids = CoverageIds(
             free="11111111-1111-1111-1111-111111111111",
             pro="22222222-2222-2222-2222-222222222222",
         )
+        # The two PartBdpro granularities this dataset registers: day
+        # (snapshots/data_extracao, series/data) and month (ano+mes).
         paywalled = [
-            s for s in flows._COVERAGE.values() if isinstance(s, PartBdpro)
+            CoverageSpec(
+                tier="part_bdpro",
+                date_column_kind="date",
+                coverage_columns=[CoverageColumn(name="data", entity="date")],
+            ),
+            CoverageSpec(
+                tier="part_bdpro",
+                date_column_kind="year_month",
+                coverage_columns=[
+                    CoverageColumn(name="ano", entity="year"),
+                    CoverageColumn(name="mes", entity="month"),
+                ],
+            ),
         ]
         for spec in paywalled:
             for src in (
@@ -525,4 +545,4 @@ class TestCoverageMap:
                     pro.get("endMonth", 12),
                     pro.get("endDay", 28),
                 )
-                assert start <= end, (spec.date_column, src, start, end)
+                assert start <= end, (spec.date_column_kind, src, start, end)

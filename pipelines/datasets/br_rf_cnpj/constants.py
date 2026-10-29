@@ -2,13 +2,6 @@
 Constant values for br_rf_cnpj
 """
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-)
-
 DATASET_ID = "br_rf_cnpj"
 EMPRESAS_TABLE_ID = "empresas"
 ESTABELECIMENTOS_TABLE_ID = "estabelecimentos"
@@ -52,26 +45,6 @@ TABLE_COMPONENTS = {
     ],
 }
 
-
-# Cobertura registrada no backend após a materialização. Tabelas históricas
-# são particionadas por `data_referencia` (= `folder_date` da fonte);
-# `simples` e `dicionario` são snapshot único (NonHistorical).
-COVERAGE = {
-    EMPRESAS_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data_referencia"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    ESTABELECIMENTOS_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data_referencia"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    SOCIOS_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data_referencia"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    SIMPLES_TABLE_ID: NonHistorical(),
-    DICIONARIO_TABLE_ID: NonHistorical(),
-}
 
 # Tabelas sem cobertura temporal: o polling compara a data de última
 # modificação da fonte contra `Table.Update` (`compare_against="table_update"`),

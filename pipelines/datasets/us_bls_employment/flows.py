@@ -29,12 +29,6 @@ from pipelines.datasets.us_bls_employment.tasks import (
     peek_employment,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -47,28 +41,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# Coverage spec per table.
-#
-# All four fact tables refresh monthly, so each carries the BD Pro rolling
-# window: the most recent 6 months are pro-only, everything older is free. Each
-# run recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges,
-# and re-issues the BigQuery Row Access Policies, so the window slides forward
-# on its own and the dbt models stay untouched.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for table in constants.DATA_TABLES.value
-}
 
 
 @flow(name="us_bls_employment", log_prints=True)
@@ -180,11 +152,10 @@ def us_bls_employment_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

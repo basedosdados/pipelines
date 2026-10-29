@@ -21,7 +21,6 @@ from pipelines.datasets.us_nchs_vital_statistics.tasks import (
     write_dicionario_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -38,14 +37,6 @@ DATA_DIR = os.environ.get(
     "NCHS_DATA_DIR",
     os.path.expanduser("~/Downloads/us_nchs_vital_statistics_data"),
 )
-COVERAGE = {
-    "birth": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "death": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
 
 
 @flow(name="us_nchs_vital_statistics", log_prints=True)
@@ -169,7 +160,6 @@ def us_nchs_vital_statistics_flow(
         register_table_materialization_task(
             dataset_id=DATASET_ID,
             table_id=product,
-            coverage=COVERAGE[product],
             env="prod",
             bq_project="basedosdados",
         )

@@ -25,7 +25,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.us_usda_nass.constants import constants
 from pipelines.datasets.us_usda_nass.tasks import clean_nass, download_nass
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -39,20 +38,16 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Every fact table is annual and fully free (AllFree). The dicionario has no
-# date column and takes no coverage spec.
-_COVERAGE = {
-    t: AllFree(date_column=YearOnly(col="year"), date_format=DateFormat.YEAR)
-    for t in (
-        "survey_national",
-        "survey_state",
-        "survey_agricultural_district",
-        "survey_county",
-        "census_of_agriculture_national",
-        "census_of_agriculture_state",
-        "census_of_agriculture_county",
-    )
-}
+# The dicionario has no date column and takes no coverage spec.
+TABLES_WITH_COVERAGE = (
+    "survey_national",
+    "survey_state",
+    "survey_agricultural_district",
+    "survey_county",
+    "census_of_agriculture_national",
+    "census_of_agriculture_state",
+    "census_of_agriculture_county",
+)
 
 # Representative table for the source-update poll (national is published earliest
 # each year and carries every year).
@@ -164,11 +159,10 @@ def us_usda_nass_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

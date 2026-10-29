@@ -34,7 +34,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.br_me_siconfi import tasks, utils
 from pipelines.datasets.br_me_siconfi.constants import constants
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -47,12 +46,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# All 19 tables are annual and fully public (the dataset is AllFree in prod), so
-# every table takes the same free, year-granular coverage. No BD Pro window.
-_COVERAGE = AllFree(
-    date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-)
 
 # One representative table anchors the source Poll/Update. Its rows span both of
 # the dataset's raw sources (the updating API source + the frozen 1989-2012
@@ -223,7 +216,6 @@ def br_me_siconfi_flow(
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=_COVERAGE,
                     env="prod",
                     bq_project="basedosdados",
                 )

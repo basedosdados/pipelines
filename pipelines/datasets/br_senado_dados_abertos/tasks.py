@@ -54,9 +54,7 @@ import pandas as pd
 
 from pipelines.datasets.br_senado_dados_abertos import senado_clean as sc
 from pipelines.datasets.br_senado_dados_abertos.constants import (
-    COVERAGE,
     DATASET_ID,
-    GROUP_A_COVERAGE,
 )
 from pipelines.datasets.br_senado_dados_abertos.constants import (
     constants as senado_constants,
@@ -151,7 +149,6 @@ def make_extract_load_data_group_a(
 
         table_dir = write_table(out_root, table_id, df)
         return ExtractAndLoad(
-            coverage=GROUP_A_COVERAGE.model_dump(),
             data_path=table_dir,
             source_format="parquet",
         )
@@ -228,7 +225,6 @@ def make_extract_load_data_group_b(
         table_dir = write_table(out_root, table_id, df)
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=table_dir,
             source_format="parquet",
         )

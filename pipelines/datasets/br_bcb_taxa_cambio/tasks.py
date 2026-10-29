@@ -8,7 +8,6 @@ import pandas as pd
 from prefect import task
 
 from pipelines.datasets.br_bcb_taxa_cambio.constants import (
-    COVERAGE,
     TAXA_CAMBIO_TABLE_ID,
 )
 from pipelines.datasets.br_bcb_taxa_cambio.utils import (
@@ -143,6 +142,5 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
         output_paths.append(file_info["save_output_path"])
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=output_paths[-1],
     )

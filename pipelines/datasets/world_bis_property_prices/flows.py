@@ -22,11 +22,6 @@ from pipelines.datasets.world_bis_property_prices.tasks import (
     download_bis,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -51,20 +46,6 @@ TABLE_ID = "price_index"
 # whole history ships every release, the file names are identical run to run and
 # the semantics match — without the delete. (cf. au_abs_prices_inflation.)
 _DUMP_MODE = "append"
-
-# Quarterly refresh -> AllFree: the BD Pro rolling window applies only to tables
-# refreshed monthly or more often, so no Row Access Policies are issued.
-#
-# The poll compares a "%Y-%m" string against the registered coverage, which for
-# a YearQuarter column is stored as MAX(DATE(year, quarter*3, 1)) formatted the
-# same way — so the pollable form is the year-MONTH (`clean_all`'s
-# max_year_month), not the year-quarter. Polling at a coarser granularity than
-# the coverage is stored at compares mismatched clocks, and the guard then
-# either never fires or fires on every run.
-_COVERAGE = AllFree(
-    date_column=YearQuarter(year="year", quarter="quarter"),
-    date_format=DateFormat.YEAR_MONTH,
-)
 
 
 @flow(name="world_bis_property_prices", log_prints=True)
@@ -165,7 +146,6 @@ def world_bis_property_prices_flow(
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id=TABLE_ID,
-                coverage=_COVERAGE,
                 env="prod",
                 bq_project="basedosdados",
             )

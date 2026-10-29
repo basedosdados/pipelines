@@ -9,13 +9,6 @@ O contexto da fonte e as decisões de desenho estão em
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearBimester,
-)
-
 _UNIT_PERCENT = "percentual"
 _UNIT_CURRENCY = "reais"
 
@@ -813,18 +806,6 @@ _DICTIONARY_ROWS = [
         "Percentual de aplicação FUNDEB vinculadas à Fomento ETI (mínimo de 4% para estados, DF e municípios), conforme previsto art.212-A, inciso XV, da CF.",
     ),
 ]
-
-
-# Mesma cobertura pras duas tabelas de fato (indicador_estadual,
-# indicador_municipal) — os dois últimos bimestres ficam fechados pra
-# assinantes BD Pro, liberados 6 meses depois. O `dicionario` não recebe
-# spec de cobertura: não tem coluna de data e não entra neste flow (ver
-# README do conjunto, seção "Carga e atualização").
-COVERAGE = PartBdpro(
-    date_column=YearBimester(year="ano", bimester="bimestre"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
 
 
 class constants(Enum):

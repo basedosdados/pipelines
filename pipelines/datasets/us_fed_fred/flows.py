@@ -65,13 +65,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.us_fed_fred.constants import constants
 from pipelines.datasets.us_fed_fred.tasks import clean_fred, download_fred
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    NonHistorical,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.stage_dispatch import (
     Etapa,
@@ -95,28 +88,6 @@ POLL_TABLE = "observation"
 # explicitamente para `check_update_and_dispatch` porque o nome do flow não é
 # literalmente `str(Etapa.EXTRACT_AND_LOAD)`.
 _EXTRACT_AND_LOAD_DEPLOYMENT = "us_fed_fred_extract_and_load"
-
-# Coverage spec per table.
-#
-# `observation` is the high-frequency table, so it carries the BD Pro rolling
-# window: the most recent 6 months are pro-only, everything older is free. Each
-# run recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges,
-# and re-issues the BigQuery Row Access Policies, so the window slides forward on
-# its own. part_bdpro requires BOTH a free (is_closed=False) and a pro
-# (is_closed=True) Coverage to already exist on the table, or
-# assert_coverage_topology raises before anything is written — the pro Coverage is
-# created once at onboarding (the table was first registered AllFree).
-#
-# `series` is a metadata catalog with no time dimension, so its coverage is a
-# single NonHistorical range from the table's last-modified time — fully free.
-_COVERAGE = {
-    "observation": PartBdpro(
-        date_column=DateOnly(col="date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "series": NonHistorical(),
-}
 
 
 def _materialize(target: str, bucket: str, paths: dict) -> None:
@@ -263,11 +234,10 @@ def us_fed_fred_extract_and_load(
         _materialize("prod", "basedosdados", result)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in ALL_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

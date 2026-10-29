@@ -26,7 +26,6 @@ from pipelines.datasets.us_census_lodes.tasks import (
     get_latest_year,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -47,17 +46,9 @@ TABLES = [
     "dicionario",
 ]
 
-# Annual cadence, so the BD Pro rolling window does not apply -- that is for
-# tables refreshed monthly or more often. Every table here is fully free.
-# `geography_crosswalk` and `dicionario` have no date column and take no spec.
-_COVERAGE = {
-    "residence_jobs": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "workplace_jobs": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# Tables registered with the backend (`geography_crosswalk` and `dicionario`
+# have no date column and take no coverage spec at all).
+_COVERAGE_TABLES = ("residence_jobs", "workplace_jobs")
 
 # The table the source poll is anchored on.
 POLL_TABLE = "residence_jobs"
@@ -188,11 +179,10 @@ def us_census_lodes_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _COVERAGE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

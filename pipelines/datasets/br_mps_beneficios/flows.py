@@ -33,12 +33,6 @@ from pipelines.datasets.br_mps_beneficios.tasks import (
     table_state,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -55,28 +49,6 @@ CONCEDIDO = constants.TABLE_CONCEDIDO.value
 MANTIDO = constants.TABLE_MANTIDO.value
 DICIONARIO = constants.TABLE_DICIONARIO.value
 
-# Coverage spec per table.
-#
-# Both data tables refresh monthly, so by the house rule their most recent six
-# months are BD Pro and everything older is free. `register_table_materialization`
-# rolls the window and reissues the Row Access Policies on every prod run; the
-# dbt models are untouched.
-#
-# `part_bdpro` requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage on the table, or `assert_coverage_topology` raises before writing
-# anything. Create the pro Coverage with no DateTimeRange — the flow writes both
-# ranges, and a static range on the paid tier would declare it free until then.
-#
-# `dicionario_especie` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table_id: PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for table_id in (CONCEDIDO, MANTIDO)
-}
-
 
 def _register_coverage() -> None:
     """Roll the BD Pro window and reissue the Row Access Policies, both tables.
@@ -92,7 +64,6 @@ def _register_coverage() -> None:
         register_table_materialization_task(
             dataset_id=DATASET_ID,
             table_id=table_id,
-            coverage=_COVERAGE[table_id],
             env="prod",
             bq_project="basedosdados",
         )

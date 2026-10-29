@@ -36,7 +36,6 @@ from pipelines.datasets.us_nsf_ncses.tasks import (
     download_all,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -51,31 +50,11 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 DATE_FORMAT = constants.DATE_FORMAT.value
 
-# Coverage spec per table. Both surveys are annual, so nothing here is behind
-# the BD Pro rolling window, which applies to tables refreshed monthly or more
-# often. `dicionario` has no date column and so takes no spec at all.
-_COVERAGE = {
-    "herd_institution": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "herd_expenditure": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "herd_personnel": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "herd_survey_item": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "sed_estimate": AllFree(
-        date_column=YearOnly(col="reference_year"),
-        date_format=DateFormat.YEAR,
-    ),
-    "sed_data_table": AllFree(
-        date_column=YearOnly(col="reference_year"),
-        date_format=DateFormat.YEAR,
-    ),
-}
+# `dicionario` has no date column and so takes no coverage spec at all.
+TABLES_WITH_COVERAGE = [
+    *constants.HERD_TABLES.value,
+    *constants.SED_TABLES.value,
+]
 
 
 @flow(name="us_nsf_ncses", log_prints=True)
@@ -200,11 +179,10 @@ def us_nsf_ncses_flow(
             return
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

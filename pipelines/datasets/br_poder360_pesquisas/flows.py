@@ -6,11 +6,6 @@ from prefect.schedules import Cron
 
 from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -79,10 +74,6 @@ def br_poder360_pesquisas__microdados(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

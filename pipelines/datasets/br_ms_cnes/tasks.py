@@ -4,7 +4,7 @@ Tasks for br_ms_cnes.
 
 from collections.abc import Callable
 
-from pipelines.datasets.br_ms_cnes.constants import COVERAGE, DATASET_ID
+from pipelines.datasets.br_ms_cnes.constants import DATASET_ID
 from pipelines.shared.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
@@ -81,7 +81,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=files_path,
             # `pre_process_files` grava parquet — sem declarar o formato, o
             # `dump_header` chamado por `_sync_staging_schema` procura .csv e

@@ -8,18 +8,14 @@ from datetime import date
 
 import pytest
 
-from pipelines.utils.metadata.domain import (
-    AllBdpro,
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
+from pipelines.utils.metadata.coverage import (
+    CoverageColumn,
+    CoverageSpec,
+    DateColumnKind,
+    Tier,
 )
 from pipelines.utils.metadata.policy import (
+    PART_BDPRO_FREE_LAG,
     CoverageIds,
     assert_coverage_topology,
     assert_write_allowed,
@@ -31,6 +27,27 @@ from pipelines.utils.metadata.policy import (
 FREE_ID = "ffffffff-ffff-4fff-8fff-ffffffffffff"
 PRO_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
 IDS_BOTH = CoverageIds(free=FREE_ID, pro=PRO_ID)
+
+
+def _spec(
+    tier: Tier, date_column_kind: DateColumnKind = "", **columns: str
+) -> CoverageSpec:
+    """`columns` mapeia entity -> nome da coluna (ex.: `year="ano"`)."""
+    return CoverageSpec(
+        tier=tier,
+        date_column_kind=date_column_kind,
+        coverage_columns=[
+            # pyrefly: ignore [bad-argument-type]
+            CoverageColumn(name=name, entity=entity)
+            for entity, name in columns.items()
+        ],
+    )
+
+
+def test_part_bdpro_free_lag_is_six_months():
+    """Generalizado pra todos os datasets (pipelines#2130) — não vem mais do
+    backend nem varia por tabela."""
+    assert PART_BDPRO_FREE_LAG.months == 6
 
 
 # --------------------------------------------------------------------- R16
@@ -72,50 +89,45 @@ def test_assert_write_allowed_ok_prod_with_prod_project():
 
 # --------------------------------------------------------------------- R13
 def test_needs_row_access_policy_only_part_bdpro():
-    part = PartBdpro(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
-    )
-    free = AllFree(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
-    )
+    part = _spec("part_bdpro", "date", date="data")
+    free = _spec("all_free", "date", date="data")
+    non_historical = _spec("non_historical")
     assert needs_row_access_policy(part) is True
     assert needs_row_access_policy(free) is False
-    assert needs_row_access_policy(NonHistorical()) is False
+    assert needs_row_access_policy(non_historical) is False
 
 
 # ----------------------------------------------------------------- R7/R8/R9
 def test_topology_part_bdpro_requires_both():
-    spec = PartBdpro(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
-    )
+    spec = _spec("part_bdpro", "date", date="data")
     assert_coverage_topology(spec, CoverageIds(free="f", pro="p"))  # ok
     with pytest.raises(ValueError):
         assert_coverage_topology(spec, CoverageIds(free="f", pro=None))
 
 
 def test_topology_all_free_requires_free_and_no_pro():
-    spec = AllFree(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
-    )
+    spec = _spec("all_free", "date", date="data")
     assert_coverage_topology(spec, CoverageIds(free="f", pro=None))  # ok
     with pytest.raises(ValueError):
         assert_coverage_topology(spec, CoverageIds(free="f", pro="p"))
 
 
 def test_topology_all_bdpro_requires_pro_and_no_free():
-    spec = AllBdpro(
-        date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-    )
+    spec = _spec("all_bdpro", "year", year="ano")
     assert_coverage_topology(spec, CoverageIds(free=None, pro="p"))  # ok
     with pytest.raises(ValueError):
         assert_coverage_topology(spec, CoverageIds(free="f", pro="p"))
 
 
+def test_topology_non_historical_never_raises():
+    spec = _spec("non_historical")
+    assert_coverage_topology(spec, CoverageIds(free=None, pro=None))
+    assert_coverage_topology(spec, CoverageIds(free="f", pro="p"))
+
+
 # ------------------------------------------------------------------ R10/R11
 def test_compute_all_free_daily():
-    spec = AllFree(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
-    )
+    spec = _spec("all_free", "date", date="data")
     r = compute_coverage_ranges(spec, date(2026, 6, 15), IDS_BOTH)
     assert r.pro is None
     # pyrefly: ignore [missing-attribute]
@@ -125,16 +137,12 @@ def test_compute_all_free_daily():
 
 
 def test_compute_part_bdpro_monthly_syncs_and_lags():
-    spec = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
+    spec = _spec("part_bdpro", "year_month", year="ano", month="mes")
     r = compute_coverage_ranges(spec, date(2026, 6, 1), IDS_BOTH)
     # pro termina em 2026-06
     # pyrefly: ignore [missing-attribute]
     assert (r.pro.endYear, r.pro.endMonth) == (2026, 6)
-    # free termina 6 meses antes: 2025-12
+    # free termina PART_BDPRO_FREE_LAG (6 meses) antes: 2025-12
     # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
     # pyrefly: ignore [missing-attribute]
@@ -149,48 +157,41 @@ def test_compute_part_bdpro_monthly_syncs_and_lags():
 
 def test_compute_part_bdpro_ranges_never_overlap():
     """free e pro não podem reivindicar o mesmo período, em nenhuma
-    granularidade — inclusive nas viradas de ano/mês."""
-    monthly = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=1),
-    )
-    r = compute_coverage_ranges(monthly, date(2026, 1, 1), IDS_BOTH)
+    granularidade — inclusive nas viradas de ano/mês. `PART_BDPRO_FREE_LAG`
+    é fixo (6 meses) pra todas, então o que varia por caso é só o
+    `source_end` escolhido pra cair numa virada."""
+    monthly = _spec("part_bdpro", "year_month", year="ano", month="mes")
+    r = compute_coverage_ranges(monthly, date(2026, 6, 1), IDS_BOTH)
     # virada de ano: free termina 2025-12, pro começa 2026-01
     # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
     # pyrefly: ignore [missing-attribute]
     assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
 
-    annual = PartBdpro(
-        date_column=YearOnly(col="ano"),
-        date_format=DateFormat.YEAR,
-        free_lag=FreeLag(unit="years", value=2),
-    )
+    annual = _spec("part_bdpro", "year", year="ano")
     r = compute_coverage_ranges(annual, date(2026, 1, 1), IDS_BOTH)
     # anual avança um ano, não um mês
     # pyrefly: ignore [missing-attribute]
-    assert r.free.endYear == 2024
+    assert r.free.endYear == 2025
     # pyrefly: ignore [missing-attribute]
-    assert (r.pro.startYear, r.pro.startMonth) == (2025, None)
+    assert (r.pro.startYear, r.pro.startMonth) == (2026, None)
 
-    daily = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="days", value=30),
+    daily = _spec("part_bdpro", "date", date="data")
+    r = compute_coverage_ranges(daily, date(2026, 3, 31), IDS_BOTH)
+    # virada de mês: free termina 2025-09-30 (set só tem 30 dias), pro
+    # começa 2025-10-01
+    # pyrefly: ignore [missing-attribute]
+    assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2025, 9, 30)
+    # pyrefly: ignore [missing-attribute]
+    assert (r.pro.startYear, r.pro.startMonth, r.pro.startDay) == (
+        2025,
+        10,
+        1,
     )
-    r = compute_coverage_ranges(daily, date(2026, 3, 2), IDS_BOTH)
-    # virada de mês: free termina 2026-01-31, pro começa 2026-02-01
-    # pyrefly: ignore [missing-attribute]
-    assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 1, 31)
-    # pyrefly: ignore [missing-attribute]
-    assert (r.pro.startYear, r.pro.startMonth, r.pro.startDay) == (2026, 2, 1)
 
 
 def test_compute_all_bdpro_annual():
-    spec = AllBdpro(
-        date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-    )
+    spec = _spec("all_bdpro", "year", year="ano")
     r = compute_coverage_ranges(
         spec, date(2026, 1, 1), CoverageIds(pro=PRO_ID)
     )
@@ -203,4 +204,6 @@ def test_compute_all_bdpro_annual():
 
 def test_compute_rejects_non_historical():
     with pytest.raises(ValueError):
-        compute_coverage_ranges(NonHistorical(), date(2026, 1, 1), IDS_BOTH)
+        compute_coverage_ranges(
+            _spec("non_historical"), date(2026, 1, 1), IDS_BOTH
+        )

@@ -27,14 +27,6 @@ from pipelines.datasets.us_bls_qcew.tasks import (
     latest_source_period,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -49,32 +41,6 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 NAICS_TABLES = constants.NAICS_TABLES.value
 POLL_TABLE = constants.POLL_TABLE.value
-
-# Coverage spec per NAICS table.
-#
-# The four `naics_quarterly_*` tables are refreshed quarterly, so they carry the
-# BD Pro rolling window: the most recent 6 months (the latest two closed
-# quarters) are pro-only, everything older is free. Each run recomputes
-# free_end = source_end - free_lag, rewrites both DateTimeRanges, and re-issues
-# the BigQuery Row Access Policies, so the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written — those were created at onboarding.
-#
-# The four `naics_annual_*` tables are lower-frequency and stay fully free.
-_QUARTERLY = PartBdpro(
-    date_column=YearQuarter(year="year", quarter="qtr"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-_ANNUAL = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
-_COVERAGE = {
-    table: (_QUARTERLY if "quarterly" in table else _ANNUAL)
-    for table in NAICS_TABLES
-}
 
 
 @flow(name="us_bls_qcew", log_prints=True)
@@ -184,7 +150,6 @@ def us_bls_qcew_flow(
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=_COVERAGE[table],
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -8,7 +8,7 @@ import pandas as pd
 import requests
 from prefect import task
 
-from pipelines.datasets.br_bcb_taxa_selic.constants import COVERAGE, TABLE_ID
+from pipelines.datasets.br_bcb_taxa_selic.constants import TABLE_ID
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 API_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json"
@@ -72,6 +72,5 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     print(f"Dados tratados: {len(df)} linhas → {filepath}")
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=filepath,
     )

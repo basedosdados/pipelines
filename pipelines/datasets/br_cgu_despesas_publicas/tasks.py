@@ -18,11 +18,7 @@ from pathlib import Path
 from prefect import task
 
 from pipelines.datasets.br_cgu_despesas_publicas.constants import (
-    COVERAGE,
     DATASET_ID,
-    FAVORECIDO_COVERAGE,
-    FAVORECIDO_TABLE_ID,
-    TABLE_ID,
 )
 from pipelines.datasets.br_cgu_despesas_publicas.utils import (
     clean_all,
@@ -35,11 +31,6 @@ from pipelines.utils.stage_dispatch import (
     SourceInspection,
     pipeline_factory,
 )
-
-_COVERAGE_BY_TABLE = {
-    TABLE_ID: COVERAGE,
-    FAVORECIDO_TABLE_ID: FAVORECIDO_COVERAGE,
-}
 
 
 @task(retries=2, retry_delay_seconds=300)
@@ -160,7 +151,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
 
         return ExtractAndLoad(
-            coverage=_COVERAGE_BY_TABLE[table_id].model_dump(),
             data_path=result["path"],
             dump_mode="append",
             source_format="parquet",

@@ -9,7 +9,6 @@ from prefect import task
 
 from pipelines.constants import constants as repo_constants
 from pipelines.datasets.br_inmet_bdmep.constants import (
-    COVERAGE,
     ConstantsMicrodados,
 )
 from pipelines.datasets.br_inmet_bdmep.utils import (
@@ -86,6 +85,5 @@ def microdados_download(download_params: dict) -> ExtractAndLoad:
     filepath = get_base_inmet()
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=filepath,
     )

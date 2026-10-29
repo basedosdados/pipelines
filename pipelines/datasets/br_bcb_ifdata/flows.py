@@ -47,12 +47,6 @@ from pipelines.datasets.br_bcb_ifdata.tasks import (
     get_source_max_period,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.stage_dispatch import (
     Etapa,
@@ -76,31 +70,9 @@ POLL_TABLE = constants.POLL_TABLE.value
 # não depender de coincidência com a convenção.
 _EXTRACT_AND_LOAD_DEPLOYMENT = "br_bcb_ifdata_extract_and_load"
 
-# Os dois trimestres mais recentes ficam fechados para assinantes BD Pro; o
-# resto da série é livre. `free_lag` de 6 meses são exatamente 2 competências
-# trimestrais.
-#
-# A coluna de data é `YearMonth`, não `YearQuarter`: `mes` já guarda o mês de
-# fechamento do trimestre (3, 6, 9, 12), enquanto `YearQuarter` multiplicaria o
-# valor por 3 e produziria meses inexistentes (9, 18, 27, 36). Com `YearMonth`
-# a cobertura termina num mês de trimestre de verdade.
-#
-# Uma ressalva sobre o início da faixa pro: `compute_coverage_ranges` faz a pro
-# começar em `free_end + 1 mês`, porque a granularidade do formato é mensal.
-# Com a fonte em 2026-03, a free termina em 2025-09 e a pro começa em 2025-10 —
-# um mês sem dado. Quem decide o acesso é a Row Access Policy (`mes <=
-# free_end`), então o conjunto fechado é exatamente {2025-12, 2026-03}. Só o
-# limite inferior da faixa pro não cai num mês de trimestre.
-#
-# `dicionario` não tem coluna de data e por isso não recebe spec de cobertura.
-_COVERAGE = {
-    table: PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for table in ("instituicao", "coluna", "relatorio")
-}
+# Tabelas registradas com a metadata de cobertura do backend. `dicionario`
+# não tem coluna de data e por isso não recebe spec de cobertura.
+_COVERED_TABLES = ("instituicao", "coluna", "relatorio")
 
 
 def _materialize(target: str, bucket: str, paths: dict) -> None:
@@ -224,11 +196,10 @@ def br_bcb_ifdata_extract_and_load(
         _materialize("prod", "basedosdados", paths)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _COVERED_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -18,13 +18,6 @@ Two source properties that shape everything downstream:
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
-
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -102,22 +95,3 @@ TABLE_ID = constants.TABLE_ID.value
 # declarado só em `constants.PRODUCTS`) — exposto aqui como constante simples,
 # mesma convenção de DATASET_ID/TABLE_ID.
 FAVORECIDO_TABLE_ID = "favorecido"
-
-# Monthly table, so the BD Pro rolling window applies: the most recent six
-# months are pro-only and everything older is free. register_table_materialization_task
-# recomputes free_end on every run and re-issues the BigQuery Row Access
-# Policies, so the window slides on its own.
-#
-# This requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-FAVORECIDO_COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
