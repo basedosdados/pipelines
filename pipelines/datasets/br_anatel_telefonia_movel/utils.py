@@ -5,7 +5,6 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 from __future__ import annotations
 
 import re
-import unicodedata
 from io import SEEK_SET, BufferedReader, RawIOBase
 from os import makedirs
 from os.path import join
@@ -144,37 +143,31 @@ class HttpRangeFile(RawIOBase):
         return n
 
 
-def normalize_label(value: str) -> str:
-    """Normaliza um rótulo textual para comparação robusta.
+def normalize_label(column: str) -> pl.Expr:
+    """Normaliza os rótulos de uma coluna para comparação robusta.
 
-    Remove acentuação, converte para minúsculas e retira espaços nas pontas, de
-    modo que variações como ``"Município"``, ``"MUNICIPIO"`` ou ``" municipio "``
-    comparem como iguais. Usado nos filtros de ``geografia`` (Brasil/UF/Município)
-    para não quebrarem caso a Anatel revise a grafia dos rótulos.
+    Retira os espaços nas pontas, converte para minúsculas e tira os acentos,
+    de modo que variações como ``"Município"``, ``"MUNICIPIO"`` ou
+    ``" municipio "`` comparem como iguais. Usado nos filtros de geografia
+    (Brasil/UF/Município) para não quebrarem caso a Anatel revise a grafia dos
+    rótulos.
 
-    Parameters
-    ----------
-    value : str
-        Rótulo bruto vindo da fonte.
+    Args:
+        column: Nome da coluna com os rótulos vindos da fonte.
 
-    Returns
-    -------
-    str
-        Rótulo normalizado: sem acento, minúsculo, sem espaços nas pontas.
+    Returns:
+        A expressão do polars com os rótulos normalizados.
     """
 
-    # pyrefly: ignore [unnecessary-type-conversion]
-    value = str(value)
-
-    value_nfkd = unicodedata.normalize("NFKD", value)
-
-    ascii_bytes = value_nfkd.encode(encoding="ASCII", errors="ignore")
-
-    value_bytes_ascii_decoded = ascii_bytes.decode(encoding="ASCII")
-
-    normalized_value = value_bytes_ascii_decoded.strip().lower()
-
-    return normalized_value
+    return (
+        pl.col(column)
+        .str.strip_chars()
+        .str.to_lowercase()
+        .str.replace_many(
+            ["á", "à", "â", "ã", "é", "ê", "í", "ó", "ô", "õ", "ú", "ü", "ç"],
+            ["a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c"],
+        )
+    )
 
 
 def get_zip_url() -> str:
@@ -325,10 +318,7 @@ def clean_csv_densidade(csv_path: str, table_id: str) -> None:
     level = anatel_constants.DENSITY_GEOGRAPHIC_LEVEL.value[table_id]
 
     filtered_df = df.filter(
-        pl.col("Nível Geográfico Densidade").map_elements(
-            normalize_label, return_dtype=pl.Utf8
-        )
-        == level
+        normalize_label("Nível Geográfico Densidade") == level
     )
 
     renamed_df = filtered_df.rename(

@@ -26,7 +26,7 @@ Documentação oficial de metadados da Anatel (SMP), Obs. 2: *"as planilhas fora
 
 Consequências observadas:
 - **Degraus no total de acessos** entre anos (ex.: 2022→2023 cai à metade) — são revisões/metodologia, não erro de ingestão.
-- **Snapshots "encolhem" meses antigos:** o arquivo baixado hoje pode trazer detalhe completo só dos ~2 meses mais recentes e versões reduzidas de meses passados. O histórico detalhado é preservado no **staging** porque o upload usa `dump_mode="append"` (acumula sem duplicar). **Nunca** fazer full refresh assumindo que o arquivo atual tem todo o histórico.
+- **Correções em semestres fechados não chegam a prod.** A prestadora pode retificar um mês já enviado, substituindo o arquivo ([Manual de Coleta de Acessos SMP](https://sistemas.anatel.gov.br/anexar-api/publico/anexos/download/a787e39128b6e80857290b5361e00108), PRUV, maio de 2022, seção 9.1), e o flow só lê o semestre mais recente. O ZIP da fonte traz cada mês completo, sem versão reduzida dos meses antigos: os semestres `2023_1S` e `2026_1S` batem com prod mês a mês, exceto por correções pequenas em 2026-05 (+2.713 linhas) e 2026-06 (+1.778 acessos). Dá para reprocessar a tabela a partir da fonte, desde que se leiam todos os semestres.
 
 ### 2. Granularidade UF/municipal só existe a partir de 2010
 

@@ -53,12 +53,7 @@ def get_max_date_in_table_microdados(table_id: str, csv_path: str) -> date:
     if table_id != "microdados":
         level = anatel_constants.DENSITY_GEOGRAPHIC_LEVEL.value[table_id]
 
-        df = df.filter(
-            pl.col("Nível Geográfico Densidade").map_elements(
-                normalize_label, return_dtype=pl.Utf8
-            )
-            == level
-        )
+        df = df.filter(normalize_label("Nível Geográfico Densidade") == level)
 
     max_date = (
         df.select(
