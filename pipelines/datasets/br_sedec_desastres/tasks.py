@@ -14,15 +14,23 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.br_sedec_desastres.constants import COVERAGE, constants
+from pipelines.datasets.br_sedec_desastres.constants import (
+    constants,
+    reconhecimentos_realizados,
+    reconhecimentos_vigentes,
+)
 from pipelines.datasets.br_sedec_desastres.utils import (
+    build_windows,
     clean_all,
+    clean_all_realizados,
+    download_reconhecimentos_realizados,
     download_reconhecimentos_vigentes,
+    recent_years,
 )
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
+TABLE_ID = reconhecimentos_vigentes.TABLE_ID.value
 
 
 @task(retries=2, retry_delay_seconds=30)
@@ -118,8 +126,87 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     shutil.rmtree(input_dir, ignore_errors=True)
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
+        coverage=reconhecimentos_vigentes.COVERAGE.value.model_dump(),
         data_path=result[TABLE_ID],
+        dump_mode="append",
+        source_format="parquet",
+    )
+
+
+@task(retries=2, retry_delay_seconds=30)
+def download_realizados(work_dir: str, years: list[int]) -> str:
+    """Baixa o relatório "Reconhecimentos realizados" dos anos pedidos.
+
+    Args:
+        work_dir: Diretório de trabalho; os arquivos caem em
+            ``<work_dir>/input``.
+        years: Anos a baixar.
+
+    Returns:
+        O caminho do diretório de entrada, como string.
+    """
+    input_dir = Path(work_dir) / "input"
+    download_reconhecimentos_realizados(
+        input_dir, build_windows(years, date.today())
+    )
+    return str(input_dir)
+
+
+@task
+def clean_realizados(work_dir: str, input_dir: str) -> dict:
+    """Monta a tabela realizados particionada a partir dos exports baixados.
+
+    Args:
+        work_dir: Diretório de trabalho; a tabela cai em ``<work_dir>/output``.
+        input_dir: Diretório com os exports, vindo de
+            :func:`download_realizados`.
+
+    Returns:
+        ``"data_path"`` e ``"max_date"``, como em
+        :func:`~pipelines.datasets.br_sedec_desastres.utils.clean_all_realizados`.
+    """
+    return clean_all_realizados(Path(input_dir), Path(work_dir) / "output")
+
+
+def realizados_get_latest_update() -> SourceInspection:
+    """Baixa os anos recentes e devolve a maior data de publicação no DOU.
+
+    Returns:
+        `SourceInspection` com a maior data de publicação no DOU como
+        `reference_date` e os anos baixados em `extra_download_params`.
+    """
+    years = recent_years(date.today())
+    work_dir = tempfile.mkdtemp(prefix="br_sedec_desastres_realizados_check_")
+    try:
+        input_dir = download_realizados(work_dir=work_dir, years=years)
+        result = clean_realizados(work_dir=work_dir, input_dir=input_dir)
+        return SourceInspection(
+            reference_date=date.fromisoformat(result["max_date"]),
+            extra_download_params={"years": years},
+        )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+def realizados_extract_load_data(download_params: dict) -> ExtractAndLoad:
+    """Baixa os anos de `download_params["years"]`, ou os recentes, e monta a tabela.
+
+    Args:
+        download_params: `years` com a lista de anos a carregar; sem ela, os
+            anos de :func:`recent_years`.
+
+    Returns:
+        `ExtractAndLoad` com o diretório particionado por `ano`.
+    """
+    years = download_params.get("years") or recent_years(date.today())
+    work_dir = tempfile.mkdtemp(prefix="br_sedec_desastres_realizados_")
+    input_dir = download_realizados(work_dir=work_dir, years=years)
+    result = clean_realizados(work_dir=work_dir, input_dir=input_dir)
+    shutil.rmtree(input_dir, ignore_errors=True)
+
+    return ExtractAndLoad(
+        coverage=reconhecimentos_realizados.COVERAGE.value.model_dump(),
+        data_path=result["data_path"],
         dump_mode="append",
         source_format="parquet",
     )

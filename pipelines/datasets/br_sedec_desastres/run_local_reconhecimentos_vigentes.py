@@ -25,17 +25,17 @@ hoje, nada exercita isso.
 
 Uso:
     # só baixa e limpa (padrão; não toca em nuvem nenhuma)
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py
 
     # etapas específicas
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages download
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py --stages download
 
     # o retrato do mês: baixa, limpa e sobe para o staging de dev
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py \\
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py \\
         --stages download,clean,upload
 
     # depois do merge da PR: atualiza cobertura, update e poll em prod
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py --stages metadata
 """
 
 import argparse
@@ -43,20 +43,20 @@ import logging
 import sys
 from pathlib import Path
 
-from pipelines.datasets.br_sedec_desastres.constants import constants
+from pipelines.datasets.br_sedec_desastres.constants import (
+    constants,
+    reconhecimentos_vigentes,
+)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
 )
-log = logging.getLogger("run_local")
+log = logging.getLogger("run_local_reconhecimentos_vigentes")
 
-# Os identificadores vêm do constants.py, não redigitados aqui: eles endereçam o
-# destino do upload e dos metadados, e duas definições divergentes publicariam a
-# tabela em lugares diferentes.
 DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
+TABLE_ID = reconhecimentos_vigentes.TABLE_ID.value
 DATE_FORMAT = constants.DATE_FORMAT.value
 
 # A credencial local é de dev, então o billing das leituras de BigQuery sai do
@@ -212,9 +212,6 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         max_date: Data do retrato promovido, no formato ``AAAA-MM-DD``. Quando
             ``None``, vem da maior partição em ``output/``.
     """
-    # A spec de cobertura vem de constants.py, para não existirem duas definições
-    # dela — tasks.py (extract_load_data) e flows.py usam a mesma.
-    from pipelines.datasets.br_sedec_desastres.constants import COVERAGE
     from pipelines.utils.metadata.bq import BigQueryReader
     from pipelines.utils.metadata.tasks import (
         commit_source_update_task,
@@ -232,7 +229,9 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         BigQueryReader(
             billing_project_id=BILLING_PROJECT, bq_project="basedosdados"
         )
-        .read_max_date(DATASET_ID, TABLE_ID, COVERAGE)
+        .read_max_date(
+            DATASET_ID, TABLE_ID, reconhecimentos_vigentes.COVERAGE.value
+        )
         .strftime(DATE_FORMAT)
     )
     if prod_max != max_date:
@@ -265,7 +264,7 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
     register_table_materialization_task.fn(
         dataset_id=DATASET_ID,
         table_id=TABLE_ID,
-        coverage=COVERAGE,
+        coverage=reconhecimentos_vigentes.COVERAGE.value,
         env="prod",
         bq_project="basedosdados",
         # Lê a tabela de prod, mas fatura em dev: a credencial local não tem
