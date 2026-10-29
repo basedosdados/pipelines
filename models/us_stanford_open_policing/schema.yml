@@ -13,6 +13,37 @@ models:
             where: year >= 2016
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - neighborhood
+            - division
+            - subdistrict
+            - subdivision
+            - police_grid_number
+            - reporting_area
+            - sector
+            - subsector
+            - substation
+            - service_area
+            - zone
+            - officer_age
+            - officer_race
+            - officer_years_of_service
+            - officer_assignment
+            - contraband_found
+            - contraband_drugs
+            - contraband_weapons
+            - contraband_alcohol
+            - contraband_other
+            - search_basis
+            - reason_for_arrest
+            - reason_for_frisk
+            - reason_for_search
+            - speed
+            - posted_speed
+            - charged_speed
+            - use_of_force_description
+            - use_of_force_reason
+            - notes
           config:
             where: year >= 2016
     columns:

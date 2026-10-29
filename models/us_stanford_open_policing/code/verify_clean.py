@@ -42,8 +42,8 @@ def source_counts(slug: str) -> tuple[int, dict[str, int]]:
             for rec in reader:
                 rows += 1
                 for i, h in keep:
-                    v = rec[i].strip()
-                    if v and v != "NA":
+                    # NA is the null marker only verbatim; " NA" is text
+                    if rec[i] != "NA" and rec[i].strip(" \t\n\x0b\x0c\r"):
                         counts[h] += 1
     return rows, counts
 

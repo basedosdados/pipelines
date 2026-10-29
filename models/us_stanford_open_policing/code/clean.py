@@ -40,6 +40,8 @@ MANIFEST_DIR = constants.OUTPUT_DIR / "_manifest"
 TMP_DIR = constants.DATA_DIR / "tmp"
 PARTITION = ["year", "state_abbreviation"]
 ADDED = {"year", "state_abbreviation", "state_id", "jurisdiction_id"}
+# The ASCII whitespace Python's str.strip removes, as a DuckDB expression
+WHITESPACE = " || ".join(f"chr({c})" for c in (32, 9, 10, 11, 12, 13))
 
 
 def _connect() -> duckdb.DuckDBPyConnection:
@@ -90,7 +92,8 @@ def clean_one(slug: str, con: duckdb.DuckDBPyConnection) -> dict:
         elif name == "jurisdiction_id":
             expr = f"'{slug}'"
         elif name in header:
-            expr = f"nullif(trim(\"{name}\"), '')"
+            # trim() alone strips only spaces; tn_nashville has notes of "\n\n"
+            expr = f"nullif(trim(\"{name}\", {WHITESPACE}), '')"
         else:
             expr = "null"
         exprs.append(f'cast({expr} as varchar) as "{name}"')

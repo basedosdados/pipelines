@@ -71,7 +71,38 @@ STOP_RELATIONSHIPS = {
 
 # Columns filled by fewer than 5% of stops since 2016, measured on the cleaned
 # Parquet with measure_sparsity.py. Sparse by construction, not by error.
-SPARSE_STOP_COLUMNS: list[str] = []
+SPARSE_STOP_COLUMNS: list[str] = [
+    "neighborhood",
+    "division",
+    "subdistrict",
+    "subdivision",
+    "police_grid_number",
+    "reporting_area",
+    "sector",
+    "subsector",
+    "substation",
+    "service_area",
+    "zone",
+    "officer_age",
+    "officer_race",
+    "officer_years_of_service",
+    "officer_assignment",
+    "contraband_found",
+    "contraband_drugs",
+    "contraband_weapons",
+    "contraband_alcohol",
+    "contraband_other",
+    "search_basis",
+    "reason_for_arrest",
+    "reason_for_frisk",
+    "reason_for_search",
+    "speed",
+    "posted_speed",
+    "charged_speed",
+    "use_of_force_description",
+    "use_of_force_reason",
+    "notes",
+]
 
 
 def _cast(name: str, typ: str) -> str:
