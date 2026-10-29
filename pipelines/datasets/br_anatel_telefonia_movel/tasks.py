@@ -2,10 +2,10 @@
 Tasks for dataset br_anatel_telefonia_movel
 """
 
-import os
 from collections.abc import Callable
+from datetime import date
 
-import pandas as pd
+import polars as pl
 from prefect import task
 
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
@@ -16,185 +16,97 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
-    clean_csv_brasil,
+    clean_csv_densidade,
     clean_csv_microdados,
-    clean_csv_municipio,
-    clean_csv_uf,
-    get_year,
+    download_csv_from_zip,
     normalize_label,
-    unzip_file,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
     pipeline_factory,
 )
-from pipelines.utils.utils import log
 
 
 @task(retries=5, retry_delay_seconds=10)
-def join_tables_in_function(table_id, semestre, ano):
-    # pyrefly: ignore [deprecated]
-    os.system(
-        f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
-    )
+def download_csv(table_id: str) -> str:
+    """Baixa do ZIP da Anatel o CSV que a tabela lê e devolve o caminho dele."""
+    return download_csv_from_zip(table_id)
+
+
+@task(retries=5, retry_delay_seconds=10)
+def join_tables_in_function(table_id: str, csv_path: str) -> str:
     if table_id == "microdados":
-        clean_csv_microdados(ano=ano, semestre=semestre, table_id=table_id)
+        clean_csv_microdados(csv_path=csv_path, table_id=table_id)
 
-    elif table_id == "densidade_brasil":
-        clean_csv_brasil(table_id=table_id)
-
-    elif table_id == "densidade_uf":
-        clean_csv_uf(table_id=table_id)
-
-    elif table_id == "densidade_municipio":
-        clean_csv_municipio(table_id=table_id)
+    else:
+        clean_csv_densidade(csv_path=csv_path, table_id=table_id)
 
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
 
 
 @task(retries=5, retry_delay_seconds=10)
-def get_max_date_in_table_microdados(table_id, ano, semestre):
-    if table_id == "microdados":
-        log(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv"
+def get_max_date_in_table_microdados(table_id: str, csv_path: str) -> date:
+
+    df = pl.scan_csv(csv_path, separator=";", infer_schema_length=0)
+
+    if table_id != "microdados":
+        level = anatel_constants.DENSITY_GEOGRAPHIC_LEVEL.value[table_id]
+
+        df = df.filter(normalize_label("Nível Geográfico Densidade") == level)
+
+    max_date = (
+        df.select(
+            pl.date(
+                pl.col("Ano").cast(pl.Int32), pl.col("Mês").cast(pl.Int32), 1
+            )
         )
-        df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_{semestre}S.csv",
-            sep=";",
-            encoding="utf-8",
-            dtype=str,
-        )
-        df["data"] = df["Ano"] + "-" + df["Mês"]
+        .max()
+        .collect()
+        .item()
+    )
 
-        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
-
-        return df["data"].max()
-
-    else:
-        log(
-            f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv"
-        )
-
-        df = pd.read_csv(
-            f"{anatel_constants.INPUT_PATH.value}Densidade_Telefonia_Movel.csv",
-            sep=";",
-            encoding="utf-8",
-            dtype=str,
-        )
-
-        table_level = {
-            "densidade_brasil": "Brasil",
-            "densidade_uf": "UF",
-            "densidade_municipio": "Municipio",
-        }
-
-        level = table_level[table_id]
-
-        geography = df["Nível Geográfico Densidade"]
-
-        df = df[
-            geography.map(normalize_label) == normalize_label(level)
-        ].copy()
-
-        df["data"] = df["Ano"] + "-" + df["Mês"]
-
-        df["data"] = pd.to_datetime(df["data"], format="%Y-%m")
-
-        return df["data"].max()
-
-
-@task(retries=5, retry_delay_seconds=10)
-def unzip():
-    return unzip_file()
-
-
-@task
-def get_year_full(year):
-    log("Obtendo o ano...")
-    if year is None:
-        return get_year()
-
-
-@task
-def get_semester(semester):
-    log("Obtendo o semestre...")
-    ano = get_year()
-    if semester is None:
-        if os.path.exists(
-            f"{anatel_constants.INPUT_PATH.value}Acessos_Telefonia_Movel_{ano}_2S.csv"
-        ):
-            log("Segundo semestre")
-            return 2
-        else:
-            log("Primeiro semestre")
-            return 1
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# As 4 tabelas — ver constants.py
-#
-# As 4 compartilham o mesmo ZIP de origem (`unzip`, definida acima) e a mesma
-# resolução de ano/semestre (`get_year_full`/`get_semester`, que inspecionam
-# os arquivos já descompactados em disco) — só `get_max_date_in_table_microdados`/
-# `join_tables_in_function` variam o que cada chamada lê/extrai do CSV por
-# `table_id` (microdados lê `Acessos_Telefonia_Movel_<ano>_<semestre>S.csv`;
-# as 3 densidades leem o mesmo `Densidade_Telefonia_Movel.csv`, filtrado por
-# geografia). Nenhuma tem teste dbt cross-table (todo `relationships` do
-# schema mira os diretórios BD, nunca outra tabela deste dataset — ver
-# `models/br_anatel_telefonia_movel/schema.yml`), então a regra padrão desta
-# rodada vale sem exceção: 1 `check_update` + 1 `extract_and_load` por
-# tabela, cada estágio baixando/descompactando o ZIP de forma independente
-# (custo duplicado aceito em troca do padrão único) — mesmo padrão de
-# `br_anatel_banda_larga_fixa` (mesma família de fonte).
-#
-# Nota sobre o poll: `check_update_and_dispatch` (stage_dispatch) comita o
-# Update assim que detecta dado novo, ANTES de disparar o extract_and_load —
-# diferente do poll "deferido" que o README deste dataset documenta como fix
-# aplicado ao flow monolítico antigo (commit só após materialização bem-
-# sucedida, pra evitar o bug que travou `densidade_brasil` com o ponteiro
-# adiantado). A arquitetura em estágios não tem como adiar o commit — as
-# duas etapas são deployments/flow runs separados, disparados via
-# `run_deployment(timeout=0)` sem callback de volta — e esse é o mesmo
-# trade-off aceito por todo dataset já migrado pra ela (IPCA, au_ato_abr,
-# br_anatel_banda_larga_fixa). Se o extract_and_load falhar depois do
-# commit, o ponteiro fica adiantado até um `force_run`/backfill manual —
-# risco conhecido, não específico deste dataset.
-# ──────────────────────────────────────────────────────────────────────────────
+    return max_date
 
 
 def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
+    """Monta a etapa check_update de uma tabela.
+
+    Args:
+        table_id: Tabela que a etapa verifica.
+
+    Returns:
+        A função que baixa o CSV da tabela e devolve o mês mais recente dele.
+    """
+
     def get_latest_update() -> SourceInspection:
-        # Só descobrir a data de referência já exige descompactar o ZIP: a
-        # cobertura real (ano/mês máximo publicado) só existe dentro do CSV.
-        unzip()
-        ano = get_year_full(None)
-        semestre = get_semester(None)
-        # pyrefly: ignore [no-matching-overload]
+        csv_path = download_csv(table_id=table_id)
         reference_date = get_max_date_in_table_microdados(
-            table_id=table_id, ano=ano, semestre=semestre
+            table_id=table_id, csv_path=csv_path
         )
-        # pyrefly: ignore [missing-attribute]
-        return SourceInspection(reference_date=reference_date.date())
+        return SourceInspection(reference_date=reference_date)
 
     return get_latest_update
 
 
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
-    def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        # Baixa/descompacta o ZIP de novo, independente do check_update —
-        # mesmo dado já visto lá, mas os dois estágios rodam em deployments
-        # separados, sem estado compartilhado entre eles.
-        unzip()
-        ano = get_year_full(None)
-        semestre = get_semester(None)
-        filepath = join_tables_in_function(
-            table_id=table_id, ano=ano, semestre=semestre
-        )
+    """Monta a etapa extract_and_load de uma tabela.
 
+    Args:
+        table_id: Tabela que a etapa baixa e limpa.
+
+    Returns:
+        A função que baixa e limpa o CSV da tabela e devolve a pasta de saída.
+    """
+
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        csv_path = download_csv(table_id=table_id)
+        data_path = join_tables_in_function(
+            table_id=table_id, csv_path=csv_path
+        )
         return ExtractAndLoad(
             coverage=COVERAGE.model_dump(),
-            data_path=filepath,
+            data_path=data_path,
             dump_mode="append",
         )
 
@@ -205,8 +117,5 @@ make_pipeline = pipeline_factory(
     DATASET_ID,
     make_get_latest_update,
     make_extract_load_data,
-    # Mesmo formato do flow monolítico antigo (`_run_anatel_telefonia_movel`,
-    # que já chama `poll_source_for_update_task` com date_format="%Y-%m" — o
-    # dado é mensal).
     date_format="%Y-%m",
 )
