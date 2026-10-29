@@ -291,6 +291,8 @@ models:
             - padrao
             - codigo_funcao
             - funcao
+            - sigla_lotacao
+            - lotacao
             - tipo_cessao
             - orgao_origem
             - orgao_destino
