@@ -763,6 +763,89 @@ models:
       - name: stayhome_se
         description: >-
           Standard error of stayhome
+  - name: us_oi_opportunity_atlas__commuting_zone_migration
+    description: >-
+      Flows of young adults between the commuting zone where they lived at age
+      16 and the one where they live at age 26, for people born in the US in
+      1984-1992, by race and parental income quintile. One row per origin-
+      destination pair, race and quintile; pooled marks the total of the
+      dimension not split. The source adds or subtracts a few people from each
+      cell to satisfy differential privacy.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - origin_commuting_zone_id
+            - destination_commuting_zone_id
+            - race
+            - parent_income_quintile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: origin_commuting_zone_id
+        description: >-
+          Identifier of the commuting zone of origin (where the person lived at
+          age 16) (1990 definition)
+        tests: [not_null]
+      - name: origin_commuting_zone_name
+        description: >-
+          Name of the commuting zone of origin
+      - name: origin_state_name
+        description: >-
+          Name of the state of the commuting zone of origin
+      - name: destination_commuting_zone_id
+        description: >-
+          Identifier of the commuting zone of destination (where the person
+          lives at age 26) (1990 definition)
+        tests: [not_null]
+      - name: destination_commuting_zone_name
+        description: >-
+          Name of the commuting zone of destination
+      - name: destination_state_name
+        description: >-
+          Name of the state of the commuting zone of destination
+      - name: race
+        description: >-
+          Race or ethnicity: pooled (all), asian, black, hispanic, white or
+          other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: parent_income_quintile
+        description: >-
+          Parental income quintile in the national distribution, from 1
+          (poorest) to 5 (richest), or pooled (all)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, '1', '2', '3', '4', '5']
+      - name: individuals
+        description: >-
+          Number of people from the origin commuting zone living in the
+          destination commuting zone
+      - name: origin_individuals
+        description: >-
+          Total number of people from the origin commuting zone (individuals
+          summed over destinations)
+      - name: destination_individuals
+        description: >-
+          Total number of people living in the destination commuting zone
+          (individuals summed over origins)
+      - name: probability_destination_given_origin
+        description: >-
+          Probability of living in the destination given growing up in the
+          origin, Pr{D|O} = individuals / origin_individuals
+      - name: probability_origin_given_destination
+        description: >-
+          Probability of having grown up in the origin given living in the
+          destination, Pr{O|D} = individuals / destination_individuals
   - name: us_oi_opportunity_atlas__county_sample
     description: >-
       Sample sizes and child characteristics behind the estimates in
