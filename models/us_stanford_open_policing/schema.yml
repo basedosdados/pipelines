@@ -1,0 +1,302 @@
+---
+version: 2
+models:
+  - name: us_stanford_open_policing__stop
+    description: >-
+      Police stops recorded by US state patrols and city police departments,
+      standardized by the Stanford Open Policing Project, one row per stop. Each
+      jurisdiction fills a different subset of the columns.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [jurisdiction_id, raw_row_number]
+          config:
+            where: year >= 2016
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: year >= 2016
+    columns:
+      - name: year
+        description: >-
+          Year of the stop
+      - name: state_abbreviation
+        description: >-
+          Two-letter postal abbreviation of the state
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Two-digit FIPS code of the state
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: jurisdiction_id
+        description: >-
+          Identifier of the jurisdiction whose agency recorded the stop, in the
+          form state_place, e.g. ca_san_diego or tx_statewide
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_stanford_open_policing__jurisdiction')
+              field: jurisdiction_id
+      - name: raw_row_number
+        description: >-
+          Row number of the record in the agency's raw file, used to join the
+          standardized data back to the raw data
+      - name: date
+        description: >-
+          Date of the stop
+      - name: time
+        description: >-
+          Time of the stop, 24-hour clock
+      - name: location
+        description: >-
+          Free-text location of the stop, e.g. a street address or highway mile
+          marker
+      - name: lat
+        description: >-
+          Latitude of the stop
+      - name: lng
+        description: >-
+          Longitude of the stop
+      - name: geocode_source
+        description: >-
+          Geocoding service used for lat and lng: GM for Google Maps, SGC for the
+          Stanford Geospatial Center
+      - name: county_name
+        description: >-
+          Name of the county where the stop took place
+      - name: neighborhood
+        description: >-
+          Neighborhood of the stop
+      - name: beat
+        description: >-
+          Police beat
+      - name: district
+        description: >-
+          Police district
+      - name: subdistrict
+        description: >-
+          Police subdistrict
+      - name: division
+        description: >-
+          Police division
+      - name: subdivision
+        description: >-
+          Police subdivision
+      - name: police_grid_number
+        description: >-
+          Police grid number
+      - name: precinct
+        description: >-
+          Police precinct
+      - name: region
+        description: >-
+          Police region
+      - name: reporting_area
+        description: >-
+          Police reporting area
+      - name: sector
+        description: >-
+          Police sector
+      - name: subsector
+        description: >-
+          Police subsector
+      - name: substation
+        description: >-
+          Police substation
+      - name: service_area
+        description: >-
+          Police service area
+      - name: zone
+        description: >-
+          Police zone
+      - name: subject_age
+        description: >-
+          Age of the stopped person
+      - name: subject_race
+        description: >-
+          Race of the stopped person: white, black, hispanic, asian/pacific
+          islander, other or unknown
+      - name: subject_sex
+        description: >-
+          Recorded sex of the stopped person: male or female
+      - name: officer_id_hash
+        description: >-
+          Hash of the officer's identifier, unique to one officer within a
+          jurisdiction
+      - name: officer_age
+        description: >-
+          Age of the officer
+      - name: officer_race
+        description: >-
+          Race of the officer: white, black, hispanic, asian/pacific islander,
+          other or unknown
+      - name: officer_sex
+        description: >-
+          Recorded sex of the officer: male or female
+      - name: officer_years_of_service
+        description: >-
+          Years the officer has served in the department
+      - name: officer_assignment
+        description: >-
+          Department or subdivision to which the officer is assigned
+      - name: department_id
+        description: >-
+          Identifier of the department or subdivision to which the officer is
+          assigned
+      - name: department_name
+        description: >-
+          Name of the department or subdivision to which the officer is assigned
+      - name: unit
+        description: >-
+          Unit to which the officer is assigned
+      - name: type
+        description: >-
+          Type of stop: vehicular or pedestrian
+      - name: disposition
+        description: >-
+          Disposition of the stop
+      - name: violation
+        description: >-
+          Violation for which the person was stopped
+      - name: arrest_made
+        description: >-
+          Whether an arrest was made
+      - name: citation_issued
+        description: >-
+          Whether a citation was issued
+      - name: warning_issued
+        description: >-
+          Whether a warning was issued
+      - name: outcome
+        description: >-
+          Strictest action taken among arrest, citation, summons and warning
+      - name: contraband_found
+        description: >-
+          Whether contraband was found
+      - name: contraband_drugs
+        description: >-
+          Whether drugs were found
+      - name: contraband_weapons
+        description: >-
+          Whether weapons were found
+      - name: contraband_alcohol
+        description: >-
+          Whether alcohol was found
+      - name: contraband_other
+        description: >-
+          Whether contraband other than drugs and weapons was found
+      - name: frisk_performed
+        description: >-
+          Whether a frisk was performed
+      - name: search_conducted
+        description: >-
+          Whether any search was conducted, of a driver, passenger or vehicle
+      - name: search_person
+        description: >-
+          Whether a person was searched
+      - name: search_vehicle
+        description: >-
+          Whether the vehicle was searched
+      - name: search_basis
+        description: >-
+          Basis for the search: k9, plain view, consent, probable cause or other
+      - name: reason_for_arrest
+        description: >-
+          Reason for the arrest
+      - name: reason_for_frisk
+        description: >-
+          Reason for the frisk
+      - name: reason_for_search
+        description: >-
+          Reason for the search
+      - name: reason_for_stop
+        description: >-
+          Reason for the stop
+      - name: speed
+        description: >-
+          Recorded speed of the vehicle
+      - name: posted_speed
+        description: >-
+          Speed limit where the stop took place
+      - name: charged_speed
+        description: >-
+          Speed stated in the charge
+      - name: use_of_force_description
+        description: >-
+          Description of the force used
+      - name: use_of_force_reason
+        description: >-
+          Reason for the use of force
+      - name: vehicle_color
+        description: >-
+          Color of the vehicle
+      - name: vehicle_make
+        description: >-
+          Make of the vehicle
+      - name: vehicle_model
+        description: >-
+          Model of the vehicle
+      - name: vehicle_type
+        description: >-
+          Type of vehicle
+      - name: vehicle_registration_state
+        description: >-
+          State where the vehicle is registered
+      - name: vehicle_year
+        description: >-
+          Model year of the vehicle
+      - name: notes
+        description: >-
+          Officer notes on the stop
+  - name: us_stanford_open_policing__jurisdiction
+    description: >-
+      Jurisdictions covered by the Stanford Open Policing Project, one row per
+      source file: a state patrol or a city police department.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [jurisdiction_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: jurisdiction_id
+        description: >-
+          Identifier of the jurisdiction, in the form state_place, e.g.
+          ca_san_diego or tx_statewide
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Two-letter postal abbreviation of the state
+      - name: state_id
+        description: >-
+          Two-digit FIPS code of the state
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: jurisdiction_name
+        description: >-
+          Name of the place, or Statewide for a state patrol
+        tests: [not_null]
+      - name: jurisdiction_type
+        description: >-
+          Type of agency: city (municipal police department) or statewide (state
+          patrol)
+      - name: release_date
+        description: >-
+          Date of the project's data release the file comes from
+      - name: start_date
+        description: >-
+          Date of the earliest stop in the jurisdiction's file
+      - name: end_date
+        description: >-
+          Date of the latest stop in the jurisdiction's file
+      - name: number_stops
+        description: >-
+          Number of stops in the jurisdiction's file
+      - name: source_url
+        description: >-
+          URL of the source CSV file
