@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
+from pipelines.utils.metadata.constants import DATE_FORMAT_BY_KIND
 from pipelines.utils.metadata.domain import DateFormat
 
 if TYPE_CHECKING:
@@ -84,15 +85,6 @@ def coverage_from_backend(
     return CoverageSpec(**data)
 
 
-_DATE_FORMAT_BY_KIND: dict[DateColumnKind, DateFormat] = {
-    "date": DateFormat.YEAR_MD,
-    "year": DateFormat.YEAR,
-    "year_month": DateFormat.YEAR_MONTH,
-    "year_quarter": DateFormat.YEAR_MONTH,
-    "year_bimester": DateFormat.YEAR_MONTH,
-}
-
-
 def date_format_for(kind: DateColumnKind) -> DateFormat:
     """Formato de data (strptime) correspondente a um `date_column_kind`.
 
@@ -108,7 +100,7 @@ def date_format_for(kind: DateColumnKind) -> DateFormat:
             "date_column_kind vazio não tem date_format correspondente "
             "(só é válido pra tier='non_historical')"
         )
-    return _DATE_FORMAT_BY_KIND[kind]
+    return DATE_FORMAT_BY_KIND[kind]
 
 
 def legacy_date_columns(spec: CoverageSpec) -> dict[str, str]:
