@@ -57,19 +57,19 @@ def _slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", ascii_text.lower()).strip("_")
 
 
-def _resource_reference_date(name: str, created: datetime | None) -> date:
-    """Data de referência de um recurso, quando presente no nome do arquivo
-    (Ex.: `CAPAG Municípios 2024 - 14/05/2024`) ou data de criação no CKAN.
+def _resource_reference_date(name: str) -> date:
+    """Data de referência de um recurso: a data no fim do nome
+    (Ex.: `CAPAG Municípios 2024 - 14/05/2024`) ou, nos recursos só com o ano
+    no nome, 1º de janeiro desse ano.
     """
-    match = _NAME_DATE_RE.search(name)
-    if match:
-        day, month, year = map(int, match.groups())
+    match_date = _NAME_DATE_RE.search(name)
+    if match_date:
+        day, month, year = map(int, match_date.groups())
         return date(year, month, day)
-    if created is None:
-        raise ValueError(
-            f"O recurso {name!r} não tem data no nome nem `created`."
-        )
-    return created.date()
+    match_year = _NAME_YEAR_RE.search(name)
+    if match_year:
+        return date(int(match_year.group(1)), 1, 1)
+    raise ValueError(f"O recurso {name!r} não tem data nem ano no nome.")
 
 
 def _retry_wait(response: httpx.Response, attempt: int) -> int:
@@ -88,7 +88,8 @@ def list_resources(table_id: str) -> list[dict[str, Any]]:
     Returns:
         Um dicionário por recurso, com `id`, `name`, `format`, `url`,
         `created` e `last_modified`, `size`, `year` (o ano da CAPAG,
-        lido do nome) e `reference_date`.
+        lido do nome), `reference_date` e `revisao` (se o nome indica um
+        arquivo de revisão).
 
     Raises:
         KeyError: Quando `table_id` não tem pacote em `CKAN_PACKAGES`.
@@ -122,7 +123,8 @@ def list_resources(table_id: str) -> list[dict[str, Any]]:
                 "last_modified": _parse_datetime(raw.get("last_modified")),
                 "size": int(raw.get("size") or 0),
                 "year": int(year.group(1)),
-                "reference_date": _resource_reference_date(name, created),
+                "reference_date": _resource_reference_date(name),
+                "revisao": "revisao" in _slugify(name),
             }
         )
     if not resources:
@@ -209,6 +211,9 @@ def select_resources(
 ) -> list[dict[str, Any]]:
     """Filtra os recursos pela data de referência.
 
+    Num ano com arquivo de revisão, ele substitui o recurso que só traz o ano
+    no nome: o segundo sai da seleção.
+
     Args:
         resources: Itens de `list_resources`.
         reference_date: Data de referência do recurso. `None` mantém todos
@@ -219,6 +224,10 @@ def select_resources(
     Raises:
         ValueError: Quando nenhum recurso tem essa data de referência.
     """
+    revised_years = {r["year"] for r in resources if r["revisao"]}
+    resources = [
+        r for r in resources if r["revisao"] or r["year"] not in revised_years
+    ]
     if reference_date is None:
         return resources
     selected = [
@@ -250,7 +259,7 @@ def download_table(
         Pares `(recurso, caminho do arquivo)`, em ordem de data de
         referência.
     """
-    input_dir = Path("tmp") / table_id / "input"
+    input_dir = Path("tmp") / "br_stn_capag" / table_id / "input"
     shutil.rmtree(input_dir, ignore_errors=True)
 
     resources = select_resources(list_resources(table_id), reference_date)
@@ -288,6 +297,14 @@ def _to_number(value: Any) -> float | None:
     except ValueError:
         return None
     return round(number / 100, 8) if is_percent else number
+
+
+def _to_year(value: Any) -> int | None:
+    """Ano de `2022` ou de `CAPAG Ano Base 2023`; `None` se não houver."""
+    if _is_null(value):
+        return None
+    match = _NAME_YEAR_RE.search(str(value))
+    return int(match.group(1)) if match else None
 
 
 def _clean_text(value: Any) -> str | None:
@@ -401,6 +418,7 @@ def process_records(
         df["id_municipio"] = df["id_municipio"].map(_to_number)
         df = df.dropna(subset=["id_municipio"])
         df["id_municipio"] = df["id_municipio"].astype(int).astype(str)
+        df["ano_base"] = df["ano_base"].map(_to_year).astype("Int64")
         df["populacao"] = (
             pd.to_numeric(df["populacao"].map(_to_number))
             .round()
@@ -410,12 +428,14 @@ def process_records(
         df = df[df["sigla_uf"].str.fullmatch(r"[A-Z]{2}", na=False)]
 
     for column in COLUNAS_NUMERICAS:
-        df[column] = df[column].map(_to_number)
+        if column in df.columns:
+            df[column] = df[column].map(_to_number)
     for column in df.columns:
         if column.startswith("nota_"):
             df[column] = df[column].map(_clean_text)
-
     df["data_referencia"] = resource["reference_date"]
+    df["data_criacao"] = resource["created"]
+    df["data_modificacao"] = resource["last_modified"]
     df["ano"] = resource["year"]
 
     key = list(CHAVE_UNICA[table_id])

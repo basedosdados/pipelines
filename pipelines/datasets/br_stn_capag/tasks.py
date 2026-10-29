@@ -44,7 +44,7 @@ def make_extract_load_data(
         historico = bool(download_params.get("historico", False))
         reference_date = date.fromisoformat(download_params["reference_date"])
 
-        output_dir = Path("tmp") / table_id / "output"
+        output_dir = Path("tmp") / "br_stn_capag" / table_id / "output"
         shutil.rmtree(output_dir, ignore_errors=True)
         for resource, path in download_table(
             table_id, None if historico else reference_date

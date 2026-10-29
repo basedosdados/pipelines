@@ -48,6 +48,13 @@ _INDICADORES = {
     "nota_2": "nota_poupanca_corrente",
     "indicador_3": "indicador_liquidez",
     "nota_3": "nota_liquidez",
+    "indicador_1_revisao": "indicador_endividamento_revisao",
+    "nota_1_revisao": "nota_endividamento_revisao",
+    "indicador_2_revisao": "indicador_poupanca_corrente_revisao",
+    "nota_2_revisao": "nota_poupanca_corrente_revisao",
+    "indicador_3_revisao": "indicador_liquidez_revisao",
+    "nota_3_revisao": "nota_liquidez_revisao",
+    "capag_revisao": "nota_capag_revisao",
     "capag": "nota_capag",
     "capag_2022": "nota_capag",
     "capag_oficial": "nota_capag",
@@ -61,6 +68,9 @@ COLUNAS_FONTE = {
         "codigo_municipio_completo": "id_municipio",
         "uf": "sigla_uf",
         "populacao": "populacao",
+        # 2022 revisão e 2023: `Ano_Base`; 2024 em diante: `Origem da Nota Final`
+        "ano_base": "ano_base",
+        "origem_da_nota_final": "ano_base",
         **_INDICADORES,
     },
     ESTADOS_TABLE_ID: {"uf": "sigla_uf", **_INDICADORES},
@@ -71,6 +81,17 @@ COLUNAS_OBRIGATORIAS = {
     MUNICIPIOS_TABLE_ID: ("id_municipio", "sigla_uf", "nota_capag"),
     ESTADOS_TABLE_ID: ("sigla_uf", "nota_capag"),
 }
+
+# Só municípios 2022 traz colunas de revisão; nos demais arquivos ficam nulas.
+COLUNAS_REVISAO = [
+    "indicador_endividamento_revisao",
+    "nota_endividamento_revisao",
+    "indicador_poupanca_corrente_revisao",
+    "nota_poupanca_corrente_revisao",
+    "indicador_liquidez_revisao",
+    "nota_liquidez_revisao",
+    "nota_capag_revisao",
+]
 
 COLUNAS_SAIDA = {
     MUNICIPIOS_TABLE_ID: (
@@ -84,6 +105,8 @@ COLUNAS_SAIDA = {
         "indicador_liquidez",
         "nota_liquidez",
         "nota_capag",
+        "ano_base",
+        *COLUNAS_REVISAO,
         "data_referencia",
     ),
     ESTADOS_TABLE_ID: (
@@ -103,6 +126,9 @@ COLUNAS_NUMERICAS = (
     "indicador_endividamento",
     "indicador_poupanca_corrente",
     "indicador_liquidez",
+    "indicador_endividamento_revisao",
+    "indicador_poupanca_corrente_revisao",
+    "indicador_liquidez_revisao",
 )
 
 # Mínimo de linhas por recurso

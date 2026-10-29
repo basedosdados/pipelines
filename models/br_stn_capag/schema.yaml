@@ -5,9 +5,10 @@ models:
     description: >
       Capacidade de Pagamento (CAPAG) dos municípios brasileiros, apurada pela
       Secretaria do Tesouro Nacional (STN) a partir do Siconfi. Cada
-      `data_referencia` é um recorte publicado pela STN. Dentro de um  mesmo `ano`,
-      recortes mais recentes substituem os anteriores.  A `populacao` só existe até
-      2023.
+      `data_referencia` é um recorte publicado pela STN. Dentro de um mesmo `ano`,
+      recortes mais recentes substituem os anteriores. A `populacao` só existe até
+      2023. As colunas `*_revisao` só são preenchidas em 2022, a partir do arquivo
+      de revisão da STN, que substitui o arquivo original do ano.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, data_referencia, id_municipio]
@@ -53,12 +54,37 @@ models:
       - name: nota_capag
         description: Nota final da capacidade de pagamento, combinação das notas dos
           três indicadores
+      - name: ano_base
+        description: Ano dos dados contábeis de que veio a nota do município, conforme
+          a fonte (`Ano_Base` ou `Origem da Nota Final`). Vazio até 2021
+      - name: indicador_endividamento_revisao
+        description: Indicador 1 - endividamento após a revisão da STN, em proporção
+          (apenas 2022)
+      - name: nota_endividamento_revisao
+        description: Nota do indicador de endividamento após a revisão da STN (apenas
+          2022)
+      - name: indicador_poupanca_corrente_revisao
+        description: Indicador 2 - poupança corrente após a revisão da STN, em proporção
+          (apenas 2022)
+      - name: nota_poupanca_corrente_revisao
+        description: Nota do indicador de poupança corrente após a revisão da STN
+          (apenas 2022)
+      - name: indicador_liquidez_revisao
+        description: Indicador 3 - liquidez após a revisão da STN, em proporção (apenas
+          2022)
+      - name: nota_liquidez_revisao
+        description: Nota do indicador de liquidez após a revisão da STN (apenas 2022)
+      - name: nota_capag_revisao
+        description: Nota final da capacidade de pagamento após a revisão da STN (apenas
+          2022)
   - name: br_stn_capag__estados
     description: >
       Capacidade de Pagamento (CAPAG) dos estados brasileiros, apurada pela
-      Secretaria do Tesouro Nacional (STN). Cada `data_referencia` é a data de
-      criação do recurso no portal do Tesouro Transparente. Em 2018 a fonte não
-      traz as notas dos indicadores individuais.
+      Secretaria do Tesouro Nacional (STN). Cada `data_referencia` é a data no nome
+      do
+      recurso no portal do Tesouro Transparente ou, sem data no nome, 1º de janeiro
+      do ano. Em 2024 a revisão da STN substitui o arquivo original. Em 2018 a fonte
+      não traz as notas dos indicadores individuais.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, data_referencia, sigla_uf]
