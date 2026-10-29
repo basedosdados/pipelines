@@ -255,6 +255,9 @@ models:
     us_census_bps:
       +materialized: table
       +schema: us_census_bps
+    us_census_bds:
+      +materialized: table
+      +schema: us_census_bds
     us_fdic_bankfind:
       +materialized: table
       +schema: us_fdic_bankfind
