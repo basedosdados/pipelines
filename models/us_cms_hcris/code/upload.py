@@ -1,7 +1,7 @@
 """Upload the cleaned us_cms_hcris parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                 # every staged table
-    python upload.py report          # one table
+    uv run models/us_cms_hcris/code/upload.py                 # every staged table
+    uv run models/us_cms_hcris/code/upload.py report          # one table
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring
 flow calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load
@@ -40,16 +40,12 @@ requester-pays, so ``gcs.Client.bucket`` is patched to pin the billing project.
 """
 
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+from google.cloud import bigquery
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
-
-from models.us_cms_hcris.code.common import (  # noqa: E402
+from models.us_cms_hcris.code.common import (
     DATASET_ID,
     OUTPUT,
     STAGED_TABLES,

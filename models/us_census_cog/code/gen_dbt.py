@@ -3,7 +3,7 @@
 Column names, order and types come from the architecture CSVs, so a change
 there propagates to the models rather than being restated by hand.
 
-    python gen_dbt.py
+    uv run models/us_census_cog/code/gen_dbt.py
 """
 
 from pathlib import Path

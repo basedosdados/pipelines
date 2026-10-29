@@ -46,7 +46,7 @@ As 3 tabelas de densidade saem do **mesmo** `Densidade_Telefonia_Movel.csv`, fil
 
 ## Estrutura dos flows e o poll
 
-Cada tabela tem um flow próprio (`flows.py`), agendado em dias distintos, todos delegando a `_run_anatel_telefonia_movel` (`crawler/anatel/telefonia_movel/flows.py`).
+Cada tabela tem um flow próprio (`flows.py`), agendado em dias distintos. Antes da migração pro pipeline em estágios, todos delegavam a `_run_anatel_telefonia_movel`, o flow monolítico antigo (removido; vivia em `crawler/anatel/telefonia_movel/flows.py`).
 
 **Poll por geografia + deferido (aplicado):** as 3 densidades saem do mesmo arquivo, então `get_max_date_in_table_microdados` (`tasks.py`) calcula a data máxima **filtrando pela geografia da tabela** — não o max do arquivo inteiro. E o poll é **deferido**: `poll_source_for_update_task` detecta a novidade e `commit_source_update_task` grava o `Update` **só após a materialização** (padrão do PR #1600, `br_ibge_inflacao`).
 

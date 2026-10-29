@@ -19,7 +19,7 @@ Month granularity is used only where the state actually publishes a usable month
   scheduled ahead of today.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/register_coverage.py [--check]
+    uv run models/br_bd_execucao_estadual/code/register_coverage.py [--check]
 """
 
 from __future__ import annotations
@@ -29,8 +29,6 @@ import sys
 import warnings
 
 warnings.filterwarnings("ignore")
-
-MCP = "/Users/rdahis/Dropbox/BD/mcp"
 
 # (area slug, start_year, start_month, end_year, end_month).
 # A None month means the range is year-granular; None years mean no range at all, which is
@@ -177,16 +175,15 @@ def check(env: str) -> int:
 
 
 def apply(env: str) -> None:
-    sys.path.insert(0, MCP)
-    # pyrefly: ignore [missing-import]
-    import server
+    import databasis_mcp.tools.metadata as bd_mcp_metadata
+    import databasis_mcp.tools.write as bd_mcp_write
 
-    server.auth(env=env)
+    bd_mcp_metadata.auth(env=env)
     areas = {
-        a: server.lookup_id(category="area", slug=a, env=env)["id"]
+        a: bd_mcp_metadata.lookup_id(category="area", slug=a, env=env)["id"]
         for a in {e[0] for v in PLAN.values() for e in v}
     }
-    dataset = server.get_dataset(slug="execucao_estadual", env=env)
+    dataset = bd_mcp_metadata.get_dataset(slug="execucao_estadual", env=env)
     for slug, entries in PLAN.items():
         table = dataset["tables"][slug]
         # Matched BY AREA, never by position. The backend does not return coverages in
@@ -207,7 +204,7 @@ def apply(env: str) -> None:
             prior_cov = existing.get(area)
             if prior_cov:
                 kwargs["id"] = prior_cov["id"]
-            coverage = server.create_update_coverage(**kwargs)
+            coverage = bd_mcp_write.create_update_coverage(**kwargs)
             if ranges is None:
                 print(f"  {slug:24} {area}  no range")
                 continue
@@ -233,7 +230,7 @@ def apply(env: str) -> None:
                     rng.update(start_month=m0, end_month=m1)
                 if i < len(prior):
                     rng["id"] = prior[i]["id"]
-                server.create_update_datetime_range(**rng)
+                bd_mcp_write.create_update_datetime_range(**rng)
             label = ", ".join(
                 f"{y0}-{m0:02d}..{y1}-{m1:02d}" if m0 else f"{y0}..{y1}"
                 for y0, m0, y1, m1 in ranges

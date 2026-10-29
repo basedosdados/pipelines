@@ -8,15 +8,9 @@ from __future__ import annotations
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
 
 from models.us_census_bps.code.metadata import DATASET_SLUG, TABLE_ORDER
 
@@ -64,9 +58,9 @@ def main() -> int:
     parser.add_argument("--env", default="staging")
     args = parser.parse_args()
 
-    node = server._gql(QUERY % DATASET_SLUG, {}, env=args.env)["allDataset"][
-        "edges"
-    ][0]["node"]
+    node = bd_mcp_metadata._gql(QUERY % DATASET_SLUG, {}, env=args.env)[
+        "allDataset"
+    ]["edges"][0]["node"]
     problems: list[str] = []
 
     print(f"dataset {node['slug']} — status {node['status']['slug']}")

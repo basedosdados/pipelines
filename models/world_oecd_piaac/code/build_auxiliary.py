@@ -1,7 +1,7 @@
 """Build the per-table auxiliary-file bundles for world_oecd_piaac.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/build_auxiliary.py [--upload] [--env dev|prod]
+    uv run models/world_oecd_piaac/code/build_auxiliary.py [--upload] [--env dev|prod]
 
 Follows .claude/rules/auxiliary-files.md: one ZIP per table containing only the
 documents a user of that table needs, each bundle carrying a README with the

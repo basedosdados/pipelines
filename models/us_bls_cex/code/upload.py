@@ -1,7 +1,7 @@
 """Upload the cleaned us_bls_cex parquet tables to BigQuery dev staging.
 
 Usage:
-    python models/us_bls_cex/code/upload.py [table_slug ...]
+    uv run models/us_bls_cex/code/upload.py [table_slug ...]
 
 Writes to basedosdados-dev only: prod tables are materialised by the
 table-approve action when the PR merges, never uploaded by hand. Tables go
@@ -19,8 +19,6 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import OUTPUT_DIR  # noqa: E402
 

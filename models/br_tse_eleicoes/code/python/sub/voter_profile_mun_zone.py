@@ -169,19 +169,26 @@ def build_perfil_mun_zona(ano: int) -> pd.DataFrame:
         "eleitores_inclusao_nome_social",
     ]
     out = df[[c for c in col_order if c in df.columns]]
-    # From 2024 the TSE profile file emits each municipality-zone-demographic
-    # cell twice, split on TP_OBRIGATORIEDADE_VOTO. The elector counts are
-    # carried identically on both copies (prod keeps one row, not their sum),
-    # but the copies differ in eleitores_inclusao_nome_social — a column the
-    # dbt model drops. Deduping on the full row therefore leaves two rows that
-    # collapse to identical once the model discards nome_social, breaking the
-    # uniqueness test. Dedup on the model grain instead (exclude nome_social)
-    # so the collapse survives into BigQuery and matches prod exactly.
-    # A no-op for every earlier year, which has no such duplicates.
-    dedup_cols = [
-        c for c in out.columns if c != "eleitores_inclusao_nome_social"
+    # From 2024 the TSE file splits each municipality-zone-demographic cell on
+    # dimensions this table does not keep (identidade de gênero, quilombola,
+    # intérprete de Libras; the first 2024 release split on
+    # TP_OBRIGATORIEDADE_VOTO instead). The split rows are disjoint groups of
+    # voters, so collapse them by summing.
+    # Deduplicating instead dropped every split row whose counts happened to
+    # match another's: 1,483,119 voters in 2024 and 2,527,675 in 2026.
+    # A no-op for 2022 and earlier, which have one row per cell.
+    counts = [
+        "eleitores",
+        "eleitores_biometria",
+        "eleitores_deficiencia",
+        "eleitores_inclusao_nome_social",
     ]
-    return out.drop_duplicates(subset=dedup_cols)
+    grain = [c for c in out.columns if c not in counts]
+    return (
+        out.groupby(grain, dropna=False, sort=False)[counts]
+        .sum(min_count=1)
+        .reset_index()
+    )
 
 
 def build_all():

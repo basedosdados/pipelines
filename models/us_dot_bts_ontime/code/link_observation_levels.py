@@ -1,7 +1,6 @@
 """Link each table's identifying columns to its observation level.
 
-    uv run --no-project --python 3.11 --with fastmcp --with requests \
-        python models/us_dot_bts_ontime/code/link_observation_levels.py staging
+    uv run models/us_dot_bts_ontime/code/link_observation_levels.py staging
 
 Without this the site renders the level's columns as "Não informado".
 `bulk_upsert_columns` does not set the FK, so it has to be a per-column
@@ -14,11 +13,10 @@ the same call.
 
 from __future__ import annotations
 
-import importlib.util
 import sys
-from pathlib import Path
 
-MCP_SERVER = Path.home() / "Dropbox" / "BD" / "mcp" / "server.py"
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 FLIGHT = "245b6498-5295-44df-8f4d-62496f2ba898"
 AIRPORT = "2a0d9769-c080-4a84-a77e-016996a3fae8"
@@ -39,22 +37,11 @@ LINKS = [
 ]
 
 
-def load_mcp():
-    spec = importlib.util.spec_from_file_location(
-        "databasis_mcp_server", MCP_SERVER
-    )
-    if spec is None or spec.loader is None:
-        raise SystemExit(f"cannot import the databasis MCP at {MCP_SERVER}")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
 def call(tool):
     return getattr(tool, "fn", tool)
 
 
-def column_ids(mcp, env: str, table_id: str) -> dict[str, str]:
+def column_ids(env: str, table_id: str) -> dict[str, str]:
     """Column name -> id, read straight from the backend for one table."""
     query = """
     query($id: ID!) {
@@ -63,7 +50,7 @@ def column_ids(mcp, env: str, table_id: str) -> dict[str, str]:
       }
     }
     """
-    data = mcp._gql(query, {"id": table_id}, env=env)
+    data = bd_mcp_metadata._gql(query, {"id": table_id}, env=env)
     out = {}
     for e in data["allColumn"]["edges"]:
         n = e["node"]
@@ -72,18 +59,17 @@ def column_ids(mcp, env: str, table_id: str) -> dict[str, str]:
 
 
 def main(env: str) -> None:
-    mcp = load_mcp()
     # pyrefly: ignore [not-callable]
-    call(mcp.auth)(env=env)
+    call(bd_mcp_metadata.auth)(env=env)
     cache: dict[str, dict[str, str]] = {}
     for table_id, name, ol_id, is_partition in LINKS:
         if table_id not in cache:
-            cache[table_id] = column_ids(mcp, env, table_id)
+            cache[table_id] = column_ids(env, table_id)
         cid = cache[table_id].get(name)
         if cid is None:
             raise SystemExit(f"column {name} not found on table {table_id}")
         # pyrefly: ignore [not-callable]
-        call(mcp.update_column)(
+        call(bd_mcp_write.update_column)(
             column_id=cid,
             column_name=name,
             table_id=table_id,

@@ -7,7 +7,7 @@ Static onboarding (raw → clean → BigQuery → metadata, one shot) is covered
 
 Reference implementation: `pipelines/datasets/us_bls_cpi/` (monthly). The closest
 Brazilian analog is `pipelines/datasets/br_ibge_ipca/` +
-`pipelines/crawler/ibge_inflacao/`.
+`pipelines/shared/ibge_inflacao/`.
 
 ## When to build one
 
@@ -64,7 +64,7 @@ before committing (reuse the already-downloaded `input/`).
 
 ## The canonical flow recipe
 
-From `pipelines/crawler/ibge_inflacao/flows.py::_run_ibge_inflacao` and
+From `pipelines/shared/ibge_inflacao/flows.py::_run_ibge_inflacao` and
 `us_bls_cpi/flows.py`:
 
 ```
@@ -354,15 +354,16 @@ under the limit that was asked for, and just over the 4Gi that was actually appl
 
 **As of 2026-09-07, 43 flows under `pipelines/datasets/*/flows.py` set only `memory`** and
 are therefore all capped at 4Gi regardless of the value written — including ones asking
-for 8, 12 and 16Gi. Only `br_me_cnpj`, `br_anatel_telefonia_movel`, `br_sfb_sicar` and
-`us_state_foreign_assistance` set the explicit pair. Any of the other 43 whose workload
-grew past 4Gi is failing for this reason and not for the reason its logs suggest.
+for 8, 12 and 16Gi. Only `br_anatel_telefonia_movel`, `br_sfb_sicar` and
+`us_state_foreign_assistance` set the explicit pair (a fourth, `br_me_cnpj`, has since been
+retired — superseded by `br_rf_cnpj`). Any of the other 43 whose workload grew past 4Gi is
+failing for this reason and not for the reason its logs suggest.
 
 Verify rather than trusting the number you wrote:
 
 ```bash
-uv run python -c "import sys; sys.path.insert(0,'<mcp>'); import server; \
-print(list(server._prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
+uv run python -c "from databasis_mcp.tools.prefect import _prefect_get; \
+print(list(_prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
 ```
 
 **Pick a minute nobody else is using — never `0`.** The hour follows the source's

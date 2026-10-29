@@ -8,7 +8,7 @@ parquet per table. Missing values are written as real nulls (never the string
 "nan"). Leading zeros and French accents are preserved.
 
 Run:
-    python clean.py
+    uv run models/br_bd_diretorios_fr/code/clean.py
 Reads from  ~/Downloads/br_bd_diretorios_fr_data/input/
 Writes to   ~/Downloads/br_bd_diretorios_fr_data/output/<table>/data.parquet
 Override the data root with env var BR_BD_DIRETORIOS_FR_DATA.

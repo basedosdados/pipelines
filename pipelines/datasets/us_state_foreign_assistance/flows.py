@@ -182,7 +182,7 @@ us_state_foreign_assistance_flow.deploy_schedules = [
 # `memory_limit` and `memory_request` separately from `memory`, and a run that set
 # only `memory` was OOM-killed well below the value it asked for — so `memory`
 # alone is not reliably the container limit. Flows with a real memory floor
-# (br_me_cnpj, br_anatel_telefonia_movel, br_sfb_sicar) all set the explicit pair.
+# (br_anatel_telefonia_movel, br_sfb_sicar) all set the explicit pair.
 us_state_foreign_assistance_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

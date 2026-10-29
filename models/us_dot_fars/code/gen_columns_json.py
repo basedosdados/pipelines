@@ -3,7 +3,7 @@
 The backend metadata is generated from the same CSVs as the transform and the dbt
 models, so the three cannot describe different schemas.
 
-Run: uv run python models/us_dot_fars/code/gen_columns_json.py [out_dir]
+Run: uv run models/us_dot_fars/code/gen_columns_json.py [out_dir]
 """
 
 import json

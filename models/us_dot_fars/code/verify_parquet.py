@@ -6,7 +6,7 @@ It also reports which columns fall below the 0.05 non-null floor of
 not_null_proportion_multiple_columns, which is the list that has to be excluded
 from that test in schema.yml.
 
-Run: uv run python models/us_dot_fars/code/verify_parquet.py
+Run: uv run models/us_dot_fars/code/verify_parquet.py
 """
 
 import json

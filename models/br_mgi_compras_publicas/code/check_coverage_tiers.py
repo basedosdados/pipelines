@@ -1,10 +1,9 @@
 """Verify that the metadata registration cannot break the BD Pro paywall.
 
-    uv run python -m models.br_mgi_compras_publicas.code.check_coverage_tiers
+    uv run models/br_mgi_compras_publicas/code/check_coverage_tiers.py
 
-Run it as a module, not as a path: the sibling import is absolute, per
-AGENTS.md, so `models` has to resolve through the editable install rather than
-through the script's own directory.
+The sibling import is absolute, per AGENTS.md: `models` resolves through the
+project's editable install, not through the script's own directory.
 
 No backend is touched: `register_metadata`'s MCP calls are stubbed and the
 recorded calls are asserted against. The four properties checked are the four
@@ -152,13 +151,13 @@ def main() -> int:
     # 6. prune keeps one coverage PER TIER and one range per coverage.
     print("6. prune deduplicates within a tier, never across")
     recorder = Recorder()
-    original_fn, original_server = rm.fn, rm.server
+    original_fn, original_write = rm.fn, rm.bd_mcp_write
     rm.fn = recorder  # pyrefly: ignore [bad-assignment]
 
     class Stub:
         delete_record = staticmethod(lambda **_: None)
 
-    rm.server = Stub()  # pyrefly: ignore [bad-assignment]
+    rm.bd_mcp_write = Stub()  # pyrefly: ignore [bad-assignment]
     try:
         rm.prune(
             {"observation_levels": [], "updates": []},
@@ -175,7 +174,7 @@ def main() -> int:
         )
     finally:
         rm.fn = original_fn  # pyrefly: ignore [bad-assignment]
-        rm.server = original_server  # pyrefly: ignore [bad-assignment]
+        rm.bd_mcp_write = original_write  # pyrefly: ignore [bad-assignment]
     deleted = {c["record_id"] for c in recorder.of("delete_record")}
     check("duplicate free coverage deleted", "cov-free-dup" in deleted)
     check("pro coverage NOT deleted", "cov-pro" not in deleted)

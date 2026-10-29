@@ -1,6 +1,6 @@
 """Upload the cleaned parquet to the ``basedosdados-dev`` staging dataset.
 
-    uv run python models/fr_meteofrance/code/upload.py [table_slug ...]
+    uv run models/fr_meteofrance/code/upload.py [table_slug ...]
 
 ``synop`` is hive-partitioned by ``ano``; the others are a single parquet file.
 Every table is verified by row count after upload, and the run stops at the first

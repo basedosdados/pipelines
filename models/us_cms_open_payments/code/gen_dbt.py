@@ -3,7 +3,7 @@
 Reads profile.json so the null-proportion test can name the columns that are
 sparse by design rather than being weakened across the board.
 
-    uv run python gen_dbt.py
+    uv run gen_dbt.py
 """
 
 import json

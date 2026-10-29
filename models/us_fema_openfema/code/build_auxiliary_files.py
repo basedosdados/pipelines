@@ -11,7 +11,7 @@ Bundles are written to ``<output>/auxiliary_files/<table>/auxiliary_files.zip``
 for a separate upload step. Stdlib only, so it can run while another process is
 using the shared virtualenv.
 
-    python3 models/us_fema_openfema/code/build_auxiliary_files.py <output_dir>
+    uv run models/us_fema_openfema/code/build_auxiliary_files.py <output_dir>
 """
 
 from __future__ import annotations
@@ -206,7 +206,6 @@ def value_dictionary(table: str) -> bytes:
 def main(output_dir: Path) -> None:
     meta = json.loads((HERE / "source_metadata.json").read_text())
     catalog = {d["name"]: d for d in meta["datasets"]}
-    sys.path.insert(0, str(HERE.parents[2]))
     from pipelines.datasets.us_fema_openfema.spec import TABLES as SPEC
 
     root = output_dir / "auxiliary_files"

@@ -3,11 +3,11 @@ Main entry point for the br_tse_eleicoes pipeline.
 Equivalent of build.do.
 
 Usage:
-    python build.py                  # run full pipeline
-    python build.py candidates       # run a single step
-    python build.py normalize        # run normalization + partitioning
-    python build.py aggregate        # run aggregation only
-    python build.py --list           # list available steps
+    uv run models/br_tse_eleicoes/code/python/build.py                  # run full pipeline
+    uv run models/br_tse_eleicoes/code/python/build.py candidates       # run a single step
+    uv run models/br_tse_eleicoes/code/python/build.py normalize        # run normalization + partitioning
+    uv run models/br_tse_eleicoes/code/python/build.py aggregate        # run aggregation only
+    uv run models/br_tse_eleicoes/code/python/build.py --list           # list available steps
 """
 
 import sys

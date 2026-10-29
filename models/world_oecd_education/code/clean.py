@@ -24,8 +24,8 @@ Staging parquet is written **all-STRING**, cast through arrow rather than
 ``safe_cast`` will not turn back into NULL. The dbt model casts each column to
 its architecture type.
 
-Run: ``python clean.py``           all tables
-     ``python clean.py student``   one table
+Run: ``uv run models/world_oecd_education/code/clean.py``           all tables
+     ``uv run models/world_oecd_education/code/clean.py student``   one table
 """
 
 import csv

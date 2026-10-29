@@ -9,7 +9,7 @@ build_columns_json.py for the fixed columns (the many wide measure columns keep
 the source label as their description).
 
 Usage:
-    AU_APRA_ADI_DATA=~/Downloads/au_apra_adi_data uv run python models/au_apra_adi/code/build_architecture.py
+    AU_APRA_ADI_DATA=~/Downloads/au_apra_adi_data uv run models/au_apra_adi/code/build_architecture.py
 """
 
 import csv

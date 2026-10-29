@@ -11,7 +11,7 @@ delay cause" rather than "not collected". The measured coverage is written to
 ``coverage.json`` and used to fill ``temporal_coverage`` in the architecture.
 
     uv run --no-project --with pyarrow --with pandas --with requests \
-        python models/us_dot_bts_ontime/code/clean.py
+      models/us_dot_bts_ontime/code/clean.py
 """
 
 from __future__ import annotations
@@ -22,8 +22,6 @@ import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_dot_bts_ontime.utils import (
     build_airport,

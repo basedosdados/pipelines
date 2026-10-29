@@ -11,7 +11,7 @@ Scratch data lives outside the repo and outside Dropbox
 (``$US_TREASURY_DATA`` or ``~/Downloads/us_treasury_fiscaldata_data``).
 
 Usage:
-    uv run python models/us_treasury_fiscaldata/code/clean_data.py [--skip-download] [table ...]
+    uv run models/us_treasury_fiscaldata/code/clean_data.py [--skip-download] [table ...]
 """
 
 import logging

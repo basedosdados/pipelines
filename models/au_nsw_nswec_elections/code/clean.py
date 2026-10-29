@@ -10,7 +10,7 @@ through arrow rather than ``astype(str)``, which would render NULL as the litera
 
 Usage::
 
-    PYTHONPATH=. python models/au_nsw_nswec_elections/code/clean.py [table ...]
+    PYTHONPATH=. uv run models/au_nsw_nswec_elections/code/clean.py [table ...]
 """
 
 from __future__ import annotations

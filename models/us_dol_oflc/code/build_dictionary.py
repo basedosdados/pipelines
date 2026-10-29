@@ -12,7 +12,7 @@ is where the vocabulary drift is visible — for example the legacy H-1B eFile
 status codes that stop after FY2009.
 
 Usage:
-    uv run python models/us_dol_oflc/code/build_dictionary.py
+    uv run models/us_dol_oflc/code/build_dictionary.py
 """
 
 from __future__ import annotations

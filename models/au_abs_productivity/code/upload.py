@@ -1,7 +1,7 @@
 """Upload cleaned au_abs_productivity parquet tables to BigQuery staging.
 
 Usage:
-    uv run python models/au_abs_productivity/code/upload.py [--env dev|prod] [table ...]
+    uv run models/au_abs_productivity/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev. The output directory defaults to
 ``~/Library/Caches/au_abs_productivity_data/output`` (never the repo, and never

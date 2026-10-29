@@ -1,5 +1,5 @@
--- Dados de 2026 reprocessados em 2026-08-21 a partir dos arquivos do TSE
--- gerados em 19/08/2026, apos o encerramento do registro de candidaturas.
+-- 2026 recarregado em 2026-10-27: 2o turno (25/10/2026) e 1o turno a partir
+-- dos arquivos republicados pelo TSE em 25-26/10/2026.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -27,3 +27,4 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.vagas") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
+    -- Staging re-synced: id_municipio filled for Boa Esperança do Norte (TSE 73709).

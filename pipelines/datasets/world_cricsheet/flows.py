@@ -5,23 +5,70 @@ Cricsheet global cricket. The full-history bundle ``all_csv2.zip`` ships the
 entire history on every (near-daily) release, so each run is a **full replace**
 (``dump_mode="overwrite"``), not an incremental append — this sidesteps the
 duplicate-on-append problem the overlapping recent windows would otherwise cause.
-A single flow downloads once, rebuilds all four tables, and materializes them.
 Because each run re-ingests the whole 11.4M-row history, it is scheduled
 **weekly** (not daily).
 
-Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``world_cricsheet_flow``;
-the dev pool ignores the schedule, the prod pool activates it (paused until armed).
+Migrated to check_update -> extract_and_load, SEM ``build_and_promote``: ao
+contrário do shape padrão de um ``pipeline_factory``/``CheckThenExtractLoadPipeline``
+(ver ``pipelines/utils/stage_dispatch.py``), este dataset tem duas restrições que o
+building block genérico não resolve sozinho — o mesmo par de restrições de
+``br_bcb_ifdata``/``au_rba_statistical_tables``.
+
+1. Download compartilhado e não decomponível: ``clean_all()`` baixa o bundle
+   ``all_csv2.zip`` uma única vez e produz as quatro tabelas juntas (``people``,
+   ``match_players``, ``matches``, ``deliveries``) — não dá para baixar/limpar
+   uma tabela de cada vez sem rebaixar o bundle inteiro 4x. Por isso há só UM
+   ``check_update`` e UM ``extract_and_load`` para o dataset inteiro, não um
+   par por tabela.
+
+2. Ordem obrigatória no dbt: o teste ``relationships`` de
+   ``world_cricsheet__match_players.person_id`` referencia
+   ``ref('world_cricsheet__people')`` (ver ``models/world_cricsheet/schema.yml``)
+   — então as quatro tabelas precisam ser ``run`` antes de QUALQUER uma ser
+   ``test``ada (ver o docstring de ``_materialize`` abaixo). O
+   ``dispatch_build_and_promote`` genérico não serve aqui: ele dispara um
+   ``build_and_promote`` POR TABELA, cada um de forma assíncrona e independente,
+   o que reabriria exatamente essa race (teste de ``match_players`` rodando
+   antes de ``people`` existir). A solução é não usar
+   ``dispatch_build_and_promote``: ``extract_and_load`` chama ``_materialize``
+   diretamente, que sobe as 4 tabelas, roda ``dbt run`` de todas e só depois
+   ``dbt test`` de todas.
+
+``get_latest_update`` (tasks.py) também não tem sinal de frescor barato: a
+única data de referência mora dentro do próprio bundle, então o check_update
+baixa e reconstrói a fonte inteira só pra ler essa data — o mesmo trabalho que
+``extract_and_load`` repete, de forma independente, pra baixar de verdade (ver
+o banner em tasks.py). Custo duplicado aceito em troca de um único formato de
+pipeline em todo o repo (check_update -> extract_and_load, mesmo quando o
+check precisa baixar dado).
+
+``check_update``/``commit_source_update_task`` miram explicitamente
+``raw_source_url=BUNDLE_URL``: as quatro tabelas estão ligadas a três fontes
+cruas (bundle + people + names), e o cliente de poll/commit lança exceção numa
+fonte ambígua (2+) a menos que a URL exata seja informada. Por isso este flow
+chama ``poll_source_for_update_task``/``commit_source_update_task`` diretamente
+em vez de ``check_update_and_dispatch`` (que não expõe ``raw_source_url``).
+
+``register_table_materialization_task`` também continua chamada diretamente
+dentro de ``extract_and_load``, não via um ``build_and_promote`` genérico, pelo
+mesmo motivo do item 2.
+
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers both flows
+below; the dev pool ignores the check_update schedule, the prod pool activates
+it (deployed paused).
 """
 
 import shutil
 import tempfile
 
+from prefect.deployments import run_deployment
 from prefect.schedules import Cron
 
 from pipelines.datasets.world_cricsheet.constants import constants
 from pipelines.datasets.world_cricsheet.tasks import (
     clean_cricsheet,
     download_cricsheet,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -37,6 +84,7 @@ from pipelines.utils.metadata.tasks import (
     poll_source_for_update_task,
     register_table_materialization_task,
 )
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags, deployment_name
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
     run_dbt,
@@ -46,6 +94,14 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = constants.POLL_TABLE.value
 BUNDLE_URL = constants.BUNDLE_RAW_SOURCE_URL.value
+ALL_TABLES = constants.ALL_TABLES.value
+
+# Name of the `world_cricsheet_extract_and_load` flow below (`deploy_flows.py`
+# registers a deployment under the Python variable name of the `@flow`).
+# Passed explicitly because `deployment_name`'s default already matches
+# `str(Etapa.EXTRACT_AND_LOAD)` — kept explicit so it doesn't depend on that
+# coincidence.
+_EXTRACT_AND_LOAD_DEPLOYMENT = "world_cricsheet_extract_and_load"
 
 # Coverage spec per table.
 #
@@ -76,130 +132,160 @@ _COVERAGE = {
     ),
 }
 
+# The deliveries build streams 11.4M rows and the bundle extracts to several GB;
+# give the worker headroom. check_update does the same download + rebuild (see
+# tasks.get_latest_update), so it needs the same memory as extract_and_load.
+_JOB_VARIABLES = {"memory": "12Gi"}
 
-@flow(name="world_cricsheet", log_prints=True)
-def world_cricsheet_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Download the Cricsheet bundle, rebuild all four tables, materialize them.
 
-    Cricsheet ships the full history on every (near-daily) release, so each run
-    is a full replace (``dump_mode="overwrite"``) rather than an incremental
-    append. The source poll short-circuits the run when Cricsheet has not
-    published a newer match date, making a scheduled run a cheap no-op between
-    releases.
+def _materialize(target: str, bucket: str, paths: dict) -> None:
+    """Sobe o staging e materializa todas as tabelas, depois testa todas.
 
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage (rolling BD Pro window for deliveries/matches) and commit the
-            source update. Has no effect when ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new match date.
+    A separação entre `run` e `test` é obrigatória aqui, não estilística: o
+    teste `relationships` de `world_cricsheet__match_players.person_id`
+    referencia `ref('world_cricsheet__people')`. Testando tabela a tabela, o
+    teste de `match_players` rodaria antes de `people` existir e falharia com
+    `Not found: Table ... world_cricsheet.people`. Num ambiente já povoado isso
+    passa despercebido porque `people` sobrou da build anterior; só quebra num
+    ambiente limpo, então a ordem precisa ser estrutural.
+    """
+    for table in ALL_TABLES:
+        upload_to_gcs(
+            data_path=paths[table],
+            dataset_id=DATASET_ID,
+            table_id=table,
+            bucket_name=bucket,
+            dump_mode="overwrite",
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
+
+    for table in ALL_TABLES:
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
+
+
+@flow(name=f"{Etapa.CHECK_UPDATE}: {DATASET_ID}", log_prints=True)
+def world_cricsheet_check_update() -> bool:
+    """Baixa e reconstrói o bundle pra ler a data da partida mais recente.
+
+    Ver o banner de `tasks.get_latest_update` pra por que esse estágio já
+    baixa e reconstrói o bundle inteiro, em vez de um poll barato.
+
+    Returns:
+        `True` se havia partida nova (e `extract_and_load` foi disparado);
+        `False` caso contrário.
     """
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="cricsheet"
+        prefix="Check Update: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+    )
+
+    result = get_latest_update()
+    print(f"max start_date na fonte: {result.reference_date}")
+
+    has_new_data = poll_source_for_update_task(
+        dataset_id=DATASET_ID,
+        table_id=POLL_TABLE,
+        source_max_date=result.reference_date,
+        env="prod",
+        date_format="%Y-%m-%d",
+        raw_source_url=BUNDLE_URL,
+        compare_against=result.compare_against,
+    )
+    if not has_new_data:
+        return False
+
+    # Comita o Update da fonte já aqui, antes de disparar o extract_and_load:
+    # se o flow seguinte falhar no meio, o metadado da fonte ainda reflete que
+    # havia dado novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=DATASET_ID,
+        table_id=POLL_TABLE,
+        source_max_date=result.reference_date,
+        env="prod",
+        date_format="%Y-%m-%d",
+        raw_source_url=BUNDLE_URL,
+    )
+
+    run_deployment(
+        name=deployment_name(
+            DATASET_ID, Etapa.EXTRACT_AND_LOAD, _EXTRACT_AND_LOAD_DEPLOYMENT
+        ),
+        parameters={
+            "download_params": {
+                "reference_date": result.reference_date.isoformat()
+            }
+        },
+        timeout=0,
+        as_subflow=True,
+    )
+    return True
+
+
+world_cricsheet_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+# Cricsheet republishes near-daily as matches finish, but each run rebuilds the
+# whole 11.4M-row dataset, so a daily cadence would re-ingest everything every
+# day. Poll WEEKLY instead — Monday 06:00 BRT — which cuts the cost ~4x while
+# keeping freshness fine. The source-poll guard still no-ops between real
+# releases, and the full-replace dump means overlapping windows never duplicate.
+world_cricsheet_check_update.deploy_schedules = [
+    Cron("15 6 * * 1", timezone="America/Sao_Paulo")
+]
+world_cricsheet_check_update.job_variables = _JOB_VARIABLES
+
+
+@flow(name=f"{Etapa.EXTRACT_AND_LOAD}: {DATASET_ID}", log_prints=True)
+def world_cricsheet_extract_and_load(
+    download_params: dict,
+    materialize_to_prod: bool = True,
+    update_metadata: bool = True,
+) -> None:
+    """Baixa o bundle de novo, reconstrói as 4 tabelas e materializa em lote.
+
+    Args:
+        download_params: dict recebido do `check_update` via `run_deployment()`
+            — só carrega `reference_date` (a data que disparou esta run); não é
+            usada para decidir o que baixar (a fonte não tem parâmetro de
+            período, é sempre o bundle de história inteira), só para
+            rastreabilidade.
+        materialize_to_prod: segue além da materialização em dev para escrever
+            o bucket de prod e rodar o dbt com `target="prod"`. Use False para
+            exercitar só a metade dev — necessário para uma run de teste
+            segura, já que o padrão escreve produção. Disparar este flow
+            manualmente com `materialize_to_prod=False` substitui o antigo
+            parâmetro `force_run` do flow monolítico: como `extract_and_load`
+            agora é disparável direto (sem depender do poll de `check_update`
+            achar partida nova), rematerializar sob demanda não exige mais uma
+            flag separada.
+        update_metadata: registra cobertura das tabelas após a materialização
+            em prod. Sem efeito quando `materialize_to_prod` é False.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Extract and Load: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
 
     work_dir = tempfile.mkdtemp(prefix="world_cricsheet_")
     try:
         input_dir = download_cricsheet(work_dir=work_dir)
         result = clean_cricsheet(work_dir=work_dir, input_dir=input_dir)
-        max_start = result["max_start_date"]
 
-        # Skip the run when Cricsheet has not published a newer match date
-        # (unless forced). The polled table has 3 raw sources linked, so name the
-        # bundle explicitly by URL or the client raises on the ambiguity.
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_start,
-            env="prod",
-            date_format="%Y-%m-%d",
-            raw_source_url=BUNDLE_URL,
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
-            return
+        _materialize("dev", "basedosdados-dev", result)
 
-        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-        # novo publicado, mesmo que a tabela não tenha sido atualizada.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_start,
-            env="prod",
-            date_format="%Y-%m-%d",
-            raw_source_url=BUNDLE_URL,
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
-            # Dev: upload + build every table first, then test every table. The
-            # cross-table relationships test (match_players.person_id -> people)
-            # is pulled in when testing either table, so all four tables must be
-            # materialized before any test runs — a per-table run+test loop fails
-            # on a fresh target when the referenced table does not exist yet.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
             return
 
-        # Prod: same two-phase pattern — build all tables, then test all.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
+        _materialize("prod", "basedosdados", result)
 
         if update_metadata:
             for table, coverage in _COVERAGE.items():
@@ -211,21 +297,13 @@ def world_cricsheet_flow(
                     bq_project="basedosdados",
                 )
     finally:
-        # Covers both early returns (no new data, dev-only) and any exception.
-        # A k8s work pool gives each run a fresh pod, but a process/local worker
-        # reuses its filesystem — the extracted bundle is several GB.
+        # Covers both the dev-only early return and any exception. A k8s work
+        # pool gives each run a fresh pod, but a process/local worker reuses
+        # its filesystem — the extracted bundle is several GB.
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# Cricsheet republishes near-daily as matches finish, but each run is a full
-# overwrite rebuild of the whole 11.4M-row dataset (the ~114 MB bundle ships the
-# entire history), so a daily cadence would re-ingest everything every day. Run
-# WEEKLY instead — Monday 06:00 BRT — which cuts the cost ~4x while keeping
-# freshness fine. The source-poll guard still no-ops between real releases, and
-# the full-replace dump means overlapping windows never duplicate.
-world_cricsheet_flow.deploy_schedules = [
-    Cron("15 6 * * 1", timezone="America/Sao_Paulo")
-]
-# The deliveries build streams 11.4M rows and the bundle extracts to several GB;
-# give the worker headroom.
-world_cricsheet_flow.job_variables = {"memory": "12Gi"}
+world_cricsheet_extract_and_load.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+)
+world_cricsheet_extract_and_load.job_variables = _JOB_VARIABLES

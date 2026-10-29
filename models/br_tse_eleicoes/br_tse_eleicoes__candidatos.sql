@@ -12,7 +12,7 @@
         },
     )
 }}
-
+-- Testado em 2026-08-21 com os arquivos do TSE
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_eleicao as string) id_eleicao,
@@ -46,3 +46,4 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.candidatos") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
+    -- Staging re-synced: id_municipio filled for Boa Esperança do Norte (TSE 73709).

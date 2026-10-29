@@ -4,7 +4,7 @@ Thin CLI wrapper over ``pipelines.datasets.au_dcceew_greenhouse.utils.clean_all`
 (the canonical transform, shared with the recurring pipeline).
 
 Usage:
-    uv run python models/au_dcceew_greenhouse/code/clean.py
+    uv run models/au_dcceew_greenhouse/code/clean.py
 """
 
 import os

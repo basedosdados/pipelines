@@ -1,7 +1,7 @@
 """Generate the architecture CSVs and the codebook-derived reference tables.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/build_architecture.py
+    uv run models/world_oecd_piaac/code/build_architecture.py
 
 Writes:
     models/world_oecd_piaac/code/architecture/<table>.csv   schema definitions

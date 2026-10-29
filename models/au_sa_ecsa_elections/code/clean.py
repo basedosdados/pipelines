@@ -10,7 +10,7 @@ literal ``"nan"`` and defeat ``safe_cast``.
 
 Usage::
 
-    PYTHONPATH=. python models/au_sa_ecsa_elections/code/clean.py [table ...]
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/clean.py [table ...]
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Upload the cleaned parquet to BigQuery staging in basedosdados-dev.
 
-    uv run python upload.py                # every table
-    uv run python upload.py general        # one table
+    uv run upload.py                # every table
+    uv run upload.py general        # one table
 
 Each table's BigQuery row count is checked against the local parquet row count
 and the run stops at the first mismatch, so a partial upload never passes for

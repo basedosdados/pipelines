@@ -16,7 +16,7 @@ zeros survive and missing quantities stay null rather than becoming the literal
 
 Processed one year at a time from inside the zip to keep peak RAM ~ one annual file.
 
-Usage: python clean_trade_baci.py HS92 trade_hs92
+Usage: uv run models/world_cepii_baci/code/clean_trade_baci.py HS92 trade_hs92
 """
 
 import io

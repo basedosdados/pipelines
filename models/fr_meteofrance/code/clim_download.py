@@ -1,6 +1,6 @@
 """Download the Météo-France *Données climatologiques de base* archives.
 
-    uv run python models/fr_meteofrance/code/clim_download.py [--only quot|mens]
+    uv run models/fr_meteofrance/code/clim_download.py [--only quot|mens]
                                                               [--latest-only]
 
 A thin CLI. The transform itself lives in

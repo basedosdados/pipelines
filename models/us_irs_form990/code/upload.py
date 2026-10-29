@@ -13,7 +13,7 @@ table-approve action when the onboarding PR merges.
 Usage (from the repo root, ``PYTHONPATH=.``)::
 
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      python models/us_irs_form990/code/upload.py [table ...]
+      uv run models/us_irs_form990/code/upload.py [table ...]
 """
 
 from __future__ import annotations

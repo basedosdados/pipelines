@@ -1,0 +1,21 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+award_id,STRING,Identificador do financiamento (award) no OpenAlex,OpenAlex identifier of the award,Identificador de la subvención (award) en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: G1234567),Stored without the URL prefix (e.g. G1234567),"Almacenado sin el prefijo de URL (p. ej., G1234567)",id
+display_name,STRING,Título do projeto financiado,Title of the funded project,Título del proyecto financiado,,no,,,no,,,,display_name
+description,STRING,Descrição do projeto financiado,Description of the funded project,Descripción del proyecto financiado,,no,,,no,,,,description
+funder_id,STRING,Identificador do financiador no OpenAlex,OpenAlex identifier of the funder,Identificador del financiador en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: F4320332161),Stored without the URL prefix (e.g. F4320332161),"Almacenado sin el prefijo de URL (p. ej., F4320332161)",funder.id
+funder_award_id,STRING,Código do financiamento atribuído pelo financiador,Award code assigned by the funder,Código de la subvención asignado por el financiador,,no,,,no,,,,funder_award_id
+funding_type,STRING,"Tipo de financiamento (ex.: grant, fellowship)","Type of funding (e.g. grant, fellowship)","Tipo de financiamiento (p. ej., grant, fellowship)",,no,,,no,,,,funding_type
+funder_scheme,STRING,Programa ou linha de financiamento,Funding programme or scheme,Programa o línea de financiamiento,,no,,,no,,,,funder_scheme
+amount,FLOAT64,"Valor do financiamento, na moeda indicada em currency","Award amount, in the currency given by currency","Monto de la subvención, en la moneda indicada en currency",,no,,currency_unit,no,,,,amount
+currency,STRING,Moeda do valor (código ISO 4217),Currency of the amount (ISO 4217 code),Moneda del monto (código ISO 4217),,no,,,no,,,,currency
+start_date,DATE,Data de início do financiamento,Start date of the award,Fecha de inicio de la subvención,,no,,,no,,,,start_date
+end_date,DATE,Data de término do financiamento,End date of the award,Fecha de término de la subvención,,no,,,no,,,,end_date
+start_year,INT64,Ano de início do financiamento,Start year of the award,Año de inicio de la subvención,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,,,start_year
+end_year,INT64,Ano de término do financiamento,End year of the award,Año de término de la subvención,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,,,end_year
+primary_topic_id,STRING,Tópico principal do projeto,Primary topic of the project,Tópico principal del proyecto,,no,,,no,Armazenado sem o prefixo de URL (ex.: T10017),Stored without the URL prefix (e.g. T10017),"Almacenado sin el prefijo de URL (p. ej., T10017)",primary_topic.id
+funded_outputs_count,INT64,Número de trabalhos ligados ao financiamento,Number of works linked to the award,Número de trabajos vinculados a la subvención,,no,,work,no,,,,funded_outputs_count
+doi,STRING,DOI do financiamento,DOI of the award,DOI de la subvención,,no,,,no,,,,doi
+landing_page_url,STRING,URL da página do financiamento,URL of the award's landing page,URL de la página de la subvención,,no,,,no,,,,landing_page_url
+provenance,STRING,Fonte de onde o OpenAlex obteve o registro,Source OpenAlex obtained the record from,Fuente de la que OpenAlex obtuvo el registro,,no,,,no,,,,provenance
+created_date,DATE,Data de criação do registro no OpenAlex,Date the record was created in OpenAlex,Fecha de creación del registro en OpenAlex,,no,,,no,,,,created_date
+updated_date,DATE,Data da última alteração do registro no OpenAlex,Date the record was last changed in OpenAlex,Fecha de la última modificación del registro en OpenAlex,,no,,,no,,,,updated_date

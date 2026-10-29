@@ -1,172 +1,312 @@
-"""
-Flows for br_bndes_operacoes_contratadas — Prefect 3.
-
-Wrapper @flow do crawler: expoe os parametros de run e o cron. A logica de
-orquestracao (poll deferido) vive em pipelines/crawler/bndes/flows.py.
-"""
+"""Flows de br_bndes_operacoes_contratadas — Prefect 3, modelo em estágios."""
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.bndes.flows import (
-    _run_operacoes,
-    _run_operacoes_administracao_publica,
-    _run_operacoes_exportacao_bens,
-    _run_operacoes_exportacao_servicos,
+from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
+    constants_administracao_publica,
+    constants_exportacao_bens,
+    constants_exportacao_servicos,
+    constants_indiretas_automaticas,
+    constants_nao_automaticas,
+    constants_pre_embarque,
+)
+from pipelines.datasets.br_bndes_operacoes_contratadas.tasks import (
+    administracao_publica_extract_load_data,
+    administracao_publica_get_latest_update,
+    exportacao_bens_extract_load_data,
+    exportacao_bens_get_latest_update,
+    exportacao_servicos_extract_load_data,
+    exportacao_servicos_get_latest_update,
+    indiretas_automaticas_extract_load_data,
+    indiretas_automaticas_get_latest_update,
+    nao_automaticas_extract_load_data,
+    nao_automaticas_get_latest_update,
+    pre_embarque_extract_load_data,
+    pre_embarque_get_latest_update,
 )
 from pipelines.utils.flow import flow
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
+)
+
+_indiretas_automaticas_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=constants_indiretas_automaticas.DATASET_ID.value,
+    table_id=constants_indiretas_automaticas.TABLE_ID.value,
+    get_latest_update=indiretas_automaticas_get_latest_update,
+    extract_load_data=indiretas_automaticas_extract_load_data,
+)
 
 
 @flow(
-    name="br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas",
+    name=_indiretas_automaticas_pipeline.check_update_flow_name,
     log_prints=True,
-    description=(
-        "Dump da tabela operacoes_indiretas_automaticas "
-        "do dataset br_bndes_operacoes_contratadas."
-    ),
 )
-def br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas(
-    dataset_id: str = "br_bndes_operacoes_contratadas",
-    table_id: str = "operacoes_indiretas_automaticas",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    _run_operacoes(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        materialize_after_dump=materialize_after_dump,
-        update_metadata=update_metadata,
-        target=target,
-        force_run=force_run,
-    )
+def br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_check_update() -> (
+    None
+):
+    _indiretas_automaticas_pipeline.run_check_update()
 
 
-br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas.deploy_schedules = [
-    Cron("0 6 * * 1", timezone="America/Sao_Paulo")
+br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_check_update.deploy_tags = deploy_tags(
+    constants_indiretas_automaticas.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_indiretas_automaticas.TABLE_ID.value,
+)
+br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_check_update.deploy_schedules = [
+    Cron("5 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
 @flow(
-    name="br_bndes_operacoes_contratadas__operacoes_nao_automaticas",
+    name=_indiretas_automaticas_pipeline.extract_and_load_flow_name,
     log_prints=True,
-    description=(
-        "Dump da tabela operacoes_nao_automaticas "
-        "do dataset br_bndes_operacoes_contratadas."
-    ),
 )
-def br_bndes_operacoes_contratadas__operacoes_nao_automaticas(
-    dataset_id: str = "br_bndes_operacoes_contratadas",
-    table_id: str = "operacoes_nao_automaticas",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
+def br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_download(
+    download_params: dict,
 ) -> None:
-    _run_operacoes(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        materialize_after_dump=materialize_after_dump,
-        update_metadata=update_metadata,
-        target=target,
-        force_run=force_run,
-    )
+    _indiretas_automaticas_pipeline.run_extract_and_load(download_params)
 
 
-br_bndes_operacoes_contratadas__operacoes_nao_automaticas.deploy_schedules = [
-    Cron("0 6 * * 1", timezone="America/Sao_Paulo")
+br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_download.deploy_tags = deploy_tags(
+    constants_indiretas_automaticas.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_indiretas_automaticas.TABLE_ID.value,
+)
+_indiretas_automaticas_pipeline.extract_load_deployment = br_bndes_operacoes_contratadas_operacoes_indiretas_automaticas_download.fn.__name__
+
+
+_nao_automaticas_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=constants_nao_automaticas.DATASET_ID.value,
+    table_id=constants_nao_automaticas.TABLE_ID.value,
+    get_latest_update=nao_automaticas_get_latest_update,
+    extract_load_data=nao_automaticas_extract_load_data,
+)
+
+
+@flow(
+    name=_nao_automaticas_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_nao_automaticas_check_update() -> (
+    None
+):
+    _nao_automaticas_pipeline.run_check_update()
+
+
+br_bndes_operacoes_contratadas_operacoes_nao_automaticas_check_update.deploy_tags = deploy_tags(
+    constants_nao_automaticas.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_nao_automaticas.TABLE_ID.value,
+)
+br_bndes_operacoes_contratadas_operacoes_nao_automaticas_check_update.deploy_schedules = [
+    Cron("10 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
 @flow(
-    name="br_bndes_operacoes_contratadas__operacoes_administracao_publica",
+    name=_nao_automaticas_pipeline.extract_and_load_flow_name,
     log_prints=True,
-    description=(
-        "Dump da tabela operacoes_administracao_publica "
-        "do dataset br_bndes_operacoes_contratadas."
-    ),
 )
-def br_bndes_operacoes_contratadas__operacoes_administracao_publica(
-    dataset_id: str = "br_bndes_operacoes_contratadas",
-    table_id: str = "operacoes_administracao_publica",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
+def br_bndes_operacoes_contratadas_operacoes_nao_automaticas_download(
+    download_params: dict,
 ) -> None:
-    _run_operacoes_administracao_publica(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        materialize_after_dump=materialize_after_dump,
-        update_metadata=update_metadata,
-        target=target,
-        force_run=force_run,
-    )
+    _nao_automaticas_pipeline.run_extract_and_load(download_params)
 
 
-# cron semanal (segunda 06h BRT), igual a outra tabela; a fonte atualiza mensal e o poll
-# deferido no-opa quando nao ha novidade. Ajuste se quiser outra janela.
-br_bndes_operacoes_contratadas__operacoes_administracao_publica.deploy_schedules = [
-    Cron("0 6 * * 1", timezone="America/Sao_Paulo")
+br_bndes_operacoes_contratadas_operacoes_nao_automaticas_download.deploy_tags = deploy_tags(
+    constants_nao_automaticas.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_nao_automaticas.TABLE_ID.value,
+)
+_nao_automaticas_pipeline.extract_load_deployment = br_bndes_operacoes_contratadas_operacoes_nao_automaticas_download.fn.__name__
+
+
+_administracao_publica_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=constants_administracao_publica.DATASET_ID.value,
+    table_id=constants_administracao_publica.TABLE_ID.value,
+    get_latest_update=administracao_publica_get_latest_update,
+    extract_load_data=administracao_publica_extract_load_data,
+)
+
+
+@flow(
+    name=_administracao_publica_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_administracao_publica_check_update() -> (
+    None
+):
+    _administracao_publica_pipeline.run_check_update()
+
+
+br_bndes_operacoes_contratadas_operacoes_administracao_publica_check_update.deploy_tags = deploy_tags(
+    constants_administracao_publica.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_administracao_publica.TABLE_ID.value,
+)
+br_bndes_operacoes_contratadas_operacoes_administracao_publica_check_update.deploy_schedules = [
+    Cron("20 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
 @flow(
-    name="br_bndes_operacoes_contratadas__operacoes_exportacao_bens",
+    name=_administracao_publica_pipeline.extract_and_load_flow_name,
     log_prints=True,
-    description=(
-        "Dump da tabela operacoes_exportacao_bens "
-        "do dataset br_bndes_operacoes_contratadas."
-    ),
 )
-def br_bndes_operacoes_contratadas__operacoes_exportacao_bens(
-    dataset_id: str = "br_bndes_operacoes_contratadas",
-    table_id: str = "operacoes_exportacao_bens",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
+def br_bndes_operacoes_contratadas_operacoes_administracao_publica_download(
+    download_params: dict,
 ) -> None:
-    _run_operacoes_exportacao_bens(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        materialize_after_dump=materialize_after_dump,
-        update_metadata=update_metadata,
-        force_run=force_run,
-    )
+    _administracao_publica_pipeline.run_extract_and_load(download_params)
 
 
-br_bndes_operacoes_contratadas__operacoes_exportacao_bens.deploy_schedules = [
-    Cron("0 6 * * 1", timezone="America/Sao_Paulo")
+br_bndes_operacoes_contratadas_operacoes_administracao_publica_download.deploy_tags = deploy_tags(
+    constants_administracao_publica.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_administracao_publica.TABLE_ID.value,
+)
+_administracao_publica_pipeline.extract_load_deployment = br_bndes_operacoes_contratadas_operacoes_administracao_publica_download.fn.__name__
+
+
+_exportacao_bens_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=constants_exportacao_bens.DATASET_ID.value,
+    table_id=constants_exportacao_bens.TABLE_ID.value,
+    get_latest_update=exportacao_bens_get_latest_update,
+    extract_load_data=exportacao_bens_extract_load_data,
+)
+
+
+@flow(
+    name=_exportacao_bens_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_exportacao_bens_check_update() -> (
+    None
+):
+    _exportacao_bens_pipeline.run_check_update()
+
+
+br_bndes_operacoes_contratadas_operacoes_exportacao_bens_check_update.deploy_tags = deploy_tags(
+    constants_exportacao_bens.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_exportacao_bens.TABLE_ID.value,
+)
+br_bndes_operacoes_contratadas_operacoes_exportacao_bens_check_update.deploy_schedules = [
+    Cron("25 6 * * *", timezone="America/Sao_Paulo")
 ]
 
 
 @flow(
-    name="br_bndes_operacoes_contratadas__operacoes_exportacao_servicos",
+    name=_exportacao_bens_pipeline.extract_and_load_flow_name,
     log_prints=True,
-    description=(
-        "Dump da tabela operacoes_exportacao_servicos "
-        "do dataset br_bndes_operacoes_contratadas."
-    ),
 )
-def br_bndes_operacoes_contratadas__operacoes_exportacao_servicos(
-    dataset_id: str = "br_bndes_operacoes_contratadas",
-    table_id: str = "operacoes_exportacao_servicos",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
+def br_bndes_operacoes_contratadas_operacoes_exportacao_bens_download(
+    download_params: dict,
 ) -> None:
-    _run_operacoes_exportacao_servicos(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        materialize_after_dump=materialize_after_dump,
-        update_metadata=update_metadata,
-        target=target,
-        force_run=force_run,
-    )
+    _exportacao_bens_pipeline.run_extract_and_load(download_params)
 
 
+br_bndes_operacoes_contratadas_operacoes_exportacao_bens_download.deploy_tags = deploy_tags(
+    constants_exportacao_bens.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_exportacao_bens.TABLE_ID.value,
+)
+_exportacao_bens_pipeline.extract_load_deployment = br_bndes_operacoes_contratadas_operacoes_exportacao_bens_download.fn.__name__
+
+
+_exportacao_servicos_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=constants_exportacao_servicos.DATASET_ID.value,
+    table_id=constants_exportacao_servicos.TABLE_ID.value,
+    get_latest_update=exportacao_servicos_get_latest_update,
+    extract_load_data=exportacao_servicos_extract_load_data,
+)
+
+
+@flow(
+    name=_exportacao_servicos_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_check_update() -> (
+    None
+):
+    _exportacao_servicos_pipeline.run_check_update()
+
+
+br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_check_update.deploy_tags = deploy_tags(
+    constants_exportacao_servicos.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_exportacao_servicos.TABLE_ID.value,
+)
 # Sem cron, ao contrário das irmãs: a série da fonte termina em 2015-04-28 e
 # não recebe operação nova desde então. A tabela entra como carga única, por
 # disparo manual. Se a fonte voltar a publicar, basta acrescentar
 # deploy_schedules aqui — o resto do flow já está pronto para o poll.
+
+
+@flow(
+    name=_exportacao_servicos_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_download(
+    download_params: dict,
+) -> None:
+    _exportacao_servicos_pipeline.run_extract_and_load(download_params)
+
+
+br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_download.deploy_tags = deploy_tags(
+    constants_exportacao_servicos.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_exportacao_servicos.TABLE_ID.value,
+)
+_exportacao_servicos_pipeline.extract_load_deployment = br_bndes_operacoes_contratadas_operacoes_exportacao_servicos_download.fn.__name__
+
+
+_pre_embarque_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=constants_pre_embarque.DATASET_ID.value,
+    table_id=constants_pre_embarque.TABLE_ID.value,
+    get_latest_update=pre_embarque_get_latest_update,
+    extract_load_data=pre_embarque_extract_load_data,
+)
+
+
+@flow(
+    name=_pre_embarque_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_pre_embarque_check_update() -> (
+    None
+):
+    _pre_embarque_pipeline.run_check_update()
+
+
+br_bndes_operacoes_contratadas_operacoes_pre_embarque_check_update.deploy_tags = deploy_tags(
+    constants_pre_embarque.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_pre_embarque.TABLE_ID.value,
+)
+br_bndes_operacoes_contratadas_operacoes_pre_embarque_check_update.deploy_schedules = [
+    Cron("25 2 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_pre_embarque_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_bndes_operacoes_contratadas_operacoes_pre_embarque_download(
+    download_params: dict,
+) -> None:
+    _pre_embarque_pipeline.run_extract_and_load(download_params)
+
+
+br_bndes_operacoes_contratadas_operacoes_pre_embarque_download.deploy_tags = (
+    deploy_tags(
+        constants_pre_embarque.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_pre_embarque.TABLE_ID.value,
+    )
+)
+_pre_embarque_pipeline.extract_load_deployment = (
+    br_bndes_operacoes_contratadas_operacoes_pre_embarque_download.fn.__name__
+)

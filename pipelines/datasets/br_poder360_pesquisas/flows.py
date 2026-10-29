@@ -4,7 +4,7 @@ Flow br_poder360_pesquisas — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.poder360_pesquisas.tasks import crawler
+from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,

@@ -5,7 +5,7 @@ from architecture_spec.py.
 Partition ranges and the not_null_proportion ignore list are derived from the
 actual parquet, so run this AFTER the extraction and they will be exact.
 
-  uv run python models/br_senado_dados_abertos_administrativos/code/gen_dbt.py
+  uv run models/br_senado_dados_abertos_administrativos/code/gen_dbt.py
 """
 
 from __future__ import annotations

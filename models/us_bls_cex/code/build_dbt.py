@@ -3,7 +3,7 @@
 The microdata tables run to 1,269 columns, so the SQL and the schema are
 generated rather than hand-written. Re-run after any architecture change:
 
-    python models/us_bls_cex/code/build_dbt.py
+    uv run models/us_bls_cex/code/build_dbt.py
 
 Sparse columns are exempted from ``not_null_proportion_multiple_columns`` by
 measuring the cleaned output (``--output``, default from ``pumd_files``) for the
@@ -12,12 +12,9 @@ most recent year, since that is the year the test is scoped to.
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
 import pyarrow.dataset as ds
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import OUTPUT_DIR
 

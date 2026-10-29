@@ -5,7 +5,7 @@ The Drive sheets stay private, so the backend cannot fetch them over
 making org Drive content link-readable just to register metadata, and produces
 exactly the same records.
 
-    python gen_columns_json.py <table>
+    uv run models/us_stanford_dime/code/gen_columns_json.py <table>
 """
 
 from __future__ import annotations

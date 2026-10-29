@@ -7,7 +7,7 @@ the transform and the dbt models). English descriptions live here; Portuguese an
 Spanish translations are attached by build_columns_json.py.
 
 Usage:
-    uv run python models/au_apra_superannuation/code/build_architecture.py
+    uv run models/au_apra_superannuation/code/build_architecture.py
 """
 
 import csv

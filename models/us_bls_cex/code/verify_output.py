@@ -7,21 +7,17 @@ zero-padding changes across years (``1`` vs ``01``); plus three spot checks
 against published BLS numbers.
 
 Usage:
-    python models/us_bls_cex/code/verify_output.py [--tables ...]
+    uv run models/us_bls_cex/code/verify_output.py [--tables ...]
 """
 
 import argparse
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as pads
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import OUTPUT_DIR
 from pipelines.datasets.us_bls_cex.utils import read_arch

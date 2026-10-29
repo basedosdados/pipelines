@@ -1,8 +1,8 @@
 """Download, clean and write every by_year file for world_noaa_ghcn.
 
-    python models/world_noaa_ghcn/code/backfill.py                # 1763-2026
-    python models/world_noaa_ghcn/code/backfill.py --years 2020,2021
-    python models/world_noaa_ghcn/code/backfill.py --from 1990 --to 2000
+    uv run models/world_noaa_ghcn/code/backfill.py                # 1763-2026
+    uv run models/world_noaa_ghcn/code/backfill.py --years 2020,2021
+    uv run models/world_noaa_ghcn/code/backfill.py --from 1990 --to 2000
 
 Disk discipline: years are processed in small batches — downloaded in parallel,
 cleaned serially, and **each .csv.gz is deleted as soon as its parquet is

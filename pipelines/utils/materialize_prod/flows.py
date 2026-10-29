@@ -124,6 +124,8 @@ def transfer_files_to_prod_flow(
     env: str = "prod",
     bq_project: str = "basedosdados",
     prefect_mode: str = "prod",
+    dump_mode: str = "append",
+    source_format: str = "csv",
 ) -> None:
     """Baixa do staging de dev, sobe no staging de prod, materializa,
     testa e registra a materialização de uma tabela.
@@ -159,6 +161,15 @@ def transfer_files_to_prod_flow(
         env: backend de destino.
         bq_project: projeto BigQuery onde a tabela vive.
         prefect_mode: resolve o projeto de billing.
+        dump_mode: modo de escrita no BigQuery pro upload em prod — deve
+            bater com o `dump_mode` usado no upload pro staging de dev
+            (`ExtractAndLoad.dump_mode`). Default `"append"` cobre
+            invocação manual sem esse valor.
+        source_format: formato do arquivo em staging (`"csv"` ou
+            `"parquet"`) — deve bater com `ExtractAndLoad.source_format`.
+            Default `"csv"` cobre invocação manual sem esse valor; um
+            dataset em `"parquet"` que não passar isso corretamente falha
+            com `FileNotFoundError` (procuraria `.csv`).
     """
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
@@ -186,7 +197,8 @@ def transfer_files_to_prod_flow(
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados",
-        dump_mode="append",
+        dump_mode=dump_mode,
+        source_format=source_format,
     )
 
     run_dbt(

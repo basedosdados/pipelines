@@ -1,8 +1,8 @@
 """Move the MG coverage of the six pre-existing MiDES tables to 2014-2026, and
 attach the dataset tags the new tables made relevant.
 
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/update_mg_coverage.py --dry-run
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/update_mg_coverage.py
+    uv run models/world_wb_mides/code/update_mg_coverage.py --dry-run
+    uv run models/world_wb_mides/code/update_mg_coverage.py
 
 Coverage on MiDES is PER AREA: `empenho` carries one Coverage for `br_mg`,
 another for `br_ce`, and so on, each with its own DateTimeRange. Every MG range
@@ -22,18 +22,11 @@ table with two ranges then breaks `create_update_table` outright.
 from __future__ import annotations
 
 import argparse
-import os
-import sys
 
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-# pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
-import server
-
-ENV = "staging"
+ENV = "staging"  # set from `--env` in main()
 AREA = "br_mg"
 END_YEAR = 2026
 DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`
@@ -60,18 +53,18 @@ DATASET_QUERY = """query($id: ID!) {
 
 
 def coverages_of(slug: str) -> list[dict] | None:
-    edges = server._gql(
+    edges = bd_mcp_metadata._gql(
         COVERAGE_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
     )["allTable"]["edges"]
     if not edges:
         return None
     return [
         {
-            "id": server._strip_id(e["node"]["id"]),
+            "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
             "area_slug": e["node"]["area"]["slug"],
             "datetime_ranges": [
                 {
-                    "id": server._strip_id(r["node"]["id"]),
+                    "id": bd_mcp_metadata._strip_id(r["node"]["id"]),
                     "start_year": r["node"]["startYear"],
                     "end_year": r["node"]["endYear"],
                     "interval": r["node"]["interval"],
@@ -84,11 +77,11 @@ def coverages_of(slug: str) -> list[dict] | None:
 
 
 def dataset_fields() -> dict:
-    node = server._gql(DATASET_QUERY, {"id": DATASET_ID}, env=ENV)[
+    node = bd_mcp_metadata._gql(DATASET_QUERY, {"id": DATASET_ID}, env=ENV)[
         "allDataset"
     ]["edges"][0]["node"]
     return {
-        "id": server._strip_id(node["id"]),
+        "id": bd_mcp_metadata._strip_id(node["id"]),
         "name_pt": node["namePt"],
         "name_en": node["nameEn"],
         "name_es": node["nameEs"],
@@ -96,16 +89,16 @@ def dataset_fields() -> dict:
         "description_en": node["descriptionEn"],
         "description_es": node["descriptionEs"],
         "organizations": [
-            {"id": server._strip_id(e["node"]["id"])}
+            {"id": bd_mcp_metadata._strip_id(e["node"]["id"])}
             for e in node["organizations"]["edges"]
         ],
         "themes": [
-            {"id": server._strip_id(e["node"]["id"])}
+            {"id": bd_mcp_metadata._strip_id(e["node"]["id"])}
             for e in node["themes"]["edges"]
         ],
         "tags": [
             {
-                "id": server._strip_id(e["node"]["id"]),
+                "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
                 "slug": e["node"]["slug"],
             }
             for e in node["tags"]["edges"]
@@ -125,23 +118,37 @@ EXISTING = [
 ]
 
 # Content tags the new tables make relevant. The dataset already carries
-# compra / despesa / gasto / orcamento, which say nothing about contracts or
-# procurement detail. Geography, theme and organization are deliberately NOT
+# budget / expenditure / purchase / spending, which say nothing about contracts
+# or procurement detail. Geography, theme and organization are deliberately NOT
 # tagged -- they are separate metadata fields.
-ADD_TAGS = {
-    "contrato": "0831b835-2079-44f3-b5e8-3f598435bbe0",
-    "licitacao": "4b76d0d7-7a4b-4a73-a2c5-33a08853dc77",
-    "financas_publicas": "5dce4b1d-131b-452a-a419-bdd587a8c272",
-    "transparencia": "8b187427-519e-48cb-b0a6-5380086edf3b",
-}
+#
+# All four already exist in the vocabulary; nothing here creates a tag. Slugs,
+# not ids: ids differ per backend, and the earlier Portuguese labels never
+# matched the real English slugs, so the "already attached?" test below could
+# never be true and every run reported these as new.
+ADD_TAG_SLUGS = (
+    "contract",
+    "public-finance",
+    "public_procurement",
+    "transparency",
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--env",
+        default="staging",
+        choices=["dev", "staging", "prod"],
+        help="backend to write to (default: staging)",
+    )
     args = parser.parse_args()
 
-    print("MG coverage:")
+    global ENV
+    ENV = args.env
+
+    print(f"MG coverage on {ENV}:")
     for slug in EXISTING:
         covs = coverages_of(slug)
         if covs is None:
@@ -165,7 +172,7 @@ def main() -> None:
                 f"  {slug:<26} {start}-{current.get('end_year')} -> {start}-{END_YEAR}"
             )
             continue
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=mg["id"],
             start_year=start,
             end_year=END_YEAR,
@@ -179,15 +186,23 @@ def main() -> None:
 
     dataset = dataset_fields()
     have = {t["slug"] for t in dataset.get("tags", [])}
-    missing = {k: v for k, v in ADD_TAGS.items() if k not in have}
+    wanted = sorted(set(ADD_TAG_SLUGS) - have)
     print(f"\ntags: dataset has {sorted(have)}")
-    if not missing:
+    if not wanted:
         print("  nothing to add")
         return
-    print(f"  adding {sorted(missing)}")
+    print(f"  adding {wanted}")
     if args.dry_run:
         return
-    server.create_update_dataset(
+    # Resolved per backend rather than hardcoded, and asserted: a slug that does
+    # not resolve would otherwise drop out silently.
+    missing = {}
+    for slug in wanted:
+        found = bd_mcp_metadata.lookup_id(category="tag", slug=slug, env=ENV)
+        if not found.get("id"):
+            raise SystemExit(f"tag {slug!r} does not exist on {ENV}")
+        missing[slug] = found["id"]
+    bd_mcp_write.create_update_dataset(
         id=dataset["id"],
         slug="mides",
         name_pt=dataset["name_pt"],

@@ -10,13 +10,15 @@ Tabelas:
 | `operacoes_administracao_publica` | operação com ente da Administração Pública Direta | ✅ |
 | `operacoes_exportacao_bens` | subcrédito de operação de exportação pós-embarque de bens | ✅ |
 | `operacoes_exportacao_servicos` | subcrédito de operação de exportação pós-embarque de serviços de engenharia | ⏸️ (flow sem cron — carga única) |
+| `operacoes_pre_embarque` | operação de financiamento à produção para exportação (a fonte não define o que cada linha representa) | ✅ |
 | `operacoes_nao_automaticas` | subcrédito (forma direta e indireta não automática) | ✅ |
 
 ## Estrutura (compartilhada)
 
-- **Crawler (Prefect 3):** `pipelines/crawler/bndes/{constants,utils,tasks,flows}.py`. Cada tabela com pipeline tem sua própria config (`constants` / `constants_administracao_publica`), seu transform + `clean` e seu `_run` em `flows.py`. Funções genéricas (`download_csv`, `get_source_last_modified`) são compartilhadas entre as tabelas.
-- **Wrapper `@flow` + schedule por tabela:** `pipelines/datasets/br_bndes_operacoes_contratadas/flows.py` (cron **semanal**, segunda 06h BRT).
-- **Poll deferido** (`poll_source_for_update` + `commit_source_update`): grava o Poll ao detectar novidade, mas só comita o Update **depois** de materializar — evita adiantar o Update e travar runs futuras se o flow falhar no meio.
+- **Código (Prefect 3):** `pipelines/datasets/br_bndes_operacoes_contratadas/{constants,utils,tasks,flows}.py`. Cada tabela tem sua classe em `constants.py` (`constants_<tabela>`), seu transform e `clean` em `utils.py` e suas tasks em `tasks.py`. A `operacoes_indiretas_automaticas` e a `operacoes_nao_automaticas` dividem as funções genéricas, que acham a classe da tabela por `TABLES_CONSTANTS`. `get_source_last_modified` serve às seis tabelas e `download_csv` às cinco antigas; a `operacoes_pre_embarque` baixa pelo próprio `download_table`. O download é conferido pelo MD5 que o CKAN publica (`result.hash`) em todas, menos na `operacoes_exportacao_servicos`, que baixa pelo `/datastore/dump` e é conferida pela contagem de linhas.
+- **Dois flows por tabela** em `flows.py`, no modelo em estágios: `check_update`, com o cron, e `extract_and_load`, montados por `CheckThenExtractLoadPipeline` com as funções `<tabela>_get_latest_update` e `<tabela>_extract_load_data` de `tasks.py`. O dbt, a promoção para prod e o registro dos metadados ficam no `build_and_promote` compartilhado. Crons **diários** (BRT): indiretas `5 6 * * *`, não automáticas `10 6 * * *`, administração pública `20 6 * * *`, bens `25 6 * * *` e pré-embarque `25 2 * * *`; a `operacoes_exportacao_servicos` não tem cron.
+- **Poll deferido** (`poll_source_for_update` + `commit_source_update`): o poll grava o Poll e detecta novidade; o commit grava o Update da fonte logo em seguida, **antes** de baixar e materializar. O poll compara com o `Table.Update` e nunca lê o Update da fonte, então adiantá-lo não trava runs futuras, e o metadado da fonte mostra que havia dado novo publicado mesmo que o flow falhe no meio.
+- **Cobertura temporal pela data da operação** (`AllFree` + `DateOnly` + `DateFormat.YEAR_MD`): `data_contratacao` na `operacoes_indiretas_automaticas`, na `operacoes_nao_automaticas`, na `operacoes_exportacao_bens` e na `operacoes_pre_embarque`; `data_nivel_atual` na `operacoes_administracao_publica`, a mesma coluna de onde sai o `ano`. Nenhuma tabela tem coluna de mês, que o `YearMonth` exigiria, então a faixa sai com dia (por exemplo, 2002-01-08 a 2026-08-31 na `operacoes_pre_embarque`). O flow só atualiza o fim da faixa; o início é registrado à mão no backend. A `operacoes_exportacao_servicos`, carga única, fica por ano.
 - **Staging 100% STRING:** o `clean` grava Parquet todo string; a tipagem fica a cargo do `safe_cast` no dbt. (Parquet tipado quebra o upload: `... does not match target STRING_PIECE`.) Partição por `ano`.
 - **DBT:** `models/br_bndes_operacoes_contratadas/` (um `.sql` por tabela + `schema.yml` único).
 - **Observation level = `transaction`** (grão de operação/subcrédito; a BD não tem entidade "operação").
@@ -25,7 +27,7 @@ Tabelas:
 
 ### O que é
 
-Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada** (não há identificador único de operação na fonte). Cobertura nacional, **2002-01 a 2026-05**, ~2,36 milhões de linhas. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do cliente é sempre CNPJ).
+Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada** (não há identificador único de operação na fonte). Cobertura nacional, **a partir de 2002-01**. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do cliente é sempre CNPJ).
 
 ### Fonte
 
@@ -42,19 +44,19 @@ CSV consolidado do Portal de Dados Abertos do BNDES (CKAN), recurso `612faa0b-b6
 
 ### Limitações conhecidas
 
-- **Precisão do poll (data, não datetime).** O `last_modified` do CKAN (com microssegundos) é truncado para **data** no poll (`SOURCE_DATE_FORMAT = "%Y-%m-%d"` em `flows.py`). Se a fonte publicar **duas vezes no mesmo dia**, a 2ª revisão teria a mesma data da 1ª e seria pulada. **Impacto desprezível** com o cron **semanal**: cada run pega a versão mais recente (o CSV é regenerado/cumulativo) e o framework de poll compartilhado coerce para data de qualquer forma — o fix teria que ser no framework, não aqui. Documentado por indicação de code review.
-- **Workspace em `/tmp` fixo.** `INPUT_PATH`/`OUTPUT_PATH` são compartilhados; o `download_csv` retoma via `Range` e o `clean` faz `rmtree` do output antes de reescrever. Runs concorrentes se atropelariam — mas o flow é semanal/single-run e isso segue a convenção dos outros crawlers do repo. O `download_csv` valida o tamanho final (falha alto em vez de corromper silenciosamente).
+- **Precisão do poll (data, não datetime).** O `last_modified` do CKAN (com microssegundos) é truncado para **data** em `get_source_last_modified` (`utils.py`), antes de chegar ao poll. Se a fonte publicar **duas vezes no mesmo dia**, a 2ª revisão teria a mesma data da 1ª e seria pulada. Com o cron **diário**, a 2ª revisão só se perde se sair no mesmo dia e depois do run; cada run pega a versão mais recente (o CSV é regenerado/cumulativo) e o framework de poll compartilhado coerce para data de qualquer forma — o fix teria que ser no framework, não aqui. Documentado por indicação de code review.
+- **Workspace em `/tmp` fixo.** `INPUT_PATH`/`OUTPUT_PATH` são compartilhados; o `download_csv` retoma via `Range` e o `clean` faz `rmtree` do output antes de reescrever. Runs concorrentes se atropelariam — mas o flow é diário/single-run e isso segue a convenção dos outros crawlers do repo. O `download_csv` valida o tamanho final, e a task confere em seguida o MD5 contra o `result.hash` do recurso; se não bater, apaga o arquivo e falha, e a nova tentativa baixa do zero em vez de retomar.
 - **Datas inválidas em `data_contratacao`** virariam `ano` nulo e **não** entram no Parquet (não dá pra particionar por nulo). Hoje são **0** (CSV == xlsx verificado ao centavo), e o `clean` **loga e descarta explicitamente** essas linhas quando ocorrem (não é mais silencioso).
 
 ### Metadados
 
-Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code review para promover a `published`). Descrições PT/EN/ES, coverage **2002-01 a 2026-05** (ano-mês, refletindo a atualização mensal da fonte), cloud table em `basedosdados.br_bndes_operacoes_contratadas`. A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
+Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code review para promover a `published`). Descrições PT/EN/ES, cobertura pela `data_contratacao` (ver "Estrutura"), cloud table em `basedosdados.br_bndes_operacoes_contratadas`. A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
 
 ## operacoes_administracao_publica
 
 ### O que é
 
-Operações do BNDES com **entes da Administração Pública Direta** (União, Administração Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional, **1994–2026**, ~4,7 mil linhas (após o filtro CONTRATADA). Fonte: conjunto CKAN `operacoes-com-entes-da-administracao-publica-direta`, recurso `ea4e5da3-e586-4225-a460-c5aa09e36100` (~1,17 MB, `;` / cp1252). Sinal de atualização = `last_modified` do recurso, mensal.
+Operações do BNDES com **entes da Administração Pública Direta** (União, Administração Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional, **1994–2026**. Fonte: conjunto CKAN `operacoes-com-entes-da-administracao-publica-direta`, recurso `ea4e5da3-e586-4225-a460-c5aa09e36100` (~1,17 MB, `;` / cp1252). Sinal de atualização = `last_modified` do recurso, mensal.
 
 ### Decisões de modelagem
 
@@ -68,7 +70,7 @@ Operações do BNDES com **entes da Administração Pública Direta** (União, A
 
 ### O que é
 
-Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador). Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo número de operação equivale ao valor total da operação. Cobertura nacional, **2002-01 a 2026-06**, ~2,3 mil linhas.
+Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador). Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo número de operação equivale ao valor total da operação. Cobertura nacional, **a partir de 2002-01**.
 
 ### Fonte
 
@@ -137,7 +139,7 @@ Mesmo conjunto CKAN `operacoes-exportacao` da irmã de bens, recurso `d158033b-f
 
 ### Carga única, sem cron
 
-**A série termina em 2015-04-28 e não recebe operação nova desde então.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. O `@flow` existe e está completo, com poll e tudo o mais, mas **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
+**A série termina em 2015-04-28 e não recebe operação nova desde então.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. Os dois flows existem e estão completos, com poll e tudo o mais, mas o `check_update` está **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` ao `check_update` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
 
 ### Decisões de modelagem
 
@@ -159,6 +161,47 @@ As 21 colunas comuns às duas tabelas de exportação seguem as decisões já to
 - `custo_financeiro` é `TAXA FIXA EM US$` em toda a série, então `taxa_juros` é a taxa total.
 - `tipo_mutuario` é quase sempre público aqui (642 contra 10), inverso de bens.
 
+## operacoes_pre_embarque
+
+### O que é
+
+Operações de financiamento do BNDES à **produção para exportação (pré-embarque)**: produção nacional de máquinas, equipamentos, bens de consumo e outros bens e serviços destinados à exportação. Cobertura nacional, **2002-01-08 a 2026-07-30**, 7.650 linhas. O arquivo traz apenas operações contratadas: toda linha tem data de contratação, e `situacao_operacao` só assume `ATIVA` ou `LIQUIDADA`.
+
+A fonte não declara periodicidade. A frequência mensal registrada nos metadados é inferida do intervalo entre o `last_modified` do recurso e a data de contratação mais recente, e da cadência das irmãs.
+
+### Fonte
+
+Mesmo conjunto CKAN `operacoes-exportacao` das duas tabelas de pós-embarque, recurso `81f5d4d7-b5d0-460d-8639-423df942045b` (~3,5 MB, `;` / cp1252), com dicionário de dados próprio (recurso `37fe8b18-56e8-4839-a339-2a9488a5e3f1`, uma página).
+
+O flow usa três campos do `resource_show`:
+
+- `last_modified`, o sinal de republicação;
+- `url`, de onde o CSV é baixado;
+- `hash`, o MD5 do arquivo.
+
+O flow confere o download contra o `hash` e falha se o MD5 não bater ou se o recurso deixar de publicá-lo.
+
+**Baixa o CSV direto, não o `/datastore/dump`.** Ao contrário da `operacoes_exportacao_servicos`, aqui o dump não dispensa conversão: o datastore guarda os valores como texto, e os dois caminhos trazem valores como `7.028.400` e datas em dd/mm/aaaa. O CSV direto tem `Content-Length` e o MD5 publicado; o dump não tem nenhum dos dois.
+
+### Detecção de novidade
+
+O poll compara o `last_modified` com o `Table.Update` (`compare_against="table_update"`), como nas irmãs, e não a data de contratação mais recente com a cobertura. O BNDES republica o arquivo inteiro, e uma republicação pode alterar só operações antigas (`situacao_operacao`, `valor_desembolsado`) sem mexer na data de contratação mais recente. Com a comparação pela cobertura, essa republicação não seria carregada.
+
+### Decisões de modelagem
+
+- **Sem `unique_combination_of_columns`, com linhas repetidas.** 49 linhas são idênticas a outra em todas as 26 colunas da fonte (88 linhas envolvidas). A fonte não publica número de operação, e o dicionário não diz o que cada linha representa: só cita subcréditos ao descrever a fonte de recurso. A `operacoes_nao_automaticas` tem `id_contrato`, mas não traz nenhuma operação de pré-embarque, então o cruzamento com ela não identifica as linhas. As linhas ficam como a fonte publica.
+- **Os nomes de coluna seguem o manual de estilo**, e por isso três deles divergem da `operacoes_indiretas_automaticas`: `indicador_inovacao` (coluna de sim/não leva o prefixo `indicador_`), `nome_instituicao_financeira_credenciada` e `cnpj_instituicao_financeira_credenciada`. Os três são os nomes usados na `operacoes_nao_automaticas`. `codigo_subsetor_cnae` fica como na `operacoes_indiretas_automaticas`, embora `codigo_` não esteja entre os prefixos do manual. `valor_operacao` e `valor_desembolsado` ficam no fim, como o manual pede.
+- **Cliente, não exportador.** O dicionário diz "cliente" e não afirma que ele é o exportador. Por isso as colunas são `cnpj_cliente`, `nome_cliente` e `porte_cliente`, como na `operacoes_indiretas_automaticas`, e não `_exportador`, como no pós-embarque.
+- **CNAE não vira FK.** O código tem uma letra e sete dígitos, e parte dos códigos foi criada pelo BNDES para controle interno. Mesma decisão das irmãs.
+- **Geografia pelo diretório:** `sigla_uf` e `id_municipio` vêm da fonte, e o nome do município não é guardado. Os valores `"0"` (4 linhas) e `9999999` (1 linha) de `municipio_codigo` viram nulo, assim como a UF `IE`, que aparece na mesma linha do `9999999`, com município `DIVERSOS`. O dicionário não explica o `IE`. A `uf` vem com espaço à esquerda (`" SP"`).
+- **Valores em reais inteiros, com ponto de milhar** (`7.028.400`). A descrição do recurso anuncia vírgula decimal, que não aparece nos dados. `parse_valor` aceita as duas formas e falha se algum valor fugir do formato brasileiro. 42 linhas não têm valor desembolsado; a descrição do recurso atribui a ausência ao sigilo do preço unitário dos bens.
+- **Data fora de dd/mm/aaaa faz a limpeza falhar**, porque a linha ficaria sem partição. É o mesmo que fazem bens e serviços; a indiretas, a não automáticas e a de administração pública descartam a linha e registram no log.
+- **Só o campo vazio vira nulo na leitura** (`keep_default_na=False`). Com o padrão do pandas, um texto como `NA` também viraria nulo.
+- **Staging toda em texto, com esquema explícito**, para que uma coluna inteiramente vazia num ano não seja gravada com tipo `null`, diferente dos outros anos.
+- `cnpj_instituicao_financeira_credenciada` vem com ponto no lugar da barra (`33.140.666.0001-02`) e fica como a fonte publica.
+- Três colunas são constantes na série inteira: `modalidade_apoio`, `produto` e `natureza_cliente`.
+- Cobertura pública → `AllFree`, sem paywall BD Pro, como as irmãs.
+
 ## operacoes_nao_automaticas
 
-Operações contratadas na forma **direta e indireta não automática**; cada contrato pode ter um ou mais subcréditos e **cada linha é um subcrédito** (grão = subcrédito). Onboardada antes desta sprint; o crawler a atende pelo config genérico `constants.TABLES_CONFIGS`, com o mesmo `_run_operacoes` da `operacoes_indiretas_automaticas`. Decisões de modelagem não documentadas neste README.
+Operações contratadas na forma **direta e indireta não automática**; cada contrato pode ter um ou mais subcréditos e **cada linha é um subcrédito** (grão = subcrédito). Onboardada antes desta sprint; usa as mesmas tasks genéricas da `operacoes_indiretas_automaticas`, escolhidas pelo `table_id`, com a classe `constants_nao_automaticas`. Decisões de modelagem não documentadas neste README.

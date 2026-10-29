@@ -1,7 +1,7 @@
 """Download + clean one UF at a time, then delete the zip.
 
 Usage:
-    uv run python models/br_ibge_censo_demografico/code/process.py [--ufs RR,AC]
+    uv run models/br_ibge_censo_demografico/code/process.py [--ufs RR,AC]
 """
 
 from __future__ import annotations

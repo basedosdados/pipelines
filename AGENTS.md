@@ -98,7 +98,7 @@ from pipelines.datasets.<dataset_id>.flows import my_flow
 my_flow(materialize_to_prod=False, update_metadata=False)
 ```
 
-Run with `uv run python test.py`. Only the pure download/transform half runs locally: the
+Run with `uv run test.py`. Only the pure download/transform half runs locally: the
 upload, dbt, and metadata steps need credentials that exist on the deployed worker, so
 expect those to fail on a laptop and say so rather than working around it.
 

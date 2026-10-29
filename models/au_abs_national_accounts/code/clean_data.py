@@ -13,7 +13,7 @@ Table 14 (Market Sector Productivity) is skipped: it is a growth-cycle summary
 with no Series IDs, not an annual time series.
 
 Usage:
-    python clean_data.py <input_dir_with_xlsx> <output_dir>
+    uv run models/au_abs_national_accounts/code/clean_data.py <input_dir_with_xlsx> <output_dir>
 """
 
 import datetime as dt

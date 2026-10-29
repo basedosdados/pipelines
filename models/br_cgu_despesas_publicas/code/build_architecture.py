@@ -1,7 +1,7 @@
 """Generate the architecture CSVs for br_cgu_despesas_publicas.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/build_architecture.py
+    uv run models/br_cgu_despesas_publicas/code/build_architecture.py
 
 Reads the per-table specs via ``_specs.py`` and writes
 ``architecture/<table>.csv``. ``build_columns_json.py`` writes the trilingual

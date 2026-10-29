@@ -3,7 +3,7 @@
 Run after any schema change so the architecture, the SQL and the tests cannot
 drift apart:
 
-    uv run python models/fr_meteofrance/code/gen_artifacts.py
+    uv run models/fr_meteofrance/code/gen_artifacts.py
 """
 
 import csv

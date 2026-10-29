@@ -4,20 +4,15 @@ A thin wrapper. The implementation lives in
 ``pipelines/datasets/br_mgi_compras_publicas/dicionario.py`` because the weekly
 refresh flow rebuilds this table too, and two copies of the code would drift.
 
-    uv run python models/br_mgi_compras_publicas/code/build_dicionario.py
+    uv run models/br_mgi_compras_publicas/code/build_dicionario.py
 """
 
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mgi_compras_publicas.dicionario import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.dicionario import (
     build_dicionario,
 )
 

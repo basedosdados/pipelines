@@ -1,8 +1,8 @@
 """One-shot: clean every EIA-860 and EIA-923 report year to partitioned parquet.
 
-    python clean.py                       # every year, every table
-    python clean.py --years 2024 2025     # selected years
-    python clean.py --tables plant        # selected tables
+    uv run models/us_eia_electricity/code/clean.py                       # every year, every table
+    uv run models/us_eia_electricity/code/clean.py --years 2024 2025     # selected years
+    uv run models/us_eia_electricity/code/clean.py --tables plant        # selected tables
 
 Reads the ZIPs already under ``$US_EIA_ELECTRICITY_DATA_DIR/input`` (``--download`` fetches
 any that are missing) and writes ``output/<table>/year=<year>/data.parquet``.

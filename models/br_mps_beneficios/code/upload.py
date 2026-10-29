@@ -1,7 +1,7 @@
 """Upload the cleaned br_mps_beneficios parquet tables to BigQuery.
 
 Usage:
-    uv run python models/br_mps_beneficios/code/upload.py [--env dev|prod] [table ...]
+    uv run models/br_mps_beneficios/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account (this machine's
