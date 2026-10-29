@@ -1,0 +1,17 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es,observations_en,observations_es
+country_id,STRING,Identificador numérico do país ou unidade política no V-Dem,,no,,,no,Inclui unidades históricas que não existem mais (ex.: Baviera); ver a tabela country,country_id,V-Dem numeric identifier of the country or political unit,Identificador numérico del país o unidad política en V-Dem,Includes historical units that no longer exist (e.g. Bavaria); see the country table,"Incluye unidades históricas que ya no existen (p. ej., Baviera); ver la tabla country"
+country_text_id,STRING,Código alfabético de três letras do país no V-Dem,,no,,,no,"Coincide com o ISO 3166-1 alfa-3 para a maioria dos países atuais, mas não para unidades históricas",country_text_id,V-Dem three-letter alphabetic country code,Código alfabético de tres letras del país en V-Dem,"Matches ISO 3166-1 alpha-3 for most current countries, but not for historical units","Coincide con ISO 3166-1 alfa-3 para la mayoría de los países actuales, pero no para unidades históricas"
+country_name,STRING,Nome do país ou unidade política (em inglês),,no,,,no,,country_name,Name of the country or political unit,Nombre del país o unidad política (en inglés),,
+historical,STRING,Indica se a unidade foi codificada pelo projeto V-Dem histórico,,yes,,,no,,historical,Whether the unit was coded by the Historical V-Dem project,Indica si la unidad fue codificada por el proyecto V-Dem histórico,,
+coding_start,INT64,Primeiro ano codificado,,no,,year,no,,codingstart,First coded year,Primer año codificado,,
+coding_end,INT64,Último ano codificado,,no,,year,no,,codingend,Last coded year,Último año codificado,,
+coding_start_contemporary,INT64,Primeiro ano codificado pelo V-Dem contemporâneo,,no,,year,no,,codingstart_contemp,First year coded by contemporary V-Dem,Primer año codificado por el V-Dem contemporáneo,,
+coding_end_contemporary,INT64,Último ano codificado pelo V-Dem contemporâneo,,no,,year,no,,codingend_contemp,Last year coded by contemporary V-Dem,Último año codificado por el V-Dem contemporáneo,,
+coding_start_historical,INT64,Primeiro ano codificado pelo V-Dem histórico,,no,,year,no,,codingstart_hist,First year coded by Historical V-Dem,Primer año codificado por el V-Dem histórico,,
+coding_end_historical,INT64,Último ano codificado pelo V-Dem histórico,,no,,year,no,,codingend_hist,Last year coded by Historical V-Dem,Último año codificado por el V-Dem histórico,,
+gap_start_1,INT64,Primeiro ano da 1ª lacuna na codificação,,no,,year,no,,gapstart1,First year of coding gap 1,Primer año de la 1ª laguna en la codificación,,
+gap_end_1,INT64,Último ano da 1ª lacuna na codificação,,no,,year,no,,gapend1,Last year of coding gap 1,Último año de la 1ª laguna en la codificación,,
+gap_start_2,INT64,Primeiro ano da 2ª lacuna na codificação,,no,,year,no,,gapstart2,First year of coding gap 2,Primer año de la 2ª laguna en la codificación,,
+gap_end_2,INT64,Último ano da 2ª lacuna na codificação,,no,,year,no,,gapend2,Last year of coding gap 2,Último año de la 2ª laguna en la codificación,,
+gap_start_3,INT64,Primeiro ano da 3ª lacuna na codificação,,no,,year,no,,gapstart3,First year of coding gap 3,Primer año de la 3ª laguna en la codificación,,
+gap_end_3,INT64,Último ano da 3ª lacuna na codificação,,no,,year,no,,gapend3,Last year of coding gap 3,Último año de la 3ª laguna en la codificación,,

@@ -231,6 +231,9 @@ models:
     jp_yale_jmed:
       +materialized: table
       +schema: jp_yale_jmed
+    se_gu_vdem:
+      +materialized: table
+      +schema: se_gu_vdem
     us_anes_time_series:
       +materialized: table
       +schema: us_anes_time_series
