@@ -510,7 +510,8 @@ PCTILE = row(
 )  # fmt: skip
 
 
-def outcome_rows(outcomes: list[str]) -> list[dict]:
+def outcome_rows(outcomes: list[str], with_se: set[str]) -> list[dict]:
+    """Estimate columns, plus a standard error where the source publishes one."""
     rows = []
     for o in outcomes:
         pt, en, es, unit, kind = OUTCOMES[o]
@@ -519,6 +520,8 @@ def outcome_rows(outcomes: list[str]) -> list[dict]:
             row(o, "FLOAT64", pt, en, es, obs=obs, measurement_unit=unit,
                 original_name=f"{o}_[race]_[gender]_[pctile]")
         )  # fmt: skip
+        if o not in with_se:
+            continue
         rows.append(
             row(
                 f"{o}_se", "FLOAT64",
@@ -580,8 +583,8 @@ def sample_rows(outcomes: list[str]) -> list[dict]:
     return rows
 
 
-def header_outcomes(geo: str) -> tuple[list[str], list[str]]:
-    """Return (outcomes with estimates, outcomes with sample sizes), in OUTCOMES order."""
+def header_outcomes(geo: str) -> tuple[list[str], list[str], set[str]]:
+    """Return (outcomes with estimates, with sample sizes, with standard errors)."""
     path = INPUT / ATLAS[geo]["file"]
     if path.suffix == ".zip":
         with zipfile.ZipFile(path) as z:
@@ -591,19 +594,22 @@ def header_outcomes(geo: str) -> tuple[list[str], list[str]]:
     else:
         with open(path, encoding="utf-8") as f:
             line = f.readline()
-    est, n = set(), set()
+    est, n, se = set(), set(), set()
     for c in next(csv.reader([line.strip()])):
         if any(rx.match(c) for rx in GROUP_RES.values()):
             continue
         m = OUTCOME_RE.match(c)
         if m:
             (n if m["stat"] == "n" else est).add(m["outcome"])
+            if m["se"]:
+                se.add(m["outcome"])
     unknown = (est | n) - set(OUTCOMES)
     if unknown:
         raise KeyError(
             f"{geo}: outcomes without a definition: {sorted(unknown)}"
         )
-    return [o for o in OUTCOMES if o in est], [o for o in OUTCOMES if o in n]
+    order = list(OUTCOMES)
+    return [o for o in order if o in est], [o for o in order if o in n], se
 
 
 def migration_rows() -> list[dict]:
@@ -698,10 +704,10 @@ def main() -> None:
         "commuting_zone": [CZ, CZ_NAME],
     }
     for geo in ATLAS:
-        est, n = header_outcomes(geo)
+        est, n, se = header_outcomes(geo)
         write(
             f"{geo}_outcome",
-            keys[geo] + [RACE, GENDER, PCTILE] + outcome_rows(est),
+            keys[geo] + [RACE, GENDER, PCTILE] + outcome_rows(est, se),
         )
         write(f"{geo}_sample", keys[geo] + [RACE, GENDER] + sample_rows(n))
     write("commuting_zone_migration", migration_rows())
