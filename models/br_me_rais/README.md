@@ -588,17 +588,32 @@ O teste detecta carga incompleta ou duplicada, já que vínculos chega em arquiv
 regionais.
 
 Os vínculos com `indicador_vinculo_abandonado = '1'` ficam de fora porque o total
-de estabelecimentos não os conta. Sem eles, as tabelas batem desde 2000; a maior
-diferença por UF foi de 0,28%, daí a tolerância de 0,5%.
+de estabelecimentos não os conta. O teste não tem tolerância: qualquer diferença
+falha. A única divergência conhecida é a de 2023 (§11.5).
 
 ### 11.3 Variação de volume
 
-`custom_row_count_variation` avisa quando o número de linhas do ano mais recente
+`custom_row_count_variation` falha quando o número de linhas do ano mais recente
 varia fora de −10% a +15% em relação ao ano anterior, faixa observada na série
-desde 2000. É só aviso (`severity: warn`), pois o volume pode mudar por motivo
-real, como em 2023 em estabelecimentos (+39%).
+desde 2000. Uma variação real, como a de 2023 em estabelecimentos (+39%), também
+falha e precisa ser verificada antes da carga seguir.
 
 ### 11.4 Sem teste de unicidade
 
 Os microdados não têm identificador (CNPJ, CPF), então não há chave para testar.
 Carga duplicada é coberta pelo teste da §11.2.
+
+### 11.5 Divergência de 2023
+
+Em 2023 o total nacional bate (55.316.614 nas duas tabelas), mas 13 UFs diferem
+em 1 ou 2 vínculos, com saldo zero. Por município, natureza jurídica, tamanho,
+tipo de estabelecimento e CNAE, são 290 combinações que diferem, somando 352
+vínculos em pares que se compensam, quase todos em estabelecimentos de até 4
+empregados.
+
+A diferença já existe nos arquivos brutos do MTE (`RAIS_ESTAB_PUB` e
+`RAIS_VINC_PUB_*` de 2023, versão republicada): comparando os brutos entre si,
+as 290 combinações e os valores são os mesmos da BD. O tratamento da BD não a
+causa. A nota técnica da RAIS 2023 indica a origem provável: é o primeiro ano
+inteiro via eSocial, em que o estabelecimento do vínculo vem do local de
+trabalho declarado pela matriz. 2024 e 2025 batem exatamente.
