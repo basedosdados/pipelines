@@ -14,6 +14,14 @@ models:
           combination_of_columns: [ano, data_referencia, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - indicador_endividamento_revisao
+            - nota_endividamento_revisao
+            - indicador_poupanca_corrente_revisao
+            - nota_poupanca_corrente_revisao
+            - indicador_liquidez_revisao
+            - nota_liquidez_revisao
+            - nota_capag_revisao
     columns:
       - name: ano
         description: Ano da CAPAG

@@ -6,7 +6,6 @@ corrente e liquidez), a nota de cada um e a nota final.
 
 - Fonte: Tesouro Transparente, API CKAN (`capag-municipios` e `capag-estados`)
 - Código: `pipelines/datasets/br_stn_capag/` e `models/br_stn_capag/`
-- Metadados da STN: `metadadoscapagmunicipios.pdf`, nesta pasta
 
 ## A fonte
 
@@ -18,8 +17,7 @@ formatos (o PDF de metadados, por exemplo), e só CSV e XLSX entram (`DATA_FORMA
 | `capag-municipios` | `municipios` | XLSX | 2018 a 2026; em 2024, 2025 e 2026 há mais de um recorte por ano |
 | `capag-estados` | `estados` | CSV (`;`, UTF-8 com BOM) | 2018 a 2025, com uma revisão de 2024 |
 
-O campo `size` do CKAN vem `0` em vários recursos que têm conteúdo, então não serve de
-filtro. O servidor responde `429` a downloads em sequência: o download espera
+O servidor responde `429` a downloads em sequência: o download espera
 `DOWNLOAD_PAUSE_SECONDS` entre arquivos e repete com espera crescente (ou o
 `Retry-After`) nos status de `RETRY_STATUS_CODES`.
 
@@ -31,9 +29,7 @@ filtro. O servidor responde `429` a downloads em sequência: o download espera
 1. a data no fim do nome, quando há (`Capag Municípios 2025 - 10/06/2025` -> `2025-06-10`);
 2. senão, 1º de janeiro do ano do nome (`CAPAG Municípios 2023` -> `2023-01-01`).
 
-A data de criação (`created`) do CKAN não é usada: ela não acompanha a publicação (o
-recurso de municípios 2020 foi criado em 2018, antes do de 2018 e do de 2019). Como
-vários recursos podem ter a mesma data, `select_resources` devolve todos os de uma
+Como vários recursos podem ter a mesma data, `select_resources` devolve todos os de uma
 data, e a unicidade da tabela é `ano` + `data_referencia` + chave.
 
 ### Arquivos de revisão
@@ -47,11 +43,12 @@ estados 2024. Valem duas regras:
 - **Colunas de revisão:** a planilha de municípios 2022 traz colunas `*_Revisão` ao lado
   das originais, e elas vão para a tabela como `*_revisao` (`COLUNAS_REVISAO`), sem
   sobrepor as originais: `indicador_endividamento_revisao`, `nota_endividamento_revisao`,
-  as de poupança corrente e de liquidez e `nota_capag_revisao`. Fora de municípios 2022
-  ficam nulas, e `estados` não as tem (o arquivo de 2024 é completo, só o DF mudou).
-  `n.d.` na revisão vira nulo, então não se distingue "sem revisão" de "revisado, sem
-  dado". A fonte também traz `Ano_Base`, `Precisa_Revisão` e `CAPAG_Oficial`, que não
-  foram levadas.
+  as de poupança corrente e de liquidez e `nota_capag_revisao`. Fora da tabela de municípios 2022,
+  ficam nulas. As tabelas de `estados` não possuem colunas de revisão (o arquivo de 2024 é completo).
+  O ponto de atenção é a forma de uso dos dados revisados: não há certeza se eles substituem 
+  integralmente aqueles não revisados; há também a coluna de "Precisa de Revisão" na origem e valores
+  `n.d.` na revisão viram nulo, então não se distingue "sem revisão" de "revisado, sem
+  dado". A fonte também traz `CAPAG_Oficial`, que não foram levadas.
 
 Limite: o `append` de uma revisão sobre um ano já carregado duplica a chave no staging, e
 o `check_update` não a percebe (a data é a mesma do recurso do ano). Para as duas
@@ -130,12 +127,6 @@ Cada tabela tem um par de flows (`CheckThenExtractLoadPipeline`, ver `flows.py`)
 
 A cobertura é `AllFree`, com `data_referencia` como coluna de data.
 
-## Agendamento
-
-Só o `check_update` tem horário: toda segunda, às 8h de Brasília (`0 8 * * 1`). A STN
-publica uns 3 recortes por ano, em datas que variam, então a checagem semanal é barata
-(uma chamada à API) e fica sem efeito até aparecer recurso novo.
-
 ## Parâmetros
 
 O `check_update` não tem parâmetros. O `_download` recebe um `download_params`:
@@ -145,38 +136,6 @@ O `check_update` não tem parâmetros. O `_download` recebe um `download_params`
 | `reference_date` | data de referência do recurso, como `"2026-09-01"`; o `check_update` preenche, e um disparo manual precisa informar |
 | `historico` | opcional, `true` baixa **todos** os recursos e a carga **substitui** a tabela (`overwrite`); sem ele, só o recurso de `reference_date` entra, em `append` |
 
-## Rodar manualmente e reprocessar
-
-**Carga inicial ou recarga completa:** dispare o `_download` com `historico`:
-
-```json
-{"download_params": {"reference_date": "2026-09-01", "historico": true}}
-```
-
-Os municípios são ~200 MB de XLSX. O pool precisa de memória (o flow de municípios pede
-`8Gi` em `job_variables`).
-
-**Um recorte novo, à mão:** o mesmo disparo, sem `historico`, com a data do recurso.
-
-**Reprocessar um recorte já carregado:** o `append` duplicaria as linhas no staging.
-Use a carga com `historico`, que reescreve a tabela inteira.
-
-**Localmente:** só a metade de download e tratamento roda num laptop (o upload e o dbt
-precisam das credenciais do worker):
-
-```python
-from datetime import date
-
-from pipelines.datasets.br_stn_capag.utils import (
-    download_table,
-    process_records,
-    write_partitioned,
-)
-
-for resource, path in download_table("estados", date(2026, 3, 10)):
-    df = process_records(path, resource, "estados")
-    write_partitioned(df, path.parent.parent / "output", resource)
-```
 
 ## O dbt
 
@@ -191,17 +150,10 @@ for resource, path in download_table("estados", date(2026, 3, 10)):
 
 ## Pendências e decisões em aberto
 
-- **Data de referência:** a regra acima (data do nome, senão `created`) é provisória.
-  Se a STN passar a datar todos os nomes, ela deixa de depender do `created`.
 - **Mais de um recorte por ano:** a tabela guarda todos (`ano` + `data_referencia`).
   Quem quiser só o vigente precisa filtrar a maior `data_referencia` de cada `ano`;
   não há coluna que marque isso.
 - **Ano base:** `ano_base` (só municípios) vem de `Ano_Base` (2022 revisão e 2023) ou de
   `Origem da Nota Final` (2024 em diante, texto `CAPAG Ano Base 2023`, lido com regex).
-  Municípios 2018 a 2021 e 2022 sem revisão não trazem, e ficam nulos. Em 2022 a fonte
-  não diz se `Ano_Base` vale para as colunas originais ou para as de revisão; a
-  descrição do recurso fala em ano base 2022 para quem já tinha publicado a DCA, o que
-  sugere a revisão (as originais são todas de 2021). É uma inferência. Estados não tem.
-- **Não executado:** o upload, o `dbt run` e o `dbt test` não foram rodados (exigem as
-  credenciais do worker). Só o tratamento foi testado, contra os 25 arquivos da fonte, e
-  o `dbt parse` passa.
+  Municípios 2018 a 2021 e 2022 sem revisão não trazem, e ficam nulos. Estados não tem.
+

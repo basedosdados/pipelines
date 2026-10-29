@@ -417,6 +417,8 @@ def process_records(
         # Linhas de rodapé/notas não têm código IBGE.
         df["id_municipio"] = df["id_municipio"].map(_to_number)
         df = df.dropna(subset=["id_municipio"])
+        if (df["id_municipio"] % 1 != 0).any():
+            raise ValueError(f"{path.name}: código IBGE com parte decimal.")
         df["id_municipio"] = df["id_municipio"].astype(int).astype(str)
         df["ano_base"] = df["ano_base"].map(_to_year).astype("Int64")
         df["populacao"] = (
