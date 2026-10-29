@@ -750,6 +750,9 @@ models:
     us_ssa_beneficiaries:
       +materialized: table
       +schema: us_ssa_beneficiaries
+    us_ssa_baby_names:
+      +materialized: table
+      +schema: us_ssa_baby_names
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance
