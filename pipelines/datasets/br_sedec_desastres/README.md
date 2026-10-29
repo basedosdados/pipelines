@@ -190,10 +190,17 @@ das colunas.
 O `/paginas/relatorios/` é uma aplicação **JSF/PrimeFaces**: o export não sai de
 uma URL de download estável, e sim de um POST no formulário da página, com
 sessão e `ViewState`. Os ids dos componentes são gerados pelo framework e mudam
-quando a página muda. Os XPaths em `reconhecimentos_vigentes.XPATHS` são mistos: o painel e o
-checkbox de tipologias são ancorados por texto, enquanto o widget de estado, o select
-oculto e o botão de export usam os ids `abas:sanfonas:*`. Esses três estão acoplados
-ao HTML da fonte e precisam ser revalidados quando a página mudar.
+quando a página muda. Por isso nenhum XPath em `reconhecimentos_vigentes.XPATHS`
+traz id fixo:
+
+- o painel, o checkbox de tipologias e o botão de export são ancorados pelo texto,
+  sempre dentro do painel da `vigentes`;
+- o select oculto de estado é achado pelas opções que contém (`AC` e `SP`);
+- o widget de estado e o item da lista usam o id do select sem o sufixo `_input`,
+  lido da página na hora da execução pelo `_base_do_estado`.
+
+Mesmo assim, todos dependem do HTML da fonte e precisam ser revalidados quando a
+página mudar.
 
 O painel "Reconhecimentos vigentes" oferece PDF, XLS e CSV.
 

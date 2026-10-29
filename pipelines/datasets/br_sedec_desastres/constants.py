@@ -41,16 +41,25 @@ class reconhecimentos_vigentes(Enum):
 
     XPATHS = {
         "painel": _VIGENTES_PAINEL,
+        # Escopado ao painel: o rótulo aparece em 5 dos 13 painéis da página, e
+        # sem o escopo o XPath casa o primeiro, que está fechado; o Selenium
+        # espera por um elemento invisível até o timeout.
         "todas_tipologias": (
             f"{_VIGENTES_CONTEUDO}"
             "//label[normalize-space(.)='Todas as tipologias de desastres']"
         ),
+        # Achado pelas opções, e não pelo id: os ids `j_idt*` são gerados pelo
+        # JSF e já mudaram (em 08/2026 o select era `j_idt142` e `j_idt146` era
+        # o botão XLS; depois `j_idt146` passou a ser o select).
         "estado_select_oculto": (
             f"{_VIGENTES_CONTEUDO}"
             "//select[option[@value='AC'] and option[@value='SP']]"
         ),
         "estado_widget": "//*[@id='{base}']",
         "estado_item": "//div[@id='{base}_panel']//li[@data-label='{uf_nome}']",
+        # Pelo rótulo, escopado ao painel: `btnExportarCsv` é o botão do painel
+        # "Reconhecimentos realizados", e ancorar nele baixa o relatório errado
+        # sem erro nenhum.
         "exportar_csv": (
             f"{_VIGENTES_CONTEUDO}"
             "//button[span[normalize-space(.)='Exportar CSV']]"
@@ -121,6 +130,8 @@ class reconhecimentos_realizados(Enum):
             f"{_REALIZADOS_CONTEUDO}"
             "//label[normalize-space(.)='Todas as tipologias de desastres']"
         ),
+        # "Todas os estados" é o texto exato da página; corrigido para "Todos",
+        # o XPath deixa de achar o elemento.
         "todos_estados": (
             f"{_REALIZADOS_CONTEUDO}"
             "//label[normalize-space(.)='Todas os estados']"

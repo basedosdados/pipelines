@@ -72,7 +72,9 @@ models:
       idêntica, e a tabela as mantém como vêm, por isso não há chave única.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.9
+      - dbt_utils.expression_is_true:
+          expression: ano = extract(year from data_dou)
     columns:
       - name: ano
         description: >-
