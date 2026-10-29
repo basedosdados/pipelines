@@ -1,18 +1,17 @@
 """Flows do br_sedec_desastres — Prefect 3.
 
-Relatório "Reconhecimentos vigentes" do S2ID (SEDEC/MIDR): os reconhecimentos
-federais de situação de emergência e estado de calamidade pública em vigor. A
-tabela é uma série de retratos, um por execução, `dump_mode="append"`,
+Relatórios "Reconhecimentos vigentes" e "Reconhecimentos realizados" do S2ID
+(SEDEC/MIDR), uma tabela cada. A `reconhecimentos_vigentes` é uma série de
+retratos dos reconhecimentos em vigor, um por execução, `dump_mode="append"`,
 particionada por `data_extracao`.
 
 Migrado pro pipeline em estágios (staged pipeline):
 check_update -> extract_and_load -> build_and_promote (genérico, dispatch via
 `CheckThenExtractLoadPipeline` — ver `pipelines/utils/stage_dispatch.py`).
-Dataset de uma tabela só (`reconhecimentos_vigentes` — ver `constants.py`), daí
-não haver a decomposição em pares por tabela do `pipeline_factory`: a
-"concatenação de 27 downloads" do levantamento original é dentro DESSA única
-tabela (1 export CSV por UF, concatenados em
-`utils.build_reconhecimentos_vigentes`), não 27 tabelas.
+Cada tabela tem o seu par check_update/extract_and_load. Na vigentes, a
+"concatenação de 27 downloads" do levantamento original é dentro dessa tabela
+(1 export CSV por UF, concatenados em `utils.build_reconhecimentos_vigentes`),
+não 27 tabelas.
 
 A fonte não expõe nenhum sinal de frescor mais barato que o download inteiro:
 "vigentes" é um retrato do momento, sem data de publicação própria, e a única
@@ -50,10 +49,16 @@ pendente).
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_sedec_desastres.constants import constants
+from pipelines.datasets.br_sedec_desastres.constants import (
+    constants,
+    reconhecimentos_realizados,
+    reconhecimentos_vigentes,
+)
 from pipelines.datasets.br_sedec_desastres.tasks import (
     extract_load_data,
     get_latest_update,
+    realizados_extract_load_data,
+    realizados_get_latest_update,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import (
@@ -63,7 +68,7 @@ from pipelines.utils.stage_dispatch import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
+TABLE_ID = reconhecimentos_vigentes.TABLE_ID.value
 
 _pipeline = CheckThenExtractLoadPipeline(
     dataset_id=DATASET_ID,
@@ -113,4 +118,50 @@ br_sedec_desastres_extract_and_load.job_variables = {
 # do backend (4 deployments diferentes respondiam por "check_update").
 _pipeline.extract_load_deployment = (
     br_sedec_desastres_extract_and_load.fn.__name__
+)
+
+
+REALIZADOS_TABLE_ID = reconhecimentos_realizados.TABLE_ID.value
+
+_realizados_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=REALIZADOS_TABLE_ID,
+    get_latest_update=realizados_get_latest_update,
+    extract_load_data=realizados_extract_load_data,
+)
+
+
+@flow(name=_realizados_pipeline.check_update_flow_name, log_prints=True)
+def br_sedec_desastres_reconhecimentos_realizados_check_update() -> None:
+    _realizados_pipeline.run_check_update()
+
+
+br_sedec_desastres_reconhecimentos_realizados_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, REALIZADOS_TABLE_ID)
+)
+br_sedec_desastres_reconhecimentos_realizados_check_update.deploy_schedules = [
+    Cron("50 2 * * *", timezone="America/Sao_Paulo")
+]
+br_sedec_desastres_reconhecimentos_realizados_check_update.job_variables = {
+    "memory_limit": "4Gi",
+    "memory_request": "1Gi",
+}
+
+
+@flow(name=_realizados_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_sedec_desastres_reconhecimentos_realizados_extract_and_load(
+    download_params: dict,
+) -> None:
+    _realizados_pipeline.run_extract_and_load(download_params)
+
+
+br_sedec_desastres_reconhecimentos_realizados_extract_and_load.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD, REALIZADOS_TABLE_ID)
+)
+br_sedec_desastres_reconhecimentos_realizados_extract_and_load.job_variables = {
+    "memory_limit": "4Gi",
+    "memory_request": "1Gi",
+}
+_realizados_pipeline.extract_load_deployment = (
+    br_sedec_desastres_reconhecimentos_realizados_extract_and_load.fn.__name__
 )
