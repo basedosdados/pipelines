@@ -25,7 +25,10 @@ TABLE_DESCRIPTIONS = {
     "stop": (
         "Police stops recorded by US state patrols and city police departments, "
         "standardized by the Stanford Open Policing Project, one row per stop. "
-        "Each jurisdiction fills a different subset of the columns."
+        "Each jurisdiction fills a different subset of the columns. The source "
+        "repeats 72 Oklahoma City stops that differ only in type (empty and "
+        "pedestrian); both rows are kept, so jurisdiction_id and raw_row_number "
+        "are unique except for those pairs."
     ),
     "jurisdiction": (
         "Jurisdictions covered by the Stanford Open Policing Project, one row per "
@@ -33,13 +36,14 @@ TABLE_DESCRIPTIONS = {
     ),
 }
 
-# Model-level tests. The stop table is a frozen ~170M-row load, so the
+# Model-level tests. The stop table is a frozen 230M-row load, so the
 # expensive tests are scoped to recent years.
 MODEL_TESTS = {
     "stop": textwrap.dedent(
         """\
-        - dbt_utils.unique_combination_of_columns:
+        - custom_unique_combinations_of_columns:
             combination_of_columns: [jurisdiction_id, raw_row_number]
+            proportion_allowed_failures: 0.0001
             config:
               where: year >= 2016
         - not_null_proportion_multiple_columns:

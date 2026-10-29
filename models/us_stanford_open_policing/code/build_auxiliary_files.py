@@ -66,6 +66,9 @@ released under the Open Data Commons Attribution License (ODC-BY 1.0).
   Data Basis from the stop date and the file name. `year` and `date` are null
   for the few stops whose agency recorded no date (most of them in Oregon).
 - Boolean columns keep the source's `TRUE`/`FALSE` text.
+- The `ok_oklahoma_city` file repeats 72 stops (same `raw_row_number`) that
+  differ only in `type`, one empty and one `pedestrian`. Both rows are kept as
+  published; drop the empty-`type` twin if you need one row per stop.
 """
 
 

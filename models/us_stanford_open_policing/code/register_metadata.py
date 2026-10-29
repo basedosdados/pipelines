@@ -125,20 +125,26 @@ TABLES = {
             "departamentos de polícia municipais dos EUA, padronizadas pelo Stanford "
             "Open Policing Project, uma linha por abordagem. Cada jurisdição "
             "preenche um subconjunto diferente das colunas; as colunas raw_ "
-            "específicas de cada local não foram incluídas."
+            "específicas de cada local não foram incluídas. A fonte repete 72 "
+            "abordagens de Oklahoma City, que diferem apenas em type (vazio e "
+            "pedestrian); ambas as linhas foram mantidas."
         ),
         "description_en": (
             "Police stops recorded by US state patrols and city police departments, "
             "standardized by the Stanford Open Policing Project, one row per stop. "
             "Each jurisdiction fills a different subset of the columns; the "
-            "location-specific raw_ columns are not included."
+            "location-specific raw_ columns are not included. The source repeats "
+            "72 Oklahoma City stops that differ only in type (empty and "
+            "pedestrian); both rows are kept."
         ),
         "description_es": (
             "Detenciones policiales registradas por patrullas estatales y "
             "departamentos de policía municipales de EE. UU., estandarizadas por el "
             "Stanford Open Policing Project, una fila por detención. Cada "
             "jurisdicción completa un subconjunto distinto de las columnas; no se "
-            "incluyeron las columnas raw_ específicas de cada lugar."
+            "incluyeron las columnas raw_ específicas de cada lugar. La fuente "
+            "repite 72 detenciones de Oklahoma City que difieren solo en type "
+            "(vacío y pedestrian); se conservaron ambas filas."
         ),
         "levels": {
             "year": "year",
