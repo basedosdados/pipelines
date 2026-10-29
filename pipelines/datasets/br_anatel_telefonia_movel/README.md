@@ -9,7 +9,7 @@ Este documento centraliza o contexto dos dados de telefonia móvel da Anatel (Se
 Dados publicados **mensalmente** pela Anatel (Gerência PRUV) sobre acessos e densidade do SMP.
 
 - **Fonte (dados.gov.br):** https://dados.gov.br/dados/conjuntos-dados/acessos-autorizadas-smp
-- **API usada pelo pipeline:** `https://dados.gov.br/api/publico/conjuntos-dados/acessos-autorizadas-smp` (requer cookies/headers em `constants.py`)
+- **API usada pelo pipeline:** `https://dados.gov.br/api/publico/conjuntos-dados/acessos-autorizadas-smp`, só para descobrir a URL do ZIP (requer cookies/headers em `constants.py`)
 - **Portal Anatel:** https://www.gov.br/anatel/pt-br/dados/acessos/telefonia-movel
 
 O conjunto tem 4 tabelas: `microdados` (acessos por município/operadora/tecnologia), `densidade_brasil`, `densidade_uf`, `densidade_municipio`. Granularidade: nacional, UF e municipal.
@@ -26,7 +26,7 @@ Documentação oficial de metadados da Anatel (SMP), Obs. 2: *"as planilhas fora
 
 Consequências observadas:
 - **Degraus no total de acessos** entre anos (ex.: 2022→2023 cai à metade) — são revisões/metodologia, não erro de ingestão.
-- **Snapshots "encolhem" meses antigos:** o arquivo baixado hoje pode trazer detalhe completo só dos ~2 meses mais recentes e versões reduzidas de meses passados. O histórico detalhado é preservado no **staging** porque o upload usa `dump_mode="append"` (acumula sem duplicar). **Nunca** fazer full refresh assumindo que o arquivo atual tem todo o histórico.
+- **Correções em semestres fechados não chegam a prod.** A prestadora pode retificar um mês já enviado, substituindo o arquivo ([Manual de Coleta de Acessos SMP](https://sistemas.anatel.gov.br/anexar-api/publico/anexos/download/a787e39128b6e80857290b5361e00108), PRUV, maio de 2022, seção 9.1), e o flow só lê o semestre mais recente. O ZIP da fonte traz cada mês completo, sem versão reduzida dos meses antigos: os semestres `2023_1S` e `2026_1S` batem com prod mês a mês, exceto por correções pequenas em 2026-05 (+2.713 linhas) e 2026-06 (+1.778 acessos). Dá para reprocessar a tabela a partir da fonte, desde que se leiam todos os semestres.
 
 ### 2. Granularidade UF/municipal só existe a partir de 2010
 
@@ -38,21 +38,71 @@ A partir de **2025-01** a Anatel emite `acessos` como **float** (`"1.0"`) em vez
 
 ### 4. Arquivo de densidade é único, dividido por rótulo
 
-As 3 tabelas de densidade saem do **mesmo** `Densidade_Telefonia_Movel.csv`, filtrado pela coluna `Nível Geográfico Densidade` (renomeada para `geografia`) nos valores `"Brasil"`, `"UF"`, `"Municipio"` (`clean_csv_brasil/uf/municipio` em `utils.py`).
+As 3 tabelas de densidade saem do **mesmo** `Densidade_Telefonia_Movel.csv`, filtrado pela coluna `Nível Geográfico Densidade`, que traz `"Brasil"`, `"UF"` ou `"Municipio"`.
 
-**Robustez (aplicada):** os filtros de geografia foram tornados robustos a acento/caixa via `normalize_label` (`utils.py`), usado nos 3 `clean_csv_*` e no poll (`tasks.py`). O glossário grafa "Município" (acentuado), mas o dado vem sem acento — se a Anatel "corrigir" a grafia numa revisão, o filtro normalizado (sem acento, minúsculo, sem espaços) continua casando, evitando quebra silenciosa.
+O nível de cada tabela fica em `DENSITY_GEOGRAPHIC_LEVEL` (`constants.py`), já normalizado. Antes da comparação, a coluna passa pela `normalize_label` (`utils.py`), tanto no poll quanto na limpeza. O glossário grafa "Município", com acento, mas o dado vem sem. Como a normalização tira os acentos e os espaços das pontas e passa tudo para minúsculas, o filtro continua casando se a Anatel mudar a grafia numa revisão.
+
+### 5. A Anatel regrava semestres anteriores
+
+A Anatel gera o ZIP inteiro de novo a cada publicação, e o conteúdo de semestres anteriores pode mudar. O flow lê só o semestre mais recente, então a revisão de um semestre anterior não chega à tabela.
+
+---
+
+## Download
+
+`get_zip_url` (`utils.py`) consulta a API do dados.gov.br, que lista os recursos do conjunto. O recurso de formato `CSV` aponta para um ZIP único da Anatel, de cerca de 3 GB, que traz:
+
+| Arquivo | Conteúdo | Lido por |
+| --- | --- | --- |
+| `Acessos_Telefonia_Movel_2026_2S.csv` (um por semestre, de 2019 em diante) | microdados do semestre, de 82 a 245 MB compactados | `microdados`, só o semestre mais recente |
+| `Densidade_Telefonia_Movel.csv` | densidade nos três níveis geográficos | as 3 densidades |
+| `Acessos_Telefonia_Movel_Total.csv` | total de acessos por mês | nenhuma tabela |
+
+O flow não baixa o ZIP inteiro. O servidor da Anatel aceita o cabeçalho HTTP `Range`, e a `HttpRangeFile` (`utils.py`) faz o ZIP remoto funcionar como um arquivo comum, com `read`, `seek` e `tell`, e pede ao servidor só os bytes que o `zipfile` lê. Assim, `download_csv_from_zip` lê o índice do ZIP e extrai só o CSV da tabela para `/tmp/data/input/`, em requisições de até 8 MiB (o `buffer_size` do `BufferedReader`). No semestre de 82 MB compactados, são 11 requisições de dados, em cerca de 10 s.
+
+`get_csv_file_from_zip` escolhe o arquivo pelo nome. As densidades leem o `Densidade_Telefonia_Movel.csv`. O `microdados` lê o semestre mais recente, que é o `max()` dos nomes: como o formato do nome é fixo, a ordem alfabética coincide com a do tempo.
+
+---
+
+## Limpeza
+
+A limpeza usa polars em modo lazy (`scan_csv` e `sink_csv`) e lê todas as colunas como texto (`infer_schema_length=0`). Os tipos vêm do `safe_cast` dos modelos dbt. Os CSVs usam `;` como separador e começam com BOM UTF-8, que o polars descarta.
+
+- **`microdados`** (`clean_csv_microdados`): grava um `data.csv` por mês, em pastas como `ano=2026/mes=8/`, com o mês sem zero à esquerda. As colunas `ano` e `mes` ficam só no caminho, fora do arquivo.
+- **Densidades** (`clean_csv_densidade`): filtra o nível, renomeia as colunas (`RENAME_COLUMNS_DENSIDADE`), troca a vírgula decimal da densidade por ponto e grava a série inteira num arquivo só, com o nome da tabela (`densidade_uf.csv`, por exemplo).
+
+A staging é uma tabela externa que lê os arquivos do bucket, e o upload só substitui o arquivo de mesmo caminho. Se o caminho ou o nome mudar (`mes=08`, ou `data.csv` nas densidades), o arquivo antigo continua no bucket e os dados aparecem duas vezes na staging.
+
+O pico de memória da limpeza cresce com o número de threads do polars. Medição no CSV de um semestre com dois meses (602 MiB), com a memória limitada por `systemd-run -p MemoryMax=...`:
+
+| Threads do polars | Limite de memória em que a limpeza termina |
+| --- | --- |
+| 32 | 2 GB (morre com 1 GB) |
+| 4 | 1 GB |
+| 2 | 512 MB |
+
+Por padrão, o polars usa uma thread por CPU disponível. O flow não define `POLARS_MAX_THREADS`, a variável de ambiente que limita esse número.
 
 ---
 
 ## Estrutura dos flows e o poll
 
-Cada tabela tem um flow próprio (`flows.py`), agendado em dias distintos. Antes da migração pro pipeline em estágios, todos delegavam a `_run_anatel_telefonia_movel`, o flow monolítico antigo (removido; vivia em `crawler/anatel/telefonia_movel/flows.py`).
+Os flows seguem o modelo em estágios (`CheckThenExtractLoadPipeline`, em `pipelines/utils/stage_dispatch.py`). Cada tabela tem dois, em `flows.py`:
 
-**Poll por geografia + deferido (aplicado):** as 3 densidades saem do mesmo arquivo, então `get_max_date_in_table_microdados` (`tasks.py`) calcula a data máxima **filtrando pela geografia da tabela** — não o max do arquivo inteiro. E o poll é **deferido**: `poll_source_for_update_task` detecta a novidade e `commit_source_update_task` grava o `Update` **só após a materialização** (padrão do PR #1600, `br_ibge_inflacao`).
+| Flow | Agendamento | O que faz | Memória |
+| --- | --- | --- | --- |
+| `br_anatel_telefonia_movel_<tabela>_check_update` | todo dia, entre 16h32 e 16h44 | baixa o CSV da tabela, calcula o mês mais recente e compara com a cobertura da tabela; se a fonte estiver à frente, grava o `RawDataSource.Update` e dispara o `download` | padrão do deploy para `check_update` (1Gi) |
+| `br_anatel_telefonia_movel_<tabela>_download` | disparado pelo `check_update` | baixa o CSV de novo, limpa e sobe para a staging de dev; o `build_and_promote` genérico materializa, testa e promove para prod | padrão do pool (4Gi e 2 CPUs) |
+
+O `check_update` baixa o CSV porque o mês mais recente da fonte só aparece dentro dele. `get_max_date_in_table_microdados` (`tasks.py`) calcula esse mês no CSV do semestre, para o `microdados`, e no CSV de densidade **filtrado pela geografia da tabela**, para as densidades. No microdados, o `build_and_promote` promove para prod só as partições `ano=/mes=` gravadas no run; nas densidades, que não têm partição, promove a tabela inteira.
+
+O código fica todo em `pipelines/datasets/br_anatel_telefonia_movel/`, sem diretório em `pipelines/crawler/`.
+
+**"Última atualização na fonte original" gravada antes da carga:** quando o `check_update` acha mês novo, grava o `RawDataSource.Update` antes de disparar o `download`. Se o `download` falhar, o metadado da fonte continua mostrando que a Anatel publicou dado novo. Isso não trava a tabela, porque o `check_update` compara o mês da fonte com o último mês da tabela (`compare_against="coverage"`), que só avança quando a materialização termina (PR #1783).
 
 **Histórico do bug (contexto):** antes, a função retornava `df["data"].max()` do arquivo inteiro, então o `source_max_date` de cada densidade refletia a data de *outra* geografia (UF/Município), não a própria; e o poll era **eager** (gravava o `Update` antes de materializar). Uma falha de materialização carimbava o ponteiro adiantado e travava a tabela — foi o que travou a `densidade_brasil`.
 
-**Parâmetros:** em prod, rodar com defaults; `force_run=True` força a ingestão de um mês, útil para destravar/backfill.
+**Carga sem mês novo:** para recarregar uma tabela sem passar pelo `check_update`, dispara-se o `<tabela>_download` direto, com `download_params={"reference_date": "2026-08-01"}`. O `download` não lê a data: ele sempre baixa o semestre mais recente ou o CSV de densidade inteiro. Num deployment de dev (`dev-...`), o `build_and_promote` não promove para prod.
 
 ---
 
@@ -65,7 +115,8 @@ Acessos por município, operadora, tecnologia, modalidade, tipo de pessoa e prod
 **Problema identificado — `acessos` 100% NULL de 2025-01 a 2026-03 (15 meses):**
 - Causa: a fonte passou a emitir `acessos` como float (`"1.0"`) em 2025; `safe_cast(acessos as int64)` nulifica.
 - **Fix (APLICADO):** o cast no modelo é `safe_cast(safe_cast(acessos as float64) as int64)`. Retrocompatível (`"1"`→1, `"1.0"`→1, `"null"`→NULL). Como a tabela é `materialized="table"` e o staging guarda os `"1.0"` crus, um `dbt run` recupera os 15 meses **sem rebaixar da Anatel**. Validado em dev (`dbt run`+`dbt test` OK); prod via PR.
-- Defesa extra: normalizar `acessos` também no `clean_csv_microdados` (o único numérico que não é tratado no pandas).
+
+**CNPJ com 14 dígitos:** a fonte traz o CNPJ com os zeros à esquerda, mas parte da staging guarda o valor sem eles (13 ou 11 dígitos), de cargas em que a limpeza lia a coluna como número. O modelo completa com `lpad(safe_cast(cnpj as string), 14, '0')`. Nenhum valor da staging passa de 14 dígitos, então o `lpad` não corta nada.
 
 **Partição (corrigida):** o `range` da partição por `ano` foi ajustado para `end: 2031` (2026 + 5, convenção BD) — antes estava em 2023, deixando os anos ≥2023 em partição residual (degradava custo/pruning).
 
@@ -76,7 +127,6 @@ Densidade nacional (1 linha por mês).
 **Problema identificado — tabela travada em 2026-01** (as outras densidades foram até 2026-03):
 - **Não** é ausência na fonte — o arquivo tem `"Brasil"` para todos os meses. É o **bug do poll** (ver seção acima): o ponteiro do brasil foi carimbado adiantado e o flow passou a retornar antes de materializar (falhas de junho/2026).
 - **Fix permanente (aplicado):** poll por geografia + deferido (ver seção acima), que impede o ponteiro de avançar sem materialização bem-sucedida.
-- **Recuperação da tabela já travada (pós-deploy):** disparar uma vez com `force_run=True` — o ponteiro já foi queimado antes do fix, então o `force_run` materializa 2026-02..05 e ressincroniza.
 
 ### br_anatel_telefonia_movel__densidade_uf
 
