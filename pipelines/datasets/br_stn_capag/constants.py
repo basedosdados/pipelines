@@ -6,6 +6,7 @@ from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 
 MUNICIPIOS_TABLE_ID = "municipios"
 ESTADOS_TABLE_ID = "estados"
+BASE_CALCULO_TABLE_ID = "municipios_base_calculo"
 
 DATASET_ID = "br_stn_capag"
 
@@ -16,6 +17,8 @@ PACKAGE_SHOW_URL = (
 CKAN_PACKAGES = {
     MUNICIPIOS_TABLE_ID: "capag-municipios",
     ESTADOS_TABLE_ID: "capag-estados",
+    # Mesmo pacote de `municipios`: os valores-base vêm da aba Datalake.
+    BASE_CALCULO_TABLE_ID: "capag-municipios",
 }
 
 DATA_FORMATS = ("CSV", "XLSX")  # Formatos aceitos
@@ -137,6 +140,95 @@ CHAVE_UNICA = {
     MUNICIPIOS_TABLE_ID: ("id_municipio",),
     ESTADOS_TABLE_ID: ("sigla_uf",),
 }
+
+# Aba Datalake dos arquivos de municípios
+DATALAKE_SHEET = "datalake"
+DATALAKE_ID_COLUMN = "id_ente"
+
+# Colunas da aba Datalake que não são da DCA, pelo prefixo (depois do ano) do
+# cabeçalho: `(demonstrativo, conta, coluna)`. `coluna` é o texto da coluna do
+# demonstrativo, que vem colado ao prefixo e antes do detalhe da linha.
+CONTAS_DATALAKE = {
+    "DemaisObrigacoesFinanceiras": (
+        "rgf",
+        "Demais obrigações financeiras",
+        "Demais Obrigações Financeiras (e)",
+    ),
+    "DespesasCorrentes": (
+        "rreo",
+        "Despesas correntes empenhadas até o bimestre",
+        "DESPESAS EMPENHADAS ATÉ O BIMESTRE (f)",
+    ),
+    "DespesasCorrentesIntra": (
+        "rreo",
+        "Despesas correntes intraorçamentárias empenhadas até o bimestre",
+        "DESPESAS EMPENHADAS ATÉ O BIMESTRE (f)",
+    ),
+    "DisponibilidadeDeCaixaBruta": (
+        "rgf",
+        "Disponibilidade de caixa bruta",
+        "DISPONIBILIDADE DE CAIXA BRUTA (a)",
+    ),
+    "DisponibilidadeDeCaixaLiquida": (
+        "rgf",
+        "Disponibilidade de caixa líquida",
+        "DISPONIBILIDADE DE CAIXA LÍQUIDA (ANTES DA INSCRIÇÃO EM RESTOS A "
+        "PAGAR NÃO PROCESSADOS DO EXERCÍCIO) (g)=(a-(b+c+d+e)-f)",
+    ),
+    "DividaConsolidada": ("rgf", "Dívida consolidada", "Último Período"),
+    "RGF2ReceitaCorrenteLiquida": (
+        "rgf",
+        "Receita corrente líquida",
+        "Último Período",
+    ),
+    "ReceitasCorrentes": (
+        "rreo",
+        "Receitas correntes realizadas até o bimestre",
+        "Até o Bimestre (c)",
+    ),
+    "ReceitasCorrentesIntra": (
+        "rreo",
+        "Receitas correntes intraorçamentárias realizadas até o bimestre",
+        "Até o Bimestre (c)",
+    ),
+    "RestosAPagarEmpenhadosENaoLiquidadosDeExerciciosAnteriores": (
+        "rgf",
+        "Restos a pagar empenhados e não liquidados de exercícios anteriores",
+        "Restos a Pagar Empenhados e Não Liquidados de Exercícios "
+        "Anteriores (d)",
+    ),
+    "RestosAPagarLiquidadosENaoPagosDeExerciciosAnteriores": (
+        "rgf",
+        "Restos a pagar liquidados e não pagos de exercícios anteriores",
+        "De Exercícios Anteriores (b)",
+    ),
+    "RestosAPagarLiquidadosENaoPagosDoExercicio": (
+        "rgf",
+        "Restos a pagar liquidados e não pagos do exercício",
+        "Do Exercício (c)",
+    ),
+}
+
+COLUNAS_SAIDA_BASE_CALCULO = (
+    "id_municipio",
+    "ano_base",
+    "demonstrativo",
+    "tipo",
+    "codigo_conta",
+    "conta",
+    "detalhe",
+    "valor",
+    "data_referencia",
+)
+CHAVE_UNICA_BASE_CALCULO = (
+    "id_municipio",
+    "ano_base",
+    "demonstrativo",
+    "tipo",
+    "codigo_conta",
+    "conta",
+    "detalhe",
+)
 
 COVERAGE = AllFree(
     date_column=DateOnly(col="data_referencia"),

@@ -11,7 +11,9 @@ from pipelines.datasets.br_stn_capag.constants import COVERAGE, DATASET_ID
 from pipelines.datasets.br_stn_capag.utils import (
     download_table,
     list_resources,
+    process_base_calculo,
     process_records,
+    select_resources,
     write_partitioned,
 )
 from pipelines.utils.stage_dispatch import (
@@ -61,8 +63,44 @@ def make_extract_load_data(
     return extract_load_data
 
 
+def make_extract_load_base_calculo(
+    table_id: str,
+) -> Callable[[dict], ExtractAndLoad]:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        """Baixa o recurso mais recente e trata a aba Datalake.
+
+        Args:
+            download_params: Ignorado: o recurso é sempre o mais recente,
+                também no `historico`.
+        """
+        latest = max(
+            resource["reference_date"]
+            for resource in select_resources(list_resources(table_id))
+        )
+
+        output_dir = Path("tmp") / "br_stn_capag" / table_id / "output"
+        shutil.rmtree(output_dir, ignore_errors=True)
+        for resource, path in download_table(table_id, latest):
+            df = process_base_calculo(path, resource)
+            write_partitioned(df, output_dir, resource)
+
+        return ExtractAndLoad(
+            coverage=COVERAGE.model_dump(),
+            data_path=str(output_dir),
+            dump_mode="overwrite",
+        )
+
+    return extract_load_data
+
+
 make_pipeline = pipeline_factory(
     DATASET_ID,
     make_get_latest_update,
     make_extract_load_data,
+)
+
+make_pipeline_base_calculo = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_base_calculo,
 )

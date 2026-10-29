@@ -15,7 +15,16 @@ formatos (o PDF de metadados, por exemplo), e só CSV e XLSX entram (`DATA_FORMA
 | pacote | tabela | formato | recursos |
 |---|---|---|---|
 | `capag-municipios` | `municipios` | XLSX | 2018 a 2026; em 2024, 2025 e 2026 há mais de um recorte por ano |
+| `capag-municipios` | `municipios_base_calculo` | XLSX (aba `Datalake`) | só o recurso mais recente |
 | `capag-estados` | `estados` | CSV (`;`, UTF-8 com BOM) | 2018 a 2025, com uma revisão de 2024 |
+
+`municipios_base_calculo` vem da aba `Datalake` do mesmo arquivo de `municipios`: valores
+da DCA, RGF e RREO que servem de base ao cálculo dos indicadores, em formato longo (um
+valor por município, ano, demonstrativo e conta). Os valores mudam de um arquivo pra outro
+(a STN republica com correções), então só o recurso mais recente é lido. 
+O cabeçalho de cada coluna junta ano, conta e detalhe numa string só;
+`_parse_datalake_header` separa as partes, e os prefixos do RGF/RREO ficam em
+`CONTAS_DATALAKE`. Cabeçalho novo que não bate com nenhum formato derruba a execução.
 
 O servidor responde `429` a downloads em sequência: o download espera
 `DOWNLOAD_PAUSE_SECONDS` entre arquivos e repete com espera crescente (ou o

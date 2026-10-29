@@ -18,12 +18,17 @@ import pandas as pd
 
 from pipelines.datasets.br_stn_capag.constants import (
     CHAVE_UNICA,
+    CHAVE_UNICA_BASE_CALCULO,
     CKAN_PACKAGES,
     COLUNAS_FONTE,
     COLUNAS_NUMERICAS,
     COLUNAS_OBRIGATORIAS,
     COLUNAS_SAIDA,
+    COLUNAS_SAIDA_BASE_CALCULO,
+    CONTAS_DATALAKE,
     DATA_FORMATS,
+    DATALAKE_ID_COLUMN,
+    DATALAKE_SHEET,
     DOWNLOAD_BACKOFF_SECONDS,
     DOWNLOAD_CHUNK_SIZE,
     DOWNLOAD_MAX_ATTEMPTS,
@@ -42,6 +47,15 @@ from pipelines.utils.utils import log
 
 _NAME_DATE_RE = re.compile(r"(\d{2})/(\d{2})/(\d{4})\s*$")
 _NAME_YEAR_RE = re.compile(r"\b(20\d{2})\b")
+# Cabeçalho da DCA: `<ano><DO|RI|RO><código><conta><código> - <detalhe>`, com
+# o código repetido (às vezes sem o último nível) depois do nome. Ex.:
+# `2021RI7.0.0.0.00.0.0Deduções - FUNDEB7.0.0.0.00.0.0 - Receitas Correntes`
+_DCA_HEADER_RE = re.compile(
+    r"^(\d{4})(DO|RI|RO)(\d[\d.]*)([^\d.].*?)\d[\d.]* - (.+)$"
+)
+# Os prefixos mais longos primeiro, pra `DespesasCorrentesIntra` não cair em
+# `DespesasCorrentes`.
+_CONTAS_DATALAKE_PREFIXES = sorted(CONTAS_DATALAKE, key=len, reverse=True)
 
 
 def _parse_datetime(value: str | None) -> datetime | None:
@@ -449,6 +463,141 @@ def process_records(
     if df.duplicated(key).any():
         raise ValueError(f"{path.name}: chaves {key} repetidas.")
     log(f"{path.name}: {len(df)} linhas tratadas")
+    return df
+
+
+def _parse_datalake_header(header: str) -> dict[str, Any]:
+    """Separa o cabeçalho de uma coluna da aba Datalake em seus componentes.
+
+    Args:
+        header: cabeçalho do demonstrativo
+            Ex.: `2021DO3.0.00.00.00.00Despesas Empenhadas3.0.00.00.00 -
+            Despesas Correntes` (DCA) ou `2025DividaConsolidadaÚltimo
+            PeríodoDÍVIDA CONSOLIDADA - DC (I)` (RGF/RREO).
+
+    Returns:
+        `ano_base`, `demonstrativo` (`dca`, `rgf` ou `rreo`), `tipo` (`DO`,
+        `RI` ou `RO`, só na DCA), `codigo_conta` (só na DCA), `conta` e
+        `detalhe`.
+
+    Raises:
+        ValueError: Quando o cabeçalho não segue nenhum formato conhecido.
+    """
+    match = _DCA_HEADER_RE.match(header)
+    if match:
+        ano_base, tipo, codigo_conta, conta, detalhe = match.groups()
+        return {
+            "ano_base": int(ano_base),
+            "demonstrativo": "dca",
+            "tipo": tipo,
+            "codigo_conta": codigo_conta,
+            "conta": conta.strip(),
+            "detalhe": detalhe.strip(),
+        }
+
+    ano_base, rest = header[:4], header[4:]
+    for prefix in _CONTAS_DATALAKE_PREFIXES:
+        if not (ano_base.isdigit() and rest.startswith(prefix)):
+            continue
+        demonstrativo, conta, coluna = CONTAS_DATALAKE[prefix]
+        detalhe = rest[len(prefix) :]
+        if detalhe.startswith(coluna):
+            return {
+                "ano_base": int(ano_base),
+                "demonstrativo": demonstrativo,
+                "tipo": None,
+                "codigo_conta": None,
+                "conta": conta,
+                "detalhe": detalhe[len(coluna) :].strip(),
+            }
+    raise ValueError(f"Cabeçalho do Datalake não reconhecido: {header!r}")
+
+
+def _read_datalake(path: Path) -> tuple[tuple[Any, ...], list[tuple]]:
+    """Lê a aba Datalake de um arquivo.
+
+    Raises:
+        ValueError: Quando o arquivo não tem a aba ou o cabeçalho não começa
+            pelo código do município.
+    """
+    workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    try:
+        sheets = [
+            sheet
+            for sheet in workbook.worksheets
+            if _slugify(sheet.title) == DATALAKE_SHEET
+        ]
+        if not sheets:
+            raise ValueError(
+                f"{path.name}: sem aba Datalake ({', '.join(workbook.sheetnames)})."
+            )
+        # Mesmo motivo de `_read_records`: a dimensão declarada pode ser `A1`.
+        sheets[0].reset_dimensions()
+        rows = sheets[0].iter_rows(values_only=True)
+        header = next(rows)
+        if _slugify(str(header[0])) != DATALAKE_ID_COLUMN:
+            raise ValueError(
+                f"{path.name}: a aba Datalake começa em {header[0]!r}, "
+                f"esperava {DATALAKE_ID_COLUMN!r}."
+            )
+        return header, list(rows)
+    finally:
+        workbook.close()
+
+
+def process_base_calculo(path: Path, resource: dict[str, Any]) -> pd.DataFrame:
+    """Lê a aba Datalake e devolve os valores-base em formato longo.
+    Args:
+        path: Arquivo xlsx baixado de `resource`.
+        resource: Item de `list_resources`.
+
+    Returns:
+        DataFrame com `COLUNAS_SAIDA_BASE_CALCULO` mais `ano` (partição).
+
+    Raises:
+        ValueError: Quando faltam municípios, o cabeçalho não é reconhecido
+            ou há chaves repetidas.
+    """
+    header, rows = _read_datalake(path)
+    columns = {
+        position: _parse_datalake_header(str(cell))
+        for position, cell in enumerate(header)
+        if position > 0 and cell
+    }
+
+    records = []
+    for row in rows:
+        id_municipio = _to_number(row[0]) if row else None
+        if id_municipio is None:
+            continue
+        if id_municipio % 1 != 0:
+            raise ValueError(f"{path.name}: código IBGE com parte decimal.")
+        for position, parsed in columns.items():
+            valor = _to_number(row[position]) if position < len(row) else None
+            if valor is not None:
+                records.append(
+                    {
+                        "id_municipio": str(int(id_municipio)),
+                        **parsed,
+                        "valor": valor,
+                    }
+                )
+
+    df = pd.DataFrame(records)
+    df["data_referencia"] = resource["reference_date"]
+    df["ano"] = resource["year"]
+    df = df[[*COLUNAS_SAIDA_BASE_CALCULO, "ano"]]
+
+    n_municipios = df["id_municipio"].nunique()
+    if n_municipios < MIN_ROWS[MUNICIPIOS_TABLE_ID]:
+        raise ValueError(
+            f"{path.name}: {n_municipios} municípios, esperava pelo menos "
+            f"{MIN_ROWS[MUNICIPIOS_TABLE_ID]}."
+        )
+    key = list(CHAVE_UNICA_BASE_CALCULO)
+    if df.duplicated(key).any():
+        raise ValueError(f"{path.name}: chaves {key} repetidas.")
+    log(f"{path.name}: {len(df)} valores de {n_municipios} municípios")
     return df
 
 
