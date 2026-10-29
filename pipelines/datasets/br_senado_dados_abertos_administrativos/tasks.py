@@ -63,25 +63,38 @@ from pipelines.utils.stage_dispatch import (
 )
 
 
-@task
-def extract_table(table_id: str) -> list[dict]:
-    """Extrai e limpa uma tabela na janela de rotina.
+def window_years() -> list[int]:
+    """Lista os anos da janela de rotina das séries.
+
+    Returns:
+        O ano corrente e os `constants.REFRESH_PRIOR_YEARS` anteriores, em
+        ordem crescente.
+    """
+    current_year = date.today().year
+    return list(
+        range(
+            current_year - constants.REFRESH_PRIOR_YEARS.value,
+            current_year + 1,
+        )
+    )
+
+
+def extract_table(table_id: str, years: list[int]) -> list[dict]:
+    """Extrai e limpa uma tabela.
 
     Args:
         table_id: nome da tabela.
+        years: anos consultados nas séries; as outras tabelas os ignoram.
 
     Returns:
         As linhas da tabela. As tabelas de `data_extracao` vêm com o retrato
-        de hoje; as séries, só nos anos da janela.
+        de hoje; as séries, só nos anos pedidos.
 
     Raises:
         ValueError: se a tabela não for do conjunto ou for estática.
     """
     today = date.today()
     extracted_at = today.isoformat()
-    years = list(
-        range(today.year - constants.REFRESH_PRIOR_YEARS.value, today.year + 1)
-    )
     match table_id:
         case "senador":
             identificacoes, crosswalk = get_senador_reference()
@@ -176,16 +189,18 @@ def extract_table(table_id: str) -> list[dict]:
 
 
 @task
-def get_max_date(table_id: str, rows: list[dict]) -> date:
+def get_max_date(table_id: str) -> date:
     """Lê a maior data de uma série, na coluna de data da cobertura.
+
+    Extrai um ano da janela por vez, do mais recente para o mais antigo, e
+    para no primeiro ano com data.
 
     Args:
         table_id: nome da série.
-        rows: as linhas da série, extraídas por `extract_table`.
 
     Returns:
         A maior data; numa série por mês, o primeiro dia do maior mês. Devolve
-        `constants.NO_NEW_DATA_DATE` se a série vier sem data.
+        `constants.NO_NEW_DATA_DATE` se a janela vier sem data.
 
     Raises:
         ValueError: se a tabela não tiver coluna de data, ou se ela não for
@@ -195,44 +210,64 @@ def get_max_date(table_id: str, rows: list[dict]) -> date:
     if not isinstance(coverage, AllFree | PartBdpro):
         raise ValueError(f"tabela sem coluna de data: {table_id}")
     date_column = coverage.date_column
-    if isinstance(date_column, DateOnly):
-        dates = [row[date_column.col] for row in rows if row[date_column.col]]
-        if not dates:
-            return constants.NO_NEW_DATA_DATE.value
-        return date.fromisoformat(max(dates))
-    if isinstance(date_column, YearMonth):
-        months = [
-            (row[date_column.year], row[date_column.month])
-            for row in rows
-            if row[date_column.year] and row[date_column.month]
-        ]
-        if not months:
-            return constants.NO_NEW_DATA_DATE.value
-        year, month = max(months)
-        return date(year, month, 1)
-    raise ValueError(f"coluna de data por ano: {table_id}")
+    if not isinstance(date_column, DateOnly | YearMonth):
+        raise ValueError(f"coluna de data por ano: {table_id}")
+    for year in reversed(window_years()):
+        rows = extract_table(table_id, [year])
+        if isinstance(date_column, DateOnly):
+            dates = [
+                row[date_column.col] for row in rows if row[date_column.col]
+            ]
+            if dates:
+                return date.fromisoformat(max(dates))
+        else:
+            months = [
+                (row[date_column.year], row[date_column.month])
+                for row in rows
+                if row[date_column.year] and row[date_column.month]
+            ]
+            if months:
+                max_year, max_month = max(months)
+                return date(max_year, max_month, 1)
+    return constants.NO_NEW_DATA_DATE.value
 
 
 @task
-def save_table(table_id: str, rows: list[dict]) -> str:
-    """Grava uma tabela em parquet num diretório temporário.
+def save_table(table_id: str) -> str:
+    """Extrai uma tabela e grava em parquet num diretório temporário.
+
+    As séries são extraídas e gravadas um ano da janela por vez, e só um ano
+    fica na memória.
 
     Args:
         table_id: nome da tabela.
-        rows: as linhas da tabela, extraídas por `extract_table`.
 
     Returns:
         O diretório da tabela, no formato esperado por `upload_to_gcs`.
 
     Raises:
-        ValueError: se a tabela vier sem linhas.
+        ValueError: se uma tabela sem partição por `ano` vier sem linhas.
     """
-    if not rows:
-        raise ValueError(f"a fonte devolveu a tabela {table_id} sem linhas")
     work_dir = tempfile.mkdtemp(
         prefix=f"{constants.DATASET_ID.value}_{table_id}_"
     )
-    return write_table(os.path.join(work_dir, "output"), table_id, rows)
+    output = os.path.join(work_dir, "output")
+    if table_id not in constants.PARTITIONED.value:
+        rows = extract_table(table_id, window_years())
+        if not rows:
+            raise ValueError(
+                f"a fonte devolveu a tabela {table_id} sem linhas"
+            )
+        return write_table(output, table_id, rows)
+    target = os.path.join(output, table_id)
+    for index, year in enumerate(window_years()):
+        target = write_table(
+            output,
+            table_id,
+            extract_table(table_id, [year]),
+            reset=index == 0,
+        )
+    return target
 
 
 def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
@@ -261,9 +296,8 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
         date_table_id = constants.REFERENCE_DATE_TABLES.value.get(
             table_id, table_id
         )
-        rows = extract_table(table_id=date_table_id)
         return SourceInspection(
-            reference_date=get_max_date(table_id=date_table_id, rows=rows)
+            reference_date=get_max_date(table_id=date_table_id)
         )
 
     return get_latest_update
@@ -288,10 +322,9 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
 
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
         """Extrai a tabela e devolve o parquet e a cobertura."""
-        rows = extract_table(table_id=table_id)
         return ExtractAndLoad(
             coverage=coverage_dump,
-            data_path=save_table(table_id=table_id, rows=rows),
+            data_path=save_table(table_id=table_id),
             dump_mode="overwrite",
             source_format="parquet",
         )

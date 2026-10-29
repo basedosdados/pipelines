@@ -227,9 +227,10 @@ Cada tabela refaz as chamadas de que precisa, mesmo quando outra tabela usa as m
 todo run. Nas tabelas de `data_extracao`, um segundo run no mesmo dia não recarrega, porque a
 cobertura já termina na data do dia.
 
-Nas séries, o `check_update` extrai a janela só para ler a maior data; quando há novidade, o
-`extract_and_load` extrai a janela de novo. Quando a janela vem vazia, a data de referência é
-1900-01-01, lida como "sem novidade".
+Nas séries, o `check_update` extrai a janela só para ler a maior data, um ano por vez: começa pelo
+ano corrente e para no primeiro ano com data. Quando há novidade, o `extract_and_load` extrai a
+janela de novo. Quando a janela vem vazia, a data de referência é 1900-01-01, lida como "sem
+novidade".
 
 `suprido_transacao_objeto` e `suprido_movimentacao_subtipo` só têm `ano`, e uma cobertura por ano
 termina em 1º de janeiro: a maior data da própria série nunca passaria dela antes da virada do
@@ -321,9 +322,10 @@ Na carga completa, `clean_all` grava e libera uma tabela por vez, e as séries u
 completo e cerca de 9 GB somada a `servidor_hora_extra_dia`. Montar todas as tabelas antes de
 gravar não cabe num worker de 4 GiB.
 
-Nos flows, `extract_table` monta a janela inteira de uma tabela antes de gravar. A maior é
-`servidor_remuneracao`: dois anos de folha, entre 1 e 2 GB pela mesma conta. O `check_update` das
-séries também monta a janela, para ler a maior data.
+Nos flows, as séries também são extraídas e gravadas um ano por vez, em `get_max_date` e
+`save_table`. Os dois flows de `servidor_remuneracao` pedem 8 GiB (`job_variables`): com a janela
+inteira de uma vez, 22 meses de folha, o `check_update` passou dos 4 GiB do padrão e foi
+encerrado por falta de memória.
 
 ### Carga completa
 

@@ -568,6 +568,10 @@ br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update.deploy
 br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update.deploy_schedules = [
     Cron("48 11 * * *", timezone="America/Sao_Paulo")
 ]
+br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update.job_variables = {
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
 
 
 @flow(
@@ -585,6 +589,10 @@ br_senado_dados_abertos_administrativos_servidor_remuneracao_download.deploy_tag
     Etapa.EXTRACT_AND_LOAD,
     constants_servidor_remuneracao.TABLE_ID.value,
 )
+br_senado_dados_abertos_administrativos_servidor_remuneracao_download.job_variables = {
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
 _servidor_remuneracao_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_remuneracao_download.fn.__name__
 
 
