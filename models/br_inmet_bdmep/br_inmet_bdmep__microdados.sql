@@ -7,7 +7,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2000, "end": 2026, "interval": 1},
+            "range": {"start": 2000, "end": 2031, "interval": 1},
         },
         pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
         cluster_by=["id_estacao"],
@@ -41,8 +41,6 @@ select
     safe_cast(vento_velocidade as float64) vento_velocidade
 from {{ set_datalake_project("br_inmet_bdmep_staging.microdados") }} as t
 {% if is_incremental() %}
-    where
-        safe_cast(data as date) >= (select max(data) from {{ this }})
-        and safe_cast(ano as int64) >= (select max(ano) from {{ this }})
+    where safe_cast(ano as int64) >= (select max(ano) from {{ this }})
 {% endif %}
 qualify row_number() over (partition by {{ unique_keys | join(", ") }}) = 1
