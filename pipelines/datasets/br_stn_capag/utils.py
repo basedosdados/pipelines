@@ -221,7 +221,9 @@ def download_resource(resource: dict[str, Any], input_dir: Path) -> Path:
 
 
 def select_resources(
-    resources: list[dict[str, Any]], reference_date: date | None = None
+    resources: list[dict[str, Any]],
+    reference_date: date | None = None,
+    min_year: int | None = None,
 ) -> list[dict[str, Any]]:
     """Filtra os recursos pela data de referência.
 
@@ -231,6 +233,7 @@ def select_resources(
     Args:
         resources: Itens de `list_resources`.
         reference_date: Data de referência do recurso. `None` mantém todos
+        min_year: Descarta os recursos de anos anteriores a este.
 
     Returns:
         Os recursos selecionados. Mais de um, se vários têm a mesma data.
@@ -242,6 +245,8 @@ def select_resources(
     resources = [
         r for r in resources if r["revisao"] or r["year"] not in revised_years
     ]
+    if min_year is not None:
+        resources = [r for r in resources if r["year"] >= min_year]
     if reference_date is None:
         return resources
     selected = [
@@ -261,6 +266,7 @@ def select_resources(
 def download_table(
     table_id: str,
     reference_date: date | None = None,
+    min_year: int | None = None,
 ) -> list[tuple[dict[str, Any], Path]]:
     """Baixa os recursos de dados de uma tabela para `tmp/<table_id>/input`.
 
@@ -268,6 +274,7 @@ def download_table(
         table_id: `municipios` ou `estados`.
         reference_date: Data de referência do recurso a baixar. `None`
             baixa todos os recursos (histórico).
+        min_year: Ignora os recursos de anos anteriores a este.
 
     Returns:
         Pares `(recurso, caminho do arquivo)`, em ordem de data de
@@ -276,7 +283,9 @@ def download_table(
     input_dir = Path("tmp") / "br_stn_capag" / table_id / "input"
     shutil.rmtree(input_dir, ignore_errors=True)
 
-    resources = select_resources(list_resources(table_id), reference_date)
+    resources = select_resources(
+        list_resources(table_id), reference_date, min_year
+    )
     downloads = []
     for resource in resources:
         if downloads:

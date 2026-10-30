@@ -8,10 +8,7 @@ from pipelines.datasets.br_stn_capag.constants import (
     ESTADOS_TABLE_ID,
     MUNICIPIOS_TABLE_ID,
 )
-from pipelines.datasets.br_stn_capag.tasks import (
-    make_pipeline,
-    make_pipeline_base_calculo,
-)
+from pipelines.datasets.br_stn_capag.tasks import make_pipeline
 from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
@@ -74,7 +71,7 @@ _estados_pipeline.extract_load_deployment = (
 
 
 # municipios_base_calculo
-_base_calculo_pipeline = make_pipeline_base_calculo(BASE_CALCULO_TABLE_ID)
+_base_calculo_pipeline = make_pipeline(BASE_CALCULO_TABLE_ID)
 
 
 @flow(name=_base_calculo_pipeline.check_update_flow_name, log_prints=True)

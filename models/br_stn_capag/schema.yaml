@@ -129,14 +129,17 @@ models:
   - name: br_stn_capag__municipios_base_calculo
     description: >
       Valores-base usados no cálculo dos indicadores da CAPAG dos municípios,
-      extraídos da aba `Datalake` do arquivo mais recente publicado pela
-      Secretaria do Tesouro Nacional (STN). Cada linha é o valor de uma conta
-      de um município em um ano_base, vindo da DCA, do RGF ou do RREO.
-      Contém só a versão mais recente.
+      extraídos da aba `Datalake` dos arquivos publicados pela Secretaria do
+      Tesouro Nacional (STN) a partir de 2024. Cada linha é o valor de uma conta
+      de um município em um ano_base, vindo da DCA, do RGF ou do RREO, em uma
+      `data_referencia` (data do arquivo). O mesmo valor se repete em vários arquivos,
+      e a STN pode retificá-lo. Para a versão vigente, use a maior
+      `data_referencia` de cada `ano_base`.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - ano_base
+            - data_referencia
             - id_municipio
             - demonstrativo
             - tipo

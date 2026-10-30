@@ -141,13 +141,15 @@ CHAVE_UNICA = {
     ESTADOS_TABLE_ID: ("sigla_uf",),
 }
 
+# Primeiro ano dos recursos lidos, por tabela. Só os de 2024 em diante têm a
+# aba Datalake.
+MIN_YEAR = {BASE_CALCULO_TABLE_ID: 2024}
+
 # Aba Datalake dos arquivos de municípios
 DATALAKE_SHEET = "datalake"
 DATALAKE_ID_COLUMN = "id_ente"
 
-# Colunas da aba Datalake que não são da DCA, pelo prefixo (depois do ano) do
-# cabeçalho: `(demonstrativo, conta, coluna)`. `coluna` é o texto da coluna do
-# demonstrativo, que vem colado ao prefixo e antes do detalhe da linha.
+# Colunas da aba Datalake que não são da DCA
 CONTAS_DATALAKE = {
     "DemaisObrigacoesFinanceiras": (
         "rgf",
