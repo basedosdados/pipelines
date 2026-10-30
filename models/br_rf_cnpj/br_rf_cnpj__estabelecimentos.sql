@@ -27,7 +27,11 @@ with
             safe_cast(
                 identificador_matriz_filial as string
             ) identificador_matriz_filial,
-            safe_cast(nome_fantasia as string) nome_fantasia,
+            safe_cast(
+                nullif(
+                    trim(regexp_replace(nome_fantasia, r'[\x00-\x1f]+', ' ')), ''
+                ) as string
+            ) nome_fantasia,
             safe_cast(cast(situacao_cadastral as int64) as string) situacao_cadastral,
             safe_cast(data_situacao_cadastral as date) data_situacao_cadastral,
             safe_cast(
@@ -41,11 +45,31 @@ with
             safe_cast(sigla_uf as string) sigla_uf,
             safe_cast(safe_cast(id_municipio_rf as numeric) as string) id_municipio_rf,
             safe_cast(tipo_logradouro as string) tipo_logradouro,
-            safe_cast(logradouro as string) logradouro,
-            safe_cast(numero as string) numero,
-            safe_cast(complemento as string) complemento,
-            safe_cast(bairro as string) bairro,
-            safe_cast(replace (cep, ".0", "") as string) cep,
+            safe_cast(
+                nullif(
+                    trim(regexp_replace(logradouro, r'[\x00-\x1f]+', ' ')), ''
+                ) as string
+            ) logradouro,
+            safe_cast(
+                nullif(trim(regexp_replace(numero, r'[\x00-\x1f]+', ' ')), '') as string
+            ) numero,
+            safe_cast(
+                nullif(
+                    trim(regexp_replace(complemento, r'[\x00-\x1f]+', ' ')), ''
+                ) as string
+            ) complemento,
+            safe_cast(
+                nullif(trim(regexp_replace(bairro, r'[\x00-\x1f]+', ' ')), '') as string
+            ) bairro,
+            safe_cast(
+                case
+                    when regexp_contains(trim(replace(cep, ".0", "")), r'^0*$')
+                    then null
+                    when regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{1,7}$')
+                    then lpad(trim(replace(cep, ".0", "")), 8, '0')
+                    else trim(replace(cep, ".0", ""))
+                end as string
+            ) cep,
             safe_cast(ddd_1 as string) ddd_1,
             safe_cast(telefone_1 as string) telefone_1,
             safe_cast(ddd_2 as string) ddd_2,
@@ -74,7 +98,11 @@ with
                 safe_cast(
                     identificador_matriz_filial as string
                 ) identificador_matriz_filial,
-                safe_cast(nome_fantasia as string) nome_fantasia,
+                safe_cast(
+                    nullif(
+                        trim(regexp_replace(nome_fantasia, r'[\x00-\x1f]+', ' ')), ''
+                    ) as string
+                ) nome_fantasia,
                 safe_cast(
                     cast(situacao_cadastral as int64) as string
                 ) situacao_cadastral,
@@ -92,11 +120,38 @@ with
                     safe_cast(id_municipio_rf as numeric) as string
                 ) id_municipio_rf,
                 safe_cast(tipo_logradouro as string) tipo_logradouro,
-                safe_cast(logradouro as string) logradouro,
-                safe_cast(numero as string) numero,
-                safe_cast(complemento as string) complemento,
-                safe_cast(bairro as string) bairro,
-                safe_cast(replace (cep, ".0", "") as string) cep,
+                safe_cast(
+                    nullif(
+                        trim(regexp_replace(logradouro, r'[\x00-\x1f]+', ' ')), ''
+                    ) as string
+                ) logradouro,
+                safe_cast(
+                    nullif(
+                        trim(regexp_replace(numero, r'[\x00-\x1f]+', ' ')), ''
+                    ) as string
+                ) numero,
+                safe_cast(
+                    nullif(
+                        trim(regexp_replace(complemento, r'[\x00-\x1f]+', ' ')), ''
+                    ) as string
+                ) complemento,
+                safe_cast(
+                    nullif(
+                        trim(regexp_replace(bairro, r'[\x00-\x1f]+', ' ')), ''
+                    ) as string
+                ) bairro,
+                safe_cast(
+                    case
+                        when regexp_contains(trim(replace(cep, ".0", "")), r'^0*$')
+                        then null
+                        when
+                            regexp_contains(
+                                trim(replace(cep, ".0", "")), r'^[0-9]{1,7}$'
+                            )
+                        then lpad(trim(replace(cep, ".0", "")), 8, '0')
+                        else trim(replace(cep, ".0", ""))
+                    end as string
+                ) cep,
                 safe_cast(ddd_1 as string) ddd_1,
                 safe_cast(telefone_1 as string) telefone_1,
                 safe_cast(ddd_2 as string) ddd_2,

@@ -19,11 +19,21 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj_basico
         description: CNPJ Básico
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: razao_social
         description: Razão Social
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: natureza_juridica
         description: Natureza Jurídica
         tests:
@@ -46,6 +56,16 @@ models:
   - name: br_rf_cnpj__socios
     description: Socios
     tests:
+      - dbt_utils.expression_is_true:
+          expression: >-
+            coalesce(case tipo
+            when '1' then regexp_contains(documento, r'^[0-9]{8}$')
+            when '2' then regexp_contains(documento, r'^\*{3}[0-9]{6}\*{2}$')
+            when '3' then documento is null
+            else true end, false)
+          config:
+            severity: error
+            where: __most_recent_date_cnpj__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - qualificacao_representante_legal
@@ -59,21 +79,47 @@ models:
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
+        tests: [is_row_count_increasing]
       - name: cnpj_basico
         description: CNPJ básico
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
+          - custom_relationships:
+              to: ref('br_rf_cnpj__empresas')
+              field: cnpj_basico
+              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
+              proportion_allowed_failures: 0.00001
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: tipo
         description: Tipo
       - name: nome
         description: Nome
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: documento
         description: Documento (CPF mascarado ou CNPJ)
       - name: qualificacao
         description: Qualificação
       - name: data_entrada_sociedade
         description: Data de Entrada na Sociedade
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
       - name: id_pais
         description: ID País
       - name: cpf_representante_legal
@@ -91,31 +137,94 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [cnpj_basico]
+      # Inconsistência na origem (RFB): ~3 casos em ~25M; tolera até 1e-6 das linhas
+      - custom_matching_rows_limit:
+          condition: data_exclusao_simples < data_opcao_simples
+          max_share: 0.000001
+          config:
+            severity: error
+      # Inconsistência na origem (RFB): ~3 casos em ~20M; tolera até 1e-6 das linhas
+      - custom_matching_rows_limit:
+          condition: data_exclusao_mei < data_opcao_mei
+          max_share: 0.000001
+          config:
+            severity: error
     columns:
-      - name: data_referencia
-        description: Data de referência (ano-mês) do dado.
       - name: cnpj_basico
         description: CNPJ Básico
-        tests: [not_null]
-        config:
-          where: __most_recent_date_cnpj__
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+          - custom_relationships:
+              to: ref('br_rf_cnpj__empresas')
+              field: cnpj_basico
+              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
+              proportion_allowed_failures: 0.000001
+              config:
+                severity: warn
       - name: opcao_simples
         description: Opção pelo Simples Nacional
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+              config:
+                severity: error
       - name: data_opcao_simples
         description: Data de Opção pelo Simples Nacional
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
       - name: data_exclusao_simples
         description: Data de Exclusão do Simples Nacional
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
       - name: opcao_mei
         description: Opção pelo MEI
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+              config:
+                severity: error
       - name: data_opcao_mei
         description: Data de Opção pelo MEI
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
       - name: data_exclusao_mei
         description: Data de Exclusão do MEI
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
       - name: data_modificacao
         description: Data de Modificação
   - name: br_rf_cnpj__estabelecimentos
     description: Estabelecimentos
     tests:
+      # Inconsistência na origem (RFB): 1065 casos em ~74M (~1,4e-5); tolera até 1e-4 das linhas
+      - custom_matching_rows_limit:
+          condition: data_inicio_atividade > data_situacao_cadastral
+          max_share: 0.0001
+          config:
+            severity: error
+            where: __most_recent_date_cnpj__
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [cnpj, data_referencia]
           config:
@@ -135,26 +244,69 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj
         description: CNPJ
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{12}[0-9]{2}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: cnpj_basico
         description: CNPJ Básico (8 primeiros dígitos)
-        tests: [not_null]
+        tests:
+          - not_null
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{8}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
+          - custom_relationships:
+              to: ref('br_rf_cnpj__empresas')
+              field: cnpj_basico
+              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
+              proportion_allowed_failures: 0.0005
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: cnpj_ordem
         description: CNPJ Ordem
+        tests:
+          - regex_or_null:
+              pattern: ^[A-Z0-9]{4}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
       - name: cnpj_dv
         description: CNPJ Dígito Verificador
+        tests:
+          - regex_or_null:
+              pattern: ^[0-9]{2}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
       - name: identificador_matriz_filial
         description: Identificador de Matriz ou Filial
       - name: nome_fantasia
         description: Nome Fantasia
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: situacao_cadastral
         description: Situação Cadastral
       - name: data_situacao_cadastral
         description: Data da Situação Cadastral
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
       - name: motivo_situacao_cadastral
         description: Motivo da Situação Cadastral
       - name: nome_cidade_exterior
@@ -163,6 +315,13 @@ models:
         description: ID País
       - name: data_inicio_atividade
         description: Data de Início da Atividade
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
       - name: cnae_fiscal_principal
         description: CNAE Fiscal Principal
         tests:
@@ -186,6 +345,11 @@ models:
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
+          - not_null:
+              config:
+                severity: error
+                where: >-
+                  __most_recent_date_cnpj__ and sigla_uf not in ('EX', 'BR')
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
@@ -195,16 +359,42 @@ models:
         description: ID Município - Receita Federal
       - name: tipo_logradouro
         description: Tipo de Logradouro
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: logradouro
         description: Logradouro
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: numero
         description: Número
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: complemento
         description: Complemento
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: bairro
         description: Bairro
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: cep
         description: CEP
+        tests:
+          - regex_or_null:
+              pattern: ^[0-9]{8}$
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
       - name: ddd_1
         description: DDD 1
       - name: telefone_1
@@ -219,10 +409,21 @@ models:
         description: Fax
       - name: email
         description: Email
+        tests:
+          - no_invalid_chars:
+              config:
+                where: __most_recent_date_cnpj__
       - name: situacao_especial
         description: Situação Especial
       - name: data_situacao_especial
         description: Data da Situação Especial
+        tests:
+          - date_in_range:
+              min_date: '1850-01-01'
+              max_date: date(extract(year from current_date())+1, 1, 1)
+              config:
+                severity: warn
+                where: __most_recent_date_cnpj__
       - name: data_modificacao
         description: Data de Modificação
   - name: br_rf_cnpj__dicionario
