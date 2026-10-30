@@ -9,6 +9,10 @@
             "granularity": "month",
         },
         cluster_by=["sigla_uf"],
+        post_hook=[
+            "{{ br_me_cnpj_redirect_notice() }}",
+            "{{ br_me_cnpj_redirect_policy() }}",
+        ],
     )
 }}
 -- Atualizado em 2026-09-15
