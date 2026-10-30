@@ -45,6 +45,6 @@
     full outer join compared using (grupo)
     where
         abs(coalesce(valor, 0) - coalesce(valor_comparado, 0))
-        > {{ proportion_allowed_difference }} * coalesce(valor_comparado, 0)
+        > {{ proportion_allowed_difference }} * abs(coalesce(valor_comparado, 0))
 
 {% endtest %}
