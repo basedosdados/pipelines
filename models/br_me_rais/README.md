@@ -605,7 +605,9 @@ falha e precisa ser verificada antes da carga seguir.
 ### 11.4 Sem teste de unicidade
 
 Os microdados não têm identificador (CNPJ, CPF), então não há chave para testar.
-Carga duplicada é coberta pelo teste da §11.2.
+O teste da §11.2 compara somas por UF: detecta um arquivo inteiro faltando ou
+duplicado, mas não erros que se compensam dentro da mesma UF nem estabelecimentos
+duplicados com 0 vínculos ativos.
 
 ### 11.5 Divergência de 2023
 
