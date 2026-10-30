@@ -7,7 +7,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2000, "end": 2026, "interval": 1},
+            "range": {"start": 2000, "end": 2031, "interval": 1},
         },
         pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
         cluster_by=["id_estacao"],
