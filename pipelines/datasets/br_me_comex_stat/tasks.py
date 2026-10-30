@@ -24,12 +24,12 @@ from pipelines.datasets.br_me_comex_stat.constants import (
     constants as comex_constants,
 )
 from pipelines.datasets.br_me_comex_stat.utils import (
+    check_rows_written,
+    check_totals_against_validation_file,
     check_year_matches_filename,
     create_paths,
     download_data,
-    validate_table,
 )
-from pipelines.shared.testes_dados.utils import check_rows_written
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -175,7 +175,7 @@ def clean_br_me_comex_stat(
             log("Dataframe partitioned and saved")
 
             log("Starting dataframe validation:")
-            validate_table(
+            check_totals_against_validation_file(
                 filename=file,
                 dataframe=df,
                 table_type="mun",
@@ -202,7 +202,7 @@ def clean_br_me_comex_stat(
             log("Dataframe partitioned and saved")
 
             log("Starting dataframe validation:")
-            validate_table(
+            check_totals_against_validation_file(
                 filename=file,
                 dataframe=df,
                 table_type="ncm",

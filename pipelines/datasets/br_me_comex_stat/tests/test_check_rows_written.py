@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pipelines.shared.testes_dados.utils import (
+from pipelines.datasets.br_me_comex_stat.utils import (
     check_rows_written,
     count_written_rows,
 )
@@ -22,20 +22,14 @@ def write_csv(path: Path, rows: int) -> None:
     )
 
 
-def write_parquet(path: Path, rows: int) -> None:
-    """Grava um `.parquet` com `rows` linhas, criando as pastas."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame({"ano": ["2026"] * rows}).to_parquet(path, index=False)
+def test_counts_csv_partitions(tmp_path: Path) -> None:
+    """Soma as linhas dos `.csv` de todas as partições.
 
-
-def test_counts_csv_and_parquet_partitions(tmp_path: Path) -> None:
-    """Soma as linhas dos `.csv` e `.parquet` de todas as partições.
-
-    O cabeçalho dos `.csv` não conta.
+    O cabeçalho não conta.
     """
     write_csv(tmp_path / "ano=2026" / "mes=7" / "data.csv", rows=2)
     write_csv(tmp_path / "ano=2026" / "mes=8" / "data.csv", rows=3)
-    write_parquet(tmp_path / "ano=2025" / "mes=12" / "data.parquet", rows=4)
+    write_csv(tmp_path / "ano=2025" / "mes=12" / "data.csv", rows=4)
 
     assert count_written_rows(tmp_path) == 9
 
