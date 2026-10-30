@@ -25,6 +25,9 @@ HEADERS = {
 # anos testados antes de desistir da busca
 MAX_ANOS_BUSCA = 4
 
+# campos por linha do csv da fonte
+N_CAMPOS_FONTE = 29
+
 RENAME = {
     "NUMERO DO CONTRIBUINTE": "numero_contribuinte",
     "ANO DO EXERCICIO": "ano",

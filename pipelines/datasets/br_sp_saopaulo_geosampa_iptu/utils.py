@@ -19,6 +19,7 @@ from pipelines.datasets.br_sp_saopaulo_geosampa_iptu.constants import (
     COLUNAS_STAGING,
     HEADERS,
     MAX_ANOS_BUSCA,
+    N_CAMPOS_FONTE,
     RENAME,
     URL_TEMPLATE,
 )
@@ -91,12 +92,14 @@ def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
     """padroniza um csv do iptu (tudo string) para o formato do staging."""
     df = df.rename(columns=RENAME)
     df = df.apply(lambda col: col.str.strip())
-    # aspas envolvendo o valor inteiro: `"AP 1 BL ""C"""` -> `AP 1 BL "C"`
+    # remove aspas que envolvem o valor inteiro
     df = df.apply(
         lambda col: col.str.replace(
             r'^"(.*)"$', r"\1", regex=True
         ).str.replace('""', '"', regex=False)
     )
+    # valor só com aspa vira vazio
+    df = df.replace('"', "")
 
     for col in COLUNAS_DECIMAIS:
         df[col] = (
@@ -120,7 +123,7 @@ def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def detectar_encoding(csv_path: Path) -> str:
-    """devolve `utf-8` se o arquivo inteiro decodifica assim, senão `latin-1`."""
+    """devolve `utf-8` ou `latin-1`."""
     decoder = codecs.getincrementaldecoder("utf-8")()
     try:
         with open(csv_path, "rb") as f:
@@ -132,6 +135,50 @@ def detectar_encoding(csv_path: Path) -> str:
     return "utf-8"
 
 
+def _campos_ok(linha: bytes) -> bool | None:
+    """true se a linha está ok; none se só tem campos vazios a mais."""
+    campos = linha.rstrip(b"\r\n").split(b";")
+    if len(campos) == N_CAMPOS_FONTE:
+        return True
+    if len(campos) > N_CAMPOS_FONTE and not any(campos[N_CAMPOS_FONTE:]):
+        return None
+    return False
+
+
+def normalizar_linhas(csv_path: Path) -> int:
+    """valida os campos de cada linha e devolve o total de linhas."""
+    n, corrigir = 0, False
+    with open(csv_path, "rb") as f:
+        for i, linha in enumerate(f, 1):
+            ok = _campos_ok(linha)
+            if ok is False:
+                raise ValueError(
+                    f"{csv_path.name}, linha {i}: {linha.count(b';') + 1} "
+                    f"campos, esperado {N_CAMPOS_FONTE}"
+                )
+            corrigir = corrigir or ok is None
+            n += 1
+
+    if corrigir:
+        tmp = csv_path.with_suffix(".tmp")
+        with open(csv_path, "rb") as f, open(tmp, "wb") as g:
+            for linha in f:
+                if _campos_ok(linha) is None:
+                    campos = linha.rstrip(b"\r\n").split(b";")
+                    linha = b";".join(campos[:N_CAMPOS_FONTE]) + b"\n"
+                g.write(linha)
+        tmp.replace(csv_path)
+    return n - 1
+
+
+def validar_pedaco(df: pd.DataFrame) -> None:
+    """falha se algum contribuinte foge do formato."""
+    invalidos = ~df["numero_contribuinte"].str.fullmatch(r"\d{11}")
+    if invalidos.any():
+        exemplos = df.loc[invalidos, "numero_contribuinte"].head(3).tolist()
+        raise ValueError(f"numero_contribuinte fora do formato: {exemplos}")
+
+
 def tratar_ano(csv_path: Path, output_dir: Path, ano: int) -> Path:
     """limpa o csv do ano em pedaços e grava em `ano=<ano>/data.parquet`."""
     destino = output_dir / f"ano={ano}"
@@ -139,6 +186,8 @@ def tratar_ano(csv_path: Path, output_dir: Path, ano: int) -> Path:
     saida = destino / "data.parquet"
     saida.unlink(missing_ok=True)
 
+    linhas_fonte = normalizar_linhas(csv_path)
+    linhas_saida = 0
     schema = pa.schema([pa.field(c, pa.string()) for c in COLUNAS_STAGING])
     leitor = pd.read_csv(
         csv_path,
@@ -152,11 +201,20 @@ def tratar_ano(csv_path: Path, output_dir: Path, ano: int) -> Path:
     )
     with pq.ParquetWriter(saida, schema, compression="snappy") as escritor:
         for pedaco in leitor:
-            # vazio vira nulo, como no staging em csv
-            limpo = limpar_iptu(pedaco).drop(columns="ano").replace("", None)
+            limpo = limpar_iptu(pedaco).drop(columns="ano")
+            validar_pedaco(limpo)
+            linhas_saida += len(limpo)
+            limpo = limpo.replace("", None)  # vazio vira nulo
             escritor.write_table(
                 pa.Table.from_pandas(
                     limpo, schema=schema, preserve_index=False
                 )
             )
+
+    # nenhuma linha perdida ou juntada
+    if linhas_saida != linhas_fonte:
+        saida.unlink()
+        raise ValueError(
+            f"IPTU {ano}: {linhas_fonte} linhas na fonte, {linhas_saida} na saída"
+        )
     return output_dir
