@@ -4,6 +4,7 @@ Utilitários gerais — logging, detecção de ambiente, helpers de string.
 
 import logging
 import os
+import re
 import zipfile
 from io import BytesIO
 from pathlib import Path
@@ -31,6 +32,23 @@ def log(msg: Any, level: str = "info") -> None:
         get_run_logger().log(levels[level], str(msg))
     except Exception:
         logging.getLogger("pipelines").log(levels[level], str(msg))
+
+
+def bq_safe_column_name(name: str) -> str:
+    """Normaliza um nome de coluna como o BigQuery faz ao inferir o schema.
+
+    As colunas que o crawler não renomeia chegam com o nome cru da fonte —
+    com espaço e acento, quando é o caso. Ao criar a tabela externa o
+    BigQuery troca cada caractere inválido por `_`, então `Nome do município`
+    vira `Nome_do_munic_pio`.
+
+    Args:
+        name: nome como vem do arquivo de dados.
+
+    Returns:
+        O nome com todo caractere fora de `[0-9a-zA-Z_]` trocado por `_`.
+    """
+    return re.sub(r"[^0-9a-zA-Z_]", "_", name)
 
 
 def is_running_in_prod() -> bool:
