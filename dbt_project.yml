@@ -816,6 +816,9 @@ models:
     us_osha_enforcement:
       +materialized: table
       +schema: us_osha_enforcement
+    us_treasury_usaspending:
+      +materialized: table
+      +schema: us_treasury_usaspending
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
