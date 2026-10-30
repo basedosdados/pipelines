@@ -183,6 +183,7 @@ def check_totals_against_validation_file(
     Validates a transformed dataframe against official validation files.
     It performs consistency checks between the processed dataframe
     and external validation datasets provided by MDIC. The validation ensures that:
+    - The file has at least one data row.
     - The aggregated sums (FOB value, net weight, statistical quantity) match
       the validation file for the reference year.
     - The number of rows matches the validation file.
@@ -192,6 +193,9 @@ def check_totals_against_validation_file(
         dataframe (pd.DataFrame): Transformed dataframe to be validated.
         table_type {"mun", "ncm"}: Indicates which validation table to use.
     """
+
+    if dataframe.empty:
+        raise ValueError(f"Validation failed: {filename} has no data rows.")
 
     # Infer trade type from filename
     # pyrefly: ignore [unnecessary-type-conversion]

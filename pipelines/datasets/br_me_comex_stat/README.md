@@ -109,8 +109,8 @@ interrompe a run antes de subir arquivo.
    depois do rename, antes de gravar as partições.
 2. `check_totals_against_validation_file` compara somas e contagem de linhas com o arquivo de
    conferência do MDIC, como descrito em "A validação contra os totais oficiais
-   derruba a run". Só compara quando o arquivo tem um `ano` só, o que o passo 1
-   garante.
+   derruba a run". Reprova arquivo sem nenhuma linha de dado; nos outros, o
+   passo 1 garante um `ano` só.
 3. `check_rows_written` (`utils.py` do conjunto) roda depois de todos os
    arquivos e compara as linhas lidas com as linhas dos `data.csv` gravados nas
    partições. Detecta linha perdida (coluna de partição vazia) e linha a mais (o
@@ -150,9 +150,10 @@ No `dicionario` os testes rodam sem filtro de mês: unicidade,
 | `id_tabela` | `municipio_exportacao`, `municipio_importacao`, `ncm_exportacao`, `ncm_importacao` |
 | `nome_coluna` | `id_pais`, `id_via`, `id_urf` |
 
-Não há teste de `ano` nem de `mes`. Com o filtro do mês mais recente, o teste só
-veria valores válidos, e o filtro do modelo incremental (`date(ano, mes, 1)` maior
-que o máximo da tabela) já descarta linha com `ano` ou `mes` nulo.
+Não há teste de `ano` nem de `mes` no dbt: com o filtro do mês mais recente, o
+teste só veria valores válidos. Linha com `ano` vazio reprova no
+`check_year_matches_filename`; linha com `mes` vazio não passa por nenhuma
+checagem.
 
 ### Manutenção do dicionário
 
