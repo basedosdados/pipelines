@@ -32,6 +32,9 @@ de cada ano segue o modelo de `URL_TEMPLATE`, em `constants.py`.
   `;`, mesmo quando um valor contém aspas. Há valores com aspas só de um lado
   (`"D N LT 12`), e um leitor de CSV padrão junta as linhas seguintes até encontrar
   outra aspa. Em 2024, isso faz a leitura padrão perder 75.065 linhas.
+- **Uma linha de 1995 tem 20 campos vazios a mais.** A linha do contribuinte
+  1691450011-7 tem os 29 campos e, depois deles, mais 20 campos vazios; o último
+  campo real é só uma aspa (`"`). `normalizar_linhas` corta os campos vazios extras.
 
 ## O pipeline
 
@@ -60,13 +63,26 @@ percorre o arquivo e escolhe UTF-8 ou latin-1. A leitura usa `quoting=csv.QUOTE_
 para que as aspas sejam tratadas como texto. Ler o arquivo de 2026 de uma vez estoura
 15 GB de RAM; em pedaços, o tratamento leva cerca de 1,5 minuto.
 
+O tratamento para com erro, sem gravar nada, quando:
+
+- alguma linha da fonte tem menos de `N_CAMPOS_FONTE` (29) campos, ou mais de 29 com
+  conteúdo nos campos extras (`normalizar_linhas`);
+- algum `numero_contribuinte` tratado não tem 11 dígitos, sinal de coluna deslocada
+  (`validar_pedaco`);
+- o número de linhas gravadas difere do número de linhas da fonte, sinal de linhas
+  perdidas ou juntadas.
+
+Linhas com mais de 29 campos, mas cujos campos extras estão todos vazios (caso de
+1995), são cortadas para 29 campos antes da leitura.
+
 `limpar_iptu` aplica as regras de padronização:
 
 - renomeia as colunas conforme `RENAME`, o que também unifica as duas grafias da
   coluna de esquinas;
 - remove espaços no início e no fim de todos os valores;
 - remove as aspas que envolvem um valor inteiro (`"AP 321 BL ""C"""` →
-  `AP 321 BL "C"`); aspas de um lado só são mantidas;
+  `AP 321 BL "C"`); aspas de um lado só são mantidas, e um valor que é só uma aspa
+  vira nulo;
 - troca a vírgula decimal por ponto e remove zeros à esquerda em `COLUNAS_DECIMAIS`,
   que inclui `valor_terreno` e `valor_construcao` (`0001465.00` → `1465.00`,
   `100,41` → `100.41`);
