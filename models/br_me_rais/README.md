@@ -579,6 +579,10 @@ O macro aplica as mesmas normalizações de CNAE descritas nas seções 6.1 e 6.
 Os testes usam `where: __most_recent_year__`. Cada carga acrescenta um ano, e um
 erro restrito a um ano se dilui quando o teste roda sobre a série inteira.
 
+A carga incremental de estabelecimentos reescreve só o ano mais recente do
+staging, o mesmo que os testes verificam. Para recarregar um ano anterior, como
+na republicação de 2023, é preciso rodar com `--full-refresh`.
+
 ### 11.2 Consistência entre estabelecimentos e vínculos
 
 `custom_cross_table_aggregate_match` compara, por `sigla_uf`, a soma de
