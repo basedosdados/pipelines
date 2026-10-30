@@ -5,7 +5,7 @@ Pipeline em estágios: check_update -> extract_and_load -> build_and_promote, um
 par de flows por tabela (`curso` e `ies`). A lógica mora em `tasks.py` e
 `utils.py`; aqui fica só a ligação com o `CheckThenExtractLoadPipeline`.
 
-O check_update roda uma vez por mês. O Inep publica uma edição por ano, mas
+O check_update roda toda segunda-feira. O Inep publica uma edição por ano, mas
 também republica edições antigas, às vezes com correções; ler o `Last-Modified`
 de todos os anos custa uma requisição de cabeçalho por ano.
 """
@@ -33,7 +33,7 @@ br_inep_censo_educacao_superior_curso_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, "curso"
 )
 br_inep_censo_educacao_superior_curso_check_update.deploy_schedules = [
-    Cron("27 10 15 * *", timezone="America/Sao_Paulo")
+    Cron("27 10 * * 1", timezone="America/Sao_Paulo")
 ]
 
 
@@ -65,7 +65,7 @@ br_inep_censo_educacao_superior_ies_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, "ies"
 )
 br_inep_censo_educacao_superior_ies_check_update.deploy_schedules = [
-    Cron("32 10 15 * *", timezone="America/Sao_Paulo")
+    Cron("32 10 * * 1", timezone="America/Sao_Paulo")
 ]
 
 
