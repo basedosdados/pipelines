@@ -2,11 +2,15 @@
 Utils for br_sp_saopaulo_geosampa_iptu.
 """
 
+import codecs
+import csv
 import datetime
 import zipfile
 from pathlib import Path
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import requests
 
 from pipelines.datasets.br_sp_saopaulo_geosampa_iptu.constants import (
@@ -87,9 +91,19 @@ def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
     """padroniza um csv do iptu (tudo string) para o formato do staging."""
     df = df.rename(columns=RENAME)
     df = df.apply(lambda col: col.str.strip())
+    # aspas envolvendo o valor inteiro: `"AP 1 BL ""C"""` -> `AP 1 BL "C"`
+    df = df.apply(
+        lambda col: col.str.replace(
+            r'^"(.*)"$', r"\1", regex=True
+        ).str.replace('""', '"', regex=False)
+    )
 
     for col in COLUNAS_DECIMAIS:
-        df[col] = df[col].str.replace(",", ".", regex=False)
+        df[col] = (
+            df[col]
+            .str.replace(",", ".", regex=False)
+            .str.replace(r"^0+(?=\d)", "", regex=True)
+        )
 
     for col in COLUNAS_INTEIRAS:
         df[col] = (
@@ -105,21 +119,44 @@ def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
     return df[["ano", *COLUNAS_STAGING]]
 
 
+def detectar_encoding(csv_path: Path) -> str:
+    """devolve `utf-8` se o arquivo inteiro decodifica assim, senão `latin-1`."""
+    decoder = codecs.getincrementaldecoder("utf-8")()
+    try:
+        with open(csv_path, "rb") as f:
+            while bloco := f.read(16 * 1024 * 1024):
+                decoder.decode(bloco)
+        decoder.decode(b"", final=True)
+    except UnicodeDecodeError:
+        return "latin-1"
+    return "utf-8"
+
+
 def tratar_ano(csv_path: Path, output_dir: Path, ano: int) -> Path:
-    """limpa o csv do ano em pedaços e grava em `ano=<ano>/data.csv`."""
+    """limpa o csv do ano em pedaços e grava em `ano=<ano>/data.parquet`."""
     destino = output_dir / f"ano={ano}"
     destino.mkdir(parents=True, exist_ok=True)
-    saida = destino / "data.csv"
+    saida = destino / "data.parquet"
     saida.unlink(missing_ok=True)
 
+    schema = pa.schema([pa.field(c, pa.string()) for c in COLUNAS_STAGING])
     leitor = pd.read_csv(
         csv_path,
         sep=";",
         dtype=str,
         keep_default_na=False,
+        # aspas não delimitam campos nesta fonte
+        quoting=csv.QUOTE_NONE,
+        encoding=detectar_encoding(csv_path),
         chunksize=200_000,
     )
-    for i, pedaco in enumerate(leitor):
-        limpo = limpar_iptu(pedaco).drop(columns="ano")
-        limpo.to_csv(saida, index=False, mode="a", header=i == 0)
+    with pq.ParquetWriter(saida, schema, compression="snappy") as escritor:
+        for pedaco in leitor:
+            # vazio vira nulo, como no staging em csv
+            limpo = limpar_iptu(pedaco).drop(columns="ano").replace("", None)
+            escritor.write_table(
+                pa.Table.from_pandas(
+                    limpo, schema=schema, preserve_index=False
+                )
+            )
     return output_dir
