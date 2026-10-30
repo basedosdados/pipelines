@@ -115,8 +115,10 @@ responde cerca de 92 KB. Pela regra do corpo vazio, isso é lista vazia, não er
 ### Leitura do XML
 
 O XML é lido com `xml.etree.ElementTree`, da biblioteca padrão do Python. O `defusedxml` não está
-na imagem do worker. As respostas vêm de um host do governo, por TLS, e o `fromstring` do
-Python 3.12 não expande entidades por padrão.
+na imagem do worker. O `fromstring` expande as entidades declaradas no próprio documento, mas não
+busca entidades nem DTDs externos. Contra a expansão em cadeia de entidades (*billion laughs*), a
+proteção é o limite de amplificação do expat, presente desde a versão 2.4.1; o Python 3.12 da
+imagem do worker (`prefecthq/prefect:3-python3.12`) já vem com expat posterior a ela.
 
 ## Formato dos dados
 
@@ -160,6 +162,11 @@ Os 10 cadastros não têm data de publicação para comparar. O `check_update` d
 em que roda e compara com o `Table.Update` (`compare_against="table_update"`), que guarda a data
 da última materialização, sempre anterior. A carga é disparada em todo run, e a tabela inteira é
 refeita.
+
+Um cadastro sem linhas faz o `extract_and_load` falhar antes da carga. Isso acontece quando a
+API responde 200 com corpo vazio em todas as tentativas (`get_json` devolve None) ou quando o
+envelope muda de forma; sem a trava, a tabela subiria vazia e o `build_and_promote` a levaria a
+prod.
 
 A materialização usa `NonHistorical`: só o `Table.Update.latest` é atualizado, e a cobertura
 temporal registrada no onboarding não muda.
@@ -215,8 +222,10 @@ Anos sem dado não devolvem nada.
 
 ### senador
 
-A BD não tem diretório de senadores. `senador` é a dimensão do próprio conjunto, e as outras
-tabelas trazem `id_senador`.
+A BD não tem diretório de senadores. `senador` é a dimensão do próprio conjunto. Trazem
+`id_senador` as tabelas `senador_mandato`, `senador_filiacao`, `senador_comissao`,
+`senador_cargo`, `lideranca`, `mesa`, `relatoria`, `discurso`, `votacao_parlamentar` e
+`votacao_comissao_parlamentar`; `votacao_comissao` traz `id_senador_presidente`.
 
 `clean_senador` lê a lista de parlamentares de cada legislatura, da 30 até a atual. A atual é
 calculada pela data do run: a 57 vai de 2023 a 2027, e cada legislatura dura quatro anos. Na

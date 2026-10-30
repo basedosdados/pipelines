@@ -130,7 +130,12 @@ def save_table(table_id: str, df: pd.DataFrame) -> str:
 
     Returns:
         O diretório da tabela, no formato esperado por `upload_to_gcs`.
+
+    Raises:
+        ValueError: se um cadastro vier sem linhas.
     """
+    if table_id in constants.DIMS.value and df.empty:
+        raise ValueError(f"a fonte devolveu a tabela {table_id} sem linhas")
     work_dir = tempfile.mkdtemp(prefix=f"br_senado_dados_abertos_{table_id}_")
     return write_table(os.path.join(work_dir, "output"), table_id, df)
 
