@@ -2,6 +2,8 @@
 Flows for br_stn_capag — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.br_stn_capag.constants import (
     BASE_CALCULO_TABLE_ID,
     DATASET_ID,
@@ -12,7 +14,9 @@ from pipelines.datasets.br_stn_capag.tasks import make_pipeline
 from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
-_CHECK_UPDATE_SCHEDULE = []
+# Base com atualização quadrimestral, mas sem data fixa de publicação (dias 1 a
+# 19 do mês): checa todo dia 20; o poll guard descarta a execução sem recurso novo.
+_CHECK_UPDATE_SCHEDULE = [Cron("0 9 20 * *", timezone="America/Sao_Paulo")]
 
 # municipios
 _municipios_pipeline = make_pipeline(MUNICIPIOS_TABLE_ID)
@@ -26,7 +30,7 @@ def br_stn_capag_municipios_check_update() -> None:
 br_stn_capag_municipios_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIOS_TABLE_ID
 )
-# br_stn_capag_municipios_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+br_stn_capag_municipios_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
 
 
 @flow(name=_municipios_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -54,7 +58,7 @@ def br_stn_capag_estados_check_update() -> None:
 br_stn_capag_estados_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, ESTADOS_TABLE_ID
 )
-# br_stn_capag_estados_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+br_stn_capag_estados_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
 
 
 @flow(name=_estados_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -82,7 +86,9 @@ def br_stn_capag_municipios_base_calculo_check_update() -> None:
 br_stn_capag_municipios_base_calculo_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, BASE_CALCULO_TABLE_ID
 )
-# br_stn_capag_municipios_base_calculo_check_update.deploy_schedules = _CHECK_UPDATE_SCHEDULE
+br_stn_capag_municipios_base_calculo_check_update.deploy_schedules = (
+    _CHECK_UPDATE_SCHEDULE
+)
 
 
 @flow(name=_base_calculo_pipeline.extract_and_load_flow_name, log_prints=True)
