@@ -38,8 +38,10 @@ O site do INMET derruba a conexão quando o User-Agent é o padrão do curl ou d
 `requests` e o de navegador passam. O download usa o User-Agent de navegador definido em
 `HEADERS`, no `constants.py`.
 
-No começo de janeiro, o ZIP do ano novo pode ainda não existir. Quando a URL do ano corrente
-responde 404, `download_year_zip` baixa o do ano anterior.
+No começo de janeiro, o ZIP do ano novo pode ainda não existir. Só em janeiro, quando a URL do
+ano corrente responde 404, `download_year_zip` baixa o do ano anterior. Nos outros meses o 404
+interrompe o flow com erro: se a URL mudar ou sair do ar, o flow falha em vez de baixar o ano
+anterior e responder que não há dado novo.
 
 ## Formato dos arquivos
 
@@ -87,8 +89,14 @@ até o fim do mês mais recente. O `2026.zip` de outubro de 2026 tinha 1.276 CSV
 unzip -Z1 2026.zip | sed -E 's/.*_([0-9]{2}-[0-9]{2}-[0-9]{4})\.CSV$/\1/' | sort | uniq -c
 ```
 
-O pipeline carrega os dois arquivos, e o modelo descarta a linha repetida com
-`qualify row_number() over (partition by data, hora, id_estacao) = 1`.
+As duas versões nem sempre são iguais: o INMET revisa valores de meses anteriores no arquivo mais
+novo. No mesmo `2026.zip`, em 46 das 637 estações com dois arquivos, o arquivo até 30/09/2026
+traz valores diferentes do arquivo até 31/08/2026. Na A935, por exemplo, as temperaturas de
+março foram apagadas.
+
+Por isso o `build_year_csv` grava só o arquivo de data final mais recente de cada estação
+(`list_latest_station_files`), agrupando pelo código no nome do arquivo. A estação que só tem o
+arquivo do mês anterior entra com ele.
 
 ## Gravação do ano
 
@@ -97,11 +105,20 @@ escrevendo uma estação por vez (`build_year_csv`). Com o `2026.zip` de outubro
 (7.762.080 linhas), o pico de memória fica em 239 MiB. Concatenar o ano inteiro antes de gravar
 leva o pico a 4.137 MiB, acima dos 4Gi do pod.
 
-A staging é `append` e o nome do arquivo é fixo por ano, então o envio de cada mês substitui o
-arquivo do ano no bucket. Com um nome diferente, os dois arquivos ficariam na mesma partição.
+**Por que o arquivo do ano é sempre o mesmo.** A staging recebe os arquivos em modo `append`, ou
+seja, o upload acrescenta arquivos à pasta e não apaga o que já está lá. Para que o envio de cada
+mês não acumule versões, o arquivo do ano tem sempre o mesmo nome
+(`ano=<ano>/microdados_<ano>.csv`): o envio de outubro sobrescreve o de setembro. Se o nome
+mudasse a cada envio, a partição `ano=2026` teria os dois arquivos, e a staging leria as linhas de
+janeiro a setembro duas vezes.
 
-O modelo `microdados` é incremental, com `merge` em `data`, `hora` e `id_estacao`, e lê da staging
-só as linhas a partir da maior `data` já carregada.
+**Como o modelo lê a staging.** O `microdados` é incremental, com `merge` pela chave `data`,
+`hora` e `id_estacao`. A cada `dbt run`, o modelo relê da staging o ano mais recente que já está
+na tabela (`ano >= max(ano)`) e atualiza as linhas existentes. Assim, se o INMET corrigir um valor
+de um mês desse ano, a correção chega à tabela na execução seguinte. Anos anteriores não são
+relidos: depois que entra o primeiro dado de janeiro, as correções do ano anterior ficam de fora.
+O `merge` também não apaga linhas que sumiram da fonte. Para reprocessar tudo, rode o modelo com
+`--full-refresh`, porque a staging guarda um arquivo por ano desde 2000.
 
 ## BD Pro
 

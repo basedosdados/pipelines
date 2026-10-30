@@ -17,8 +17,9 @@ from pipelines.utils.utils import log
 
 def download_year_zip(year: int, input_dir: Path) -> int:
     """
-    Baixa e descompacta o ZIP de dados históricos do INMET de um ano. Se o
-    ZIP do ano ainda não existir na fonte, baixa o do ano anterior.
+    Baixa e descompacta o ZIP de dados históricos do INMET de um ano. Em
+    janeiro, se o ZIP do ano ainda não existir na fonte, baixa o do ano
+    anterior.
 
     Args:
         year (int): ano do ZIP a baixar.
@@ -28,12 +29,16 @@ def download_year_zip(year: int, input_dir: Path) -> int:
         int: ano do ZIP baixado.
 
     Raises:
-        FileNotFoundError: se a fonte não tiver o ZIP do ano nem o do ano
-            anterior.
+        FileNotFoundError: se a fonte não tiver o ZIP do ano e, em janeiro,
+            nem o do ano anterior.
     """
     input_dir.mkdir(parents=True, exist_ok=True)
 
-    for candidate_year in (year, year - 1):
+    candidate_years = [year]
+    if date.today().month == 1:
+        candidate_years.append(year - 1)
+
+    for candidate_year in candidate_years:
         url = ConstantsMicrodados.DOWNLOAD_URL.value.format(
             year=candidate_year
         )
@@ -63,7 +68,7 @@ def download_year_zip(year: int, input_dir: Path) -> int:
         return candidate_year
 
     raise FileNotFoundError(
-        f"A fonte não tem o ZIP de {year} nem o de {year - 1}"
+        f"A fonte não tem o ZIP de nenhum destes anos: {candidate_years}"
     )
 
 
@@ -104,6 +109,43 @@ def get_date_from_path(path: Path) -> date:
     if match is None:
         raise ValueError(f"Data não encontrada no nome de {path.name}")
     return datetime.strptime(match.group(1), "%d-%m-%Y").date()
+
+
+def get_station_code(path: Path) -> str:
+    """
+    Extrai o código da estação do nome do CSV
+    (`INMET_CO_DF_A001_BRASILIA_..._A_30-09-2026.CSV`).
+
+    Args:
+        path (Path): caminho do CSV.
+
+    Returns:
+        str: código da estação.
+    """
+    return path.name.split("_")[3]
+
+
+def list_latest_station_files(input_dir: Path) -> list[Path]:
+    """
+    Lista, para cada estação, só o CSV de data final mais recente. O ZIP
+    traz algumas estações em mais de um arquivo, e o mais novo revisa os
+    valores dos anteriores.
+
+    Args:
+        input_dir (Path): diretório onde o ZIP foi descompactado.
+
+    Returns:
+        list[Path]: um CSV por estação, em ordem alfabética.
+    """
+    latest_files: dict[str, Path] = {}
+    for path in list_station_files(input_dir):
+        code = get_station_code(path)
+        current = latest_files.get(code)
+        if current is None or get_date_from_path(path) > get_date_from_path(
+            current
+        ):
+            latest_files[code] = path
+    return sorted(latest_files.values())
 
 
 def get_max_date(input_dir: Path) -> date:
@@ -195,7 +237,8 @@ def read_station_file(path: Path) -> pl.DataFrame:
 def build_year_csv(input_dir: Path, output_dir: Path, year: int) -> Path:
     """
     Grava os CSVs de estação de um ano num único CSV em `ano=<year>/`,
-    lendo e escrevendo uma estação por vez.
+    lendo e escrevendo uma estação por vez. De cada estação entra só o
+    arquivo mais recente (`list_latest_station_files`).
 
     Args:
         input_dir (Path): diretório onde o ZIP foi descompactado.
@@ -210,7 +253,9 @@ def build_year_csv(input_dir: Path, output_dir: Path, year: int) -> Path:
     file_path = partition_dir / f"microdados_{year}.csv"
 
     with open(file_path, "wb") as file:
-        for index, station_file in enumerate(list_station_files(input_dir)):
+        for index, station_file in enumerate(
+            list_latest_station_files(input_dir)
+        ):
             read_station_file(station_file).write_csv(
                 file, include_header=index == 0
             )
