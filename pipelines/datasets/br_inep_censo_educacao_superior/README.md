@@ -2,8 +2,8 @@
 
 Pipeline que mantém atualizadas as tabelas `curso` e `ies` do conjunto
 `br_inep_censo_educacao_superior`, a partir dos microdados do Censo da Educação
-Superior publicados pelo Inep. Ela verifica todo mês se o Inep publicou uma edição
-nova ou republicou uma edição antiga, e recarrega só os anos que mudaram.
+Superior publicados pelo Inep. Ela verifica toda semana se o Inep publicou uma
+edição nova ou republicou uma edição antiga, e recarrega só os anos que mudaram.
 
 ## Fonte
 
@@ -25,11 +25,11 @@ página, que nem sempre acompanha as republicações.
 
 ```text
 check_update  ──▶  extract_and_load  ──▶  build_and_promote
-(dia 15)           (anos que mudaram)      (dbt e publicação)
+(segunda-feira)    (anos que mudaram)      (dbt e publicação)
 ```
 
-- **`check_update`** (`flows.py`, `tasks.py`): todo dia 15, lê o `Last-Modified` de
-  cada ano e a data da última atualização da tabela na BD. Se algum ano foi publicado
+- **`check_update`** (`flows.py`, `tasks.py`): toda segunda-feira, lê o
+  `Last-Modified` de cada ano e a data da última atualização da tabela na BD. Se algum ano foi publicado
   depois dessa data, dispara o próximo estágio com esses anos.
 - **`extract_and_load`**: para cada ano, baixa o zip, trata o CSV (`utils.py`) e grava
   `ano=<ano>/data.csv` no staging. Só o arquivo dos anos carregados é substituído.
@@ -53,8 +53,9 @@ O tratamento:
   esquerda;
 - traduz nomes de colunas que o Inep usou em edições antigas (docentes da `ies` em
   2009 e código CINE da `curso` em 2020);
-- grava 0 onde o Inep deixa vazio uma quantidade que não se aplica (até 2019) e nulo
-  nas colunas que não existiam no ano;
+- grava 0 onde o Inep deixa vazio uma quantidade que não se aplica (até 2019);
+- grava nulo nas colunas fora do seu período de coleta (`temporal_coverage` da
+  planilha), mesmo quando o Inep publica 0 ou falso nesses anos;
 - converte indicadores `1`/`0` em verdadeiro/falso, padroniza `id_municipio` com 7
   dígitos e retira as aspas que o Inep coloca no código CINE.
 
@@ -64,7 +65,7 @@ Antes de carregar, a pipeline compara o CSV do Inep com a arquitetura:
   planilha), **a carga falha**. Isso acontece quando o Inep renomeia ou retira uma
   variável; a correção é registrar o nome antigo em `OLD_PREFIXES` (`constants.py`)
   ou ajustar a cobertura na planilha;
-- colunas fora do seu período de coleta ficam nulas;
+- colunas fora do seu período de coleta ficam nulas, estejam ou não no CSV;
 - colunas novas do Inep, ainda fora da arquitetura, são descartadas com aviso no log.
 
 ## Como ler a tabela `curso`
@@ -98,9 +99,10 @@ nacional e os alunos ficam nos municípios. Para contar cursos, use
   próxima da `_etnico`, mas não tem a mesma definição.
 - **`indicador_comunitaria` e `indicador_confessional`** existem desde 2023, na
   `curso` e na `ies`, e só se aplicam a instituições privadas.
-- **Zeros antes do início da coleta.** Em várias colunas, o Inep publica 0 (ou falso)
-  nos anos anteriores à criação da variável. Nesses anos, o valor significa "não
-  coletado". O período de cada coluna está nas observações dos metadados.
+- **Nulo fora do período de coleta.** Em várias colunas, o Inep publica 0 (ou falso)
+  nos anos anteriores à criação da variável, ou depois de deixar de coletá-la. Na BD,
+  esses anos ficam nulos. O período de cada coluna está nas observações dos
+  metadados.
 
 ## Operação
 

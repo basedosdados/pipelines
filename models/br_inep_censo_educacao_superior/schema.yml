@@ -9,6 +9,26 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.95
           ignore_values:
+            - quantidade_vagas_novas
+            - quantidade_vagas_processos_seletivos
+            - quantidade_vagas_remanescentes
+            - quantidade_vagas_programas_especiais
+            - quantidade_inscritos_vagas_novas
+            - quantidade_inscritos_processos_seletivos
+            - quantidade_inscritos_remanescentes
+            - quantidade_inscritos_programas_especiais
+            - quantidade_ingressantes_vagas_novas
+            - quantidade_ingressantes_avaliacao_seriada
+            - quantidade_ingressantes_selecao_simplificada
+            - quantidade_ingressantes_egressos
+            - quantidade_ingressantes_outro_tipo_selecao
+            - quantidade_ingressantes_processos_seletivos
+            - quantidade_ingressantes_remanescentes
+            - quantidade_ingressantes_programas_especiais
+            - quantidade_alunos_mobilidade_academica
+            - quantidade_ingressantes_mobilidade_academica
+            - quantidade_matriculas_mobilidade_academica
+            - quantidade_concluintes_mobilidade_academica
             - quantidade_ingressantes_reserva_vaga_etnico
             - quantidade_matriculas_reserva_vaga_etnico
             - quantidade_concluintes_reserva_vaga_etnico

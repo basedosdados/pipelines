@@ -277,8 +277,8 @@ def verificar_colunas(
     - Coluna obrigatória no ano (ver `colunas_obrigatorias`) ausente no CSV:
       **a carga falha**. É o que acontece quando o Inep renomeia ou retira uma
       variável; sem o erro, a coluna iria inteira nula para a BD.
-    - Coluna da arquitetura ausente fora do seu período: fica nula, como
-      esperado (ex.: colunas criadas pelo Inep depois daquele ano).
+    - Coluna da arquitetura fora do seu período: fica nula, esteja ou não no
+      CSV (ver `aplicar_arquitetura`).
     - Coluna do Inep fora da arquitetura: é descartada, com aviso no log. Uma
       variável nova não interrompe a carga; só entra depois de incluída na
       planilha.
@@ -312,7 +312,7 @@ def verificar_colunas(
         )
 
     ignoradas = sorted(set(cabecalho) - originais)
-    fora_do_periodo = sorted(originais - obrigatorias - set(cabecalho))
+    fora_do_periodo = sorted(originais - obrigatorias)
     if ignoradas:
         print(
             f"AVISO {csv_path.name}: {len(ignoradas)} colunas da fonte fora da "
@@ -372,8 +372,10 @@ def aplicar_arquitetura(
       EaD por município); de 2020 em diante, grava `0`. As cargas anteriores já
       gravavam `0` em todos os anos, e é isso que se mantém, para a série não
       mudar de formato em 2020.
-    - **Coluna ausente na fonte fica vazia (nula).** O dado não existe naquele
-      ano, como as colunas criadas pelo Inep em 2023 e 2024.
+    - **Coluna fora do seu período de coleta fica vazia (nula)**, mesmo que esteja
+      na fonte. O período vem da `temporal_coverage` da arquitetura (ver
+      `colunas_obrigatorias`). Antes de criar uma variável, o Inep costuma
+      publicá-la com `0` ou falso, que significam "não coletado", e não zero.
 
     Args:
         df: Saída de `ler_microdados`.
@@ -389,6 +391,8 @@ def aplicar_arquitetura(
     de_para = dict(
         zip(arquitetura.original_name, arquitetura.name, strict=True)
     )
+    coletadas = colunas_obrigatorias(arquitetura, ano)
+    df = df[[coluna for coluna in df.columns if coluna in coletadas]].copy()
     quantidades = [
         original
         for original, tipo in zip(
@@ -396,7 +400,6 @@ def aplicar_arquitetura(
         )
         if tipo == "int64" and original in df.columns
     ]
-    df = df.copy()
     df[quantidades] = df[quantidades].replace("", "0")
 
     saida = (
