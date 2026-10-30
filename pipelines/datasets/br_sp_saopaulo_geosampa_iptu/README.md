@@ -47,9 +47,15 @@ arquivo ZIP. Se nenhum dos `MAX_ANOS_BUSCA` anos testados existir, a função le
 erro, pois isso indica mudança no endereço da fonte.
 
 O `check_update` devolve 1º de janeiro do ano encontrado, comparado contra o fim da
-cobertura da tabela no backend.
+cobertura da tabela no backend (`date_format="%Y"`). Ele roda toda segunda-feira às
+9h47 (horário de Brasília).
 
 ### extract_and_load
+
+`iptu_extract_load_data` (`tasks.py`) recebe o ano encontrado pelo `check_update`,
+baixa e trata esse ano e devolve a pasta `ano=<ano>/` em Parquet para o upload. A
+cobertura é `AllBdpro`, a mesma topologia registrada hoje no backend (cobertura toda
+BD Pro).
 
 `baixar_ano` (`utils.py`) grava o ZIP do ano em disco em pedaços de 1 MB, extrai o
 único CSV que ele contém e apaga o ZIP. Se o arquivo baixado não for um ZIP, ou se
