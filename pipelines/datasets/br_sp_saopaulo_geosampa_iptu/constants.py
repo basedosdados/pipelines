@@ -91,17 +91,22 @@ COLUNAS_STAGING = [
 ]
 
 # colunas com decimal
-COLUNAS_DECIMAIS = ["fracao_ideal", "testada_imovel", "fator_obsolescencia"]
+COLUNAS_DECIMAIS = [
+    "fracao_ideal",
+    "testada_imovel",
+    "valor_terreno",
+    "valor_construcao",
+    "fator_obsolescencia",
+]
 
 # colunas inteiras: sem zeros à esquerda nem casas decimais
 COLUNAS_INTEIRAS = [
+    "numero_notificacao",
     "numero_imovel",
     "area_terreno",
     "area_construida",
     "area_ocupada",
     "quantidade_esquina_imovel",
-    "valor_terreno",
-    "valor_construcao",
     "ano_construcao_corrigida",
     "quantidade_pavimento",
     "ano_inicio_vida_contribuinte",
