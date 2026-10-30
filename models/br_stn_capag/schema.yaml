@@ -158,30 +158,26 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: demonstrativo
-        description: >
-          Demonstrativo de origem, seja `dca` (Declaração de Contas Anuais), `rgf`
-          (Relatório de Gestão Fiscal) ou `rreo` (Relatório Resumido da
-          Execução Orçamentária)
+        description: Demonstrativo de origem. DCA (Declaração de Contas Anuais), RGF
+          (Relatório de Gestão Fiscal) ou RREO (Relatório Resumido da Execução Orçamentária)
         tests:
           - not_null
           - accepted_values:
               values: [dca, rgf, rreo]
       - name: tipo
-        description: >
-          Só na DCA: `DO` (despesa orçamentária), `RO` (receita orçamentária)
-          ou `RI` (receita intraorçamentária)
+        description: DO (despesa orçamentária), RO (receita orçamentária) ou RI (receita
+          intraorçamentária).
         tests:
           - accepted_values:
               values: [DO, RO, RI]
       - name: codigo_conta
-        description: Só na DCA, corresponde a código da conta no plano de contas aplicado
-          ao setor público
+        description: Corresponde a código da conta no plano de contas aplicado ao
+          setor público. Presente só no DCA.
       - name: conta
         description: Nome da conta
         tests: [not_null]
       - name: detalhe
-        description: >
-          Detalhamento da linha do demonstrativo (grupo de receita ou despesa,
+        description: Detalhamento da linha do demonstrativo (grupo de receita ou despesa,
           ou a vinculação de recursos, no RGF)
         tests: [not_null]
       - name: valor
