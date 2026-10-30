@@ -1,0 +1,188 @@
+---
+version: 2
+models:
+  - name: br_stn_capag__municipios
+    description: >
+      Capacidade de Pagamento (CAPAG) dos municípios brasileiros, apurada pela
+      Secretaria do Tesouro Nacional (STN) a partir do Siconfi. Cada
+      `data_referencia` é um recorte publicado pela STN. Dentro de um mesmo `ano`,
+      recortes mais recentes substituem os anteriores. A `populacao` só existe até
+      2023. As colunas `*_revisao` só são preenchidas em 2022, a partir do arquivo
+      de revisão da STN, que substitui o arquivo original do ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, data_referencia, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - indicador_endividamento_revisao
+            - nota_endividamento_revisao
+            - indicador_poupanca_corrente_revisao
+            - nota_poupanca_corrente_revisao
+            - indicador_liquidez_revisao
+            - nota_liquidez_revisao
+            - nota_capag_revisao
+    columns:
+      - name: ano
+        description: Ano da CAPAG
+        tests: [not_null]
+      - name: data_referencia
+        description: Data de referência do recorte publicado pela STN
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID do município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: populacao
+        description: População do município (disponível até 2023)
+      - name: indicador_endividamento
+        description: Indicador 1 - endividamento (dívida consolidada / receita corrente
+          líquida), em proporção
+      - name: nota_endividamento
+        description: Nota (A, B ou C) atribuída ao indicador de endividamento
+      - name: indicador_poupanca_corrente
+        description: Indicador 2 - poupança corrente (despesas correntes / receitas
+          correntes ajustadas), em proporção
+      - name: nota_poupanca_corrente
+        description: Nota (A, B ou C) atribuída ao indicador de poupança corrente
+      - name: indicador_liquidez
+        description: Indicador 3 - liquidez (obrigações financeiras / disponibilidade
+          de caixa), em proporção
+      - name: nota_liquidez
+        description: Nota (A, B ou C) atribuída ao indicador de liquidez
+      - name: nota_capag
+        description: Nota final da capacidade de pagamento, combinação das notas dos
+          três indicadores
+      - name: ano_base
+        description: Ano dos dados contábeis de que veio a nota do município, conforme
+          a fonte (`Ano_Base` ou `Origem da Nota Final`). Vazio até 2021
+      - name: indicador_endividamento_revisao
+        description: Indicador 1 - endividamento após a revisão da STN, em proporção
+          (apenas 2022)
+      - name: nota_endividamento_revisao
+        description: Nota do indicador de endividamento após a revisão da STN (apenas
+          2022)
+      - name: indicador_poupanca_corrente_revisao
+        description: Indicador 2 - poupança corrente após a revisão da STN, em proporção
+          (apenas 2022)
+      - name: nota_poupanca_corrente_revisao
+        description: Nota do indicador de poupança corrente após a revisão da STN
+          (apenas 2022)
+      - name: indicador_liquidez_revisao
+        description: Indicador 3 - liquidez após a revisão da STN, em proporção (apenas
+          2022)
+      - name: nota_liquidez_revisao
+        description: Nota do indicador de liquidez após a revisão da STN (apenas 2022)
+      - name: nota_capag_revisao
+        description: Nota final da capacidade de pagamento após a revisão da STN (apenas
+          2022)
+  - name: br_stn_capag__estados
+    description: >
+      Capacidade de Pagamento (CAPAG) dos estados brasileiros, apurada pela
+      Secretaria do Tesouro Nacional (STN). Cada `data_referencia` é a data no nome
+      do
+      recurso no portal do Tesouro Transparente ou, sem data no nome, 1º de janeiro
+      do ano. Em 2024 a revisão da STN substitui o arquivo original. Em 2018 a fonte
+      não traz as notas dos indicadores individuais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, data_referencia, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da CAPAG
+        tests: [not_null]
+      - name: data_referencia
+        description: Data de referência do recurso publicado pela STN
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: indicador_endividamento
+        description: Indicador 1 - endividamento, em proporção
+      - name: nota_endividamento
+        description: Nota atribuída ao indicador de endividamento
+      - name: indicador_poupanca_corrente
+        description: Indicador 2 - poupança corrente, em proporção
+      - name: nota_poupanca_corrente
+        description: Nota atribuída ao indicador de poupança corrente
+      - name: indicador_liquidez
+        description: Indicador 3 - liquidez, em proporção
+      - name: nota_liquidez
+        description: Nota atribuída ao indicador de liquidez
+      - name: nota_capag
+        description: Nota final da capacidade de pagamento (A+, A, B+, B, C ou D)
+  - name: br_stn_capag__municipios_base_calculo
+    description: >
+      Valores-base usados no cálculo dos indicadores da CAPAG dos municípios,
+      extraídos da aba `Datalake` dos arquivos publicados pela Secretaria do
+      Tesouro Nacional (STN) a partir de 2024. Cada linha é o valor de uma conta
+      de um município em um ano_base, vindo da DCA, do RGF ou do RREO, em uma
+      `data_referencia` (data do arquivo). O mesmo valor se repete em vários arquivos,
+      e a STN pode retificá-lo. Para a versão vigente, use a maior
+      `data_referencia` de cada `ano_base`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano_base
+            - data_referencia
+            - id_municipio
+            - demonstrativo
+            - tipo
+            - codigo_conta
+            - conta
+            - detalhe
+    columns:
+      - name: ano_base
+        description: Ano a que se refere o valor (exercício, na DCA e no RGF)
+        tests: [not_null]
+      - name: id_municipio
+        description: ID do município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: demonstrativo
+        description: Demonstrativo de origem. DCA (Declaração de Contas Anuais), RGF
+          (Relatório de Gestão Fiscal) ou RREO (Relatório Resumido da Execução Orçamentária)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [dca, rgf, rreo]
+      - name: tipo
+        description: DO (despesa orçamentária), RO (receita orçamentária) ou RI (receita
+          intraorçamentária).
+        tests:
+          - accepted_values:
+              values: [DO, RO, RI]
+      - name: codigo_conta
+        description: Corresponde a código da conta no plano de contas aplicado ao
+          setor público. Presente só no DCA.
+      - name: conta
+        description: Nome da conta
+        tests: [not_null]
+      - name: detalhe
+        description: Detalhamento da linha do demonstrativo (grupo de receita ou despesa,
+          ou a vinculação de recursos, no RGF)
+        tests: [not_null]
+      - name: valor
+        description: Valor da conta, em reais
+        tests: [not_null]
+      - name: data_referencia
+        description: Data de referência do arquivo publicado pela STN
+        tests: [not_null]
