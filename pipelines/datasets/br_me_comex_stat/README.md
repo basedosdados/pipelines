@@ -71,7 +71,7 @@ Duas fragilidades para ter em mente:
 
 ### A validação contra os totais oficiais derruba a run
 
-`validate_table` (`pipelines/datasets/br_me_comex_stat/utils.py`) baixa o arquivo de
+`check_totals_against_validation_file` (`pipelines/datasets/br_me_comex_stat/utils.py`) baixa o arquivo de
 conferência do MDIC (`*_TOTAIS_CONFERENCIA*.csv`) e compara, para o ano de
 referência, as somas de `valor_fob_dolar`, `peso_liquido_kg` e
 `quantidade_estatistica` mais a contagem de linhas. Qualquer divergência levanta
@@ -93,114 +93,100 @@ Isso não atrapalha o gate, porque o gate compara contra o `Table.Update`, que �
 por tabela. Mas explica uma coisa que confunde ao olhar o site: as quatro exibem
 a mesma "última atualização na fonte original" mesmo tendo coberturas diferentes.
 
----
+## Testes
 
-## Pipeline: a armadilha que já congelou este conjunto
+Os testes ficam em duas camadas: checagens em Python, que rodam no clean antes do
+upload, e testes do dbt, que rodam no `build_and_promote`.
 
-### O gate antigo comparava data de cobertura com relógio
+### Checagens antes do upload
 
-Até 2026-08, o flow usava `poll_source_for_update_task`, cujo gate é:
+Rodam dentro de `clean_br_me_comex_stat` (`pipelines/datasets/br_me_comex_stat/tasks.py`).
+O `upload_to_gcs` só começa depois que o clean termina, então qualquer erro
+interrompe a run antes de subir arquivo.
 
-```python
-source_max_date > client.get_table_update_latest(...)
+1. `check_year_matches_filename` (`utils.py` do conjunto) confere que toda linha
+   tem o `ano` do nome do arquivo (`EXP_2026.csv`, `IMP_2026_MUN.csv`). Roda logo
+   depois do rename, antes de gravar as partições.
+2. `check_totals_against_validation_file` compara somas e contagem de linhas com o arquivo de
+   conferência do MDIC, como descrito em "A validação contra os totais oficiais
+   derruba a run". Reprova arquivo sem nenhuma linha de dado; nos outros, o
+   passo 1 garante um `ano` só.
+3. `check_rows_written` (`utils.py` do conjunto) roda depois de todos os
+   arquivos e compara as linhas lidas com as linhas dos `data.csv` gravados nas
+   partições. Detecta linha perdida (coluna de partição vazia) e linha a mais (o
+   `to_partitions` grava em modo de acréscimo).
+
+### Testes do dbt
+
+Ficam em `models/br_me_comex_stat/schema.yml`. Nas quatro tabelas de dado, todos
+rodam só no mês mais recente (`where: __most_recent_year_month__`). Uma falha
+interrompe o `build_and_promote`, e o mês não chega a prod.
+
+| Teste | Colunas | Detalhe |
+|---|---|---|
+| `dbt_utils.unique_combination_of_columns` | Chave de cada tabela | |
+| `not_null_proportion_multiple_columns` | Todas | `at_least: 0.90` |
+| `relationships` | `id_sh4` | Diretório do sistema harmonizado |
+| `relationships` | `id_municipio` | Diretório de municípios |
+| `relationships` | `id_unidade` | Diretório de NCM |
+| `custom_relationships` | `sigla_uf`, `sigla_uf_ncm` | Diretório de UF, campo `sigla`; ignora `EX` |
+| `custom_relationships` | `sigla_pais_iso3` | Diretório de países; ignora `ANT`, `CSK`, `SCG` e `PCZ` |
+| `custom_relationships` | `id_ncm` | Diretório de NCM; ignora `85492100`, `90189097`, `26011220` e `29159070` |
+| `custom_dictionary_coverage` | `id_pais` nas quatro tabelas; `id_via` e `id_urf` nas duas de NCM | `dicionario` |
+| `dbt_utils.accepted_range` | `peso_liquido_kg`, `valor_fob_dolar`, `quantidade_estatistica`, `valor_frete`, `valor_seguro`, onde existirem | Mínimo 0 |
+
+- Em 2026 o maior percentual de nulos foi 0,52%, em `sigla_uf_ncm` da
+  `ncm_exportacao`, onde o modelo transforma o código `ND` em nulo.
+- Os testes de UF ignoram o código `EX`, que a fonte usa e o diretório de UF não
+  tem.
+- O `custom_relationships` reprova com um único valor fora do diretório.
+- O teste aceita zero e reprova valores negativos.
+
+No `dicionario` os testes rodam sem filtro de mês: unicidade,
+`not_null_proportion_multiple_columns` (`at_least: 0.90`) e `accepted_values`:
+
+| Coluna | Valores aceitos |
+|---|---|
+| `id_tabela` | `municipio_exportacao`, `municipio_importacao`, `ncm_exportacao`, `ncm_importacao` |
+| `nome_coluna` | `id_pais`, `id_via`, `id_urf` |
+
+Não há teste de `ano` nem de `mes` no dbt: com o filtro do mês mais recente, o
+teste só veria valores válidos. Linha com `ano` vazio reprova no
+`check_year_matches_filename`; linha com `mes` vazio não passa por nenhuma
+checagem.
+
+### Manutenção do dicionário
+
+Nenhum flow atualiza o `dicionario`. Código novo de país, via ou URF reprova o
+`custom_dictionary_coverage` até ser incluído à mão no arquivo da staging de dev,
+gravado por cima do mesmo arquivo:
+
+```text
+gs://basedosdados-dev/staging/br_me_comex_stat/dicionario/dicionario.csv
 ```
 
-O lado esquerdo é uma **data de cobertura** (`2026-07-01` = "a fonte tem dados até
-julho"). O lado direito é um **relógio**: `register_table_materialization_task`
-grava ali o `bq.last_modified()`, o horário da última materialização.
+Prod recebe pelo `table-approve`, que só sincroniza a staging de modelo cujo
+`.sql` mudou na PR.
 
-Como o dado do mês M sai no começo de M+1, a data de cobertura fica sempre cerca
-de um mês atrás do relógio. O gate só passa quando faz mais de um mês desde a
-última materialização — na prática, o conjunto ingeria **mês sim, mês não**.
+Formato das entradas:
 
-Estado em 2026-08-06, que é o retrato exato do problema:
+- Na staging a coluna se chama `coluna`; o modelo renomeia para `nome_coluna`.
+- O rótulo vem das tabelas auxiliares do MDIC
+  ([`PAIS.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/PAIS.csv),
+  [`URF.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/URF.csv)), sem o
+  código na frente, com a inicial de cada palavra em maiúscula e sem acento:
+  `0812003 - DRF TAUBATE` vira `Drf Taubate`.
+- `cobertura_temporal` é `(1)`.
 
-| Tabela | `Table.Update` (relógio) | `RawSource.Update` (cobertura) | Cobertura publicada |
-|---|---|---|---|
-| `ncm_exportacao` | 2026-07-03 | 2026-06-01 | …2026-06 |
-| `ncm_importacao` | 2026-07-03 | 2026-06-01 | …2026-06 |
-| `municipio_exportacao` | 2026-06-26 | 2026-06-01 | …2026-05 |
-| `municipio_importacao` | 2026-06-26 | 2026-06-01 | …2026-05 |
+### Diretório de NCM
 
-Com julho na fonte, a conta do gate ficava `2026-07-01 > 2026-07-03` para NCM —
-falso, travado. As tabelas de município já tinham perdido junho pelo mesmo
-motivo (`2026-06-01 > 2026-06-26` é falso), e é por isso que a cobertura delas
-parou em maio.
-
-O sintoma no Prefect é traiçoeiro: a run termina `COMPLETED`, o `Poll` fica em
-dia e o log diz apenas `Não há novas atualizações na fonte original`. Uma
-pipeline morta é indistinguível de uma saudável pelo estado da run.
-
-### O modelo novo, adotado aqui em 2026-08
-
-O flow passou para o modelo de reconciliação de cobertura
-(`pipelines/utils/metadata/poll.py`), o mesmo do CNES e do
-`br_me_caged`:
-
-```python
-register_source_coverage_task(...)  # grava o Poll e avança RawSource.Update
-check_source_is_ahead_of_table_task(
-    ...
-)  # gate: RawSource.Update > Table.Update
-...
-sync_table_coverage_task(...)  # cobertura + RAPs + Table.Update como cobertura
-```
-
-Agora os dois lados da comparação são data de cobertura. O `commit_source_update_task`
-sumiu: quem grava o ponteiro da fonte é o `register_source_coverage_task`, no
-começo do flow. O commit deferido deixou de ser necessário porque o gate passou a
-depender do `Table.Update`, que só avança no `sync_table_coverage_task`, no fim —
-uma falha no meio não trava a run seguinte.
-
-O `register_source_coverage_task` fica **fora** do `if not force_run`: o Poll é
-gravado em toda run, inclusive nas forçadas. Só o gate é pulado.
-
-### Migrar exige semear o `Table.Update` — não é opcional
-
-Esta é a parte que congelou o CNES de 2026-06-17 a 2026-08-03 e que o diff do
-`br_me_caged` não cobre. O `Table.Update` que já está gravado é **relógio**, e o
-gate novo o interpreta como cobertura. Sem semear, ele compara
-`2026-07-01 > 2026-07-03` e devolve falso para sempre — o modelo novo herda o
-congelamento do antigo.
-
-Nada no código valida isso nem corrige sozinho: o único escritor do valor certo
-(`sync_table_coverage_task`) está **depois** do gate que o valor errado bloqueia.
-
-Duas rotas equivalentes:
-
-```python
-# semear a cobertura já materializada
-from pipelines.utils.metadata.client import MetadataClient
-import datetime
-
-client = MetadataClient(env="prod")
-seeds = {
-    "ncm_exportacao": datetime.date(2026, 6, 1),
-    "ncm_importacao": datetime.date(2026, 6, 1),
-    "municipio_exportacao": datetime.date(2026, 5, 1),
-    "municipio_importacao": datetime.date(2026, 5, 1),
-}
-for table_id, latest in seeds.items():
-    client.upsert_table_update("br_me_comex_stat", table_id, latest=latest)
-```
-
-Ou, em vez disso, disparar cada deployment uma vez com estes parâmetros:
-
-```json
-{"force_run": true}
-```
-
-Conferir depois com `client.get_table_update_latest(...)`: tem que voltar data de
-cobertura (dia 1º, meia-noite), nunca timestamp com hora. Se voltar hora
-diferente de meia-noite, é relógio e o gate está travado.
-
-**O seed tem que chegar junto com o deploy do código novo.** Enquanto o flow
-antigo estiver no ar, todo run bem-sucedido dele chama
-`register_table_materialization_task`, que regrava o `Table.Update` como relógio
-— desfazendo o seed. Pior: o seed *destrava* o gate antigo também (ele compara
-contra o mesmo campo), então semear e não fazer o deploy provoca exatamente o run
-que apaga o seed. Se isso acontecer, é só semear de novo com a cobertura
-materializada mais recente.
+Os quatro códigos em `ignore_values` do `id_ncm` são códigos que a fonte usa e o
+diretório de NCM (`br_bd_diretorios_mundo.nomenclatura_comum_mercosul`) não tem.
+Nenhum flow atualiza esse diretório: ele é carregado à mão por
+`models/br_bd_diretorios_mundo/code/download_sh4_ncm.py`, a partir do
+[`NCM.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv) do MDIC.
+NCM novo do MDIC reprova o `custom_relationships` do `id_ncm` até o diretório ser
+recarregado ou o código entrar no `ignore_values`.
 
 ---
 

@@ -24,9 +24,11 @@ from pipelines.datasets.br_me_comex_stat.constants import (
     constants as comex_constants,
 )
 from pipelines.datasets.br_me_comex_stat.utils import (
+    check_rows_written,
+    check_totals_against_validation_file,
+    check_year_matches_filename,
     create_paths,
     download_data,
-    validate_table,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -130,16 +132,20 @@ def clean_br_me_comex_stat(
     """
 
     file_list = os.listdir(f"{path}{table_name}/input/")
+    rows_read = 0
 
     for file in file_list:
         if table_type == "mun":
             log(f"Doing file {file}")
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
+            rows_read += len(df)
 
             df = df.rename(columns=comex_constants.RENAME_MUN.value)
 
             log("Dataframe was renamed.")
+
+            check_year_matches_filename(dataframe=df, filename=file)
 
             condicao = [
                 ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
@@ -169,7 +175,7 @@ def clean_br_me_comex_stat(
             log("Dataframe partitioned and saved")
 
             log("Starting dataframe validation:")
-            validate_table(
+            check_totals_against_validation_file(
                 filename=file,
                 dataframe=df,
                 table_type="mun",
@@ -181,9 +187,12 @@ def clean_br_me_comex_stat(
             log(f"Doing file {file}")
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
+            rows_read += len(df)
 
             df = df.rename(columns=comex_constants.RENAME_NCM.value)
             log("Dataframe renamed")
+
+            check_year_matches_filename(dataframe=df, filename=file)
 
             to_partitions(
                 data=df,
@@ -193,13 +202,18 @@ def clean_br_me_comex_stat(
             log("Dataframe partitioned and saved")
 
             log("Starting dataframe validation:")
-            validate_table(
+            check_totals_against_validation_file(
                 filename=file,
                 dataframe=df,
                 table_type="ncm",
                 path=comex_constants.PATH.value,
             )
             del df
+
+    check_rows_written(
+        rows_read=rows_read,
+        output_dir=comex_constants.PATH.value + table_name + "/output/",
+    )
 
     # pyrefly: ignore [bad-return]
     return f"/tmp/br_me_comex_stat/{table_name}/output"
