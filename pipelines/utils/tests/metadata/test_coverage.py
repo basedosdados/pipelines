@@ -56,6 +56,20 @@ def test_coverage_from_backend_raises_when_table_not_found():
         coverage_from_backend(client, "test_dataset", "test_event_pipeline")
 
 
+def test_coverage_from_backend_raises_when_tier_is_empty():
+    client = _FakeClient(
+        {
+            "tier": "",
+            "date_column_kind": "",
+            "coverage_columns": [{"name": "ano", "entity": "year"}],
+        }
+    )
+
+    with pytest.raises(ValueError, match="nunca onboardada"):
+        # pyrefly: ignore [bad-argument-type]
+        coverage_from_backend(client, "test_dataset", "test_event_pipeline")
+
+
 def test_coverage_spec_non_historical_has_no_coverage_columns():
     spec = CoverageSpec(
         tier="non_historical", date_column_kind="", coverage_columns=[]

@@ -31,7 +31,7 @@ from pipelines.utils.metadata.domain import DateFormat
 if TYPE_CHECKING:
     from pipelines.utils.metadata.client import MetadataClient
 
-Tier = Literal["all_free", "all_bdpro", "part_bdpro", "non_historical"]
+Tier = Literal["all_free", "all_bdpro", "part_bdpro", "non_historical", ""]
 DateColumnKind = Literal[
     "date", "year", "year_month", "year_quarter", "year_bimester", ""
 ]
@@ -60,11 +60,18 @@ def coverage_from_backend(
 ) -> CoverageSpec:
     """Busca o `CoverageSpec` de uma tabela no backend, pronto pra usar.
 
-    Levanta se a tabela não tiver `coverageSpec` cadastrado no backend —
-    ausência/inconsistência no metadado é tratada como um problema real a
-    corrigir lá, não um estado a contornar aqui (ver `tier=""` pra tabela com
-    `coverage_columns` mas sem `Coverage` ainda, que também é repassado como
-    está, não escondido).
+    Levanta em dois casos — ausência/inconsistência no metadado é tratada
+    como um problema real a corrigir no backend, não um estado a contornar
+    aqui:
+
+    - Backend não tem `coverageSpec` pra esses IDs (sem `CloudTable`).
+    - Backend devolve `tier=""`: a tabela tem `coverage_columns` marcadas
+      (`Column.coverage_entity` preenchido) mas nenhuma `Coverage`
+      cadastrada ainda — marcada, nunca onboardada. É um estado de dado
+      real, não um bug de `pipelines`; levantar aqui, com mensagem
+      própria, é melhor do que deixar `Tier`/`CoverageSpec` validar e
+      funções downstream (`policy.py`/`bq.py`) terem que saber lidar com
+      um 5º tier que não representa nenhuma cobertura de verdade.
 
     Args:
         client: `MetadataClient` já autenticado/configurado pro ambiente certo.
@@ -81,6 +88,13 @@ def coverage_from_backend(
             f"Backend não tem coverageSpec pra {dataset_id}.{table_id} — "
             "confira se a tabela tem um CloudTable registrado com esse "
             "gcp_dataset_id/gcp_table_id."
+        )
+    if data["tier"] == "":
+        raise ValueError(
+            f"{dataset_id}.{table_id} tem coverage_entity marcado no "
+            "backend, mas nenhuma Coverage cadastrada ainda — tabela "
+            "marcada mas nunca onboardada. Crie a Coverage (free e/ou "
+            "pro) antes de materializar."
         )
     return CoverageSpec(**data)
 

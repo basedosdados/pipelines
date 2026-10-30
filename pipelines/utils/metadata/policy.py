@@ -104,6 +104,12 @@ def assert_coverage_topology(spec: CoverageSpec, found: CoverageIds) -> None:
                 )
         case "non_historical":
             pass
+        case "":
+            raise ValueError(
+                "tier vazio não representa nenhuma Coverage real — "
+                "coverage_from_backend já deveria ter levantado antes de "
+                "chegar aqui (tabela marcada mas nunca onboardada)"
+            )
 
 
 # ----------------------------------------------- cálculo dos DateTimeRange
@@ -145,6 +151,12 @@ def compute_coverage_ranges(
     """
     if spec.tier == "non_historical":
         raise ValueError("NonHistorical não usa compute_coverage_ranges")
+    if spec.tier == "":
+        raise ValueError(
+            "tier vazio não representa nenhuma Coverage real — "
+            "coverage_from_backend já deveria ter levantado antes de "
+            "chegar aqui (tabela marcada mas nunca onboardada)"
+        )
 
     fmt = date_format_for(spec.date_column_kind)
 
