@@ -26,7 +26,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
 from pipelines.constants import constants as c
-from pipelines.datasets.br_mp_pep.constants import COVERAGE, constants
+from pipelines.datasets.br_mp_pep.constants import constants
 from pipelines.datasets.br_mp_pep.utils import (
     get_normalized_values_by_col,
     try_find_element,
@@ -591,6 +591,5 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     output_filepath = make_partitions(df)
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=output_filepath,
     )

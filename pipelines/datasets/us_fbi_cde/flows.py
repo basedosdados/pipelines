@@ -29,7 +29,6 @@ from pipelines.datasets.us_fbi_cde.tasks import (
     download_window,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -47,29 +46,22 @@ DATASET_ID = constants.DATASET_ID.value
 # with every release and the one linked to the NIBRS raw data source.
 POLL_TABLE = "incident"
 
-# Every table refreshes at most once a year, so none of them falls under the BD
-# Pro rolling window, which applies to tables refreshed monthly or more often.
 # `dicionario` has no date column and therefore takes no coverage spec.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in [
-        "agency",
-        "incident",
-        "offense",
-        "offender",
-        "victim",
-        "victim_offense",
-        "victim_offender_relationship",
-        "arrestee",
-        "property",
-        "hate_crime",
-        "ucr_summary",
-    ]
-}
+TABLES_WITH_COVERAGE = [
+    "agency",
+    "incident",
+    "offense",
+    "offender",
+    "victim",
+    "victim_offense",
+    "victim_offender_relationship",
+    "arrestee",
+    "property",
+    "hate_crime",
+    "ucr_summary",
+]
 
-ALL_TABLES = [*list(_COVERAGE), "dicionario"]
+ALL_TABLES = [*TABLES_WITH_COVERAGE, "dicionario"]
 
 
 @flow(name="us_fbi_cde", log_prints=True)
@@ -181,13 +173,12 @@ def us_fbi_cde_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 if table not in paths:
                     continue
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

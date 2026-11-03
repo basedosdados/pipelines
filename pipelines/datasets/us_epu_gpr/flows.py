@@ -26,12 +26,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.us_epu_gpr.constants import constants
 from pipelines.datasets.us_epu_gpr.tasks import clean_epu_gpr, download_epu_gpr
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -45,18 +39,9 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table. Both data tables are fully free (see module docstring);
-# `dicionario` has no date column and takes no spec.
-_COVERAGE = {
-    "index_monthly": AllFree(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "index_daily": AllFree(
-        date_column=DateOnly(col="date"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-}
+# Tables registered with the backend. `dicionario` has no date column and
+# takes no coverage spec.
+_COVERAGE_TABLES = ("index_monthly", "index_daily")
 
 
 @flow(name="us_epu_gpr", log_prints=True)
@@ -153,11 +138,10 @@ def us_epu_gpr_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _COVERAGE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

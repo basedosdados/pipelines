@@ -34,7 +34,6 @@ from pipelines.datasets.us_ed_nces_ccd.tasks import (
     latest_source_year,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -47,16 +46,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# Every refreshed table is annual, so none of them takes the BD Pro rolling
-# window: that business rule applies to tables refreshed monthly or more often.
-# `dicionario` has no date column and therefore takes no coverage spec at all.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in constants.REFRESH_TABLES.value
-}
 
 
 @flow(name="us_ed_nces_ccd", log_prints=True)
@@ -153,11 +142,10 @@ def us_ed_nces_ccd_flow(
                 )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.REFRESH_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

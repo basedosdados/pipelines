@@ -33,12 +33,6 @@ from pipelines.datasets.us_cfpb_complaints.tasks import (
     download_complaints,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -53,26 +47,6 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 COMPLAINT = constants.COMPLAINT.value
 DICIONARIO = constants.DICIONARIO.value
-
-# Coverage spec per table.
-#
-# `complaint` refreshes daily, so it carries the BD Pro rolling window: the most
-# recent 6 months are pro-only, everything older is free. Each run recomputes
-# free_end = source_end - free_lag, rewrites both DateTimeRanges, and re-issues the
-# BigQuery Row Access Policies, so the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises before
-# anything is written.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    COMPLAINT: PartBdpro(
-        date_column=DateOnly(col="date_received"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
 
 
 @flow(name="us_cfpb_complaints", log_prints=True)
@@ -187,14 +161,12 @@ def us_cfpb_complaints_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id=COMPLAINT,
+                env="prod",
+                bq_project="basedosdados",
+            )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception. The
         # snapshot is ~1.4 GB zipped and 9.3 GB unzipped, plus ~1.4 GB of parquet.

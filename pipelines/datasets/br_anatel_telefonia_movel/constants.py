@@ -4,19 +4,12 @@ Constant values for the datasets projects of the pipelines
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_anatel_telefonia_movel"
 
 MICRODADOS_TABLE_ID = "microdados"
 DENSIDADE_BRASIL_TABLE_ID = "densidade_brasil"
 DENSIDADE_UF_TABLE_ID = "densidade_uf"
 DENSIDADE_MUNICIPIO_TABLE_ID = "densidade_municipio"
-
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)
 
 
 class constants(Enum):

@@ -22,7 +22,7 @@ from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
-from pipelines.datasets.br_mf_divida_ativa.constants import COVERAGE, constants
+from pipelines.datasets.br_mf_divida_ativa.constants import constants
 from pipelines.datasets.br_mf_divida_ativa.utils import (
     FIRST_QUARTER,
     FIRST_YEAR,
@@ -103,7 +103,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             )
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=data_path,
             dump_mode="append",
             source_format="parquet",
