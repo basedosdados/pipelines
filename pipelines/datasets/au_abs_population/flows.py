@@ -28,12 +28,6 @@ from pipelines.datasets.au_abs_population.tasks import (
     download_population,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearOnly,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -58,28 +52,16 @@ TABLES = [
     "regional_lga",
 ]
 
-# Coverage spec per table. Every table is fully free: the fastest-refreshing
-# source here is quarterly, and the BD Pro rolling window applies to tables that
-# refresh monthly or more often. `series` is a dimension table with no date
-# column, so it takes no coverage spec.
-_COVERAGE = {
-    "national_state": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "erp_age_sex": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "projection": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "regional_sa2": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "regional_lga": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# Tables registered with the backend's coverage metadata. `series` is a
+# dimension table with no date column, so it takes no coverage spec and is
+# excluded here.
+COVERAGE_TABLES = [
+    "national_state",
+    "erp_age_sex",
+    "projection",
+    "regional_sa2",
+    "regional_lga",
+]
 
 
 @flow(name="au_abs_population", log_prints=True)
@@ -211,11 +193,10 @@ def au_abs_population_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in COVERAGE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

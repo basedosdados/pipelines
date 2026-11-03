@@ -2,8 +2,6 @@
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-
 _VIGENTES_PAINEL = (
     "//h3[contains(normalize-space(.), 'Reconhecimentos vigentes')]"
 )
@@ -106,11 +104,6 @@ class reconhecimentos_vigentes(Enum):
     ]
 
     STAGING_SUBSTITUICOES = {"id_municipio": "nome_municipio"}
-
-    COVERAGE = AllFree(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
 
 
 class reconhecimentos_realizados(Enum):
@@ -270,8 +263,3 @@ class reconhecimentos_realizados(Enum):
         "25400": "Transporte de passageiros e cargas não perigosas marítimo",
         "25500": "Transporte passageiros e cargas não perigosas aquaviário",
     }
-
-    COVERAGE = AllFree(
-        date_column=DateOnly(col=COLUNA_DATA),
-        date_format=DateFormat.YEAR_MD,
-    )
