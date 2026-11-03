@@ -11,14 +11,7 @@ import datetime
 
 import pytest
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-)
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.register import (
     commit_source_size_update,
@@ -195,9 +188,13 @@ def test_commit_source_update_defaults_url_to_none():
 
 # ============================================ register_table_materialization (§1.8)
 def _part_bdpro():
-    return PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
+    return CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year_month",
+        coverage_columns=[
+            CoverageColumn(name="ano", entity="year"),
+            CoverageColumn(name="mes", entity="month"),
+        ],
     )
 
 
@@ -231,8 +228,10 @@ def test_all_free_writes_only_free_coverage_and_table_update_no_rap():
         last_modified=datetime.datetime(2026, 6, 2),
         can_read=True,
     )
-    spec = AllFree(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
+    spec = CoverageSpec(
+        tier="all_free",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="data", entity="date")],
     )
     register_table_materialization(client, bq, "br_x", "tab", spec)
 
@@ -259,7 +258,8 @@ def test_table_update_skipped_when_cannot_read_metadata():
 def test_non_historical_writes_only_table_update():
     client = FakeMetadataClient()
     bq = FakeBQ(last_modified=datetime.datetime(2026, 6, 2), can_read=True)
-    register_table_materialization(client, bq, "br_x", "tab", NonHistorical())
+    non_historical = CoverageSpec(tier="non_historical", date_column_kind="")
+    register_table_materialization(client, bq, "br_x", "tab", non_historical)
 
     assert client.written_entities == ["table_update"]  # sem coverage, sem RAP
 

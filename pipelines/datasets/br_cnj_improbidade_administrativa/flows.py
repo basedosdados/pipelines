@@ -11,11 +11,6 @@ from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     write_csv_file,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -87,10 +82,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_propositura"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

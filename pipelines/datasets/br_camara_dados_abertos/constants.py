@@ -2,14 +2,6 @@
 from datetime import datetime
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    CoverageSpec,
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-)
-
 
 class constants(Enum):
     INPUT_PATH = "/tmp/input/"
@@ -268,53 +260,3 @@ class constants(Enum):
         "localCamara.sala": "localCamara_sala",
         "localCamara.andar": "localCamara_andar",
     }
-
-
-def update_metadata_variable_dictionary(
-    table_id: str, dataset_id: str = "br_camara_dados_abertos"
-) -> CoverageSpec | None:
-    """`CoverageSpec` por tabela do br_camara_dados_abertos.
-
-    Tabelas sem coluna de data confiável (eram `historical_database=False` no
-    legado) usam `NonHistorical`; as demais são `PartBdpro` sobre a respectiva
-    coluna de data (`DateOnly`/`YEAR_MD`, `free_lag` default 6 meses). Devolve
-    `None` para tabelas sem cobertura registrada."""
-    _ = dataset_id  # cobertura é determinada por table_id
-
-    def _part(col: str) -> PartBdpro:
-        return PartBdpro(
-            date_column=DateOnly(col=col), date_format=DateFormat.YEAR_MD
-        )
-
-    non_historical = NonHistorical()
-    coverage_by_table: dict[str, CoverageSpec] = {
-        # sem coluna de data confiável → cobertura única (NonHistorical)
-        "deputado": non_historical,
-        "deputado_ocupacao": non_historical,
-        "deputado_profissao": non_historical,
-        "evento_orgao": non_historical,
-        "evento_requerimento": non_historical,
-        "frente_deputado": non_historical,
-        "licitacao_item": non_historical,
-        "licitacao_proposta": non_historical,
-        "proposicao_autor": non_historical,
-        "proposicao_tema": non_historical,
-        "votacao_orientacao_bancada": non_historical,
-        # part_bdpro sobre a respectiva coluna de data
-        "evento": _part("data_inicio"),
-        "evento_presenca_deputado": _part("data_inicio"),
-        "frente": _part("data_criacao"),
-        "funcionario": _part("data_inicio_historico"),
-        "licitacao": _part("data_autorizacao"),
-        "licitacao_contrato": _part("data_assinatura"),
-        "licitacao_pedido": _part("data_cadastro"),
-        "orgao": _part("data_inicio"),
-        "orgao_deputado": _part("data_inicio"),
-        "proposicao_microdados": _part("data"),
-        "votacao": _part("data"),
-        "votacao_objeto": _part("data"),
-        "votacao_parlamentar": _part("data"),
-        "votacao_proposicao": _part("data"),
-        "despesa": _part("data_emissao"),
-    }
-    return coverage_by_table.get(table_id)

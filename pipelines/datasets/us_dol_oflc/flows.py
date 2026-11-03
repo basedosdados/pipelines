@@ -27,7 +27,6 @@ from pipelines.datasets.us_dol_oflc.tasks import (
     partition_paths,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -41,17 +40,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 PROGRAMS = constants.PROGRAMS.value
-
-# Every table refreshes quarterly — less often than monthly — so none of them
-# carries a BD Pro rolling window and all coverage is free. `dictionary` has no
-# date column and takes no coverage spec.
-_COVERAGE = {
-    program: AllFree(
-        date_column=DateOnly(col="decision_date"),
-        date_format=DateFormat.YEAR_MD,
-    )
-    for program in PROGRAMS
-}
 
 # The poll is anchored on the LCA table, the highest-volume program and the only
 # one published quarterly; the other three are re-read in the same run.
@@ -167,11 +155,10 @@ def us_dol_oflc_flow(
             return
 
         if update_metadata:
-            for program, coverage in _COVERAGE.items():
+            for program in PROGRAMS:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=program,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
