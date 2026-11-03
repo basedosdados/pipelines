@@ -5,7 +5,6 @@ Tasks for br_cgu_servidores_executivo_federal.
 from collections.abc import Callable
 
 from pipelines.datasets.br_cgu_servidores_executivo_federal.constants import (
-    COVERAGE,
     DATASET_ID,
 )
 from pipelines.shared.cgu.tasks import (
@@ -79,7 +78,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         filepath = partition_data(table_id=table_id, dataset_id=DATASET_ID)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=filepath,
         )
 

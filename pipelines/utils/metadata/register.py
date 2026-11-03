@@ -20,11 +20,7 @@ import datetime
 from typing import Protocol
 
 from pipelines.utils.metadata import policy
-from pipelines.utils.metadata.domain import (
-    CoverageSpec,
-    NonHistorical,
-    PartBdpro,
-)
+from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.utils import log
 
 DEFAULT_BQ_PROJECT = "basedosdados"
@@ -54,7 +50,7 @@ class BQReader(Protocol):
     def can_read_metadata(self, bq_project: str) -> bool: ...
     def apply_row_access_policies(
         self,
-        coverage: PartBdpro,
+        coverage: CoverageSpec,
         free_end: datetime.date,
         dataset_id: str,
         table_id: str,
@@ -280,7 +276,7 @@ def register_table_materialization(
     policy.assert_write_allowed(env, bq_project, status)
 
     # NonHistorical: cobertura única vinda da metadata do BQ; sem coverage ranges.
-    if isinstance(coverage, NonHistorical):
+    if coverage.tier == "non_historical":
         client.upsert_table_update(
             dataset_id, table_id, latest=bq.last_modified(dataset_id, table_id)
         )
@@ -300,7 +296,6 @@ def register_table_materialization(
     # Row Access Policies só para part_bdpro.
     if policy.needs_row_access_policy(coverage):
         bq.apply_row_access_policies(
-            # pyrefly: ignore [bad-argument-type]
             coverage,
             # pyrefly: ignore [bad-argument-type]
             ranges.free_end,

@@ -9,11 +9,6 @@ from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     crawl,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -83,10 +78,6 @@ def br_cvm_oferta_publica_distribuicao__dia(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_comunicado"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
