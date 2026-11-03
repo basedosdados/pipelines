@@ -8,7 +8,6 @@ from prefect import task
 
 from pipelines.constants import constants as repo_constants
 from pipelines.datasets.br_inmet_bdmep.constants import (
-    COVERAGE,
     ConstantsMicrodados,
 )
 from pipelines.datasets.br_inmet_bdmep.utils import (
@@ -77,6 +76,5 @@ def microdados_download(download_params: dict) -> ExtractAndLoad:
     """Baixa o ZIP do ano e grava o CSV particionado por `ano=`."""
     year = download_source_zip()
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=build_year_file(year),
     )

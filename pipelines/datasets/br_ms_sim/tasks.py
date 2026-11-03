@@ -11,7 +11,6 @@ from prefect import task
 
 from pipelines.datasets.br_ms_sim import utils
 from pipelines.datasets.br_ms_sim.constants import (
-    COVERAGE,
     MICRODADOS_TABLE_ID,
 )
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
@@ -101,7 +100,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     )
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=str(filepath),
         dump_mode="append",
         source_format="csv",
