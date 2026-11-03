@@ -12,7 +12,6 @@ from pathlib import Path
 import pandas as pd
 
 from pipelines.datasets.au_abs_labour_force.constants import (
-    COVERAGE,
     constants,
 )
 from pipelines.datasets.au_abs_labour_force.utils import (
@@ -169,7 +168,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         output_dir = write_partitioned(df, table_id, work_dir / "output")
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=str(output_dir),
             dump_mode="overwrite",
             source_format="parquet",

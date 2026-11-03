@@ -15,7 +15,6 @@ from pathlib import Path
 from prefect import task
 
 from pipelines.datasets.br_inep_censo_educacao_superior.constants import (
-    COVERAGE,
     constants,
 )
 from pipelines.datasets.br_inep_censo_educacao_superior.utils import (
@@ -145,7 +144,6 @@ def make_extract_load_data(
         work_dir = tempfile.mkdtemp(prefix=f"{DATASET_ID}_{table_id}_")
         data_path = carregar_anos(table_id, anos, work_dir)
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=data_path,
             # append substitui só o arquivo de cada ano carregado; overwrite
             # apagaria a tabela de staging inteira.

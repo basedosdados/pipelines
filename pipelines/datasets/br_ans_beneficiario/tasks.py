@@ -15,7 +15,6 @@ from prefect import task
 from tqdm import tqdm
 
 from pipelines.datasets.br_ans_beneficiario.constants import (
-    COVERAGE,
     INFORMACAO_CONSOLIDADA_URL,
 )
 from pipelines.datasets.br_ans_beneficiario.utils import (
@@ -161,7 +160,6 @@ def br_ans_beneficiario_download(download_params: dict) -> ExtractAndLoad:
     output_filepath = crawler_ans(files=files)
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=output_filepath,
         # crawler_ans -> parquet_partition grava .parquet, não .csv (default).
         source_format="parquet",

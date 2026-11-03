@@ -39,10 +39,8 @@ from collections.abc import Callable
 from pathlib import Path
 
 from pipelines.datasets.au_abs_prices_inflation.constants import (
-    CPI_COVERAGE,
     CPI_MONTHLY_TABLE_ID,
     CPI_QUARTERLY_TABLE_ID,
-    RELEASE_COVERAGE,
     constants,
 )
 from pipelines.datasets.au_abs_prices_inflation.cpi import (
@@ -148,7 +146,6 @@ def make_cpi_extract_load_data(
         write_cpi_partitioned(df, table_id, str(output_dir))
 
         return ExtractAndLoad(
-            coverage=CPI_COVERAGE[table_id].model_dump(),
             data_path=str(output_dir / table_id),
             source_format="parquet",
         )
@@ -225,7 +222,6 @@ def make_release_extract_load_data(
         write_release_partitioned(df, release, str(output_dir))
 
         return ExtractAndLoad(
-            coverage=RELEASE_COVERAGE.model_dump(),
             data_path=str(output_dir / release),
             source_format="parquet",
         )

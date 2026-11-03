@@ -29,14 +29,6 @@ from pipelines.datasets.us_eia_consumption.tasks import (
     probe_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -54,30 +46,6 @@ DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = {
     "eia861": constants.RETAIL_SALES.value,
     "eia861m": constants.EIA861M.value,
-}
-
-# Coverage per table. The annual tables are AllFree; eia861m refreshes monthly,
-# so it carries the BD Pro rolling window (free_end = source_end - 6 months),
-# which requires a free AND a pro Coverage to already exist (registered at
-# onboarding with --bdpro). Its (year, month) are guaranteed non-null by the
-# builder, so no row is paywalled forever by a NULL date. dicionario has no date
-# column and takes no coverage spec.
-_FREE_LAG = FreeLag(unit="months", value=6)
-_COVERAGE = {
-    constants.UTILITY.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.RETAIL_SALES.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.SERVICE_TERRITORY.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.EIA861M.value: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=_FREE_LAG,
-    ),
 }
 
 
@@ -196,11 +164,10 @@ def us_eia_consumption_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
