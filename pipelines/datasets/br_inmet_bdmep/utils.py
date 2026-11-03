@@ -11,7 +11,10 @@ import httpx
 import polars as pl
 from unidecode import unidecode
 
-from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
+from pipelines.datasets.br_inmet_bdmep.constants import (
+    ConstantsEstacao,
+    ConstantsMicrodados,
+)
 from pipelines.utils.utils import log
 
 
@@ -197,6 +200,25 @@ def parse_measure(column: str) -> pl.Expr:
     return pl.when(value != -9999).then(value).alias(column)
 
 
+def read_station_header(path: Path) -> dict[str, str]:
+    """
+    Lê as 8 linhas de cabeçalho do CSV de uma estação (`REGIAO:;NE`,
+    `UF:;AL`, ...), na ordem de `HEADER_FIELDS`.
+
+    Args:
+        path (Path): caminho do CSV.
+
+    Returns:
+        dict[str, str]: valor de cada campo de `HEADER_FIELDS`, como está
+            no arquivo.
+    """
+    with open(path, encoding=ConstantsMicrodados.ENCODING.value) as file:
+        return {
+            field: next(file).split(";")[1].strip()
+            for field in ConstantsMicrodados.HEADER_FIELDS.value
+        }
+
+
 def read_station_file(path: Path) -> pl.DataFrame:
     """
     Lê o CSV de uma estação no formato da tabela `microdados`. O código da
@@ -208,9 +230,7 @@ def read_station_file(path: Path) -> pl.DataFrame:
     Returns:
         pl.DataFrame: dados da estação, com as colunas de `COLUMNS_ORDER`.
     """
-    with open(path, encoding=ConstantsMicrodados.ENCODING.value) as file:
-        header = [next(file) for _ in range(8)]
-    id_estacao = header[3].split(";")[1].strip()
+    id_estacao = read_station_header(path)["id_estacao"]
 
     station = pl.read_csv(
         path,
@@ -259,5 +279,95 @@ def build_year_csv(input_dir: Path, output_dir: Path, year: int) -> Path:
             read_station_file(station_file).write_csv(
                 file, include_header=index == 0
             )
+
+    return file_path
+
+
+def parse_foundation_date(value: str) -> str | None:
+    """
+    Converte a data de fundação do cabeçalho para `AAAA-MM-DD`. Com o ano
+    em dois dígitos (`27/04/08`), a data que cairia no futuro volta um
+    século.
+
+    Args:
+        value (str): data de fundação como está no cabeçalho.
+
+    Returns:
+        str | None: data em `AAAA-MM-DD`, ou nulo se o campo vier vazio.
+
+    Raises:
+        ValueError: se a data não estiver em nenhum formato de
+            `FOUNDATION_DATE_FORMATS`.
+    """
+    if not value:
+        return None
+
+    for date_format in ConstantsEstacao.FOUNDATION_DATE_FORMATS.value:
+        try:
+            foundation_date = datetime.strptime(value, date_format).date()
+        except ValueError:
+            continue
+        if foundation_date > date.today():
+            foundation_date = foundation_date.replace(
+                year=foundation_date.year - 100
+            )
+        return foundation_date.isoformat()
+
+    raise ValueError(f"Data de fundação em formato desconhecido: {value!r}")
+
+
+def read_station_info(path: Path) -> dict[str, str | None]:
+    """
+    Lê o cadastro de uma estação no cabeçalho do CSV, no formato da staging
+    da tabela `estacao`.
+
+    Args:
+        path (Path): caminho do CSV.
+
+    Returns:
+        dict[str, str | None]: valores das colunas de
+            `ConstantsEstacao.COLUMNS_ORDER`, como texto.
+    """
+    header = read_station_header(path)
+    return {
+        "id_estacao": header["id_estacao"],
+        "estacao": header["estacao"],
+        "sigla_uf": header["sigla_uf"],
+        "latitude": header["latitude"].replace(",", "."),
+        "longitude": header["longitude"].replace(",", "."),
+        "altitude": header["altitude"].replace(",", "."),
+        "data_fundacao": parse_foundation_date(header["data_fundacao"]),
+    }
+
+
+def build_station_csv(input_dir: Path, output_dir: Path, year: int) -> Path:
+    """
+    Grava o cadastro das estações de um ano em `ano=<year>/`, lido do
+    cabeçalho de cada CSV. De cada estação entra só o arquivo mais recente
+    (`list_latest_station_files`).
+
+    Args:
+        input_dir (Path): diretório onde o ZIP foi descompactado.
+        output_dir (Path): raiz das partições.
+        year (int): ano do ZIP.
+
+    Returns:
+        Path: caminho do CSV gravado.
+    """
+    partition_dir = output_dir / f"ano={year}"
+    partition_dir.mkdir(parents=True, exist_ok=True)
+    file_path = partition_dir / f"estacao_{year}.csv"
+
+    stations = [
+        read_station_info(station_file)
+        for station_file in list_latest_station_files(input_dir)
+    ]
+    pl.from_dicts(
+        stations,
+        schema={
+            column: pl.String
+            for column in ConstantsEstacao.COLUMNS_ORDER.value
+        },
+    ).write_csv(file_path)
 
     return file_path

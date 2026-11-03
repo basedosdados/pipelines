@@ -5,16 +5,26 @@ Constant values for br_inmet_bdmep.
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import DateFormat, DateOnly, PartBdpro
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    NonHistorical,
+    PartBdpro,
+)
 
 DATASET_ID = "br_inmet_bdmep"
 
 MICRODADOS_TABLE_ID = "microdados"
 
-COVERAGE = PartBdpro(
-    date_column=DateOnly(col="data"),
-    date_format=DateFormat.YEAR_MD,
-)
+ESTACAO_TABLE_ID = "estacao"
+
+COVERAGE: dict[str, PartBdpro | NonHistorical] = {
+    MICRODADOS_TABLE_ID: PartBdpro(
+        date_column=DateOnly(col="data"),
+        date_format=DateFormat.YEAR_MD,
+    ),
+    ESTACAO_TABLE_ID: NonHistorical(),
+}
 
 
 class ConstantsMicrodados(Enum):
@@ -34,6 +44,17 @@ class ConstantsMicrodados(Enum):
     }
 
     ENCODING = "ISO-8859-1"
+
+    HEADER_FIELDS = [
+        "regiao",
+        "sigla_uf",
+        "estacao",
+        "id_estacao",
+        "latitude",
+        "longitude",
+        "altitude",
+        "data_fundacao",
+    ]
 
     BASE_PATH = Path("tmp") / "data" / "microdados"
 
@@ -84,4 +105,24 @@ class ConstantsMicrodados(Enum):
         "vento_direcao",
         "vento_rajada_max",
         "vento_velocidade",
+    ]
+
+
+class ConstantsEstacao(Enum):
+    """
+    Constant values for the estacao table
+    """
+
+    PATH_OUTPUT = Path("tmp") / "data" / "estacao" / "output"
+
+    FOUNDATION_DATE_FORMATS = ["%d/%m/%y", "%d-%m-%y", "%Y/%m/%d", "%Y-%m-%d"]
+
+    COLUMNS_ORDER = [
+        "id_estacao",
+        "estacao",
+        "sigla_uf",
+        "latitude",
+        "longitude",
+        "altitude",
+        "data_fundacao",
     ]
