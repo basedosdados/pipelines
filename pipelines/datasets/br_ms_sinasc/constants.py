@@ -4,19 +4,10 @@ Constantes de br_ms_sinasc.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-
 DATASET_ID = "br_ms_sinasc"
 
 # Única tabela do dataset hoje.
 MICRODADOS_TABLE_ID = "microdados"
-
-# Mesma coverage usada por `register_table_materialization_task` no flow
-# monolítico antigo — granularidade anual.
-COVERAGE = AllFree(
-    date_column=YearOnly(col="ano"),
-    date_format=DateFormat.YEAR,
-)
 
 
 class constants(Enum):

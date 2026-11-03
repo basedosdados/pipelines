@@ -30,7 +30,6 @@ from pipelines.datasets.us_ssa_beneficiaries.tasks import (
     download_ssa,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -44,15 +43,8 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Annual release, so every table stays fully free: the BD Pro rolling window
-# applies to tables refreshed monthly or more often. The dicionario has no date
-# column and takes no coverage spec.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in constants.PARTITIONED_TABLES.value
-}
+# The dicionario has no date column and takes no coverage spec.
+TABLES_WITH_COVERAGE = constants.PARTITIONED_TABLES.value
 
 # Representative table for the source-update poll: the OASDI county series is
 # the largest and is published together with the rest of the edition.
@@ -143,11 +135,10 @@ def us_ssa_beneficiaries_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

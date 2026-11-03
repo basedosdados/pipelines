@@ -2,8 +2,6 @@
 Constant values for br_cgu_servidores_executivo_federal.
 """
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_cgu_servidores_executivo_federal"
 
 # As 7 tabelas do dataset — migradas pro pipeline em estágios (staged
@@ -23,11 +21,3 @@ CADASTRO_RESERVA_REFORMA_MILITARES_TABLE_ID = (
 REMUNERACAO_TABLE_ID = "remuneracao"
 AFASTAMENTOS_TABLE_ID = "afastamentos"
 OBSERVACOES_TABLE_ID = "observacoes"
-
-# Mesma coverage pras 7 tabelas — todas mensais (ano/mes), sem diferença de
-# tier. Mesma granularidade do antigo `_part_bdpro_year_month("ano", "mes")`
-# em `pipelines/shared/cgu/flows.py`.
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)

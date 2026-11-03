@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.tasks import (
     _coerce_to_date,
@@ -175,9 +175,13 @@ def test_materialization_task_builds_client_and_bq_and_delegates():
         last_modified=datetime.datetime(2026, 6, 2),
         can_read=True,
     )
-    coverage = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
+    coverage = CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year_month",
+        coverage_columns=[
+            CoverageColumn(name="ano", entity="year"),
+            CoverageColumn(name="mes", entity="month"),
+        ],
     )
     with (
         patch(
