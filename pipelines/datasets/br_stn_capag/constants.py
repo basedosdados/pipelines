@@ -41,7 +41,7 @@ PREFERRED_SHEETS = (
 )  # Abas lidas primeiro, pelo nome normalizado
 
 
-NULL_TOKENS = ("", "-", "n.d.", "n.d", "nd", "n.e.", "n.e", "ne")
+NULL_TOKENS = ("", "-", "n.d.", "n.d", "nd", "n.e.", "n.e", "ne", "#n/a")
 
 # Colunas correspondentes a indicadores
 _INDICADORES = {
