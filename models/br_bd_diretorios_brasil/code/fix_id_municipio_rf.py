@@ -59,9 +59,9 @@ def baixa(destino: Path = INPUT) -> list[Path]:
 def corrige(
     arquivo: Path, valor: str, id_municipio: str, output: Path = OUTPUT
 ) -> None:
-    df = pd.read_csv(arquivo)
+    df = pd.read_csv(arquivo, dtype=str)
     output.mkdir(parents=True, exist_ok=True)
-    filename = arquivo.stem
+    filename = arquivo.name
     print(
         f"{len(df[(df['id_municipio'] == id_municipio) & (df['id_municipio_rf'].isna())])} valor a ser alterado"
     )
@@ -70,7 +70,7 @@ def corrige(
         "id_municipio_rf",
     ] = valor
     df.to_csv(output / filename, index=False)
-    print("Arquivo salvo")
+    print(f"Arquivo salvo em {output / filename}")
     _upload_to_gcs(
         output / filename, "br_bd_diretorios_brasil", "municipio", BUCKET
     )
