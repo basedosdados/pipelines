@@ -6,7 +6,7 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.us_cfpb_hmda.constants import COVERAGE, constants
+from pipelines.datasets.us_cfpb_hmda.constants import constants
 from pipelines.datasets.us_cfpb_hmda.utils import clean_all, latest_source_year
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
@@ -77,7 +77,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     data_path = result[constants.TABLE_ID.value]
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=data_path,
         dump_mode="overwrite",
         source_format="parquet",

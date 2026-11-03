@@ -36,7 +36,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.us_dot_fars.constants import constants
 from pipelines.datasets.us_dot_fars.tasks import clean_corpus, probe_source
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -50,22 +49,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 PRIMARY_TABLE = constants.PRIMARY_TABLE.value
-
-# Coverage spec per table.
-#
-# FARS is an ANNUAL release, so none of these tables takes the BD Pro rolling
-# window: the house rule paywalls the recent slice only for tables refreshed
-# monthly or more often, and lower-frequency tables stay free. All three data
-# tables are therefore AllFree, which also means this flow never issues BigQuery
-# Row Access Policies — needs_row_access_policy is true only for PartBdpro.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in constants.DATA_TABLES.value
-}
 
 
 @flow(name="us_dot_fars", log_prints=True)
@@ -185,11 +168,10 @@ def us_dot_fars_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -2,8 +2,15 @@
 Constant values for the utils projects
 """
 
+from __future__ import annotations
+
 from enum import Enum
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
+
+from pipelines.utils.metadata.domain import DateFormat
+
+if TYPE_CHECKING:
+    from pipelines.utils.metadata.coverage import DateColumnKind
 
 
 class constants(Enum):
@@ -16,6 +23,19 @@ class constants(Enum):
         "dev": "basedosdados-dev",
         "prod": "basedosdados",
     }
+
+
+# `DateFormat` (strptime) correspondente a cada `date_column_kind` vindo do
+# backend — fixo e não-ambíguo, não é dado que o backend manda (seria
+# redundante): dado o `date_column_kind`, só existe um `DateFormat`
+# compatível. Usado por `coverage.date_format_for`.
+DATE_FORMAT_BY_KIND: dict[DateColumnKind, DateFormat] = {
+    "date": DateFormat.YEAR_MD,
+    "year": DateFormat.YEAR,
+    "year_month": DateFormat.YEAR_MONTH,
+    "year_quarter": DateFormat.YEAR_MONTH,
+    "year_bimester": DateFormat.YEAR_MONTH,
+}
 
 
 # Recursos de pod pro build_and_promote (issue #1867) — único deployment
