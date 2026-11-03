@@ -13,6 +13,10 @@ models:
           dictionary_model: ref('br_rf_cnpj__dicionario')
           config:
             where: __most_recent_date_cnpj__
+      - not_null_proportion_multiple_columns:
+          ignore_values: [ente_federativo]
+          config:
+            where: __most_recent_date_cnpj__
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
@@ -76,6 +80,13 @@ models:
           dictionary_model: ref('br_rf_cnpj__dicionario')
           config:
             where: __most_recent_date_cnpj__
+      - not_null_proportion_multiple_columns:
+          ignore_values:
+            - id_pais
+            - cpf_representante_legal
+            - nome_representante_legal
+          config:
+            where: __most_recent_date_cnpj__
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
@@ -95,7 +106,7 @@ models:
               to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
               proportion_allowed_failures: 0.00001
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
@@ -118,12 +129,18 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
       - name: id_pais
         description: ID País
       - name: cpf_representante_legal
         description: CPF do Representante Legal
+        tests:
+          - regex_or_null:
+              pattern: ^\*{3}[0-9]{6}\*{2}$
+              config:
+                severity: error
+                where: __most_recent_date_cnpj__
       - name: nome_representante_legal
         description: Nome do Representante Legal
       - name: qualificacao_representante_legal
@@ -137,6 +154,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [cnpj_basico]
+      - not_null_proportion_multiple_columns
       # Inconsistência na origem (RFB): ~3 casos em ~25M; tolera até 1e-6 das linhas
       - custom_matching_rows_limit:
           condition: data_exclusao_simples < data_opcao_simples
@@ -164,7 +182,7 @@ models:
               to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
               proportion_allowed_failures: 0.000001
               config:
-                severity: warn
+                severity: error
       - name: opcao_simples
         description: Opção pelo Simples Nacional
         tests:
@@ -180,7 +198,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
       - name: data_exclusao_simples
         description: Data de Exclusão do Simples Nacional
         tests:
@@ -188,7 +206,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
       - name: opcao_mei
         description: Opção pelo MEI
         tests:
@@ -204,7 +222,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
       - name: data_exclusao_mei
         description: Data de Exclusão do MEI
         tests:
@@ -212,7 +230,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
       - name: data_modificacao
         description: Data de Modificação
   - name: br_rf_cnpj__estabelecimentos
@@ -236,6 +254,14 @@ models:
             - situacao_cadastral
             - id_pais
           dictionary_model: ref('br_rf_cnpj__dicionario')
+          config:
+            where: __most_recent_date_cnpj__
+      - not_null_proportion_multiple_columns:
+          ignore_values:
+            - nome_cidade_exterior
+            - id_pais
+            - situacao_especial
+            - data_situacao_especial
           config:
             where: __most_recent_date_cnpj__
     columns:
@@ -268,7 +294,7 @@ models:
               to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
               proportion_allowed_failures: 0.0005
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
@@ -305,7 +331,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
       - name: motivo_situacao_cadastral
         description: Motivo da Situação Cadastral
@@ -320,7 +346,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
       - name: cnae_fiscal_principal
         description: CNAE Fiscal Principal
@@ -393,7 +419,7 @@ models:
           - regex_or_null:
               pattern: ^[0-9]{8}$
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
       - name: ddd_1
         description: DDD 1
@@ -422,7 +448,7 @@ models:
               min_date: '1850-01-01'
               max_date: date(extract(year from current_date())+1, 1, 1)
               config:
-                severity: warn
+                severity: error
                 where: __most_recent_date_cnpj__
       - name: data_modificacao
         description: Data de Modificação

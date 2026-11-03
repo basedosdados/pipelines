@@ -67,7 +67,9 @@ with
                     then null
                     when regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{1,7}$')
                     then lpad(trim(replace(cep, ".0", "")), 8, '0')
-                    else trim(replace(cep, ".0", ""))
+                    when regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{8}$')
+                    then trim(replace(cep, ".0", ""))
+                    else null
                 end as string
             ) cep,
             safe_cast(ddd_1 as string) ddd_1,
@@ -149,7 +151,10 @@ with
                                 trim(replace(cep, ".0", "")), r'^[0-9]{1,7}$'
                             )
                         then lpad(trim(replace(cep, ".0", "")), 8, '0')
-                        else trim(replace(cep, ".0", ""))
+                        when
+                            regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{8}$')
+                        then trim(replace(cep, ".0", ""))
+                        else null
                     end as string
                 ) cep,
                 safe_cast(ddd_1 as string) ddd_1,
