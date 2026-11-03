@@ -94,9 +94,11 @@ def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
     df = df.apply(lambda col: col.str.strip())
     # remove aspas que envolvem o valor inteiro
     df = df.apply(
-        lambda col: col.str.replace(
-            r'^"(.*)"$', r"\1", regex=True
-        ).str.replace('""', '"', regex=False)
+        lambda col: (
+            col.str.replace(r'^"(.*)"$', r"\1", regex=True)
+            .str.replace('""', '"', regex=False)
+            .str.strip()
+        )
     )
     # valor só com aspa vira vazio
     df = df.replace('"', "")
@@ -106,6 +108,7 @@ def limpar_iptu(df: pd.DataFrame) -> pd.DataFrame:
             df[col]
             .str.replace(",", ".", regex=False)
             .str.replace(r"^0+(?=\d)", "", regex=True)
+            .str.replace(r"^\.", "0.", regex=True)
         )
 
     for col in COLUNAS_INTEIRAS:
@@ -172,11 +175,22 @@ def normalizar_linhas(csv_path: Path) -> int:
 
 
 def validar_pedaco(df: pd.DataFrame) -> None:
-    """falha se algum contribuinte foge do formato."""
-    invalidos = ~df["numero_contribuinte"].str.fullmatch(r"\d{11}")
-    if invalidos.any():
-        exemplos = df.loc[invalidos, "numero_contribuinte"].head(3).tolist()
-        raise ValueError(f"numero_contribuinte fora do formato: {exemplos}")
+    """falha se algum valor foge do formato esperado da coluna."""
+    formatos = {
+        "numero_contribuinte": r"\d{11}",
+        "data_cadastramento": r"(\d{4}-\d{2}-\d{2})?",
+        **{c: r"(\d+(\.\d+)?)?" for c in COLUNAS_DECIMAIS},
+        **{c: r"\d*" for c in COLUNAS_INTEIRAS},
+    }
+    for col in df.columns:
+        padrao = formatos.get(col)
+        if padrao:
+            invalidos = ~df[col].str.fullmatch(padrao)
+        else:
+            invalidos = df[col] != df[col].str.strip()
+        if invalidos.any():
+            exemplos = df.loc[invalidos, col].head(3).tolist()
+            raise ValueError(f"{col} fora do formato: {exemplos}")
 
 
 def tratar_ano(csv_path: Path, output_dir: Path, ano: int) -> Path:
