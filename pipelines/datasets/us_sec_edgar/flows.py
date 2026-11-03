@@ -66,12 +66,6 @@ from pipelines.datasets.us_sec_edgar.tasks import (
     get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.stage_dispatch import (
     Etapa,
@@ -93,25 +87,8 @@ CORE_TABLE = constants.CORE_TABLE.value
 # `"extract_and_load"` (the `Etapa` value `deployment_name()` defaults to).
 _EXTRACT_AND_LOAD_DEPLOYMENT = "us_sec_edgar_extract_and_load"
 
-# The four data tables refresh together and carry the BD Pro rolling window:
-# the two most recent quarters are pro-only, everything older is free. With a
-# quarter read as DATE(year, quarter * 3, 1), a six-month lag lands free_end on
-# the last month of the quarter before last, so the window is exactly two
-# quarters wide and slides forward on every release.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. Both were registered during onboarding.
-#
 # `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table: PartBdpro(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for table in constants.SOURCE_FILES.value.values()
-}
+TABLES_WITH_COVERAGE = list(constants.SOURCE_FILES.value.values())
 
 # Every table uploads with dump_mode="append", including dicionario.
 #
@@ -276,11 +253,10 @@ def us_sec_edgar_extract_and_load(
                 )
 
         if promote_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

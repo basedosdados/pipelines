@@ -30,12 +30,6 @@ from pipelines.datasets.cl_chilecompra_mercado_publico.tasks import (
     survey_source_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -49,19 +43,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 ALL_TABLES = constants.ALL_TABLES.value
-
-# Every table refreshes weekly, so the house rule paywalls the most recent window of
-# each one and leaves everything older free.
-_PART_BDPRO = dict(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-COVERAGE = {
-    "orden_compra_item": PartBdpro(**_PART_BDPRO),
-    "licitacion_item": PartBdpro(**_PART_BDPRO),
-    "licitacion_oferta": PartBdpro(**_PART_BDPRO),
-}
 
 
 def _rss_mb() -> float:
@@ -289,7 +270,6 @@ def cl_chilecompra_mercado_publico_flow(
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                coverage=COVERAGE[table],
                 env="prod",
                 bq_project="basedosdados",
             )

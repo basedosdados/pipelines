@@ -14,7 +14,7 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.br_fnde_fundeb.constants import COVERAGE, constants
+from pipelines.datasets.br_fnde_fundeb.constants import constants
 from pipelines.datasets.br_fnde_fundeb.utils import (
     clean_all,
     download_product,
@@ -136,7 +136,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         result = clean_siope(work_dir=work_dir, source_path=source_path)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=result[table_id],
             dump_mode="append",
             source_format="parquet",

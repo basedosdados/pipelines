@@ -26,7 +26,6 @@ from pipelines.datasets.au_dcceew_greenhouse.tasks import (
     download_inventory,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -40,15 +39,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 DATA_TABLES = constants.DATA_TABLES.value
-
-# Every table is annual and fully free (annual data refreshes at most yearly, so
-# no monthly-or-more-often BD Pro rolling window applies).
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in DATA_TABLES
-}
 
 
 @flow(name="au_dcceew_greenhouse", log_prints=True)
@@ -140,11 +130,10 @@ def au_dcceew_greenhouse_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in DATA_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -11,7 +11,6 @@ from pathlib import Path
 from prefect import task
 
 from pipelines.datasets.us_bls_oes.constants import (
-    COVERAGE,
     DATASET_ID,
     constants,
 )
@@ -150,7 +149,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         input_dir = download_oes(work_dir=work_dir, year=year)
         result = clean_oes(work_dir=work_dir, input_dir=input_dir, year=year)
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=result[table_id],
             dump_mode="append",
             source_format="parquet",
