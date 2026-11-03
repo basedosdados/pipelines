@@ -74,7 +74,8 @@ def download_year_zip(year: int, input_dir: Path) -> int:
 
 def list_station_files(input_dir: Path) -> list[Path]:
     """
-    Lista os CSVs de estação descompactados do ZIP.
+    Lista os CSVs de estação descompactados do ZIP, na raiz do diretório ou
+    em subpastas.
 
     Args:
         input_dir (Path): diretório onde o ZIP foi descompactado.
@@ -85,7 +86,7 @@ def list_station_files(input_dir: Path) -> list[Path]:
     Raises:
         FileNotFoundError: se o diretório não tiver nenhum CSV.
     """
-    station_files = sorted(input_dir.glob("*.CSV"))
+    station_files = sorted(input_dir.rglob("*.CSV"))
     if not station_files:
         raise FileNotFoundError(f"Nenhum CSV de estação em {input_dir}")
     return station_files
