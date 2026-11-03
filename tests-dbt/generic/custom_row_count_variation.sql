@@ -1,16 +1,25 @@
 {% test custom_row_count_variation(
     model,
     history,
-    min_monthly_change,
-    max_monthly_change,
     min_annual_change,
-    max_annual_change
+    max_annual_change,
+    min_monthly_change=none,
+    max_monthly_change=none,
+    granularity="month"
 ) %}
+
+    {#- granularity="year" compara só o ano mais recente com o anterior, para
+        tabelas sem a coluna mes. -#}
+    {% set annual_only = granularity == "year" %}
 
     {% set tested_year_month = 0 %}
     {% if execute %}
         {% set tested_query %}
+            {% if annual_only %}
+            select max(ano) * 100 from {{ model }}
+            {% else %}
             select max(ano * 100 + mes) from {{ model }}
+            {% endif %}
         {% endset %}
         {% set tested_year_month = run_query(tested_query).rows[0][0] | int %}
     {% endif %}
@@ -27,7 +36,17 @@
 
     {% set last_year = tested_year - 1 %}
 
-    {% if execute %}
+    {% if execute and annual_only %}
+        {% do log(
+            "----- Volume de "
+            ~ tested_year
+            ~ " comparado com "
+            ~ last_year
+            ~ " em "
+            ~ history,
+            info=True,
+        ) %}
+    {% elif execute %}
         {% do log(
             "----- Volume de "
             ~ tested_year_month
@@ -45,54 +64,88 @@
         ) %}
     {% endif %}
 
-    with
-        tested as (
-            select count(*) as row_count
-            from {{ model }}
-            where ano = {{ tested_year }} and mes = {{ tested_month }}
-        ),
+    {% if annual_only %}
+        with
+            tested as (
+                select count(*) as row_count
+                from {{ model }}
+                where ano = {{ tested_year }}
+            ),
 
-        reference as (
-            select
-                'mensal' as comparison,
-                {{ previous_year }} as reference_ano,
-                {{ previous_month }} as reference_mes,
-                {{ min_monthly_change }} as min_change,
-                {{ max_monthly_change }} as max_change,
-                (
-                    select count(*)
-                    from `{{ history }}`
-                    where ano = {{ previous_year }} and mes = {{ previous_month }}
-                ) as row_count
-            union all
-            select
-                'anual',
-                {{ last_year }},
-                {{ tested_month }},
-                {{ min_annual_change }},
-                {{ max_annual_change }},
-                (
-                    select count(*)
-                    from `{{ history }}`
-                    where ano = {{ last_year }} and mes = {{ tested_month }}
-                )
-        ),
+            reference as (
+                select
+                    'anual' as comparison,
+                    {{ last_year }} as reference_ano,
+                    {{ min_annual_change }} as min_change,
+                    {{ max_annual_change }} as max_change,
+                    (
+                        select count(*) from `{{ history }}` where ano = {{ last_year }}
+                    ) as row_count
+            ),
 
-        compared as (
-            select
-                reference.comparison,
-                {{ tested_year }} as ano,
-                {{ tested_month }} as mes,
-                tested.row_count,
-                reference.reference_ano,
-                reference.reference_mes,
-                reference.row_count as reference_row_count,
-                safe_divide(tested.row_count, reference.row_count) - 1 as change,
-                reference.min_change,
-                reference.max_change
-            from reference
-            cross join tested
-        )
+            compared as (
+                select
+                    reference.comparison,
+                    {{ tested_year }} as ano,
+                    tested.row_count,
+                    reference.reference_ano,
+                    reference.row_count as reference_row_count,
+                    safe_divide(tested.row_count, reference.row_count) - 1 as change,
+                    reference.min_change,
+                    reference.max_change
+                from reference
+                cross join tested
+            )
+    {% else %}
+        with
+            tested as (
+                select count(*) as row_count
+                from {{ model }}
+                where ano = {{ tested_year }} and mes = {{ tested_month }}
+            ),
+
+            reference as (
+                select
+                    'mensal' as comparison,
+                    {{ previous_year }} as reference_ano,
+                    {{ previous_month }} as reference_mes,
+                    {{ min_monthly_change }} as min_change,
+                    {{ max_monthly_change }} as max_change,
+                    (
+                        select count(*)
+                        from `{{ history }}`
+                        where ano = {{ previous_year }} and mes = {{ previous_month }}
+                    ) as row_count
+                union all
+                select
+                    'anual',
+                    {{ last_year }},
+                    {{ tested_month }},
+                    {{ min_annual_change }},
+                    {{ max_annual_change }},
+                    (
+                        select count(*)
+                        from `{{ history }}`
+                        where ano = {{ last_year }} and mes = {{ tested_month }}
+                    )
+            ),
+
+            compared as (
+                select
+                    reference.comparison,
+                    {{ tested_year }} as ano,
+                    {{ tested_month }} as mes,
+                    tested.row_count,
+                    reference.reference_ano,
+                    reference.reference_mes,
+                    reference.row_count as reference_row_count,
+                    safe_divide(tested.row_count, reference.row_count) - 1 as change,
+                    reference.min_change,
+                    reference.max_change
+                from reference
+                cross join tested
+            )
+    {% endif %}
 
     select
         *,

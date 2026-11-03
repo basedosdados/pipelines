@@ -8,6 +8,10 @@
             "data_type": "date",
             "granularity": "month",
         },
+        post_hook=[
+            "{{ br_me_cnpj_redirect_notice() }}",
+            "{{ br_me_cnpj_redirect_policy() }}",
+        ],
     )
 }}
 

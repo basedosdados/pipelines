@@ -25,17 +25,17 @@ hoje, nada exercita isso.
 
 Uso:
     # só baixa e limpa (padrão; não toca em nuvem nenhuma)
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py
 
     # etapas específicas
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages download
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py --stages download
 
     # o retrato do mês: baixa, limpa e sobe para o staging de dev
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py \\
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py \\
         --stages download,clean,upload
 
     # depois do merge da PR: atualiza cobertura, update e poll em prod
-    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata
+    uv run pipelines/datasets/br_sedec_desastres/run_local_reconhecimentos_vigentes.py --stages metadata
 """
 
 import argparse
@@ -43,20 +43,20 @@ import logging
 import sys
 from pathlib import Path
 
-from pipelines.datasets.br_sedec_desastres.constants import constants
+from pipelines.datasets.br_sedec_desastres.constants import (
+    constants,
+    reconhecimentos_vigentes,
+)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
 )
-log = logging.getLogger("run_local")
+log = logging.getLogger("run_local_reconhecimentos_vigentes")
 
-# Os identificadores vêm do constants.py, não redigitados aqui: eles endereçam o
-# destino do upload e dos metadados, e duas definições divergentes publicariam a
-# tabela em lugares diferentes.
 DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
+TABLE_ID = reconhecimentos_vigentes.TABLE_ID.value
 DATE_FORMAT = constants.DATE_FORMAT.value
 
 # A credencial local é de dev, então o billing das leituras de BigQuery sai do
