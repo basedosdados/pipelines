@@ -7,16 +7,15 @@ pilotos convivem aqui — cada um numa seção comentada abaixo, junto do
 `tasks.py`/`flows.py` equivalentes (mesma convenção).
 """
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-
 DATASET_ID = "test_dataset"
 BACKEND_ENV = "prod"
 
-# Mesma coverage pros dois pilotos (event_pipeline/event_pipeline_partitioned).
-EVENT_PIPELINE_COVERAGE = AllFree(
-    date_column=DateOnly(col="reference_date"),
-    date_format=DateFormat.YEAR_MD,
-)
+# Protótipo backend#1110/pipelines#2130: a coverage do event_pipeline não é
+# mais hardcoded aqui — `build_and_promote`/`transfer_files_to_prod_flow`
+# buscam sozinhos do backend (`coverageSpec`, ver
+# `pipelines.utils.metadata.coverage`) a partir de DATASET_ID/table_id, que
+# já têm. Ainda não tem efeito em produção: o campo só existe no backend
+# local de dev (branch feat/table-coverage-spec do backend, não mergeada).
 
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -12,15 +12,6 @@ two CPI tables below, plus the 5 other releases named in ``RELEASES``.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearQuarter,
-)
-
 
 class constants(Enum):
     DATASET_ID = "au_abs_prices_inflation"
@@ -281,37 +272,3 @@ class constants(Enum):
 # as their table id (see `constants.RELEASES`), so they need no constant here.
 CPI_QUARTERLY_TABLE_ID = constants.TABLE_ID.value["quarterly"]
 CPI_MONTHLY_TABLE_ID = constants.TABLE_ID.value["monthly"]
-
-# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
-# through it, by `register_table_materialization_task`/`build_and_promote`.
-#
-# `cpi_monthly` is the high-frequency table, so it carries the BD Pro rolling
-# window: the most recent 6 months are pro-only, everything older is free.
-# Each run recomputes free_end = source_end - free_lag, rewrites both
-# DateTimeRanges, and re-issues the BigQuery Row Access Policies, so the window
-# slides forward on its own. part_bdpro requires BOTH a free (is_closed=False)
-# and a pro (is_closed=True) Coverage to already exist on the table, or
-# assert_coverage_topology raises before anything is written.
-#
-# `cpi_quarterly` refreshes only quarterly (less than monthly), so it stays
-# fully free -- same as every other release in the topic (`RELEASE_COVERAGE`
-# below), all of which are quarterly.
-CPI_COVERAGE = {
-    CPI_QUARTERLY_TABLE_ID: AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    CPI_MONTHLY_TABLE_ID: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
-
-# Every one of the other five ABS releases is quarterly, so every table stays
-# AllFree: the BD Pro rolling window applies only to tables refreshed monthly
-# or more often (`cpi_monthly` above). None of them issues Row Access Policies.
-RELEASE_COVERAGE = AllFree(
-    date_column=YearQuarter(year="year", quarter="quarter"),
-    date_format=DateFormat.YEAR_MONTH,
-)
