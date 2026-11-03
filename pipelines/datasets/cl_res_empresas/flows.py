@@ -19,12 +19,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.cl_res_empresas.constants import constants
 from pipelines.datasets.cl_res_empresas.tasks import clean_res, download_res
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -43,25 +37,6 @@ DATASET_ID = constants.DATASET_ID.value
 # to exist first. Tests run in a second pass over the same list, after every
 # table is built — never interleaved per table.
 TABLES = ["dicionario", "sociedad"]
-
-# `sociedad` refreshes monthly, so it carries the BD Pro rolling window: the
-# most recent 6 months are pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
-# re-issues the BigQuery Row Access Policies, so the window slides forward on
-# its own. The dbt model is untouched — the paywall lives in the RAPs.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. Both were registered at onboarding.
-#
-# `dicionario` has no date column and takes no coverage spec at all.
-_COVERAGE = {
-    "sociedad": PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
 
 
 @flow(name="cl_res_empresas", log_prints=True)
@@ -178,14 +153,12 @@ def cl_res_empresas_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id="sociedad",
+                env="prod",
+                bq_project="basedosdados",
+            )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception.
         # The k8s work pool gives each run a fresh pod, but a process worker

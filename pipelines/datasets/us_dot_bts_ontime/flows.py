@@ -21,12 +21,6 @@ from pipelines.datasets.us_dot_bts_ontime.tasks import (
     download_and_clean_month,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -40,24 +34,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 TABLES = list(constants.TABLES.value)
-
-# `flight` refreshes monthly, so it takes the house BD Pro rolling window: the
-# most recent 6 months are pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
-# re-issues the BigQuery Row Access Policies, so the window slides on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# `airport` and `dicionario` have no date column, so they take no coverage spec.
-_COVERAGE = {
-    "flight": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
 
 
 @flow(name="us_dot_bts_ontime", log_prints=True)
@@ -147,14 +123,12 @@ def us_dot_bts_ontime_flow(
         materialize("basedosdados", "prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id="flight",
+                env="prod",
+                bq_project="basedosdados",
+            )
             # Last, and only after prod succeeded.
             commit_source_update_task(
                 dataset_id=DATASET_ID,

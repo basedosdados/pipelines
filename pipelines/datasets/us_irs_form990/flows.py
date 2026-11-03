@@ -41,12 +41,6 @@ from pipelines.datasets.us_irs_form990.tasks import (
 )
 from pipelines.datasets.us_irs_form990.utils import batch_id
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -60,29 +54,13 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Every table is AllFree. The BMF refreshes monthly, which by the house rule
-# would paywall its most recent window — but with a single onboarded snapshot a
-# 6-month free_lag puts free_end before the only snapshot and inverts the free
-# range (the br_senado_dados_abertos_administrativos failure). Switch the
-# organization table to PartBdpro once several snapshots exist, creating its
-# pro Coverage in the same change. The e-file tables are annual filings
-# released in irregular batches and stay free. dicionario has no date column.
-_COVERAGE = {
-    "organization": AllFree(
-        date_column=DateOnly(col="extraction_date"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    "return_financial": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "compensation": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "revocation": AllFree(
-        date_column=DateOnly(col="revocation_date"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-}
+# dicionario has no date column, so it takes no coverage spec.
+TABLES_WITH_COVERAGE = [
+    "organization",
+    "return_financial",
+    "compensation",
+    "revocation",
+]
 
 # dbt order matters: compensation refs return_financial, and the dictionary
 # coverage tests ref dicionario.
@@ -212,12 +190,11 @@ def us_irs_form990_flow(
         _materialize(outputs, "basedosdados", "prod", dump_modes)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 if table in outputs:
                     register_table_materialization_task(
                         dataset_id=DATASET_ID,
                         table_id=table,
-                        coverage=coverage,
                         env="prod",
                         bq_project="basedosdados",
                     )

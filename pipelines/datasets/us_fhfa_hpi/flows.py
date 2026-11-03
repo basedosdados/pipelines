@@ -28,15 +28,6 @@ from pipelines.datasets.us_fhfa_hpi.tasks import (
     download_master_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -52,46 +43,8 @@ DATASET_ID = constants.DATASET_ID.value
 MASTER_TABLES = ["dicionario", *constants.MASTER_TABLES.value]
 ANNUAL_TABLES = list(constants.ANNUAL_FILES.value)
 
-# Coverage spec per table.
-#
-# `monthly_national` is the only table refreshed monthly, so it is the only one
-# carrying the BD Pro rolling window: the most recent 6 months are pro-only,
-# everything older is free. Each run recomputes free_end = source_end - free_lag,
-# rewrites both DateTimeRanges and re-issues the BigQuery Row Access Policies, so
-# the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# The quarterly and annual tables are lower-frequency and stay fully free.
 # `dicionario` has no date column, so it takes no coverage spec at all.
-_MASTER_COVERAGE = {
-    "monthly_national": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "quarterly_national": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "quarterly_state": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "quarterly_metro": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-}
-
-_ANNUAL_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in ANNUAL_TABLES
-}
+MASTER_TABLES_WITH_COVERAGE = list(constants.MASTER_TABLES.value)
 
 
 def _materialize(
@@ -194,11 +147,10 @@ def us_fhfa_hpi_master_flow(
         )
 
         if update_metadata:
-            for table, coverage in _MASTER_COVERAGE.items():
+            for table in MASTER_TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -260,11 +212,10 @@ def us_fhfa_hpi_annual_flow(
         )
 
         if update_metadata:
-            for table, coverage in _ANNUAL_COVERAGE.items():
+            for table in ANNUAL_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

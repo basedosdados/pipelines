@@ -16,7 +16,6 @@ from prefect import task
 
 from pipelines.datasets.br_sedec_desastres.constants import (
     constants,
-    reconhecimentos_realizados,
     reconhecimentos_vigentes,
 )
 from pipelines.datasets.br_sedec_desastres.utils import (
@@ -126,7 +125,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     shutil.rmtree(input_dir, ignore_errors=True)
 
     return ExtractAndLoad(
-        coverage=reconhecimentos_vigentes.COVERAGE.value.model_dump(),
         data_path=result[TABLE_ID],
         dump_mode="append",
         source_format="parquet",
@@ -205,7 +203,6 @@ def realizados_extract_load_data(download_params: dict) -> ExtractAndLoad:
     shutil.rmtree(input_dir, ignore_errors=True)
 
     return ExtractAndLoad(
-        coverage=reconhecimentos_realizados.COVERAGE.value.model_dump(),
         data_path=result["data_path"],
         dump_mode="append",
         source_format="parquet",
