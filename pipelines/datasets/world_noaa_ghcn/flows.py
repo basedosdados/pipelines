@@ -43,14 +43,6 @@ from pipelines.datasets.world_noaa_ghcn.tasks import (
 )
 from pipelines.datasets.world_noaa_ghcn.utils import refresh_years
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -62,36 +54,9 @@ from pipelines.utils.tasks import (
     upload_to_gcs,
 )
 
-# BD Pro rolling window.
-#
-# Data Basis paywalls the most recent window of any table that refreshes
-# monthly or more often; everything older stays free. This dataset refreshes
-# weekly, so `observation` -- the high-frequency table -- carries the window:
-# the most recent 6 months are pro-only, the other ~113 years are free.
-#
-# The window rolls on its own. Every run recomputes free_end = source_end -
-# free_lag, rewrites both DateTimeRanges, and re-issues the BigQuery Row Access
-# Policies. There is nothing weekly to do by hand and the dbt model is
-# untouched -- the paywall lives in the Row Access Policies, not in SQL.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. `code/set_bdpro_coverage.py` creates the pro
-# Coverage; it has been run against staging and prod.
-#
-# `station_element_inventory` is annual in granularity and stays fully free, as
-# lower-frequency tables in the same dataset do. `station` and `dicionario`
-# have no date column, so they take no coverage spec at all.
-_COVERAGE = {
-    "observation": PartBdpro(
-        date_column=DateOnly(col="date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "station_element_inventory": AllFree(
-        date_column=YearOnly(col="last_year"), date_format=DateFormat.YEAR
-    ),
-}
+# `station` and `dicionario` have no date column, so they take no coverage
+# spec at all.
+TABLES_WITH_COVERAGE = ["observation", "station_element_inventory"]
 
 
 @flow(name="world_noaa_ghcn", log_prints=True)
@@ -196,11 +161,10 @@ def world_noaa_ghcn_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

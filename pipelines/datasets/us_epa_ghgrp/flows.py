@@ -22,7 +22,6 @@ from pipelines.datasets.us_epa_ghgrp.tasks import (
     source_max_year_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -41,15 +40,9 @@ TABLES = constants.TABLES.value
 # data source carries the Update/Poll records.
 POLL_TABLE = "emission_subpart"
 
-# Annual data, fully public: every dated table is AllFree on `year`.
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in TABLES
-    if table != "dicionario"
-}
+# Tables registered with the backend. `dicionario` has no date column, so it
+# takes no coverage spec at all.
+_COVERAGE_TABLES = [table for table in TABLES if table != "dicionario"]
 
 
 def _materialize(paths: dict, target: str, bucket: str) -> None:
@@ -144,11 +137,10 @@ def us_epa_ghgrp_flow(
         _materialize(paths, target="prod", bucket="basedosdados")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _COVERAGE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

@@ -22,7 +22,6 @@ from prefect.schedules import Cron
 from pipelines.datasets.us_eia_seds.constants import constants
 from pipelines.datasets.us_eia_seds.tasks import clean_corpus, probe_source
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -36,14 +35,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = constants.SEDS_CONSUMPTION.value
-
-# Annual dataset -> the single data table is fully free. dicionario has no date
-# column and takes no coverage spec.
-_COVERAGE = {
-    constants.SEDS_CONSUMPTION.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
 
 
 @flow(name="us_eia_seds", log_prints=True)
@@ -152,14 +143,12 @@ def us_eia_seds_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id=POLL_TABLE,
+                env="prod",
+                bq_project="basedosdados",
+            )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
 

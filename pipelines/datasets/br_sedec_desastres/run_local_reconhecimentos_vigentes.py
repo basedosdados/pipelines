@@ -213,6 +213,8 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
             ``None``, vem da maior partição em ``output/``.
     """
     from pipelines.utils.metadata.bq import BigQueryReader
+    from pipelines.utils.metadata.client import MetadataClient
+    from pipelines.utils.metadata.coverage import coverage_from_backend
     from pipelines.utils.metadata.tasks import (
         commit_source_update_task,
         poll_source_for_update_task,
@@ -222,6 +224,12 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
     max_date = max_date or _max_partition_date(work_dir)
     log.info(f"=== metadata (backend de PROD) — retrato {max_date} ===")
 
+    # A spec de cobertura vem do backend (mesma fonte que
+    # `register_table_materialization_task` usa mais abaixo) — não há mais
+    # uma cópia local dela em constants.py.
+    client = MetadataClient(env="prod")
+    coverage = coverage_from_backend(client, DATASET_ID, TABLE_ID)
+
     # O retrato tem que estar em prod ANTES de escrever metadado sobre ele. Sem
     # esta checagem, rodar a etapa antes de a table-approve terminar grava um
     # update dizendo que a fonte publicou uma data que prod ainda não tem.
@@ -229,9 +237,7 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         BigQueryReader(
             billing_project_id=BILLING_PROJECT, bq_project="basedosdados"
         )
-        .read_max_date(
-            DATASET_ID, TABLE_ID, reconhecimentos_vigentes.COVERAGE.value
-        )
+        .read_max_date(DATASET_ID, TABLE_ID, coverage)
         .strftime(DATE_FORMAT)
     )
     if prod_max != max_date:
@@ -264,7 +270,6 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
     register_table_materialization_task.fn(
         dataset_id=DATASET_ID,
         table_id=TABLE_ID,
-        coverage=reconhecimentos_vigentes.COVERAGE.value,
         env="prod",
         bq_project="basedosdados",
         # Lê a tabela de prod, mas fatura em dev: a credencial local não tem
