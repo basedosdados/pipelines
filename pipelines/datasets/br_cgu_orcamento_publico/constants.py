@@ -34,8 +34,6 @@ process worker would notice between runs.
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -142,12 +140,3 @@ class constants(Enum):
         / "code"
         / "architecture"
     )
-
-
-# Annual table, so no BD Pro rolling window: the paywall applies to tables
-# refreshed monthly or more often. Coverage is the exercise year. Used by
-# `ExtractAndLoad.coverage` (tasks.py) and, through it, by
-# `register_table_materialization_task`/`build_and_promote`.
-COVERAGE = AllFree(
-    date_column=YearOnly(col="ano_exercicio"), date_format=DateFormat.YEAR
-)

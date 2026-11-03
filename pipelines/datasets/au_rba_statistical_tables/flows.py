@@ -61,7 +61,6 @@ from pipelines.datasets.au_rba_statistical_tables.tasks import (
     get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.stage_dispatch import (
     Etapa,
@@ -85,28 +84,9 @@ ALL_TABLES = constants.ALL_TABLES.value
 # doesn't depend on that coincidence.
 _EXTRACT_AND_LOAD_DEPLOYMENT = "au_rba_statistical_tables_extract_and_load"
 
-# Coverage spec per table.
-#
-# Every table is AllFree — no BD Pro rolling window — even though the dataset
-# refreshes daily. The RBA copyright notice (Section 4) lists, as prohibited
-# "improper commercial exploitation", charging for the Cash Rate "without
-# informing customers that [it is] published on this website without a fee being
-# charged by the RBA". An all-free dataset cannot engage that condition at all.
-# See models/au_rba_statistical_tables/LICENCE.md.
-#
-# `dicionario` has no date column, so it takes no coverage spec.
-_COVERAGE = {
-    "data": AllFree(
-        date_column=DateOnly(col="date"), date_format=DateFormat.YEAR_MD
-    ),
-    "series": AllFree(
-        date_column=DateOnly(col="observation_end"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    "series_break": AllFree(
-        date_column=DateOnly(col="date"), date_format=DateFormat.YEAR_MD
-    ),
-}
+# Tables registered with the backend's coverage metadata. `dicionario` has no
+# date column, so it takes no coverage spec and is excluded here.
+_COVERED_TABLES = ["data", "series", "series_break"]
 
 
 def _materialize(target: str, bucket: str, paths: dict) -> None:
@@ -231,11 +211,10 @@ def au_rba_statistical_tables_extract_and_load(
         _materialize("prod", "basedosdados", result)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _COVERED_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

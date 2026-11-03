@@ -35,11 +35,6 @@ from pipelines.datasets.us_fdic_bankfind.tasks import (
     source_max_report_date,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearQuarter,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -54,19 +49,9 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = constants.POLL_TABLE.value
 
-# Both quarterly tables are fully free: the BD Pro rolling window covers tables
-# refreshed monthly or more often, and Call Reports are quarterly. `institution`
-# and `indicator` carry no date column, so they take no coverage spec at all.
-_COVERAGE = {
-    "financials": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "financials_indicator": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-}
+# `institution` and `indicator` carry no date column, so they take no coverage
+# spec at all.
+TABLES_WITH_COVERAGE = ["financials", "financials_indicator"]
 
 
 def _coverage_month(report_date: str) -> str:
@@ -163,11 +148,10 @@ def us_fdic_bankfind_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

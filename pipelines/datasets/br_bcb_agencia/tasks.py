@@ -13,7 +13,6 @@ from prefect import task
 
 from pipelines.datasets.br_bcb_agencia.constants import (
     AGENCIA_TABLE_ID,
-    COVERAGE,
     DATASET_ID,
 )
 from pipelines.datasets.br_bcb_agencia.constants import (
@@ -343,6 +342,5 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     filepath = clean_data()
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=filepath,
     )
