@@ -58,7 +58,6 @@ from pipelines.datasets.au_aph_hansard.tasks import (
     download_hansard,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -71,17 +70,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# Both tables are day-grained and fully open. `dicionario` has no date column,
-# so it takes no coverage spec at all.
-_COVERAGE = {
-    "speech": AllFree(
-        date_column=DateOnly(col="date"), date_format=DateFormat.YEAR_MD
-    ),
-    "sitting_day": AllFree(
-        date_column=DateOnly(col="date"), date_format=DateFormat.YEAR_MD
-    ),
-}
 
 _TABLES = ("speech", "sitting_day")
 
@@ -200,11 +188,10 @@ def au_aph_hansard_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in _TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

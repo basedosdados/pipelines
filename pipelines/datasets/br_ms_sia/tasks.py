@@ -4,7 +4,7 @@ Tasks for br_ms_sia.
 
 from collections.abc import Callable
 
-from pipelines.datasets.br_ms_sia.constants import COVERAGE, DATASET_ID
+from pipelines.datasets.br_ms_sia.constants import DATASET_ID
 from pipelines.shared.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
@@ -84,7 +84,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=files_path,
             source_format="parquet",
         )
