@@ -31,7 +31,9 @@ as versões do mesmo valor. O cabeçalho de cada coluna junta ano, conta e detal
 
 O servidor responde `429` a downloads em sequência: o download espera
 `DOWNLOAD_PAUSE_SECONDS` entre arquivos e repete com espera crescente (ou o
-`Retry-After`) nos status de `RETRY_STATUS_CODES`.
+`Retry-After`) nos status de `RETRY_STATUS_CODES` e em erro de rede (`httpx.TransportError`:
+conexão que cai, tempo esgotado ou download cortado no meio), até `DOWNLOAD_MAX_ATTEMPTS`
+tentativas. Outros erros HTTP (como `404`) não são repetidos.
 
 ### Data de referência do recurso
 

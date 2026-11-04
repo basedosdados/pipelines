@@ -88,9 +88,14 @@ def _resource_reference_date(name: str) -> date:
     raise ValueError(f"O recurso {name!r} não tem data nem ano no nome.")
 
 
-def _retry_wait(response: httpx.Response, attempt: int) -> int:
-    """Segundos até a próxima tentativa: o `Retry-After` ou espera crescente."""
-    retry_after = response.headers.get("Retry-After", "")
+def _retry_wait(response: httpx.Response | None, attempt: int) -> int:
+    """Segundos até a próxima tentativa: o `Retry-After` ou espera crescente.
+
+    `response` é `None` em erro de rede, que não tem resposta nem `Retry-After`.
+    """
+    retry_after = (
+        response.headers.get("Retry-After", "") if response is not None else ""
+    )
     if retry_after.isdigit():
         return int(retry_after)
     return DOWNLOAD_BACKOFF_SECONDS * attempt
@@ -181,6 +186,8 @@ def download_resource(resource: dict[str, Any], input_dir: Path) -> Path:
 
     Raises:
         ValueError: Quando o arquivo baixado está vazio.
+        httpx.TransportError: Quando a conexão cai (ou estoura o tempo) em
+            todas as `DOWNLOAD_MAX_ATTEMPTS` tentativas.
     """
     input_dir.mkdir(parents=True, exist_ok=True)
     path = (
@@ -189,30 +196,42 @@ def download_resource(resource: dict[str, Any], input_dir: Path) -> Path:
     )
 
     for attempt in range(1, DOWNLOAD_MAX_ATTEMPTS + 1):
-        with httpx.stream(
-            method="GET",
-            url=resource["url"],
-            timeout=DOWNLOAD_TIMEOUT,
-            follow_redirects=True,
-        ) as response:
-            if (
-                response.status_code in RETRY_STATUS_CODES
-                and attempt < DOWNLOAD_MAX_ATTEMPTS
-            ):
-                wait = _retry_wait(response, attempt)
-                log(
-                    f"HTTP {response.status_code} em {path.name}; "
-                    f"tentativa {attempt}, nova tentativa em {wait}s"
-                )
-                time.sleep(wait)
-                continue
-            response.raise_for_status()
-            with open(path, "wb") as file:
-                for chunk in response.iter_bytes(
-                    chunk_size=DOWNLOAD_CHUNK_SIZE
+        try:
+            with httpx.stream(
+                method="GET",
+                url=resource["url"],
+                timeout=DOWNLOAD_TIMEOUT,
+                follow_redirects=True,
+            ) as response:
+                if (
+                    response.status_code in RETRY_STATUS_CODES
+                    and attempt < DOWNLOAD_MAX_ATTEMPTS
                 ):
-                    file.write(chunk)
-            break
+                    wait = _retry_wait(response, attempt)
+                    log(
+                        f"HTTP {response.status_code} em {path.name}; "
+                        f"tentativa {attempt}, nova tentativa em {wait}s"
+                    )
+                    time.sleep(wait)
+                    continue
+                response.raise_for_status()
+                # Reaberto em "wb" a cada tentativa, então um download cortado
+                # no meio é sobrescrito.
+                with open(path, "wb") as file:
+                    for chunk in response.iter_bytes(
+                        chunk_size=DOWNLOAD_CHUNK_SIZE
+                    ):
+                        file.write(chunk)
+                break
+        except httpx.TransportError as error:
+            if attempt == DOWNLOAD_MAX_ATTEMPTS:
+                raise
+            wait = _retry_wait(None, attempt)
+            log(
+                f"{type(error).__name__} em {path.name}; "
+                f"tentativa {attempt}, nova tentativa em {wait}s"
+            )
+            time.sleep(wait)
 
     size = path.stat().st_size
     if size == 0:
