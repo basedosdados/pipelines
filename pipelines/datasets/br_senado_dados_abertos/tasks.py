@@ -13,7 +13,6 @@ from prefect import task
 
 from pipelines.datasets.br_senado_dados_abertos.constants import (
     PARTITIONED_CONSTANTS,
-    TABLES_CONSTANTS,
     constants,
 )
 from pipelines.datasets.br_senado_dados_abertos.utils import (
@@ -174,14 +173,13 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         table_id: nome da tabela.
 
     Returns:
-        Função que extrai a tabela e devolve o parquet e a cobertura.
+        Função que extrai a tabela e devolve o parquet.
     """
 
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        """Extrai a tabela e devolve o parquet e a cobertura."""
+        """Extrai a tabela e devolve o parquet."""
         df = extract_table(table_id=table_id)
         return ExtractAndLoad(
-            coverage=TABLES_CONSTANTS[table_id].COVERAGE.value.model_dump(),
             data_path=save_table(table_id=table_id, df=df),
             source_format="parquet",
         )

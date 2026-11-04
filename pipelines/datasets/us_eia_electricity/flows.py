@@ -41,14 +41,6 @@ from pipelines.datasets.us_eia_electricity.tasks import (
     probe_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -66,51 +58,6 @@ DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = {
     "eia860": constants.GENERATOR.value,
     "eia923": constants.GENERATION_FUEL.value,
-}
-
-# Coverage spec per table.
-#
-# The house rule paywalls the most recent window of any table that refreshes
-# monthly or more often, and leaves lower-frequency tables in the same dataset
-# free. That splits this dataset exactly along the two forms:
-#
-# * EIA-923's generation_fuel and fuel_receipts_costs gain a month on roughly a
-#   monthly clock, so both carry the BD Pro rolling window. Each run recomputes
-#   free_end = source_end - free_lag, rewrites both DateTimeRanges and re-issues
-#   the BigQuery Row Access Policies, so the window slides on its own and the
-#   dbt models are untouched.
-# * EIA-860's plant and generator are annual, so both stay fully free.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. Both are registered at onboarding.
-#
-# The Row Access Policy grants allUsers `<date_col> <= free_end`, and a NULL
-# fails that comparison, so a row with no date would be paywalled forever. Both
-# pro tables key on (year, month), and both were measured non-null on every row:
-# generation_fuel's month comes from the melt itself, and every one of
-# fuel_receipts_costs' 766,262 deliveries carries a report month.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_FREE_LAG = FreeLag(unit="months", value=6)
-
-_COVERAGE = {
-    constants.PLANT.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.GENERATOR.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.GENERATION_FUEL.value: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=_FREE_LAG,
-    ),
-    constants.FUEL_RECEIPTS_COSTS.value: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=_FREE_LAG,
-    ),
 }
 
 
@@ -245,11 +192,10 @@ def us_eia_electricity_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

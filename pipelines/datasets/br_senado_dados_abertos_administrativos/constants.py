@@ -6,16 +6,6 @@ Um Enum do conjunto e um por tabela.
 from datetime import date
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
-
 
 class constants(Enum):
     """Configuração da API, da janela de extração e das regras comuns às tabelas."""
@@ -37,6 +27,16 @@ class constants(Enum):
     REFERENCE_DATE_TABLES = {
         "suprido_transacao_objeto": "suprido_transacao",
         "suprido_movimentacao_subtipo": "suprido_movimentacao",
+    }
+    DATE_COLUMNS = {
+        "despesa_ceaps": ("data",),
+        "servidor_hora_extra_dia": ("data",),
+        "suprido_ato_concessao": ("data",),
+        "suprido_empenho": ("data",),
+        "suprido_transacao": ("data",),
+        "suprido_movimentacao": ("data",),
+        "servidor_remuneracao": ("ano", "mes"),
+        "servidor_hora_extra": ("ano", "mes"),
     }
 
     FIRST_YEAR_CEAPS = 2008
@@ -108,7 +108,6 @@ class constants_senador(Enum):
     """Configuração da tabela senador."""
 
     TABLE_ID = "senador"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "nome_parlamentar",
@@ -128,10 +127,6 @@ class constants_despesa_ceaps(Enum):
     """Configuração da tabela despesa_ceaps."""
 
     TABLE_ID = "despesa_ceaps"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "mes",
@@ -152,10 +147,6 @@ class constants_senador_gabinete(Enum):
     """Configuração da tabela senador_gabinete."""
 
     TABLE_ID = "senador_gabinete"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_senador",
@@ -170,10 +161,6 @@ class constants_senador_escritorio_apoio(Enum):
     """Configuração da tabela senador_escritorio_apoio."""
 
     TABLE_ID = "senador_escritorio_apoio"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_senador",
@@ -188,10 +175,6 @@ class constants_senador_auxilio_moradia(Enum):
     """Configuração da tabela senador_auxilio_moradia."""
 
     TABLE_ID = "senador_auxilio_moradia"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_senador",
@@ -204,10 +187,6 @@ class constants_senador_aposentado_pensionista(Enum):
     """Configuração da tabela senador_aposentado_pensionista."""
 
     TABLE_ID = "senador_aposentado_pensionista"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "nome",
@@ -224,10 +203,6 @@ class constants_servidor(Enum):
     """Configuração da tabela servidor."""
 
     TABLE_ID = "servidor"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_servidor",
@@ -254,10 +229,6 @@ class constants_servidor_ativo(Enum):
     """Configuração da tabela servidor_ativo."""
 
     TABLE_ID = "servidor_ativo"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "nome",
@@ -280,10 +251,6 @@ class constants_servidor_remuneracao(Enum):
     """Configuração da tabela servidor_remuneracao."""
 
     TABLE_ID = "servidor_remuneracao"
-    COVERAGE = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-    )
     COLUMNS = [
         "ano",
         "mes",
@@ -312,10 +279,6 @@ class constants_servidor_hora_extra(Enum):
     """Configuração da tabela servidor_hora_extra."""
 
     TABLE_ID = "servidor_hora_extra"
-    COVERAGE = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-    )
     COLUMNS = [
         "ano",
         "mes",
@@ -331,10 +294,6 @@ class constants_servidor_hora_extra_dia(Enum):
     """Configuração da tabela servidor_hora_extra_dia."""
 
     TABLE_ID = "servidor_hora_extra_dia"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "mes",
@@ -351,10 +310,6 @@ class constants_servidor_aposentado(Enum):
     """Configuração da tabela servidor_aposentado."""
 
     TABLE_ID = "servidor_aposentado"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "matricula",
@@ -371,10 +326,6 @@ class constants_servidor_exonerado(Enum):
     """Configuração da tabela servidor_exonerado."""
 
     TABLE_ID = "servidor_exonerado"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "matricula",
@@ -389,10 +340,6 @@ class constants_servidor_cedido(Enum):
     """Configuração da tabela servidor_cedido."""
 
     TABLE_ID = "servidor_cedido"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "matricula",
@@ -439,10 +386,6 @@ class constants_pensionista(Enum):
     """Configuração da tabela pensionista."""
 
     TABLE_ID = "pensionista"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_pensionista",
@@ -465,10 +408,6 @@ class constants_contratacao(Enum):
     """Configuração da tabela contratacao."""
 
     TABLE_ID = "contratacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -500,10 +439,6 @@ class constants_contratacao_orgao_gestor(Enum):
     """Configuração da tabela contratacao_orgao_gestor."""
 
     TABLE_ID = "contratacao_orgao_gestor"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -518,10 +453,6 @@ class constants_contratacao_item(Enum):
     """Configuração da tabela contratacao_item."""
 
     TABLE_ID = "contratacao_item"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -538,10 +469,6 @@ class constants_contratacao_garantia(Enum):
     """Configuração da tabela contratacao_garantia."""
 
     TABLE_ID = "contratacao_garantia"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -557,10 +484,6 @@ class constants_contratacao_pagamento(Enum):
     """Configuração da tabela contratacao_pagamento."""
 
     TABLE_ID = "contratacao_pagamento"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -578,10 +501,6 @@ class constants_contratacao_documento_fiscal(Enum):
     """Configuração da tabela contratacao_documento_fiscal."""
 
     TABLE_ID = "contratacao_documento_fiscal"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -597,10 +516,6 @@ class constants_contratacao_pagamento_empenho(Enum):
     """Configuração da tabela contratacao_pagamento_empenho."""
 
     TABLE_ID = "contratacao_pagamento_empenho"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "tipo_contratacao",
@@ -618,10 +533,6 @@ class constants_contrato_aditivo(Enum):
     """Configuração da tabela contrato_aditivo."""
 
     TABLE_ID = "contrato_aditivo"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_contratacao",
@@ -638,10 +549,6 @@ class constants_ata_acionamento(Enum):
     """Configuração da tabela ata_acionamento."""
 
     TABLE_ID = "ata_acionamento"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_contratacao",
@@ -655,10 +562,6 @@ class constants_licitacao(Enum):
     """Configuração da tabela licitacao."""
 
     TABLE_ID = "licitacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_licitacao",
@@ -677,10 +580,6 @@ class constants_licitacao_detalhamento(Enum):
     """Configuração da tabela licitacao_detalhamento."""
 
     TABLE_ID = "licitacao_detalhamento"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_licitacao",
@@ -696,10 +595,6 @@ class constants_empresa(Enum):
     """Configuração da tabela empresa."""
 
     TABLE_ID = "empresa"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "id_empresa",
@@ -712,10 +607,6 @@ class constants_terceirizado(Enum):
     """Configuração da tabela terceirizado."""
 
     TABLE_ID = "terceirizado"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "cpf",
@@ -734,10 +625,6 @@ class constants_menor_aprendiz(Enum):
     """Configuração da tabela menor_aprendiz."""
 
     TABLE_ID = "menor_aprendiz"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "cpf",
@@ -753,10 +640,6 @@ class constants_estagiario(Enum):
     """Configuração da tabela estagiario."""
 
     TABLE_ID = "estagiario"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "nome",
@@ -770,10 +653,6 @@ class constants_suprido_ato_concessao(Enum):
     """Configuração da tabela suprido_ato_concessao."""
 
     TABLE_ID = "suprido_ato_concessao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "codigo_ato_concessao",
@@ -803,10 +682,6 @@ class constants_suprido_empenho(Enum):
     """Configuração da tabela suprido_empenho."""
 
     TABLE_ID = "suprido_empenho"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "codigo_ato_concessao",
@@ -824,10 +699,6 @@ class constants_suprido_transacao(Enum):
     """Configuração da tabela suprido_transacao."""
 
     TABLE_ID = "suprido_transacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_transacao",
@@ -848,10 +719,6 @@ class constants_suprido_transacao_objeto(Enum):
     """Configuração da tabela suprido_transacao_objeto."""
 
     TABLE_ID = "suprido_transacao_objeto"
-    COVERAGE = AllFree(
-        date_column=YearOnly(col="ano"),
-        date_format=DateFormat.YEAR,
-    )
     COLUMNS = [
         "ano",
         "id_transacao",
@@ -870,10 +737,6 @@ class constants_suprido_movimentacao(Enum):
     """Configuração da tabela suprido_movimentacao."""
 
     TABLE_ID = "suprido_movimentacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_movimentacao",
@@ -894,10 +757,6 @@ class constants_suprido_movimentacao_subtipo(Enum):
     """Configuração da tabela suprido_movimentacao_subtipo."""
 
     TABLE_ID = "suprido_movimentacao_subtipo"
-    COVERAGE = AllFree(
-        date_column=YearOnly(col="ano"),
-        date_format=DateFormat.YEAR,
-    )
     COLUMNS = [
         "ano",
         "id_movimentacao",
@@ -913,10 +772,6 @@ class constants_quadro_pessoal(Enum):
     """Configuração da tabela quadro_pessoal."""
 
     TABLE_ID = "quadro_pessoal"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "data_referencia",
@@ -1090,10 +945,6 @@ class constants_diretor_coordenador(Enum):
     """Configuração da tabela diretor_coordenador."""
 
     TABLE_ID = "diretor_coordenador"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "sigla_setor",
@@ -1118,10 +969,6 @@ class constants_previsao_aposentadoria(Enum):
     """Configuração da tabela previsao_aposentadoria."""
 
     TABLE_ID = "previsao_aposentadoria"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "data_extracao",
         "cargo",
@@ -1136,7 +983,6 @@ class constants_dicionario(Enum):
     """Configuração da tabela dicionario."""
 
     TABLE_ID = "dicionario"
-    COVERAGE = None
     COLUMNS = [
         "id_tabela",
         "nome_coluna",

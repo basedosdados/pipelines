@@ -3,13 +3,6 @@
 from datetime import date
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-)
-
 
 class constants(Enum):
     """Configuração da API e das regras comuns a todas as tabelas."""
@@ -69,7 +62,6 @@ class constants_senador(Enum):
     """Configuração da tabela senador."""
 
     TABLE_ID = "senador"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "nome",
@@ -90,7 +82,6 @@ class constants_partido(Enum):
     """Configuração da tabela partido."""
 
     TABLE_ID = "partido"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_partido",
         "sigla_partido",
@@ -104,7 +95,6 @@ class constants_bloco(Enum):
     """Configuração da tabela bloco."""
 
     TABLE_ID = "bloco"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_bloco",
         "nome_bloco",
@@ -118,7 +108,6 @@ class constants_lideranca(Enum):
     """Configuração da tabela lideranca."""
 
     TABLE_ID = "lideranca"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_lideranca",
         "casa",
@@ -143,7 +132,6 @@ class constants_comissao(Enum):
     """Configuração da tabela comissao."""
 
     TABLE_ID = "comissao"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_comissao",
         "sigla_comissao",
@@ -161,7 +149,6 @@ class constants_mesa(Enum):
     """Configuração da tabela mesa."""
 
     TABLE_ID = "mesa"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_colegiado",
         "sigla_colegiado",
@@ -179,7 +166,6 @@ class constants_senador_mandato(Enum):
     """Configuração da tabela senador_mandato."""
 
     TABLE_ID = "senador_mandato"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "id_mandato",
@@ -198,7 +184,6 @@ class constants_senador_filiacao(Enum):
     """Configuração da tabela senador_filiacao."""
 
     TABLE_ID = "senador_filiacao"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "id_partido",
@@ -212,7 +197,6 @@ class constants_senador_comissao(Enum):
     """Configuração da tabela senador_comissao."""
 
     TABLE_ID = "senador_comissao"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "id_comissao",
@@ -228,7 +212,6 @@ class constants_senador_cargo(Enum):
     """Configuração da tabela senador_cargo."""
 
     TABLE_ID = "senador_cargo"
-    COVERAGE = NonHistorical()
     COLUMNS = [
         "id_senador",
         "id_comissao",
@@ -246,10 +229,6 @@ class constants_votacao(Enum):
     TABLE_ID = "votacao"
     START_YEAR = 1991
     DATE_COLUMN = "data_sessao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_sessao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_votacao",
@@ -286,10 +265,6 @@ class constants_votacao_parlamentar(Enum):
 
     TABLE_ID = "votacao_parlamentar"
     DATE_COLUMN = "data_sessao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_sessao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_votacao",
@@ -307,10 +282,6 @@ class constants_votacao_orientacao_bancada(Enum):
 
     TABLE_ID = "votacao_orientacao_bancada"
     DATE_COLUMN = "data_votacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_votacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_votacao_sve",
@@ -331,10 +302,6 @@ class constants_processo(Enum):
     TABLE_ID = "processo"
     START_YEAR = 1900
     DATE_COLUMN = "data_apresentacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_apresentacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_processo",
@@ -369,10 +336,6 @@ class constants_relatoria(Enum):
     TABLE_ID = "relatoria"
     START_YEAR = 2015
     DATE_COLUMN = "data_designacao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_designacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_relatoria",
@@ -400,10 +363,6 @@ class constants_votacao_comissao(Enum):
 
     TABLE_ID = "votacao_comissao"
     DATE_COLUMN = "data_reuniao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_reuniao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_votacao",
@@ -432,10 +391,6 @@ class constants_votacao_comissao_parlamentar(Enum):
 
     TABLE_ID = "votacao_comissao_parlamentar"
     DATE_COLUMN = "data_reuniao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_reuniao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_votacao",
@@ -454,10 +409,6 @@ class constants_discurso(Enum):
     TABLE_ID = "discurso"
     START_YEAR = 1997
     DATE_COLUMN = "data_sessao"
-    COVERAGE = PartBdpro(
-        date_column=DateOnly(col="data_sessao"),
-        date_format=DateFormat.YEAR_MD,
-    )
     COLUMNS = [
         "ano",
         "id_pronunciamento",

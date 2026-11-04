@@ -220,7 +220,7 @@ Cada tabela refaz as chamadas de que precisa, mesmo quando outra tabela usa as m
 |---|---|---|
 | `senador` | a data do dia | o `Table.Update` (`compare_against="table_update"`) |
 | as 28 de `data_extracao` | a data do dia | a cobertura |
-| as séries com `data` ou com `ano` e `mes` | a maior data da janela; numa série por mês, o primeiro dia do maior mês | a cobertura |
+| as séries com `data` ou com `ano` e `mes`, em `DATE_COLUMNS` | a maior data da janela; numa série por mês, o primeiro dia do maior mês | a cobertura |
 | `suprido_transacao_objeto`, `suprido_movimentacao_subtipo` | a maior `data` da série irmã, em `REFERENCE_DATE_TABLES` | a cobertura |
 
 `senador` e as tabelas de `data_extracao` não têm data de publicação, e a carga é disparada em
@@ -269,22 +269,22 @@ O `check_update` grava o `Poll` da fonte de cada tabela e, quando há novidade, 
 com a data de referência, antes de disparar o `extract_and_load`. Cada tabela precisa de
 exatamente uma fonte original ligada no backend.
 
-O `build_and_promote` atualiza a cobertura da tabela. Em `senador`, que é `NonHistorical`, atualiza
+O `build_and_promote` atualiza a cobertura da tabela. Em `senador`, que é `non_historical`, atualiza
 só o `Table.Update`.
 
 ### BD Pro
 
-36 tabelas restringem ao BD Pro os 6 meses mais recentes (`PartBdpro`, no `COVERAGE` da classe de
-cada tabela em `constants.py`). A cada carga, o `build_and_promote` recalcula a faixa e reaplica as
+36 tabelas restringem ao BD Pro os 6 meses mais recentes (`part_bdpro`). A faixa de cada tabela
+vem do backend, e não do código. A cada carga, o `build_and_promote` recalcula a faixa e reaplica as
 row access policies do BigQuery.
 
 | Tabelas | Coluna de data | Granularidade | Faixa |
 |---|---|---|---|
-| as 28 de `data_extracao` | `data_extracao` | dia | `PartBdpro`, 6 meses |
-| `despesa_ceaps`, `servidor_hora_extra_dia`, `suprido_ato_concessao`, `suprido_empenho`, `suprido_transacao`, `suprido_movimentacao` | `data` | dia | `PartBdpro`, 6 meses |
-| `servidor_remuneracao`, `servidor_hora_extra` | `ano`, `mes` | mês | `PartBdpro`, 6 meses |
-| `suprido_transacao_objeto`, `suprido_movimentacao_subtipo` | `ano` | ano | `AllFree` |
-| `senador` | — | — | `NonHistorical` |
+| as 28 de `data_extracao` | `data_extracao` | dia | `part_bdpro`, 6 meses |
+| `despesa_ceaps`, `servidor_hora_extra_dia`, `suprido_ato_concessao`, `suprido_empenho`, `suprido_transacao`, `suprido_movimentacao` | `data` | dia | `part_bdpro`, 6 meses |
+| `servidor_remuneracao`, `servidor_hora_extra` | `ano`, `mes` | mês | `part_bdpro`, 6 meses |
+| `suprido_transacao_objeto`, `suprido_movimentacao_subtipo` | `ano` | ano | `all_free` |
+| `senador` | — | — | `non_historical` |
 | `dicionario` | — | — | sem cobertura |
 
 Nas tabelas de `data_extracao`, a parte livre vai até 6 meses antes do snapshot mais recente.
@@ -646,7 +646,7 @@ respostas reais:
 - gravação ano a ano e tabela vazia sem parquet;
 - limite de falhas de `fan_out`;
 - normalização de nomes e cruzamento de `senador`;
-- `COVERAGE` de cada tabela, sem faixa paga invertida.
+- colunas de data de cada série em `DATE_COLUMNS`.
 
 ```bash
 uv run pytest pipelines/datasets/br_senado_dados_abertos_administrativos/tests/

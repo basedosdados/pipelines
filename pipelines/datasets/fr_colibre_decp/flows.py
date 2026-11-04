@@ -28,12 +28,6 @@ from pipelines.datasets.fr_colibre_decp.tasks import (
     source_max_date_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -44,16 +38,6 @@ from pipelines.utils.tasks import rename_flow_run_dataset_table, run_dbt
 DATASET_ID = constants.DATASET_ID.value
 TABLES = constants.TABLES.value
 DATE_FORMAT = "%Y-%m"
-
-# The source refreshes more often than monthly, so the house rule paywalls the most
-# recent six months of every table and leaves everything older free. All three
-# tables carry the contract's initial-notification month, so one window applies.
-_PART_BDPRO = dict(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-COVERAGE = {table: PartBdpro(**_PART_BDPRO) for table in TABLES}
 
 
 @flow(name="fr_colibre_decp")
@@ -141,7 +125,6 @@ def fr_colibre_decp_flow(
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                coverage=COVERAGE[table],
                 env="prod",
                 bq_project="basedosdados",
             )

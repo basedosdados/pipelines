@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-import datetime as dt
-
 import pytest
 
 from pipelines.datasets.br_senado_dados_abertos_administrativos import utils
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
     TABLES_CONSTANTS,
+    constants,
     constants_servidor_cedido,
 )
-from pipelines.utils.metadata import policy
-from pipelines.utils.metadata.domain import PartBdpro
-from pipelines.utils.metadata.policy import CoverageIds
 
 
 def test_dates_arrive_in_two_formats():
@@ -400,42 +396,14 @@ def test_senador_flags_em_exercicio_and_keeps_historical(monkeypatch):
     assert rows["3"]["nome_completo"] == "Antonio C. Valadares"
 
 
-def test_coverage_covers_every_table_but_dicionario():
-    """Só o `dicionario`, que não tem flow, fica sem cobertura."""
-    uncovered = set()
-    for table_id, table_constants in TABLES_CONSTANTS.items():
-        if table_constants.COVERAGE.value is None:
-            uncovered.add(table_id)
-
-    assert uncovered == {"dicionario"}
-
-
-def test_no_coverage_inverts_the_pro_range():
-    """Nenhuma cobertura `PartBdpro` gera faixa paga invertida."""
-    ids = CoverageIds(
-        free="11111111-1111-1111-1111-111111111111",
-        pro="22222222-2222-2222-2222-222222222222",
+def test_every_series_has_its_date_columns():
+    """Toda série lida pelo `get_max_date` tem as colunas de data em `COLUMNS`."""
+    series = set(constants.PARTITIONED.value) - set(
+        constants.REFERENCE_DATE_TABLES.value
     )
-    for table_constants in TABLES_CONSTANTS.values():
-        spec = table_constants.COVERAGE.value
-        if not isinstance(spec, PartBdpro):
-            continue
-        for source_date in [
-            dt.date(2026, 1, 1),
-            dt.date(2026, 7, 15),
-            dt.date(2026, 12, 31),
-        ]:
-            ranges = policy.compute_coverage_ranges(spec, source_date, ids)
-            assert ranges.pro is not None
-            pro = ranges.pro.model_dump(exclude_none=True)
-            start = (
-                pro.get("startYear"),
-                pro.get("startMonth", 1),
-                pro.get("startDay", 1),
-            )
-            end = (
-                pro.get("endYear"),
-                pro.get("endMonth", 12),
-                pro.get("endDay", 28),
-            )
-            assert start <= end, (spec.date_column, source_date, start, end)
+    assert set(constants.DATE_COLUMNS.value) == series
+    for table_id, date_columns in constants.DATE_COLUMNS.value.items():
+        assert len(date_columns) in (1, 2), table_id
+        assert set(date_columns) <= set(
+            TABLES_CONSTANTS[table_id].COLUMNS.value
+        ), table_id

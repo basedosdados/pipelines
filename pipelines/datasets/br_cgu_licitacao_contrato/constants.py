@@ -2,8 +2,6 @@
 Constant values for br_cgu_licitacao_contrato.
 """
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_cgu_licitacao_contrato"
 
 # As 7 tabelas do dataset — duas fontes no Portal da Transparência:
@@ -27,11 +25,3 @@ CONTRATO_TERMO_ADITIVO_TABLE_ID = "contrato_termo_aditivo"
 # `pipelines/shared/cgu/flows.py`) — quantos meses somar à última data
 # registrada nos metadados pra chegar no período a baixar.
 RELATIVE_MONTH = 1
-
-# Mesma coverage pras 7 tabelas — todas mensais, part_bdpro (ver
-# `_part_bdpro_year_month("ano", "mes")` em `pipelines/shared/cgu/flows.py`,
-# usado por `_run_cgu_licitacao_contrato`).
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)

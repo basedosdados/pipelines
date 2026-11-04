@@ -27,7 +27,6 @@ from tqdm import tqdm
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import (
     CHUNKSIZE,
-    COVERAGE,
     DATASET_ID,
 )
 from pipelines.datasets.br_rf_cno.constants import (
@@ -346,7 +345,6 @@ def make_extract_load_data(
             )
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=output_path,
             dump_mode="append",
             source_format="parquet",

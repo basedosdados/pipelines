@@ -11,7 +11,6 @@ from datetime import date
 from prefect import task
 
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
-    TABLES_CONSTANTS,
     constants,
 )
 from pipelines.datasets.br_senado_dados_abertos_administrativos.utils import (
@@ -49,12 +48,6 @@ from pipelines.datasets.br_senado_dados_abertos_administrativos.utils import (
     get_senador_reference,
     list_months,
     write_table,
-)
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateOnly,
-    PartBdpro,
-    YearMonth,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -190,7 +183,7 @@ def extract_table(table_id: str, years: list[int]) -> list[dict]:
 
 @task
 def get_max_date(table_id: str) -> date:
-    """Lê a maior data de uma série, na coluna de data da cobertura.
+    """Lê a maior data de uma série, nas colunas de `constants.DATE_COLUMNS`.
 
     Extrai um ano da janela por vez, do mais recente para o mais antigo, e
     para no primeiro ano com data.
@@ -203,32 +196,30 @@ def get_max_date(table_id: str) -> date:
         `constants.NO_NEW_DATA_DATE` se a janela vier sem data.
 
     Raises:
-        ValueError: se a tabela não tiver coluna de data, ou se ela não for
-            por dia nem por mês.
+        ValueError: se a tabela não estiver em `constants.DATE_COLUMNS` com a
+            coluna do dia ou com as colunas de ano e mês.
     """
-    coverage = TABLES_CONSTANTS[table_id].COVERAGE.value
-    if not isinstance(coverage, AllFree | PartBdpro):
+    date_columns = constants.DATE_COLUMNS.value.get(table_id)
+    if date_columns is None:
         raise ValueError(f"tabela sem coluna de data: {table_id}")
-    date_column = coverage.date_column
-    if not isinstance(date_column, DateOnly | YearMonth):
-        raise ValueError(f"coluna de data por ano: {table_id}")
     for year in reversed(window_years()):
         rows = extract_table(table_id, [year])
-        if isinstance(date_column, DateOnly):
-            dates = [
-                row[date_column.col] for row in rows if row[date_column.col]
-            ]
-            if dates:
-                return date.fromisoformat(max(dates))
-        else:
-            months = [
-                (row[date_column.year], row[date_column.month])
-                for row in rows
-                if row[date_column.year] and row[date_column.month]
-            ]
-            if months:
-                max_year, max_month = max(months)
-                return date(max_year, max_month, 1)
+        match date_columns:
+            case (day_column,):
+                dates = [row[day_column] for row in rows if row[day_column]]
+                if dates:
+                    return date.fromisoformat(max(dates))
+            case (year_column, month_column):
+                months = [
+                    (row[year_column], row[month_column])
+                    for row in rows
+                    if row[year_column] and row[month_column]
+                ]
+                if months:
+                    max_year, max_month = max(months)
+                    return date(max_year, max_month, 1)
+            case _:
+                raise ValueError(f"DATE_COLUMNS fora do formato: {table_id}")
     return constants.NO_NEW_DATA_DATE.value
 
 
@@ -310,20 +301,12 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         table_id: nome da tabela.
 
     Returns:
-        Função que extrai a tabela e devolve o parquet e a cobertura.
-
-    Raises:
-        ValueError: se a tabela não tiver cobertura.
+        Função que extrai a tabela e devolve o parquet.
     """
-    coverage = TABLES_CONSTANTS[table_id].COVERAGE.value
-    if coverage is None:
-        raise ValueError(f"tabela sem cobertura: {table_id}")
-    coverage_dump = coverage.model_dump()
 
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        """Extrai a tabela e devolve o parquet e a cobertura."""
+        """Extrai a tabela e devolve o parquet."""
         return ExtractAndLoad(
-            coverage=coverage_dump,
             data_path=save_table(table_id=table_id),
             dump_mode="overwrite",
             source_format="parquet",

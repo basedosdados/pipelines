@@ -168,7 +168,7 @@ API responde 200 com corpo vazio em todas as tentativas (`get_json` devolve None
 envelope muda de forma; sem a trava, a tabela subiria vazia e o `build_and_promote` a levaria a
 prod.
 
-A materialização usa `NonHistorical`: só o `Table.Update.latest` é atualizado, e a cobertura
+A materialização usa `non_historical`: só o `Table.Update.latest` é atualizado, e a cobertura
 temporal registrada no onboarding não muda.
 
 ### Séries por ano (grupo B)
@@ -182,9 +182,9 @@ A carga sobe só a janela, com `dump_mode="append"`: substitui as partições `a
 o histórico mais antigo como está. `votacao_comissao` e `votacao_comissao_parlamentar` não têm
 janela de anos (ver a seção dessas tabelas).
 
-As 8 séries restringem ao BD Pro os 6 meses mais recentes (`PartBdpro`, no `COVERAGE` da classe
-de cada tabela em `constants.py`). A cada run, o `build_and_promote` recalcula a faixa e reaplica as row access
-policies do BigQuery.
+As 8 séries restringem ao BD Pro os 6 meses mais recentes (`part_bdpro`). A faixa de cada tabela
+vem do backend, e não do código. A cada run, o `build_and_promote` recalcula a faixa e reaplica as
+row access policies do BigQuery.
 
 ### Agendamento
 
