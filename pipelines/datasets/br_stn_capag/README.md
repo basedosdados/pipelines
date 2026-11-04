@@ -69,6 +69,11 @@ Limite: o `append` de uma revisão sobre um ano já carregado duplica a chave no
 o `check_update` não a percebe (a data é a mesma do recurso do ano). Para as duas
 revisões que existem, a carga com `historico` resolve.
 
+O mesmo vale para uma republicação que corrige um arquivo sem mudar o nome: o
+`check_update` compara só a `data_referencia`, que vem do nome do recurso, e não o
+`last_modified` do CKAN. Uma correção com o mesmo nome e a mesma data não dispara a
+carga, e é preciso rodar o `_download` manualmente com `historico`.
+
 A STN não documenta a regra de revisão de 2022 (nem o que é `CAPAG_Oficial`, que fica em `capag_oficial`), então a
 tabela guarda as duas versões e quem consome decide qual usar.
 
@@ -210,7 +215,7 @@ particionado por `ano_base` (2018 a 2030) e clusterizado por `id_municipio`. O
   `sigla_uf`, em estados);
 - `relationships` de `id_municipio` com `br_bd_diretorios_brasil__municipio` e de
   `sigla_uf` com `br_bd_diretorios_brasil__uf`;
-- `not_null` em `ano`, `data_referencia` e nas chaves;
+- `not_null` em `ano`, `data_referencia`, nas chaves e em `sigla_uf` de `municipios`;
 - `accepted_values` nas notas: `A`, `B` e `C` nas notas dos indicadores, e `A+`, `A`, `B+`,
   `B`, `C` e `D` na `nota_capag` e na `capag_oficial` (inclusive nas colunas `*_revisao`), e
   `Aicf` a `Eicf` no `icf`;

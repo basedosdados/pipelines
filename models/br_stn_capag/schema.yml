@@ -37,6 +37,7 @@ models:
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
+          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
