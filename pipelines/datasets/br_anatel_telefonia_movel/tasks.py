@@ -9,7 +9,6 @@ import polars as pl
 from prefect import task
 
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
-    COVERAGE,
     DATASET_ID,
 )
 from pipelines.datasets.br_anatel_telefonia_movel.constants import (
@@ -105,7 +104,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             table_id=table_id, csv_path=csv_path
         )
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=data_path,
             dump_mode="append",
         )

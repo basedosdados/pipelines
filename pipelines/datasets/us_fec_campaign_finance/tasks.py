@@ -31,10 +31,7 @@ from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
-from pipelines.datasets.us_fec_campaign_finance.constants import (
-    COVERAGE,
-    constants,
-)
+from pipelines.datasets.us_fec_campaign_finance.constants import constants
 from pipelines.datasets.us_fec_campaign_finance.utils import (
     SPECS,
     current_cycle,
@@ -125,7 +122,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
         result = _refresh_one(table_id, work_dir)
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=result[table_id],
             dump_mode="append",
             source_format="parquet",

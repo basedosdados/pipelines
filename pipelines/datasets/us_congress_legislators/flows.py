@@ -29,7 +29,6 @@ from pipelines.datasets.us_congress_legislators.tasks import (
     get_source_date,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import NonHistorical
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -142,7 +141,6 @@ def us_congress_legislators_flow(
             register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                coverage=NonHistorical(),
                 env="prod",
                 bq_project="basedosdados",
             )
