@@ -8,7 +8,7 @@ import shutil
 import time
 import unicodedata
 from collections.abc import Iterable
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -60,11 +60,6 @@ _DCA_HEADER_RE = re.compile(
 _CONTAS_DATALAKE_PREFIXES = sorted(CONTAS_DATALAKE, key=len, reverse=True)
 
 
-def _parse_datetime(value: str | None) -> datetime | None:
-    """Lê um timestamp ISO do CKAN, que pode vir nulo ou vazio."""
-    return datetime.fromisoformat(value) if value else None
-
-
 def _slugify(text: str) -> str:
     """Normaliza o nome do recurso ou uma string qualquer."""
     ascii_text = (
@@ -108,7 +103,7 @@ def list_resources(table_id: str) -> list[dict[str, Any]]:
 
     Returns:
         Um dicionário por recurso, com `id`, `name`, `format`, `url`,
-        `created` e `last_modified`, `size`, `year` (o ano da CAPAG,
+        `size`, `year` (o ano da CAPAG,
         lido do nome), `reference_date` e `revisao` (se o nome indica um
         arquivo de revisão).
 
@@ -130,7 +125,6 @@ def list_resources(table_id: str) -> list[dict[str, Any]]:
         if (raw.get("format") or "").upper() not in DATA_FORMATS:
             continue
         name = raw["name"].strip()
-        created = _parse_datetime(raw.get("created"))
         year = _NAME_YEAR_RE.search(name)
         if year is None:
             raise ValueError(f"O recurso {name!r} não tem ano no nome.")
@@ -140,8 +134,6 @@ def list_resources(table_id: str) -> list[dict[str, Any]]:
                 "name": name,
                 "format": raw["format"].upper(),
                 "url": raw["url"],
-                "created": created,
-                "last_modified": _parse_datetime(raw.get("last_modified")),
                 "size": int(raw.get("size") or 0),
                 "year": int(year.group(1)),
                 "reference_date": _resource_reference_date(name),
@@ -154,24 +146,6 @@ def list_resources(table_id: str) -> list[dict[str, Any]]:
     resources.sort(key=lambda resource: resource["reference_date"])
     log(f"{package_id}: {len(resources)} recursos de dados")
     return resources
-
-
-def get_source_last_modified(table_id: str) -> date:
-    """Lê a data da última publicação ou republicação da tabela na fonte.
-
-    Args:
-        table_id: `municipios` ou `estados`.
-
-    Returns:
-        O maior `last_modified` entre os recursos de dados, usando `created`
-        nos que não têm `last_modified`.
-    """
-    latest = max(
-        resource["last_modified"] or resource["created"]
-        for resource in list_resources(table_id)
-    )
-    log(f"{table_id}: última modificação na fonte em {latest}")
-    return latest.date()
 
 
 def download_resource(resource: dict[str, Any], input_dir: Path) -> Path:
@@ -488,8 +462,6 @@ def process_records(
         lambda value: None if value is None else " ".join(value.split())
     )
     df["data_referencia"] = resource["reference_date"]
-    df["data_criacao"] = resource["created"]
-    df["data_modificacao"] = resource["last_modified"]
     df["ano"] = resource["year"]
 
     key = list(CHAVE_UNICA[table_id])
