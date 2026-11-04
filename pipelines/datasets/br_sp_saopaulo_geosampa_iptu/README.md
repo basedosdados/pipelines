@@ -1,207 +1,109 @@
-# Documentação do Conjunto de Dados: br_sp_saopaulo_geosampa_iptu (IPTU de São Paulo)
+# IPTU de São Paulo (GeoSampa)
 
-Cadastro fiscal do Imposto Predial e Territorial Urbano (IPTU) do município de São
-Paulo. Cada linha é um imóvel (número de contribuinte) em um ano de exercício.
+Pipeline que mantém atualizada a tabela `iptu` do conjunto
+`br_sp_saopaulo_geosampa_iptu`, a partir do cadastro fiscal do IPTU publicado pela
+Prefeitura de São Paulo no GeoSampa. Cada linha é um imóvel (número de contribuinte) em
+um ano de exercício. A pipeline verifica toda semana se saiu um ano novo e, quando sai,
+carrega só esse ano.
 
-- Fonte: [GeoSampa](https://geosampa.prefeitura.sp.gov.br/PaginasPublicas/_SBC.aspx),
-  camada "IPTU" do grupo "Cadastro"
-- Código: `pipelines/datasets/br_sp_saopaulo_geosampa_iptu/` e
-  `models/br_sp_saopaulo_geosampa_iptu/`
+## Fonte
 
-## A fonte
+O [GeoSampa](https://geosampa.prefeitura.sp.gov.br/PaginasPublicas/_SBC.aspx) publica um
+ZIP por ano de exercício, desde 1995, com um CSV separado por `;` (cerca de 1 GB por
+ano). O endereço de cada ano está em `URL_TEMPLATE` (`constants.py`).
 
-O GeoSampa publica um arquivo ZIP por ano de exercício, desde 1995. Cada ZIP contém um
-CSV separado por `;`, com cerca de 70 MB compactado e 1 GB descompactado. O endereço
-de cada ano segue o modelo de `URL_TEMPLATE`, em `constants.py`.
+- **Um ano inexistente também responde HTTP 200**, com uma página HTML no lugar do ZIP.
+  Por isso a pipeline confere se a resposta começa com `PK`, a assinatura de um ZIP.
+- **O servidor exige headers de navegador** (`HEADERS`).
+- **O formato muda entre os anos**: vírgula decimal em 1995, zeros à esquerda em 2024,
+  arquivos em UTF-8 ou latin-1 e duas grafias da coluna de esquinas.
+- **Aspas não delimitam campos.** Toda linha tem 29 campos separados por `;`, mas há
+  valores com aspas só de um lado (`"D N LT 12`). Um leitor de CSV padrão junta as
+  linhas seguintes até achar outra aspa; em 2024, isso perde 75.065 linhas.
+- **A fonte não traz `data_cadastramento` de 1995 a 2015.**
+- **Anos publicados não mudam.** Os arquivos baixados em novembro de 2026 são idênticos
+  aos carregados em 2024 e 2025, então cada ano é carregado uma vez só.
 
-### Particularidades da fonte
+## Como a pipeline funciona
 
-- **Um ano inexistente também responde HTTP 200.** No lugar do ZIP, o servidor devolve
-  uma página HTML, então o status da resposta não indica se o ano existe.
-- **O servidor exige headers de navegador**, definidos em `HEADERS`.
-- **O servidor não informa o tamanho do arquivo** e ignora pedidos de download parcial.
-- **O corpo da resposta vem compactado em gzip**, e o primeiro pedaço lido pode ter um
-  único byte.
-- **O formato do CSV muda entre os anos.** O arquivo de 1995 usa vírgula como separador
-  decimal e não traz data de cadastramento; o de 2024 preenche números com zeros à
-  esquerda (`0000136`); o de 2026 não. A coluna de esquinas aparece como
-  `QUANTIDADE DE ESQUINAS FRENTES` ou `QUANTIDADE DE ESQUINAS/FRENTES`.
-- **A codificação muda entre os anos.** Os arquivos de 1995 e 2026 estão em UTF-8; o
-  de 2024, em latin-1.
-- **Aspas não delimitam campos.** Toda linha tem exatamente 29 campos separados por
-  `;`, mesmo quando um valor contém aspas. Há valores com aspas só de um lado
-  (`"D N LT 12`), e um leitor de CSV padrão junta as linhas seguintes até encontrar
-  outra aspa. Em 2024, isso faz a leitura padrão perder 75.065 linhas.
-- **Uma linha de 1995 tem 20 campos vazios a mais.** A linha do contribuinte
-  1691450011-7 tem os 29 campos e, depois deles, mais 20 campos vazios; o último
-  campo real é só uma aspa (`"`). `normalizar_linhas` corta os campos vazios extras.
+```text
+check_update  ──▶  extract_and_load  ──▶  build_and_promote
+(segunda-feira)    (ano novo)              (dbt e publicação)
+```
 
-## O pipeline
+- **`check_update`** (`flows.py`, `tasks.py`): toda segunda-feira às 9h47, procura o
+  ano mais recente publicado, registra a consulta à fonte e compara o ano com o fim da
+  cobertura da tabela na BD. Se a fonte tiver um ano novo, dispara o próximo estágio.
+- **`extract_and_load`**: baixa o ZIP do ano, trata o CSV (`utils.py`) e grava
+  `ano=<ano>/data.parquet` no staging, com todas as colunas como texto.
+- **`build_and_promote`**: estágio comum a todos os conjuntos da BD
+  (`pipelines/utils/metadata/flows.py`). Roda o dbt
+  (`models/br_sp_saopaulo_geosampa_iptu/`), publica em produção e atualiza a
+  cobertura.
 
-### check_update
+### Tratamento
 
-`ultimo_ano_publicado` (`utils.py`) testa os anos a partir do ano seguinte ao atual, em
-ordem decrescente, e devolve o primeiro publicado. `ano_existe` lê só o início da
-resposta e considera o ano publicado quando ela começa com `PK`, a assinatura de um
-arquivo ZIP. Se nenhum dos `MAX_ANOS_BUSCA` anos testados existir, a função levanta um
-erro, pois isso indica mudança no endereço da fonte.
+O tratamento lê o CSV em blocos, sem interpretar aspas (`quoting=csv.QUOTE_NONE`), e:
 
-O `check_update` devolve 1º de janeiro do ano encontrado, comparado contra o fim da
-cobertura da tabela no backend (`date_format="%Y"`). Ele roda toda segunda-feira às
-9h47 (horário de Brasília).
+- detecta a codificação de cada arquivo (UTF-8 ou latin-1);
+- tira as aspas que envolvem um valor inteiro (`"AP 321 BL ""C"""` → `AP 321 BL "C"`)
+  e os espaços nas pontas;
+- troca a vírgula decimal por ponto e remove zeros à esquerda (`0001465,00` →
+  `1465.00`, `,89` → `0.89`);
+- remove o hífen de `cep` e `numero_contribuinte` e converte a data de `dd/mm/aa` para
+  `aaaa-mm-dd`;
+- grava nulo onde a fonte deixa o valor vazio.
 
-### extract_and_load
+A carga **falha sem gravar nada** quando uma linha não tem 29 campos, quando o número
+de linhas gravadas difere do da fonte ou quando um valor foge do formato da sua coluna.
+Essas travas vieram de defeitos achados no reprocessamento do histórico, que passavam
+sem erro: linhas perdidas por causa das aspas e valores que viravam nulo no
+`safe_cast` do dbt. Linhas com campos vazios a mais (uma em 1995) são cortadas para 29
+campos.
 
-`iptu_extract_load_data` (`tasks.py`) recebe o ano encontrado pelo `check_update`,
-baixa e trata esse ano e devolve a pasta `ano=<ano>/` em Parquet para o upload. A
-cobertura não fica no código: o pipeline a lê do backend (`coverage_from_backend`), a
-partir da coluna `ano` marcada com `coverage_entity="year"`.
+## Cobertura BD Pro
 
-### Cobertura BD Pro
+A tabela segue o padrão da BD de deixar os últimos 6 meses em BD Pro (`part_bdpro`).
+Como a tabela é anual, o ano mais recente fica em BD Pro e o resto fica aberto: com
+dados até 2026, 1995–2025 é aberto e 2026 é BD Pro. A cada ano novo, o
+`build_and_promote` recalcula as duas faixas e as Row Access Policies.
 
-A tabela segue o padrão de janela BD Pro da Base dos Dados (`part_bdpro`): os dados
-dos últimos 6 meses (`PART_BDPRO_FREE_LAG`) ficam em BD Pro e o restante fica aberto.
-Como a tabela é anual, isso equivale a deixar o ano mais recente em BD Pro. Com dados
-até 2026, por exemplo, a cobertura aberta vai de 1995 a 2025 e a BD Pro cobre 2026. A
-cada execução, `register_table_materialization_task` recalcula as duas faixas e
-reaplica as Row Access Policies, então a janela avança sozinha quando um ano novo
-entra.
+A cobertura é lida do backend, a partir da coluna `ano` marcada com
+`coverage_entity = year`. O backend precisa de duas coberturas: uma aberta
+(`is_closed=false`) e uma BD Pro (`is_closed=true`). A BD Pro é criada **sem faixa de
+datas**: uma faixa com o ano novo faria o `check_update` concluir que não há dado novo.
+A primeira execução cria a faixa, que depois deve ser marcada com `is_closed=true`,
+campo que a pipeline não grava.
 
-O backend precisa de duas `Coverage` na tabela: uma aberta (`is_closed=false`) e uma
-BD Pro (`is_closed=true`). A BD Pro deve ser criada **sem** `DateTimeRange`: o
-`check_update` compara o ano da fonte com o maior fim entre as faixas cadastradas, e
-uma faixa BD Pro com o ano novo faria o pipeline concluir que não há dado novo. A
-primeira execução cria a faixa BD Pro; depois dela, marque essa faixa com
-`is_closed=true`, porque o pipeline não grava esse campo.
-
-Até novembro de 2026, a tabela tinha uma única cobertura, toda BD Pro (1995–2025).
-Ela passou para o padrão `part_bdpro` por decisão da equipe.
-
-`baixar_ano` (`utils.py`) grava o ZIP do ano em disco em pedaços de 1 MB, extrai o
-único CSV que ele contém e apaga o ZIP. Se o arquivo baixado não for um ZIP, ou se
-tiver mais de um CSV, a função levanta um erro. O download de 2026 levou cerca de 4
-minutos e gerou um CSV de 938 MB, com 3.920.972 linhas.
-
-`tratar_ano` lê o CSV em pedaços de 200 mil linhas, para não carregar o arquivo
-inteiro na memória, e grava o resultado em `ano=<ano>/data.parquet`, com todas as
-colunas como texto e valores vazios como nulos. Antes da leitura, `detectar_encoding`
-percorre o arquivo e escolhe UTF-8 ou latin-1. A leitura usa `quoting=csv.QUOTE_NONE`,
-para que as aspas sejam tratadas como texto. Ler o arquivo de 2026 de uma vez estoura
-15 GB de RAM; em pedaços, o tratamento leva cerca de 1,5 minuto.
-
-O tratamento para com erro, sem gravar nada, quando:
-
-- alguma linha da fonte tem menos de `N_CAMPOS_FONTE` (29) campos, ou mais de 29 com
-  conteúdo nos campos extras (`normalizar_linhas`);
-- algum valor tratado foge do formato esperado da coluna (`validar_pedaco`):
-  `numero_contribuinte` com 11 dígitos, `data_cadastramento` como `aaaa-mm-dd`,
-  `COLUNAS_DECIMAIS` como `123` ou `123.45`, `COLUNAS_INTEIRAS` só com dígitos e as
-  demais colunas sem espaços nas pontas. Um valor fora do formato indica coluna
-  deslocada ou mudança na fonte, e viraria nulo em silêncio no `safe_cast` do dbt;
-- o número de linhas gravadas difere do número de linhas da fonte, sinal de linhas
-  perdidas ou juntadas.
-
-Linhas com mais de 29 campos, mas cujos campos extras estão todos vazios (caso de
-1995), são cortadas para 29 campos antes da leitura.
-
-As checagens foram criadas a partir de defeitos encontrados no reprocessamento do
-histórico, que passavam sem erro e só apareciam comparando valores:
-
-- a leitura com aspas fez 2024 perder 75.065 linhas, sem aviso (checagem de número de
-  linhas e de campos);
-- valores entre aspas com espaços internos ficavam com espaços no fim depois que as
-  aspas eram removidas (checagem de espaços nas pontas);
-- `,89` virava `.89`, sem o zero antes do ponto, em 1 a 6 linhas por ano de 1995 a
-  2015 (checagem de formato das colunas decimais).
-
-As checagens de formato foram aplicadas aos 32 anos reprocessados, e todos passam.
-
-`limpar_iptu` aplica as regras de padronização:
-
-- renomeia as colunas conforme `RENAME`, o que também unifica as duas grafias da
-  coluna de esquinas;
-- remove as aspas que envolvem um valor inteiro (`"AP 321 BL ""C"""` →
-  `AP 321 BL "C"`); aspas de um lado só são mantidas, e um valor que é só uma aspa
-  vira nulo;
-- remove espaços no início e no fim de todos os valores, antes e depois de tirar as
-  aspas (`"APTO 51 BL.""A""  "` → `APTO 51 BL."A"`);
-- troca a vírgula decimal por ponto e remove zeros à esquerda em `COLUNAS_DECIMAIS`,
-  que inclui `valor_terreno` e `valor_construcao` (`0001465.00` → `1465.00`,
-  `100,41` → `100.41`), e completa o zero antes do ponto (`,89` → `0.89`);
-- remove casas decimais nulas (`2011.0` → `2011`) e zeros à esquerda
-  (`0000136` → `136`) em `COLUNAS_INTEIRAS`, para que o `safe_cast` para `INT64` no
-  dbt não resulte em nulo; `numero_notificacao` também passa por essa regra
-  (`01` → `1`), como no staging anterior;
-- remove o hífen de `cep` e `numero_contribuinte`;
-- converte `data_cadastramento` de `dd/mm/aa` para `aaaa-mm-dd`, mantendo vazios os
-  anos sem data (a fonte não traz a data de 1995 a 2015).
-
-Nos arquivos de 2024 e 2026, a saída tem o mesmo número de linhas da fonte (3.724.575
-e 3.920.972), nenhum `numero_contribuinte` repetido e todos os valores numéricos e
-datas convertem para o tipo final. A única coluna numérica com vazios é
-`numero_imovel`, que já vem vazia na fonte.
+Até novembro de 2026, a tabela era toda BD Pro (1995–2025).
 
 ## Correção do histórico
 
-Os anos de 1995 a 2025 foram carregados manualmente por uma versão anterior do script
-`models/br_sp_saopaulo_geosampa_iptu/code/iptu.py`, em duas cargas: 1995–2024 em julho
-de 2024 e 2025 em dezembro de 2025. Todos os anos foram reprocessados com o código
-deste pipeline e comparados com o staging anterior, contribuinte a contribuinte.
+Os anos de 1995 a 2025 tinham sido carregados por um script manual, em duas cargas
+(julho de 2024 e dezembro de 2025). Em novembro de 2026, todos foram reprocessados com o tratamento desta pipeline e
+comparados com o staging anterior, contribuinte a contribuinte.
 
-O script `code/iptu.py` agora é só a carga inicial: importa `baixar_ano` e
-`tratar_ano` de `utils.py`, como nos demais pipelines, para que a carga manual e o
-pipeline não divirjam. Ele grava em `~/Downloads/br_sp_saopaulo_geosampa_iptu_data/`
-(ou em `IPTU_DATA_DIR`) e foi o caminho usado no reprocessamento:
+| Problema no staging anterior | Correção |
+|---|---|
+| `valor_terreno` e `valor_construcao` nulos em cerca de 90% das linhas (1995–2009) ou dez vezes maiores (2010–2021), porque o script apagava todo `.0` | valores da fonte, como `FLOAT64` (a fonte tem centavos) |
+| 2024 sem 75.065 das 3.724.575 linhas, por causa das aspas | ano completo |
+| 2017 com 200 mil linhas repetidas no staging (a tabela final não era afetada) | sem repetições |
 
-```sh
-uv run models/br_sp_saopaulo_geosampa_iptu/code/iptu.py          # todos os anos
-uv run models/br_sp_saopaulo_geosampa_iptu/code/iptu.py 2024 2025
-```
+Os demais anos têm as mesmas linhas e os mesmos contribuintes de antes. Junto com a
+correção, `quantidade_esquina_imovel` passou de `STRING` para `INT64`, como já estava
+no backend, e a partição do modelo foi estendida até 2031.
 
-### Problemas do staging anterior
+## Operação
 
-- **Colunas de valor corrompidas.** O script trocava a vírgula decimal por ponto e
-  depois removia todo `.0` dos valores. Valores com centavos (`100.41`) não
-  convertiam para `INT64` e viravam nulos; valores com centavos zerados (`2169.00`)
-  ficavam dez vezes maiores (`21690`).
-
-  | Anos | `valor_terreno` no staging anterior |
-  |---|---|
-  | 1995–2009 | 86,5% a 91,0% nulos; `valor_construcao` chega a 95,4% |
-  | 2010–2021 | dez vezes maior que na fonte (mediana de 2021: 10.450, contra 1.045) |
-  | 2022–2025 | iguais aos da fonte |
-
-- **Linhas perdidas em 2024.** O script lia o CSV interpretando aspas, o que fez 2024
-  perder 75.065 das 3.724.575 linhas (ver "Particularidades da fonte").
-- **Linhas duplicadas em 2017.** O staging de 2017 tem 3.583.561 linhas para 3.383.561
-  contribuintes: 200 mil linhas repetidas. O `select distinct` do modelo dbt remove as
-  repetições, então a tabela final não foi afetada.
-
-### Resultado do reprocessamento
-
-- De 1995 a 2025, exceto 2024, o número de linhas e o conjunto de
-  `numero_contribuinte` são idênticos aos do staging anterior. 2024 passa de 3.649.510
-  para 3.724.575 linhas, e 2017 deixa de ter linhas repetidas no staging. 2026 é
-  carregado pela primeira vez, com 3.920.972 linhas.
-- `valor_terreno` e `valor_construcao` passam a ter os valores da fonte, com tipo
-  `FLOAT64` no lugar de `INT64`, para preservar os centavos.
-- Algumas centenas de linhas por ano passam a ter `NA` em `bairro`, como na fonte; o
-  script anterior convertia esse texto em nulo.
-- Linhas vazias na fonte passam a ter nulo, e não o texto `nan`.
-- Espaços no fim de `complemento`, `bairro` e `referencia_imovel`, presentes no
-  staging anterior de 2025, são removidos.
-
-### Ajustes no modelo e nos metadados
-
-- `valor_terreno` e `valor_construcao` passam de `INT64` para `FLOAT64` no modelo dbt e
-  no backend.
-- `quantidade_esquina_imovel` passa de `STRING` para `INT64` no modelo dbt. É uma
-  contagem (0 a 9), e o backend já a registrava como `INT64`; a divergência existia
-  antes deste pipeline e foi encontrada pelo teste de metadata
-  (`.github/workflows/scripts/check_metadata.py`).
-- A partição do modelo vai até 2031 (último ano + 5).
-- A cobertura passa de toda BD Pro para `part_bdpro` (ver "Cobertura BD Pro").
-
-Nenhum valor preenchido no staging vira nulo no `safe_cast` do modelo, em nenhuma
-coluna e em nenhum ano. As colunas com nulos (`data_cadastramento` até 2015,
-`complemento`, `bairro`, `referencia_imovel`) já vêm vazias na fonte.
+- **Carga inicial ou recarga de vários anos:** `models/br_sp_saopaulo_geosampa_iptu/code/iptu.py`
+  usa o mesmo tratamento da pipeline e grava em
+  `~/Downloads/br_sp_saopaulo_geosampa_iptu_data/` (ou em `IPTU_DATA_DIR`):
+  `uv run models/br_sp_saopaulo_geosampa_iptu/code/iptu.py 2024 2025`.
+- **Recarregar um ano pela pipeline:** disparar o deployment de `extract_and_load` com
+  `{"download_params": {"reference_date": "<ano>-01-01"}}`.
+- **Teste em dev:** com o label `deploy-flow` no PR, os flows vão para o pool de dev.
+  O `build_and_promote` usa os modelos dbt da `main`; mudanças nos modelos de um PR
+  devem ser validadas com `dbt run` e `dbt test` locais.
+- **Metadados:** o `check_update` grava em produção, mesmo rodando em dev, o registro
+  de consulta à fonte e a data da última publicação. Para testar sem tocar em
+  produção, dispare direto o `extract_and_load`.
