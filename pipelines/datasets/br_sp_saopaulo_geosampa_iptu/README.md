@@ -57,6 +57,26 @@ baixa e trata esse ano e devolve a pasta `ano=<ano>/` em Parquet para o upload. 
 cobertura não fica no código: o pipeline a lê do backend (`coverage_from_backend`), a
 partir da coluna `ano` marcada com `coverage_entity="year"`.
 
+### Cobertura BD Pro
+
+A tabela segue o padrão de janela BD Pro da Base dos Dados (`part_bdpro`): os dados
+dos últimos 6 meses (`PART_BDPRO_FREE_LAG`) ficam em BD Pro e o restante fica aberto.
+Como a tabela é anual, isso equivale a deixar o ano mais recente em BD Pro. Com dados
+até 2026, por exemplo, a cobertura aberta vai de 1995 a 2025 e a BD Pro cobre 2026. A
+cada execução, `register_table_materialization_task` recalcula as duas faixas e
+reaplica as Row Access Policies, então a janela avança sozinha quando um ano novo
+entra.
+
+O backend precisa de duas `Coverage` na tabela: uma aberta (`is_closed=false`) e uma
+BD Pro (`is_closed=true`). A BD Pro deve ser criada **sem** `DateTimeRange`: o
+`check_update` compara o ano da fonte com o maior fim entre as faixas cadastradas, e
+uma faixa BD Pro com o ano novo faria o pipeline concluir que não há dado novo. A
+primeira execução cria a faixa BD Pro; depois dela, marque essa faixa com
+`is_closed=true`, porque o pipeline não grava esse campo.
+
+Até novembro de 2026, a tabela tinha uma única cobertura, toda BD Pro (1995–2025).
+Ela passou para o padrão `part_bdpro` por decisão da equipe.
+
 `baixar_ano` (`utils.py`) grava o ZIP do ano em disco em pedaços de 1 MB, extrai o
 único CSV que ele contém e apaga o ZIP. Se o arquivo baixado não for um ZIP, ou se
 tiver mais de um CSV, a função levanta um erro. O download de 2026 levou cerca de 4
