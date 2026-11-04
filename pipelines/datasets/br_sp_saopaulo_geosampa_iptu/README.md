@@ -134,7 +134,7 @@ As checagens de formato foram aplicadas aos 32 anos reprocessados, e todos passa
   (`01` → `1`), como no staging anterior;
 - remove o hífen de `cep` e `numero_contribuinte`;
 - converte `data_cadastramento` de `dd/mm/aa` para `aaaa-mm-dd`, mantendo vazios os
-  anos sem data.
+  anos sem data (a fonte não traz a data de 1995 a 2015).
 
 Nos arquivos de 2024 e 2026, a saída tem o mesmo número de linhas da fonte (3.724.575
 e 3.920.972), nenhum `numero_contribuinte` repetido e todos os valores numéricos e
@@ -143,10 +143,20 @@ datas convertem para o tipo final. A única coluna numérica com vazios é
 
 ## Correção do histórico
 
-Os anos de 1995 a 2025 foram carregados manualmente pelo script
+Os anos de 1995 a 2025 foram carregados manualmente por uma versão anterior do script
 `models/br_sp_saopaulo_geosampa_iptu/code/iptu.py`, em duas cargas: 1995–2024 em julho
 de 2024 e 2025 em dezembro de 2025. Todos os anos foram reprocessados com o código
 deste pipeline e comparados com o staging anterior, contribuinte a contribuinte.
+
+O script `code/iptu.py` agora é só a carga inicial: importa `baixar_ano` e
+`tratar_ano` de `utils.py`, como nos demais pipelines, para que a carga manual e o
+pipeline não divirjam. Ele grava em `~/Downloads/br_sp_saopaulo_geosampa_iptu_data/`
+(ou em `IPTU_DATA_DIR`) e foi o caminho usado no reprocessamento:
+
+```sh
+uv run models/br_sp_saopaulo_geosampa_iptu/code/iptu.py          # todos os anos
+uv run models/br_sp_saopaulo_geosampa_iptu/code/iptu.py 2024 2025
+```
 
 ### Problemas do staging anterior
 
@@ -180,3 +190,18 @@ deste pipeline e comparados com o staging anterior, contribuinte a contribuinte.
 - Linhas vazias na fonte passam a ter nulo, e não o texto `nan`.
 - Espaços no fim de `complemento`, `bairro` e `referencia_imovel`, presentes no
   staging anterior de 2025, são removidos.
+
+### Ajustes no modelo e nos metadados
+
+- `valor_terreno` e `valor_construcao` passam de `INT64` para `FLOAT64` no modelo dbt e
+  no backend.
+- `quantidade_esquina_imovel` passa de `STRING` para `INT64` no modelo dbt. É uma
+  contagem (0 a 9), e o backend já a registrava como `INT64`; a divergência existia
+  antes deste pipeline e foi encontrada pelo teste de metadata
+  (`.github/workflows/scripts/check_metadata.py`).
+- A partição do modelo vai até 2031 (último ano + 5).
+- A cobertura passa de toda BD Pro para `part_bdpro` (ver "Cobertura BD Pro").
+
+Nenhum valor preenchido no staging vira nulo no `safe_cast` do modelo, em nenhuma
+coluna e em nenhum ano. As colunas com nulos (`data_cadastramento` até 2015,
+`complemento`, `bairro`, `referencia_imovel`) já vêm vazias na fonte.
