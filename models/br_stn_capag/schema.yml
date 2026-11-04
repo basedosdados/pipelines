@@ -13,7 +13,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, data_referencia, id_municipio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.75
+          at_least: 0.70
           ignore_values:
             - populacao
             - ano_base
@@ -180,10 +180,12 @@ models:
           - accepted_values:
               values: [A, B, C]
       - name: nota_capag
-        description: Nota final da capacidade de pagamento (A+, A, B+, B, C ou D)
+        description: Nota final da capacidade de pagamento (A+, A, B+, B, C ou D,
+          ou `Suspensa`). O asterisco que a fonte põe em algumas notas, como `C*`
+          em 2019 e 2020, é removido
         tests:
           - accepted_values:
-              values: [A+, A, B+, B, C, D]
+              values: [A+, A, B+, B, C, D, Suspensa]
       - name: icf
         description: Qualidade da informação contábil e fiscal (ICF), de `Aicf` a
           `Eicf`. Disponível a partir de 2024

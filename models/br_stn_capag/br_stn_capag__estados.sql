@@ -21,7 +21,7 @@ select
     safe_cast(nota_poupanca_corrente as string) nota_poupanca_corrente,
     safe_cast(indicador_liquidez as float64) indicador_liquidez,
     safe_cast(nota_liquidez as string) nota_liquidez,
-    safe_cast(nota_capag as string) nota_capag,
+    safe_cast(regexp_replace(nota_capag, r'\*$', '') as string) nota_capag,
     safe_cast(icf as string) icf,
     safe_cast(observacao as string) observacao,
 from {{ set_datalake_project("br_stn_capag_staging.estados") }} as t
