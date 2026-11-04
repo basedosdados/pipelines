@@ -35,7 +35,7 @@ select distinct
     safe_cast(area_construida as int64) area_construida,
     safe_cast(area_ocupada as int64) area_ocupada,
     safe_cast(quantidade_pavimento as int64) quantidade_pavimento,
-    safe_cast(quantidade_esquina_imovel as string) quantidade_esquina_imovel,
+    safe_cast(quantidade_esquina_imovel as int64) quantidade_esquina_imovel,
     safe_cast(testada_imovel as float64) testada_imovel,
     safe_cast(valor_terreno as float64) valor_terreno,
     safe_cast(valor_construcao as float64) valor_construcao,
