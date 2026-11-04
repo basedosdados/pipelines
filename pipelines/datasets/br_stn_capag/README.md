@@ -215,7 +215,7 @@ particionado por `ano_base` (2018 a 2030) e clusterizado por `id_municipio`. O
   `sigla_uf`, em estados);
 - `relationships` de `id_municipio` com `br_bd_diretorios_brasil__municipio` e de
   `sigla_uf` com `br_bd_diretorios_brasil__uf`;
-- `not_null` em `ano`, `data_referencia`, nas chaves e em `sigla_uf` de `municipios`;
+- `not_null` em `ano`, `data_referencia` e nas chaves;
 - `accepted_values` nas notas: `A`, `B` e `C` nas notas dos indicadores, e `A+`, `A`, `B+`,
   `B`, `C` e `D` na `nota_capag` e na `capag_oficial` (inclusive nas colunas `*_revisao`), e
   `Aicf` a `Eicf` no `icf`;
