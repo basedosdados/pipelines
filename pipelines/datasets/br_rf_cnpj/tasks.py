@@ -70,7 +70,7 @@ São 5 tabelas
         - simples/dicionario (NonHistorical): `last_modified_date` contra
         `Table.Update`.
 2. `extract_and_load`: `folder_date` e `last_modified_date` (em `extra_download_params`) usados em 
-`main`
+`download_and_process_files`
 """
 
 
@@ -101,7 +101,7 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
 
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        output_path = main(
+        output_path = download_and_process_files(
             tables=TABLE_COMPONENTS[table_id],
             folder_date=download_params["folder_date"],
             last_modified_date=datetime.date.fromisoformat(
@@ -116,7 +116,7 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
 
 
 @task(retries=3, retry_delay_seconds=30)
-def main(
+def download_and_process_files(
     tables: list[str],
     folder_date: str,
     last_modified_date: datetime.date,
