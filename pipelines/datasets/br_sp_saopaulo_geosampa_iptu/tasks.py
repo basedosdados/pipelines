@@ -9,7 +9,6 @@ from prefect import task
 
 from pipelines.constants import constants as repo_constants
 from pipelines.datasets.br_sp_saopaulo_geosampa_iptu.constants import (
-    COVERAGE,
     PATH_INPUT,
     PATH_OUTPUT,
 )
@@ -45,7 +44,6 @@ def iptu_extract_load_data(download_params: dict) -> ExtractAndLoad:
     tratar_ano(csv_path, PATH_OUTPUT, ano)
     csv_path.unlink()
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=str(PATH_OUTPUT),
         source_format="parquet",
     )

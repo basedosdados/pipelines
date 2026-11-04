@@ -4,8 +4,6 @@ Constant values for br_sp_saopaulo_geosampa_iptu.
 
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import AllBdpro, DateFormat, YearOnly
-
 DATASET_ID = "br_sp_saopaulo_geosampa_iptu"
 IPTU_TABLE_ID = "iptu"
 
@@ -123,8 +121,3 @@ COLUNAS_INTEIRAS = [
 # pastas locais do extract_and_load
 PATH_INPUT = Path("/tmp/br_sp_saopaulo_geosampa_iptu/input")
 PATH_OUTPUT = Path("/tmp/br_sp_saopaulo_geosampa_iptu/output")
-
-# mesma topologia do backend: cobertura toda bd pro
-COVERAGE = AllBdpro(
-    date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-)
