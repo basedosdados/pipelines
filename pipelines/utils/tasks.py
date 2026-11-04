@@ -271,11 +271,42 @@ def upload_to_gcs(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _resolve_dbt_model_path(dataset_id: str, table_id: str) -> Path:
+    """Resolve o caminho do modelo dbt, com ou sem o prefixo `{dataset_id}__`.
+
+    A maioria dos modelos do repositório nomeia o arquivo
+    `{dataset_id}__{table_id}.sql` (o alias real da tabela vem de
+    `config(alias=...)` dentro do SQL, pra evitar colisão de nome de modelo
+    entre datasets). Uma minoria nomeia o arquivo direto como
+    `{table_id}.sql`. Detecta qual dos dois existe de verdade em vez de
+    depender de um booleano declarado pelo chamador — fonte recorrente de
+    bugs quando calculado errado (ex. `table-approve` inferindo pelo nome do
+    arquivo `.sql` modificado no PR).
+
+    Args:
+        dataset_id: ID do dataset no backend/BigQuery.
+        table_id: ID da tabela no backend/BigQuery.
+
+    Returns:
+        O caminho do modelo dbt a selecionar — o com prefixo, se existir;
+        senão o sem prefixo; senão o com prefixo mesmo assim, pra manter a
+        mensagem de erro de "modelo não encontrado" de sempre.
+    """
+    models_folder = Path("models") / dataset_id
+    aliased_path = models_folder / f"{dataset_id}__{table_id}.sql"
+    plain_path = models_folder / f"{table_id}.sql"
+
+    if aliased_path.exists():
+        return aliased_path
+    if plain_path.exists():
+        return plain_path
+    return aliased_path
+
+
 @task(retries=0)
 def run_dbt(
     dataset_id: str,
     table_id: str | None = None,
-    dbt_alias: bool = True,
     dbt_command: str = "run/test",
     target: str = "dev",
     flags: str | None = None,
@@ -291,9 +322,7 @@ def run_dbt(
 
     models_folder = Path("models") / dataset_id
     if table_id is not None:
-        selected = models_folder / (
-            f"{dataset_id}__{table_id}.sql" if dbt_alias else f"{table_id}.sql"
-        )
+        selected = _resolve_dbt_model_path(dataset_id, table_id)
     else:
         selected = models_folder
 

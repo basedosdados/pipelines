@@ -16,9 +16,11 @@ without a single MG mirror and the prod dbt run failed on the first model with
 `br_bd_execucao_estadual` hit the same wall on its own onboarding and solved it
 with a bespoke Prefect seed flow that downloads and re-uploads every mirror
 through a pod. This script does it by server-side bucket copy instead, reusing
-`prefect_run_dbt.push_table_to_bq` unchanged -- the same code path table-approve
-runs, driven from an explicit list of prefixes rather than inferred from changed
-`.sql` files. Nothing here is dataset-specific.
+`copy_staging_to_prod`/`sync_prod_staging_table`
+(`pipelines.utils.materialize_prod.tasks`) -- the same shared tasks
+`transfer_files_to_prod_flow` uses -- via `push_table_to_bq()` below, driven
+from an explicit list of prefixes rather than inferred from changed `.sql`
+files. Nothing here is dataset-specific.
 
 RESUMABLE, BECAUSE IT IS SLOW
 -----------------------------
@@ -28,10 +30,10 @@ the table-approve run of 2026-09-29 (`licitacao_item`, 10,380 blobs, 3m13s).
 one-file-per-município-per-exercise parquet -- so a full pass is roughly 2h15m.
 
 Re-running after a failure is WORSE than the first pass, not better: once data
-sits in the destination, `sync_bucket` adds a backup pass and a delete pass
-before copying, close to tripling the work per mirror. So a mirror whose
-destination blob count already equals the source's is skipped. `--force` copies
-it regardless.
+sits in the destination, `copy_staging_to_prod` adds a backup pass and a
+delete pass before copying, close to tripling the work per mirror. So a
+mirror whose destination blob count already equals the source's is skipped.
+`--force` copies it regardless.
 
 MATERIALISATION
 ---------------
@@ -56,13 +58,72 @@ import basedosdados as bd
 from prefect.client.schemas.objects import FlowRun
 from prefect.deployments import run_deployment
 
-# Same directory; reuse rather than restate the sync-and-create sequence.
+# Same directory; reuse rather than restate the error-log printing.
 from prefect_run_dbt import (  # pyrefly: ignore [missing-import]
     DBT_MODEL_DEPLOYMENT,
     PREFECT_UI_URL,
     print_flow_run_error_logs,
-    push_table_to_bq,
 )
+
+from pipelines.utils.materialize_prod.tasks import (
+    copy_staging_to_prod,
+    sync_prod_staging_table,
+)
+
+
+def push_table_to_bq(
+    dataset_id: str,
+    table_id: str,
+    source_bucket_name="basedosdados-dev",
+    destination_bucket_name="basedosdados",
+    backup_bucket_name="basedosdados-backup",
+    user_project: str = "basedosdados",
+) -> bool:
+    """Syncs staging data from dev to prod bucket and recreates the BigQuery table.
+
+    Mesma lógica usada pelo `pipelines` (`build_and_promote`, via
+    `transfer_files_to_prod_flow`) — ver `ftwca/investigacoes/pipelines/
+    promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md` pro desenho
+    completo. Chamada sem `folders`: promove a tabela inteira (backup do
+    staging de prod atual + recriação da definição).
+
+    Args:
+        dataset_id: Dataset ID in basedosdados.
+        table_id: Table ID in basedosdados.
+        source_bucket_name: Bucket containing the approved data. Defaults to
+            ``basedosdados-dev``.
+        destination_bucket_name: Bucket to promote the data to. Defaults to
+            ``basedosdados``.
+        backup_bucket_name: Bucket for backing up the previous prod data. Defaults
+            to ``basedosdados-backup``.
+        user_project: GCP project to bill for bucket requests. Defaults to
+            ``basedosdados``.
+
+    Returns:
+        True if the table was successfully created; False if no data was found in
+        the source bucket.
+    """
+    try:
+        sample_path = copy_staging_to_prod.fn(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_bucket=source_bucket_name,
+            destination_bucket=destination_bucket_name,
+            backup_bucket=backup_bucket_name,
+            billing_project=user_project,
+        )
+    except FileNotFoundError:
+        print(f"Table {dataset_id}.{table_id} does not have data in storage.")
+        return False
+
+    sync_prod_staging_table.fn(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        sample_path=sample_path,
+        bucket_name=destination_bucket_name,
+        recreate=True,
+    )
+    return True
 
 
 def blob_count(
@@ -176,9 +237,9 @@ def materialise(
     # `table_id=None` makes run_dbt_task select `models/<dataset_id>`, so dbt
     # builds parents before children. Per-table runs cannot do that, but they do
     # export each table's public CSV.
-    runs = [(None, False)] if all_models else [(m, True) for m in models]
+    runs: list[str | None] = [None] if all_models else list(models)
 
-    for table_id, alias in runs:
+    for table_id in runs:
         label = table_id or "<whole dataset, dbt DAG order>"
         print(f"Launching materialization flow for {dataset_id}.{label}...")
         # `run_deployment` is synchronous here -- there is no running loop -- but
@@ -191,7 +252,6 @@ def materialise(
                 "dataset_id": dataset_id,
                 "table_id": table_id,
                 "dbt_command": "run",
-                "dbt_alias": alias,
                 "target": target,
                 "download_csv_file": target == "prod" and table_id is not None,
             },
