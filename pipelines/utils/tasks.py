@@ -85,7 +85,7 @@ def _bq_safe_column_name(name: str) -> str:
 
 def _sync_staging_schema(
     tb: bd.Table,
-    data_path: str | Path,
+    data_sample_path: str | Path,
     source_format: str,
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
@@ -111,12 +111,13 @@ def _sync_staging_schema(
 
     Args:
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
-        data_path: arquivo ou diretório com os dados que serão carregados.
-        source_format: `"csv"` ou `"parquet"`.
+        data_sample_path: arquivo de amostra já resolvido por `dump_header`
+            (não o dado bruto — o chamador resolve `dump_header` antes).
+        source_format: formato real já resolvido por `dump_header`
+            (`"csv"` ou `"parquet"`).
     """
-    header_path = dump_header(data_path=data_path, source_format=source_format)
     incoming = tb._load_staging_schema_from_data(
-        data_sample_path=header_path, source_format=source_format
+        data_sample_path=data_sample_path, source_format=source_format
     )
 
     # O cliente da lib é quem criou a tabela externa e escreve no prefixo. Abrir
@@ -180,7 +181,7 @@ def _upload_to_gcs(
 
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
-            header_path = dump_header(
+            header_path, source_format = dump_header(
                 data_path=data_path, source_format=source_format
             )
             tb.create(
@@ -197,9 +198,12 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            header_path, source_format = dump_header(
+                data_path=data_path, source_format=source_format
+            )
             _sync_staging_schema(
                 tb=tb,
-                data_path=data_path,
+                data_sample_path=header_path,
                 source_format=source_format,
             )
 
@@ -210,7 +214,7 @@ def _upload_to_gcs(
             )
             tb.delete(mode="all")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
-        header_path = dump_header(
+        header_path, source_format = dump_header(
             data_path=data_path, source_format=source_format
         )
         tb.create(

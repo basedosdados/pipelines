@@ -7,15 +7,12 @@ from __future__ import annotations
 
 from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.tasks import (
-    download_files_from_bucket_folders,
+    copy_staging_to_prod,
+    sync_prod_staging_table,
 )
 from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.metadata.tasks import register_table_materialization_task
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.tasks import rename_flow_run_dataset_table, run_dbt
 
 
 @flow(
@@ -37,21 +34,30 @@ def transfer_files_to_prod_flow(
     dump_mode: str = "append",
     source_format: str = "csv",
 ) -> None:
-    """Baixa do staging de dev, sobe no staging de prod, materializa,
-    testa e registra a materialização de uma tabela.
+    """Copia o staging de dev pro staging de prod (cópia server-side, sem
+    baixar/subir pelo worker), materializa, testa e registra a
+    materialização de uma tabela.
+
+    Mesma função usada pelo `table-approve` (via
+    `.github/workflows/scripts/prefect_run_dbt.py`) — ver
+    `ftwca/investigacoes/pipelines/
+    promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md` pro desenho
+    completo.
 
     Args:
         dataset_id: ID do dataset no backend/BigQuery.
         table_id: ID da tabela no backend/BigQuery.
-        folders: pastas de partição estilo Hive a transferir (ex.
-            `["ano=2026/mes=09"]`). `None` pra tabela sem partição —
-            transfere `staging/{dataset_id}/{table_id}/` inteiro.
+        folders: pastas de partição estilo Hive a promover (ex.
+            `["ano=2026/mes=09"]`). `None` promove a tabela inteira —
+            inclui backup do staging de prod atual e recriação completa da
+            definição da tabela, igual ao comportamento atual do
+            `table-approve`. Com `folders`, só os blobs indicados são
+            copiados e só colunas novas são sincronizadas ao schema.
         source_bucket: bucket de origem (requester-pays).
         download_billing_project: projeto cobrado pelo acesso
             requester-pays ao `source_bucket`.
-        materialize_after_dump: quando `False`, só baixa os arquivos e
-            encerra — não sobe pro prod, não roda dbt, não registra
-            metadado.
+        materialize_after_dump: quando `False`, só copia os arquivos e
+            encerra — não roda dbt, não registra metadado.
         dbt_command: comando dbt a rodar em prod (`"run"`, `"test"`,
             `"run/test"`, ...).
         coverage: `CoverageSpec` já validado, se disponível — útil pra
@@ -61,15 +67,17 @@ def transfer_files_to_prod_flow(
         env: backend de destino.
         bq_project: projeto BigQuery onde a tabela vive.
         prefect_mode: resolve o projeto de billing.
-        dump_mode: modo de escrita no BigQuery pro upload em prod — deve
-            bater com o `dump_mode` usado no upload pro staging de dev
-            (`ExtractAndLoad.dump_mode`). Default `"append"` cobre
-            invocação manual sem esse valor.
-        source_format: formato do arquivo em staging (`"csv"` ou
-            `"parquet"`) — deve bater com `ExtractAndLoad.source_format`.
-            Default `"csv"` cobre invocação manual sem esse valor; um
-            dataset em `"parquet"` que não passar isso corretamente falha
-            com `FileNotFoundError` (procuraria `.csv`).
+        dump_mode: vestigial — a cópia server-side não depende mais do
+            modo de escrita declarado (`copy_staging_to_prod`/
+            `sync_prod_staging_table` decidem o comportamento a partir de
+            `folders`). Mantido só pra não quebrar o caller atual
+            (`build_and_promote`); remoção completa de `dump_mode` e
+            `source_format` como parâmetros fica pra uma passada dedicada
+            depois, feita de uma vez — ver nota em
+            `promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md`.
+        source_format: formato esperado do arquivo em staging (`"csv"` ou
+            `"parquet"`) — só uma expectativa a conferir; `dump_header`
+            detecta o formato real e não quebra mais se divergir.
     """
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
@@ -77,7 +85,7 @@ def transfer_files_to_prod_flow(
         table_id=table_id,
     )
 
-    output_filepath = download_files_from_bucket_folders(
+    sample_path = copy_staging_to_prod(
         dataset_id=dataset_id,
         table_id=table_id,
         folders=folders,
@@ -88,17 +96,22 @@ def transfer_files_to_prod_flow(
     if not materialize_after_dump:
         return
 
+    # Sem folders: promoção completa (backup + recriação da tabela, igual
+    # ao table-approve atual). Com folders: promoção parcial (só sincroniza
+    # colunas novas ao schema existente).
+    is_full_promotion = folders is None
+
     # Chamadas diretas (síncronas e bloqueantes): garantem a ordem
-    # upload → dbt → register e propagam falhas para o flow run. Usar
+    # sync → dbt → register e propagam falhas para o flow run. Usar
     # .submit() aqui faria o flow retornar antes das tasks terminarem e o
     # task runner cancelaria as pendentes ("cancelled by the runtime").
-    upload_to_gcs(
-        data_path=output_filepath,
+    sync_prod_staging_table(
         dataset_id=dataset_id,
         table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode=dump_mode,
+        sample_path=sample_path,
         source_format=source_format,
+        bucket_name="basedosdados",
+        recreate=is_full_promotion,
     )
 
     run_dbt(
