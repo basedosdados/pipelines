@@ -2,8 +2,6 @@
 Constantes de br_stn_capag.
 """
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-
 MUNICIPIOS_TABLE_ID = "municipios"
 ESTADOS_TABLE_ID = "estados"
 BASE_CALCULO_TABLE_ID = "municipios_base_calculo"
@@ -230,9 +228,4 @@ CHAVE_UNICA_BASE_CALCULO = (
     "codigo_conta",
     "conta",
     "detalhe",
-)
-
-COVERAGE = AllFree(
-    date_column=DateOnly(col="data_referencia"),
-    date_format=DateFormat.YEAR_MD,
 )

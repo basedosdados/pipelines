@@ -13,8 +13,10 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, data_referencia, id_municipio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.75
           ignore_values:
+            - populacao
+            - ano_base
             - indicador_endividamento_revisao
             - nota_endividamento_revisao
             - indicador_poupanca_corrente_revisao
@@ -49,19 +51,31 @@ models:
           líquida), em proporção
       - name: nota_endividamento
         description: Nota (A, B ou C) atribuída ao indicador de endividamento
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: indicador_poupanca_corrente
         description: Indicador 2 - poupança corrente (despesas correntes / receitas
           correntes ajustadas), em proporção
       - name: nota_poupanca_corrente
         description: Nota (A, B ou C) atribuída ao indicador de poupança corrente
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: indicador_liquidez
         description: Indicador 3 - liquidez (obrigações financeiras / disponibilidade
           de caixa), em proporção
       - name: nota_liquidez
         description: Nota (A, B ou C) atribuída ao indicador de liquidez
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: nota_capag
         description: Nota final da capacidade de pagamento, combinação das notas dos
           três indicadores
+        tests:
+          - accepted_values:
+              values: [A+, A, B+, B, C, D]
       - name: ano_base
         description: Ano dos dados contábeis de que veio a nota do município, conforme
           a fonte (`Ano_Base` ou `Origem da Nota Final`). Vazio até 2021
@@ -71,20 +85,32 @@ models:
       - name: nota_endividamento_revisao
         description: Nota do indicador de endividamento após a revisão da STN (apenas
           2022)
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: indicador_poupanca_corrente_revisao
         description: Indicador 2 - poupança corrente após a revisão da STN, em proporção
           (apenas 2022)
       - name: nota_poupanca_corrente_revisao
         description: Nota do indicador de poupança corrente após a revisão da STN
           (apenas 2022)
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: indicador_liquidez_revisao
         description: Indicador 3 - liquidez após a revisão da STN, em proporção (apenas
           2022)
       - name: nota_liquidez_revisao
         description: Nota do indicador de liquidez após a revisão da STN (apenas 2022)
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: nota_capag_revisao
         description: Nota final da capacidade de pagamento após a revisão da STN (apenas
           2022)
+        tests:
+          - accepted_values:
+              values: [A+, A, B+, B, C, D]
   - name: br_stn_capag__estados
     description: >
       Capacidade de Pagamento (CAPAG) dos estados brasileiros, apurada pela
@@ -97,7 +123,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, data_referencia, sigla_uf]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.80
     columns:
       - name: ano
         description: Ano da CAPAG
@@ -116,16 +142,28 @@ models:
         description: Indicador 1 - endividamento, em proporção
       - name: nota_endividamento
         description: Nota atribuída ao indicador de endividamento
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: indicador_poupanca_corrente
         description: Indicador 2 - poupança corrente, em proporção
       - name: nota_poupanca_corrente
         description: Nota atribuída ao indicador de poupança corrente
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: indicador_liquidez
         description: Indicador 3 - liquidez, em proporção
       - name: nota_liquidez
         description: Nota atribuída ao indicador de liquidez
+        tests:
+          - accepted_values:
+              values: [A, B, C]
       - name: nota_capag
         description: Nota final da capacidade de pagamento (A+, A, B+, B, C ou D)
+        tests:
+          - accepted_values:
+              values: [A+, A, B+, B, C, D]
   - name: br_stn_capag__municipios_base_calculo
     description: >
       Valores-base usados no cálculo dos indicadores da CAPAG dos municípios,
@@ -146,6 +184,9 @@ models:
             - codigo_conta
             - conta
             - detalhe
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          ignore_values: [tipo, codigo_conta]
     columns:
       - name: ano_base
         description: Ano a que se refere o valor (exercício, na DCA e no RGF)

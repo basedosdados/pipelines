@@ -2,9 +2,11 @@
 
 Capacidade de Pagamento (CAPAG) de municípios e estados, apurada pela Secretaria do
 Tesouro Nacional (STN) a partir do Siconfi: três indicadores (endividamento, poupança
-corrente e liquidez), a nota de cada um e a nota final.
+corrente e liquidez), a nota de cada um e a nota final. Também traz a base de cálculo dos
+municípios (`municipios_base_calculo`): os valores da DCA, RGF e RREO usados nos indicadores.
 
-- Fonte: Tesouro Transparente, API CKAN (`capag-municipios` e `capag-estados`)
+- Fonte: Tesouro Transparente, API CKAN (`capag-municipios` e `capag-estados`); a base de
+  cálculo vem da aba `Datalake` dos arquivos de municípios
 - Código: `pipelines/datasets/br_stn_capag/` e `models/br_stn_capag/`
 
 ## A fonte
@@ -119,13 +121,13 @@ Uma versão nova da fonte com outro nome de coluna faz o tratamento parar com
 Em `municipios`: `ano`, `data_referencia`, `sigla_uf`, `id_municipio`, `populacao`,
 `indicador_endividamento`, `nota_endividamento`, `indicador_poupanca_corrente`,
 `nota_poupanca_corrente`, `indicador_liquidez`, `nota_liquidez`, `nota_capag`, `ano_base` e as sete
-colunas `*_revisao`. Em `estados` são as mesmas sem `id_municipio`, `populacao` e as de
+colunas `*_revisao`. Em `estados` são as mesmas sem `id_municipio`, `ano_base`, `populacao` e as de
 revisão. Em `municipios_base_calculo`: `id_municipio`, `ano_base`, `demonstrativo`
 (`dca`, `rgf` ou `rreo`), `tipo` (só DCA: `DO`, `RO` ou `RI`), `codigo_conta` (só DCA),
 `conta`, `detalhe`, `valor` e `data_referencia`.
 
 `ano` (o ano do nome do recurso) é a partição Hive: o CSV sai em
-`tmp/<tabela>/output/ano=AAAA/<nome do recurso>.csv`, sem a coluna `ano`. Cada recurso é
+`tmp/br_stn_capag/<tabela>/output/ano=AAAA/<nome do recurso>.csv`, sem a coluna `ano`. Cada recurso é
 um arquivo, então os vários recortes de um ano convivem na mesma partição. Em
 `municipios_base_calculo` o `ano` do arquivo também é a partição Hive, mas ele não vira
 coluna do modelo: a tabela final é particionada por `ano_base`.
@@ -143,6 +145,14 @@ Cada tabela (`municipios`, `estados` e `municipios_base_calculo`) tem um par de 
    o `build_and_promote` roda o dbt e promove a partição.
 
 A cobertura é `AllFree`, com `data_referencia` como coluna de data.
+
+### Agendamento
+
+Só o `check_update` é agendado, nas três tabelas, com o mesmo cron: toda segunda-feira às
+9h (`America/Sao_Paulo`). A base é atualizada a cada quadrimestre, mas a STN não tem data
+fixa de publicação, então a checagem é semanal e as execuções sem recurso novo não
+disparam o `_download`. O `_download` roda só quando o `check_update` o dispara ou
+manualmente.
 
 `municipios_base_calculo` segue o mesmo par de flows e os mesmos `download_params`, mas só
 considera os recursos com aba `Datalake` (2024 em diante): `historico` baixa todos eles, e a
@@ -167,13 +177,19 @@ em diante.
 `br_stn_capag__estados` e `br_stn_capag__municipios_base_calculo`). `municipios` e
 `estados` são particionados por `ano` (2018 a 2030); `municipios_base_calculo` é
 particionado por `ano_base` (2018 a 2030) e clusterizado por `id_municipio`. O
-`schema.yaml` traz:
+`schema.yml` traz:
 
 - `unique_combination_of_columns`: `ano` + `data_referencia` + `id_municipio` (ou
   `sigla_uf`, em estados);
 - `relationships` de `id_municipio` com `br_bd_diretorios_brasil__municipio` e de
   `sigla_uf` com `br_bd_diretorios_brasil__uf`;
-- `not_null` em `ano`, `data_referencia` e nas chaves.
+- `not_null` em `ano`, `data_referencia` e nas chaves;
+- `accepted_values` nas notas: `A`, `B` e `C` nas notas dos indicadores, e `A+`, `A`, `B+`,
+  `B`, `C` e `D` na `nota_capag` (inclusive nas colunas `*_revisao`);
+- `not_null_proportion_multiple_columns`, o piso de preenchimento por coluna: `0.75` em
+  `municipios` (ignorando `populacao`, `ano_base` e as `*_revisao`, nulas por construção),
+  `0.80` em `estados` e `0.95` em `municipios_base_calculo` (ignorando `tipo` e
+  `codigo_conta`, que só existem na DCA).
 
 Em `municipios_base_calculo`, a unicidade é `ano_base` + `data_referencia` + `id_municipio` +
 `demonstrativo` + `tipo` + `codigo_conta` + `conta` + `detalhe`, com `accepted_values` em `demonstrativo`

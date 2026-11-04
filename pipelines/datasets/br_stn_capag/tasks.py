@@ -9,7 +9,6 @@ from pathlib import Path
 
 from pipelines.datasets.br_stn_capag.constants import (
     BASE_CALCULO_TABLE_ID,
-    COVERAGE,
     DATASET_ID,
     MIN_YEAR,
 )
@@ -65,7 +64,6 @@ def make_extract_load_data(
             write_partitioned(df, output_dir, resource)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=str(output_dir),
             dump_mode="overwrite" if historico else "append",
         )
