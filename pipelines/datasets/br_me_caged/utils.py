@@ -128,6 +128,27 @@ def month_partition_paths(
     )
 
 
+def count_rows_read_by_month(table_input_dir: str | Path) -> dict[str, int]:
+    """Conta as linhas de dado de cada `.txt` baixado, pela partição do mês.
+
+    Args:
+        table_input_dir: Pasta com os `.txt` baixados, um por mês.
+
+    Returns:
+        As linhas de cada mês, com a partição como chave, como
+        `{"ano=2026/mes=8": 1500}`.
+    """
+    rows_read = {}
+
+    for path in Path(table_input_dir).glob("*txt"):
+        year_month = year_month_from_filename(path)
+        year = year_month[:4]
+        month = int(year_month[-2:])
+        rows_read[f"ano={year}/mes={month}"] = count_data_rows(path)
+
+    return rows_read
+
+
 def count_competence_violations(
     competences: pd.DataFrame, table_id: str, year_month: str
 ) -> int:
