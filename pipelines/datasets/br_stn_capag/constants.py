@@ -57,10 +57,15 @@ _INDICADORES = {
     "nota_3_revisao": "nota_liquidez_revisao",
     "capag_revisao": "nota_capag_revisao",
     "capag": "nota_capag",
-    "capag_2022": "nota_capag",
-    "capag_oficial": "nota_capag",
+    "capag_oficial": "capag_oficial",
     "classificacao_capag": "nota_capag",
     "classificacao_da_capag": "nota_capag",
+}
+
+_COMPLEMENTOS = {
+    "icf": "icf",
+    "qualidade_da_informacao_contabil_e_fiscal": "icf",
+    "observacao": "observacao",
 }
 
 COLUNAS_FONTE = {
@@ -73,15 +78,22 @@ COLUNAS_FONTE = {
         "ano_base": "ano_base",
         "origem_da_nota_final": "ano_base",
         **_INDICADORES,
+        **_COMPLEMENTOS,
     },
-    ESTADOS_TABLE_ID: {"uf": "sigla_uf", **_INDICADORES},
+    ESTADOS_TABLE_ID: {"uf": "sigla_uf", **_INDICADORES, **_COMPLEMENTOS},
 }
 
 # Colunas que o cabeçalho precisa ter.
 COLUNAS_OBRIGATORIAS = {
-    MUNICIPIOS_TABLE_ID: ("id_municipio", "sigla_uf", "nota_capag"),
-    ESTADOS_TABLE_ID: ("sigla_uf", "nota_capag"),
+    MUNICIPIOS_TABLE_ID: ("id_municipio", "sigla_uf"),
+    ESTADOS_TABLE_ID: ("sigla_uf",),
 }
+
+# O cabeçalho também precisa ter ao menos uma destas
+COLUNAS_NOTA_FINAL = ("nota_capag", "capag_oficial")
+
+# Colunas de texto (além das `nota_*`)
+COLUNAS_TEXTO = ("capag_oficial", "icf", "observacao")
 
 # Só municípios 2022 traz colunas de revisão; nos demais arquivos ficam nulas.
 COLUNAS_REVISAO = [
@@ -106,6 +118,9 @@ COLUNAS_SAIDA = {
         "indicador_liquidez",
         "nota_liquidez",
         "nota_capag",
+        "capag_oficial",
+        "icf",
+        "observacao",
         "ano_base",
         *COLUNAS_REVISAO,
         "data_referencia",
@@ -119,6 +134,8 @@ COLUNAS_SAIDA = {
         "indicador_liquidez",
         "nota_liquidez",
         "nota_capag",
+        "icf",
+        "observacao",
         "data_referencia",
     ),
 }

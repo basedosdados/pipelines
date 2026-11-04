@@ -24,6 +24,9 @@ select
     safe_cast(indicador_liquidez as float64) indicador_liquidez,
     safe_cast(nota_liquidez as string) nota_liquidez,
     safe_cast(nota_capag as string) nota_capag,
+    safe_cast(capag_oficial as string) capag_oficial,
+    safe_cast(icf as string) icf,
+    safe_cast(observacao as string) observacao,
     safe_cast(ano_base as int64) ano_base,
     safe_cast(
         indicador_endividamento_revisao as float64

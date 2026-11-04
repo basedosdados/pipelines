@@ -60,13 +60,14 @@ estados 2024. Valem duas regras:
   O ponto de atenção é a forma de uso dos dados revisados: não há certeza se eles substituem 
   integralmente aqueles não revisados; há também a coluna de "Precisa de Revisão" na origem e valores
   `n.d.` na revisão viram nulo, então não se distingue "sem revisão" de "revisado, sem
-  dado". A fonte também traz `CAPAG_Oficial`, que não foram levadas.
+  dado". A fonte também traz `CAPAG_Oficial`, que vai para a coluna `capag_oficial` (ver
+  [A nota CAPAG](#a-nota-capag)).
 
 Limite: o `append` de uma revisão sobre um ano já carregado duplica a chave no staging, e
 o `check_update` não a percebe (a data é a mesma do recurso do ano). Para as duas
 revisões que existem, a carga com `historico` resolve.
 
-A STN não documenta a regra de revisão de 2022 (nem o que é `CAPAG_Oficial`), então a
+A STN não documenta a regra de revisão de 2022 (nem o que é `CAPAG_Oficial`, que fica em `capag_oficial`), então a
 tabela guarda as duas versões e quem consome decide qual usar.
 
 ### Achar a tabela dentro do arquivo
@@ -95,10 +96,33 @@ Os arquivos não têm um formato só, então a leitura não usa posição fixa:
 | `nota_poupanca_corrente` | `Nota 2`, `Nota_2` |
 | `indicador_liquidez` | `Indicador 3`, `Indicador_3` |
 | `nota_liquidez` | `Nota 3`, `Nota_3` |
-| `nota_capag` | `Classificação_CAPAG`, `Classificação da CAPAG`, `CAPAG_2022`, `CAPAG_Oficial`, `CAPAG` |
+| `nota_capag` | `Classificação_CAPAG`, `Classificação da CAPAG`, `CAPAG` |
+| `capag_oficial` | `CAPAG_Oficial` (só 2022 revisão e 2023) |
+| `icf` | `ICF` (municípios), `Qualidade da informação contábil e fiscal` (estados); a partir de 2024 |
+| `observacao` | `Observação` (municípios a partir de 2024; estados em alguns anos) |
 
 Uma versão nova da fonte com outro nome de coluna faz o tratamento parar com
 `cabeçalho não encontrado`; basta acrescentar a variação em `COLUNAS_FONTE`.
+
+### A nota CAPAG
+
+A coluna de nota CAPAG aparece com nomes diferentes nos arquivos fonte. Em alguns deles há
+duas versões:
+
+- Na revisão de 2022, há `Classificação_CAPAG`, que se supõe ser a nota prévia, e
+  `CAPAG_Oficial`, que se supõe ser a nota revisada. A primeira vai para `nota_capag`, e a
+  segunda para `capag_oficial`.
+- Em 2023, há apenas `CAPAG_Oficial` (vai para `capag_oficial`, e `nota_capag` fica nula).
+  Nos demais anos prevalece `Classificação_CAPAG` (2018 e 2021), `Classificação da CAPAG`
+  (2019 e 2020) ou apenas `CAPAG` (2024 em diante), todas para `nota_capag`. Em estados, é
+  sempre `Classificação da CAPAG`.
+- Em 2026 (arquivo de 01/09/2026), há duas colunas homônimas `CAPAG`: a da coluna 3, na
+  tabela principal, e a da coluna 27, numa tabela-apêndice não formatada. A que vai para o
+  staging é a da coluna 3.
+
+`ICF` e `Observação` aparecem a partir de 2024 em municípios. Em estados, o ICF vem como
+`Qualidade da informação contábil e fiscal` (2024 e 2025), e `Observação` aparece em alguns
+anos (2020, 2022, 2023, 2024 e 2025). As quebras de linha da observação viram espaço.
 
 ### Armadilhas dos arquivos
 
@@ -109,8 +133,9 @@ Uma versão nova da fonte com outro nome de coluna faz o tratamento parar com
 - **Sem dado:** `n.d.`, `n.e.`, `-` e vazio viram nulo (`NULL_TOKENS`). Em 2024 em
   diante, municípios sem nota final vêm como `n.e.` (a prévia não pôde ser calculada).
 - **Percentual:** estados 2019 e 2020 trazem `0,8287` (vírgula decimal), os demais `82,07%`. Tudo vira proporção (`0.8207`), a mesma escala dos municípios.
-- **Colunas que não existem:** `populacao` de 2024 em diante, e as notas dos
-  indicadores de estados em 2018, ficam nulas.
+- **Colunas que não existem:** `populacao` de 2024 em diante, as notas dos
+  indicadores de estados em 2018, `capag_oficial` (fora de 2022 e 2023) e `icf` e
+  `observacao` (antes de 2024), ficam nulas.
 - **Rodapés:** linhas sem código IBGE (municípios) ou sem sigla de 2 letras (estados)
   são descartadas.
 - **Validação:** o tratamento levanta erro com menos de `MIN_ROWS` linhas (5.000 em
@@ -120,9 +145,9 @@ Uma versão nova da fonte com outro nome de coluna faz o tratamento parar com
 
 Em `municipios`: `ano`, `data_referencia`, `sigla_uf`, `id_municipio`, `populacao`,
 `indicador_endividamento`, `nota_endividamento`, `indicador_poupanca_corrente`,
-`nota_poupanca_corrente`, `indicador_liquidez`, `nota_liquidez`, `nota_capag`, `ano_base` e as sete
-colunas `*_revisao`. Em `estados` são as mesmas sem `id_municipio`, `ano_base`, `populacao` e as de
-revisão. Em `municipios_base_calculo`: `id_municipio`, `ano_base`, `demonstrativo`
+`nota_poupanca_corrente`, `indicador_liquidez`, `nota_liquidez`, `nota_capag`, `capag_oficial`, `icf`,
+`observacao`, `ano_base` e as sete colunas `*_revisao`. Em `estados` são as mesmas sem
+`id_municipio`, `ano_base`, `populacao`, `capag_oficial` e as de revisão. Em `municipios_base_calculo`: `id_municipio`, `ano_base`, `demonstrativo`
 (`dca`, `rgf` ou `rreo`), `tipo` (só DCA: `DO`, `RO` ou `RI`), `codigo_conta` (só DCA),
 `conta`, `detalhe`, `valor` e `data_referencia`.
 
@@ -185,10 +210,11 @@ particionado por `ano_base` (2018 a 2030) e clusterizado por `id_municipio`. O
   `sigla_uf` com `br_bd_diretorios_brasil__uf`;
 - `not_null` em `ano`, `data_referencia` e nas chaves;
 - `accepted_values` nas notas: `A`, `B` e `C` nas notas dos indicadores, e `A+`, `A`, `B+`,
-  `B`, `C` e `D` na `nota_capag` (inclusive nas colunas `*_revisao`);
+  `B`, `C` e `D` na `nota_capag` e na `capag_oficial` (inclusive nas colunas `*_revisao`), e
+  `Aicf` a `Eicf` no `icf`;
 - `not_null_proportion_multiple_columns`, o piso de preenchimento por coluna: `0.75` em
-  `municipios` (ignorando `populacao`, `ano_base` e as `*_revisao`, nulas por construção),
-  `0.80` em `estados` e `0.95` em `municipios_base_calculo` (ignorando `tipo` e
+  `municipios` (ignorando `populacao`, `ano_base`, `capag_oficial`, `icf`, `observacao` e as `*_revisao`,
+  nulas por construção), `0.80` em `estados` (ignorando `icf` e `observacao`) e `0.95` em `municipios_base_calculo` (ignorando `tipo` e
   `codigo_conta`, que só existem na DCA).
 
 Em `municipios_base_calculo`, a unicidade é `ano_base` + `data_referencia` + `id_municipio` +

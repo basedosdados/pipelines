@@ -21,10 +21,12 @@ from pipelines.datasets.br_stn_capag.constants import (
     CHAVE_UNICA_BASE_CALCULO,
     CKAN_PACKAGES,
     COLUNAS_FONTE,
+    COLUNAS_NOTA_FINAL,
     COLUNAS_NUMERICAS,
     COLUNAS_OBRIGATORIAS,
     COLUNAS_SAIDA,
     COLUNAS_SAIDA_BASE_CALCULO,
+    COLUNAS_TEXTO,
     CONTAS_DATALAKE,
     DATA_FORMATS,
     DATALAKE_ID_COLUMN,
@@ -340,7 +342,8 @@ def _extract_records(
 ) -> list[dict[str, Any]] | None:
     """Acha o cabeçalho nas primeiras linhas e lê os dados abaixo dele.
 
-    O cabeçalho é a linha que mapeia, via `COLUNAS_FONTE`, todas as `COLUNAS_OBRIGATORIAS`.
+    O cabeçalho é a linha que mapeia, via `COLUNAS_FONTE`, todas as
+    `COLUNAS_OBRIGATORIAS` e ao menos uma de `COLUNAS_NOTA_FINAL`.
 
     Returns:
         Um dicionário por linha de dados, com as colunas já renomeadas;
@@ -359,7 +362,10 @@ def _extract_records(
                 name = aliases.get(_slugify(str(cell))) if cell else None
                 if name and name not in mapped.values():
                     mapped[position] = name
-            if required <= set(mapped.values()):
+            found = set(mapped.values())
+            if required <= found and any(
+                col in COLUNAS_NOTA_FINAL for col in found
+            ):
                 header = mapped
             continue
         records.append(
@@ -456,8 +462,12 @@ def process_records(
         if column in df.columns:
             df[column] = df[column].map(_to_number)
     for column in df.columns:
-        if column.startswith("nota_"):
+        if column.startswith("nota_") or column in COLUNAS_TEXTO:
             df[column] = df[column].map(_clean_text)
+    # Quebra de linha dentro do CSV pode travar a carga no staging.
+    df["observacao"] = df["observacao"].map(
+        lambda value: None if value is None else " ".join(value.split())
+    )
     df["data_referencia"] = resource["reference_date"]
     df["data_criacao"] = resource["created"]
     df["data_modificacao"] = resource["last_modified"]

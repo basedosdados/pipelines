@@ -17,6 +17,9 @@ models:
           ignore_values:
             - populacao
             - ano_base
+            - capag_oficial
+            - icf
+            - observacao
             - indicador_endividamento_revisao
             - nota_endividamento_revisao
             - indicador_poupanca_corrente_revisao
@@ -76,6 +79,22 @@ models:
         tests:
           - accepted_values:
               values: [A+, A, B+, B, C, D]
+      - name: capag_oficial
+        description: Nota final da coluna `CAPAG_Oficial` da fonte, que só existe
+          nos arquivos de 2022 (revisão) e de 2023. Em 2023 é a única nota final e
+          `nota_capag` fica vazia. A STN não documenta a diferença para `nota_capag`
+        tests:
+          - accepted_values:
+              values: [A+, A, B+, B, C, D]
+      - name: icf
+        description: Qualidade da informação contábil e fiscal (ICF), de `Aicf` a
+          `Eicf`. Disponível a partir de 2024
+        tests:
+          - accepted_values:
+              values: [Aicf, Bicf, Cicf, Dicf, Eicf]
+      - name: observacao
+        description: Observação da STN sobre o município, a partir de 2024. As quebras
+          de linha viram espaço
       - name: ano_base
         description: Ano dos dados contábeis de que veio a nota do município, conforme
           a fonte (`Ano_Base` ou `Origem da Nota Final`). Vazio até 2021
@@ -124,6 +143,7 @@ models:
           combination_of_columns: [ano, data_referencia, sigla_uf]
       - not_null_proportion_multiple_columns:
           at_least: 0.80
+          ignore_values: [icf, observacao]
     columns:
       - name: ano
         description: Ano da CAPAG
@@ -164,6 +184,15 @@ models:
         tests:
           - accepted_values:
               values: [A+, A, B+, B, C, D]
+      - name: icf
+        description: Qualidade da informação contábil e fiscal (ICF), de `Aicf` a
+          `Eicf`. Disponível a partir de 2024
+        tests:
+          - accepted_values:
+              values: [Aicf, Bicf, Cicf, Dicf, Eicf]
+      - name: observacao
+        description: Observação da STN sobre o estado, em alguns anos. As quebras
+          de linha viram espaço
   - name: br_stn_capag__municipios_base_calculo
     description: >
       Valores-base usados no cálculo dos indicadores da CAPAG dos municípios,
