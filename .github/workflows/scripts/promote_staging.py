@@ -30,8 +30,14 @@ one-file-per-município-per-exercise parquet -- so a full pass is roughly 2h15m.
 Re-running after a failure is WORSE than the first pass, not better: once data
 sits in the destination, `sync_bucket` adds a backup pass and a delete pass
 before copying, close to tripling the work per mirror. So a mirror whose
-destination blob count already equals the source's is skipped. `--force` copies
-it regardless.
+destination already holds the same blobs as the source -- same names, same
+content -- is skipped. `--force` copies it regardless.
+
+Content means md5, falling back to crc32c and then size for blobs that carry no
+md5 (composite objects). Comparing blob COUNT alone, as this script first did,
+verifies almost nothing for a single-file mirror: `world_wb_mides`'s
+`orgao_unidade_gestora` held one blob in each bucket with different content, so
+every run skipped it and prod stayed 4,197 rows short from 2024 on.
 
 MATERIALISATION
 ---------------
@@ -51,6 +57,8 @@ contributor machine does not have -- see `.claude/rules/onboarding-workflow.md`.
 
 import sys
 from argparse import ArgumentParser
+from collections import Counter
+from typing import NamedTuple
 
 import basedosdados as bd
 from prefect.client.schemas.objects import FlowRun
@@ -65,27 +73,115 @@ from prefect_run_dbt import (  # pyrefly: ignore [missing-import]
 )
 
 
-def blob_count(
+class BlobDigest(NamedTuple):
+    """What identifies one blob's content, as GCS reports it in a listing."""
+
+    name: str  # path relative to the mirror's prefix
+    md5: str | None  # absent on composite objects
+    crc32c: str | None
+    size: int | None
+
+
+def list_digests(
     dataset_id: str, table_id: str, bucket_name: str, user_project: str
-) -> int:
-    """Number of blobs under `staging/<dataset_id>/<table_id>/` in a bucket.
+) -> list[BlobDigest]:
+    """Digests of every blob under `staging/<dataset_id>/<table_id>/` in a bucket.
 
     Args:
         dataset_id: Dataset ID in basedosdados.
         table_id: Staging table ID (a mirror name, not necessarily published).
-        bucket_name: Bucket to count in.
+        bucket_name: Bucket to list.
         user_project: GCP project billed for the requester-pays listing.
 
     Returns:
-        Blob count, 0 when the prefix does not exist.
+        One digest per blob, empty when the prefix does not exist.
     """
+    prefix = f"staging/{dataset_id}/{table_id}/"
     ref = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     blobs = (
         ref.client["storage_staging"]
         .bucket(bucket_name, user_project=user_project)
-        .list_blobs(prefix=f"staging/{dataset_id}/{table_id}/")
+        .list_blobs(prefix=prefix)
     )
-    return sum(1 for _ in blobs)
+    return [
+        BlobDigest(
+            name=blob.name.removeprefix(prefix),
+            md5=blob.md5_hash,
+            crc32c=blob.crc32c,
+            size=blob.size,
+        )
+        for blob in blobs
+    ]
+
+
+def _same_content(src: BlobDigest, dst: BlobDigest) -> tuple[bool, str]:
+    """Compare two blobs on the strongest digest both of them carry.
+
+    Returns:
+        Whether they match, and the digest that decided it.
+    """
+    if src.md5 and dst.md5:
+        return src.md5 == dst.md5, "md5"
+    if src.crc32c and dst.crc32c:
+        return src.crc32c == dst.crc32c, "crc32c"
+    return src.size == dst.size, "size"
+
+
+def needs_copy(
+    source: list[BlobDigest], destination: list[BlobDigest]
+) -> tuple[bool, str]:
+    """Decide whether a mirror must be copied, and say why.
+
+    The destination is current only when it holds exactly the source's blob
+    names and every one of them matches in content. Each pair is compared on
+    md5 when both carry it; a composite object has none, so the pair falls back
+    to crc32c, and to size if even that is missing.
+
+    Args:
+        source: Digests of the mirror in the source bucket.
+        destination: Digests of the mirror in the destination bucket.
+
+    Returns:
+        `(copy, reason)` -- `copy` is False only when the sets match exactly.
+    """
+    if not destination:
+        return True, "destination is empty"
+
+    src = {d.name: d for d in source}
+    dst = {d.name: d for d in destination}
+
+    only_src = sorted(src.keys() - dst.keys())
+    only_dst = sorted(dst.keys() - src.keys())
+    differing: list[str] = []
+    decided_by: Counter[str] = Counter()
+    for name in sorted(src.keys() & dst.keys()):
+        same, digest = _same_content(src[name], dst[name])
+        decided_by[digest] += 1
+        if not same:
+            differing.append(f"{name} ({digest})")
+
+    if not (only_src or only_dst or differing):
+        via = ", ".join(f"{n} by {d}" for d, n in sorted(decided_by.items()))
+        return False, f"all {len(src)} blobs match ({via})"
+
+    def sample(names: list[str]) -> str:
+        head = ", ".join(names[:3])
+        return head + (f" and {len(names) - 3} more" if len(names) > 3 else "")
+
+    reasons = []
+    if differing:
+        reasons.append(
+            f"{len(differing)} differ in content: {sample(differing)}"
+        )
+    if only_src:
+        reasons.append(
+            f"{len(only_src)} missing from destination: {sample(only_src)}"
+        )
+    if only_dst:
+        reasons.append(
+            f"{len(only_dst)} only in destination: {sample(only_dst)}"
+        )
+    return True, "; ".join(reasons)
 
 
 def promote(
@@ -107,7 +203,7 @@ def promote(
         destination_bucket: Bucket to promote the data to.
         backup_bucket: Bucket for backing up previous destination data.
         user_project: GCP project billed for requester-pays reads.
-        force: Copy even when the destination blob count already matches.
+        force: Copy even when the destination already matches the source.
         dry_run: Report what would happen and copy nothing.
 
     Returns:
@@ -116,27 +212,37 @@ def promote(
     failed: list[str] = []
     for i, table_id in enumerate(staging_tables, 1):
         head = f"[{i}/{len(staging_tables)}] {dataset_id}.{table_id}"
-        src = blob_count(dataset_id, table_id, source_bucket, user_project)
-        dst = blob_count(
+        source = list_digests(
+            dataset_id, table_id, source_bucket, user_project
+        )
+        destination = list_digests(
             dataset_id, table_id, destination_bucket, user_project
         )
+        src, dst = len(source), len(destination)
 
-        if src == 0:
+        if not source:
             print(f"{head}: MISSING in {source_bucket} -- nothing to promote")
             failed.append(table_id)
             continue
-        if dst == src and not force:
+        copy, reason = needs_copy(source, destination)
+        if not copy and not force:
             print(
-                f"{head}: already in {destination_bucket} ({src} blobs), skipped"
+                f"{head}: skipped, {destination_bucket} is current ({reason})"
             )
             continue
+        if force and not copy:
+            reason = f"--force, although {reason}"
         if dry_run:
             verb = "re-copy" if dst else "copy"
-            print(f"{head}: would {verb} {src} blobs (destination has {dst})")
+            print(
+                f"{head}: would {verb} {src} blobs (destination has {dst}): "
+                f"{reason}"
+            )
             continue
 
         print(
-            f"\n\n***  {head}: copying {src} blobs (destination has {dst})  ***"
+            f"\n\n***  {head}: copying {src} blobs (destination has {dst}): "
+            f"{reason}  ***"
         )
         created = push_table_to_bq(
             dataset_id=dataset_id,
@@ -240,7 +346,7 @@ def run_promote_staging() -> None:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="copy a mirror even when the destination blob count matches",
+        help="copy a mirror even when the destination already matches",
     )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
