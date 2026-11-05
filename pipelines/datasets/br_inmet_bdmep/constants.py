@@ -9,6 +9,8 @@ DATASET_ID = "br_inmet_bdmep"
 
 MICRODADOS_TABLE_ID = "microdados"
 
+ESTACAO_TABLE_ID = "estacao"
+
 
 class ConstantsMicrodados(Enum):
     """
@@ -27,6 +29,17 @@ class ConstantsMicrodados(Enum):
     }
 
     ENCODING = "ISO-8859-1"
+
+    HEADER_FIELDS = [
+        "regiao",
+        "sigla_uf",
+        "estacao",
+        "id_estacao",
+        "latitude",
+        "longitude",
+        "altitude",
+        "data_fundacao",
+    ]
 
     BASE_PATH = Path("tmp") / "data" / "microdados"
 
@@ -77,4 +90,24 @@ class ConstantsMicrodados(Enum):
         "vento_direcao",
         "vento_rajada_max",
         "vento_velocidade",
+    ]
+
+
+class ConstantsEstacao(Enum):
+    """
+    Constant values for the estacao table
+    """
+
+    PATH_OUTPUT = Path("tmp") / "data" / "estacao" / "output"
+
+    FOUNDATION_DATE_FORMATS = ["%d/%m/%y", "%d-%m-%y", "%Y/%m/%d", "%Y-%m-%d"]
+
+    COLUMNS_ORDER = [
+        "id_estacao",
+        "estacao",
+        "sigla_uf",
+        "latitude",
+        "longitude",
+        "altitude",
+        "data_fundacao",
     ]
