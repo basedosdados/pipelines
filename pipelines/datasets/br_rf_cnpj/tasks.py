@@ -17,8 +17,11 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     DOWNLOAD_MAX_PARALLEL,
     DOWNLOAD_MAX_RETRIES,
     DOWNLOAD_TIMEOUT,
+    EXPECTED_FILES_PER_TABLE,
+    EXPECTED_FILES_TOLERANCE,
     FOLDER_DATE_FORMAT,
     NON_HISTORICAL_TABLES,
+    ROW_LOSS_TOLERANCE,
     TABLE_COMPONENTS,
     URL,
 )
@@ -33,6 +36,8 @@ from pipelines.datasets.br_rf_cnpj.utils import (
     process_csv_simples,
     process_csv_socios,
     process_manual_dictionaries,
+    validate_expected_file_count,
+    validate_partition_rows,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -65,7 +70,7 @@ São 5 tabelas
         - simples/dicionario (NonHistorical): `last_modified_date` contra
         `Table.Update`.
 2. `extract_and_load`: `folder_date` e `last_modified_date` (em `extra_download_params`) usados em 
-`main`
+`download_and_process_files`
 """
 
 
@@ -96,7 +101,7 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
 
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        output_path = main(
+        output_path = download_and_process_files(
             tables=TABLE_COMPONENTS[table_id],
             folder_date=download_params["folder_date"],
             last_modified_date=datetime.date.fromisoformat(
@@ -111,7 +116,7 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
 
 
 @task(retries=3, retry_delay_seconds=30)
-def main(
+def download_and_process_files(
     tables: list[str],
     folder_date: str,
     last_modified_date: datetime.date,
@@ -153,19 +158,21 @@ def main(
                 table_configs["table_name"],
                 f"{URL}{folder_date}",
             )
+            # Falha cedo, antes de baixar GBs, se a RF mudou a divisão em arquivos
+            validate_expected_file_count(
+                table,
+                len(files),
+                EXPECTED_FILES_PER_TABLE[table],
+                EXPECTED_FILES_TOLERANCE,
+            )
+            done_dir = Path("tmp") / "br_rf_cnpj" / "done" / table
             for i, item in enumerate(files):
                 nome_arquivo = item[0]
                 url_download = item[1]
 
                 # Apenas um marcador (um arquivo vazio)
                 # Evita baixar e processar de novo o que já ficou pronto.
-                marcador = (
-                    Path("tmp")
-                    / "br_rf_cnpj"
-                    / "done"
-                    / table
-                    / f"{folder_date}_{i}"
-                )
+                marcador = done_dir / f"{folder_date}_{i}"
                 if marcador.exists():
                     log(f"{nome_arquivo} já processado; pulando.")
                     arquivos_baixados.append(nome_arquivo)
@@ -187,7 +194,7 @@ def main(
                     )
 
                     if table_configs["table_name"] == "Estabelecimentos":
-                        process_csv_estabelecimentos(
+                        stats = process_csv_estabelecimentos(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -196,6 +203,12 @@ def main(
                             last_modified_date,
                             i,
                             chunk_size,
+                        )
+                        # Antes do marcador: se falhar, o retry refaz o arquivo
+                        validate_partition_rows(
+                            **stats,
+                            tolerance=ROW_LOSS_TOLERANCE,
+                            arquivo=nome_arquivo,
                         )
 
                     elif table_configs["table_name"] == "Socios":
@@ -223,6 +236,13 @@ def main(
 
                     marcador.parent.mkdir(parents=True, exist_ok=True)
                     marcador.touch()
+
+            concluidos = len(list(done_dir.glob(f"{folder_date}_*")))
+            if concluidos != len(files):
+                raise RuntimeError(
+                    f"{table}: {concluidos} de {len(files)} arquivos "
+                    f"processados para {folder_date}; carga incompleta."
+                )
         else:
             nome_arquivo = f"{table_configs['table_name']}"
             url_download = (

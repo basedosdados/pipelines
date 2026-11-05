@@ -62,5 +62,5 @@ with
                 and safe_cast(data as date) <= date("2023-04-30")
         {% endif %}
     )
-select *
+select distinct *
 from cnpj_socios

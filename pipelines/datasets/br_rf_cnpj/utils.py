@@ -26,9 +26,11 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     COLUNAS_SOCIOS,
     COMPONENTS_SPECS,
     DOWNLOAD_ZIP_MAX_ATTEMPTS,
+    EXPECTED_FILES_TOLERANCE,
     HEADERS,
     PROPFIND_MAX_ATTEMPTS,
     PROPFIND_TIMEOUT,
+    ROW_LOSS_TOLERANCE,
     UFS,
     XML_BODY,
 )
@@ -460,6 +462,64 @@ async def download_unzip_csv(
     )
 
 
+def validate_partition_rows(
+    rows_in: int,
+    rows_out: int,
+    tolerance: float = ROW_LOSS_TOLERANCE,
+    arquivo: str = "",
+) -> None:
+    """Confere se as linhas lidas de entrada chegaram às partições de UF.
+    Caso a `sigla_uf` não esteja em `UFS`, ou caso haja outra incompatibilidade,
+    a linha sumiria sem erro. Esta checagem torna a perda explícita.
+
+    Args:
+        rows_in: linhas lidas do CSV de entrada.
+        rows_out: soma das linhas gravadas nas partições de UF.
+        tolerance: fração de `rows_in` que pode ser perdida sem abortar.
+        arquivo: nome do arquivo de origem, para a mensagem.
+
+    Raises:
+        ValueError: se a fração perdida passar de `tolerance`.
+    """
+    lost = rows_in - rows_out
+    if lost <= 0:
+        return
+    fraction = lost / rows_in
+    message = (
+        f"{arquivo}: {lost} de {rows_in} linhas ({fraction:.4%}) não foram "
+        f"para nenhuma partição de UF"
+    )
+    if fraction > tolerance:
+        raise ValueError(message)
+    log(f"{message} (dentro da tolerância de {tolerance:.4%})", "warning")
+
+
+def validate_expected_file_count(
+    table_id: str,
+    found: int,
+    expected: int,
+    tolerance: int = EXPECTED_FILES_TOLERANCE,
+) -> None:
+    """Confere a quantidade de arquivos fragmentados da tabela na fonte.
+    Atualmente, as tabelas `empresas`, `estabelecimentos`, `socios` estão
+    fragmentadas em 10 arquivos.
+    Args:
+        table_id: tabela (`empresas`, `estabelecimentos`, `socios`).
+        found: arquivos achados na listagem da RF.
+        expected: quantidade esperada.
+        tolerance: diferença absoluta aceita.
+
+    Raises:
+        ValueError: se `found` diferir de `expected` além de `tolerance`.
+    """
+    if abs(found - expected) > tolerance:
+        raise ValueError(
+            f"{table_id}: a Receita Federal lista {found} arquivos, esperado "
+            f"{expected} (tolerância de {tolerance}). A divisão em fragmentos "
+            f"pode ter mudado; confira a fonte antes de carregar."
+        )
+
+
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
     input_path: Path,
@@ -468,7 +528,7 @@ def process_csv_estabelecimentos(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
-) -> None:
+) -> dict:
     """
     Processes and saves CSV data for establishments, organizing data into partitions by state.
 
@@ -479,7 +539,13 @@ def process_csv_estabelecimentos(
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
+
+    Returns:
+        dict: `rows_in` (linhas lidas), `rows_out` (linhas gravadas nas
+        partições de UF).
     """
+    rows_in = 0
+    rows_out = 0
     ordem = COLUNAS_ESTABELECIMENTO_ORDEM
     colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
@@ -537,8 +603,10 @@ def process_csv_estabelecimentos(
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
                 chunk["data_modificacao"] = data_coleta
+                rows_in += len(chunk)
                 for uf in UFS:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
+                    rows_out += len(df_particao)
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = save_folder / f"sigla_uf={uf}"
                     particao_path.mkdir(exist_ok=True, parents=True)
@@ -555,6 +623,11 @@ def process_csv_estabelecimentos(
                     )
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(filepath)
+
+    return {
+        "rows_in": rows_in,
+        "rows_out": rows_out,
+    }
 
 
 # ! Salva os dados CSV Empresas
