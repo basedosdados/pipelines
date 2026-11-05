@@ -5,26 +5,11 @@ Constant values for br_inmet_bdmep.
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-)
-
 DATASET_ID = "br_inmet_bdmep"
 
 MICRODADOS_TABLE_ID = "microdados"
 
 ESTACAO_TABLE_ID = "estacao"
-
-COVERAGE: dict[str, PartBdpro | NonHistorical] = {
-    MICRODADOS_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    ESTACAO_TABLE_ID: NonHistorical(),
-}
 
 
 class ConstantsMicrodados(Enum):

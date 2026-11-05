@@ -38,11 +38,6 @@ from pipelines.datasets.us_epa_tri.tasks import (
     download_tri_facilities,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -55,14 +50,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# Annual data: every table stays AllFree (the BD Pro rolling window applies to
-# tables refreshed monthly or more often). `chemical` and `dicionario` have no
-# date column and take no coverage spec.
-_ALL_FREE = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
-_COVERAGE = {table: _ALL_FREE for table in constants.YEAR_TABLES.value}
 
 # How many trailing reporting years each run re-downloads and rewrites.
 _REFRESH_YEARS = 2
@@ -179,11 +166,10 @@ def us_epa_tri_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.YEAR_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )

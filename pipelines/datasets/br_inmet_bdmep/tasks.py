@@ -9,7 +9,6 @@ from prefect import task
 
 from pipelines.constants import constants as repo_constants
 from pipelines.datasets.br_inmet_bdmep.constants import (
-    COVERAGE,
     DATASET_ID,
     ESTACAO_TABLE_ID,
     ConstantsEstacao,
@@ -143,7 +142,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         else:
             data_path = build_year_file(year)
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=data_path,
         )
 

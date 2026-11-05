@@ -26,7 +26,7 @@ from typing import Literal
 from prefect import task
 
 from pipelines.datasets.br_ibge_ppm import utils
-from pipelines.datasets.br_ibge_ppm.constants import DATASET_ID, constants
+from pipelines.datasets.br_ibge_ppm.constants import DATASET_ID
 from pipelines.utils.metadata.domain import DateFormat
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -190,7 +190,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
 
         return ExtractAndLoad(
-            coverage=constants.COVERAGE.value[table_id].model_dump(),
             data_path=str(data_path),
             source_format="parquet",
         )

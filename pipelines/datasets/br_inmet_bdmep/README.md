@@ -52,6 +52,11 @@ Cada CSV do ZIP traz os dados de uma estação, com nome no padrão
 INMET_CO_DF_A001_BRASILIA_01-01-2026_A_30-09-2026.CSV
 ```
 
+Os CSVs podem vir na raiz do ZIP ou numa pasta com o nome do ano. Em novembro de 2026, o
+`2023.zip`, o `2024.zip` e o `2026.zip` traziam os CSVs na raiz, e o `2025.zip`, dentro de
+`2025/`. Por isso o `list_station_files` procura também nas subpastas: em janeiro, o ZIP do ano
+anterior pode já estar no formato com pasta.
+
 O arquivo vem em latin-1 (`ISO-8859-1`), com separador `;` e vírgula decimal. Antes da tabela há
 8 linhas de cabeçalho:
 
