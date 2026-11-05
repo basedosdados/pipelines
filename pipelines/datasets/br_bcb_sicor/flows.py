@@ -285,7 +285,6 @@ def br_bcb_sicor__dicionario(
     dataset_id: str = "br_bcb_sicor",
     table_id: str = "dicionario",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = False,
     target: str = "prod",
     force_run: bool = False,
@@ -309,7 +308,6 @@ def br_bcb_sicor__dicionario(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -329,17 +327,17 @@ def br_bcb_sicor__dicionario(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
 
-# Sem `deploy_schedules` o flow nunca executava por agendamento, e o
-# `dbt_alias=False` acima fazia o seletor virar `models/br_bcb_sicor/
+# Sem `deploy_schedules` o flow nunca executava por agendamento, e um
+# `dbt_alias` passado errado fazia o seletor virar `models/br_bcb_sicor/
 # dicionario.sql`, arquivo que não existe — `run_dbt` levantava
 # FileNotFoundError depois de já ter subido o staging. Os dois defeitos juntos
-# deixavam a tabela `dicionario` congelada. Roda às 01:45, antes de `operacao`
-# (02:05) e das demais.
+# deixavam a tabela `dicionario` congelada. `run_dbt` agora detecta o modelo
+# real sozinho (`_resolve_dbt_model_path`), então esse vetor específico não
+# existe mais. Roda às 01:45, antes de `operacao` (02:05) e das demais.
 br_bcb_sicor__dicionario.deploy_schedules = [
     Cron("45 1 * * 1-5", timezone="America/Sao_Paulo")
 ]

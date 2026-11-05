@@ -85,7 +85,7 @@ def _bq_safe_column_name(name: str) -> str:
 
 def _sync_staging_schema(
     tb: bd.Table,
-    data_path: str | Path,
+    data_sample_path: str | Path,
     source_format: str,
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
@@ -111,12 +111,13 @@ def _sync_staging_schema(
 
     Args:
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
-        data_path: arquivo ou diretório com os dados que serão carregados.
-        source_format: `"csv"` ou `"parquet"`.
+        data_sample_path: arquivo de amostra já resolvido por `dump_header`
+            (não o dado bruto — o chamador resolve `dump_header` antes).
+        source_format: formato real já resolvido por `dump_header`
+            (`"csv"` ou `"parquet"`).
     """
-    header_path = dump_header(data_path=data_path, source_format=source_format)
     incoming = tb._load_staging_schema_from_data(
-        data_sample_path=header_path, source_format=source_format
+        data_sample_path=data_sample_path, source_format=source_format
     )
 
     # O cliente da lib é quem criou a tabela externa e escreve no prefixo. Abrir
@@ -180,7 +181,7 @@ def _upload_to_gcs(
 
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
-            header_path = dump_header(
+            header_path, source_format = dump_header(
                 data_path=data_path, source_format=source_format
             )
             tb.create(
@@ -197,9 +198,12 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            header_path, source_format = dump_header(
+                data_path=data_path, source_format=source_format
+            )
             _sync_staging_schema(
                 tb=tb,
-                data_path=data_path,
+                data_sample_path=header_path,
                 source_format=source_format,
             )
 
@@ -210,7 +214,7 @@ def _upload_to_gcs(
             )
             tb.delete(mode="all")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
-        header_path = dump_header(
+        header_path, source_format = dump_header(
             data_path=data_path, source_format=source_format
         )
         tb.create(
@@ -267,11 +271,42 @@ def upload_to_gcs(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _resolve_dbt_model_path(dataset_id: str, table_id: str) -> Path:
+    """Resolve o caminho do modelo dbt, com ou sem o prefixo `{dataset_id}__`.
+
+    A maioria dos modelos do repositório nomeia o arquivo
+    `{dataset_id}__{table_id}.sql` (o alias real da tabela vem de
+    `config(alias=...)` dentro do SQL, pra evitar colisão de nome de modelo
+    entre datasets). Uma minoria nomeia o arquivo direto como
+    `{table_id}.sql`. Detecta qual dos dois existe de verdade em vez de
+    depender de um booleano declarado pelo chamador — fonte recorrente de
+    bugs quando calculado errado (ex. `table-approve` inferindo pelo nome do
+    arquivo `.sql` modificado no PR).
+
+    Args:
+        dataset_id: ID do dataset no backend/BigQuery.
+        table_id: ID da tabela no backend/BigQuery.
+
+    Returns:
+        O caminho do modelo dbt a selecionar — o com prefixo, se existir;
+        senão o sem prefixo; senão o com prefixo mesmo assim, pra manter a
+        mensagem de erro de "modelo não encontrado" de sempre.
+    """
+    models_folder = Path("models") / dataset_id
+    aliased_path = models_folder / f"{dataset_id}__{table_id}.sql"
+    plain_path = models_folder / f"{table_id}.sql"
+
+    if aliased_path.exists():
+        return aliased_path
+    if plain_path.exists():
+        return plain_path
+    return aliased_path
+
+
 @task(retries=0)
 def run_dbt(
     dataset_id: str,
     table_id: str | None = None,
-    dbt_alias: bool = True,
     dbt_command: str = "run/test",
     target: str = "dev",
     flags: str | None = None,
@@ -287,9 +322,7 @@ def run_dbt(
 
     models_folder = Path("models") / dataset_id
     if table_id is not None:
-        selected = models_folder / (
-            f"{dataset_id}__{table_id}.sql" if dbt_alias else f"{table_id}.sql"
-        )
+        selected = _resolve_dbt_model_path(dataset_id, table_id)
     else:
         selected = models_folder
 
