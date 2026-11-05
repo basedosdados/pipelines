@@ -148,6 +148,9 @@ models:
       +post-hook:
         - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
         - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_stn_capag:
+      +materialized: table
+      +schema: br_stn_capag
     br_bcb_taxa_selic:
       +materialized: table
       +schema: br_bcb_taxa_selic
