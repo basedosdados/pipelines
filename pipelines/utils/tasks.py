@@ -16,6 +16,7 @@ from google.cloud import bigquery
 from google.cloud.bigquery import TableReference
 from prefect import task
 
+from pipelines.constants import constants
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
 from pipelines.utils.utils import log
 from pipelines.utils.vault import get_credentials_from_secret
@@ -421,15 +422,17 @@ def _table_expects_bdpro_paywall(dataset_id: str, table_id: str) -> bool:
         True se existe Coverage pro (ou se não foi possível determinar — o padrão
         é fechar, nunca vazar).
     """
-    from pipelines.utils.utils import log
-
     try:
-        backend = bd.Backend(
-            graphql_url="https://api.basedosdados.org/api/v1/graphql"
-        )
+        backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
         django_table_id = backend._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
+        if django_table_id is None:
+            log(
+                "Tabela não encontrada no backend — assumindo paywall "
+                "(fail closed), export open ignorado"
+            )
+            return True
         data = backend._execute_query(
             f"""query {{ allTable(id: "{django_table_id}") {{
                 edges {{ node {{ coverages {{ edges {{ node {{
@@ -442,7 +445,7 @@ def _table_expects_bdpro_paywall(dataset_id: str, table_id: str) -> bool:
                 "(fail closed), export open ignorado"
             )
             return True
-        coverages = items[0].get("coverages", []) or []
+        coverages = (items[0].get("coverages") or {}).get("items", [])
         return any(c.get("isClosed") for c in coverages)
     except Exception as e:
         log(
@@ -483,9 +486,7 @@ def download_data_to_gcs(
     # Views retornam num_bytes=0 — consulta o tamanho via Django API
     if num_bytes == 0:
         log("Tabela é uma view, consultando tamanho via API Django")
-        b = bd.Backend(
-            graphql_url="https://api.basedosdados.org/api/v1/graphql"
-        )
+        b = bd.Backend(graphql_url=constants.API_URL.value["prod"])
         django_table_id = b._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
