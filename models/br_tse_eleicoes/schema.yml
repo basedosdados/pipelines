@@ -387,10 +387,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -473,10 +474,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -558,10 +560,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -750,10 +753,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: latitude
         description: Latitude
       - name: longitude
@@ -839,10 +846,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: instrucao
         description: Instrução
       - name: sigla_uf
@@ -893,10 +904,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: instrucao
         description: Instrução
       - name: secao
@@ -1439,10 +1454,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1456,10 +1475,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, VT, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1511,10 +1531,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1528,10 +1552,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, VT, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1566,10 +1591,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1583,10 +1612,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1636,10 +1666,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_partido
         description: Número do partido
       - name: sigla_partido
@@ -1647,10 +1681,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, VT, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -1699,10 +1734,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_partido
         description: Número do partido
       - name: sigla_partido
@@ -1710,10 +1749,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, VT, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -1752,10 +1792,14 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
+          # Municípios do exterior (ZZ) e do voto em trânsito (VT, 2010) não estão
+          # no diretório. 91065 (MT, 2002) não consta do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_partido
         description: Número do partido
       - name: secao
@@ -1765,10 +1809,11 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
+          # ZZ = exterior; VT = voto em trânsito (2010). Não são UFs do diretório.
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
