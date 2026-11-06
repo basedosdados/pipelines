@@ -22,14 +22,12 @@ from __future__ import annotations
 import argparse
 import codecs
 import io
-import sys
 import zipfile
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     OUTPUT_DIR,
     RS_ENCODING,
@@ -93,6 +91,7 @@ def _cp1252_fallback(exc: UnicodeDecodeError) -> tuple[str, int]:
     return "".join(chr(b) for b in exc.object[exc.start : exc.end]), exc.end
 
 
+# pyrefly: ignore [bad-argument-type]
 codecs.register_error("rs_cp1252_fallback", _cp1252_fallback)
 
 
@@ -270,6 +269,7 @@ def clean_archive(
             f"COPY (SELECT {_projection(_header_of(archive), superset)} FROM {rel}) "
             f"TO '{out_path}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out_path}')"
         ).fetchone()[0]
@@ -350,11 +350,13 @@ def main(only_year: int | None = None) -> None:
     for archive in archives:
         out_path = dest / f"data_{_partition_of(archive)}.parquet"
         if out_path.exists():
+            # pyrefly: ignore [unsupported-operation]
             existing = con.execute(
                 f"SELECT count(*) FROM (DESCRIBE SELECT * FROM "
                 f"read_parquet('{out_path}'))"
             ).fetchone()[0]
             if existing == len(superset):
+                # pyrefly: ignore [unsupported-operation]
                 n = con.execute(
                     f"SELECT count(*) FROM read_parquet('{out_path}')"
                 ).fetchone()[0]
@@ -375,6 +377,7 @@ def main(only_year: int | None = None) -> None:
     # Every partition must agree on its columns, or the BigQuery load drops the
     # difference in silence. `union_by_name=false` makes a disagreement raise here
     # rather than being papered over locally and failing later.
+    # pyrefly: ignore [unsupported-operation]
     widths = con.execute(
         f"SELECT count(*) FROM (DESCRIBE SELECT * FROM "
         f"read_parquet('{dest}/data_*.parquet', union_by_name=false))"
@@ -428,6 +431,7 @@ def main(only_year: int | None = None) -> None:
         f"FROM read_parquet('{dest}/data_*.parquet')"
     ).fetchone()
     print(
+        # pyrefly: ignore [unsupported-operation]
         f"  {RS_TABLE}: {total:,} rows across {len(files)} files, {widths} columns "
         f"-> ano {span[0]}-{span[1]} ({span[2]} distinct), {span[3]} phases"
     )

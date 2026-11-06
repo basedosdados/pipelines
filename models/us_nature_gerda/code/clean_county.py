@@ -4,14 +4,14 @@
 Three are vote-result files (municipality- and county-level); the fourth is a
 county-year council-seat composition panel, reshaped long by party seats.
 
-Run: cd models/us_nature_gerda/code && python3 clean_county.py
+Run: uv run models/us_nature_gerda/code/clean_county.py
 """
 
 import os
 
-# pyrefly: ignore [missing-import]
-import gerda_common as gc
 import pandas as pd
+
+from models.us_nature_gerda.code import gerda_common as gc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IN = os.path.join(HERE, "..", "input")

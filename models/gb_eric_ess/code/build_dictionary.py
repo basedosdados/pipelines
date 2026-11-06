@@ -7,7 +7,7 @@ valor). `chave` is the stored code as a string (matching clean_data's output);
 Stata extended-missing markers (single letters a-z, read as null in the data) are
 skipped. Output is a single non-partitioned parquet: output/dicionario/data.parquet.
 
-Usage: uv run python models/gb_eric_ess/code/build_dictionary.py
+Usage: uv run models/gb_eric_ess/code/build_dictionary.py
 """
 
 import csv
@@ -18,8 +18,6 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [missing-import]
 import pyreadstat
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,6 +102,7 @@ def main():
                         "nome_coluna": name,
                         "chave": ch,
                         "cobertura_temporal": yr,
+                        # pyrefly: ignore [unnecessary-type-conversion]
                         "valor": str(label).strip(),
                     }
                 )

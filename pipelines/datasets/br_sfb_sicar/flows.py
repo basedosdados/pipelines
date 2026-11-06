@@ -10,7 +10,7 @@ source-update poll on the anchor table (``area_imovel``): the flow short-circuit
 until a UF publishes a newer snapshot. The schedule polls across a few mid-month
 days; the guard makes each scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``br_sfb_sicar_flow``
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``br_sfb_sicar_flow``
 (the flow fn is defined in this file); the dev pool ignores the schedule, the
 prod pool activates it.
 """
@@ -20,26 +20,20 @@ import tempfile
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.sfb_sicar.constants import Constants
-from pipelines.crawler.sfb_sicar.tasks import (
+from pipelines.datasets.br_sfb_sicar.constants import Constants
+from pipelines.datasets.br_sfb_sicar.tasks import (
     clean_uf_theme,
     download_uf_theme,
     get_release_dates_task,
 )
-from pipelines.crawler.sfb_sicar.utils import (
+from pipelines.datasets.br_sfb_sicar.utils import (
     container_memory_limit_gb,
     max_release_iso,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    CoverageSpec,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -62,22 +56,26 @@ DOWNLOAD_MAX_RETRIES = Constants.DOWNLOAD_MAX_RETRIES.value
 
 # ── coverage tier (per table, span-gated) ────────────────────────────────────
 #
-# Business rule (set by the dataset owner): every table starts AllFree and only
-# switches to the BD Pro rolling window (PartBdpro, free_lag = 6 months) once the
-# stacked snapshot history spans MORE than 6 months — i.e. max(data) - min(data)
-# exceeds 6 months. Below that threshold there is no "recent 6 months" worth
-# paywalling, so the whole series stays free.
+# Business rule (set by the dataset owner): every table starts all_free and only
+# switches to the BD Pro rolling window (part_bdpro, free_lag = 6 months, fixed
+# globally by `policy.PART_BDPRO_FREE_LAG`) once the stacked snapshot history
+# spans MORE than 6 months — i.e. max(data) - min(data) exceeds 6 months. Below
+# that threshold there is no "recent 6 months" worth paywalling, so the whole
+# series stays free. This decision is made here, not read from the backend —
+# `coverage_from_backend` only reports what the backend already has; it does
+# not know about this span rule, so it cannot replace it.
 #
 # Today every table has span 0 (a single snapshot round), so coverage_for
-# always returns AllFree and the pipeline is correct as-is. The gate future-
+# always returns all_free and the pipeline is correct as-is. The gate future-
 # proofs the switch: once the second snapshot round lands (a month later), the
 # span crosses 6 months only after ~6 months of accumulated rounds.
 #
-# ⚠️ PartBdpro is NOT a drop-in switch. register_table_materialization_task calls
-# assert_coverage_topology, which HARD-FAILS unless the table already has BOTH a
-# free (is_closed=False) and a pro (is_closed=True) Coverage. AllFree tables have
-# only the free Coverage. So BEFORE the first run in which coverage_for returns
-# PartBdpro for a table, someone must create the pro Coverage by hand:
+# ⚠️ part_bdpro is NOT a drop-in switch. register_table_materialization_task
+# calls assert_coverage_topology, which HARD-FAILS unless the table already has
+# BOTH a free (is_closed=False) and a pro (is_closed=True) Coverage. all_free
+# tables have only the free Coverage. So BEFORE the first run in which
+# coverage_for returns part_bdpro for a table, someone must create the pro
+# Coverage by hand:
 #
 #     create_update_coverage(table_id=<uuid>, area_id=<br>, is_closed=True,
 #                            env="prod")   # and set is_closed=True on its range
@@ -91,8 +89,8 @@ def coverage_for(
 ) -> CoverageSpec:
     """Return the coverage spec for a table given its current ``data`` span.
 
-    AllFree while the stacked history spans <= 6 months; PartBdpro(free_lag=6mo)
-    once it exceeds 6 months.
+    all_free while the stacked history spans <= 6 months; part_bdpro (fixed
+    6-month free_lag) once it exceeds 6 months.
 
     Args:
         table_id: Table slug (unused today; kept so per-table exceptions are easy
@@ -101,21 +99,18 @@ def coverage_for(
         max_data: Latest ``data`` value in the prod table, or None if empty.
 
     Returns:
-        An ``AllFree`` or ``PartBdpro`` spec keyed on the ``data`` column.
+        An ``all_free`` or ``part_bdpro`` spec keyed on the ``data`` column.
     """
-    date_col = DateOnly(col="data")
     span_over_6mo = (
         min_data is not None
         and max_data is not None
         and max_data > min_data + relativedelta(months=6)
     )
-    if span_over_6mo:
-        return PartBdpro(
-            date_column=date_col,
-            date_format=DateFormat.YEAR_MD,
-            free_lag=FreeLag(unit="months", value=6),
-        )
-    return AllFree(date_column=date_col, date_format=DateFormat.YEAR_MD)
+    return CoverageSpec(
+        tier="part_bdpro" if span_over_6mo else "all_free",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="data", entity="date")],
+    )
 
 
 def _bq_min_max_data(
@@ -263,7 +258,6 @@ def br_sfb_sicar_flow(
     ]
     ufs = [u for u in UF_SIGLAS if not only_ufs or u in only_ufs.split(",")]
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
     )
@@ -483,9 +477,8 @@ def br_sfb_sicar_flow(
 # SICAR publishes per-UF on no fixed calendar. Poll across a few mid-month days
 # at 16:00 BRT; the source-poll guard no-ops until a UF publishes a newer
 # snapshot.
-# pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 10,11,12,13,14,15 * *", timezone="America/Sao_Paulo")
 ]
 # Memory: the clean is bounded to one feature range per subprocess, so it does
 # not need much — but the pod must actually get what we ask for. This work pool's
@@ -497,7 +490,6 @@ br_sfb_sicar_flow.deploy_schedules = [
 # `env` variable is a Kubernetes-style array of {name, value} objects, not a
 # flat dict — a dict here fails server-side schema validation on every
 # full-catalog deploy (basedosdados/pipelines#1893).
-# pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",

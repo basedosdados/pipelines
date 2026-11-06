@@ -20,14 +20,14 @@ The run polls cheaply first (HTTP HEAD on the newest ZIP and on the BMF) and
 only downloads once the IRS has published something newer than the last
 refresh, so a scheduled run between releases is a no-op.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_irs_form990_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_irs_form990_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_irs_form990.constants import constants
 from pipelines.datasets.us_irs_form990.tasks import (
@@ -40,12 +40,7 @@ from pipelines.datasets.us_irs_form990.tasks import (
     write_dicionario,
 )
 from pipelines.datasets.us_irs_form990.utils import batch_id
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -59,29 +54,13 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Every table is AllFree. The BMF refreshes monthly, which by the house rule
-# would paywall its most recent window — but with a single onboarded snapshot a
-# 6-month free_lag puts free_end before the only snapshot and inverts the free
-# range (the br_senado_dados_abertos_administrativos failure). Switch the
-# organization table to PartBdpro once several snapshots exist, creating its
-# pro Coverage in the same change. The e-file tables are annual filings
-# released in irregular batches and stay free. dicionario has no date column.
-_COVERAGE = {
-    "organization": AllFree(
-        date_column=DateOnly(col="extraction_date"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    "return_financial": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "compensation": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "revocation": AllFree(
-        date_column=DateOnly(col="revocation_date"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-}
+# dicionario has no date column, so it takes no coverage spec.
+TABLES_WITH_COVERAGE = [
+    "organization",
+    "return_financial",
+    "compensation",
+    "revocation",
+]
 
 # dbt order matters: compensation refs return_financial, and the dictionary
 # coverage tests ref dicionario.
@@ -146,7 +125,6 @@ def us_irs_form990_flow(
         max_batches: Upper bound on e-file ZIPs processed per run (each is
             0.1 to 1.2 GB); the rest are picked up by the next run.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="return_financial"
     )
@@ -212,12 +190,11 @@ def us_irs_form990_flow(
         _materialize(outputs, "basedosdados", "prod", dump_modes)
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 if table in outputs:
                     register_table_materialization_task(
                         dataset_id=DATASET_ID,
                         table_id=table,
-                        coverage=coverage,
                         env="prod",
                         bq_project="basedosdados",
                     )
@@ -248,11 +225,9 @@ def us_irs_form990_flow(
 # The IRS posts e-file batches in irregular bursts and the BMF around the
 # 10th of each month. Poll twice a month at 16:38 BRT (a minute nobody else
 # uses); the HEAD-based source poll no-ops until something new appears.
-# pyrefly: ignore [missing-attribute]
 us_irs_form990_flow.deploy_schedules = [
-    {"cron": "38 16 12,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("38 16 12,26 * *", timezone="America/Sao_Paulo")
 ]
 # One ZIP is parsed at a time (≤ 3.7 GB, streamed member by member) and the
 # BMF stack is ~2M rows in memory; 8Gi leaves headroom.
-# pyrefly: ignore [missing-attribute]
 us_irs_form990_flow.job_variables = {"memory": "8Gi"}

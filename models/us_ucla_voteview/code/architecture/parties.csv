@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+congress,INT64,"Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)",,no,,,no,"Ordinal Congress number, starting at 1 in 1789. Each Congress spans two years. Partition column of the partitioned tables",congress
+chamber,STRING,"Chamber: House, Senate or President",,no,,,no,,chamber
+party_code,STRING,Voteview code of the party,,no,,,no,,party_code
+party_name,STRING,Name of the party,,no,,,no,,party_name
+n_members,INT64,Number of party members in the chamber in the Congress,,no,,person,no,,n_members
+nominate_dim1_median,FLOAT64,NOMINATE (DW-NOMINATE) first-dimension median of the party's members,,no,,index,no,,nominate_dim1_median
+nominate_dim2_median,FLOAT64,NOMINATE (DW-NOMINATE) second-dimension median of the party's members,,no,,index,no,,nominate_dim2_median
+nominate_dim1_mean,FLOAT64,NOMINATE (DW-NOMINATE) first-dimension mean of the party's members,,no,,index,no,,nominate_dim1_mean
+nominate_dim2_mean,FLOAT64,NOMINATE (DW-NOMINATE) second-dimension mean of the party's members,,no,,index,no,,nominate_dim2_mean

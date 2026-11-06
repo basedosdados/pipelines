@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import csv
 
-from common import CODE_DIR
-from schema_def import TABLES
-from translations import DESCRIPTIONS
+from models.us_ffiec_bank_reporting.code.common import CODE_DIR
+from models.us_ffiec_bank_reporting.code.schema_def import TABLES
+from models.us_ffiec_bank_reporting.code.translations import DESCRIPTIONS
 
 OUT_DIR = CODE_DIR / "architecture_trilingual"
 

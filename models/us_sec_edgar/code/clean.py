@@ -5,8 +5,8 @@ writes the partitioned all-STRING staging parquet. The transform itself lives in
 `pipelines/datasets/us_sec_edgar/utils.py` and is shared with the recurring
 Prefect pipeline — this script only drives it.
 
-    uv run python models/us_sec_edgar/code/clean.py            # all quarters
-    uv run python models/us_sec_edgar/code/clean.py 2025q1 2025q2
+    uv run models/us_sec_edgar/code/clean.py            # all quarters
+    uv run models/us_sec_edgar/code/clean.py 2025q1 2025q2
 
 Scratch data goes to `$US_SEC_EDGAR_DATA_DIR` (default
 `~/Downloads/us_sec_edgar_data`), never into the repo or Dropbox.

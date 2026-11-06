@@ -6,14 +6,20 @@ It also reports which columns fall below the 0.05 non-null floor of
 not_null_proportion_multiple_columns, which is the list that has to be excluded
 from that test in schema.yml.
 
-Run: uv run python models/us_dot_fars/code/verify_parquet.py
+Run: uv run models/us_dot_fars/code/verify_parquet.py
 """
 
 import json
 
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
-from common import ALL_TABLES, DATA_TABLES, OUTPUT, load_cols
+
+from models.us_dot_fars.code.common import (
+    ALL_TABLES,
+    DATA_TABLES,
+    OUTPUT,
+    load_cols,
+)
 
 KEYS = {
     "crash": ["year", "state_id", "case_number"],
@@ -88,6 +94,7 @@ def main() -> None:
             if (table, c.name) in RANGES and nn:
                 lo, hi = RANGES[(table, c.name)]
                 vals = pc.cast(col.drop_null(), "double")
+                # pyrefly: ignore [missing-attribute]
                 mn, mx = pc.min(vals).as_py(), pc.max(vals).as_py()
                 if mn < lo or mx > hi:
                     flag = f"   <-- OUT OF RANGE [{lo}, {hi}]: {mn} .. {mx}"

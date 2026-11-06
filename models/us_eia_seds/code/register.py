@@ -1,7 +1,7 @@
 """Register the us_eia_seds metadata in a Data Basis backend.
 
-    python register.py --env staging
-    python register.py --env prod --gcp-project basedosdados
+    uv run models/us_eia_seds/code/register.py --env staging
+    uv run models/us_eia_seds/code/register.py --env prod --gcp-project basedosdados
 
 Idempotent by construction: every record is looked up through ``get_dataset``
 first and its id passed back on the write, because ``create_update_*`` creates a
@@ -18,29 +18,13 @@ action. SEDS is annual, so every table is fully free: there is no BD Pro split.
 
 import argparse
 import json
-import os
-import sys
-from pathlib import Path
 
-import gen_columns_json
-import metadata_spec as spec
-from common import DATA_TABLES, OUTPUT
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-_MCP_PATH = os.environ.get(
-    "BD_MCP_PATH",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if Path(_MCP_PATH).is_dir():
-    sys.path.insert(0, _MCP_PATH)
-try:
-    import server
-except (
-    ModuleNotFoundError
-) as error:  # pragma: no cover - environment dependent
-    raise SystemExit(
-        "the Data Basis MCP `server` module is not importable. Point BD_MCP_PATH "
-        f"at a checkout of the mcp repository (tried {_MCP_PATH!r})."
-    ) from error
+from models.us_eia_seds.code import gen_columns_json
+from models.us_eia_seds.code import metadata_spec as spec
+from models.us_eia_seds.code.common import DATA_TABLES, OUTPUT
 
 ALL_TABLES = [*DATA_TABLES, "dicionario"]
 
@@ -69,16 +53,16 @@ def main() -> None:
     args = parser.parse_args()
     env = args.env
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "license", "availability", "theme", "entity"]
     )
-    org = server.lookup_id(
+    org = bd_mcp_metadata.lookup_id(
         category="organization",
         slug=spec.DATASET["organization_slugs"][0],
         env=env,
     )
-    area = server.lookup_id(category="area", slug="us", env=env)
-    account = server.get_authenticated_account(env=env)
+    area = bd_mcp_metadata.lookup_id(category="area", slug="us", env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = str(account["id"])
 
     # Tag SLUGS differ between backends (staging Portuguese, prod English) but the
@@ -87,19 +71,21 @@ def main() -> None:
     for slug in spec.DATASET["tag_slugs"]:
         try:
             tag_ids.append(
-                server.lookup_id(category="tag", slug=slug, env=env)["id"]
-            )
-        except Exception:
-            tag_ids.append(
-                server.lookup_id(category="tag", slug=slug, env="staging")[
+                bd_mcp_metadata.lookup_id(category="tag", slug=slug, env=env)[
                     "id"
                 ]
             )
+        except Exception:
+            tag_ids.append(
+                bd_mcp_metadata.lookup_id(
+                    category="tag", slug=slug, env="staging"
+                )["id"]
+            )
 
-    existing = server.get_dataset(slug=spec.DATASET_SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=spec.DATASET_SLUG, env=env)
     dataset_id = existing["id"] if existing["found"] else None
 
-    dataset = server.create_update_dataset(
+    dataset = bd_mcp_write.create_update_dataset(
         slug=spec.DATASET_SLUG,
         name_pt=spec.DATASET["name_pt"],
         name_en=spec.DATASET["name_en"],
@@ -119,13 +105,13 @@ def main() -> None:
 
     known_sources = {
         s.get("name") or s.get("name_pt"): s["id"]
-        for s in server.get_raw_data_sources(
+        for s in bd_mcp_write.get_raw_data_sources(
             dataset_slug=spec.DATASET_SLUG, env=env
         )
     }
     source_ids = {}
     for key, source in spec.RAW_SOURCES.items():
-        result = server.create_update_raw_data_source(
+        result = bd_mcp_write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=source["name_pt"],
             name_en=source["name_en"],
@@ -149,12 +135,14 @@ def main() -> None:
         source_ids[key] = result["id"]
         print(f"raw source {key} -> {result['id']}")
 
-    current = server.get_dataset(slug=spec.DATASET_SLUG, env=env)["tables"]
+    current = bd_mcp_metadata.get_dataset(slug=spec.DATASET_SLUG, env=env)[
+        "tables"
+    ]
 
     for table in ALL_TABLES:
         entry = spec.TABLES[table]
         prior = current.get(table, {})
-        result = server.create_update_table(
+        result = bd_mcp_write.create_update_table(
             slug=table,
             name_pt=entry["name_pt"],
             name_en=entry["name_en"],
@@ -183,7 +171,7 @@ def main() -> None:
             if table == "dicionario"
             else gen_columns_json.payload(table)
         )
-        server.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -196,7 +184,7 @@ def main() -> None:
         }
         level_ids = {}
         for entity_slug in entry["observation_levels"]:
-            level = server.create_update_observation_level(
+            level = bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ids["entity"][entity_slug],
                 id=by_entity.get(entity_slug),
@@ -209,12 +197,12 @@ def main() -> None:
         # Link each identifying column to its level, or the site renders the
         # level's columns as "Não informado". update_column's booleans default to
         # False, so is_partition has to be re-passed on `year`.
-        refreshed = server.get_dataset(slug=spec.DATASET_SLUG, env=env)[
-            "tables"
-        ][table]
+        refreshed = bd_mcp_metadata.get_dataset(
+            slug=spec.DATASET_SLUG, env=env
+        )["tables"][table]
         column_ids = {c["name"]: c["id"] for c in refreshed["columns"]}
         for entity_slug, column_name in entry["level_columns"].items():
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -224,7 +212,7 @@ def main() -> None:
             )
 
         prior_cloud = prior.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=args.gcp_project,
             gcp_dataset_id=spec.GCP_DATASET_ID,
@@ -237,7 +225,7 @@ def main() -> None:
         if table == "dicionario":
             # No date column, so no datetime range — but it still needs a
             # Coverage so the table shows an area on the site.
-            server.create_update_coverage(
+            bd_mcp_write.create_update_coverage(
                 table_id=table_id,
                 area_id=area["id"],
                 id=prior_cov[0]["id"] if prior_cov else None,
@@ -247,7 +235,7 @@ def main() -> None:
 
         start_year, end_year = coverage_bounds(table)
         print(f"  coverage {start_year} .. {end_year}")
-        cov = server.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             table_id=table_id,
             area_id=area["id"],
             is_closed=False,
@@ -255,7 +243,7 @@ def main() -> None:
             env=env,
         )
         ranges = prior_cov[0]["datetime_ranges"] if prior_cov else []
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=cov["id"],
             start_year=start_year,
             end_year=end_year,
@@ -266,10 +254,12 @@ def main() -> None:
         )
 
     # Deferred: link the raw source now that it exists.
-    current = server.get_dataset(slug=spec.DATASET_SLUG, env=env)["tables"]
+    current = bd_mcp_metadata.get_dataset(slug=spec.DATASET_SLUG, env=env)[
+        "tables"
+    ]
     for table in ALL_TABLES:
         entry = spec.TABLES[table]
-        server.create_update_table(
+        bd_mcp_write.create_update_table(
             slug=table,
             name_pt=entry["name_pt"],
             name_en=entry["name_en"],
@@ -287,7 +277,7 @@ def main() -> None:
         )
     print("\nraw source linked (exactly one per table)")
 
-    server.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=spec.DATASET_SLUG, table_slugs=ALL_TABLES, env=env
     )
     print(f"table order: {ALL_TABLES}")

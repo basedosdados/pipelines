@@ -71,15 +71,19 @@ def list_ftp_years(directory_url: str) -> set[int]:
 def get_source_max_year() -> str:
     """Devolve o ano mais recente publicado na fonte.
 
-    O valor é a competência do dado, não a data da consulta.
+    Considera todas as versões de `constants.SOURCES`, já que o ano corrente
+    existe apenas no preliminar. O valor é a competência do dado, não a data da
+    consulta.
 
     Returns:
         O ano mais recente, no formato `%Y`.
 
     Raises:
-        RuntimeError: Se nenhum arquivo for encontrado no diretório.
+        RuntimeError: Se nenhum arquivo for encontrado em nenhuma das versões.
     """
-    years = list_ftp_years(constants.FTP_DIR.value)
+    years: set[int] = set()
+    for urls in constants.SOURCES.value.values():
+        years |= list_ftp_years(urls["dir"])
     if not years:
         raise RuntimeError(
             "nenhum arquivo DN*.dbc encontrado no FTP do DATASUS — a fonte "
@@ -88,7 +92,33 @@ def get_source_max_year() -> str:
     return str(max(years))
 
 
-def download_year(ano: int, input_dir: Path) -> Path:
+def resolve_year_source(ano: int) -> str:
+    """Diz de qual diretório o ano deve ser baixado.
+
+    Devolve a primeira versão de `constants.SOURCES` que tem o ano, e a ordem de
+    declaração lá é que dá ao definitivo precedência sobre o preliminar. Um ano
+    fechado pelo DATASUS passa a existir nos dois diretórios, e reprocessá-lo
+    substitui o dado preliminar pelo definitivo.
+
+    Args:
+        ano: Ano a resolver.
+
+    Returns:
+        A chave da versão em `constants.SOURCES` — `"definitivo"` ou
+        `"preliminar"`.
+
+    Raises:
+        FileNotFoundError: Se o ano não existir em nenhuma das versões.
+    """
+    for source, urls in constants.SOURCES.value.items():
+        if ano in list_ftp_years(urls["dir"]):
+            return source
+    raise FileNotFoundError(
+        f"ano {ano} não está no FTP do DATASUS, nem definitivo nem preliminar"
+    )
+
+
+def download_year(ano: int, source: str, input_dir: Path) -> Path:
     """Baixa os arquivos `.dbc` das 27 UFs do ano.
 
     UF ausente na fonte é registrada no log e ignorada; a carga prossegue com as
@@ -97,18 +127,22 @@ def download_year(ano: int, input_dir: Path) -> Path:
 
     Args:
         ano: Ano a baixar.
+        source: Versão do dado, chave de `constants.SOURCES`.
         input_dir: Diretório de destino.
 
     Returns:
         O diretório de destino.
 
     Raises:
+        KeyError: Se `source` não for uma chave de `constants.SOURCES`.
         URLError: Se a fonte responder algo que não seja 550.
         RuntimeError: Se nenhuma das 27 UFs for baixada.
     """
+    template = constants.SOURCES.value[source]["file"]
+
     missing = []
     for sigla_uf in constants.UFS.value:
-        url = constants.FTP.value.format(sigla_uf=sigla_uf, ano=ano)
+        url = template.format(sigla_uf=sigla_uf, ano=ano)
         destination = input_dir / f"DN{sigla_uf}{ano}.dbc"
         try:
             with (
@@ -127,7 +161,7 @@ def download_year(ano: int, input_dir: Path) -> Path:
 
     if len(missing) == len(constants.UFS.value):
         raise RuntimeError(
-            f"nenhuma UF baixada para {ano} — não há o que carregar"
+            f"nenhuma UF baixada para {ano} ({source}) — não há o que carregar"
         )
     if missing:
         print(f"UFs ausentes em {ano}: {', '.join(missing)}")
@@ -271,7 +305,11 @@ def ensure_schema_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
 
 
 def process_file(
-    filepath: Path, ano: int, sigla_uf: str, municipios: dict[str, str]
+    filepath: Path,
+    ano: int,
+    sigla_uf: str,
+    municipios: dict[str, str],
+    is_prelim: bool,
 ) -> pd.DataFrame:
     """Lê o arquivo de uma UF e devolve os dados no schema da arquitetura.
 
@@ -280,6 +318,8 @@ def process_file(
         ano: Ano do arquivo.
         sigla_uf: Sigla da unidade da federação.
         municipios: De-para devolvido por `load_municipios`.
+        is_prelim: Se o arquivo vem do diretório preliminar, o que define o
+            valor de `dado_preliminar`.
 
     Returns:
         Os dados renomeados e convertidos. Coluna fora de `RENAME` é descartada
@@ -301,6 +341,7 @@ def process_file(
 
     dataframe["ano"] = ano
     dataframe["sigla_uf"] = sigla_uf
+    dataframe["dado_preliminar"] = "1" if is_prelim else "0"
 
     for column in constants.MUNICIPIO_COLUMNS.value:
         dataframe = convert_municipio_6_to_7(dataframe, column, municipios)
@@ -318,13 +359,18 @@ def process_file(
 
 
 def clean_year(
-    table_id: str, ano: int, input_dir: Path, output_dir: Path
+    table_id: str,
+    ano: int,
+    source: str,
+    input_dir: Path,
+    output_dir: Path,
 ) -> Path:
     """Limpa os arquivos do ano e grava o particionado em CSV.
 
     Args:
         table_id: Slug da tabela, que define as colunas de partição.
         ano: Ano processado.
+        source: Versão do dado, chave de `constants.SOURCES`.
         input_dir: Diretório com os arquivos `.dbc`.
         output_dir: Raiz do particionado.
 
@@ -339,11 +385,14 @@ def clean_year(
     file_prefix = table["file_prefix"]
     file_name = table["file_name"]
     municipios = load_municipios()
+    is_prelim = source == constants.PRELIM.value
     total = 0
 
     for filepath in sorted(input_dir.glob(f"{file_prefix}*{ano}.dbc")):
         sigla_uf = filepath.stem[len(file_prefix) :][:2]
-        dataframe = process_file(filepath, ano, sigla_uf, municipios)
+        dataframe = process_file(
+            filepath, ano, sigla_uf, municipios, is_prelim
+        )
 
         partition = output_dir / f"ano={ano}" / f"sigla_uf={sigla_uf}"
         partition.mkdir(parents=True, exist_ok=True)
@@ -357,30 +406,32 @@ def clean_year(
             f"nenhum arquivo processado para {ano} — `input/` está vazio"
         )
 
-    print(f"{ano}: {total:,} linhas")
+    print(f"{ano} ({source}): {total:,} linhas")
     return output_dir
 
 
-def download_table(table_id: str, ano: int) -> Path:
+def download_table(table_id: str, ano: int, source: str) -> Path:
     """Prepara os diretórios e baixa o ano.
 
     Args:
         table_id: Slug da tabela.
         ano: Ano a baixar.
+        source: Versão do dado, chave de `constants.SOURCES`.
 
     Returns:
         O diretório de entrada com os arquivos baixados.
     """
     input_dir, _ = build_paths(table_id, ano)
-    return download_year(ano=ano, input_dir=input_dir)
+    return download_year(ano=ano, source=source, input_dir=input_dir)
 
 
-def clean_table(table_id: str, ano: int) -> Path:
+def clean_table(table_id: str, ano: int, source: str) -> Path:
     """Limpa o ano já baixado.
 
     Args:
         table_id: Slug da tabela.
         ano: Ano a limpar.
+        source: Versão do dado, chave de `constants.SOURCES`.
 
     Returns:
         O diretório particionado, no formato esperado por `upload_to_gcs`.
@@ -390,6 +441,7 @@ def clean_table(table_id: str, ano: int) -> Path:
     return clean_year(
         table_id=table_id,
         ano=ano,
+        source=source,
         input_dir=input_dir,
         output_dir=output_dir,
     )

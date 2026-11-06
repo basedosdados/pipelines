@@ -10,7 +10,7 @@ Directory ``relationships`` tests are emitted only for ``year`` (the
 test is generated for ``area_fips``/``id_state`` (the ``directory_column`` in the
 architecture records the intended FK for when that directory lands).
 
-Run: uv run python models/us_bls_qcew/code/build_dbt.py
+Run: uv run models/us_bls_qcew/code/build_dbt.py
 """
 
 import csv

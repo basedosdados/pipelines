@@ -229,15 +229,15 @@ DESCRIPTIONS: dict[str, tuple[str, str]] = {
         "Número principal de roteamento ABA",
         "Número principal de enrutamiento ABA",
     ),
-    "RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset and the correspondent of `cert` in us_fdic_bankfind": (
+    "RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id, which carries the FDIC certificate": (
         "Identificador RSSD atribuído pelo Federal Reserve, único por instituição e "
         "estável diante de mudanças de nome e de carta patente; é a chave de junção "
-        "entre todas as tabelas deste conjunto e o correspondente de `cert` em "
-        "us_fdic_bankfind",
+        "entre todas as tabelas deste conjunto. Para chegar a us_fdic_bankfind, faça a "
+        "junção por institution.fdic_cert_id, que carrega o certificado da FDIC",
         "Identificador RSSD asignado por la Reserva Federal, único por institución y "
         "estable ante cambios de nombre y de licencia; es la clave de unión entre "
-        "todas las tablas de este conjunto y el correspondiente de `cert` en "
-        "us_fdic_bankfind",
+        "todas las tablas de este conjunto. Para llegar a us_fdic_bankfind, haga la "
+        "unión por institution.fdic_cert_id, que lleva el certificado de la FDIC",
     ),
     "RSSD identifier of the entity's head office, for subsidiaries of a larger group": (
         "Identificador RSSD da sede da entidade, no caso de subsidiárias de um grupo "

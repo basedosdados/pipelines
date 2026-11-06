@@ -1,12 +1,12 @@
 """Register the us_ffiec_bank_reporting metadata in the Data Basis backend.
 
-    ~/.venvs/bd-pipelines/bin/python models/us_ffiec_bank_reporting/code/register_metadata.py [staging|prod] [under_review|published]
+    uv run models/us_ffiec_bank_reporting/code/register_metadata.py [staging|prod] [under_review|published]
 
 Everything is resolved by slug at runtime, because reference ids differ between
 backends, and the whole script is idempotent: re-running it updates rather than
 duplicating, and a second run is a no-op.
 
-It calls the databasis MCP server's functions in-process rather than through the
+It calls the databasis-mcp package's functions in-process rather than through the
 MCP tool layer -- same code path, but it makes the column payloads practical as
 a single call instead of a large JSON tool argument.
 
@@ -35,10 +35,10 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, cast
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
-import server  # pyrefly: ignore [missing-import]  (resolved via sys.path above)
-from meta_config import (
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
+
+from models.us_ffiec_bank_reporting.code.meta_config import (
     COVERAGE,
     DATASET_DESCRIPTION,
     DATASET_NAME,
@@ -77,7 +77,7 @@ def fn(name: str) -> Callable[..., Any]:
     return type keeps every call site type-checkable, since `getattr` alone is
     `Any | None` to the checker.
     """
-    f = getattr(server, name)
+    f = getattr(bd_mcp_metadata, name, None) or getattr(bd_mcp_write, name)
     return cast("Callable[..., Any]", getattr(f, "fn", f))
 
 
@@ -116,13 +116,15 @@ def table_columns(table_id: str, env: str) -> dict[str, str]:
     """Column name -> bare uuid, from the uncapped query."""
     return {
         c["name"]: c["id"].split(":")[-1]
-        for c in server._fetch_table_columns(table_id, env)
+        for c in bd_mcp_write._fetch_table_columns(table_id, env)
     }
 
 
 def delete(kind: str, record_id: str, env: str) -> None:
     query = f"mutation($id: UUID!) {{ Delete{kind}(id: $id) {{ errors }} }}"
-    payload = server._gql(query, {"id": record_id}, env=env)[f"Delete{kind}"]
+    payload = bd_mcp_metadata._gql(query, {"id": record_id}, env=env)[
+        f"Delete{kind}"
+    ]
     if payload and payload.get("errors"):
         raise RuntimeError(f"Delete{kind} {record_id}: {payload['errors']}")
 
@@ -413,7 +415,7 @@ def main(env: str, status: str) -> None:
             sorted(o["entity_slug"] for o in node["observation_levels"])
         )
         print(
-            f"{table:<22} cols={len(server._fetch_table_columns(node['id'], env)):<4} "
+            f"{table:<22} cols={len(bd_mcp_write._fetch_table_columns(node['id'], env)):<4} "
             f"OLs=[{levels}] cloud={len(node['cloud_tables'])} "
             f"coverage={len(node['coverages'])} ranges={ranges} "
             f"updates={len(node['updates'])}"

@@ -7,9 +7,8 @@ generator, the cleaning code, the dbt models and the metadata step all agree.
 import json
 from pathlib import Path
 
-import constants as c
-import naming
-import tables
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import naming, tables
 
 with open(Path(__file__).resolve().parent / "headers.json") as _fh:
     HEADERS = json.load(_fh)

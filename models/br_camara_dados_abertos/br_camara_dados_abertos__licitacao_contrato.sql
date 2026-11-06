@@ -17,8 +17,8 @@ select distinct
     safe_cast(fornecedorcidade as string) cidade_fornecedor,
     safe_cast(fornecedorsiglauf as string) sigla_uf_fornecedor,
     safe_cast(fornecedorcpfcnpj as string) cpf_cnpj_fornecedor,
-    safe_cast(vlroriginal as int64) valor_original,
-    safe_cast(vlrtotal as int64) valor_total,
+    safe_cast(safe_cast(vlroriginal as numeric) as int64) valor_original,
+    safe_cast(safe_cast(vlrtotal as numeric) as int64) valor_total
 from
     {{ set_datalake_project("br_camara_dados_abertos_staging.licitacao_contrato") }}
     as t

@@ -9,7 +9,7 @@ that looks like a regeneration bug and is not one -- sqlfmt and yamlfix
 reshape this output, and pre-commit.ci will do it for you on the PR if you
 do not do it here:
 
-    uv run python models/br_mgi_pncp/code/gen_dbt.py
+    uv run models/br_mgi_pncp/code/gen_dbt.py
     uv run pre-commit run sqlfmt  --files models/br_mgi_pncp/*.sql
     uv run pre-commit run yamlfix --files models/br_mgi_pncp/schema.yml
 
@@ -18,12 +18,7 @@ That sequence is idempotent: it reproduces the committed files exactly.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-
-# The pure transform lives in the pipeline package, which is the canonical
-# home; this script is the one-shot onboarding front end for it.
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_mgi_pncp.utils import (
     DEDUP_KEYS,

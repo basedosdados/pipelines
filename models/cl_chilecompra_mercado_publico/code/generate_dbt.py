@@ -5,7 +5,7 @@ and dictionary coverage. Deriving the SQL and the tests from it means the three 
 drift apart -- with 205 columns across three tables, hand-editing them in step is not
 realistic.
 
-    uv run python models/cl_chilecompra_mercado_publico/code/generate_dbt.py
+    uv run models/cl_chilecompra_mercado_publico/code/generate_dbt.py
 """
 
 from __future__ import annotations

@@ -5,13 +5,15 @@ Usage:  uv run --no-project python build_architecture.py
 
 from pathlib import Path
 
-import arch_arp
-import arch_contratacoes
-import arch_contratos
-import arch_dicionario
-import arch_legado
-import arch_registries
-from arch_common import write
+from models.br_mgi_compras_publicas.code import (
+    arch_arp,
+    arch_contratacoes,
+    arch_contratos,
+    arch_dicionario,
+    arch_legado,
+    arch_registries,
+)
+from models.br_mgi_compras_publicas.code.arch_common import write
 
 OUT = Path(__file__).resolve().parent / "architecture"
 

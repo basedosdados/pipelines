@@ -1,3 +1,4 @@
+-- 2026-10-06: inclui as chaves das tabelas pesquisa_eleitoral*.
 {{
     config(
         schema="br_tse_eleicoes",

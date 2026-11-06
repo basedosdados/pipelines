@@ -1,8 +1,8 @@
 """Upload cleaned parquet tables of us_cfpb_hmda to BigQuery staging (basedosdados-dev).
 
-  uv run python upload.py                 # all tables, enforcing full year coverage
-  uv run python upload.py loan_application_register        # one table
-  HMDA_ALLOW_PARTIAL=1 uv run python upload.py loan_application_register  # skip completeness gate
+  uv run upload.py                 # all tables, enforcing full year coverage
+  uv run upload.py loan_application_register        # one table
+  HMDA_ALLOW_PARTIAL=1 uv run upload.py loan_application_register  # skip completeness gate
 
 loan_application_register / _legacy are hive-partitioned by year (year=<YYYY>/data.parquet);
 dicionario is a single file. Verifies each staging table's BigQuery row count against the
@@ -20,7 +20,14 @@ import sys
 import basedosdados as bd
 import google.cloud.storage as gcs
 import pyarrow.parquet as pq
-from common import LEGACY, LEGACY_YEARS, MODERN, MODERN_YEARS, OUTPUT
+
+from models.us_cfpb_hmda.code.common import (
+    LEGACY,
+    LEGACY_YEARS,
+    MODERN,
+    MODERN_YEARS,
+    OUTPUT,
+)
 
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "us_cfpb_hmda"

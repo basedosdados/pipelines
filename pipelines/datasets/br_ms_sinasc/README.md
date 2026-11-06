@@ -13,15 +13,21 @@ fechados. O flow é deployado sem `deploy_schedules`: o deployment existe, aceit
 execução avulsa e não dispara sozinho. Para armar depois, basta acrescentar a
 lista de crons em `flows.py`.
 
-## Só o diretório definitivo
+## Definitivo e preliminar
 
-A fonte serve os anos fechados em `SINASC/1996_/Dados/DNRES/` e o ano corrente
-em um diretório preliminar à parte. O flow lê apenas o definitivo, como fazia a
-carga local, e a tabela não tem coluna que distinga a origem — diferente de
-`br_ms_sim`, que carrega os dois e marca `dado_preliminar`.
+A fonte serve os anos fechados em `SINASC/1996_/Dados/DNRES/` e os ainda não
+fechados em `SINASC/PRELIM/DNRES/`. O flow lê os dois, como `br_ms_sim`, e marca
+a origem na coluna `dado_preliminar` — `1` para preliminar, `0` para definitivo.
 
-Passar a carregar o preliminar exige acrescentar a coluna ao modelo e ao
-dicionário antes de mexer aqui.
+`resolve_year_source` decide de onde vem cada ano, na ordem de declaração de
+`constants.SOURCES`: o definitivo tem precedência. Quando o DATASUS fecha um ano,
+ele passa a existir nos dois diretórios, e recarregá-lo substitui o preliminar
+pelo definitivo — os arquivos têm o mesmo nome dentro da partição.
+
+Os anos carregados antes desta mudança não têm a coluna nos arquivos do GCS.
+`_sync_staging_schema` acrescenta `dado_preliminar` à tabela externa e esses
+arquivos passam a devolver nulo, que o modelo converte para `'0'` com um
+`coalesce` — eles são todos definitivos.
 
 ## Parâmetros
 
@@ -42,8 +48,10 @@ Os padrões escrevem em **produção**, mesmo saindo do pool de teste.
 
 ## Qual ano entra
 
-Sem `anos`, o flow carrega o ano mais recente que existe na fonte, que aqui é o
-último ano fechado: o flow lê só o diretório definitivo. Com `anos` preenchido,
+Sem `anos`, o flow carrega o ano mais recente que existe na fonte, contando os
+dois diretórios — o que na prática é o preliminar, um ano ainda em andamento.
+Carregar um ano parcial e recarregá-lo depois é o comportamento pretendido:
+cada carga substitui a anterior na mesma partição. Com `anos` preenchido,
 carrega a lista inteira numa execução só, um ano de cada vez, e o dbt roda uma
 vez no fim — o modelo é `materialized="table"`, então rodar por ano
 reconstruiria a série toda a cada ano.
@@ -70,9 +78,10 @@ gcloud storage rm --billing-project=basedosdados-dev \
   "gs://basedosdados-dev/staging/br_ms_sinasc/microdados/ano=1994/sigla_uf=*/microdados.csv"
 ```
 
-O flow não alcança esses anos: a fonte os serve em outro diretório
-(`SINASC/1994_1995/Dados/DNRES/`, com nomes `DNR<UF><ANO>`), que este código não
-lê. Pedi-los em `anos` falha com `nenhuma UF baixada`.
+O flow não alcança esses anos: a fonte os serve em um terceiro diretório
+(`SINASC/1994_1995/Dados/DNRES/`, com nomes `DNR<UF><ANO>`), que não está em
+`constants.SOURCES`. Pedi-los em `anos` falha em `resolve_year_source`, com
+`ano 1994 não está no FTP do DATASUS, nem definitivo nem preliminar`.
 
 Trocar para parquet exigiria recriar a tabela externa e, com ela, recarregar
 toda a série.
@@ -84,8 +93,9 @@ toda a série.
 ```python
 from pipelines.datasets.br_ms_sinasc import utils
 
-utils.download_table("microdados", 2024)
-utils.clean_table("microdados", 2024)
+source = utils.resolve_year_source(2024)
+utils.download_table("microdados", 2024, source)
+utils.clean_table("microdados", 2024, source)
 ```
 
 ## Diferenças em relação à carga local

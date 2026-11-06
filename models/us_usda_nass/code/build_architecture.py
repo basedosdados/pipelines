@@ -14,7 +14,7 @@ Column metadata is defined once in COLUMN_DEFS and each table selects its subset
 so descriptions stay consistent across grains. See ``SEED_EXCLUSIONS.md`` for the
 seed filter and dropped raw columns.
 
-Run: ``uv run python models/us_usda_nass/code/build_architecture.py``
+Run: ``uv run models/us_usda_nass/code/build_architecture.py``
 """
 
 import csv

@@ -118,8 +118,8 @@ Raw downloads and cleaned parquet live at `~/Downloads/us_bls_employment_data`
 (override with `US_BLS_EMPLOYMENT_DATA`) — never in the repo, never in Dropbox.
 
 ```bash
-uv run python models/us_bls_employment/code/clean_data.py --download
-uv run python models/us_bls_employment/code/upload.py --env dev
+uv run models/us_bls_employment/code/clean_data.py --download
+uv run models/us_bls_employment/code/upload.py --env dev
 uv run dbt run  --select us_bls_employment
 uv run dbt test --select us_bls_employment
 ```

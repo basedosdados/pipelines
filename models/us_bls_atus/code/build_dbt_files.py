@@ -2,7 +2,7 @@
 """Generate dbt SQL models + schema.yml for us_bls_atus from the architecture CSVs.
 
 Usage:
-    uv run python models/us_bls_atus/code/build_dbt_files.py
+    uv run models/us_bls_atus/code/build_dbt_files.py
 """
 
 import csv

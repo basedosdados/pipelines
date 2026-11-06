@@ -16,7 +16,7 @@ window plus any older year OSHA has actually touched, read from
 Weekly, not daily: the files total 6 GB and the data does not move fast enough
 to justify seven downloads a week.
 
-Deploy: ``.github/scripts/deploy_flows.py`` discovers ``us_osha_enforcement_flow``.
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` discovers ``us_osha_enforcement_flow``.
 The dev pool strips the schedule; the prod pool activates it, paused.
 """
 
@@ -25,7 +25,7 @@ from __future__ import annotations
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_osha_enforcement.constants import constants
 from pipelines.datasets.us_osha_enforcement.tasks import (
@@ -33,13 +33,7 @@ from pipelines.datasets.us_osha_enforcement.tasks import (
     download_osha,
     plan_osha_refresh,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -53,85 +47,9 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-#: Coverage spec per table.
-#:
-#: This dataset refreshes weekly, so the house rule applies: the most recent
-#: window of every table is BD Pro and everything older stays free. Six months,
-#: which on a year-granularity table resolves to "the current year is pro".
-#:
-#: `register_table_materialization_task` recomputes free_end = source_end -
-#: free_lag on every run, rewrites both DateTimeRanges and re-issues the
-#: BigQuery Row Access Policies, so the window rolls forward by itself. The dbt
-#: model is untouched — the paywall is enforced by the policies, not by SQL.
-#:
-#: part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-#: Coverage to already exist on the table, or assert_coverage_topology raises
-#: before anything is written. They are created at onboarding by
-#: models/us_osha_enforcement/code/register_metadata.py.
-#:
-#: `violation_event` reports its partition `year`, not its own `event_date`,
-#: unlike the other three tables that have a real date column. 100 of its
-#: 11.7M rows carry an event dated in the future — up to 2026-12-01, which is
-#: impossible for an event — and read_max_date takes the max, so those rows
-#: alone would push free_end three months earlier and paywall data that should
-#: be free. The partition year comes from the parent inspection's open_date,
-#: which has no future rows at all.
-#:
-#: `dicionario` has no date column and takes no coverage spec.
-_FREE_LAG = FreeLag(unit="months", value=6)
-
-_COVERAGE = {
-    "inspection": PartBdpro(
-        date_column=DateOnly(col="open_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "violation": PartBdpro(
-        date_column=DateOnly(col="issuance_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "violation_event": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "violation_text": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "related_activity": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "emphasis_code": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "optional_code_info": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "accident": PartBdpro(
-        date_column=DateOnly(col="event_date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "accident_injury": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "accident_narrative": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-}
+#: `dicionario` has no date column and takes no coverage spec. It is the last
+#: entry of `constants.TABLES`, so every other table takes one.
+TABLES_WITH_COVERAGE = constants.TABLES.value[:-1]
 
 
 @flow(name="us_osha_enforcement", log_prints=True)
@@ -156,7 +74,6 @@ def us_osha_enforcement_flow(
         modified_days: Also rebuild any older year holding an inspection whose
             ``case_mod_date`` falls within this many days.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="inspection"
     )
@@ -232,11 +149,10 @@ def us_osha_enforcement_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -248,16 +164,14 @@ def us_osha_enforcement_flow(
 # ample for the way this data is used, and 6 GB of downloads a day is not.
 # The minute is deliberately not 0 — a dozen pipelines already fire at :00 and
 # compete for BigQuery slots.
-# pyrefly: ignore [missing-attribute]
 us_osha_enforcement_flow.deploy_schedules = [
-    {"cron": "47 4 * * 0", "timezone": "America/Sao_Paulo"}
+    Cron("47 4 * * 0", timezone="America/Sao_Paulo")
 ]
 
 # `memory` alone is silently dropped: it is not a key of the work pool's job
 # template, so a flow that sets only it runs on the pool default of 4Gi
 # whatever number it names. The clean step holds the citation-text and
 # narrative reassembly maps in memory.
-# pyrefly: ignore [missing-attribute]
 us_osha_enforcement_flow.job_variables = {
     "memory_limit": "12Gi",
     "memory_request": "4Gi",

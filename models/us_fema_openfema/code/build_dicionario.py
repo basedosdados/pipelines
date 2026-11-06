@@ -12,7 +12,7 @@ cleaned output and reports any code that occurs in the data but has no label.
 That gap is reported rather than hidden: an unlabelled code is a defect in the
 dictionary, and silently dropping it would make the table look complete.
 
-    uv run python build_dicionario.py [<output_dir>]
+    uv run build_dicionario.py [<output_dir>]
 """
 
 from __future__ import annotations
@@ -26,9 +26,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-import glossary  # noqa: E402
-import legends  # noqa: E402
-import tables as spec  # noqa: E402
+from models.us_fema_openfema.code import (  # noqa: E402
+    glossary,
+    legends,
+)
+from models.us_fema_openfema.code import tables as spec  # noqa: E402
 
 OUT = HERE / "dicionario.csv"
 HEADER = ["id_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"]
@@ -147,6 +149,7 @@ def check_against_data(
             array = table_data[column].combine_chunks()
             observed = {
                 v["values"]
+                # pyrefly: ignore [missing-attribute]
                 for v in pc.value_counts(array).to_pylist()
                 if v["values"] is not None
             }

@@ -25,7 +25,7 @@ collision could in principle understate a duplicate count; at these sizes the
 expected number is far below one, and any duplicate this reports should be
 confirmed against the data before acting on it.
 
-Run: uv run python models/us_nih_reporter/code/verify_parquet.py
+Run: uv run models/us_nih_reporter/code/verify_parquet.py
 """
 
 import sys
@@ -34,7 +34,13 @@ from pathlib import Path
 
 import numpy as np
 import pyarrow.parquet as pq
-from common import ALL_TABLES, OUTPUT, assert_all_string, load_cols
+
+from models.us_nih_reporter.code.common import (
+    ALL_TABLES,
+    OUTPUT,
+    assert_all_string,
+    load_cols,
+)
 
 KEYS = {
     "project": ["year", "application_id"],

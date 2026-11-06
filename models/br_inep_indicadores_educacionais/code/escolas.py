@@ -4,24 +4,17 @@ from functools import reduce
 
 import pandas as pd
 import requests
-from constants import (  # type: ignore
-    # pyrefly: ignore [missing-module-attribute]
+
+from models.br_inep_indicadores_educacionais.code.constants import (
     rename_afd,
-    # pyrefly: ignore [missing-module-attribute]
     rename_atu,
-    # pyrefly: ignore [missing-module-attribute]
     rename_dsu,
-    # pyrefly: ignore [missing-module-attribute]
     rename_had,
     # rename_icg,
-    # pyrefly: ignore [missing-module-attribute]
     rename_ied,
     # rename_ird,
-    # pyrefly: ignore [missing-module-attribute]
     rename_tdi,
-    # pyrefly: ignore [missing-module-attribute]
     rename_tnr,
-    # pyrefly: ignore [missing-module-attribute]
     rename_tx,
 )
 

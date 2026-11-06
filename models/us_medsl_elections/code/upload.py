@@ -2,7 +2,7 @@
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/prod.json \
-        /usr/bin/python3 models/us_medsl_elections/code/upload.py [table_slug ...]
+        uv run models/us_medsl_elections/code/upload.py [table_slug ...]
 
 Uploads sequentially (smallest first). Stops on first failure.
 """

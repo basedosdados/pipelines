@@ -4,17 +4,41 @@ Constantes de br_ms_sinasc.
 
 from enum import Enum
 
+DATASET_ID = "br_ms_sinasc"
+
+# Única tabela do dataset hoje.
+MICRODADOS_TABLE_ID = "microdados"
+
 
 class constants(Enum):
     """Constantes de br_ms_sinasc."""
 
-    FTP = (
-        "ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1996_/Dados/DNRES/"
-        "DN{sigla_uf}{ano}.dbc"
-    )
-    FTP_DIR = (
-        "ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1996_/Dados/DNRES/"
-    )
+    # Versões do dado no FTP, em ordem de precedência: um ano fechado pelo
+    # DATASUS passa a existir nas duas, e o definitivo é o que vale.
+    SOURCES = {
+        "definitivo": {
+            "file": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1996_/"
+                "Dados/DNRES/DN{sigla_uf}{ano}.dbc"
+            ),
+            "dir": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1996_/"
+                "Dados/DNRES/"
+            ),
+        },
+        "preliminar": {
+            "file": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/PRELIM/"
+                "DNRES/DN{sigla_uf}{ano}.dbc"
+            ),
+            "dir": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/PRELIM/"
+                "DNRES/"
+            ),
+        },
+    }
+
+    PRELIM = "preliminar"
 
     # Área de trabalho do pod. `input/` recebe os .dbc, `output/` o particionado
     # que sobe para o GCS.
@@ -220,4 +244,5 @@ class constants(Enum):
         "status_dn",
         "status_dn_nova",
         "paridade",
+        "dado_preliminar",
     ]

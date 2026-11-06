@@ -304,7 +304,7 @@ def _hhmm_to_micros(arr: pa.Array) -> pa.Array:
     mm = pc.cast(pc.utf8_slice_codeunits(padded, 2, 4), pa.int64())  # pyrefly: ignore
     micros = pc.multiply(  # pyrefly: ignore
         pc.add(pc.multiply(hh, 3600), pc.multiply(mm, 60)),  # pyrefly: ignore
-        1_000_000,  # pyrefly: ignore
+        1_000_000,
     )
     # 2400 -> 00:00; anything else out of range (bad minutes) becomes null.
     micros = pc.if_else(  # pyrefly: ignore
@@ -398,7 +398,7 @@ def clean_month(raw: bytes) -> pa.Table:
         pc.is_valid(seconds),  # pyrefly: ignore
         pc.cast(
             pc.add(pc.cast(base, pa.int64()), seconds),  # pyrefly: ignore
-            pa.timestamp("us"),  # pyrefly: ignore
+            pa.timestamp("us"),
         ),
         pa.nulls(len(base), pa.timestamp("us")),
     )

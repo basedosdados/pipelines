@@ -5,7 +5,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2013, "end": 2022, "interval": 1},
+            "range": {"start": 2013, "end": 2030, "interval": 1},
         },
         cluster_by=["sigla_uf"],
     )
@@ -18,4 +18,4 @@ select
     safe_cast(quantidade as int64) quantidade,
     safe_cast(valor as int64) valor,
 from {{ set_datalake_project("br_ibge_ppm_staging.producao_aquicultura") }} as t
-where quantidade is not null
+where quantidade is not null or valor is not null

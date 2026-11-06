@@ -1,4 +1,12 @@
-"""Prefect 3 tasks for us_fed_fred — thin wrappers over utils.py."""
+"""Prefect 3 tasks for us_fed_fred — thin wrappers over utils.py.
+
+Both tasks below are called from TWO flows (``flows.py``): `check_update`
+downloads + cleans the full seed set just to read the latest observation date
+off `clean_fred`'s result, and `extract_and_load` calls the very same two
+tasks again, independently, to actually materialize the data — the accepted
+duplicated-download cost of a check_update that needs to fetch data to find a
+reference date (see the module banner in `flows.py`).
+"""
 
 from pathlib import Path
 

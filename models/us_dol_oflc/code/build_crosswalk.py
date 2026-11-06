@@ -9,7 +9,7 @@ as UNMAPPED and the build exits non-zero. The crosswalk is the deliverable's
 quality control: nothing enters or leaves the published tables silently.
 
 Usage:
-    uv run python models/us_dol_oflc/code/build_crosswalk.py
+    uv run models/us_dol_oflc/code/build_crosswalk.py
 """
 
 from __future__ import annotations

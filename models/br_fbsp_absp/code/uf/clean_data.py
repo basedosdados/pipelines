@@ -2,8 +2,7 @@ import os
 
 import pandas as pd
 
-# pyrefly: ignore [missing-import]
-from columns import columns_order, real_columns
+from models.br_fbsp_absp.code.uf.columns import columns_order, real_columns
 
 
 def set_row(df):

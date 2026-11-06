@@ -32,6 +32,7 @@ def _series(
     template: dict[str, str], column: str, count: int
 ) -> dict[str, tuple[str, str, str]]:
     """Expand a numbered column family, e.g. product_name_1 .. product_name_5."""
+    # pyrefly: ignore [bad-return]
     return {
         f"{column}_{i}": tuple(
             template[lang].format(i=i, n=count) for lang in ("pt", "en", "es")
@@ -903,6 +904,7 @@ def _by_recipient_kind() -> dict[str, tuple[str, str, str]]:
                 template[i].format(pt=words[0], en=words[1], es=words[2])
                 for i in range(3)
             )
+    # pyrefly: ignore [bad-return]
     return out
 
 

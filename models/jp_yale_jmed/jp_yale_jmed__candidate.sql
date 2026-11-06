@@ -1,0 +1,47 @@
+{{
+    config(
+        alias="candidate",
+        schema="jp_yale_jmed",
+        materialized="table",
+        partition_by={
+            "field": "year",
+            "data_type": "int64",
+            "range": {"start": 2005, "end": 2031, "interval": 1},
+        },
+        cluster_by=["prefecture_code", "municipality_id"],
+    )
+}}
+select
+    safe_cast(year as int64) year,
+    safe_cast(municipality_id as string) municipality_id,
+    safe_cast(municipality_code as string) municipality_code,
+    safe_cast(prefecture_code as string) prefecture_code,
+    safe_cast(election_id as string) election_id,
+    safe_cast(candidate_id as string) candidate_id,
+    safe_cast(municipality_name as string) municipality_name,
+    safe_cast(municipality_name_en as string) municipality_name_en,
+    safe_cast(municipality_type as string) municipality_type,
+    safe_cast(prefecture as string) prefecture,
+    safe_cast(prefecture_en as string) prefecture_en,
+    safe_cast(district as string) district,
+    safe_cast(election_date as date) election_date,
+    safe_cast(unified as string) unified,
+    safe_cast(election_type as string) election_type,
+    safe_cast(election_subtype as string) election_subtype,
+    safe_cast(number_of_seats as int64) number_of_seats,
+    safe_cast(number_of_candidates as int64) number_of_candidates,
+    safe_cast(uncontested as string) uncontested,
+    safe_cast(turnout as float64) turnout,
+    safe_cast(candidate_name as string) candidate_name,
+    safe_cast(age as int64) age,
+    safe_cast(sex as string) sex,
+    safe_cast(party as string) party,
+    safe_cast(party_en as string) party_en,
+    safe_cast(incumbent as string) incumbent,
+    safe_cast(incumbent_status as string) incumbent_status,
+    safe_cast(incumbent_status_en as string) incumbent_status_en,
+    safe_cast(number_of_votes as float64) number_of_votes,
+    safe_cast(district_vote_total as float64) district_vote_total,
+    safe_cast(vote_share as float64) vote_share,
+    safe_cast(elected as string) elected
+from {{ set_datalake_project("jp_yale_jmed_staging.candidate") }} as t

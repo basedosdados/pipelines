@@ -4,9 +4,9 @@ Current program years ship as loose CSVs; archived ones ship as a single ZIP
 per year whose members are extracted and the ZIP then deleted. Nothing lands
 in the repo or in Dropbox -- see constants.DATA_ROOT.
 
-    uv run python download.py detail 2024
-    uv run python download.py profile
-    uv run python download.py summary
+    uv run download.py detail 2024
+    uv run download.py profile
+    uv run download.py summary
 """
 
 import concurrent.futures as cf
@@ -15,7 +15,7 @@ import subprocess
 import sys
 import zipfile
 
-import constants as c
+from models.us_cms_open_payments.code import constants as c
 
 # A single stream from download.cms.gov runs at about 2 MB/s; eight parallel
 # byte ranges reach about 15 MB/s, which is the difference between seven hours

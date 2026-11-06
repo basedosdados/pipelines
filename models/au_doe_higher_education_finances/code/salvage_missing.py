@@ -9,12 +9,9 @@ so a genuine absence is distinguishable from a throttle.
 
 from __future__ import annotations
 
-import pathlib
-import sys
 import time
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import download as dl  # pyrefly: ignore [missing-import]
+from models.au_doe_higher_education_finances.code import download as dl
 
 PAUSE_BETWEEN_YEARS = 20
 

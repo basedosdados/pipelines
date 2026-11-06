@@ -1,0 +1,27 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+source_id,STRING,"Identificador da fonte (periódico, repositório, conferência) no OpenAlex","OpenAlex identifier of the source (journal, repository, conference)","Identificador de la fuente (revista, repositorio, conferencia) en OpenAlex",,no,,,no,Armazenado sem o prefixo de URL (ex.: S137773608),Stored without the URL prefix (e.g. S137773608),"Almacenado sin el prefijo de URL (p. ej., S137773608)",id
+issn_l,STRING,ISSN de ligação (ISSN-L),Linking ISSN (ISSN-L),ISSN de enlace (ISSN-L),,no,,,no,,,,issn_l
+display_name,STRING,Nome da fonte,Name of the source,Nombre de la fuente,,no,,,no,,,,display_name
+type,STRING,"Tipo de fonte (ex.: journal, repository, conference, book series)","Source type (e.g. journal, repository, conference, book series)","Tipo de fuente (p. ej., journal, repository, conference, book series)",,no,,,no,,,,type
+host_organization_id,STRING,Organização que hospeda a fonte (editora ou instituição),Organization hosting the source (publisher or institution),Organización que aloja la fuente (editorial o institución),,no,,,no,Armazenado sem o prefixo de URL (ex.: P4310320595),Stored without the URL prefix (e.g. P4310320595),"Almacenado sin el prefijo de URL (p. ej., P4310320595)",host_organization
+country_code,STRING,País (código ISO 3166-1 alfa-2),Country (ISO 3166-1 alpha-2 code),País (código ISO 3166-1 alfa-2),,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,,,country_code
+homepage_url,STRING,Endereço do sítio oficial,Official website URL,Dirección del sitio web oficial,,no,,,no,,,,homepage_url
+is_open_access,BOOLEAN,Se a fonte é totalmente de acesso aberto,Whether the source is fully open access,Si la fuente es totalmente de acceso abierto,,no,,,no,,,,is_oa
+is_in_doaj,BOOLEAN,Se a fonte está no Directory of Open Access Journals,Whether the source is in the Directory of Open Access Journals,Si la fuente está en el Directory of Open Access Journals,,no,,,no,,,,is_in_doaj
+is_in_doaj_since_year,INT64,Ano de entrada no DOAJ,Year the source entered DOAJ,Año de ingreso al DOAJ,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,,,is_in_doaj_since_year
+is_in_scielo,BOOLEAN,Se a fonte está na SciELO,Whether the source is in SciELO,Si la fuente está en SciELO,,no,,,no,,,,is_in_scielo
+is_ojs,BOOLEAN,Se a fonte usa o Open Journal Systems,Whether the source runs on Open Journal Systems,Si la fuente usa Open Journal Systems,,no,,,no,,,,is_ojs
+is_core,BOOLEAN,Se a fonte está no conjunto central do CWTS,Whether the source is in the CWTS core set,Si la fuente está en el conjunto central del CWTS,,no,,,no,,,,is_core
+is_preprint_repository,BOOLEAN,Se a fonte é um repositório de preprints,Whether the source is a preprint repository,Si la fuente es un repositorio de preprints,,no,,,no,,,,is_preprint_repository
+oa_flip_year,INT64,Ano em que a fonte passou a ser de acesso aberto,Year the source flipped to open access,Año en que la fuente pasó a acceso abierto,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,,,oa_flip_year
+first_publication_year,INT64,Ano do primeiro trabalho da fonte,Year of the source's first work,Año del primer trabajo de la fuente,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,,,first_publication_year
+last_publication_year,INT64,Ano do último trabajo da fonte,Year of the source's last work,Año del último trabajo de la fuente,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,,,last_publication_year
+apc_usd,INT64,"Taxa de publicação (APC) da fonte, em dólares americanos","Article processing charge (APC) of the source, in US dollars","Cargo por procesamiento de artículos (APC) de la fuente, en dólares estadounidenses",,no,,usd,no,,,,apc_usd
+works_count,INT64,Número de trabalhos associados,Number of associated works,Número de trabajos asociados,,no,,work,no,,,,works_count
+oa_works_count,INT64,Número de trabalhos em acesso aberto,Number of open access works,Número de trabajos en acceso abierto,,no,,work,no,,,,oa_works_count
+cited_by_count,INT64,Ano do último trabalho da fonte,Number of citations received,Número de citas recibidas,,no,,citation,no,,,,cited_by_count
+two_year_mean_citedness,FLOAT64,Média de citações recebidas no último ano por trabalhos publicados nos dois anos anteriores,Mean citations received in the last year by works published in the two preceding years,Promedio de citas recibidas en el último año por trabajos publicados en los dos años anteriores,,no,,ratio,no,,,,summary_stats.2yr_mean_citedness
+h_index,INT64,Índice h,H-index: largest h such that h works have at least h citations each,Índice h,,no,,index,no,,,,summary_stats.h_index
+i10_index,INT64,Índice i10: número de trabalhos com ao menos 10 citações,Number of works with at least 10 citations (i10-index),Índice i10: número de trabajos con al menos 10 citas,,no,,work,no,,,,summary_stats.i10_index
+created_date,DATE,Data de criação do registro no OpenAlex,Date the record was created in OpenAlex,Fecha de creación del registro en OpenAlex,,no,,,no,,,,created_date
+updated_date,DATE,Data da última alteração do registro no OpenAlex,Date the record was last changed in OpenAlex,Fecha de la última modificación del registro en OpenAlex,,no,,,no,,,,updated_date

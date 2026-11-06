@@ -26,7 +26,7 @@ import datetime as dt
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_senado_dados_abertos_administrativos import utils
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
@@ -35,15 +35,7 @@ from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import
 from pipelines.datasets.br_senado_dados_abertos_administrativos.tasks import (
     extract_and_clean,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     register_table_materialization_task,
@@ -56,64 +48,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage per table (see PIPELINE_PLAN.md). Tables with a month-or-finer time
-# column carry the 6-month BD Pro rolling window, on their finest date column; the
-# window rolls itself on every run. The two year-only series stay AllFree (a
-# sub-year rolling window is not expressible on a year column), and senador and
-# dicionario have no record time dimension and take no coverage (they keep their
-# onboarding free coverage).
-#
-#   snapshots (data_extracao)          -> PartBdpro day  (YEAR_MD), 6-month lag
-#   series with a `data` column        -> PartBdpro day  (YEAR_MD), 6-month lag
-#   monthly series (ano + mes)         -> PartBdpro month (YEAR_MONTH), 6-month lag
-#   year-only series (ano)             -> AllFree (no paywall)
-_FREE_LAG = FreeLag(unit="months", value=constants.FREE_LAG_MONTHS.value)
-
-
-def _part_bdpro(date_column, date_format) -> PartBdpro:
-    return PartBdpro(
-        date_column=date_column, date_format=date_format, free_lag=_FREE_LAG
-    )
-
-
-# The 10 ano-series, grouped by their finest time column.
-_SERIES_DAILY = (
-    "despesa_ceaps",
-    "servidor_hora_extra_dia",
-    "suprido_ato_concessao",
-    "suprido_empenho",
-    "suprido_transacao",
-    "suprido_movimentacao",
-)
-_SERIES_MONTHLY = ("servidor_remuneracao", "servidor_hora_extra")
-_SERIES_YEARLY = ("suprido_transacao_objeto", "suprido_movimentacao_subtipo")
-
-_COVERAGE = {
-    # snapshots stack by data_extracao (day granularity)
-    **{
-        t: _part_bdpro(DateOnly(col="data_extracao"), DateFormat.YEAR_MD)
-        for t in utils.SNAPSHOTS
-    },
-    **{
-        t: _part_bdpro(DateOnly(col="data"), DateFormat.YEAR_MD)
-        for t in _SERIES_DAILY
-    },
-    **{
-        t: _part_bdpro(
-            YearMonth(year="ano", month="mes"), DateFormat.YEAR_MONTH
-        )
-        for t in _SERIES_MONTHLY
-    },
-    # year-only series: no paywall (year granularity has no sub-year window)
-    **{
-        t: AllFree(
-            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-        )
-        for t in _SERIES_YEARLY
-    },
-}
-# Every partitioned table is covered; senador and dicionario are not.
-assert set(_COVERAGE) == set(utils.SNAPSHOTS) | set(utils.PARTITIONED)
 # The table whose source Update anchors the dataset — any stable snapshot table.
 _ANCHOR_TABLE = "senador"
 
@@ -131,7 +65,6 @@ def _run(
     A prod run goes straight to prod (no redundant dev materialization, whose
     bytes buy no signal — prod runs the same models and tests seconds later).
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
     )
@@ -206,15 +139,12 @@ def _run(
 
         if update_metadata:
             for table in tables:
-                coverage = _COVERAGE.get(table)
-                if (
-                    coverage is None
-                ):  # senador / dicionario — no time dimension
+                if table in utils.UNPARTITIONED:
+                    # senador / dicionario — no time dimension
                     continue
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -279,19 +209,15 @@ def br_senado_dados_abertos_administrativos_weekly_flow(
 
 # Mutually-exclusive days: daily every day except Monday, weekly on Monday. The
 # clean step holds the current payroll year in memory (~0.5-1 GB); give headroom.
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_daily_flow.deploy_schedules = [
-    {"cron": constants.DAILY_CRON.value, "timezone": "America/Sao_Paulo"}
+    Cron(constants.DAILY_CRON.value, timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_daily_flow.job_variables = {
     "memory": "8Gi"
 }
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_weekly_flow.deploy_schedules = [
-    {"cron": constants.WEEKLY_CRON.value, "timezone": "America/Sao_Paulo"}
+    Cron(constants.WEEKLY_CRON.value, timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_weekly_flow.job_variables = {
     "memory": "8Gi"
 }

@@ -13,14 +13,14 @@ back. The flat files carry the full history on every release, so rebuilding from
 them (``dump_mode="overwrite"``) absorbs the trailing revisions and the annual
 benchmark alike, with no separate benchmark branch to maintain.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_employment_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_employment_flow`;
 the dev pool strips the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bls_employment.constants import constants
 from pipelines.datasets.us_bls_employment.tasks import (
@@ -28,12 +28,7 @@ from pipelines.datasets.us_bls_employment.tasks import (
     download_employment,
     peek_employment,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -46,28 +41,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# Coverage spec per table.
-#
-# All four fact tables refresh monthly, so each carries the BD Pro rolling
-# window: the most recent 6 months are pro-only, everything older is free. Each
-# run recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges,
-# and re-issues the BigQuery Row Access Policies, so the window slides forward
-# on its own and the dbt models stay untouched.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for table in constants.DATA_TABLES.value
-}
 
 
 @flow(name="us_bls_employment", log_prints=True)
@@ -91,7 +64,6 @@ def us_bls_employment_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="employment"
     )
@@ -180,11 +152,10 @@ def us_bls_employment_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -200,16 +171,14 @@ def us_bls_employment_flow(
 # across the second half of the month at 16:17 BRT; the source-poll guard
 # no-ops until a new reference month actually appears. The minute is chosen to
 # avoid the crowded :00 and :05 slots.
-# pyrefly: ignore [missing-attribute]
 us_bls_employment_flow.deploy_schedules = [
-    {"cron": "17 16 16,17,18,19,20,21 * *", "timezone": "America/Sao_Paulo"}
+    Cron("17 16 16,17,18,19,20,21 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step shards 2.6 GB of flat files through pandas one file at a time
 # and holds at most one year of LAUS (~500k rows) in memory at once.
 # `memory` alone is NOT a variable of the work pool's job template and is
 # dropped silently, leaving the pod on the 4Gi default — `memory_limit` is the
 # one that is actually applied.
-# pyrefly: ignore [missing-attribute]
 us_bls_employment_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",

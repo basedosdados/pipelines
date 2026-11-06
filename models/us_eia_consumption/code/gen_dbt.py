@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_eia_consumption.
 
-    python gen_dbt.py
+    uv run models/us_eia_consumption/code/gen_dbt.py
 
 Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift. The null-proportion exemptions are
@@ -14,7 +14,13 @@ import subprocess
 from pathlib import Path
 
 import pyarrow.dataset as pads
-from common import DATA_TABLES, OUTPUT, REPO_ROOT, load_cols
+
+from models.us_eia_consumption.code.common import (
+    DATA_TABLES,
+    OUTPUT,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_eia_consumption"
 DATASET = "us_eia_consumption"

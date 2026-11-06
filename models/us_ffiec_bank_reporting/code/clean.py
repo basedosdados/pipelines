@@ -14,7 +14,7 @@ respectively. Melting keys every value on its MDRM item code instead, so a
 retired item simply stops appearing.
 
 Usage:
-    python clean.py [call|bhc|cra|mdrm|all] [--quarters N]
+    uv run models/us_ffiec_bank_reporting/code/clean.py [call|bhc|cra|mdrm|all] [--quarters N]
 """
 
 from __future__ import annotations
@@ -29,7 +29,8 @@ from collections import Counter
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-from common import (
+
+from models.us_ffiec_bank_reporting.code.common import (
     BHC_FIRST,
     BHC_LAST,
     CALL_FIRST,
@@ -42,9 +43,15 @@ from common import (
     quarters,
     report_date,
 )
-from dictionary import rows as dictionary_rows
-from mdrm import is_flag_item, load_mdrm, parse_date
-from schema_def import columns
+from models.us_ffiec_bank_reporting.code.dictionary import (
+    rows as dictionary_rows,
+)
+from models.us_ffiec_bank_reporting.code.mdrm import (
+    is_flag_item,
+    load_mdrm,
+    parse_date,
+)
+from models.us_ffiec_bank_reporting.code.schema_def import columns
 
 # Values the sources use for "nothing here". Kept out of the fact tables so the
 # 36% of Call Report cells that carry a value are not buried under blanks.
@@ -239,11 +246,20 @@ def clean_call(items: dict[str, dict], limit: int | None = None) -> None:
             if shared:
                 conflicts = _check_shared_agree(z, schedule_files, shared)
                 if conflicts:
-                    _log(
-                        f"call {year}Q{quarter}: WARNING {conflicts} shared item "
-                        "codes disagree across schedules"
-                    )
+                    # Dropping through here would let _melt_schedule keep only the
+                    # owning schedule's value and discard the others, losing real
+                    # differences without a trace. The dedup is only sound while the
+                    # duplicated values agree, so a disagreement invalidates the whole
+                    # approach for that quarter and has to stop the run rather than
+                    # warn. No quarter in 2009Q3-2026Q2 trips this.
                     conflict_log[f"{year}Q{quarter}"] = conflicts
+                    raise RuntimeError(
+                        f"call {year}Q{quarter}: {conflicts} shared item codes "
+                        "disagree across schedules. The single-owner dedup in "
+                        "_schedule_owner assumes duplicated codes carry the same "
+                        "value; that no longer holds, so the schedule would be "
+                        "silently dropped. Inspect the quarter before re-running."
+                    )
             for name in schedule_files:
                 match = SCHEDULE_RE.search(name)
                 schedule = match.group(1).upper() if match else "UNKNOWN"
@@ -917,10 +933,10 @@ def _cra_transmittal(
 
 
 def _thousands(value: str) -> str | None:
-    value = _s(value)
-    if value is None:
+    normalized = _s(value)
+    if normalized is None:
         return None
-    number = _num(value)
+    number = _num(normalized)
     if number is None:
         return None
     return str(int(number * 1000))
@@ -1116,7 +1132,12 @@ def main() -> None:
     if "--quarters" in sys.argv:
         limit = int(sys.argv[sys.argv.index("--quarters") + 1])
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    items = clean_mdrm()
+    # Only the Call Report and FR Y-9C melts need the MDRM dictionary. Loading it
+    # unconditionally made `clean.py cra` fail with FileNotFoundError on a machine
+    # that had only ever downloaded the CRA files.
+    items: dict = {}
+    if what in ("all", "mdrm", "call", "bhc"):
+        items = clean_mdrm()
     if what in ("all", "mdrm"):
         clean_dictionary()
     if what in ("all", "call"):

@@ -11,7 +11,7 @@ Writes `code/architecture_detailed/<table>.csv`. The existing four Tier-1 tables
 live in `code/architecture/` and are not touched.
 
 Usage:
-    uv run python models/au_abs_labour_force/code/architecture_detailed.py
+    uv run models/au_abs_labour_force/code/architecture_detailed.py
 """
 
 import csv

@@ -8,9 +8,10 @@
             "data_type": "date",
             "granularity": "month",
         },
+        post_hook="{{ br_me_cnpj_redirect_notice() }}",
     )
 }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     cnpj_socios as (
         select

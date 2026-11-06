@@ -9,7 +9,9 @@ from pathlib import Path
 from typing import Any
 
 from dbt.cli.main import dbtRunner
-from prefect import flow, task
+from prefect import task
+
+from pipelines.utils.flow import flow
 
 
 @task
@@ -115,5 +117,4 @@ def run_dbt_model_flow(
         dbt_done.result()
 
 
-# pyrefly: ignore [missing-attribute]
 run_dbt_model_flow.deploy_schedules = []

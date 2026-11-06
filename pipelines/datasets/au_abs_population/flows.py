@@ -12,7 +12,7 @@ the whole transform runs in seconds; the cost of a run is dominated by the
 download. The run short-circuits unless one of the two polled sources has
 advanced, which makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``au_abs_population_flow``; the dev pool ignores the schedule, the prod pool
 activates it.
 """
@@ -20,19 +20,14 @@ activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_abs_population.constants import constants
 from pipelines.datasets.au_abs_population.tasks import (
     clean_population,
     download_population,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearOnly,
-    YearQuarter,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -57,28 +52,16 @@ TABLES = [
     "regional_lga",
 ]
 
-# Coverage spec per table. Every table is fully free: the fastest-refreshing
-# source here is quarterly, and the BD Pro rolling window applies to tables that
-# refresh monthly or more often. `series` is a dimension table with no date
-# column, so it takes no coverage spec.
-_COVERAGE = {
-    "national_state": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "erp_age_sex": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "projection": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "regional_sa2": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "regional_lga": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# Tables registered with the backend's coverage metadata. `series` is a
+# dimension table with no date column, so it takes no coverage spec and is
+# excluded here.
+COVERAGE_TABLES = [
+    "national_state",
+    "erp_age_sex",
+    "projection",
+    "regional_sa2",
+    "regional_lga",
+]
 
 
 @flow(name="au_abs_population", log_prints=True)
@@ -99,7 +82,6 @@ def au_abs_population_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when neither source poll reports new data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="population"
     )
@@ -211,11 +193,10 @@ def au_abs_population_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in COVERAGE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -229,11 +210,9 @@ def au_abs_population_flow(
 # release lands once a year in March. Poll on a few days around the middle of
 # each month at 16:48 BRT (a minute no other flow uses) — the two source-poll
 # guards no-op the run until one of them actually has new data.
-# pyrefly: ignore [missing-attribute]
 au_abs_population_flow.deploy_schedules = [
-    {"cron": "48 16 14,17,20,23,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("48 16 14,17,20,23,26 * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 au_abs_population_flow.job_variables = {
     "memory": "8Gi",
     # `memory` alone is not in the work pool's job template and is silently

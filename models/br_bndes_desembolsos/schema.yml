@@ -1,0 +1,96 @@
+---
+version: 2
+models:
+  - name: br_bndes_desembolsos__mensal
+    description: >-
+      Desembolsos mensais do Sistema BNDES a partir de 1995, com uma linha por
+      mês e combinação de forma de apoio, produto, instrumento financeiro,
+      porte da empresa, município e setores. Cobertura nacional.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf
+            - id_municipio
+            - forma_apoio
+            - produto
+            - instrumento_financeiro
+            - indicador_inovacao
+            - porte_empresa
+            - setor_cnae
+            - subsetor_cnae_agrupado
+            - setor_bndes
+            - subsetor_bndes
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+    columns:
+      - name: ano
+        description: >-
+          Ano da liberação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da liberação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade federativa onde o investimento foi realizado ou onde
+          o cliente está registrado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >-
+          Código IBGE do município onde o investimento foi realizado ou onde o
+          ente público está registrado. Nulo quando a fonte informa o município
+          como DIVERSOS
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: forma_apoio
+        description: >-
+          Forma de apoio do financiamento: direta, solicitada ao BNDES, ou
+          indireta, por meio de instituição financeira credenciada
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+      - name: instrumento_financeiro
+        description: >-
+          Instrumento financeiro do produto, classificado em linha, programa ou
+          fundo. Nulo de 1995 a 2001
+      - name: indicador_inovacao
+        description: >-
+          Indica se o instrumento financeiro tem por objetivo o apoio à
+          inovação. Nulo de 1995 a 2001
+      - name: porte_empresa
+        description: >-
+          Porte da empresa pela política de classificação do BNDES vigente à
+          época
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+      - name: subsetor_bndes
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+          e nos produtos do BNDES
+      - name: valor_desembolsado
+        description: >-
+          Valor liberado, em reais

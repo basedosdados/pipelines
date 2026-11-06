@@ -24,7 +24,7 @@ Output lands under ``$ECSA_DATA_DIR`` (default
 
 Usage::
 
-    PYTHONPATH=. python models/au_sa_ecsa_elections/code/download.py [api|disclosure]
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/download.py [api|disclosure]
 """
 
 from __future__ import annotations

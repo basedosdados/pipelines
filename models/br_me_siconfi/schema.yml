@@ -6,6 +6,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -16,12 +18,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: portaria
         description: Portaria
       - name: conta
@@ -37,6 +43,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -47,12 +55,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -72,6 +84,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -82,12 +96,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -107,6 +125,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -117,12 +137,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -142,6 +166,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -152,6 +178,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -171,6 +199,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -181,6 +211,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -200,6 +232,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -223,6 +257,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -247,6 +283,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -271,6 +309,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -294,6 +334,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -318,6 +360,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -338,6 +382,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -348,12 +394,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -374,6 +424,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -384,12 +436,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -410,6 +466,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -420,12 +478,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: portaria
         description: Portaria
       - name: conta
@@ -442,6 +504,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -452,6 +516,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -472,6 +538,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -482,6 +550,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria
@@ -502,6 +572,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [id_conta_bd, conta_bd]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -512,6 +584,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: portaria
         description: Portaria
       - name: conta
@@ -527,6 +601,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -537,6 +613,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: estagio
         description: Estágio
       - name: portaria

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import csv
 
-from common import ARCH_DIR
-from schema_def import ARCH_HEADER, TABLES
+from models.us_ffiec_bank_reporting.code.common import ARCH_DIR
+from models.us_ffiec_bank_reporting.code.schema_def import ARCH_HEADER, TABLES
 
 
 def main() -> None:

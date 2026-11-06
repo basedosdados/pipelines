@@ -18,7 +18,7 @@ leave those revisions behind.
 All four tables are fully free. The BD Pro rolling window applies to tables that
 refresh monthly or more often; this one is quarterly.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_fdic_bankfind_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_fdic_bankfind_flow`;
 the dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -26,7 +26,7 @@ import shutil
 import tempfile
 
 import pandas as pd
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fdic_bankfind.constants import constants
 from pipelines.datasets.us_fdic_bankfind.tasks import (
@@ -34,11 +34,7 @@ from pipelines.datasets.us_fdic_bankfind.tasks import (
     build_static_tables,
     source_max_report_date,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearQuarter,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -53,19 +49,9 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = constants.POLL_TABLE.value
 
-# Both quarterly tables are fully free: the BD Pro rolling window covers tables
-# refreshed monthly or more often, and Call Reports are quarterly. `institution`
-# and `indicator` carry no date column, so they take no coverage spec at all.
-_COVERAGE = {
-    "financials": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "financials_indicator": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-}
+# `institution` and `indicator` carry no date column, so they take no coverage
+# spec at all.
+TABLES_WITH_COVERAGE = ["financials", "financials_indicator"]
 
 
 def _coverage_month(report_date: str) -> str:
@@ -91,7 +77,6 @@ def us_fdic_bankfind_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="financials"
     )
@@ -163,11 +148,10 @@ def us_fdic_bankfind_flow(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -181,10 +165,8 @@ def us_fdic_bankfind_flow(
 # on no fixed day. Polling every five days year-round costs four real runs a
 # year and a cheap no-op otherwise, and never waits a quarter for a slipped
 # release. Minute 22 of hour 17 is unused elsewhere in the repo.
-# pyrefly: ignore [missing-attribute]
 us_fdic_bankfind_flow.deploy_schedules = [
-    {"cron": "22 17 1,6,11,16,21,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("22 17 1,6,11,16,21,26 * *", timezone="America/Sao_Paulo")
 ]
 # The long table holds ~8M rows per quarter before it is written.
-# pyrefly: ignore [missing-attribute]
 us_fdic_bankfind_flow.job_variables = {"memory": "8Gi"}

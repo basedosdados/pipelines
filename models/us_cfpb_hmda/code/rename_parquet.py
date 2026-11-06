@@ -13,7 +13,8 @@ import glob
 from pathlib import Path
 
 import duckdb
-from common import LEGACY, MODERN, OUTPUT
+
+from models.us_cfpb_hmda.code.common import LEGACY, MODERN, OUTPUT
 
 RENAME = {
     MODERN: {

@@ -24,18 +24,18 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at its
 own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dot_fars_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dot_fars_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_dot_fars.constants import constants
 from pipelines.datasets.us_dot_fars.tasks import clean_corpus, probe_source
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -49,22 +49,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 PRIMARY_TABLE = constants.PRIMARY_TABLE.value
-
-# Coverage spec per table.
-#
-# FARS is an ANNUAL release, so none of these tables takes the BD Pro rolling
-# window: the house rule paywalls the recent slice only for tables refreshed
-# monthly or more often, and lower-frequency tables stay free. All three data
-# tables are therefore AllFree, which also means this flow never issues BigQuery
-# Row Access Policies — needs_row_access_policy is true only for PartBdpro.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in constants.DATA_TABLES.value
-}
 
 
 @flow(name="us_dot_fars", log_prints=True)
@@ -88,7 +72,6 @@ def us_dot_fars_flow(
             year without adding a new one, which leaves the max coverage date
             unmoved and so does not trip the poll.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=PRIMARY_TABLE
     )
@@ -185,11 +168,10 @@ def us_dot_fars_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -206,9 +188,8 @@ def us_dot_fars_flow(
 # The minute and hour are chosen, not defaulted: 38 11 is unused across the repo.
 # Defaulting to :00 piles every pipeline onto the same instant, where they compete
 # for BigQuery slots and trip the daily byte quota together.
-# pyrefly: ignore [missing-attribute]
 us_dot_fars_flow.deploy_schedules = [
-    {"cron": "38 11 6,21 * *", "timezone": "America/Sao_Paulo"}
+    Cron("38 11 6,21 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one year of rows in memory at a time (2015's person file
 # is the largest at ~82k rows), but the dicionario build reads each pre-2015
@@ -218,7 +199,6 @@ us_dot_fars_flow.deploy_schedules = [
 # memory_limit is the key the work pool's job template actually exposes; a flow
 # that sets only `memory` is silently capped at the 4Gi default no matter what
 # value it names.
-# pyrefly: ignore [missing-attribute]
 us_dot_fars_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

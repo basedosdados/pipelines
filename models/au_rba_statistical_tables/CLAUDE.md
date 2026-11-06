@@ -31,7 +31,7 @@ Worker sizing: `"memory": "4Gi"`
 - (none literal in `constants.py`)
 
 ## Design notes
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_rba_statistical_tables_flow`; the dev pool ignores the schedule, the prod pool
 activates it.
 

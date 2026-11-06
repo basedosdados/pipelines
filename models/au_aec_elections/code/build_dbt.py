@@ -1,6 +1,6 @@
 """Generate the au_aec_elections dbt models and schema.yml from the architecture.
 
-Run:  uv run python models/au_aec_elections/code/build_dbt.py
+Run:  uv run models/au_aec_elections/code/build_dbt.py
 """
 
 from __future__ import annotations

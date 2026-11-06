@@ -5,7 +5,7 @@ table, safe_cast-ing to the architecture types, and de-duplicating to one row pe
 natural key (the QuickStats bulk carries ~0.006% benign duplicates once the
 source-only columns are dropped). Plus the static dicionario model.
 
-Run: ``uv run python models/us_usda_nass/code/build_dbt_models.py``
+Run: ``uv run models/us_usda_nass/code/build_dbt_models.py``
 """
 
 import csv

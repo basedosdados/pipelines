@@ -14,14 +14,14 @@ Météo-France publishes on two different cadences, so this dataset has two flow
   station's first and last observation year, which one year cannot give — that
   doubles as a monthly full rebuild of ``synop``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
 ignores the schedules, the prod pool activates them.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.fr_meteofrance.constants import constants
 from pipelines.datasets.fr_meteofrance.tasks import (
@@ -33,15 +33,7 @@ from pipelines.datasets.fr_meteofrance.tasks import (
     download_synop,
     max_climatologie_date,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -55,60 +47,9 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
-#
-# `synop` is the high-frequency table — it refreshes daily — so it carries the
-# BD Pro rolling window: the most recent 6 months are pro-only, everything older
-# is free. Each run recomputes free_end = source_end - free_lag, rewrites both
-# DateTimeRanges and re-issues the BigQuery Row Access Policies, so the window
-# slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# `normale_climatologique` is reissued monthly but its content is a fixed
-# 1991-2020 statistic: the republished sheet restates the same reference period
-# rather than advancing it. A rolling window over a series that does not move
-# would paywall the tail of 2020 forever, so it stays fully free, keyed on the
-# reference period's end year.
-#
-# The two station registers and `dicionario` have no meaningful date column and
-# take no coverage spec at all — their registered ranges are set once, by hand.
-_COVERAGE = {
-    "synop": PartBdpro(
-        date_column=DateOnly(col="date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "normale_climatologique": AllFree(
-        date_column=YearOnly(col="annee_fin_reference"),
-        date_format=DateFormat.YEAR,
-    ),
-    # The climatological archive advances every month -- new days and new months
-    # are appended -- so unlike `normale_climatologique` it does move, and the
-    # monthly-or-more-often rule applies. `poste` has no date column and takes
-    # no spec.
-    "quotidienne": PartBdpro(
-        date_column=DateOnly(col="date"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "mensuelle": PartBdpro(
-        date_column=YearMonth(year="annee", month="mois"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
-
-# Coverage specs used by each flow, so one flow never rewrites another's ranges.
-_SYNOP_COVERAGE = {"synop": _COVERAGE["synop"]}
-_CLIMATOLOGIE_COVERAGE = {
-    k: _COVERAGE[k] for k in ("synop", "normale_climatologique")
-}
-_CLIMATOLOGIE_BASE_COVERAGE = {
-    k: _COVERAGE[k] for k in ("quotidienne", "mensuelle")
-}
+# Tables registered by each flow, so one flow never rewrites another's ranges.
+_CLIMATOLOGIE_TABLES = ("synop", "normale_climatologique")
+_CLIMATOLOGIE_BASE_TABLES = ("quotidienne", "mensuelle")
 
 
 def _materialize(tables: dict, bucket: str, target: str) -> None:
@@ -162,7 +103,6 @@ def fr_meteofrance_synop_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new day.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="synop"
     )
@@ -206,7 +146,6 @@ def fr_meteofrance_synop_flow(
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id="synop",
-                coverage=_COVERAGE["synop"],
                 env="prod",
                 bq_project="basedosdados",
             )
@@ -237,7 +176,6 @@ def fr_meteofrance_climatologie_flow(
             coverage and commit the source update.
         force_run: Materialize even when the source poll reports no new edition.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=DATASET_ID,
@@ -294,11 +232,10 @@ def fr_meteofrance_climatologie_flow(
         _materialize(tables, bucket="basedosdados", target="prod")
 
         if update_metadata:
-            for table, coverage in _CLIMATOLOGIE_COVERAGE.items():
+            for table in _CLIMATOLOGIE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -333,7 +270,6 @@ def fr_meteofrance_climatologie_base_flow(
             coverage and commit the source update.
         force_run: Materialize even when the source poll reports no new edition.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="quotidienne"
     )
@@ -382,11 +318,10 @@ def fr_meteofrance_climatologie_base_flow(
         _materialize(ordered, bucket="basedosdados", target="prod")
 
         if update_metadata:
-            for table, coverage in _CLIMATOLOGIE_BASE_COVERAGE.items():
+            for table in _CLIMATOLOGIE_BASE_TABLES:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -396,32 +331,26 @@ def fr_meteofrance_climatologie_base_flow(
 
 # Météo-France refreshes the current year's SYNOP file through the day; 07:23 BRT
 # is after the overnight sync and on a minute nothing else in the repo uses.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_synop_flow.deploy_schedules = [
-    {"cron": "23 7 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 7 * * *", timezone="America/Sao_Paulo")
 ]
 # One year of SYNOP is ~350k rows in pandas; modest.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_synop_flow.job_variables = {"memory": "4Gi"}
 
 # The sheets are reissued monthly, early in the month. Poll across a few days at
 # 07:37 BRT; the source-poll guard no-ops until a new edition actually appears.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_flow.deploy_schedules = [
-    {"cron": "37 7 6,7,8,9 * *", "timezone": "America/Sao_Paulo"}
+    Cron("37 7 6,7,8,9 * *", timezone="America/Sao_Paulo")
 ]
 # Cleans 31 years of SYNOP plus 1,576 sheets; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_flow.job_variables = {"memory": "8Gi"}
 
 # The archive is reissued monthly, a few days into the month. 07:51 BRT is a
 # minute nothing else in the repo uses; the source-poll guard no-ops until a new
 # edition appears.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_base_flow.deploy_schedules = [
-    {"cron": "51 7 8,9,10,11 * *", "timezone": "America/Sao_Paulo"}
+    Cron("51 7 8,9,10,11 * *", timezone="America/Sao_Paulo")
 ]
 # Downloads ~940 archives and rebuilds the station register from all of them,
 # but only re-cleans the latest slice (~4M daily rows, not 137M).
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_base_flow.job_variables = {"memory": "12Gi"}

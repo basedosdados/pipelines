@@ -11,7 +11,7 @@ Env vars:
     TRI_YEARS      optional comma-separated subset of years to clean
 
 Run from the repo root with the repo on PYTHONPATH:
-    PYTHONPATH=. uv run python models/us_epa_tri/code/clean_data.py
+    PYTHONPATH=. uv run models/us_epa_tri/code/clean_data.py
 """
 
 import logging

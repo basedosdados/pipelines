@@ -1,6 +1,6 @@
 """Write the architecture CSV for us_eia_seds.
 
-    python gen_architecture.py
+    uv run models/us_eia_seds/code/gen_architecture.py
 
 The architecture CSV is the schema source of truth: column order, bigquery_type,
 directory links, units and the trilingual descriptions the dbt models and the
@@ -11,7 +11,7 @@ to derive them from, unlike us_eia_electricity).
 
 import csv
 
-from common import ARCHITECTURE_DIR
+from models.us_eia_seds.code.common import ARCHITECTURE_DIR
 
 # Architecture CSV columns, in the order the backend and the style manual expect.
 FIELDS = [

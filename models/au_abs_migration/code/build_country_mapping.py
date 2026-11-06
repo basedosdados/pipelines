@@ -36,7 +36,6 @@ import re
 import unicodedata
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 DATA_DIR = Path(

@@ -1,7 +1,7 @@
 """Upload the cleaned au_abs_population parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_abs_population/code/upload.py [table_slug ...]
+    uv run models/au_abs_population/code/upload.py [table_slug ...]
 
 Targets basedosdados-dev only. Production tables are materialised by the
 table-approve GitHub action when the onboarding PR merges; they are never

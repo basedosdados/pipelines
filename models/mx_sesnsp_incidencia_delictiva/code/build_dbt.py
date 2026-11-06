@@ -10,7 +10,7 @@ combination + not_null_proportion on every model. Big municipal tables scope tes
 with the __most_recent_year_month__ incremental keyword.
 
 Usage:
-    uv run python models/mx_sesnsp_incidencia_delictiva/code/build_dbt.py
+    uv run models/mx_sesnsp_incidencia_delictiva/code/build_dbt.py
 """
 
 import csv

@@ -11,7 +11,8 @@ would silently change published counts. Only the final annual file is loaded.
 import os
 from typing import Any
 
-from prefect import flow, get_run_logger
+from prefect import get_run_logger
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_nchs_vital_statistics.constants import constants
 from pipelines.datasets.us_nchs_vital_statistics.tasks import (
@@ -19,7 +20,7 @@ from pipelines.datasets.us_nchs_vital_statistics.tasks import (
     latest_source_year_task,
     write_dicionario_task,
 )
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -36,14 +37,6 @@ DATA_DIR = os.environ.get(
     "NCHS_DATA_DIR",
     os.path.expanduser("~/Downloads/us_nchs_vital_statistics_data"),
 )
-COVERAGE = {
-    "birth": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "death": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
 
 
 @flow(name="us_nchs_vital_statistics", log_prints=True)
@@ -54,7 +47,6 @@ def us_nchs_vital_statistics_flow(
     year: int | None = None,
 ):
     logger = get_run_logger()
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="birth"
     )
@@ -168,7 +160,6 @@ def us_nchs_vital_statistics_flow(
         register_table_materialization_task(
             dataset_id=DATASET_ID,
             table_id=product,
-            coverage=COVERAGE[product],
             env="prod",
             bq_project="basedosdados",
         )
@@ -184,9 +175,7 @@ def us_nchs_vital_statistics_flow(
 # NCHS releases the final annual files without a fixed date, usually between the
 # following autumn and the second spring. Poll on a few days each month; the
 # source-poll guard makes a run a no-op until a new data year actually appears.
-# pyrefly: ignore [missing-attribute]
 us_nchs_vital_statistics_flow.deploy_schedules = [
-    {"cron": "38 7 12,19,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("38 7 12,19,26 * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 us_nchs_vital_statistics_flow.job_variables = {"memory": "8Gi"}

@@ -31,7 +31,8 @@ models:
         description: >
           RSSD identifier assigned by the Federal Reserve, unique per institution
           and stable across name and charter changes; the join key across every table
-          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+          in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id,
+          which carries the FDIC certificate
         tests: [not_null]
       - name: fdic_cert_id
         description: >
@@ -108,7 +109,8 @@ models:
         description: >
           RSSD identifier assigned by the Federal Reserve, unique per institution
           and stable across name and charter changes; the join key across every table
-          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+          in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id,
+          which carries the FDIC certificate
         tests:
           - not_null:
               config:
@@ -140,6 +142,10 @@ models:
       December quarters carry about 4,200 companies and March and September about
       420, because the FR Y-9SP filed by smaller holding companies is semiannual
       while the FR Y-9C is quarterly.
+      Retired county FIPS codes are excluded from the county foreign-key test:
+      the county directory carries a single vintage, while this table spans the
+      2022 Connecticut county-to-planning-region change and the 1997 recoding of
+      Dade County, Florida.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, rssd_id]
@@ -164,7 +170,8 @@ models:
         description: >
           RSSD identifier assigned by the Federal Reserve, unique per institution
           and stable across name and charter changes; the join key across every table
-          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+          in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id,
+          which carries the FDIC certificate
         tests: [not_null]
       - name: name
         description: >
@@ -264,7 +271,8 @@ models:
         description: >
           RSSD identifier assigned by the Federal Reserve, unique per institution
           and stable across name and charter changes; the join key across every table
-          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+          in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id,
+          which carries the FDIC certificate
         tests:
           - not_null:
               config:
@@ -354,6 +362,10 @@ models:
       group, split into loan size and borrower revenue bands. Reported only by
       large institutions, and aggregated by the FFIEC to county level -- the
       disclosure files carry no per-tract loan amounts.
+      Retired county FIPS codes are excluded from the county foreign-key test:
+      the county directory carries a single vintage, while this table spans the
+      2022 Connecticut county-to-planning-region change and the 1997 recoding of
+      Dade County, Florida.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -491,6 +503,10 @@ models:
       The census tracts that make up each institution's CRA assessment areas, one
       row per institution, year and tract. The tract-level companion to
       cra_lending, which is only published at county level.
+      Retired county FIPS codes are excluded from the county foreign-key test:
+      the county directory carries a single vintage, while this table spans the
+      2022 Connecticut county-to-planning-region change and the 1997 recoding of
+      Dade County, Florida.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

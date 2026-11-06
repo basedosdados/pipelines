@@ -18,7 +18,7 @@ Everything is one pass per table. Issuing a scalar subquery per metric re-scans 
 15.3M-row table each time; a MiDES validation written that way billed 63.87 GB.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_es.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_es.py [--env dev]
 """
 
 from __future__ import annotations

@@ -6,26 +6,21 @@ restatement of the history, so a run appends one partition rather than rebuildin
 the table: ``dump_mode="append"`` against ``flight/year=YYYY/``. The reference
 tables are small and are rebuilt each run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dot_bts_ontime_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dot_bts_ontime_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_dot_bts_ontime.constants import constants
 from pipelines.datasets.us_dot_bts_ontime.tasks import (
     discover_latest_month,
     download_and_clean_month,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -39,24 +34,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 TABLES = list(constants.TABLES.value)
-
-# `flight` refreshes monthly, so it takes the house BD Pro rolling window: the
-# most recent 6 months are pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
-# re-issues the BigQuery Row Access Policies, so the window slides on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# `airport` and `dicionario` have no date column, so they take no coverage spec.
-_COVERAGE = {
-    "flight": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
 
 
 @flow(name="us_dot_bts_ontime", log_prints=True)
@@ -77,7 +54,6 @@ def us_dot_bts_ontime_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="flight"
     )
@@ -147,14 +123,12 @@ def us_dot_bts_ontime_flow(
         materialize("basedosdados", "prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id="flight",
+                env="prod",
+                bq_project="basedosdados",
+            )
             # Last, and only after prod succeeded.
             commit_source_update_task(
                 dataset_id=DATASET_ID,
@@ -175,10 +149,8 @@ def us_dot_bts_ontime_flow(
 # 2026-08-12). Poll across a few mid-month days; the source-poll guard no-ops
 # until a new month actually appears. Minute 28 is unused elsewhere in the repo,
 # so scheduled runs do not pile onto another pipeline's instant.
-# pyrefly: ignore [missing-attribute]
 us_dot_bts_ontime_flow.deploy_schedules = [
-    {"cron": "28 16 12,14,16,18,20 * *", "timezone": "America/Sao_Paulo"}
+    Cron("28 16 12,14,16,18,20 * *", timezone="America/Sao_Paulo")
 ]
 # One month is ~600k rows across 114 columns held in arrow during the clean.
-# pyrefly: ignore [missing-attribute]
 us_dot_bts_ontime_flow.job_variables = {"memory": "8Gi"}

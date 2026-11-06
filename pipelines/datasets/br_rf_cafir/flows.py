@@ -4,7 +4,8 @@ Flows for br_rf_cafir — Prefect 3.
 
 import datetime
 
-from prefect import flow, unmapped
+from prefect import unmapped
+from prefect.schedules import Cron
 from prefect.task_runners import ThreadPoolTaskRunner
 
 from pipelines.datasets.br_rf_cafir.constants import (
@@ -20,11 +21,7 @@ from pipelines.datasets.br_rf_cafir.tasks import (
     get_last_reference_date,
     process_file,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -37,11 +34,11 @@ from pipelines.utils.tasks import (
 )
 
 
-# pyrefly: ignore [no-matching-overload]
 @flow(
     name="br_rf_cafir__imoveis_rurais",
     log_prints=True,
     # Limita a 6 tasks (download/processamento) simultâneas para não sobrecarregar o servidor
+    # pyrefly: ignore [bad-argument-type]
     task_runner=ThreadPoolTaskRunner(max_workers=6),
 )
 def br_rf_cafir__imoveis_rurais(
@@ -53,7 +50,6 @@ def br_rf_cafir__imoveis_rurais(
     force_run: bool = False,
     data_referencia: str | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -98,7 +94,6 @@ def br_rf_cafir__imoveis_rurais(
         df_metadata=df_metadata, reference_date=reference_date
     )
 
-    # pyrefly: ignore [no-matching-overload]
     file_records = extract_file_records(df_metadata=filtered_df)
     file_names = [record["nome_arquivo"] for record in file_records]
     reference_dates = [record["data_referencia"] for record in file_records]
@@ -162,16 +157,11 @@ def br_rf_cafir__imoveis_rurais(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_referencia"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_rf_cafir__imoveis_rurais.deploy_schedules = [
-    {"cron": "0 0 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 0 * * *", timezone="America/Sao_Paulo")
 ]

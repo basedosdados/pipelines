@@ -6,7 +6,7 @@ This script pulls the two catalog endpoints once and writes them to
 ``source_metadata.json``, which is committed so that a rebuild is reproducible
 and the PR diff shows exactly what FEMA said.
 
-Re-run when FEMA changes a schema:  uv run python fetch_source_metadata.py
+Re-run when FEMA changes a schema:  uv run fetch_source_metadata.py
 """
 
 from __future__ import annotations

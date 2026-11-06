@@ -69,3 +69,13 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "au_abs_labour_force" / "code" / "architecture"
     )
+
+
+# Table ids. Kept here as plain literals (not Enum members) so `tasks.py`/
+# `flows.py` can import them directly — one independent check_update/
+# extract_and_load pair per table (the repo-wide one-pipeline-per-table_id
+# shape; see `pipelines.utils.stage_dispatch.pipeline_factory`).
+LABOUR_FORCE_STATUS_TABLE_ID = "labour_force_status"
+HOURS_WORKED_TABLE_ID = "hours_worked"
+STATUS_IN_EMPLOYMENT_TABLE_ID = "status_in_employment"
+UNDERUTILISATION_TABLE_ID = "underutilisation"

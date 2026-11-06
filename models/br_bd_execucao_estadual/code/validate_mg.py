@@ -11,7 +11,7 @@ subquery per metric re-scans the whole thing each time -- a MiDES validation wri
 way billed 63.87 GB.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_mg.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_mg.py [--env dev]
 """
 
 from __future__ import annotations

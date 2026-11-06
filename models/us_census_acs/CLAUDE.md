@@ -64,7 +64,7 @@ python3 code/clean_profiles.py state
 
 # upload to dev (from pipelines worktree root)
 GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/prod.json \
-  uv run python models/us_census_acs/code/upload.py <table>
+  uv run models/us_census_acs/code/upload.py <table>
 
 # dbt (default target = dev)
 BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/prod.json \

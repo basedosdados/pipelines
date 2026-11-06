@@ -1,0 +1,20 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+congress,INT64,"Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)",,no,,,no,"Ordinal Congress number, starting at 1 in 1789. Each Congress spans two years. Partition column of the partitioned tables",congress
+chamber,STRING,"Chamber: House, Senate or President",,no,,,no,,chamber
+rollnumber,STRING,Sequential number of the roll call within the Congress and chamber,,no,,,no,"Starts at 1 in the first roll call of each Congress. Excludes quorum calls and vacated votes, so it does not match clerk_rollnumber. Stored as text: cast to INT64 to sort numerically",rollnumber
+date,DATE,Date of the roll call,,no,,,no,,date
+session,STRING,Session of the Congress in which the roll call took place,,no,,,no,Empty for most historical roll calls,session
+clerk_rollnumber,STRING,Roll call number assigned by the clerk of the chamber,,no,,,no,"Includes quorum calls and vacated votes and restarts at 1 every session, not every Congress",clerk_rollnumber
+majority_requirement,STRING,"Fraction of votes required to pass, e.g. 1/2, 2/3 or 3/5",,no,,,no,,majority_requirement
+yea_count,INT64,Number of Yea votes,,no,,vote,no,,yea_count
+nay_count,INT64,Number of Nay votes,,no,,vote,no,,nay_count
+nominate_mid_1,FLOAT64,NOMINATE (DW-NOMINATE) first-dimension midpoint estimate of the roll call,,no,,index,no,,nominate_mid_1
+nominate_mid_2,FLOAT64,NOMINATE (DW-NOMINATE) second-dimension midpoint estimate of the roll call,,no,,index,no,,nominate_mid_2
+nominate_spread_1,FLOAT64,NOMINATE (DW-NOMINATE) first-dimension spread estimate of the roll call,,no,,index,no,,nominate_spread_1
+nominate_spread_2,FLOAT64,NOMINATE (DW-NOMINATE) second-dimension spread estimate of the roll call,,no,,index,no,,nominate_spread_2
+nominate_log_likelihood,FLOAT64,Log-likelihood of the roll call's NOMINATE (DW-NOMINATE) estimate,,no,,,no,Dimensionless fit statistic,nominate_log_likelihood
+bill_number,STRING,Number of the bill on which the roll call was held,,no,,,no,,bill_number
+vote_result,STRING,Official result of the roll call,,no,,,no,,vote_result
+vote_desc,STRING,Description of the roll call assigned by congressional staff,,no,,,no,,vote_desc
+vote_question,STRING,"Question put to the vote, e.g. On Agreeing to the Amendment",,no,,,no,,vote_question
+dtl_desc,STRING,Description of the roll call from historical sources,,no,,,no,,dtl_desc

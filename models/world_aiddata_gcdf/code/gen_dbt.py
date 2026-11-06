@@ -17,7 +17,9 @@ MODEL_DIR = _HERE.parent
 _spec = importlib.util.spec_from_file_location(
     "gcdf_arch", _HERE / "architecture" / "gen_architecture.py"
 )
+# pyrefly: ignore [bad-argument-type]
 arch = importlib.util.module_from_spec(_spec)
+# pyrefly: ignore [missing-attribute]
 _spec.loader.exec_module(arch)
 COLS = arch.COLS
 OUTPUT_ORDER = arch.OUTPUT_ORDER
@@ -149,6 +151,7 @@ def gen_schema() -> str:
         if name == "year":
             tests.append(("not_null", None))
             tests.append(
+                # pyrefly: ignore [bad-argument-type]
                 (
                     "relationships",
                     ("br_bd_diretorios_data_tempo__ano", "ano.ano", None),
@@ -158,6 +161,7 @@ def gen_schema() -> str:
             tests.append(("not_null", None))
         elif name == "country_iso3_code":
             tests.append(
+                # pyrefly: ignore [bad-argument-type]
                 (
                     "custom_relationships",
                     ("br_bd_diretorios_mundo__pais", "sigla_iso3", []),
@@ -169,11 +173,13 @@ def gen_schema() -> str:
                 if tname == "not_null":
                     out.append("          - not_null")
                 elif tname == "relationships":
+                    # pyrefly: ignore [not-iterable]
                     ref, field, _ = arg
                     out.append("          - relationships:")
                     out.append(f"              to: ref('{ref}')")
                     out.append(f"              field: {field}")
                 elif tname == "custom_relationships":
+                    # pyrefly: ignore [not-iterable]
                     ref, field, ignore = arg
                     out.append("          - custom_relationships:")
                     out.append(f"              to: ref('{ref}')")

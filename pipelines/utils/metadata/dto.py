@@ -55,6 +55,9 @@ class DateTimeRangeInput(BaseModel):
     endYear: Year | None = None
     endMonth: Month | None = None
     endDay: Day | None = None
+    # O backend exige `interval` num range com início e fim. Ao criar um range,
+    # o Client usa 1 quando ele vem vazio; ao atualizar, mantém o valor gravado.
+    interval: int | None = None
 
     @model_validator(mode="after")
     def _shape_consistent(self) -> DateTimeRangeInput:

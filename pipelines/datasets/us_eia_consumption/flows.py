@@ -14,13 +14,13 @@ The annual form and the monthly form are polled separately because they move on
 different clocks. The three annual tables are fully free; eia861m refreshes
 monthly and carries the BD Pro rolling window.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_consumption_flow`.
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_consumption_flow`.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_eia_consumption.constants import constants
 from pipelines.datasets.us_eia_consumption.tasks import (
@@ -28,14 +28,7 @@ from pipelines.datasets.us_eia_consumption.tasks import (
     download_corpus,
     probe_source,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -53,30 +46,6 @@ DATASET_ID = constants.DATASET_ID.value
 POLL_TABLE = {
     "eia861": constants.RETAIL_SALES.value,
     "eia861m": constants.EIA861M.value,
-}
-
-# Coverage per table. The annual tables are AllFree; eia861m refreshes monthly,
-# so it carries the BD Pro rolling window (free_end = source_end - 6 months),
-# which requires a free AND a pro Coverage to already exist (registered at
-# onboarding with --bdpro). Its (year, month) are guaranteed non-null by the
-# builder, so no row is paywalled forever by a NULL date. dicionario has no date
-# column and takes no coverage spec.
-_FREE_LAG = FreeLag(unit="months", value=6)
-_COVERAGE = {
-    constants.UTILITY.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.RETAIL_SALES.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.SERVICE_TERRITORY.value: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    constants.EIA861M.value: PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=_FREE_LAG,
-    ),
 }
 
 
@@ -98,7 +67,6 @@ def us_eia_consumption_flow(
         force_run: Materialize even when both polls report nothing new — needed
             for a revision that restates without adding a period.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=DATASET_ID,
@@ -196,11 +164,10 @@ def us_eia_consumption_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in constants.DATA_TABLES.value:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -212,13 +179,11 @@ def us_eia_consumption_flow(
 # autumn. Poll daily and let the source-poll guard no-op. :31 keeps clear of
 # other crons in this repo (and of us_eia_electricity at :17 and us_eia_seds at
 # :23).
-# pyrefly: ignore [missing-attribute]
 us_eia_consumption_flow.deploy_schedules = [
-    {"cron": "31 9 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("31 9 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step parses one EIA-861 workbook at a time; 8Gi is comfortable.
 # `memory` alone is dropped by the work pool — the pod honours `memory_limit`.
-# pyrefly: ignore [missing-attribute]
 us_eia_consumption_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

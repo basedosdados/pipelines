@@ -1,6 +1,6 @@
 """Write the dbt model and schema.yml for us_eia_seds.
 
-    python gen_dbt.py
+    uv run models/us_eia_seds/code/gen_dbt.py
 
 Generated from the architecture CSV so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they implement.
@@ -10,7 +10,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from common import DATA_TABLES, REPO_ROOT, load_cols
+from models.us_eia_seds.code.common import DATA_TABLES, REPO_ROOT, load_cols
 
 MODELS = REPO_ROOT / "models" / "us_eia_seds"
 DATASET = "us_eia_seds"

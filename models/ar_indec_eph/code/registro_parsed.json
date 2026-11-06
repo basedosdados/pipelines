@@ -1,0 +1,2731 @@
+{
+ "microdatos_hogar": {
+  "CODUSU": {
+   "declared_type": "C",
+   "width": 29,
+   "description": "y Personas. Además permite hacer el seguimiento a través de los trimestres",
+   "values": {}
+  },
+  "NRO_HOGAR": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Código para distinguir Hogares, permite aparearlos con Personas",
+   "values": {}
+  },
+  "REALIZADA": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Entrevista realizada = Sí = No (hogar no respuesta)",
+   "values": {}
+  },
+  "ANO4": {
+   "declared_type": "N",
+   "width": 4,
+   "description": "Año de relevamiento (4 dígitos)",
+   "values": {}
+  },
+  "TRIMESTRE": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Ventana de observación",
+   "values": {
+    "1": "1° trimestre",
+    "2": "2° trimestre",
+    "3": "3° trimestre",
+    "4": "4° trimestre"
+   }
+  },
+  "REGION": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Código de región",
+   "values": {
+    "1": "Gran Buenos Aires",
+    "40": "Noroeste",
+    "41": "Noreste",
+    "42": "Cuyo",
+    "43": "Pampeana",
+    "44": "Patagonia"
+   }
+  },
+  "MAS_500": {
+   "declared_type": "C",
+   "width": 1,
+   "description": "Aglomerados según tamaño N = Conjunto de aglomerados de menos de 500.000 habitantes S = Conjunto de aglomerados de 500.000 y más habitantes",
+   "values": {}
+  },
+  "AGLOMERADO": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Código de Aglomerado",
+   "values": {
+    "2": "Gran La Plata",
+    "3": "Bahía Blanca-Cerri",
+    "4": "Gran Rosario",
+    "5": "Gran Santa Fe",
+    "6": "Gran Paraná",
+    "7": "Posadas",
+    "8": "Gran Resistencia",
+    "9": "Comodoro Rivadavia-Rada Tilly",
+    "10": "Gran Mendoza",
+    "12": "Corrientes",
+    "13": "Gran Córdoba",
+    "14": "Concordia",
+    "15": "Formosa",
+    "17": "Neuquén-Plottier",
+    "18": "Santiago del Estero-La Banda",
+    "19": "Jujuy-Palpalá",
+    "20": "Río Gallegos",
+    "22": "Gran Catamarca",
+    "23": "Gran Salta",
+    "25": "La Rioja",
+    "26": "Gran San Luis",
+    "27": "Gran San Juan",
+    "29": "Gran Tucumán-Tafí Viejo",
+    "30": "Santa Rosa-Toay",
+    "31": "Ushuaia-Río Grande",
+    "32": "Ciudad Autónoma de Buenos Aires",
+    "33": "Partidos del Gran Buenos Aires",
+    "34": "Mar del Plata",
+    "36": "Río Cuarto",
+    "38": "San Nicolás-Villa Constitución",
+    "91": "Rawson-Trelew",
+    "93": "Viedma-Carmen de Patagones"
+   }
+  },
+  "PONDERA": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "Ponderación",
+   "values": {}
+  },
+  "IV1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Tipo de vivienda (por observación)",
+   "values": {
+    "1": "Casa",
+    "2": "Departamento",
+    "3": "Pieza en inquilinato",
+    "4": "Pieza en hotel/pensión",
+    "5": "Local no construido para habitación"
+   }
+  },
+  "IV2": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántos ambientes/habitaciones tiene la vivienda en total? (sin contar baño/s, cocina, pasillo/s, lavadero, garage)",
+   "values": {}
+  },
+  "IV3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Los pisos interiores son principalmente de",
+   "values": {
+    "1": "...mosaico/baldosa/madera/cerámica/alfombra?",
+    "2": "...cemento/ladrillo fijo?",
+    "3": "...ladrillo suelto/tierra?"
+   }
+  },
+  "IV4": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿La cubierta exterior del techo es de",
+   "values": {
+    "1": "...membrana/cubierta asfáltica?",
+    "2": "...baldosa/losa sin cubierta?",
+    "3": "...pizarra/teja?",
+    "4": "...chapa de metal sin cubierta?",
+    "5": "...chapa de fibrocemento/plástico?",
+    "6": "...chapa de cartón?",
+    "7": "...caña/tabla/paja con barro/paja sola?",
+    "9": "...N/S. Departamento en propiedad horizontal"
+   }
+  },
+  "IV5": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El techo tiene cielorraso/revestimiento interior?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "IV6": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Tiene agua",
+   "values": {
+    "1": "...por cañería dentro de la vivienda?",
+    "2": "...fuera de la vivienda pero dentro del terreno?",
+    "3": "...fuera del terreno?"
+   }
+  },
+  "IV7": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El agua es de",
+   "values": {
+    "1": "...red pública? (agua corriente)",
+    "2": "...perforación con bomba a motor?",
+    "3": "...perforación con bomba manual?"
+   }
+  },
+  "IV8": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Tiene baño/letrina?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "IV9": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El baño o letrina está",
+   "values": {
+    "1": "...dentro de la vivienda?",
+    "2": "...fuera de la vivienda pero dentro del terreno?",
+    "3": "...fuera del terreno?"
+   }
+  },
+  "IV10": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El baño tiene",
+   "values": {
+    "1": "...inodoro con botón/mochila/cadena y arrastre de agua?",
+    "2": "...inodoro sin botón/cadena y con arrastre de agua? (a balde)",
+    "3": "...letrina? (sin arrastre de agua)"
+   }
+  },
+  "IV11": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El desague del baño es",
+   "values": {
+    "1": "...a red pública? (cloaca)",
+    "2": "...a cámara séptica y pozo ciego?",
+    "3": "...solo a pozo ciego?",
+    "4": "...a hoyo/excavación en la tierra?"
+   }
+  },
+  "IV12_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿La vivienda está ubicada cerca de basural/es? (3 cuadras o menos)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "IV12_2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿La vivienda está ubicada en zona inundable? (en los últimos 12 meses)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "IV12_3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿La vivienda está ubicada en villa de emergencia? (por observación)",
+   "values": {
+    "1": "Sí",
+    "2": "No Características habitacionales del hogar Campo Tipo (longitud) Descripción"
+   }
+  },
+  "II1": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántos ambientes/habitaciones tiene este hogar para su uso exclusivo? (excluyendo cocina, baño, pasillos, lavadero, garage)",
+   "values": {}
+  },
+  "II2": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "De esos, ¿cuántos usan habitualmente para dormir?",
+   "values": {}
+  },
+  "II3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Utiliza alguno exclusivamente como lugar de trabajo? (para consultorio, estudio, taller, negocio, etc.)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "II3_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Si utiliza alguno exclusivamente como lugar de trabajo, ¿cuántos?",
+   "values": {}
+  },
+  "II4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Tiene además",
+   "values": {}
+  },
+  "II4_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...cuarto de cocina?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "II4_2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...lavadero?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "II4_3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...garage?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "II5": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "De estos ... (los sí de la pregunta 4), ¿usan alguno para dormir?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "II5_1": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Si utiliza alguno para dormir, ¿cuántos?",
+   "values": {}
+  },
+  "II6": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Utiliza alguno de estos ... (los sí de la pregunta 4) exclusivamente como lugar de trabajo? (para consultorio, estudio, taller, negocio, etc.)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "II6_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Si utiliza alguno exclusivamente como lugar de trabajo, ¿cuántos?",
+   "values": {}
+  },
+  "II7": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Este hogar es",
+   "values": {
+    "1": "...propietario de la vivienda y el terreno?",
+    "2": "...propietario de la vivienda solamente?",
+    "3": "...inquilino/arrendatario de la vivienda?",
+    "4": "...ocupante por pago de impuestos/expensas?",
+    "5": "...ocupante en relación de dependencia?",
+    "6": "...ocupante gratuito (con permiso)?",
+    "7": "...ocupante de hecho (sin permiso)?",
+    "8": "...está en sucesión?"
+   }
+  },
+  "II8": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Para cocinar, utiliza principalmente",
+   "values": {
+    "1": "...gas de red?",
+    "2": "...gas de tubo/garrafa?",
+    "3": "...kerosene/leña/carbón?"
+   }
+  },
+  "II9": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El baño es de",
+   "values": {
+    "1": "...uso exclusivo del hogar?",
+    "2": "...compartido con otro/s hogar/es de la misma vivienda?",
+    "3": "...compartido con otra/s vivienda/s?",
+    "4": "no tiene baño Estrategias del hogar Campo Tipo (longitud) Descripción"
+   }
+  },
+  "V1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿En los últimos tres meses, las personas de este hogar han vivido ...de lo que ganan en el trabajo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...de alguna jubilación o pensión?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V2_01": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Jubilación o pensión obtenida por los aportes del trabajo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V21_01": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...aguinaldo de alguna jubilación o pensión obtenida por los aportes del trabajo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V22_01": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...retroactivo de alguna jubilación o pensión obtenida por los aportes del trabajo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V2_02": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Jubilación o pensión de \"ama de casa\" o por moratoria previsional?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V21_02": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...aguinaldo de alguna jubilación o pensión de \"ama de casa\" o por moratoria previsional?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V22_02": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...retroactivo de alguna jubilación o pensión de \"ama de casa\" o por moratoria previsional?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V2_03": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V21_03": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...aguinaldo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V22_03": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V3": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "...de indemnización por despido?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...de seguro de desempleo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V5_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "…de la Asignación Universal por Hijo (AUH) y/o Asignación por Embarazo? (incluye Tarjeta Alimentar)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V5_2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "…de otro plan social/subsidio en dinero otorgado por el gobierno?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V5_3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "…de ayuda en dinero a través de iglesias, parroquias, organizaciones no gubernamentales?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V6": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...con mercaderías, ropa, alimentos del gobierno, iglesias, escuelas, etc.?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V7": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...con mercaderías, ropa, alimentos de familiares, vecinos u otras personas que no viven en este hogar?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V8": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Cobraron ...algún alquiler (por una vivienda, terreno, oficina, etc.) de su propiedad?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V9": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...ganancias de algún negocio en el que no trabajan?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V10": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...intereses o rentas por plazos fijos/inversiones?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V11_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "…de una beca (en dinero) del gobierno para continuar estudios o finalizarlos? (Ej.: Beca Progresar u otras)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V11_2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...de otra beca (en dinero) de instituciones no gubernamentales?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V12": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...cuotas de alimentos o ayuda en dinero de personas que no viven en el hogar?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V13": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Además, han tenido que ...gastar lo que tenían ahorrado?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V14": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...pedir préstamos a familiares/amigos?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V15": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...pedir préstamos a bancos, financieras, etc.?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V16": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Compran en cuotas o al fiado con tarjeta de crédito o libreta?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V17": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Han tenido que vender alguna de sus pertenencias?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V18": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Tuvieron otros ingresos en efectivo? (limosnas, juegos de azar, etc.)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V19_A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Alguno de los niños (menores de 10 años) ayuda con algún dinero trabajando?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "V19_B": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Alguno de los niños (menores de 10 años) ayuda con algún dinero pidiendo?",
+   "values": {
+    "1": "Sí",
+    "2": "No Resumen del hogar Ingreso total familiar"
+   }
+  },
+  "ITF": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "Monto de ingreso total familiar (ver Anexo I)",
+   "values": {}
+  },
+  "DECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil del ingreso total del hogar del total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "IDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil del ingreso total del hogar del interior (ver Anexo I)",
+   "values": {}
+  },
+  "RDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total del hogar de la región (ver Anexo I)",
+   "values": {}
+  },
+  "GDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total del hogar del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "PDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total del hogar del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "ADECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total del hogar del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "IPCF": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "Monto de ingreso per cápita familiar (ver Anexo I)",
+   "values": {}
+  },
+  "DECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil del ingreso per cápita familiar del total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "IDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil del ingreso per cápita familiar del interior (ver Anexo I)",
+   "values": {}
+  },
+  "RDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de la región (ver Anexo I)",
+   "values": {}
+  },
+  "GDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "PDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar del conjunto de aglomerados de menos de 500.000 habitantes (Anexo I)",
+   "values": {}
+  },
+  "ADECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "PONDIH": {
+   "declared_type": "C",
+   "width": 6,
+   "description": "Ponderador del ingreso total familiar y del ingreso per cápita familiar (ver Anexo I)",
+   "values": {}
+  },
+  "CAMPO": {
+   "declared_type": null,
+   "width": null,
+   "description": "TIPO (longitud) DESCRIPCIÓN",
+   "values": {}
+  }
+ },
+ "microdatos_individuo": {
+  "CODUSU": {
+   "declared_type": "C",
+   "width": 29,
+   "description": "Código para distinguir VIVIENDAS, permite aparearlas con Hogares y Personas. Además permite hacer el seguimiento a través de los trimes- tres",
+   "values": {}
+  },
+  "NRO_HOGAR": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Código para distinguir hogares",
+   "values": {
+    "51": "Servicio doméstico en hogares",
+    "71": "Pensionistas en hogares"
+   }
+  },
+  "COMPONENTE": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Número de componente: número de orden que se asigna a las personas que conforman cada hogar de la vivienda Casos especiales:",
+   "values": {
+    "51": "Servicio doméstico en hogares",
+    "71": "Pensionistas en hogares"
+   }
+  },
+  "H15": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Entrevista individual realizada",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "ANO4": {
+   "declared_type": "N",
+   "width": 4,
+   "description": "Año de relevamiento (4 dígitos)",
+   "values": {}
+  },
+  "TRIMESTRE": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Ventana de observación",
+   "values": {
+    "1": "1° trimestre",
+    "2": "2° trimestre",
+    "3": "3° trimestre",
+    "4": "4° trimestre"
+   }
+  },
+  "REGION": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Código de región",
+   "values": {
+    "1": "Gran Buenos Aires",
+    "40": "Noroeste",
+    "41": "Noreste",
+    "42": "Cuyo",
+    "43": "Pampeana",
+    "44": "Patagonia"
+   }
+  },
+  "MAS_500": {
+   "declared_type": "C",
+   "width": 1,
+   "description": "Aglomerados según tamaño N = Conjunto de aglomerados de menos de 500.000 habitantes S = Conjunto de aglomerados de 500.000 y más habitantes",
+   "values": {}
+  },
+  "AGLOMERADO": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Código de aglomerado",
+   "values": {
+    "2": "Gran La Plata",
+    "3": "Bahía Blanca-Cerri",
+    "4": "Gran Rosario",
+    "5": "Gran Santa Fe",
+    "6": "Gran Paraná",
+    "7": "Posadas",
+    "8": "Gran Resistencia",
+    "9": "Comodoro Rivadavia-Rada Tilly",
+    "10": "Gran Mendoza",
+    "12": "Corrientes",
+    "13": "Gran Córdoba",
+    "14": "Concordia",
+    "15": "Formosa",
+    "17": "Neuquén-Plottier",
+    "18": "Santiago del Estero-La Banda",
+    "19": "Jujuy-Palpalá",
+    "20": "Río Gallegos",
+    "22": "Gran Catamarca",
+    "23": "Gran Salta",
+    "25": "La Rioja",
+    "26": "Gran San Luis",
+    "27": "Gran San Juan",
+    "29": "Gran Tucumán-Tafí Viejo",
+    "30": "Santa Rosa-Toay",
+    "31": "Ushuaia-Río Grande",
+    "32": "Ciudad Autónoma de Buenos Aires",
+    "33": "Partidos del Gran Buenos Aires",
+    "34": "Mar del Plata",
+    "36": "Río Cuarto",
+    "38": "San Nicolás-Villa Constitución",
+    "91": "Rawson-Trelew",
+    "93": "Viedma-Carmen de Patagones"
+   }
+  },
+  "PONDERA": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "Ponderación",
+   "values": {}
+  },
+  "CH03": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "Relación de parentesco",
+   "values": {
+    "1": "Jefe/a",
+    "2": "Cónyuge/pareja",
+    "3": "Hijo/a/hijastro/a",
+    "4": "Yerno/nuera",
+    "5": "Nieto/a",
+    "6": "Madre/padre",
+    "7": "Suegro/a",
+    "8": "Hermano/a",
+    "9": "Otros familiares",
+    "10": "No familiares"
+   }
+  },
+  "CH04": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Sexo",
+   "values": {
+    "1": "Varón",
+    "2": "Mujer"
+   }
+  },
+  "CH05": {
+   "declared_type": "date",
+   "width": null,
+   "description": "Fecha de nacimiento (día, mes y año)",
+   "values": {}
+  },
+  "CH06": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántos años cumplidos tiene?",
+   "values": {}
+  },
+  "CH07": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Actualmente está",
+   "values": {
+    "1": "...unido?",
+    "2": "...casado?",
+    "3": "...separado/a o divorciado/a?",
+    "4": "...viudo/a?",
+    "5": "...soltero/a?"
+   }
+  },
+  "CH08": {
+   "declared_type": "N",
+   "width": 3,
+   "description": "¿Tiene algún tipo de cobertura médica por la que paga o le descuentan?",
+   "values": {
+    "1": "Obra social (incluye PAMI)",
+    "2": "Mutual/prepaga/servicio de emergencia",
+    "3": "Planes y seguros públicos",
+    "4": "No paga ni le descuentan",
+    "9": "Ns/Nr",
+    "12": "Obra social y mutual/prepaga/servicio de emergencia",
+    "13": "Obra social y planes y seguros públicos",
+    "23": "Mutual/prepaga/servicio de emergencia y planes y seguros públicos",
+    "123": "Obra social y mutual/prepaga/servicio de emergencia y planes y seguros públicos"
+   }
+  },
+  "CH09": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Sabe leer y escribir?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "3": "Menor de 2 años"
+   }
+  },
+  "CH10": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Asiste o asistió a algún establecimiento educativo? (colegio, escuela, universidad)",
+   "values": {
+    "1": "Sí, asiste",
+    "2": "No asiste, pero asistió",
+    "3": "Nunca asistió"
+   }
+  },
+  "CH11": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Ese establecimiento es",
+   "values": {
+    "1": "...público",
+    "2": "...privado",
+    "9": "Ns/Nr"
+   }
+  },
+  "CH12": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuál es el nivel más alto que cursa o cursó?",
+   "values": {
+    "1": "Jardín/preescolar",
+    "2": "Primario",
+    "3": "EGB",
+    "4": "Secundario",
+    "5": "Polimodal",
+    "6": "Terciario",
+    "7": "Universitario",
+    "8": "Posgrado universitario",
+    "9": "Educación especial (discapacidad)"
+   }
+  },
+  "CH13": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Finalizó ese nivel?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "CH14": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuál fue el último año que aprobó?",
+   "values": {
+    "0": "Ninguno",
+    "1": "Primero",
+    "2": "Segundo",
+    "3": "Tercero",
+    "4": "Cuarto",
+    "5": "Quinto",
+    "6": "Sexto",
+    "7": "Séptimo",
+    "8": "Octavo",
+    "9": "Noveno",
+    "98": "Educación especial",
+    "99": "Ns/Nr"
+   }
+  },
+  "CH15": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Dónde nació?",
+   "values": {
+    "1": "En esta localidad",
+    "2": "En otra localidad de esta provincia",
+    "3": "En otra provincia (especificar)",
+    "4": "En un país limítrofe (especificar Brasil, Bolivia, Chile, Paraguay, Uruguay)",
+    "5": "En otro país (especificar)",
+    "9": "Ns/Nr"
+   }
+  },
+  "CH16": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Dónde vivía hace 5 años?",
+   "values": {
+    "1": "En esta localidad",
+    "2": "En otra localidad de esta provincia",
+    "3": "En otra provincia (especificar)",
+    "4": "En un país limítrofe (especificar Brasil, Bolivia, Chile, Paraguay, Uruguay)",
+    "5": "En otro país (especificar) Nivel educativo",
+    "6": "No había nacido",
+    "9": "Ns/Nr Especificar: contiene el código que corresponde a:"
+   }
+  },
+  "NIVEL_ED": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "",
+   "values": {
+    "1": "Primario incompleto (incluye educación especial)",
+    "2": "Primario completo",
+    "3": "Secundario incompleto",
+    "4": "Secundario completo",
+    "5": "Superior y universitario incompleto",
+    "6": "Superior y universitario completo",
+    "7": "Sin instrucción",
+    "9": "Ns/Nr Cuestionario Individual"
+   }
+  },
+  "ESTADO": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Condición de actividad",
+   "values": {
+    "0": "Entrevista individual no realizada (no respuesta al cuestionario individual)",
+    "1": "Ocupado",
+    "2": "Desocupado",
+    "3": "Inactivo",
+    "4": "Menor de 10 años"
+   }
+  },
+  "CAT_OCUP": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Categoría ocupacional (Para ocupados y desocupados con ocupación anterior)",
+   "values": {
+    "1": "Patrón",
+    "2": "Cuenta propia",
+    "3": "Obrero o empleado",
+    "4": "Trabajador familiar sin remuneración",
+    "9": "Ns/Nr"
+   }
+  },
+  "IMPUTA": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Indica los casos que han sido imputados",
+   "values": {}
+  },
+  "EMPLEO": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "",
+   "values": {
+    "1": "Formal",
+    "2": "Informal",
+    "9": "Ns/Nr"
+   }
+  },
+  "SECTOR": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "",
+   "values": {
+    "1": "Formal",
+    "2": "Informal",
+    "3": "Hogares",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP02A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Si la semana pasada conseguía un trabajo, ¿podía empezar a trabajar ya? (o a más tardar en dos semanas)",
+   "values": {
+    "1": "Sí, podía",
+    "2": "Sí, pero con ciertas condiciones laborales (horarios, tipo de trabajo, distancia, etc.)",
+    "3": "No podía por razones personales momentáneas",
+    "4": "No, porque no desea trabajar"
+   }
+  },
+  "PP02B": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP02C1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿De qué manera estuvo buscando trabajo? Hizo contactos, entrevistas",
+   "values": {}
+  },
+  "PP02C2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Mandó currículum, puso/contestó avisos (diarios, internet)",
+   "values": {}
+  },
+  "PP02C3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Se presentó en establecimientos",
+   "values": {}
+  },
+  "PP02C4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Hizo algo para ponerse por su cuenta",
+   "values": {}
+  },
+  "PP02C5": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Puso carteles en negocios, preguntó en el barrio",
+   "values": {}
+  },
+  "PP02C6": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Consultó a parientes/amigos",
+   "values": {}
+  },
+  "PP02C7": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Se anotó en bolsas, listas, planes de empleo, agencias, contratistas, o alguien le está buscando trabajo",
+   "values": {}
+  },
+  "PP02C8": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "De otra forma activa",
+   "values": {}
+  },
+  "PP02D": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Durante esos 30 días, consultó amigos/parientes, puso carteles, hizo algo para ponerse por su cuenta?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP02E": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Durante esos 30 días, no buscó trabajo porque",
+   "values": {
+    "1": "está suspendido?",
+    "2": "ya tiene trabajo asegurado?",
+    "3": "se cansó de buscar trabajo?",
+    "4": "hay poco trabajo en esta época del año?",
+    "5": "por otras razones?"
+   }
+  },
+  "PP02F": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP02G": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Puede ................... empezar a trabajar ya? (o a más tardar en dos semanas)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP02H": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "En los últimos 12 meses, ¿buscó trabajo en algún momento?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP02I": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "En los últimos 12 meses, ¿trabajó en algún momento?",
+   "values": {
+    "1": "Sí",
+    "2": "No Ocupados que trabajaron en la semana de referencia"
+   }
+  },
+  "PP03C": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "La semana pasada, ¿tenía",
+   "values": {
+    "1": "...un solo empleo/ocupación/actividad?",
+    "2": "...más de un empleo/ocupación/actividad?"
+   }
+  },
+  "PP03D": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Cantidad de ocupaciones",
+   "values": {}
+  },
+  "PP3E_TOT": {
+   "declared_type": "N",
+   "width": 5,
+   "description": "Total de horas que trabajó en la semana en la ocupación principal",
+   "values": {}
+  },
+  "PP3F_TOT": {
+   "declared_type": "N",
+   "width": 5,
+   "description": "Total de horas que trabajó en la semana en otras ocupaciones",
+   "values": {}
+  },
+  "PP03G": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "La semana pasada, ¿quería trabajar más horas?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP03H": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Si hubiera conseguido más horas",
+   "values": {
+    "1": "...podía trabajarlas esa semana?",
+    "2": "...podía empezar a trabajarlas en dos semanas a más tardar?",
+    "3": "...no podía trabajar más horas?",
+    "9": "Ns/Nr Para todos los ocupados"
+   }
+  },
+  "PP03I": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "En los últimos 30 días, ¿buscó trabajar más horas?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP03J": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Aparte de este/os trabajo/s, ¿estuvo buscando algún empleo/ ocupación/actividad?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP03K": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Estuvo buscando porque",
+   "values": {
+    "1": "…quería cambiar de trabajo?",
+    "2": "…quería agregar al que tiene?",
+    "3": "…se termina el trabajo que tiene?",
+    "4": "…estaba sin trabajo?"
+   }
+  },
+  "INTENSI": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "",
+   "values": {
+    "1": "Subocupado por insuficiencia horaria",
+    "2": "Ocupado pleno",
+    "3": "Sobreocupado",
+    "4": "Ocupado que no trabajó en la semana",
+    "9": "Ns/Nr Ocupación principal"
+   }
+  },
+  "PP04A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El negocio/empresa/institución/actividad en la que trabaja es (se refiere al que trabaja más horas semanales)",
+   "values": {
+    "1": "...estatal?",
+    "2": "... privado?",
+    "3": "...de otro tipo? (especificar)"
+   }
+  },
+  "PP04A1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Es de nivel…",
+   "values": {
+    "1": "…nacional?",
+    "2": "…provincial?",
+    "3": "…municipal?",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP04B_COD": {
+   "declared_type": "N",
+   "width": 5,
+   "description": "¿A qué se dedica o produce el negocio/empresa/institución? (Ver Clasificador de Actividades Económicas para Encuestas Sociodemográficas del Mercosur, CAES-Mercosur)",
+   "values": {}
+  },
+  "PP04B1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Si presta servicio doméstico en hogares particulares",
+   "values": {
+    "1": "casa de familia"
+   }
+  },
+  "PP04B2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿En cuántas casas trabaja? (cantidad)",
+   "values": {}
+  },
+  "PP04B3_MES": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuánto tiempo hace que trabaja allí? (en la casa que tiene más horas) meses",
+   "values": {}
+  },
+  "PP04B3_ANO": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "años",
+   "values": {}
+  },
+  "PP04B3_DIA": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "días",
+   "values": {}
+  },
+  "PP04C": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántas personas, incluido ................... trabajan allí en total?",
+   "values": {
+    "1": "1 persona",
+    "2": "2 personas",
+    "3": "3 personas",
+    "4": "4 personas",
+    "5": "5 personas",
+    "6": "de 6 a 10 personas",
+    "7": "de 11 a 25 personas",
+    "8": "de 26 a 40 personas",
+    "9": "de 41 a 100 personas",
+    "10": "de 101 a 200 personas",
+    "11": "de 201 a 500 personas",
+    "12": "más de 500 personas",
+    "99": "Ns/Nr"
+   }
+  },
+  "PP04C99": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "",
+   "values": {
+    "1": "Hasta 5",
+    "2": "De 6 a 40",
+    "3": "Más de 40",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP04D_COD": {
+   "declared_type": "C",
+   "width": 5,
+   "description": "Código de ocupación (Ver Clasificador Nacional de Ocupaciones, CNO, versión 2001)",
+   "values": {}
+  },
+  "PP04G": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Dónde realiza principalmente sus tareas?",
+   "values": {
+    "11": "En un local/oficina/establecimiento/negocio/taller",
+    "12": "En esta vivienda (con lugar exclusivo)",
+    "13": "En una chacra/finca",
+    "2": "En puesto o kiosco fijo callejero",
+    "3": "En vehículos: bicicleta, moto, auto, barco, bote (no incluye servicio de transporte)",
+    "4": "En vehículo para transporte de personas y mercaderías –aéreo, marítimo, terrestre (incluye taxis, colectivos, camiones, furgones, transporte de combustible, mudanzas, etc.)–",
+    "5": "En obras en construcción, de infraestructura, minería o similares",
+    "6": "En esta vivienda (sin lugar exclusivo)",
+    "7": "En la vivienda del socio o del patrón",
+    "8": "En el domicilio/local de los clientes",
+    "9": "En la calle, espacios públicos, ambulante, de casa en casa, puesto móvil callejero",
+    "10": "En otros lugares (especificar) Ocupación principal de los trabajadores independientes Campo Tipo (longitud) Descripción"
+   }
+  },
+  "PP05B2_MES": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuánto tiempo hace que trabaja en ese empleo en forma continua? meses",
+   "values": {}
+  },
+  "PP05B2_ANO": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "años",
+   "values": {}
+  },
+  "PP05B2_DIA": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "días",
+   "values": {}
+  },
+  "PP05B3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El negocio/empresa/actividad donde trabaja o ayuda, puede emitir facturas?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP05C_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿En ese negocio/empresa/actividad, tiene ...maquinarias/equipos?",
+   "values": {
+    "1": "Propio (del negocio)",
+    "2": "Prestado/alquilado",
+    "3": "No tiene"
+   }
+  },
+  "PP05C_2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...local (incluye kiosco/puesto fijo)",
+   "values": {
+    "1": "Propio (del negocio)",
+    "2": "Prestado/alquilado",
+    "3": "No tiene"
+   }
+  },
+  "PP05C_3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...vehículo?",
+   "values": {
+    "1": "Propio (del negocio)",
+    "2": "Prestado/alquilado",
+    "3": "No tiene"
+   }
+  },
+  "PP05E": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Para la actividad del negocio, en los últimos 3 meses, tuvo que gastar en la compra de mercaderías/productos, pagar servicios u otros gastos?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP05F": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Ese negocio/empresa/actividad, trabaja habitualmente para",
+   "values": {
+    "6": "Un solo cliente? (persona, empresa)",
+    "7": "Distintos clientes? (incluye público en general)"
+   }
+  },
+  "PP05H": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Durante cuánto tiempo ha estado trabajando en ese empleo en forma continua? (con interrupciones laborales no mayores de 15 días)",
+   "values": {
+    "1": "Menos de 1 mes",
+    "2": "De 1 a 3 meses",
+    "3": "Más de 3 a 6 meses",
+    "4": "Más de 6 meses a 1 año",
+    "5": "Más de 1 a 5 años",
+    "6": "Más de 5 años",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP05I": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "En los últimos 3 meses, por este trabajo, ¿realizó aportes como…",
+   "values": {
+    "1": "…monotributista?",
+    "2": "…monotributista social?",
+    "3": "...autónomo/caja provincial o profesional?",
+    "4": "...ninguno de ellos?"
+   }
+  },
+  "PP05J": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿No los realizó porque…",
+   "values": {
+    "1": "…no se ha inscripto para hacer los aportes por este trabajo?",
+    "2": "…los pagaba pero dejó de pagar? (siempre por este mismo trabajo)",
+    "3": "…otra razón? (especificar)"
+   }
+  },
+  "PP05K": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Este negocio/empresa/actividad, ¿puede emitir facturas?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr Ingresos de la ocupación principal de los trabajadores independientes"
+   }
+  },
+  "PP06A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "En ese negocio/empresa/actividad, ¿tiene socios o familiares asociados?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP06C": {
+   "declared_type": "N",
+   "width": 10,
+   "description": "Monto de ingreso de patrones y cuenta propia sin socios",
+   "values": {}
+  },
+  "PP06D": {
+   "declared_type": "N",
+   "width": 10,
+   "description": "Monto de ingreso de patrones y cuenta propia con socios",
+   "values": {}
+  },
+  "PP06E": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Ese negocio/empresa/actividad",
+   "values": {
+    "1": "...es una sociedad jurídicamente constituida? (S.A., S.R.L., Comandita por acciones, etc.)",
+    "2": "...es una sociedad de otra forma legal?",
+    "3": "...o es una sociedad convenida de palabra?"
+   }
+  },
+  "PP06E1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Este negocio/empresa/actividad, ¿recurre a los servicios de un contador/tiene oficina contable?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP06H": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Es una actividad familiar? (solo para 2 y 3 de PP06E)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP06K": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Lo ganado corresponde a su trabajo de…",
+   "values": {
+    "1": "…todo el mes trabajando todos los días de la semana (por lo menos 5 días a la semana)",
+    "2": "...todo el mes trabajando algunos días a la semana",
+    "3": "…menos de todo el mes"
+   }
+  },
+  "PP06K_SEM": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuántos días por semana?",
+   "values": {}
+  },
+  "PP06K_MES": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántos días en el mes?",
+   "values": {}
+  },
+  "PP06L": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿A cuántas horas por día corresponde? (en un día promedio)",
+   "values": {}
+  },
+  "PP07A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuánto tiempo hace que está trabajando en ese empleo en forma continua? (sin interrupciones de la relación laboral en la misma empresa/negocio/institución)",
+   "values": {
+    "1": "Menos de 1 mes",
+    "2": "1 a 3 meses",
+    "3": "Más de 3 a 6 meses",
+    "4": "Más de 6 a 12 meses",
+    "5": "Más de 1 a 5 años",
+    "6": "Más de 5 años",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP07B1_01": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Por este trabajo, ¿cobra algún plan? (como el Potenciar u otro similar)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07C": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Ese empleo tiene tiempo de finalización?",
+   "values": {
+    "1": "Sí (incluye changa, trabajo transitorio, por tarea u obra, suplencia, etc.)",
+    "2": "No (incluye permanente, fijo, estable, de planta)",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP07D": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Por cuánto tiempo es ese trabajo? (para los que tienen en PP07C = 1 o 9)",
+   "values": {
+    "1": "Solo fue esa vez/solo cuando lo llaman",
+    "2": "Hasta 3 meses",
+    "3": "Más de 3 a 6 meses",
+    "4": "Más de 6 a 12 meses",
+    "5": "Más de 1 año",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP07E": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Ese trabajo es",
+   "values": {
+    "2": "...un período de prueba?",
+    "3": "...una beca/pasantía/aprendizaje?",
+    "4": "ninguno de estos Ocupación principal de los trabajadores asalariados (incluido servicio doméstico)"
+   }
+  },
+  "PP07F1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿En ese trabajo le dan... (no excluyentes) ...de comer gratis en el lugar de trabajo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07F2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...vivienda?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07F3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...algún producto o mercadería?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07F4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...algún otro beneficio? (automóvil, teléfono celular, pasajes, etc.)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07F5": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿No recibe ninguno?",
+   "values": {
+    "1": "Sí"
+   }
+  },
+  "PP07F1_1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Para realizar su trabajo tiene que utilizar… …sus propias maquinarias/equipos?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07F1_2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "…local propio?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07F1_3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "…vehículo propio?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07G1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿En este trabajo tiene... (no excluyentes) ...vacaciones pagas?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07G2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "..aguinaldo?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07G3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...días pagos por enfermedad?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07G4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "...obra social?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07G_59": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "no tiene ninguno",
+   "values": {
+    "5": "Sí"
+   }
+  },
+  "PP07H": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Por ese trabajo tiene descuento jubilatorio?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP07I": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Aporta por sí mismo a algún sistema jubilatorio?",
+   "values": {
+    "1": "Sí",
+    "2": "No Ocupación principal de los trabajadores asalariados (excepto servicio doméstico y sector estatal)"
+   }
+  },
+  "PP07I2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "El negocio/empresa/institución que le paga, ¿le hace el descuento jubilatorio a alguno de sus empleados?",
+   "values": {
+    "1": "Sí",
+    "2": "No (no hay empleados con descuento jubilatorio o no hay más empleados)",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP07I3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "El negocio/empresa/institución que le paga, ¿emite facturas?",
+   "values": {
+    "1": "Sí, siempre",
+    "2": "Sí, pero no siempre",
+    "3": "No se emiten facturas",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP07I4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "El negocio/empresa/institución que le paga, ¿cuenta con los servicios de un contador/oficina contable?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr Ocupación principal de los trabajadores asalariados (incluido servicio doméstico y sector estatal)"
+   }
+  },
+  "PP07J": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El turno habitual de trabajo es",
+   "values": {
+    "1": "...de día? (mañana/tarde)",
+    "2": "...de noche?",
+    "3": "...de otro tipo? (rotativo, día y noche, guardias con franco)"
+   }
+  },
+  "PP07K": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuando cobra",
+   "values": {
+    "1": "...le dan recibo con sello/membrete/firma del empleador?",
+    "2": "...le dan un papel/recibo sin nada?",
+    "3": "...entrega una factura?",
+    "4": "...no le dan ni entrega nada?",
+    "5": "no cobra, es trabajador sin pago/ad honorem"
+   }
+  },
+  "PP07L": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "El recibo abarca…",
+   "values": {
+    "1": "…la totalidad del sueldo?",
+    "2": "…solo una parte del sueldo?",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP07M": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Aproximadamente, ¿qué parte de su sueldo no está en el recibo?",
+   "values": {
+    "1": "Menos de la mitad de su sueldo",
+    "2": "La mitad o más de su sueldo",
+    "9": "Ns/Nr Ingresos de la ocupación principal de los trabajadores asalariados"
+   }
+  },
+  "PP08D1": {
+   "declared_type": "N",
+   "width": 10,
+   "description": "¿Cuánto cobró por ese mes por estos conceptos? Monto total de sueldos/jornales, salario familiar, horas extras, otras bonificaciones habituales y tickets, vales o similares",
+   "values": {}
+  },
+  "PP08D4": {
+   "declared_type": "N",
+   "width": 10,
+   "description": "Por el mes de ... (mes) ... ¿cobró … monto percibido en tickets?",
+   "values": {}
+  },
+  "PP08F1": {
+   "declared_type": "N",
+   "width": 10,
+   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto en pesos cobrado por comisión por venta/producción?",
+   "values": {}
+  },
+  "PP08F2": {
+   "declared_type": "N",
+   "width": 10,
+   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto en pesos cobrado por propinas?",
+   "values": {}
+  },
+  "PP08G": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Ese cobro (o arreglo) corresponde a su trabajo de…",
+   "values": {
+    "1": "…todo el mes trabajando todos los días de la semana (por lo menos 5 días a la semana)",
+    "2": "…todo el mes trabajando algunos días a la semana",
+    "3": "...menos de todo el mes"
+   }
+  },
+  "PP08G_DSEM": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuántos días por semana?",
+   "values": {}
+  },
+  "PP08G_DMES": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántos días en el mes?",
+   "values": {}
+  },
+  "PP08H": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿A cuántas horas por día corresponde? (en un día promedio)",
+   "values": {}
+  },
+  "PP08J1": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto aguinaldo?",
+   "values": {}
+  },
+  "PP08J2": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto otras bonificaciones no habituales?",
+   "values": {}
+  },
+  "PP08J3": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto retroactivo?",
+   "values": {}
+  },
+  "PP09A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Solo ocupados de: Ciudad Autónoma de Buenos Aires y partidos del Gran Buenos Aires. En su ocupación (o en la de más horas), ¿trabaja ................. en…",
+   "values": {
+    "1": "...Ciudad Autónoma de Buenos Aires?",
+    "2": "...partidos del Gran Buenos Aires?",
+    "3": "...ambos?",
+    "4": "...otro lugar? (especificar)"
+   }
+  },
+  "PP09A_ESP": {
+   "declared_type": "C",
+   "width": 90,
+   "description": "Especificar: contiene la descripción de otro lugar Solo ocupados de: Posadas, Formosa, Corrientes, Resistencia, Santa Fe, Paraná y Neuquén",
+   "values": {}
+  },
+  "PP09B": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Solo ocupados de: Posadas, Formosa, Corrientes, Resistencia, Santa Fe, Paraná y Neuquén. En su ocupación (o en la de más horas), ¿trabaja ..................................... en esta ciudad?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP09C": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Dónde trabaja...?",
+   "values": {
+    "1": "...en otro lugar de esta provincia (especificar)",
+    "2": "...en otra provincia (especificar)",
+    "3": "...en otro país (especificar)"
+   }
+  },
+  "PP09C_ESP": {
+   "declared_type": "C",
+   "width": 90,
+   "description": "Descripción de otro lugar (según pregunta PP09C)",
+   "values": {}
+  },
+  "PP10A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuánto hace que está buscando trabajo",
+   "values": {
+    "1": "...menos de 1 mes?",
+    "2": "...de 1 a 3 meses?",
+    "3": "...más de 3 a 6 meses?",
+    "4": "...más de 6 a 12 meses?",
+    "5": "...más de 1 año?"
+   }
+  },
+  "PP10B1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Por qué razones no encuentra? Recién empezó a buscar",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Por la edad",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B3": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Falta de trabajo en su especialidad",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B4": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "No tiene experiencia/capacitación",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B5": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Le faltan vinculaciones para conseguir trabajo",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B6": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "No hay trabajo",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B7": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "No le alcanza la plata para salir a buscar",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B8": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Suspendido",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B9": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Otras razones",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10B10": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Desconoce por qué no encuentra trabajo (solo autoinformante)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10C": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Durante ese tiempo hizo algún trabajo/changa?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10D": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Ha trabajado alguna vez?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP10E": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuánto tiempo hace que terminó su último trabajo/changa",
+   "values": {
+    "1": "...menos de 1 mes?",
+    "2": "...de 1 a 3 meses?",
+    "3": "...más de 3 a 6 meses?",
+    "4": "...más de 6 a 12 meses?",
+    "5": "...más de 1 a 3 años?",
+    "6": "...más de 3 años? Desocupados con empleo anterior: última ocupación/changa (finalizada hace 3 años o menos)"
+   }
+  },
+  "PP11A": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿El negocio/empresa/institución/actividad en la que trabajaba era",
+   "values": {
+    "1": "...estatal?",
+    "2": "...privado?",
+    "3": "...de otro tipo?"
+   }
+  },
+  "PP11B_COD": {
+   "declared_type": "N",
+   "width": 5,
+   "description": "¿A qué se dedicaba o qué producía ese negocio/empresa/institución? (Ver Clasificador de Rama de Actividad, CAES-Mercosur)",
+   "values": {}
+  },
+  "PP11B1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Si prestaba servicios domésticos en hogares particulares",
+   "values": {
+    "1": "casa de familia"
+   }
+  },
+  "PP11B2_MES": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuánto tiempo trabajó allí? meses",
+   "values": {}
+  },
+  "PP11B2_DIA": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "días",
+   "values": {}
+  },
+  "PP11C": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuántas personas, incluido ............................. trabajaban allí en total?",
+   "values": {
+    "1": "1 persona",
+    "2": "2 personas",
+    "3": "3 personas",
+    "4": "4 personas",
+    "5": "5 personas",
+    "6": "6 a 10 personas",
+    "7": "11 a 25 personas",
+    "8": "26 a 40 personas",
+    "9": "41 a 100 personas",
+    "10": "101 a 200 personas",
+    "11": "201 a 500 personas",
+    "12": "más de 500 personas",
+    "99": "Ns/Nr"
+   }
+  },
+  "PP11C99": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Para los que responden PP11C=99",
+   "values": {
+    "1": "Hasta 5",
+    "2": "De 6 a 40",
+    "3": "Más de 40",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP11D_COD": {
+   "declared_type": "N",
+   "width": 5,
+   "description": "¿Cómo se llamaba la ocupación que tenía? (Ver Clasificador Nacional de Ocupaciones, CNO, versión 2001)",
+   "values": {}
+  },
+  "PP11G_MES": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "meses",
+   "values": {}
+  },
+  "PP11G_DIA": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "días",
+   "values": {}
+  },
+  "PP11L": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cuál fue la razón principal por la que dejó esa actividad?",
+   "values": {
+    "1": "Falta de clientes/clientes que no pagan",
+    "2": "Falta de capital/equipamiento",
+    "3": "Trabajo estacional",
+    "4": "Tenía gastos demasiado altos",
+    "5": "Otras causas laborales (especificar)",
+    "6": "Jubilación/retiro",
+    "7": "Causas personales (matrimonio, embarazo cuidado de hijos o familiar, estudio, enfermedad)"
+   }
+  },
+  "PP11L1": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Por este trabajo, ¿cobraba algún plan? (como el Potenciar u otro similar)",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP11L2": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Ese trabajo era",
+   "values": {
+    "1": "...una changa, trabajo transitorio, por tarea u obra, suplencia, etc.?",
+    "2": "...un trabajo permanente, fijo, estable, de planta, etc.?",
+    "3": "Ns/Nr"
+   }
+  },
+  "PP11M": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Ese trabajo era",
+   "values": {
+    "2": "...un período de prueba/aprendizaje/pasantía o beca?",
+    "3": "...otro tipo de trabajo?"
+   }
+  },
+  "PP11N": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿En ese trabajo le hacían descuento jubilatorio?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP11O": {
+   "declared_type": "N",
+   "width": 2,
+   "description": "¿Cuál fue la razón principal por la que dejó ese trabajo?",
+   "values": {
+    "1": "Despido/cierre (quiebra/venta/traslado de la empresa, reestructuración o recorte de personal/falta de ventas o clientes)",
+    "2": "Retiro voluntario del sector público",
+    "3": "Jubilación",
+    "4": "Fin de trabajo temporario/estacional",
+    "5": "Le pagaban poco/no le pagaban",
+    "6": "Malas relaciones laborales/malas condiciones de trabajo (insalubre, cambios de horarios, etc.)",
+    "7": "Renuncia obligada/pactada",
+    "8": "Otras causas laborales (especificar)",
+    "9": "Razones personales (matrimonio, embarazo, cuidado de hijos o la familia, estudio, enfermedad)"
+   }
+  },
+  "PP11P": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Cerró la empresa? (Para quienes responden en PP11O=1)",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP11Q": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Fue la única persona que quedó sin trabajo?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr"
+   }
+  },
+  "PP11R": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Le enviaron telegrama?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP11S": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Le pagaron indemnización?",
+   "values": {
+    "1": "Sí",
+    "2": "No"
+   }
+  },
+  "PP11T": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "¿Está cobrando seguro de desempleo?",
+   "values": {
+    "1": "Sí",
+    "2": "No",
+    "9": "Ns/Nr Ingreso de la ocupación principal"
+   }
+  },
+  "P21": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "Monto de ingreso de la ocupación principal",
+   "values": {}
+  },
+  "DECOCUR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso de la ocupación principal del total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "IDECOCUR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso de la ocupación principal del interior EPH (ver Anexo I)",
+   "values": {}
+  },
+  "RDECOCUR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso de la ocupación principal de la región (ver Anexo I)",
+   "values": {}
+  },
+  "GDECOCUR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso de la ocupación principal del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "PDECOCUR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso de la ocupación principal del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "ADECOCUR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso de la ocupación principal del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "PONDIIO": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Ponderador del ingreso de la ocupación principal (ver Anexo I)",
+   "values": {}
+  },
+  "TOT_P12": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "Monto de ingreso de otras ocupaciones (incluye ocupación secundaria, ocupación previa a la semana de referencia, deudas/retroactivos por ocupaciones anteriores al mes de referencia, etc.)",
+   "values": {}
+  },
+  "P47T": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "Monto de ingreso total individual (sumatoria ingresos laborales y no laborales (ver Anexo I)",
+   "values": {}
+  },
+  "DECINDR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total individual del total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "IDECINDR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total individual del interior EPH (ver Anexo I)",
+   "values": {}
+  },
+  "RDECINDR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total individual de la región (ver Anexo I)",
+   "values": {}
+  },
+  "GDECINDR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total individual del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "PDECINDR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total individual del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "ADECINDR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso total individual del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "PONDII": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "Ponderador para ingreso total individual (ver Anexo I)",
+   "values": {}
+  },
+  "V2_01_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por jubilación o pensión obtenida por los aportes del trabajo",
+   "values": {}
+  },
+  "V2_02_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por jubilación o pensión de \"ama de casa\" o por moratoria previsional",
+   "values": {}
+  },
+  "V2_03_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por otras pensiones, como por ejemplo discapacidad, Madre de 7 hijos, PUAM, vejez, etc",
+   "values": {}
+  },
+  "V3_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por indemnización por despido",
+   "values": {}
+  },
+  "V4_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por seguro de desempleo",
+   "values": {}
+  },
+  "V5_01_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por la Asignación Universal por Hijo (AUH) y/o Asignación por Embarazo (incluye Tarjeta Alimentar)",
+   "values": {}
+  },
+  "V5_02_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por otro plan social/subsidio en dinero otorgado por el gobierno",
+   "values": {}
+  },
+  "V5_03_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por ayuda en dinero a través de iglesias, parroquias, organizaciones no gubernamentales",
+   "values": {}
+  },
+  "V8_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por alquiler (vivienda, terreno, oficina, etc.) de su propiedad",
+   "values": {}
+  },
+  "V9_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por ganancias de algún negocio en el que no trabajó",
+   "values": {}
+  },
+  "V10_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por intereses o rentas por plazos fijos/inversiones",
+   "values": {}
+  },
+  "V11_01_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por una beca de estudio (en dinero) del gobierno para continuar estudios o finalizarlos (Ej.: Beca Progresar u otras)",
+   "values": {}
+  },
+  "V11_02_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por otra beca de estudio (en dinero) de instituciones no gubernamentales",
+   "values": {}
+  },
+  "V12_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por cuotas de alimentos o ayuda en dinero de personas que no viven en el hogar",
+   "values": {}
+  },
+  "V18_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por otros ingresos en efectivo (limosnas, juegos de azar, etc.)",
+   "values": {}
+  },
+  "V19_AM": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por trabajo de menores de 10 años",
+   "values": {}
+  },
+  "V21_01_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por aguinaldo de jubilación o pensión obtenida por los aportes del trabajo",
+   "values": {}
+  },
+  "V22_01_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por retroactivo de jubilación o pensión obtenida por los aportes del trabajo",
+   "values": {}
+  },
+  "V21_02_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por aguinaldo de jubilación o pensión de \"ama de casa\" o por moratoria previsional",
+   "values": {}
+  },
+  "V22_02_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por retroactivo de jubilación o pensión de \"ama de casa\" o por moratoria previsional",
+   "values": {}
+  },
+  "V21_03_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por aguinaldo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",
+   "values": {}
+  },
+  "V22_03_M": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",
+   "values": {}
+  },
+  "T_VI": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "Monto total de ingresos no laborales",
+   "values": {}
+  },
+  "ITF": {
+   "declared_type": "N",
+   "width": 12,
+   "description": "N (12,2) Monto del ingreso total familiar",
+   "values": {}
+  },
+  "DECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso total familiar del total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "IDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso total familiar del interior EPH (ver Anexo I)",
+   "values": {}
+  },
+  "RDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso total familiar de la región (ver Anexo I)",
+   "values": {}
+  },
+  "GDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso total familiar del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "PDECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso total familiar del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "ADECIFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso total familiar del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "IPCF": {
+   "declared_type": null,
+   "width": null,
+   "description": "N (12,2) Monto del ingreso per cápita familiar",
+   "values": {}
+  },
+  "DECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso per cápita familiar del Total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "IDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso per cápita familiar del interior EPH (ver Anexo I)",
+   "values": {}
+  },
+  "RDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso per cápita familiar de la región (ver Anexo I)",
+   "values": {}
+  },
+  "GDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso per cápita familiar del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "PDECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso per cápita familiar del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "ADECCFR": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "Nº de decil de ingreso per cápita familiar del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "PONDIH": {
+   "declared_type": "N",
+   "width": 6,
+   "description": "Ponderador del ingreso total familiar y del ingreso per cápita familiar, para hogares (ver Anexo I)",
+   "values": {}
+  },
+  "P_DECCF": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de las personas del Total EPH (ver Anexo I)",
+   "values": {}
+  },
+  "P_IDECCF": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de las personas del interior EPH (ver Anexo I)",
+   "values": {}
+  },
+  "P_RDECCF": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de las personas de la región (ver Anexo I)",
+   "values": {}
+  },
+  "P_GDECCF": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de las personas del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "P_PDECCF": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de las personas del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "values": {}
+  },
+  "P_ADECCF": {
+   "declared_type": "C",
+   "width": 2,
+   "description": "N° de decil de ingreso per cápita familiar de las personas del aglomerado (ver Anexo I)",
+   "values": {}
+  },
+  "CAT_INAC": {
+   "declared_type": "N",
+   "width": 1,
+   "description": "Categoría de inactividad",
+   "values": {
+    "1": "Jubilado/pensionado",
+    "2": "Rentista",
+    "3": "Estudiante",
+    "4": "Ama de casa",
+    "5": "Menor de 6 años",
+    "6": "Discapacitado",
+    "7": "Otros"
+   }
+  },
+  "V11_01": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por una beca de estudio (en dinero) del gobierno para continuar estudios o finalizarlos (Ej.: Beca Progresar u otras)",
+   "values": {}
+  },
+  "V11_02": {
+   "declared_type": "N",
+   "width": 8,
+   "description": "Monto del ingreso por otra beca de estudio (en dinero) de instituciones no gubernamentales",
+   "values": {}
+  }
+ }
+}

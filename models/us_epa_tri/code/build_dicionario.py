@@ -4,7 +4,7 @@ The dicionario table is generated at clean time by ``utils.build_dicionario``
 from the same spec, so the CSV here is documentation of what ships, not a
 second source of truth. It carries the EN/ES labels too, for the metadata.
 
-    PYTHONPATH=. uv run python models/us_epa_tri/code/build_dicionario.py
+    PYTHONPATH=. uv run models/us_epa_tri/code/build_dicionario.py
 """
 
 import csv

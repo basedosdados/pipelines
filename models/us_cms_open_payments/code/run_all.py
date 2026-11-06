@@ -11,9 +11,8 @@ import json
 import sys
 import time
 
-import clean
-import constants as c
-import download
+from models.us_cms_open_payments.code import clean, download
+from models.us_cms_open_payments.code import constants as c
 
 COUNTS_PATH = c.DATA_ROOT / "row_counts.json"
 
@@ -85,7 +84,7 @@ if __name__ == "__main__":
 
     if not sys.argv[1:]:
         print("\n=== normalising parquet column order and types")
-        import normalise_parquet
+        from models.us_cms_open_payments.code import normalise_parquet
 
         normalise_parquet.main()
 

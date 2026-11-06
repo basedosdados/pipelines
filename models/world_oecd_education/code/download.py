@@ -14,8 +14,8 @@ rather than leaving a short file behind. ``manifest.json`` records the row count
 of every chunk so the totals can be checked against the ``sdmx_metrics``
 observation counts the API advertises.
 
-Run: ``python download.py``            all tables
-     ``python download.py student``    one table
+Run: ``uv run models/world_oecd_education/code/download.py``            all tables
+     ``uv run models/world_oecd_education/code/download.py student``    one table
 """
 
 import csv
@@ -24,8 +24,8 @@ import json
 import sys
 import xml.etree.ElementTree as ET
 
-from common import INPUT, SDMX, STRUCTURE, get
-from tables import TABLES
+from models.world_oecd_education.code.common import INPUT, SDMX, STRUCTURE, get
+from models.world_oecd_education.code.tables import TABLES
 
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
 C = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common}"
@@ -110,6 +110,7 @@ def flows_for(spec):
         out.append((flow, version, None))
     if spec.get("backfill"):
         version, start, end = spec["backfill"]
+        # pyrefly: ignore [bad-argument-type]
         out.append((spec["flow"], version, (start, end)))
     return out
 

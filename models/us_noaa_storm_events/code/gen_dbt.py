@@ -4,10 +4,14 @@ Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they are supposed to
 implement.
 
-Run: uv run python models/us_noaa_storm_events/code/gen_dbt.py
+Run: uv run models/us_noaa_storm_events/code/gen_dbt.py
 """
 
-from common import DATA_TABLES, REPO_ROOT, load_cols
+from models.us_noaa_storm_events.code.common import (
+    DATA_TABLES,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_noaa_storm_events"
 DATASET = "us_noaa_storm_events"

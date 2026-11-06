@@ -38,11 +38,11 @@ models:
       - name: cnpj
         description: Cadastro Nacional de Pessoa Jurídica
       - name: empresa
-        description: Nome da empresa
+        description: Nome da companhia ofertante do serviço
       - name: porte_empresa
-        description: Porte da empresa
+        description: Qualificação do tamanho da companhia
       - name: tecnologia
-        description: Tecnologia
+        description: Padrão de tecnologia e conectividade dos celulares
       - name: sinal
         description: Geração de Sistemas Celulares
       - name: modalidade
@@ -50,9 +50,9 @@ models:
       - name: pessoa
         description: Contrato atrelado a Pessoa Física ou Pessoa Jurídica
       - name: produto
-        description: Tipo de Produto
+        description: Tipo de Serviço
       - name: acessos
-        description: Número total de acessos
+        description: Total de contratos sob tais especificações
   - name: br_anatel_telefonia_movel__densidade_brasil
     tests:
       - dbt_utils.unique_combination_of_columns:

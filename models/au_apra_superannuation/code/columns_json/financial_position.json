@@ -1,0 +1,252 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "fund_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de fundo de previdência: todos (indústria total), corporativo, setorial (industry), setor público ou varejo (retail)",
+    "description_en": "Superannuation fund type: all (whole industry), corporate, industry, public sector or retail funds",
+    "description_es": "Tipo de fondo de jubilación: todos (industria total), corporativo, sectorial (industry), sector público o minorista (retail)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "receivables",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valores a receber no fim do trimestre",
+    "description_en": "Receivables held at the end of the quarter",
+    "description_es": "Cuentas por cobrar al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "investments",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de investimentos no fim do trimestre",
+    "description_en": "Total investments held at the end of the quarter",
+    "description_es": "Total de inversiones al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "securities_purchased_under_resale_agreements",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Títulos comprados sob acordos de revenda e títulos tomados em empréstimo no fim do trimestre",
+    "description_en": "Securities purchased under agreements to resell and securities borrowed, at the end of the quarter",
+    "description_es": "Valores comprados bajo acuerdos de reventa y valores tomados en préstamo al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "tax_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos fiscais no fim do trimestre",
+    "description_en": "Tax assets held at the end of the quarter",
+    "description_es": "Activos fiscales al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros ativos no fim do trimestre",
+    "description_en": "Other assets held at the end of the quarter",
+    "description_es": "Otros activos al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de ativos no fim do trimestre",
+    "description_en": "Total assets held at the end of the quarter",
+    "description_es": "Total de activos al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "securities_sold_under_repurchase_agreements",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Títulos vendidos sob acordos de recompra e títulos emprestados no fim do trimestre",
+    "description_en": "Securities sold under agreements to repurchase and securities loaned, at the end of the quarter",
+    "description_es": "Valores vendidos bajo acuerdos de recompra y valores prestados al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "tax_liabilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Passivos fiscais no fim do trimestre",
+    "description_en": "Tax liabilities at the end of the quarter",
+    "description_es": "Pasivos fiscales al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_liabilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros passivos no fim do trimestre",
+    "description_en": "Other liabilities at the end of the quarter",
+    "description_es": "Otros pasivos al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_liabilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de passivos no fim do trimestre",
+    "description_en": "Total liabilities at the end of the quarter",
+    "description_es": "Total de pasivos al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "liability_for_allocated_accrued_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Passivo por benefícios acumulados alocados no fim do trimestre",
+    "description_en": "Liability for allocated accrued benefits at the end of the quarter",
+    "description_es": "Pasivo por beneficios devengados asignados al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "liability_for_members_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Passivo por benefícios dos participantes no fim do trimestre",
+    "description_en": "Liability for members' benefits at the end of the quarter",
+    "description_es": "Pasivo por beneficios de los afiliados al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "defined_contribution_members_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Benefícios de participantes de contribuição definida no fim do trimestre",
+    "description_en": "Defined contribution members' benefits at the end of the quarter",
+    "description_es": "Beneficios de afiliados de contribución definida al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "defined_benefit_members_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Benefícios de participantes de benefício definido no fim do trimestre",
+    "description_en": "Defined benefit members' benefits at the end of the quarter",
+    "description_es": "Beneficios de afiliados de beneficio definido al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "unallocated_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Benefícios não alocados no fim do trimestre",
+    "description_en": "Unallocated benefits at the end of the quarter",
+    "description_es": "Beneficios no asignados al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "reserves_including_unallocated_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Reservas incluindo benefícios não alocados no fim do trimestre",
+    "description_en": "Reserves including unallocated benefits at the end of the quarter",
+    "description_es": "Reservas incluyendo beneficios no asignados al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "reserves",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Reservas no fim do trimestre",
+    "description_en": "Reserves at the end of the quarter",
+    "description_es": "Reservas al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "excess_deficiency_of_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Excesso ou deficiência de ativos no fim do trimestre",
+    "description_en": "Excess or deficiency of assets at the end of the quarter",
+    "description_es": "Exceso o deficiencia de activos al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "surplus_deficit_in_net_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Superávit ou déficit nos ativos líquidos no fim do trimestre",
+    "description_en": "Surplus or deficit in net assets at the end of the quarter",
+    "description_es": "Superávit o déficit en los activos netos al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_assets_available_to_pay_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos disponíveis para pagar benefícios aos participantes no fim do trimestre",
+    "description_en": "Net assets available to pay members' benefits at the end of the quarter",
+    "description_es": "Activos netos disponibles para pagar beneficios a los afiliados al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "defined_benefit_interests",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos atribuíveis a participações de benefício definido no fim do trimestre",
+    "description_en": "Net assets attributable to defined benefit interests at the end of the quarter",
+    "description_es": "Activos netos atribuibles a participaciones de beneficio definido al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "number_of_entities",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de entidades de previdência no tipo de fundo",
+    "description_en": "Number of superannuation entities in the fund type",
+    "description_es": "Número de entidades de jubilación en el tipo de fondo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "unit"
+  }
+]

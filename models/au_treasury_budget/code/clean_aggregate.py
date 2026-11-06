@@ -24,9 +24,7 @@ import pathlib
 import sys
 from collections.abc import Iterator
 
-import docx_tables
-import measures
-import releases
+from models.au_treasury_budget.code import docx_tables, measures, releases
 
 DATA_ROOT = pathlib.Path(
     os.environ.get(

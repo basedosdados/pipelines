@@ -49,15 +49,14 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at
 its own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
 ignores the schedules, the prod pool activates them.
 """
 
 import shutil
 import tempfile
-from collections.abc import Mapping
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_nih_reporter.constants import constants
 from pipelines.datasets.us_nih_reporter.tasks import (
@@ -65,13 +64,7 @@ from pipelines.datasets.us_nih_reporter.tasks import (
     download_corpus,
     probe_source,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    CoverageSpec,
-    DateFormat,
-    NonHistorical,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -85,35 +78,22 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
-#
-# The four year-partitioned tables key their coverage on `year`, which is
-# non-null on every row by construction. patent_link and clinical_study_link
-# have no date column at all — the source ships them as one snapshot covering
-# every fiscal year — so they take NonHistorical, which derives a single
-# coverage from the BigQuery table's last_modified. dicionario is a register
-# with no coverage of its own and is absent here.
-_YEARLY = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
+# dicionario has no date column, so it is absent from these lists: a table
+# absent here gets no coverage registered.
+_ANNUAL_TABLES_WITH_COVERAGE = [
+    "project",
+    "project_abstract",
+    "publication",
+    "publication_link",
+]
 
-_ANNUAL_COVERAGE = {
-    "project": _YEARLY,
-    "project_abstract": _YEARLY,
-    "publication": _YEARLY,
-    "publication_link": _YEARLY,
-}
-
-_LINK_COVERAGE = {
-    "patent_link": NonHistorical(),
-    "clinical_study_link": NonHistorical(),
-}
+_LINK_TABLES_WITH_COVERAGE = ["patent_link", "clinical_study_link"]
 
 
 def _materialize(
     families: list[str],
     tables: list[str],
-    coverage: Mapping[str, CoverageSpec],
+    coverage_tables: list[str],
     anchor_table: str,
     materialize_to_prod: bool,
     update_metadata: bool,
@@ -129,8 +109,8 @@ def _materialize(
             ``constants.FAMILIES``.
         tables: Clean tables this group builds, uploads and tests, in build
             order — every one is built before any is tested.
-        coverage: Clean table -> its ``CoverageSpec``, registered after a
-            successful prod materialization. A table absent from this mapping
+        coverage_tables: Clean tables whose coverage is registered after a
+            successful prod materialization. A table absent from this list
             gets no coverage registered, which is how ``dicionario`` is handled.
         anchor_table: Table whose raw data source the poll and the source-update
             commit are read from and written to.
@@ -144,7 +124,6 @@ def _materialize(
     Returns:
         None.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=anchor_table
     )
@@ -222,11 +201,10 @@ def _materialize(
             )
 
         if materialize_to_prod and update_metadata:
-            for table, spec in coverage.items():
+            for table in coverage_tables:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=spec,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -258,7 +236,7 @@ def us_nih_reporter_flow(
     _materialize(
         families=constants.ANNUAL_FAMILIES.value,
         tables=constants.ANNUAL_TABLES.value,
-        coverage=_ANNUAL_COVERAGE,
+        coverage_tables=_ANNUAL_TABLES_WITH_COVERAGE,
         anchor_table=constants.PROJECT.value,
         materialize_to_prod=materialize_to_prod,
         update_metadata=update_metadata,
@@ -287,7 +265,7 @@ def us_nih_reporter_links_flow(
     _materialize(
         families=constants.LINK_FAMILIES.value,
         tables=constants.LINK_TABLES.value,
-        coverage=_LINK_COVERAGE,
+        coverage_tables=_LINK_TABLES_WITH_COVERAGE,
         anchor_table=constants.PATENT_LINK.value,
         materialize_to_prod=materialize_to_prod,
         update_metadata=update_metadata,
@@ -303,9 +281,8 @@ def us_nih_reporter_links_flow(
 # 51, so 12 keeps clear of all of them. Defaulting to :00 piles every pipeline
 # onto the same instant, where they compete for BigQuery slots and trip the daily
 # quota together.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_flow.deploy_schedules = [
-    {"cron": "12 7 6,16,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("12 7 6,16,26 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one file's rows in memory at a time, plus the FY1985-FY1999
 # funding supplement (840,226 rows) for the whole project pass; a full local
@@ -313,7 +290,6 @@ us_nih_reporter_flow.deploy_schedules = [
 # what the pod actually gets — a bare `memory` key is not in the work pool's job
 # template and is dropped silently, leaving the default 4Gi however large a number
 # it names.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "3Gi",
@@ -322,12 +298,10 @@ us_nih_reporter_flow.job_variables = {
 # Patents and clinical studies are rewritten roughly weekly. Poll every Tuesday;
 # hour 7 minute 12 is already this dataset's slot on the monthly flow, and the
 # two only collide three times a year.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_links_flow.deploy_schedules = [
-    {"cron": "17 7 * * 2", "timezone": "America/Sao_Paulo"}
+    Cron("17 7 * * 2", timezone="America/Sao_Paulo")
 ]
 # 16 MB of CSV, 132k rows across the two tables.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_links_flow.job_variables = {
     "memory_limit": "2Gi",
     "memory_request": "1Gi",

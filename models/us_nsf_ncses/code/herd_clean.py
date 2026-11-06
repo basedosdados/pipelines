@@ -24,7 +24,7 @@ Five tables, hive-partitioned by ``year``, written all-STRING (the dbt models
 
 Run
 ---
-    python models/us_nsf_ncses/code/herd_clean.py
+    uv run models/us_nsf_ncses/code/herd_clean.py
 
 Set ``NCSES_DATA_DIR`` to override the scratch location (default
 ``~/Downloads/us_nsf_ncses_data``); ``input/`` holds the downloaded ZIPs and
@@ -37,10 +37,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.us_nsf_ncses.utils import clean_herd  # noqa: E402
+from pipelines.datasets.us_nsf_ncses.utils import clean_herd
 
 DATA_DIR = Path(
     os.environ.get(

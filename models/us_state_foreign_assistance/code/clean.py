@@ -9,7 +9,7 @@ US_STATE_FOREIGN_ASSISTANCE_DATA):
     input/   raw CSVs from the ForeignAssistance.gov S3 bucket
     output/  <table>/<table>_<year>.parquet (+ 00_header.parquet), all-STRING
 
-Run from the repo root:  uv run python models/us_state_foreign_assistance/code/clean.py
+Run from the repo root:  uv run models/us_state_foreign_assistance/code/clean.py
 """
 
 import argparse

@@ -12,7 +12,7 @@ Raw downloads and cleaned parquet stay outside the repo and outside Dropbox, at
 commit of data is possible.
 
 Usage:
-    uv run python models/us_bls_employment/code/clean_data.py [--download] [table ...]
+    uv run models/us_bls_employment/code/clean_data.py [--download] [table ...]
 """
 
 import json

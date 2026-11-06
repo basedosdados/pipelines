@@ -46,7 +46,7 @@ Worker sizing: `"memory": "4Gi"`
 - (none literal in `constants.py`)
 
 ## Design notes
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 
 Builds the same all-STRING partitioned parquet the one-shot onboarding produces, reusing

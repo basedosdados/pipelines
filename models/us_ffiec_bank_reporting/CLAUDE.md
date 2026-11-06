@@ -20,25 +20,32 @@ It deepens the cluster rather than duplicating it:
 | `us_cfpb_hmda` | mortgage lending, loan-application level |
 | **this** (`cra_lending`) | the **small-business-credit counterpart** to HMDA |
 
-`rssd_id` is the join key across every table here, and corresponds to
-`us_fdic_bankfind.institution.cert`. **That correspondence was verified, not
-assumed**: on a random sample of 200 banks, `institution.fdic_cert_id` →
-`us_fdic_bankfind.institution.rssd_id` agreed 98/98 exactly, with no cert
-missing from BankFind.
+`rssd_id` is the join key across every table **here**. It is not the
+`us_fdic_bankfind` key: the bridge to BankFind is `institution.fdic_cert_id`,
+which carries the FDIC certificate, so a cross-dataset query joins through
+`institution` rather than on `rssd_id` directly.
+
+**That bridge was verified, not assumed.** Joining `institution.fdic_cert_id`
+to `us_fdic_bankfind.financials_indicator.cert` for 2026Q2, all **4,296 of
+4,296** banks matched on total assets exactly — identical values, not within a
+tolerance. That single check confirms the certificate correspondence, the
+thousands-to-USD rescale, and the melt's fidelity at once.
 
 ## Nine tables
 
+749,033,254 rows in total, as built and verified on dev.
+
 | Table | Grain | Rows |
 |---|---|---|
-| `institution` | bank × quarter | ~430k |
-| `call_report_item` | bank × quarter × MDRM item | ~580M |
-| `holding_company` | holding company × quarter | ~490k |
-| `holding_company_item` | holding company × quarter × MDRM item | ~200M |
+| `institution` | bank × quarter | 393,918 |
+| `call_report_item` | bank × quarter × MDRM item | 455,716,471 |
+| `holding_company` | holding company × quarter | 542,842 |
+| `holding_company_item` | holding company × quarter × MDRM item | 205,982,137 |
 | `mdrm_item` | MDRM item code | 75,264 |
-| `cra_respondent` | institution × year | ~25k |
-| `cra_lending` | institution × year × county × tract income group × band | ~100M |
-| `cra_assessment_area_tract` | institution × year × census tract | ~70M |
-| `dicionario` | coded column × key | 117 |
+| `cra_respondent` | institution × year | 33,979 |
+| `cra_lending` | institution × year × county × tract income group × band | 27,436,421 |
+| `cra_assessment_area_tract` | institution × year × census tract | 58,852,101 |
+| `dictionary` | coded column × key | 121 |
 
 ## Coverage, and why it stops where it does
 

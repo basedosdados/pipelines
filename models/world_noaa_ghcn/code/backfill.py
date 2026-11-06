@@ -1,8 +1,8 @@
 """Download, clean and write every by_year file for world_noaa_ghcn.
 
-    python models/world_noaa_ghcn/code/backfill.py                # 1763-2026
-    python models/world_noaa_ghcn/code/backfill.py --years 2020,2021
-    python models/world_noaa_ghcn/code/backfill.py --from 1990 --to 2000
+    uv run models/world_noaa_ghcn/code/backfill.py                # 1763-2026
+    uv run models/world_noaa_ghcn/code/backfill.py --years 2020,2021
+    uv run models/world_noaa_ghcn/code/backfill.py --from 1990 --to 2000
 
 Disk discipline: years are processed in small batches — downloaded in parallel,
 cleaned serially, and **each .csv.gz is deleted as soon as its parquet is
@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import csv
 import os
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -30,10 +29,8 @@ from pathlib import Path
 import pyarrow.parquet as pq
 import requests
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import clean
-import constants as c
+from models.world_noaa_ghcn.code import clean
+from models.world_noaa_ghcn.code import constants as c
 
 DATA = Path(
     os.environ.get(
