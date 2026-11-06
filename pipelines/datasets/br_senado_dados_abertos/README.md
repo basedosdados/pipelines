@@ -70,7 +70,8 @@ outra.
 
 Se o 200 vazio se repete em todas as tentativas, a resposta é tratada como lista vazia. Um status
 diferente de 200 que se repete, ou um erro de rede, levanta erro: uma falha da API nunca chega ao
-tratamento como lista vazia.
+tratamento como lista vazia. A única exceção é o 404 de `votacao_comissao`, explicado na seção
+da tabela.
 
 ### Chamadas por entidade
 
@@ -78,8 +79,11 @@ tratamento como lista vazia.
 senador; `votacao_comissao` e `votacao_comissao_parlamentar`, uma por comissão; `discurso`, uma
 por mês. Essas chamadas rodam em paralelo, 8 de cada vez.
 
-Quando o endpoint de uma entidade falha em todas as tentativas, a chamada devolve `None` e a
-entidade fica de fora daquele run. O run, que percorre milhares de entidades, segue.
+Quando o endpoint de uma entidade falha em todas as tentativas, a entidade fica de fora. Se as
+falhas passarem de 1% das chamadas da tabela (`FETCH_FAIL_RATIO`), a extração levanta erro e nada
+é carregado: uma falha ampla da API não chega à tabela publicada. Até 1%, o log mostra quantas
+chamadas falharam e as primeiras delas, e o run segue. O limite é o mesmo do `fan_out` de
+`br_senado_dados_abertos_administrativos`.
 
 ### Dois formatos de resposta
 
@@ -286,10 +290,23 @@ A consulta é por sigla de comissão, e as siglas vêm de `comissao`. Cada run c
 inteira, sem janela de anos. Votação sem data de reunião é descartada, porque não tem partição
 `ano`.
 
+A API responde 404 a toda sigla com acento, espaço ou barra: as comissões mistas de medida
+provisória (`CMMPV 1366/2026`) e os grupos parlamentares e comissões temporárias com acento
+(`GPJAPÃO`, `CTBOLÍVIA`). O corpo da resposta (`No static resource
+dadosabertos/votacaoComissao/comissao/...`) mostra que o pedido não chega ao serviço de
+votações, e codificar a sigla na URL dá o mesmo 404. Uma sigla que não existe recebe 200 com o
+envelope vazio, então o 404 não quer dizer que a comissão não tem votação: por esse endpoint, não
+há como saber.
+
+Por isso, nessa consulta o 404 é lido como resposta sem registros, sem novas tentativas, e não
+conta para o limite de falhas. Essas comissões continuam sendo consultadas em todo run; se a API
+passar a aceitar a sigla, as votações delas entram sem mudança no código. Cada 404 aparece no
+log.
+
 ### discurso
 
 O endpoint aceita no máximo cerca de um mês por consulta; um intervalo maior devolve HTTP 400.
 Cada ano vira 12 consultas, uma por mês.
 
-Os meses futuros da janela também respondem 400. As consultas de `discurso` tentam só 3 vezes, em
-vez de 6, para não passar pelo ciclo inteiro de tentativas em cada um desses meses.
+Os meses futuros da janela respondem 200, sem discursos. As consultas de `discurso` tentam só 3
+vezes, em vez de 6.

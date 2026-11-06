@@ -47,6 +47,7 @@ def get_json(
     retries: int = 6,
     backoff: float = 1.5,
     timeout: int = 120,
+    not_found_ok: bool = False,
 ) -> Any:
     """Lê um endpoint da API em JSON, tentando de novo em resposta vazia ou erro.
 
@@ -56,10 +57,12 @@ def get_json(
         retries: número de tentativas.
         backoff: base, em segundos, da espera linear entre as tentativas.
         timeout: tempo limite de cada requisição, em segundos.
+        not_found_ok: devolve None no primeiro 404, sem tentar de novo.
 
     Returns:
         O JSON lido (dict ou list), ou None quando todas as tentativas
-        respondem 200 com corpo vazio.
+        respondem 200 com corpo vazio ou, com `not_found_ok`, quando a
+        resposta é 404.
 
     Raises:
         httpx.RequestError: se alguma tentativa deu erro de rede e nenhuma
@@ -81,6 +84,9 @@ def get_json(
                 follow_redirects=True,
             )
             last_status = response.status_code
+            if response.status_code == 404 and not_found_ok:
+                print(f"    GET {path}: HTTP 404, treated as no records")
+                return None
             if (
                 response.status_code == 200
                 and response.content
@@ -97,25 +103,6 @@ def get_json(
             f"GET {url} failed: HTTP {last_status} after {retries} attempts"
         )
     return None
-
-
-def get_json_safe(
-    path: str, params: dict | None = None, retries: int = 6
-) -> Any:
-    """Lê um endpoint como `get_json`, devolvendo None em vez de levantar erro.
-
-    Args:
-        path: caminho do endpoint abaixo de `constants.API_URL`.
-        params: parâmetros da query string.
-        retries: número de tentativas.
-
-    Returns:
-        O JSON lido, ou None se a leitura falhar ou vier vazia.
-    """
-    try:
-        return get_json(path, params, retries=retries)
-    except Exception:
-        return None
 
 
 def _as_list(node: Any) -> list:
@@ -359,24 +346,62 @@ def _fetch_many(
     paths: list[str],
     workers: int = constants.FETCH_WORKERS.value,
     retries: int = 6,
+    not_found_ok: bool = False,
+    fail_ratio: float = constants.FETCH_FAIL_RATIO.value,
 ) -> list:
-    """Lê vários endpoints em paralelo com `get_json_safe`.
+    """Lê vários endpoints em paralelo com `get_json`.
+
+    Um endpoint que falha em todas as tentativas fica com None no resultado.
+    Se a fração desses endpoints passar de `fail_ratio`, a função levanta erro
+    em vez de devolver um resultado incompleto.
 
     Args:
         paths: caminhos dos endpoints abaixo de `constants.API_URL`.
         workers: número de requisições simultâneas.
         retries: número de tentativas de cada requisição.
+        not_found_ok: lê o 404 como resposta sem registros, sem contá-lo como
+            falha.
+        fail_ratio: fração máxima de endpoints com falha antes de levantar
+            erro.
 
     Returns:
         O JSON de cada endpoint, na ordem de `paths`, com None nos que
-        falharam.
+        falharam ou vieram sem registros.
+
+    Raises:
+        RuntimeError: se a fração de endpoints com falha passar de
+            `fail_ratio`.
     """
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        return list(
-            executor.map(
-                lambda path: get_json_safe(path, retries=retries), paths
+
+    def fetch(path: str) -> tuple[Any, Exception | None]:
+        try:
+            response = get_json(
+                path, retries=retries, not_found_ok=not_found_ok
             )
+            return response, None
+        except Exception as error:
+            return None, error
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        results = list(executor.map(fetch, paths))
+
+    failed_paths = [
+        path
+        for path, (_, error) in zip(paths, results, strict=True)
+        if error is not None
+    ]
+    if failed_paths:
+        ratio = len(failed_paths) / len(paths)
+        message = (
+            f"{len(failed_paths)}/{len(paths)} requests failed after retries "
+            f"({ratio:.1%}); first: {', '.join(failed_paths[:5])}"
         )
+        if ratio > fail_ratio:
+            raise RuntimeError(
+                f"{message} — refusing to return an incomplete result"
+            )
+        print(f"    {message}")
+    return [response for response, _ in results]
 
 
 def clean_partido() -> pd.DataFrame:
@@ -1265,7 +1290,8 @@ def clean_votacao_comissao(
     """
     votacao_comissao_rows, votacao_comissao_parlamentar_rows = [], []
     responses = _fetch_many(
-        [f"/votacaoComissao/comissao/{sigla}" for sigla in siglas]
+        [f"/votacaoComissao/comissao/{sigla}" for sigla in siglas],
+        not_found_ok=True,
     )
     for sigla, response in zip(siglas, responses, strict=True):
         votacoes = _as_list(

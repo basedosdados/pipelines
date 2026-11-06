@@ -17,6 +17,7 @@ class constants(Enum):
     JSON_HEADERS = {"Accept": "application/json", "User-Agent": USER_AGENT}
     XML_HEADERS = {"Accept": "application/xml", "User-Agent": USER_AGENT}
     FETCH_WORKERS = 8
+    FETCH_FAIL_RATIO = 0.01
 
     REFRESH_PRIOR_YEARS = 1
     NO_NEW_DATA_DATE = date(1900, 1, 1)
