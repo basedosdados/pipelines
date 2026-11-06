@@ -12,13 +12,13 @@ present in that year's header. A column whose concept was genuinely restructured
 rather than renamed keeps its own entry with its own temporal coverage, because
 merging incompatible code sets under one name would be a correctness bug.
 
-Run: uv run python models/us_dot_fars/code/gen_architecture.py
+Run: uv run models/us_dot_fars/code/gen_architecture.py
 """
 
 import csv
 from pathlib import Path
 
-from columns_extra import (
+from models.us_dot_fars.code.columns_extra import (
     DIR_COUNTY,
     DIR_MONTH,
     DIR_STATE,

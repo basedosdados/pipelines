@@ -1,7 +1,7 @@
 """Upload cleaned IPEDS parquet tables to BigQuery dev (basedosdados-dev).
 
 Usage:
-    uv run python models/us_ed_ipeds/code/upload.py [table_slug ...]
+    uv run models/us_ed_ipeds/code/upload.py [table_slug ...]
 
 Uploads sequentially (smallest first). Stops on first failure.
 """

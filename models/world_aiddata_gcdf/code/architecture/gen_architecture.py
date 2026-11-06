@@ -1708,6 +1708,7 @@ TEMPORAL_TABLE = "2000(1)2021"
 def rows():
     for name in OUTPUT_ORDER:
         c = _by_name[name]
+        # pyrefly: ignore [not-iterable]
         en, pt, es = c["desc"]
         yield dict(
             name=name,

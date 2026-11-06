@@ -5,7 +5,7 @@
         materialized="table",
     )
 }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 select
     lpad(safe_cast(cnpj_basico as string), 8, '0') cnpj_basico,
     safe_cast(opcao_simples as int64) opcao_simples,

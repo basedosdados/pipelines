@@ -20,7 +20,14 @@ import glob
 from pathlib import Path
 
 import duckdb
-from common import LEGACY, MODERN, OUTPUT, SHEET, load_cols
+
+from models.us_cfpb_hmda.code.common import (
+    LEGACY,
+    MODERN,
+    OUTPUT,
+    SHEET,
+    load_cols,
+)
 
 MODEL_DIR = Path(__file__).resolve().parents[1]
 SAFECAST = {"INT64": "int64", "FLOAT64": "float64", "STRING": "string"}
@@ -49,6 +56,7 @@ def sparse_cols(table: str, cols) -> list[str]:
     con.execute("SET preserve_insertion_order=false")
     con.execute("SET memory_limit='4GB'")
     rel = f"read_parquet({files!r}, union_by_name=true)"
+    # pyrefly: ignore [unsupported-operation]
     total = con.execute(f"select count(*) from {rel}").fetchone()[0]
     if not total:
         return []

@@ -1,0 +1,25 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do recenseamento,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,
+id_provincia,STRING,"Código da província no banco Pop-72, de 1 a 21",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_municipio_1872,STRING,"Código do município de 1872 no banco Pop-72, com 3 dígitos, cujos dois primeiros são o código da província. Não corresponde ao código do IBGE",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_categoria,STRING,"Código da categoria de desagregação da tabela, decodificado em dicionario",1872,yes,,,no,,categ
+solteiros_brancos_livres,INT64,Número de homens solteiros brancos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hbrsli
+solteiros_pardos_livres,INT64,Número de homens solteiros pardos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hpasli
+solteiros_pretos_livres,INT64,Número de homens solteiros pretos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hprsli
+solteiros_caboclos_livres,INT64,Número de homens solteiros caboclos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hcasli
+casados_brancos_livres,INT64,Número de homens casados brancos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hbrcli
+casados_pardos_livres,INT64,Número de homens casados pardos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hpacli
+casados_pretos_livres,INT64,Número de homens casados pretos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hprcli
+casados_caboclos_livres,INT64,Número de homens casados caboclos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hcacli
+viuvos_brancos_livres,INT64,Número de homens viúvos brancos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hbrvli
+viuvos_pardos_livres,INT64,Número de homens viúvos pardos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hpavli
+viuvos_pretos_livres,INT64,Número de homens viúvos pretos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hprvli
+viuvos_caboclos_livres,INT64,Número de homens viúvos caboclos livres,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hcavli
+livres_sem_informacao,INT64,Homens livres sem informação de estado civil ou cor,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,h_l_sinf
+solteiros_pardos_escravizados,INT64,Número de homens solteiros pardos escravizados,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hpasei
+solteiros_pretos_escravizados,INT64,Número de homens solteiros pretos escravizados,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hprsei
+casados_pardos_escravizados,INT64,Número de homens casados pardos escravizados,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hpacei
+casados_pretos_escravizados,INT64,Número de homens casados pretos escravizados,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hprcei
+viuvos_pardos_escravizados,INT64,Número de homens viúvos pardos escravizados,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hpavei
+viuvos_pretos_escravizados,INT64,Número de homens viúvos pretos escravizados,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,hprvei
+escravizados_sem_informacao,INT64,Homens escravizados sem informação de estado civil ou cor,1872,no,,person,no,Soma dos valores das paróquias que compõem a unidade.,h_e_sinf

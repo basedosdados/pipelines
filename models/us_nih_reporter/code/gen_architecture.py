@@ -5,7 +5,7 @@ names, order, BigQuery types, the raw -> clean name mapping and the trilingual
 descriptions. The cleaning transform, the dbt models and the backend column
 registration all read them, so a column can only be added or renamed here.
 
-Run: uv run python models/us_nih_reporter/code/gen_architecture.py
+Run: uv run models/us_nih_reporter/code/gen_architecture.py
 """
 
 import csv

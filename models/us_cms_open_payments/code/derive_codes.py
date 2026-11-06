@@ -13,7 +13,7 @@ independent matching groups, and no code has a runner-up worth reporting.
     uv run --with duckdb python derive_codes.py
 """
 
-import constants as c
+from models.us_cms_open_payments.code import constants as c
 
 QUERY = """
 WITH detail AS (

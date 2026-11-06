@@ -91,6 +91,22 @@ def clean_text(t):
     return t or None
 
 
+class _NullWriter:
+    """No-op stand-in for a table ``clean_all`` wasn't asked to build.
+
+    Same ``add``/``flush`` interface as ``PartitionWriter`` — ``_process_member``
+    calls both without knowing which table was actually requested, so a table
+    left out of ``tables`` still gets fully walked (no cheaper partial parse
+    exists, see ``clean_all``'s docstring) but never writes anything to disk.
+    """
+
+    def add(self, *_args, **_kwargs) -> None:
+        pass
+
+    def flush(self) -> None:
+        pass
+
+
 class PartitionWriter:
     """Accumulates rows for one table and flushes fixed-size all-STRING chunks."""
 
@@ -452,26 +468,54 @@ def _write_dicionario(
     return d
 
 
-def clean_all(input_dir: Path, output_dir: Path) -> dict:
+def clean_all(
+    input_dir: Path, output_dir: Path, tables: list[str] | None = None
+) -> dict:
     """Parse every XML member of every ZIP in ``input_dir`` into partitioned parquet.
 
     Args:
         input_dir: directory holding the two ``public_split_*.zip`` files.
         output_dir: directory to write ``<table>/extraction_date=.../*.parquet``.
+        tables: table slugs to actually build and return (subset of
+            ``{"entity", "other_name", "dgr", "dicionario"}``). A single
+            ``<ABR>`` element feeds all three data tables plus the dictionary
+            at once (see ``_process_member``), so every table still requires
+            walking both ZIPs in full regardless of ``tables`` — there's no
+            cheaper partial parse. This only controls which writers actually
+            flush to disk (via ``_NullWriter`` for the tables left out) and
+            which keys come back in the result. ``None`` (default) builds all
+            four, same behavior as before this parameter existed — both
+            one-shot bootstrap callers in ``models/au_ato_abr/code/``
+            (``clean_data.py``/``upload.py``) rely on that default.
 
     Returns:
-        Mapping of each table slug to its output directory, plus
+        Mapping of each requested table slug to its output directory, plus
         ``"max_extraction_date"`` ("YYYY-MM-DD", drives the source-update poll)
         and ``"counts"``.
     """
+    wanted = (
+        set(tables) if tables is not None else set(constants.ALL_TABLES.value)
+    )
     zips = sorted(Path(input_dir).glob("*.zip"))
     if not zips:
         raise FileNotFoundError(f"No zips in {input_dir}")
     output_dir = Path(output_dir)
 
-    entity_w = PartitionWriter("entity", _ENTITY_TYPED, output_dir)
-    other_w = PartitionWriter("other_name", _OTHER_NAME_TYPED, output_dir)
-    dgr_w = PartitionWriter("dgr", _DGR_TYPED, output_dir)
+    entity_w = (
+        PartitionWriter("entity", _ENTITY_TYPED, output_dir)
+        if "entity" in wanted
+        else _NullWriter()
+    )
+    other_w = (
+        PartitionWriter("other_name", _OTHER_NAME_TYPED, output_dir)
+        if "other_name" in wanted
+        else _NullWriter()
+    )
+    dgr_w = (
+        PartitionWriter("dgr", _DGR_TYPED, output_dir)
+        if "dgr" in wanted
+        else _NullWriter()
+    )
     writers = (entity_w, other_w, dgr_w)
     entity_types: dict[str, str] = {}
     asic_types: set[str] = set()
@@ -495,16 +539,22 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
 
     for w in writers:
         w.flush()
-    dic_dir = _write_dicionario(output_dir, entity_types, asic_types)
 
     if max_ed is None:
         raise RuntimeError("No ExtractTime found in any XML member")
 
-    return {
-        "entity": entity_w.output_dir / "entity",
-        "other_name": other_w.output_dir / "other_name",
-        "dgr": dgr_w.output_dir / "dgr",
-        "dicionario": dic_dir,
+    result: dict = {
         "max_extraction_date": max_ed.isoformat(),
         "counts": counts,
     }
+    if "entity" in wanted:
+        result["entity"] = output_dir / "entity"
+    if "other_name" in wanted:
+        result["other_name"] = output_dir / "other_name"
+    if "dgr" in wanted:
+        result["dgr"] = output_dir / "dgr"
+    if "dicionario" in wanted:
+        result["dicionario"] = _write_dicionario(
+            output_dir, entity_types, asic_types
+        )
+    return result

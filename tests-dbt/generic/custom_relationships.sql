@@ -30,9 +30,7 @@
             select
                 count(*) as total_missing,
                 (select count(*) from child) as total_child_records,
-                round(
-                    safe_divide(count(*), (select count(*) from child)), 2
-                ) as failure_rate
+                safe_divide(count(*), (select count(*) from child)) as failure_rate
             from validation
         )
 

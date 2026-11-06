@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2024, "interval": 1},
+            "range": {"start": 2007, "end": 2030, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
@@ -43,6 +43,11 @@ with
                     "br_inep_sinopse_estatistica_educacao_basica_staging.docente_etapa_ensino"
                 )
             }}
+    ),
+
+    tabela_2 as (
+        select *, trim(regexp_extract(tipo_classe, r'-([^-]*)$')) as sufixo
+        from tabela_1
     )
 
 select
@@ -51,30 +56,13 @@ select
     id_municipio,
     etapa_ensino,
     case
-        when ends_with(tipo_classe, "Federal")
-        then (split(tipo_classe, " - ")[offset(0)])
-        when ends_with(tipo_classe, "Estadual")
-        then (split(tipo_classe, " - ")[offset(0)])
-        when ends_with(tipo_classe, "Privada")
-        then (split(tipo_classe, " - ")[offset(0)])
-        when ends_with(tipo_classe, "Municipal")
-        then (split(tipo_classe, " - ")[offset(0)])
-        when ends_with(tipo_classe, "Pública")
-        then (split(tipo_classe, ' - ')[offset(0)])
+        when sufixo in ('Federal', 'Estadual', 'Municipal', 'Privada', 'Pública')
+        then trim(regexp_extract(tipo_classe, r'^(.*)-[^-]*$'))
         else tipo_classe
     end as tipo_classe,
     case
-        when ends_with(tipo_classe, "Federal")
-        then "Federal"
-        when ends_with(tipo_classe, "Estadual")
-        then "Estadual"
-        when ends_with(tipo_classe, "Privada")
-        then "Privada"
-        when ends_with(tipo_classe, "Municipal")
-        then "Municipal"
-        when ends_with(tipo_classe, "Pública")
-        then "Pública"
-        else null
+        when sufixo in ('Federal', 'Estadual', 'Municipal', 'Privada', 'Pública')
+        then sufixo
     end as rede,
     quantidade_docente
-from tabela_1
+from tabela_2

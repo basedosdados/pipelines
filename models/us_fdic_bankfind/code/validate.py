@@ -1,6 +1,6 @@
 """Validate the materialized us_fdic_bankfind tables against the local parquet.
 
-    uv run python models/us_fdic_bankfind/code/validate.py
+    uv run models/us_fdic_bankfind/code/validate.py
 
 Four checks, each of which has caught a real problem on some dataset in this
 repo:

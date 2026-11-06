@@ -1,0 +1,403 @@
+---
+version: 2
+models:
+  - name: br_mapbiomas_estatisticas__cobertura_municipio_classe
+    description: >
+      Área, em hectares, de cada classe de cobertura e uso da terra por
+      município, bioma e ano, segundo a Coleção 11 do MapBiomas (mapeamento
+      anual em resolução de 30 metros, 1985 a 2025). Municípios que se estendem
+      por mais de um bioma aparecem em uma linha por bioma.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, bioma, id_classe]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do mapeamento de cobertura e uso da terra
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de sete dígitos do município
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              # 4300001 (Lagoa Mirim) e 4300002 (Lagoa dos Patos) recebem
+              # código do IBGE na malha municipal mas não são municípios, e
+              # por isso não constam do diretório. São mantidos na tabela, e
+              # excluídos apenas deste teste de integridade referencial.
+              config:
+                where: id_municipio not in ('4300001', '4300002')
+      - name: id_classe
+        description: >
+          Código da classe de cobertura e uso da terra na legenda do MapBiomas
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: bioma
+        description: >
+          Bioma ao qual pertence a porção do território descrita nesta linha
+        tests: [not_null]
+      - name: nivel_1
+        description: >
+          Classe de cobertura e uso da terra no nível 1 da legenda
+      - name: nivel_2
+        description: >
+          Classe de cobertura e uso da terra no nível 2 da legenda
+      - name: nivel_3
+        description: >
+          Classe de cobertura e uso da terra no nível 3 da legenda
+      - name: nivel_4
+        description: >
+          Classe de cobertura e uso da terra no nível 4 da legenda
+      - name: area
+        description: >
+          Área ocupada pela classe no território, no bioma e no ano
+  - name: br_mapbiomas_estatisticas__cobertura_uf_classe
+    description: >
+      Área, em hectares, de cada classe de cobertura e uso da terra por Unidade
+      da Federação, bioma e ano, segundo a Coleção 11 do MapBiomas. Agregada a
+      partir da tabela municipal, de modo que as duas não podem divergir;
+      confere com a planilha de biomas e estados publicada pelo MapBiomas dentro
+      de 0,09% em todos os 1.107 pares estado-ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, bioma, id_classe]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do mapeamento de cobertura e uso da terra
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_classe
+        description: >
+          Código da classe de cobertura e uso da terra na legenda do MapBiomas
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: bioma
+        description: >
+          Bioma ao qual pertence a porção do território descrita nesta linha
+        tests: [not_null]
+      - name: nivel_1
+        description: >
+          Classe de cobertura e uso da terra no nível 1 da legenda
+      - name: nivel_2
+        description: >
+          Classe de cobertura e uso da terra no nível 2 da legenda
+      - name: nivel_3
+        description: >
+          Classe de cobertura e uso da terra no nível 3 da legenda
+      - name: nivel_4
+        description: >
+          Classe de cobertura e uso da terra no nível 4 da legenda
+      - name: area
+        description: >
+          Área ocupada pela classe no território, no bioma e no ano
+  - name: br_mapbiomas_estatisticas__transicao_uf_de_para_anual
+    description: >
+      Área, em hectares, que passou de cada classe de cobertura e uso da terra
+      para cada outra classe, por Unidade da Federação e bioma, entre anos
+      consecutivos de 1985 a 2025.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - bioma
+            - id_classe_de
+            - id_classe_para
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano final do período de transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_inicial
+        description: >
+          Ano inicial do período de transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_classe_de
+        description: >
+          Código da classe de cobertura e uso da terra inicial da transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: id_classe_para
+        description: >
+          Código da classe de cobertura e uso da terra final da transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: bioma
+        description: >
+          Bioma ao qual pertence a porção do território descrita nesta linha
+        tests: [not_null]
+      - name: area
+        description: >
+          Área que passou da classe inicial para a classe final no período
+  - name: br_mapbiomas_estatisticas__transicao_uf_de_para_quinquenal
+    description: >
+      Área, em hectares, que passou de cada classe de cobertura e uso da terra
+      para cada outra classe, por Unidade da Federação e bioma, em períodos de
+      cinco anos de 1985 a 2025.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - bioma
+            - id_classe_de
+            - id_classe_para
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano final do período de transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_inicial
+        description: >
+          Ano inicial do período de transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_classe_de
+        description: >
+          Código da classe de cobertura e uso da terra inicial da transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: id_classe_para
+        description: >
+          Código da classe de cobertura e uso da terra final da transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: bioma
+        description: >
+          Bioma ao qual pertence a porção do território descrita nesta linha
+        tests: [not_null]
+      - name: area
+        description: >
+          Área que passou da classe inicial para a classe final no período
+  - name: br_mapbiomas_estatisticas__transicao_uf_de_para_decenal
+    description: >
+      Área, em hectares, que passou de cada classe de cobertura e uso da terra
+      para cada outra classe, por Unidade da Federação e bioma, em períodos de
+      dez anos de 1990 a 2020.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_uf
+            - bioma
+            - id_classe_de
+            - id_classe_para
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano final do período de transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_inicial
+        description: >
+          Ano inicial do período de transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_classe_de
+        description: >
+          Código da classe de cobertura e uso da terra inicial da transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: id_classe_para
+        description: >
+          Código da classe de cobertura e uso da terra final da transição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mapbiomas_estatisticas__classe')
+              field: chave
+      - name: bioma
+        description: >
+          Bioma ao qual pertence a porção do território descrita nesta linha
+        tests: [not_null]
+      - name: area
+        description: >
+          Área que passou da classe inicial para a classe final no período
+  - name: br_mapbiomas_estatisticas__classe
+    description: >
+      Legenda hierárquica de cobertura e uso da terra da Coleção 11 do
+      MapBiomas, com os rótulos dos quatro níveis em português, inglês e
+      espanhol. Uma linha por classe presente nas estatísticas. Os rótulos em
+      português e inglês são os da legenda publicada pelo MapBiomas; os em
+      espanhol são tradução da Base dos Dados, já que o MapBiomas Brasil não
+      publica legenda nesse idioma.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [chave]
+      # observacoes é preenchida apenas para as classes cuja presença nas
+      # estatísticas diverge da legenda publicada, hoje duas de 34.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [observacoes]
+    columns:
+      - name: chave
+        description: >
+          Código da classe de cobertura e uso da terra na legenda do MapBiomas
+        tests: [not_null, unique]
+      - name: nivel
+        description: >
+          Nível da legenda em que a classe é definida, de 1 a 4
+        tests: [not_null]
+      - name: origem
+        description: >
+          Origem da classe: Natural, Antrópico, Natural/Antrópico ou Indefinido
+        tests: [not_null]
+      - name: codigo_hierarquia
+        description: >
+          Código hierárquico da classe na planilha de estatísticas, como 3.2.1.1
+      - name: valor_pt
+        description: >
+          Nome da classe em português
+        tests: [not_null]
+      - name: valor_en
+        description: >
+          Nome da classe em inglês
+      - name: valor_es
+        description: >
+          Nome da classe em espanhol
+      - name: nivel_1_pt
+        description: >
+          Rótulo em português da classe no nível 1 da legenda
+        tests: [not_null]
+      - name: nivel_1_en
+        description: >
+          Rótulo em inglês da classe no nível 1 da legenda
+      - name: nivel_1_es
+        description: >
+          Rótulo em espanhol da classe no nível 1 da legenda
+      - name: nivel_2_pt
+        description: >
+          Rótulo em português da classe no nível 2 da legenda
+      - name: nivel_2_en
+        description: >
+          Rótulo em inglês da classe no nível 2 da legenda
+      - name: nivel_2_es
+        description: >
+          Rótulo em espanhol da classe no nível 2 da legenda
+      - name: nivel_3_pt
+        description: >
+          Rótulo em português da classe no nível 3 da legenda
+      - name: nivel_3_en
+        description: >
+          Rótulo em inglês da classe no nível 3 da legenda
+      - name: nivel_3_es
+        description: >
+          Rótulo em espanhol da classe no nível 3 da legenda
+      - name: nivel_4_pt
+        description: >
+          Rótulo em português da classe no nível 4 da legenda
+      - name: nivel_4_en
+        description: >
+          Rótulo em inglês da classe no nível 4 da legenda
+      - name: nivel_4_es
+        description: >
+          Rótulo em espanhol da classe no nível 4 da legenda
+      - name: cor_hex
+        description: >
+          Cor hexadecimal da classe na legenda oficial do MapBiomas
+      - name: observacoes
+        description: >-
+          Notas sobre divergências entre a tabela de estatísticas e a legenda
+          publicada

@@ -1,7 +1,7 @@
 """Upload cleaned au_aph_hansard parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_aph_hansard/code/upload.py [--env dev|prod] [table ...]
+    uv run models/au_aph_hansard/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads

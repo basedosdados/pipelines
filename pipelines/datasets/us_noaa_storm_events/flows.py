@@ -26,14 +26,14 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at its
 own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_noaa_storm_events_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_noaa_storm_events_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_noaa_storm_events.constants import constants
 from pipelines.datasets.us_noaa_storm_events.tasks import (
@@ -41,13 +41,7 @@ from pipelines.datasets.us_noaa_storm_events.tasks import (
     download_corpus,
     probe_source,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -62,53 +56,8 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 EVENT = constants.EVENT.value
 
-# Coverage spec per table.
-#
-# All three data tables refresh monthly, so all three carry the BD Pro rolling
-# window: the most recent slice is pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
-# re-issues the BigQuery Row Access Policies, so the window slides on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# The date column differs by table, and the choice is driven by nulls: the Row
-# Access Policy grants allUsers `<date_col> <= free_end`, and a NULL fails that
-# comparison, so any row with no date would be paywalled forever.
-#
-# * event uses begin_datetime, which is non-null on all 2,041,816 rows — a true
-#   6-month rolling window.
-# * fatality has fatality_datetime, but it is NULL on 12 rows where the source
-#   reports no day. Those 12 deaths would never become free, so the window keys
-#   on `year` instead, which is the non-null partition column.
-# * event_location has no date column at all beyond `year`.
-#
-# The two granularities differ slightly at the boundary — event's free window
-# ends mid-month while the other two end at a year boundary — which can leave a
-# recent fatality free while its event is not. That direction is harmless: it
-# never exposes a row the pro window is meant to cover.
-#
 # `dicionario` has no date column, so it takes no coverage spec at all.
-_FREE_LAG = FreeLag(unit="months", value=6)
-
-_COVERAGE = {
-    "event": PartBdpro(
-        date_column=DateOnly(col="begin_datetime"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_FREE_LAG,
-    ),
-    "fatality": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-    "event_location": PartBdpro(
-        date_column=YearOnly(col="year"),
-        date_format=DateFormat.YEAR,
-        free_lag=_FREE_LAG,
-    ),
-}
+TABLES_WITH_COVERAGE = ["event", "fatality", "event_location"]
 
 
 @flow(name="us_noaa_storm_events", log_prints=True)
@@ -131,7 +80,6 @@ def us_noaa_storm_events_flow(
             Needed for a release that only restates earlier years without adding
             a month, which leaves the max coverage date unmoved.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=EVENT
     )
@@ -238,11 +186,10 @@ def us_noaa_storm_events_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -259,12 +206,10 @@ def us_noaa_storm_events_flow(
 # The minute is chosen, not defaulted: hour 8 already holds 0 (twice), 15 and 30,
 # so 52 keeps well clear. Defaulting to :00 piles every pipeline onto the same
 # instant, where they compete for BigQuery slots and trip the daily quota together.
-# pyrefly: ignore [missing-attribute]
 us_noaa_storm_events_flow.deploy_schedules = [
-    {"cron": "52 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("52 8 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one year of rows in memory at a time — 2011 is the largest
 # at ~76k events with their narratives — but the 363 MB of gzipped CSV and ~390 MB
 # of parquet share the pod's disk.
-# pyrefly: ignore [missing-attribute]
 us_noaa_storm_events_flow.job_variables = {"memory": "4Gi"}

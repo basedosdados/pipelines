@@ -362,10 +362,10 @@ English — `pesquisa` there is `research` here, on the same UUID — so
 `register_metadata.py` lists both spellings per tag and takes whichever the
 environment has, rather than resolving one slug and failing on the other.
 
-Both metadata scripts import the Data Basis MCP `server` module, which is a
-**separate checkout, not a dependency of this repo**. Set `DATABASIS_MCP_PATH`
-to the directory holding `server.py`; `common.import_mcp_server()` validates it
-and fails with a named error rather than a bare `ModuleNotFoundError`.
+Both metadata scripts call the Data Basis MCP tools as plain functions from the
+`databasis-mcp` dependency: read tools from `databasis_mcp.tools.metadata`
+(imported as `bd_mcp_metadata`), write tools from `databasis_mcp.tools.write`
+(as `bd_mcp_write`).
 
 ## The `clinical_study` entity
 

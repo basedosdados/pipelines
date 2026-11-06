@@ -1,0 +1,213 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano del levantamiento censal,,no,,year,no,"Columna de particion. El Censo de Poblacion y Vivienda es decenal, por lo que la tabla contiene un unico ano",
+id_region,STRING,"Codigo unico territorial (CUT) de la region, de dos digitos",,no,br_bd_diretorios_cl.region:id_region,,no,Columna de particion. Derivable de los dos primeros digitos de id_comuna,id_region
+id_provincia,STRING,"Codigo unico territorial (CUT) de la provincia, de tres digitos",,no,br_bd_diretorios_cl.provincia:id_provincia,,no,Derivable de los tres primeros digitos de id_comuna,id_provincia
+id_comuna,STRING,"Codigo unico territorial (CUT) de la comuna, de cinco digitos",,no,br_bd_diretorios_cl.comuna:id_comuna,,no,,id_comuna
+nivel_geografico,STRING,"Nivel geografico del registro, que indica de cual de las dos capas cartograficas de INE proviene la fila",,no,,,no,,
+nombre_region,STRING,Nombre de la region,,no,,,no,,nombre_region
+nombre_provincia,STRING,Nombre de la provincia,,no,,,no,,nombre_provincia
+nombre_comuna,STRING,Nombre de la comuna,,no,,,no,,nombre_comuna
+area_c,STRING,Estrato censal urbano o rural del area cartografica,,no,,,no,,area_c
+nombre_distrito,STRING,Nombre del distrito censal,,no,,,no,,nombre_distrito
+cod_distrito,STRING,Número de distrito,,no,,,no,,cod_distrito
+cod_localidad,STRING,Código de localidad urbana/rural,,no,,,no,,cod_localidad
+cod_zona,STRING,Código de zonal censal,,no,,,no,,cod_zona
+nombre_localidad,STRING,Nombre de la localidad,,no,,,no,,nombre_localidad
+cod_entidad,STRING,Código de entidad poblada urbana/rural,,no,,,no,,cod_entidad
+nombre_entidad,STRING,Nombre de la entidad poblada,,no,,,no,,nombre_entidad
+cod_categoria,STRING,Código de categoria de entidad,,no,,,no,,cod_categoria
+categoria,STRING,"Categoria de la entidad poblada segun INE: Ciudad, Pueblo, Aldea, Caserio, Parcela-Hijuela, Comunidad Indigena, entre otras",,no,,,no,,categoria
+id_entidad,STRING,Identificador único de entidad agrupada (no considera división distrital),,no,,,no,,id_entidad
+id_localidad,STRING,Identificador único de localidad agrupada (no considera división distrital),,no,,,no,,id_localidad
+id_distrito,STRING,Identificador único de distrito,,no,,,no,,id_distrito
+id_zona,STRING,Identificador único de zona censal,,no,,,no,,id_zona
+n_per,INT64,Personas censadas en el area,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_per
+n_hombres,INT64,Hombres censados en el area,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_hombres
+n_mujeres,INT64,Mujeres censadas en el area,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_mujeres
+n_edad_0_5,INT64,Personas de 0 a 5 años,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_0_5
+n_edad_6_13,INT64,Personas de 6 a 13 años,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_6_13
+n_edad_14_17,INT64,Personas de 14 a 17 años,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_14_17
+n_edad_18_24,INT64,Personas de 18 a 24 años,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_18_24
+n_edad_25_44,INT64,Personas de 25 a 44 años,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_25_44
+n_edad_45_59,INT64,Personas de 45 a 59 años,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_45_59
+n_edad_60_mas,INT64,Personas de 60 años o más,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_edad_60_mas
+prom_edad,FLOAT64,Promedio de edad,,no,,year,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",prom_edad
+n_inmigrantes,INT64,Personas inmigrantes internacionales (Lugar de nacimiento fuera de Chile),,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_inmigrantes
+n_nacionalidad,INT64,Personas con otra nacionalidad (no considera aquellos con doble nacionalidad),,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_nacionalidad
+n_pueblos_orig,INT64,Personas que son o se consideran pertenecientes a un pueblo originario,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_pueblos_orig
+n_afrodescendencia,INT64,Personas que son o se consideran afrodescendientes,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_afrodescendencia
+n_lengua_indigena,INT64,Personas que hablan o entienden alguna lengua indígena u originaria,,no,,person,no,Universo: Personas de 5 años o más,n_lengua_indigena
+n_religion,INT64,Personas que tienen una religión o credo,,no,,person,no,Universo: Personas de 15 años o más,n_religion
+n_dificultad_ver,INT64,"Personas con mucha dificultad o no pueden: Ver, aun usando anteojos",,no,,person,no,Universo: Personas de 5 años o más,n_dificultad_ver
+n_dificultad_oir,INT64,"Personas con mucha dificultad o no pueden: Oír, aun usando un dispositivo auditivo",,no,,person,no,Universo: Personas de 5 años o más,n_dificultad_oir
+n_dificultad_mover,INT64,Personas con mucha dificultad o no pueden: Caminar o subir escaleras,,no,,person,no,Universo: Personas de 5 años o más,n_dificultad_mover
+n_dificultad_cogni,INT64,Personas con mucha dificultad o no pueden: Recordar o concentrarse,,no,,person,no,Universo: Personas de 5 años o más,n_dificultad_cogni
+n_dificultad_cuidado,INT64,"Personas con mucha dificultad o no pueden: Realizar tareas de cuidado personas, como bañarse o vestirse",,no,,person,no,Universo: Personas de 5 años o más,n_dificultad_cuidado
+n_dificultad_comunic,INT64,Personas con mucha dificultad o no pueden: Hablar o comunicarse usando su idioma habitual,,no,,person,no,Universo: Personas de 5 años o más,n_dificultad_comunic
+n_discapacidad,INT64,Personas con discapacidad (declara mucha dificultad o imposibilidad para realizar algunas de las actividades del módulo de salud),,no,,person,no,Universo: Personas de 5 años o más,n_discapacidad
+n_estcivcon_casado,INT64,Personas con estado civil o conyugal: Casado,,no,,person,no,Universo: Personas de 15 años o más,n_estcivcon_casado
+n_estcivcon_conviviente,INT64,Personas con estado civil o conyugal: Conviviente o pareja sin acuerdo de unión civil,,no,,person,no,Universo: Personas de 15 años o más,n_estcivcon_conviviente
+n_estcivcon_conv_civil,INT64,Personas con estado civil o conyugal: Conviviente civil (con acuerdo de unión civil),,no,,person,no,Universo: Personas de 15 años o más,n_estcivcon_conv_civil
+n_estcivcon_anul_sep_div,INT64,"Personas con estado civil o conyugal: Anulado, separado o divorciado",,no,,person,no,Universo: Personas de 15 años o más,n_estcivcon_anul_sep_div
+n_estcivcon_viudo,INT64,Personas con estado civil o conyugal: Viudo,,no,,person,no,Universo: Personas de 15 años o más,n_estcivcon_viudo
+n_estcivcon_soltero,INT64,Personas con estado civil o conyugal: Soltero,,no,,person,no,Universo: Personas de 15 años o más,n_estcivcon_soltero
+prom_escolaridad18,FLOAT64,Promedio de escolaridad de personas de 18 años o más,,no,,year,no,Universo: Personas de 18 años o más,prom_escolaridad18
+n_asistencia_parv,INT64,Personas de 0 a 5 años que asisten a: Educación parvularia,,no,,person,no,Universo: Personas de 0 a 5 años,n_asistencia_parv
+n_asistencia_basica,INT64,Personas de 6 a 13 años que asisten a: Educación básica,,no,,person,no,Universo: Personas de 6 a 13 años,n_asistencia_basica
+n_asistencia_media,INT64,Personas de 14 a 17 años que asisten a: Educación media,,no,,person,no,Universo: Personas de 14 a 17 años,n_asistencia_media
+n_asistencia_superior,INT64,Personas de 18 a 24 años que asisten a: Educación superior,,no,,person,no,Universo: Personas de 18 a 24 años,n_asistencia_superior
+n_cine_nunca_curso_primera_infancia,INT64,Personas con logro educacional más alto alcanzado (CINE11): Menor a primaria (incluye nunca cursó un programa educativo y Educación de la primera infancia),,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_cine_nunca_curso_primera_infancia
+n_cine_primaria,INT64,"Personas con logro educacional más alto alcanzado (CINE11): Primaria (incluye Primaria en forma parcial, Educación primaria (nivel 1) y Educación primaria (nivel 2))",,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_cine_primaria
+n_cine_secundaria,INT64,"Personas con logro educacional más alto alcanzado (CINE11): Secundaria (incluye Educación secundaria, con orientación general y con orientación vocacional)",,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_cine_secundaria
+n_cine_terciaria_maestria_doctorado,INT64,"Personas con logro educacional más alto alcanzado (CINE11): Avanzado (incluye Educación terciaria de ciclo corto, con orientación vocacional, Grado de educación terciaria o nivel equivalente, Maestría y Nivel de doctorado o equivalente)",,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_cine_terciaria_maestria_doctorado
+n_cine_especial_diferencial,INT64,Personas con logro educacional más alto alcanzado (CINE11): Educación especial o diferencial,,no,,person,no,"Universo: Personas censadas en viviendas particulares, colectivas y personas en situación de calle",n_cine_especial_diferencial
+n_analfabet,INT64,Personas de 15 años o más que no saben leer o escribir,,no,,person,no,Universo: Personas de 15 años o más,n_analfabet
+n_ocupado,INT64,Personas de 15 años o más ocupadas,,no,,person,no,Universo: Personas de 15 años o más,n_ocupado
+n_desocupado,INT64,Personas de 15 años o más desocupadas,,no,,person,no,Universo: Personas de 15 años o más,n_desocupado
+n_fuera_fuerza_trabajo,INT64,Personas de 15 años o más fuera de la fuerza de trabajo,,no,,person,no,Universo: Personas de 15 años o más,n_fuera_fuerza_trabajo
+n_cise_rec_independientes,INT64,Personas de 15 años o más ocupadas independientes,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_cise_rec_independientes
+n_cise_rec_dependientes,INT64,Personas de 15 años o más ocupadas dependientes,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_cise_rec_dependientes
+n_cise_rec_trabajador_no_remunerado,INT64,Personas de 15 años o más ocupadas trabajadores no remunerados,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_cise_rec_trabajador_no_remunerado
+n_ciuo_1,INT64,"Personas ocupadas del grupo de CIUO: Directores, gerentes y administradores",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_1
+n_ciuo_2,INT64,"Personas ocupadas del grupo de CIUO: Profesionales, científicos e intelectuales",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_2
+n_ciuo_3,INT64,Personas ocupadas del grupo de CIUO: Técnicos y profesionales de nivel medio,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_3
+n_ciuo_4,INT64,Personas ocupadas del grupo de CIUO: Personal de apoyo administrativo,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_4
+n_ciuo_5,INT64,Personas ocupadas del grupo de CIUO: Trabajadores de los servicios y vendedores de comercios y mercados,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_5
+n_ciuo_6,INT64,"Personas ocupadas del grupo de CIUO: Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_6
+n_ciuo_7,INT64,Personas ocupadas del grupo de CIUO: Artesanos y operarios de oficios,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_7
+n_ciuo_8,INT64,"Personas ocupadas del grupo de CIUO: Operadores de instalaciones, máquinas y ensambladores",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_8
+n_ciuo_9,INT64,Personas ocupadas del grupo de CIUO: Ocupaciones elementales,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_9
+n_ciuo_0,INT64,Personas ocupadas del grupo de CIUO: Ocupaciones de las fuerzas armadas,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_ciuo_0
+n_caenes_a,INT64,"Personas ocupadas en actividades de CAENES: Agricultura, ganadería, silvicultura y pesca",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_a
+n_caenes_b,INT64,Personas ocupadas en actividades de CAENES: Explotación de minas y canteras,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_b
+n_caenes_c,INT64,Personas ocupadas en actividades de CAENES: Industrias manufactureras,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_c
+n_caenes_d,INT64,"Personas ocupadas en actividades de CAENES: Suministro de electricidad, gas, vapor y aire acondicionado",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_d
+n_caenes_e,INT64,"Personas ocupadas en actividades de CAENES: Suministro de agua; evacuación de aguas residuales, gestión de desechos y descontaminación",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_e
+n_caenes_f,INT64,Personas ocupadas en actividades de CAENES: Construcción,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_f
+n_caenes_g,INT64,Personas ocupadas en actividades de CAENES: Comercio al por mayor y al por menor; reparación de vehículos automotores y motocicletas,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_g
+n_caenes_h,INT64,Personas ocupadas en actividades de CAENES: Transporte y almacenamiento,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_h
+n_caenes_i,INT64,Personas ocupadas en actividades de CAENES: Actividades de alojamiento y de servicio de comidas,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_i
+n_caenes_j,INT64,Personas ocupadas en actividades de CAENES: Información y comunicaciones,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_j
+n_caenes_k,INT64,Personas ocupadas en actividades de CAENES: Actividades financieras y de seguros,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_k
+n_caenes_l,INT64,Personas ocupadas en actividades de CAENES: Actividades inmobiliarias,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_l
+n_caenes_m,INT64,"Personas ocupadas en actividades de CAENES: Actividades profesionales, científicas y técnicas",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_m
+n_caenes_n,INT64,Personas ocupadas en actividades de CAENES: Actividades de servicios administrativos y de apoyo,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_n
+n_caenes_o,INT64,Personas ocupadas en actividades de CAENES: Administración pública y defensa; planes de seguridad social de afiliación obligatoria,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_o
+n_caenes_p,INT64,Personas ocupadas en actividades de CAENES: Enseñanza,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_p
+n_caenes_q,INT64,Personas ocupadas en actividades de CAENES: Actividades de atención de la salud humana y de asistencia social,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_q
+n_caenes_r,INT64,"Personas ocupadas en actividades de CAENES: Actividades artísticas, de entretenimiento y recreativas",,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_r
+n_caenes_s,INT64,Personas ocupadas en actividades de CAENES: Otras actividades de servicios,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_s
+n_caenes_t,INT64,Personas ocupadas en actividades de CAENES: Actividades de los hogares como empleadores; actividades no diferenciadas de los hogares como productores de bienes y servicios para uso propio,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_t
+n_caenes_u,INT64,Personas ocupadas en actividades de CAENES: Actividades de organizaciones y órganos extraterritoriales,,no,,person,no,Universo: Personas de 15 años o más ocupadas,n_caenes_u
+n_transporte_auto,INT64,Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: Auto particular,,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_auto
+n_transporte_publico,INT64,Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: transporte público,,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_publico
+n_transporte_camina,INT64,Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: Caminando,,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_camina
+n_transporte_bicicleta,INT64,Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: Bicicleta,,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_bicicleta
+n_transporte_motocicleta,INT64,Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: Motocicleta,,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_motocicleta
+n_transporte_cab_lan_bote,INT64,"Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: Caballo, lancha o bote",,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_cab_lan_bote
+n_transporte_otros,INT64,Personas ocupadas fuera de su vivienda cuyo medio de transporte principal es: Otro medio,,no,,person,no,Universo: Personas de 15 años o más ocupadas que trabajan fuera de su vivienda,n_transporte_otros
+n_hog,INT64,Hogares censados en el area,,no,,household,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_hog
+prom_per_hog,FLOAT64,Promedio de personas por hogar,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,prom_per_hog
+n_hog_unipersonales,INT64,Hogares unipersonales,,no,,household,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_hog_unipersonales
+n_hog_60,INT64,Hogares compuestos solo de personas de 60 años o más,,no,,household,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_hog_60
+n_hog_menores,INT64,Hogares con al menos una persona de 0 a 14 años,,no,,household,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_hog_menores
+n_jefatura_mujer,INT64,Hogares con jefatura de hogar femenina,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_jefatura_mujer
+n_tenencia_propia_pagada,INT64,Hogares con tenencia de la vivienda: propia pagada,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_propia_pagada
+n_tenencia_propia_pagandose,INT64,Hogares con tenencia de la vivienda: propia pagándose,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_propia_pagandose
+n_tenencia_arrendada_contrato,INT64,Hogares con tenencia de la vivienda: arrendada con contrato,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_arrendada_contrato
+n_tenencia_arrendada_sin_contrato,INT64,Hogares con tenencia de la vivienda: arrendada sin contrato,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_arrendada_sin_contrato
+n_tenencia_cedida_trabajo,INT64,Hogares con tenencia de la vivienda: cedida por trabajo o servicio,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_cedida_trabajo
+n_tenencia_cedida_familiar,INT64,Hogares con tenencia de la vivienda: cedida por familiar u otro,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_cedida_familiar
+n_tenencia_otro,INT64,"Hogares con tenencia de la vivienda: otro (usufructo, ocupada de hecho, propiedad en sucesión o litigio)",,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_tenencia_otro
+n_comb_cocina_gas,INT64,Hogares con energía o combustible para cocinar: gas,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_gas
+n_comb_cocina_parafina,INT64,Hogares con energía o combustible para cocinar: parafina o pretróleo,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_parafina
+n_comb_cocina_lena,INT64,Hogares con energía o combustible para cocinar: leña,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_lena
+n_comb_cocina_pellet,INT64,Hogares con energía o combustible para cocinar: pellet,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_pellet
+n_comb_cocina_carbon,INT64,Hogares con energía o combustible para cocinar: carbón,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_carbon
+n_comb_cocina_electricidad,INT64,Hogares con energía o combustible para cocinar: electricidad,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_electricidad
+n_comb_cocina_solar,INT64,Hogares con energía o combustible para cocinar: energía solar,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_solar
+n_comb_cocina_no_utiliza,INT64,Hogares con energía o combustible para cocinar: no utiliza fuente de energía,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_cocina_no_utiliza
+n_comb_calefaccion_gas,INT64,Hogares con energía o combustible para calefaccionar: gas,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_gas
+n_comb_calefaccion_parafina,INT64,Hogares con energía o combustible para calefaccionar: parafina o pretróleo,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_parafina
+n_comb_calefaccion_lena,INT64,Hogares con energía o combustible para calefaccionar: leña,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_lena
+n_comb_calefaccion_pellet,INT64,Hogares con energía o combustible para calefaccionar: pellet,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_pellet
+n_comb_calefaccion_carbon,INT64,Hogares con energía o combustible para calefaccionar: carbón,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_carbon
+n_comb_calefaccion_electricidad,INT64,Hogares con energía o combustible para calefaccionar: electricidad,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_electricidad
+n_comb_calefaccion_otra,INT64,Hogares con energía o combustible para calefaccionar: otra,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_otra
+n_comb_calefaccion_no_utiliza,INT64,Hogares con energía o combustible para calefaccionar: no utiliza fuente de energía,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_comb_calefaccion_no_utiliza
+n_serv_tel_movil,INT64,"Hogares con disponibilidad equipos o servicios: teléfono móvil, celular o smartphone",,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_serv_tel_movil
+n_serv_compu,INT64,Hogares con disponibilidad equipos o servicios: computador,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_serv_compu
+n_serv_tablet,INT64,Hogares con disponibilidad equipos o servicios: tablet,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_serv_tablet
+n_serv_internet_fija,INT64,Hogares con disponibilidad equipos o servicios: internet fija,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_serv_internet_fija
+n_serv_internet_movil,INT64,Hogares con disponibilidad equipos o servicios: internet móvil,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_serv_internet_movil
+n_serv_internet_satelital,INT64,Hogares con disponibilidad equipos o servicios: internet por conexión satelital,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_serv_internet_satelital
+n_internet,INT64,Hogares con acceso a internet,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_internet
+n_vp,INT64,Viviendas particulares,,no,,dwelling,no,Universo: Viviendas particulares,n_vp
+n_vp_ocupada,INT64,Viviendas particulares ocupadas,,no,,dwelling,no,Universo: Viviendas particulares,n_vp_ocupada
+n_vp_desocupada,INT64,Viviendas particulares desocupadas,,no,,dwelling,no,Universo: Viviendas particulares,n_vp_desocupada
+n_tipo_viv_casa,INT64,Viviendas con tipo de vivienda: casa,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_casa
+n_tipo_viv_depto,INT64,Viviendas con tipo de vivienda: departamento,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_depto
+n_tipo_viv_indigena,INT64,Viviendas con tipo de vivienda: vivienda tradicional indígena,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_indigena
+n_tipo_viv_pieza,INT64,Viviendas con tipo de vivienda: pieza en casa antigua o conventillo,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_pieza
+n_tipo_viv_mediagua,INT64,"Viviendas con tipo de vivienda: mediagua, mejora, etc",,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_mediagua
+n_tipo_viv_movil,INT64,Viviendas con tipo de vivienda: móvil,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_movil
+n_tipo_viv_otro,INT64,Viviendas con tipo de vivienda: otro tipo de vivienda,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_tipo_viv_otro
+n_dormitorios_1,INT64,Número de viviendas con 1 dormitorio,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_dormitorios_1
+n_dormitorios_2,INT64,Número de viviendas con 2 dormitorios,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_dormitorios_2
+n_dormitorios_3,INT64,Número de viviendas con 3 dormitorios,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_dormitorios_3
+n_dormitorios_4,INT64,Número de viviendas con 4 dormitorios,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_dormitorios_4
+n_dormitorios_5,INT64,Número de viviendas con 5 dormitorios,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_dormitorios_5
+n_dormitorios_6_o_mas,INT64,Número de viviendas con 6 dormitorios o más,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_dormitorios_6_o_mas
+n_viv_hacinadas,INT64,Viviendas hacinadas,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_viv_hacinadas
+n_viv_irrecuperables,INT64,Viviendas irrecuperables,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_viv_irrecuperables
+n_hog_allegados,INT64,Hogares allegados,,no,,household,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_hog_allegados
+n_nucleos_hacinados_allegados,INT64,Núcleos hacinados allegados,,no,,person,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_nucleos_hacinados_allegados
+n_viv_no_ampliables,INT64,Hogares que residen en viviendas hacinadas no ampliables,,no,,dwelling,no,Universo: Hogares censados en viviendas particulares ocupadas con moradores presentes,n_viv_no_ampliables
+n_deficit_cuantitativo,INT64,Déficit habitacional cuantitativo,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_deficit_cuantitativo
+n_mat_paredes_hormigon,INT64,Viviendas con materialidad paredes: hormigón armado,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_paredes_hormigon
+n_mat_paredes_albanileria,INT64,Viviendas con materialidad paredes: albañilería,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_paredes_albanileria
+n_mat_paredes_tabique_forrado,INT64,Viviendas con materialidad paredes: tabique forrado por ambas caras,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_paredes_tabique_forrado
+n_mat_paredes_tabique_sin_forro,INT64,Viviendas con materialidad paredes: tabique sin forro interior,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_paredes_tabique_sin_forro
+n_mat_paredes_artesanal,INT64,"Viviendas con materialidad paredes: adobe, barro, pirca, quincha u otro material artesanal",,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_paredes_artesanal
+n_mat_paredes_precarios,INT64,Viviendas con materialidad paredes: materiales precarios o de desecho,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_paredes_precarios
+n_mat_techo_tejas,INT64,"Viviendas con materialidad techo: tejas o tejuelas de arcilla, metálicas, de cemento, de madera, asfálticas o plásticas",,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_tejas
+n_mat_techo_hormigon,INT64,Viviendas con materialidad techo: losa hormigón,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_hormigon
+n_mat_techo_zinc,INT64,"Viviendas con materialidad techo: planchas metálicas de zinc, cobre, etc",,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_zinc
+n_mat_techo_fibrocemento,INT64,Viviendas con materialidad techo: planchas de fibrocemento tipo pizarreño,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_fibrocemento
+n_mat_techo_fonolita,INT64,Viviendas con materialidad techo: fonolita o plancha de fieltro embreado,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_fonolita
+n_mat_techo_paja,INT64,"Viviendas con materialidad techo: paja, coirón, totora o caña",,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_paja
+n_mat_techo_precarios,INT64,Viviendas con materialidad techo: materiales precarios o de desecho,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_precarios
+n_mat_techo_sin_cubierta,INT64,Viviendas con materialidad techo: sin cubierta sólida de techo,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_techo_sin_cubierta
+n_mat_piso_radier_con_revestimiento,INT64,"Viviendas con materialidad piso: parquet, piso flotante, cerámico, madera, alfombra, flexit, cubrepiso u otro similar: sobre radier o vigas de madera",,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_piso_radier_con_revestimiento
+n_mat_piso_radier_sin_revestimiento,INT64,Viviendas con materialidad piso: radier sin revestimiento,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_piso_radier_sin_revestimiento
+n_mat_piso_baldosa_cemento,INT64,Viviendas con materialidad piso: baldosa de cemento,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_piso_baldosa_cemento
+n_mat_piso_capa_cemento,INT64,Viviendas con materialidad piso: capa de cemento sobre tierra,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_piso_capa_cemento
+n_mat_piso_tierra,INT64,Viviendas con materialidad piso: tierra,,no,,dwelling,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_mat_piso_tierra
+n_fuente_agua_publica,INT64,Viviendas cuya fuente de agua es: red pública,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_agua_publica
+n_fuente_agua_pozo,INT64,Viviendas cuya fuente de agua es: pozo o noria,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_agua_pozo
+n_fuente_agua_camion,INT64,Viviendas cuya fuente de agua es: camión aljibe,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_agua_camion
+n_fuente_agua_rio,INT64,"Viviendas cuya fuente de agua es: río, vertiente, estero, canal, etc",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_agua_rio
+n_distrib_agua_llave,INT64,Viviendas con sistema de distribución: llave dentro de la vivienda,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_distrib_agua_llave
+n_distrib_agua_llave_fuera,INT64,"Viviendas con sistema de distribución: con llave dentro del sitio, fuera de la vivienda",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_distrib_agua_llave_fuera
+n_distrib_agua_acarreo,INT64,"Viviendas con sistema de distribución: no tiene sistema, la acarrea",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_distrib_agua_acarreo
+n_serv_hig_alc_dentro,INT64,"Viviendas con servicio higiénico: dentro de la vivienda, conectado al alcantarillado",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_alc_dentro
+n_serv_hig_alc_fuera,INT64,"Viviendas con servicio higiénico: fuera de la vivienda, conectado al alcantarillado",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_alc_fuera
+n_serv_hig_fosa,INT64,Viviendas con servicio higiénico: conectado a una fosa séptica,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_fosa
+n_serv_hig_pozo,INT64,Viviendas con servicio higiénico: conectado a pozo negro,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_pozo
+n_serv_hig_acequia_canal,INT64,Viviendas con servicio higiénico: en un cajón sobre acequia o canal,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_acequia_canal
+n_serv_hig_cajon_otro,INT64,Viviendas con servicio higiénico: en un cajón conectado a otro sistema,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_cajon_otro
+n_serv_hig_bano_quimico,INT64,Viviendas con servicio higiénico: baño químico,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_bano_quimico
+n_serv_hig_bano_seco,INT64,Viviendas con servicio higiénico: conectado a baño seco,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_bano_seco
+n_serv_hig_no_tiene,INT64,Viviendas con servicio higiénico: no tiene servicio higiénico,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_serv_hig_no_tiene
+n_fuente_elect_publica,INT64,Viviendas con electricidad: red pública,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_elect_publica
+n_fuente_elect_diesel,INT64,Viviendas con electricidad: generador diésel o bencina,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_elect_diesel
+n_fuente_elect_solar,INT64,Viviendas con electricidad: placa solar,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_elect_solar
+n_fuente_elect_eolica,INT64,Viviendas con electricidad: energía eólica,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_elect_eolica
+n_fuente_elect_otro,INT64,Viviendas con electricidad: otro,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_elect_otro
+n_fuente_elect_no_tiene,INT64,Viviendas con electricidad: no tiene energía eléctrica,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_fuente_elect_no_tiene
+n_basura_servicios,INT64,Viviendas con eliminación de basura: la recogen los servicios de aseo,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_basura_servicios
+n_basura_entierra,INT64,Viviendas con eliminación de basura: la entierra o la quema,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_basura_entierra
+n_basura_eriazo,INT64,"Viviendas con eliminación de basura: la deja en terreno eriazo, quebrada o zanja",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_basura_eriazo
+n_basura_rio,INT64,"Viviendas con eliminación de basura: la tira al río, laguna o mar",,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_basura_rio
+n_basura_otro,INT64,Viviendas con eliminación de basura: otro,,no,,person,no,Universo: Viviendas particulares ocupadas con moradores presentes,n_basura_otro
+geometria,STRING,Poligono del area censal,,no,,,no,Sistema de referencia de origen SIRGAS 2000 (EPSG:4674). No se reproyecto a WGS 84 (EPSG:4326) porque la diferencia en Chile es inferior a un metro. Use ST_AREA para obtener superficie en metros cuadrados,geometria

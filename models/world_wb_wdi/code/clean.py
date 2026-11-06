@@ -8,7 +8,7 @@ all-STRING partitioned Parquet.
 Scratch data lives outside the repo (never under Dropbox/git):
 ``~/Downloads/world_wb_wdi_data/`` by default, overridable via ``WDI_DATA_DIR``.
 
-Run:  python models/world_wb_wdi/code/clean.py
+Run:  uv run models/world_wb_wdi/code/clean.py
 """
 
 import os

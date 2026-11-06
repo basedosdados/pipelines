@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Reshape the 7 federal (Bundestag) GERDA files into long tables.
 
-Run: cd models/us_nature_gerda/code && python3 clean_federal.py
+Run: uv run models/us_nature_gerda/code/clean_federal.py
 """
 
 import os
 
-# pyrefly: ignore [missing-import]
-import gerda_common as gc
 import pandas as pd
+
+from models.us_nature_gerda.code import gerda_common as gc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IN = os.path.join(HERE, "..", "input")

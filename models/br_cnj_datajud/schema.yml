@@ -1,0 +1,124 @@
+---
+version: 2
+models:
+  - name: br_cnj_datajud__tribunal_ano
+    description: >
+      Estatísticas do painel Justiça em Números em formato longo: uma linha por
+      tribunal, ano e indicador. Cobre 99 tribunais e 1.305 indicadores entre
+      2009 e 2025, incluindo casos novos, casos pendentes, taxa de
+      congestionamento, índice de atendimento à demanda e IPC-Jus, discriminados
+      por grau e por fase processual no sufixo do código do indicador. Os
+      sentinelas de ausência da fonte (nd, n/a e Inf) foram convertidos em NULL
+      e as linhas correspondentes não foram materializadas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - sigla_tribunal
+            - ramo_justica
+            - sigla_indicador
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_cnj_datajud__dicionario')
+          columns_covered_by_dictionary: [sigla_indicador]
+    columns:
+      - name: ano
+        description: Ano de referência da estatística
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              # The time directory exposes `ano` as a STRUCT; binding to the
+              # bare column name matches the struct and never the value.
+              field: ano.ano
+      - name: sigla_tribunal
+        description: Sigla do tribunal a que a estatística se refere
+        tests: [not_null]
+      - name: ramo_justica
+        description: >
+          Ramo de justiça sob o qual o CNJ reporta a estatística. Integra a
+          chave porque o STM é reportado sob dois ramos com valores distintos
+        tests: [not_null]
+      - name: sigla_indicador
+        description: Código do indicador estatístico conforme a tabela de variáveis
+          do CNJ
+        tests: [not_null]
+      - name: valor
+        description: >
+          Valor do indicador. A unidade varia por indicador e está implícita na
+          descrição registrada na tabela dicionario
+        tests: [not_null]
+  - name: br_cnj_datajud__tribunal
+    description: >
+      Atributos de cada tribunal reportados por ano de referência: nome por
+      extenso, unidade da federação da sede, âmbito territorial de atuação,
+      porte e avaliação de estrutura. Separada da tabela de indicadores porque
+      estas colunas são categóricas e não caberiam na coluna numérica valor.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_tribunal, ramo_justica]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # estrutura is populated in 278 of 1,595 rows; the source
+          # records n/a elsewhere.
+          ignore_values: [estrutura]
+    columns:
+      - name: ano
+        description: Ano de referência do cadastro do tribunal
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_tribunal
+        description: Sigla do tribunal
+        tests: [not_null]
+      - name: ramo_justica
+        description: Ramo de justiça sob o qual o CNJ classifica o tribunal
+        tests: [not_null]
+      - name: nome_tribunal
+        description: Nome do tribunal por extenso
+      - name: sigla_uf_sede
+        description: >
+          Sigla da unidade da federação onde fica a sede do tribunal, vazia para
+          os tribunais de jurisdição nacional
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: abrangencia
+        description: Âmbito territorial de atuação do tribunal
+      - name: porte
+        description: Porte do tribunal atribuído pelo CNJ
+      - name: estrutura
+        description: Avaliação da adequação da estrutura do tribunal
+      - name: sequencial_orgao
+        description: Identificador sequencial do tribunal no sistema de estatística
+          do CNJ
+  - name: br_cnj_datajud__dicionario
+    description: >
+      Descrição de cada código de indicador usado em tribunal_ano, conforme a
+      tabela de variáveis que o CNJ distribui junto com a base de dados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # CNJ publishes one variable table with no per-year versioning.
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela que contém a coluna codificada
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Código presente na coluna codificada
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal da chave
+      - name: valor
+        description: Descrição do código conforme publicada pelo CNJ
+        tests: [not_null]

@@ -23,8 +23,9 @@ PUMS = "/Users/rdahis/acs_data/pums"
 WORK = "/Users/rdahis/acs_data/work"
 os.makedirs(WORK, exist_ok=True)
 
-# pyrefly: ignore [missing-import]
-from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
+from models.us_census_acs.code._pums_schema import (  # noqa: E402  (shared identity-rename map)
+    RENAME,
+)
 
 # ---- 1. parse dictionaries (CSV 2013+ and TXT 2009-2016) ----
 # The CSV dictionaries only exist from 2013 on and carry an explicit C|N type.

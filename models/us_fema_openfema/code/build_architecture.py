@@ -14,7 +14,7 @@ glossary entry, a numeric column with no declared unit, or a coded column that
 did not end up STRING all raise. Silence there would ship a column with an
 empty description or a meaningless unit into the catalog.
 
-    uv run python build_architecture.py
+    uv run build_architecture.py
 """
 
 from __future__ import annotations
@@ -28,8 +28,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-import glossary  # noqa: E402
-import tables as spec  # noqa: E402
+from models.us_fema_openfema.code import glossary  # noqa: E402
+from models.us_fema_openfema.code import tables as spec  # noqa: E402
 
 ARCH_DIR = HERE / "architecture"
 JSON_DIR = HERE / "columns_json"

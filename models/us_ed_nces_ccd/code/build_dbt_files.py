@@ -9,13 +9,9 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# pyrefly: ignore [missing-import]
-import schema
+from models.us_ed_nces_ccd.code import schema
 
 ROOT = Path(__file__).resolve().parent
 MODELS = ROOT.parent

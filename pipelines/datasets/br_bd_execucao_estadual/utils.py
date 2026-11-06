@@ -18,24 +18,21 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 from pathlib import Path
 
 from pipelines.datasets.br_bd_execucao_estadual.constants import constants
 
-CODE_DIR = constants.CODE_DIR.value
 
-
-def _ensure_code_on_path(work_dir: str) -> None:
-    """Point the reused code at this run's scratch dir and put it on sys.path.
+def _set_data_dir(work_dir: str) -> None:
+    """Point the reused code at this run's scratch dir.
 
     The env var has to be set BEFORE ``constants`` is first imported, because
-    ``DATA_DIR`` is read at import time. Later imports get the cached module, which is
-    fine: every flow run is a fresh process.
+    ``DATA_DIR`` is read at import time — which is why each ``refresh_*`` imports
+    its ``models.br_bd_execucao_estadual.code`` modules inside the function, after
+    calling this. Later imports get the cached module, which is fine: every flow
+    run is a fresh process.
     """
     os.environ["EXEC_ESTADUAL_DATA_DIR"] = work_dir
-    if CODE_DIR not in sys.path:
-        sys.path.insert(0, CODE_DIR)
 
 
 def input_dir(work_dir: str, state: str) -> Path:
@@ -70,12 +67,11 @@ def _years(year: int, full: bool) -> set[int] | None:
 
 
 def refresh_mg(work_dir: str, year: int, full: bool) -> None:
-    _ensure_code_on_path(work_dir)
-    # pyrefly: ignore [missing-import]
-    import clean_mg
-
-    # pyrefly: ignore [missing-import]
-    import download_mg
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_mg,
+        download_mg,
+    )
 
     download_mg.main(years=_years(year, full))
     # The cleaners convert whatever is on disk, one output parquet per source file
@@ -91,12 +87,11 @@ def refresh_ba(work_dir: str, year: int, full: bool) -> None:
     per-year file to invalidate: a refresh is a re-download of all six views. They are
     the smallest of the four states, so this is cheap enough to run daily.
     """
-    _ensure_code_on_path(work_dir)
-    # pyrefly: ignore [missing-import]
-    import clean_ba
-
-    # pyrefly: ignore [missing-import]
-    import download_ba
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_ba,
+        download_ba,
+    )
 
     directory = input_dir(work_dir, "ba")
     if directory.exists():
@@ -106,12 +101,11 @@ def refresh_ba(work_dir: str, year: int, full: bool) -> None:
 
 
 def refresh_pe(work_dir: str, year: int, full: bool) -> None:
-    _ensure_code_on_path(work_dir)
-    # pyrefly: ignore [missing-import]
-    import clean_pe
-
-    # pyrefly: ignore [missing-import]
-    import download_pe
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_pe,
+        download_pe,
+    )
 
     download_pe.main(years=_years(year, full))
     # Both kinds, because `despesa` and `pagamento` are separate CKAN packages that
@@ -128,12 +122,11 @@ def refresh_es(work_dir: str, year: int, full: bool) -> None:
     SQL Server's datetime floor and holds real rows). That family totals ~45 MB, so
     taking it whole daily is cheaper than reasoning about which bucket changed.
     """
-    _ensure_code_on_path(work_dir)
-    # pyrefly: ignore [missing-import]
-    import clean_es
-
-    # pyrefly: ignore [missing-import]
-    import download_es
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_es,
+        download_es,
+    )
 
     download_es.main(years=_years(year, full))
     clean_es.main()
@@ -146,12 +139,11 @@ def refresh_rs(work_dir: str, year: int, full: bool) -> None:
     open years' twelve archives. The conversion is the expensive half: ~36 GB expanded
     across the full series, one archive at a time.
     """
-    _ensure_code_on_path(work_dir)
-    # pyrefly: ignore [missing-import]
-    import clean_rs
-
-    # pyrefly: ignore [missing-import]
-    import download_rs
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_rs,
+        download_rs,
+    )
 
     download_rs.main(years=_years(year, full))
     clean_rs.main()
@@ -165,12 +157,11 @@ def refresh_sp(work_dir: str, year: int, full: bool) -> None:
     rebuilds every year's parquet from whatever is on disk, which is why the incremental
     path still needs the earlier exercises present.
     """
-    _ensure_code_on_path(work_dir)
-    # pyrefly: ignore [missing-import]
-    import clean_sp
-
-    # pyrefly: ignore [missing-import]
-    import download_sp
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_sp,
+        download_sp,
+    )
 
     if full:
         download_sp.main()
@@ -179,12 +170,55 @@ def refresh_sp(work_dir: str, year: int, full: bool) -> None:
     clean_sp.main()
 
 
+def refresh_sc(work_dir: str, year: int, full: bool) -> None:
+    """Santa Catarina, year-scoped, one API request per (visão, month).
+
+    SC comes from the transparency portal's export endpoint rather than its CKAN bulk
+    files -- see `models/br_bd_execucao_estadual/code/download_sc.py` for why the bulk
+    files cannot be parsed at all.
+
+    A scoped run re-fetches the open exercises' months for all three visões, which is
+    roughly 72 requests. The full series is 2011-2026, about 576 requests and ~26M rows.
+    Each month is checked against the row count the portal publishes for the same
+    filters, so a truncated export fails the run instead of being stored short.
+    """
+    _set_data_dir(work_dir)
+    from models.br_bd_execucao_estadual.code import (
+        clean_sc,
+        download_sc,
+    )
+
+    download_sc.main(years=_years(year, full))
+    clean_sc.main()
+
+
+def refresh_pb(work_dir: str, year: int, full: bool) -> None:
+    """Paraíba, year-scoped, one paginated API sweep per (endpoint, month).
+
+    `ano` and `mes` are required on every despesas endpoint, so a scoped run re-fetches
+    only the open exercises' months. Each period is checked against the API's own
+    `paginacao.total` before it is kept, so a harvest that drops a page fails rather
+    than writing a file a resume would treat as complete.
+    """
+    _set_data_dir(work_dir)
+
+    from models.br_bd_execucao_estadual.code import (
+        clean_pb,
+        download_pb,
+    )
+
+    download_pb.main(years=_years(year, full))
+    clean_pb.main()
+
+
 REFRESHERS = {
     "MG": refresh_mg,
     "BA": refresh_ba,
     "PE": refresh_pe,
     "ES": refresh_es,
     "RS": refresh_rs,
+    "SC": refresh_sc,
+    "PB": refresh_pb,
     "SP": refresh_sp,
 }
 

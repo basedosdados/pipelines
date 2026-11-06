@@ -1,0 +1,70 @@
+{
+ "widths": {
+  "microdatos_individuo": {
+   "CH14": 2,
+   "PP04D_COD": 5,
+   "PP11D_COD": 5,
+   "DECOCUR": 2,
+   "IDECOCUR": 2,
+   "RDECOCUR": 2,
+   "GDECOCUR": 2,
+   "PDECOCUR": 2,
+   "ADECOCUR": 2,
+   "DECINDR": 2,
+   "IDECINDR": 2,
+   "RDECINDR": 2,
+   "GDECINDR": 2,
+   "PDECINDR": 2,
+   "ADECINDR": 2,
+   "DECIFR": 2,
+   "IDECIFR": 2,
+   "RDECIFR": 2,
+   "GDECIFR": 2,
+   "PDECIFR": 2,
+   "ADECIFR": 2,
+   "DECCFR": 2,
+   "IDECCFR": 2,
+   "RDECCFR": 2,
+   "GDECCFR": 2,
+   "PDECCFR": 2,
+   "ADECCFR": 2,
+   "IDIMPP": 5
+  },
+  "microdatos_hogar": {
+   "DECIFR": 2,
+   "IDECIFR": 2,
+   "RDECIFR": 2,
+   "GDECIFR": 2,
+   "PDECIFR": 2,
+   "ADECIFR": 2,
+   "DECCFR": 2,
+   "IDECCFR": 2,
+   "RDECCFR": 2,
+   "GDECCFR": 2,
+   "PDECCFR": 2,
+   "ADECCFR": 2,
+   "IDIMPH": 5
+  }
+ },
+ "ambiguous": {
+  "microdatos_individuo": [
+   {
+    "column": "PP04B_COD",
+    "padded_widths": [
+     2,
+     4
+    ],
+    "max_len": 4
+   },
+   {
+    "column": "PP11B_COD",
+    "padded_widths": [
+     2,
+     4
+    ],
+    "max_len": 4
+   }
+  ],
+  "microdatos_hogar": []
+ }
+}

@@ -14,7 +14,7 @@ checks here are different from validate_es:
     -- if it ever leaked into `valor_pago` the total would move by R$27.5bn.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_rs.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_rs.py [--env dev]
 """
 
 from __future__ import annotations

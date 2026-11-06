@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year in which the financial year of the observation ends,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column; the financial year 2024-25 ends in 2025 so is stored as 2025,(column header)
+financial_year,STRING,Australian financial year of the observation in YYYY-YY format,,no,,,no,Runs 1 July to 30 June such as 2024-25,(column header)
+indicator_id,STRING,Identifier of the indicator the observation belongs to,,no,,,no,Foreign key to the au_abs_productivity indicator table,(derived)
+value,FLOAT64,Observed value of the indicator for the financial year,,no,,,no,"The unit varies by indicator and is given in the unit column of the indicator table, so no fixed measurement unit applies here",(cell value)

@@ -5,6 +5,7 @@
         materialized="table",
     )
 }}
+-- Source snapshot: unitedstates/congress-legislators@d5af3d2 (2026-09-24)
 select
     safe_cast(id_bioguide as string) id_bioguide,
     safe_cast(id_thomas as string) id_thomas,

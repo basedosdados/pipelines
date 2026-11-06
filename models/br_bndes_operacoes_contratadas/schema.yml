@@ -574,3 +574,121 @@ models:
       - name: prazo_meses
         description: >-
           Prazo total da operação, em meses
+  - name: br_bndes_operacoes_contratadas__operacoes_pre_embarque
+    description: >
+      Operações de financiamento do BNDES à produção para exportação
+      (pré-embarque): produção nacional de máquinas, equipamentos, bens de
+      consumo e outros bens e serviços destinados à exportação. A fonte não
+      publica número de operação nem define o que cada linha representa, e há
+      linhas idênticas em todas as colunas. O valor desembolsado fica em branco
+      em parte das operações, por sigilo do preço unitário dos bens. Cobertura
+      nacional, 2002–2026.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: >-
+          Ano de contratação da operação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_contratacao
+        description: >-
+          Data da efetiva contratação da operação no sistema BNDES
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade federativa onde o investimento foi realizado ou onde
+          o cliente está registrado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >-
+          Código IBGE do município onde o investimento foi realizado ou onde o
+          cliente está registrado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >-
+          CNPJ do cliente, mascarado na origem
+      - name: nome_cliente
+        description: >-
+          Nome do cliente
+      - name: porte_cliente
+        description: >-
+          Porte do cliente na data da contratação, pela política de
+          classificação do BNDES vigente à época
+      - name: natureza_cliente
+        description: >-
+          Natureza do cliente na operação de crédito, como privada ou
+          administração pública direta
+      - name: fonte_recurso
+        description: >-
+          Fonte de recursos registrada nos desembolsos do contrato
+      - name: modalidade_apoio
+        description: >-
+          Modalidade de apoio financeiro, reembolsável ou não reembolsável
+      - name: forma_apoio
+        description: >-
+          Forma de apoio do financiamento: direta, solicitada ao BNDES, ou
+          indireta, por meio de instituição financeira credenciada
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+      - name: instrumento_financeiro
+        description: >-
+          Instrumento financeiro do produto, classificado em linha, programa ou
+          fundo
+      - name: indicador_inovacao
+        description: >-
+          Indica se o instrumento financeiro tem por objetivo o apoio à inovação
+      - name: area_operacional
+        description: >-
+          Área do BNDES responsável pela operação
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+      - name: codigo_subsetor_cnae
+        description: >-
+          Código do subsetor na classificação CNAE 2.2 do IBGE, com uma letra e
+          sete dígitos. O BNDES cria códigos próprios quando precisa de mais
+          detalhe e completa com zeros quando não há subclasse
+      - name: nome_subsetor_cnae
+        description: >-
+          Nome do subsetor na classificação CNAE 2.2 do IBGE
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+      - name: subsetor_bndes
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+          e nos produtos do BNDES
+      - name: nome_instituicao_financeira_credenciada
+        description: >-
+          Nome da instituição financeira credenciada
+      - name: cnpj_instituicao_financeira_credenciada
+        description: >-
+          CNPJ da instituição financeira credenciada
+      - name: situacao_operacao
+        description: >-
+          Status da obrigação financeira e não financeira da operação
+      - name: valor_operacao
+        description: >-
+          Valor contratado da operação, em reais, convertido pela data do
+          contrato e pelo indexador previsto em contrato
+      - name: valor_desembolsado
+        description: >-
+          Valor liberado, em reais, convertido pela data do desembolso e pelo
+          indexador; pode superar o valor contratado. Fica em branco quando o
+          BNDES o omite por sigilo do preço unitário dos bens

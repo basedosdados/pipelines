@@ -1,7 +1,7 @@
 """Upload the cleaned parquet of us_fdic_bankfind to BigQuery dev staging.
 
-    uv run python models/us_fdic_bankfind/code/upload.py            # every table
-    uv run python models/us_fdic_bankfind/code/upload.py financials # one table
+    uv run models/us_fdic_bankfind/code/upload.py            # every table
+    uv run models/us_fdic_bankfind/code/upload.py financials # one table
 
 Targets basedosdados-dev only.  Prod table data is never uploaded from here: it
 is materialized by the GitHub table-approve action when the onboarding PR merges
@@ -102,7 +102,7 @@ def credentials_path() -> str:
     try:
         import tomllib  # stdlib from python 3.11
     except ModuleNotFoundError:  # pragma: no cover
-        import tomli as tomllib  # pyrefly: ignore [missing-import]
+        import tomli as tomllib
 
     config = tomllib.loads(
         (Path.home() / ".basedosdados/config.toml").read_text()

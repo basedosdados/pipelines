@@ -143,6 +143,7 @@ def wide_to_long(df: pl.DataFrame) -> pl.DataFrame:
     Convert a DataFrame from wide to long format
     """
     return (
+        # `unpivot` exige polars>=1.0; o ambiente do projeto tem a 0.20.
         # pyrefly: ignore [missing-attribute]
         df.unpivot(on=on, index=[*index_cols, *other_index_cols])
         .with_columns(

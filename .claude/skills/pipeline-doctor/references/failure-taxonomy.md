@@ -265,5 +265,5 @@ per day — do not present it as a quota fix.
 in August 2026 all fired at `0 16 * * *`. Pick an unused minute, never `0`:
 
 ```bash
-grep -rho '"cron": "[^"]*"' pipelines/datasets/*/flows.py | sort | uniq -c | sort -rn
+grep -rhoE 'Cron\("[^"]*"' pipelines/datasets/*/flows.py | sort | uniq -c | sort -rn
 ```

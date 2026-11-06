@@ -8,7 +8,7 @@ Tables (uploaded in order; stops on first failure):
     dicionario   single-file parquet dir
 
 Usage:
-    .venv/bin/python models/us_anes_time_series/code/upload.py [table_slug ...]
+    uv run models/us_anes_time_series/code/upload.py [table_slug ...]
 """
 
 import sys

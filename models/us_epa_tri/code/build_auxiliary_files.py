@@ -10,7 +10,7 @@ are link-only: stable at the publisher and describing the reporting form, not
 these files.
 
 Usage:
-    uv run python models/us_epa_tri/code/build_auxiliary_files.py [--upload]
+    uv run models/us_epa_tri/code/build_auxiliary_files.py [--upload]
 """
 
 import os

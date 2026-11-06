@@ -497,3 +497,96 @@ def write_chunk(
     pq.write_table(table, tmp, compression="snappy")
     tmp.replace(path)
     return len(rows)
+
+
+class PartitionedStringWriter:
+    """Stream rows into hive ``<key>=<value>`` parquet partitions.
+
+    ``write_chunk`` materialises the whole arrow table before writing, which is
+    right for one month but not for a whole table: the ComprasNet backfill is
+    ~19M rows, and grouping them by year in memory first exhausts a 16 GB
+    machine rather than raising ``MemoryError``. Here each row is appended to
+    its partition's writer and flushed as a row group every ``batch_size`` rows,
+    so peak memory is one batch per open partition instead of the table.
+
+    Every partition stays open until ``close``. Partition values are not
+    required to arrive in order, and for this dataset they do not: ``ano`` comes
+    from the pregao's process number, not the harvest month, so the 2013-11
+    chunk carries 2011 and 2012 rows. Closing a partition on first sight of a
+    later one would silently drop them.
+
+    Files are written to ``.parquet.tmp`` and renamed on ``close``, so an
+    interrupted pass leaves no partition a later run would trust — the same
+    contract ``write_chunk`` provides.
+    """
+
+    def __init__(
+        self,
+        root: Path,
+        columns: list[Column],
+        partition_key: str,
+        batch_size: int = 10_000,
+    ) -> None:
+        self.root = root
+        self.columns = columns
+        self.partition_key = partition_key
+        self.batch_size = batch_size
+        self.schema = string_schema(columns)
+        self._writers: dict[str, pq.ParquetWriter] = {}
+        self._buffers: dict[str, list[dict[str, Any]]] = {}
+        self._paths: dict[str, Path] = {}
+        self.counts: dict[str, int] = {}
+
+    def __enter__(self) -> PartitionedStringWriter:
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close(keep=exc_type is None)
+
+    def append(self, partition: str, row: dict[str, Any]) -> None:
+        buffer = self._buffers.setdefault(partition, [])
+        buffer.append(row)
+        self.counts[partition] = self.counts.get(partition, 0) + 1
+        if len(buffer) >= self.batch_size:
+            self._flush(partition)
+
+    def _flush(self, partition: str) -> None:
+        buffer = self._buffers.get(partition)
+        if not buffer:
+            return
+        writer = self._writers.get(partition)
+        if writer is None:
+            path = (
+                self.root
+                / f"{self.partition_key}={partition}"
+                / "data.parquet.tmp"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self._paths[partition] = path
+            writer = pq.ParquetWriter(path, self.schema, compression="snappy")
+            self._writers[partition] = writer
+        writer.write_table(to_string_table(buffer, self.columns))
+        buffer.clear()
+
+    def close(self, keep: bool = True) -> int:
+        """Flush and close every partition; returns the total row count.
+
+        ``keep=False`` discards the temp files instead of publishing them, so a
+        pass that raised leaves the output directory as it was. It also skips
+        the pending flush: the buffered rows are being thrown away regardless,
+        and flushing them can raise a second time from ``__exit__``, replacing
+        the original traceback with a downstream one.
+        """
+        if keep:
+            for partition in list(self._buffers):
+                self._flush(partition)
+        for partition, writer in self._writers.items():
+            writer.close()
+            tmp = self._paths[partition]
+            if keep:
+                tmp.replace(tmp.with_suffix(""))
+            else:
+                tmp.unlink(missing_ok=True)
+        self._writers.clear()
+        self._buffers.clear()
+        return sum(self.counts.values())

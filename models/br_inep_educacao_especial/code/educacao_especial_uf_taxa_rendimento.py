@@ -34,7 +34,7 @@ print(excel_data.sheet_names)
 # %%
 # Parse the Excel file into a DataFrame.
 # If no sheet name is specified, it loads the first sheet by default.
-df = excel_data.parse()
+df = excel_data.parse(sheet_name=0)
 
 # %%
 # Print the column names of the DataFrame to see what was read from the Excel sheet

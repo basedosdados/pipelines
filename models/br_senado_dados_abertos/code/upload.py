@@ -1,7 +1,7 @@
 """Upload cleaned br_senado_dados_abertos parquet tables to BigQuery.
 
 Usage:
-    uv run python models/br_senado_dados_abertos/code/upload.py [--env dev|prod] [table ...]
+    uv run models/br_senado_dados_abertos/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. This
 machine's config.toml is dev-only. Uploads smallest first, verifies the staging

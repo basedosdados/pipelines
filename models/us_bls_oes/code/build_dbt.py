@@ -4,7 +4,7 @@ The architecture is the single source of truth for column order, types and
 descriptions (see .claude/rules/onboarding-workflow.md), so the models are
 generated from it rather than hand-maintained alongside it.
 
-Run: uv run python models/us_bls_oes/code/build_dbt.py
+Run: uv run models/us_bls_oes/code/build_dbt.py
 """
 
 from pathlib import Path

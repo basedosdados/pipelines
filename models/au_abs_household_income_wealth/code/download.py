@@ -17,7 +17,7 @@ The PDF is converted with ``pdftotext -layout`` (poppler). Without ``-layout``
 the appendix tables lose their column alignment and cannot be read back.
 
 Usage:
-    python download.py [input_dir]
+    uv run models/au_abs_household_income_wealth/code/download.py [input_dir]
 """
 
 from __future__ import annotations

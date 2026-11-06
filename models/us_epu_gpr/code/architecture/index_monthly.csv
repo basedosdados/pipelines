@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,month
+country_id,STRING,ISO 3166-1 alpha-3 code of the country the series refers to,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,"NULL for global or aggregate series (global EPU, global GPR). US categorical and US component series carry USA",country
+index_family,STRING,"Index family: epu (Economic Policy Uncertainty) or gpr (Geopolitical Risk)",,yes,,,no,,index_family
+index_name,STRING,Coded identifier of the specific index series; labels are in the dicionario table,,yes,,,no,"Base periods and newspaper panels differ across series and across countries, so cross-series and cross-country comparisons of levels are not meaningful",index_name
+value,FLOAT64,Value of the index for the given series and period,,no,,index,no,"Index points (base = 100 in the series' reference window) for EPU and global GPR; share of geopolitically-focused articles in percent for country-level GPR (country_id not null)",value

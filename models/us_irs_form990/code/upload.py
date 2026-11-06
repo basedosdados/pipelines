@@ -13,7 +13,7 @@ table-approve action when the onboarding PR merges.
 Usage (from the repo root, ``PYTHONPATH=.``)::
 
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      python models/us_irs_form990/code/upload.py [table ...]
+      uv run models/us_irs_form990/code/upload.py [table ...]
 """
 
 from __future__ import annotations
@@ -147,6 +147,7 @@ def load_staging_table(table: str) -> int:
         job_config=config,
     )
     job.result()
+    # pyrefly: ignore [bad-return]
     return bq.get_table(target).num_rows
 
 

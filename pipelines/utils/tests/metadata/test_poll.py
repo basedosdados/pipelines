@@ -10,23 +10,14 @@ import datetime
 
 import pytest
 
-# pyrefly: ignore [missing-import]
-from conftest import FakeBQ, FakeMetadataClient
-
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-)
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.poll import (
     check_source_is_ahead_of_table,
     register_source_coverage,
     sync_table_coverage,
 )
+from pipelines.utils.tests.metadata.conftest import FakeBQ, FakeMetadataClient
 
 
 def _table_update_latest(client):
@@ -43,7 +34,11 @@ def test_register_source_coverage_advances_when_source_is_newer():
         raw_source_update_latest=datetime.date(2026, 5, 1)
     )
     result = register_source_coverage(
-        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+        # pyrefly: ignore [bad-argument-type]
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
     )
     assert result is True
     assert client.written_entities == ["poll", "raw_source_update"]
@@ -53,7 +48,11 @@ def test_register_source_coverage_first_time_advances():
     # RawDataSource.Update ainda não existe (None) -> qualquer data é nova.
     client = FakeMetadataClient(raw_source_update_latest=None)
     result = register_source_coverage(
-        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+        # pyrefly: ignore [bad-argument-type]
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
     )
     assert result is True
     assert client.written_entities == ["poll", "raw_source_update"]
@@ -62,7 +61,11 @@ def test_register_source_coverage_first_time_advances():
 def test_register_source_coverage_none_writes_only_poll():
     client = FakeMetadataClient()
     result = register_source_coverage(
-        client, "br_x", "tab", source_max_date=None
+        # pyrefly: ignore [bad-argument-type]
+        client,
+        "br_x",
+        "tab",
+        source_max_date=None,
     )
     assert result is False
     assert client.written_entities == ["poll"]
@@ -73,7 +76,11 @@ def test_register_source_coverage_stale_writes_only_poll():
         raw_source_update_latest=datetime.date(2026, 6, 1)
     )
     result = register_source_coverage(
-        client, "br_x", "tab", source_max_date=datetime.date(2026, 1, 1)
+        # pyrefly: ignore [bad-argument-type]
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 1, 1),
     )
     assert result is False
     assert client.written_entities == ["poll"]
@@ -85,6 +92,7 @@ def test_check_true_when_source_ahead():
         raw_source_update_latest=datetime.date(2026, 6, 1),
         table_update_latest=datetime.date(2026, 5, 1),
     )
+    # pyrefly: ignore [bad-argument-type]
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is True
 
 
@@ -93,6 +101,7 @@ def test_check_false_when_caught_up():
         raw_source_update_latest=datetime.date(2026, 5, 1),
         table_update_latest=datetime.date(2026, 5, 1),
     )
+    # pyrefly: ignore [bad-argument-type]
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is False
 
 
@@ -101,6 +110,7 @@ def test_check_false_when_source_has_no_update():
         raw_source_update_latest=None,
         table_update_latest=datetime.date(2026, 5, 1),
     )
+    # pyrefly: ignore [bad-argument-type]
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is False
 
 
@@ -109,14 +119,19 @@ def test_check_true_when_table_never_materialized():
         raw_source_update_latest=datetime.date(2026, 5, 1),
         table_update_latest=None,
     )
+    # pyrefly: ignore [bad-argument-type]
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is True
 
 
 # =============================================== sync_table_coverage
 def _part_bdpro():
-    return PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
+    return CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year_month",
+        coverage_columns=[
+            CoverageColumn(name="ano", entity="year"),
+            CoverageColumn(name="mes", entity="month"),
+        ],
     )
 
 
@@ -134,6 +149,7 @@ def test_sync_part_bdpro_writes_coverages_table_update_and_rap():
         last_modified=datetime.datetime(2026, 7, 15),
         can_read=True,
     )
+    # pyrefly: ignore [bad-argument-type]
     sync_table_coverage(client, bq, "br_x", "tab", _part_bdpro())
 
     assert client.written_entities == ["coverage", "coverage", "table_update"]
@@ -149,6 +165,7 @@ def test_sync_table_update_grava_cobertura_nao_last_modified():
         last_modified=datetime.datetime(2026, 7, 15),
         can_read=True,
     )
+    # pyrefly: ignore [bad-argument-type]
     sync_table_coverage(client, bq, "br_x", "tab", _part_bdpro())
     assert _table_update_latest(client) == datetime.date(2026, 6, 1)
 
@@ -164,9 +181,12 @@ def test_sync_all_free_no_rap():
         last_modified=datetime.datetime(2026, 7, 15),
         can_read=True,
     )
-    spec = AllFree(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
+    spec = CoverageSpec(
+        tier="all_free",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="data", entity="date")],
     )
+    # pyrefly: ignore [bad-argument-type]
     sync_table_coverage(client, bq, "br_x", "tab", spec)
 
     assert client.written_entities == ["coverage", "table_update"]
@@ -176,7 +196,9 @@ def test_sync_all_free_no_rap():
 def test_sync_non_historical_stamps_last_modified():
     client = FakeMetadataClient()
     bq = FakeBQ(last_modified=datetime.datetime(2026, 7, 15), can_read=True)
-    sync_table_coverage(client, bq, "br_x", "tab", NonHistorical())
+    non_historical = CoverageSpec(tier="non_historical", date_column_kind="")
+    # pyrefly: ignore [bad-argument-type]
+    sync_table_coverage(client, bq, "br_x", "tab", non_historical)
 
     assert client.written_entities == ["table_update"]
     assert _table_update_latest(client) == datetime.datetime(2026, 7, 15)
@@ -185,6 +207,7 @@ def test_sync_non_historical_stamps_last_modified():
 def test_sync_skips_table_update_when_cannot_read():
     client = FakeMetadataClient(coverage_ids=_both_coverages())
     bq = FakeBQ(max_date=datetime.date(2026, 6, 1), can_read=False)
+    # pyrefly: ignore [bad-argument-type]
     sync_table_coverage(client, bq, "br_x", "tab", _part_bdpro())
 
     assert "table_update" not in client.written_entities
@@ -195,6 +218,7 @@ def test_sync_blocked_in_prod_with_nonprod_data():
     bq = FakeBQ(max_date=datetime.date(2026, 6, 1))
     with pytest.raises(ValueError, match="under_review"):
         sync_table_coverage(
+            # pyrefly: ignore [bad-argument-type]
             client,
             bq,
             "br_x",

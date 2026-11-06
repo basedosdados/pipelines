@@ -1,6 +1,6 @@
 """Write the architecture CSVs for us_cms_hcris — the schema source of truth on disk.
 
-    python gen_architecture.py
+    uv run models/us_cms_hcris/code/gen_architecture.py
 
 One CSV per table under ``architecture/``, in Data Basis architecture-sheet
 column order. Everything downstream reads these files: ``gen_dbt.py`` writes the
@@ -18,8 +18,8 @@ import csv
 import json
 from pathlib import Path
 
-from codes import CODES, COVERED
-from schema import TABLES, Col
+from models.us_cms_hcris.code.codes import CODES, COVERED
+from models.us_cms_hcris.code.schema import TABLES, Col
 
 CODE_DIR = Path(__file__).resolve().parent
 OUT = CODE_DIR / "architecture"

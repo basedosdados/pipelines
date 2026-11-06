@@ -3,7 +3,7 @@
 Column order, types and English column descriptions all come from
 `architecture/*.csv`, so the models cannot drift from the architecture.
 
-Run:  uv run python models/us_fhfa_hpi/code/build_dbt.py
+Run:  uv run models/us_fhfa_hpi/code/build_dbt.py
 """
 
 import textwrap

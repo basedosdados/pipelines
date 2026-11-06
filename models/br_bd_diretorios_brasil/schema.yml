@@ -235,6 +235,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           tags: [diretorio]
           combination_of_columns: [cbo_2002]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
     columns:
       - name: cbo_2002
         description: Classificação Brasileira de Ocupações 2002
@@ -573,9 +575,7 @@ models:
         description: Categoria Escola Privada
       - name: conveniada_poder_publico
         description: Conveniada Poder Público
-      - name: restricao_atendimento
-        description: regulacao_conselho_educacao
-      - name: Regulamentação pelo Conselho de Educação
+      - name: regulacao_conselho_educacao
         description: Regulamentação pelo Conselho de Educação
       - name: porte
         description: Porte
@@ -587,6 +587,12 @@ models:
         description: Latitude
       - name: longitude
         description: Longitude
+      - name: situacao_catalogo
+        description: >-
+          Indica se a escola consta no catálogo mais recente do Inep
+          (Presente) ou não (Ausente). Ausente inclui as escolas que saíram
+          do registro da fonte e foram mantidas no diretório e as que só
+          aparecem no Censo Escolar
   - name: br_bd_diretorios_brasil__etnia_indigena
     description: Diretório das etnias indígenas nos Sistemas de Informação Ambulatorial
       e Hospitalar - SIA/SUS e SIH/SUS - 'https://bvsms.saude.gov.br/bvs/saudelegis/sas/2010/prt0508_28_09_2010.html'

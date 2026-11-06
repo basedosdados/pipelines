@@ -31,7 +31,7 @@ excel_data = pd.ExcelFile(os.path.join(INPUT, "txa-21-22-23.xlsx"))
 print(excel_data.sheet_names)
 
 # %%
-df = excel_data.parse()
+df = excel_data.parse(sheet_name=0)
 
 # %%
 # Print the column names of the DataFrame to see what was read from the Excel sheet

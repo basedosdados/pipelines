@@ -12,17 +12,14 @@ requester-pays, so the published URL currently returns HTTP 400 to an
 anonymous fetch; that is a bucket setting, not something this script can fix.
 
 Usage:
-    /tmp/cs_venv/bin/python models/us_ed_college_scorecard/code/build_auxiliary_files.py
+    uv run models/us_ed_college_scorecard/code/build_auxiliary_files.py
 """
 
 import os
 import pathlib
-import sys
 import zipfile
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-import spec
+from models.us_ed_college_scorecard.code import spec
 
 DATA_DIR = pathlib.Path(
     os.environ.get(

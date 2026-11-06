@@ -480,7 +480,7 @@ def process_year_task(args):
     for table_name, first_year, last_year, comp_file in table_configs:
         if not (first_year <= ano <= last_year):
             continue
-        mod = importlib.import_module(f"tables_final.{table_name}")
+        mod = importlib.import_module(f".{table_name}", __package__)
         unmatched = mod.build(path_dados, path_queries, _comp, year_data, ano)
         if unmatched is not None and not unmatched.empty:
             unmatched_by_comp.setdefault(comp_file, []).append(unmatched)

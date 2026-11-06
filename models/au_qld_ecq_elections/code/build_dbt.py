@@ -4,7 +4,7 @@ Both are derived from ``pipelines/datasets/au_qld_ecq_elections/schema.py`` so t
 architecture, the cleaning transform, the staging schema and the models cannot drift
 apart. Regenerate rather than hand-editing the SQL.
 
-Run:  PYTHONPATH=. ~/.venvs/bd-pipelines/bin/python models/au_qld_ecq_elections/code/build_dbt.py
+Run:  PYTHONPATH=. uv run models/au_qld_ecq_elections/code/build_dbt.py
 
 The committed files are the post-hook form: ``sqlfmt`` and ``yamlfix`` rewrite this
 script's output on commit (list flow style, line wrapping). Run pre-commit on the

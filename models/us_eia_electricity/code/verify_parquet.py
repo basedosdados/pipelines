@@ -1,7 +1,7 @@
 """Verify the cleaned us_eia_electricity parquet before it is uploaded anywhere.
 
-    python verify_parquet.py                     # every check
-    python verify_parquet.py --write-measured    # also refresh measured.json
+    uv run models/us_eia_electricity/code/verify_parquet.py                     # every check
+    uv run models/us_eia_electricity/code/verify_parquet.py --write-measured    # also refresh measured.json
 
 Six checks, all read from the local parquet:
 
@@ -40,7 +40,13 @@ from pathlib import Path
 
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
-from common import DATA_TABLES, OUTPUT, assert_all_string, load_cols
+
+from models.us_eia_electricity.code.common import (
+    DATA_TABLES,
+    OUTPUT,
+    assert_all_string,
+    load_cols,
+)
 
 CODE_DIR = Path(__file__).resolve().parent
 

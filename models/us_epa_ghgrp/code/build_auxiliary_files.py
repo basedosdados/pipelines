@@ -15,7 +15,7 @@ subpart resource pages, the GWP table — are link-only: stable at EPA and read
 once. They are indexed in each README.
 
 Usage:
-    uv run python models/us_epa_ghgrp/code/build_auxiliary_files.py
+    uv run models/us_epa_ghgrp/code/build_auxiliary_files.py
     gcloud storage cp -r <data_dir>/auxiliary_files/* gs://basedosdados/auxiliary_files/us_epa_ghgrp/
 """
 
@@ -28,7 +28,6 @@ import os
 import zipfile
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 DATASET = "us_epa_ghgrp"

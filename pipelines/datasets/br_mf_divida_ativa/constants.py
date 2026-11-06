@@ -37,3 +37,11 @@ class constants(Enum):
     # Poll a few days each month at 15:00 BRT; the source-poll guard no-ops until
     # a genuinely new quarter appears, so off-release runs are cheap.
     SCHEDULE_CRON = "0 15 5,15,25 * *"
+
+
+# Table ids. Kept here as plain literals (not imported from utils.TABLES)
+# because utils.py imports `constants` from this module — importing back would
+# be circular. Must stay in sync with utils.CATEGORY/utils.TABLES.
+NAO_PREVIDENCIARIO_TABLE_ID = "nao_previdenciario"
+PREVIDENCIARIO_TABLE_ID = "previdenciario"
+FGTS_TABLE_ID = "fgts"

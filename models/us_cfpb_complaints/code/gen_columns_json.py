@@ -6,14 +6,18 @@ observations live here. Passing all three languages matters: a bare `description
 or `observations` is stored as Portuguese only, which is how thousands of
 production columns ended up PT-only.
 
-    python gen_columns_json.py complaint > /tmp/complaint_columns.json
+    uv run models/us_cfpb_complaints/code/gen_columns_json.py complaint > /tmp/complaint_columns.json
 """
 
 import argparse
 import json
 import sys
 
-from common import COMPLAINT, DICIONARIO, load_cols
+from models.us_cfpb_complaints.code.common import (
+    COMPLAINT,
+    DICIONARIO,
+    load_cols,
+)
 
 # name -> (description_pt, description_en, description_es)
 DESC = {

@@ -6,7 +6,7 @@ plus the standard `dicionario`. NAICS carries the full BLS schema (core measures
 core measures only. Column descriptions are English in the architecture CSV
 (US dataset) and PT/EN/ES in columns_json (consumed by bulk_upsert_columns).
 
-Run: uv run python models/us_bls_qcew/code/build_architecture.py
+Run: uv run models/us_bls_qcew/code/build_architecture.py
 """
 
 import csv

@@ -26,7 +26,6 @@ import csv
 import logging
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa
@@ -264,12 +263,20 @@ def clean_underutilisation(input_dir: Path) -> pd.DataFrame:
 
 
 # ── Excel time-series download + parse ────────────────────────────────────────
-def download_excel(month: str, dest: Path) -> dict[str, Path]:
-    """Download the Table 18 / Table 19 / SEM1 spreadsheets for a release month.
+def download_excel(
+    month: str, dest: Path, files: dict[str, str] | None = None
+) -> dict[str, Path]:
+    """Download one or more of the Table 18 / Table 19 / SEM1 spreadsheets.
 
     Args:
         month: Release month slug, e.g. ``"jun-2026"``.
         dest: Directory to write into; created if absent.
+        files: Slug -> filename subset to download, e.g.
+            ``{"hours_worked": "62020018.xlsx"}`` — a table only needs the
+            spreadsheet(s) it actually reads (see
+            ``pipelines.datasets.au_abs_labour_force.tasks``). ``None``
+            (default) downloads all of ``constants.EXCEL_FILES``, the
+            one-shot bootstrap's usage.
 
     Returns:
         Mapping slug -> written path.
@@ -278,7 +285,7 @@ def download_excel(month: str, dest: Path) -> dict[str, Path]:
     base = constants.EXCEL_BASE.value.format(month=month)
     headers = {"User-Agent": constants.USER_AGENT.value}
     out = {}
-    for slug, fname in constants.EXCEL_FILES.value.items():
+    for slug, fname in (files or constants.EXCEL_FILES.value).items():
         r = requests.get(f"{base}/{fname}", headers=headers, timeout=600)
         r.raise_for_status()
         p = dest / fname
@@ -539,11 +546,11 @@ def _read_sem1(path: Path) -> pd.DataFrame:
         nn = [c for c in r if c is not None]
         if len(nn) >= 5 and any(
             isinstance(c, str) and str(c).strip() == "Month"  # pyrefly: ignore [unnecessary-type-conversion]
-            for c in r  # pyrefly: ignore [unnecessary-type-conversion]
+            for c in r
         ):
             header = [str(c).strip() if c is not None else "" for c in r]
             break
-    # pyrefly: ignore [bad-argument-type, not-iterable]
+    # pyrefly: ignore [not-iterable]
     idx = {h: i for i, h in enumerate(header)}
     ci_month = idx["Month"]
     ci_sex = idx["Sex"]

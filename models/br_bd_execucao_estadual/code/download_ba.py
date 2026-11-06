@@ -12,7 +12,6 @@ into extraction, long after the download step has reported success.
 from __future__ import annotations
 
 import argparse
-import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -20,8 +19,12 @@ from pathlib import Path
 import certifi
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import BA_CKAN, BA_PACKAGES, BROWSER_UA, INPUT_DIR
+from models.br_bd_execucao_estadual.code.constants import (
+    BA_CKAN,
+    BA_PACKAGES,
+    BROWSER_UA,
+    INPUT_DIR,
+)
 
 BA_INPUT = INPUT_DIR / "ba"
 CHUNK = 1 << 20

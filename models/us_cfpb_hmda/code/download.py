@@ -1,7 +1,7 @@
 """Download one year of HMDA LAR to the scratch input dir.
 
-  python download.py modern 2024     # -> input/modern_2024.csv  (nationwide CSV, ~4.6 GB)
-  python download.py legacy 2017     # -> input/legacy_2017.csv  (unzipped from _codes.zip)
+  uv run models/us_cfpb_hmda/code/download.py modern 2024     # -> input/modern_2024.csv  (nationwide CSV, ~4.6 GB)
+  uv run models/us_cfpb_hmda/code/download.py legacy 2017     # -> input/legacy_2017.csv  (unzipped from _codes.zip)
 
 Modern: the data-browser nationwide endpoint 301-redirects to a pre-generated CSV on
 files.ffiec.cfpb.gov (follow with -L). Legacy: the historic `_codes.zip` (raw numeric
@@ -15,7 +15,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-from common import INPUT, LEGACY_YEARS, MODERN_YEARS
+from models.us_cfpb_hmda.code.common import INPUT, LEGACY_YEARS, MODERN_YEARS
 
 MODERN_URL = "https://ffiec.cfpb.gov/v2/data-browser-api/view/nationwide/csv?years={year}"
 LEGACY_URL = (

@@ -59,7 +59,11 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: tipo_rebanho
-        description: Tipo de rebanho
+        description: >-
+          Tipo de rebanho. Galináceos - galinhas está contida em Galináceos -
+          total, e Suíno - matrizes de suínos, publicada desde 2013, está
+          contida em Suíno - total; somar a quantidade sem filtrar a categoria
+          conta esses animais duas vezes
       - name: quantidade
         description: Quantidade de animais
   - name: br_ibge_ppm__producao_origem_animal
@@ -95,7 +99,14 @@ models:
       - name: quantidade
         description: Quantidade da produção
       - name: valor
-        description: Valor da produção
+        description: >-
+          Valor nominal da produção, na moeda de cada ano: Mil Cruzeiros
+          (1974–1985), Mil Cruzados (1986–1988), Mil Cruzados Novos (1989), Mil
+          Cruzeiros (1990–1992), Mil Cruzeiros Reais (1993) e Mil Reais (1994
+          em diante). É a produção multiplicada pelo preço médio pago ao
+          produtor; sem conversão, a série mistura moedas diferentes. Nulo
+          quando a fonte não publica o valor, o que inclui o 0 que ela
+          registra em 1974, 1975 e 1992–1994 para linhas com produção
   - name: br_ibge_ppm__producao_aquicultura
     description: Produção da aquicultura, de acordo com a quantidade produzida em
       quilogramas e valor da produção em mil reais.
@@ -128,4 +139,6 @@ models:
       - name: quantidade
         description: Quantidade da produção
       - name: valor
-        description: Valor da produção
+        description: >-
+          Valor nominal da produção, em Mil Reais. É a produção multiplicada
+          pelo preço médio pago ao produtor

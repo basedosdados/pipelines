@@ -19,15 +19,15 @@ Each table's columns are, in order:
 6. ``source_flow`` / ``source_flow_version`` — derived provenance, which matter
    because some tables union more than one flow version.
 
-Run: ``python gen_architecture.py``
+Run: ``uv run models/world_oecd_education/code/gen_architecture.py``
 """
 
 import csv
 import xml.etree.ElementTree as ET
 
-from common import ARCH_DIR, STRUCTURE
-from concepts import CONCEPTS
-from tables import TABLES
+from models.world_oecd_education.code.common import ARCH_DIR, STRUCTURE
+from models.world_oecd_education.code.concepts import CONCEPTS
+from models.world_oecd_education.code.tables import TABLES
 
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
 

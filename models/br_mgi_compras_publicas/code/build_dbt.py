@@ -21,7 +21,7 @@ REPO_ROOT = HERE.parents[2]
 DATASET = "br_mgi_compras_publicas"
 
 sys.path.insert(0, str(HERE))
-from dbt_spec import TABLES  # noqa: E402
+from models.br_mgi_compras_publicas.code.dbt_spec import TABLES  # noqa: E402
 
 # Directory foreign keys, mapped to the ref() and field a dbt relationships test
 # needs. The time directory is nested: binding to a bare `ano` resolves to the

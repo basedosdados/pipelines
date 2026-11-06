@@ -4,7 +4,7 @@ Thin wrapper: every function lives in ``pipelines/datasets/au_vic_vec_elections`
 later recurring pipeline reuses this transform instead of duplicating it.
 
 Run:
-    PYTHONPATH=. ~/.venvs/bd-pipelines-vic/bin/python models/au_vic_vec_elections/code/clean.py
+    PYTHONPATH=. uv run models/au_vic_vec_elections/code/clean.py
 """
 
 from __future__ import annotations

@@ -1,0 +1,9 @@
+# Raw downloads and cleaned Parquet never live in the repo; see code/constants.py
+# (PRF_DATA_ROOT, default ~/Downloads/br_prf_acidentes_data).
+input/
+output/
+docs/
+*.zip
+*.parquet
+*.csv
+!code/architecture/*.csv

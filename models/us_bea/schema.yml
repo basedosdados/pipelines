@@ -15,9 +15,13 @@ models:
             - month
             - table_id
             - line_number
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [quarter, month, note_ref]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano de referência
@@ -62,9 +66,13 @@ models:
             - table_id
             - industry
             - industry_description
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [quarter, note_ref]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano de referência
@@ -98,9 +106,13 @@ models:
             - geo_fips
             - table_id
             - line_code
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [quarter, id_state, note_ref]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano de referência
@@ -139,9 +151,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, geo_fips, table_id, line_code]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [note_ref]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano de referência
@@ -178,9 +194,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, geo_fips, table_id, line_code]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [note_ref]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano de referência

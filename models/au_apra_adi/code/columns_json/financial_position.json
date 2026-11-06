@@ -1,0 +1,432 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "institution_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de instituição autorizada a receber depósitos (ADI) ou agrupamento",
+    "description_en": "Authorised deposit-taking institution type or grouping",
+    "description_es": "Tipo de institución autorizada para recibir depósitos (ADI) o agrupamiento",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "cash_and_liquid_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Caixa e ativos líquidos",
+    "description_en": "Cash and liquid assets",
+    "description_es": "Efectivo y activos líquidos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "securities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Títulos e valores mobiliários",
+    "description_en": "Securities",
+    "description_es": "Valores",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "acceptances_of_customers",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Aceites de clientes",
+    "description_en": "Acceptances of customers",
+    "description_es": "Aceptaciones de clientes",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "gross_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos e adiantamentos brutos",
+    "description_en": "Gross loans and advances",
+    "description_es": "Préstamos y anticipos brutos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_housing",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Habitação total",
+    "description_en": "Total housing",
+    "description_es": "Vivienda total",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "term",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "A prazo",
+    "description_en": "Term",
+    "description_es": "A plazo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "gross_loans_and_advances__other",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (empréstimos e adiantamentos brutos)",
+    "description_en": "Other",
+    "description_es": "Otros (préstamos y anticipos brutos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "lending_provisions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Provisões para crédito",
+    "description_en": "Lending provisions",
+    "description_es": "Provisiones para préstamos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos e adiantamentos líquidos",
+    "description_en": "Net loans and advances",
+    "description_es": "Préstamos y anticipos netos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "fixed_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos fixos",
+    "description_en": "Fixed assets",
+    "description_es": "Activos fijos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "intangible_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos intangíveis",
+    "description_en": "Intangible assets",
+    "description_es": "Activos intangibles",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros ativos",
+    "description_en": "Other assets",
+    "description_es": "Otros activos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos totais",
+    "description_en": "Total assets",
+    "description_es": "Activos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "acceptances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Aceites",
+    "description_en": "Acceptances",
+    "description_es": "Aceptaciones",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "deposits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Depósitos",
+    "description_en": "Deposits",
+    "description_es": "Depósitos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "call_on_demand",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "À vista/exigível",
+    "description_en": "Call/on demand",
+    "description_es": "A la vista/exigible",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "term_deposits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Depósitos a prazo",
+    "description_en": "Term deposits",
+    "description_es": "Depósitos a plazo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "certificates_of_deposit",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Certificados de depósito",
+    "description_en": "Certificates of deposit",
+    "description_es": "Certificados de depósito",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "income_tax_liability",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Passivo de imposto de renda",
+    "description_en": "Income tax liability",
+    "description_es": "Pasivo por impuesto a la renta",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "provisions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Provisões",
+    "description_en": "Provisions",
+    "description_es": "Provisiones",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "employee_entitlements",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Direitos de empregados",
+    "description_en": "Employee entitlements",
+    "description_es": "Derechos de los empleados",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "provisions__other",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (provisões)",
+    "description_en": "Other",
+    "description_es": "Otros (provisiones)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_short_term_borrowings",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros empréstimos de curto prazo",
+    "description_en": "Other short-term borrowings",
+    "description_es": "Otros préstamos a corto plazo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "long_term_borrowings",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos de longo prazo",
+    "description_en": "Long-term borrowings",
+    "description_es": "Préstamos a largo plazo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "creditors_and_other_liabilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Credores e outros passivos",
+    "description_en": "Creditors and other liabilities",
+    "description_es": "Acreedores y otros pasivos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_liabilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Passivos totais",
+    "description_en": "Total liabilities",
+    "description_es": "Pasivos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "share_capital",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Capital social",
+    "description_en": "Share capital",
+    "description_es": "Capital social",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "reserves",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Reservas",
+    "description_en": "Reserves",
+    "description_es": "Reservas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "retained_profits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Lucros retidos",
+    "description_en": "Retained profits",
+    "description_es": "Beneficios retenidos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "provisions__other__2",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (provisões)",
+    "description_en": "Other",
+    "description_es": "Otros (provisiones)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_shareholders_equity",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Patrimônio líquido total dos acionistas",
+    "description_en": "Total shareholders' equity",
+    "description_es": "Patrimonio neto total de los accionistas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "number_of_entities",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de entidades",
+    "description_en": "Number of entities",
+    "description_es": "Número de entidades",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "unit"
+  },
+  {
+    "name": "gross_loans_and_advances__intra_group",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Intragrupo (empréstimos e adiantamentos brutos)",
+    "description_en": "Intra-group",
+    "description_es": "Intragrupo (préstamos y anticipos brutos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "due_from_overseas_operations_of_the_adi",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valores a receber de operações no exterior da ADI",
+    "description_en": "Due from overseas operations of the ADI",
+    "description_es": "Cuentas por cobrar de operaciones en el exterior de la ADI",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "due_from_non_residents",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valores a receber de não residentes (excluindo transações intragrupo)",
+    "description_en": "Due from non-residents (excluding intra-company transactions)",
+    "description_es": "Cuentas por cobrar de no residentes (excluyendo transacciones intragrupo)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "deposits__intra_group",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Intragrupo (depósitos)",
+    "description_en": "Intra-group",
+    "description_es": "Intragrupo (depósitos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "due_to_overseas_operations_of_the_adi",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valores a pagar a operações no exterior da ADI",
+    "description_en": "Due to overseas operations of the ADI",
+    "description_es": "Cuentas por pagar a operaciones en el exterior de la ADI",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "due_to_non_residents",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valores a pagar a não residentes (excluindo transações intragrupo)",
+    "description_en": "Due to non-residents (excluding intra-company transactions)",
+    "description_es": "Cuentas por pagar a no residentes (excluyendo transacciones intragrupo)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_investments",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros investimentos",
+    "description_en": "Other investments",
+    "description_es": "Otras inversiones",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "due_to_clearing_houses_and_financial_institutions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valores a pagar a câmaras de compensação e instituições financeiras",
+    "description_en": "Due to clearing houses and financial institutions",
+    "description_es": "Cuentas por pagar a cámaras de compensación e instituciones financieras",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  }
+]

@@ -17,7 +17,13 @@ with
     sia_add_municipios as (
         -- Adicionar id_municipio de 7 dígitos
         select
-            psicossocial.*,
+            -- Normaliza o formato dos CIDs (ex.: 'f99' -> 'F99'). Códigos fora de
+            -- br_bd_diretorios_brasil.cid_10 NÃO são nulificados: o teste de
+            -- relacionamento no schema.yml deve acusá-los.
+            psicossocial.* replace (
+                upper(trim(psicossocial.cidpri)) as cidpri,
+                upper(trim(psicossocial.cidassoc)) as cidassoc
+            ),
             mun.id_municipio as id_municipio_executante,
             mun_res.id_municipio as id_municipio_residencia
         from
@@ -74,7 +80,8 @@ select
     safe_cast(permanen as string) permanencia_atendimento,
     safe_cast(mot_cob as string) motivo_saida_permanencia,
     safe_cast(
-        format_date('%Y-%m-%d', safe.parse_date('%Y%m%d', dt_motcob)) as date
+        {{ validate_date_range("safe.parse_date('%Y%m%d', dt_motcob)", "2008-01-01") }}
+        as date
     ) as data_motivo_saida_permanencia,
     safe_cast(substr(dt_process, 1, 4) as int64) as ano_processamento,
     safe_cast(substr(dt_process, 5, 2) as int64) as mes_processamento,
@@ -113,7 +120,7 @@ select
                 else null
             end
         ) as string
-    ) as cid_principal_subcategoria,
+    ) as cid_principal_subcategoria
     safe_cast(
         trim(case when length(trim(cidassoc)) = 3 then cidassoc else null end) as string
     ) as cid_causas_associadas_categoria,

@@ -16,7 +16,7 @@ unit. Coded values (party codes, transaction codes, 0/1 flags) are STRING and
 carry ``covered_by_dictionary = yes`` when the ``dicionario`` table defines
 their labels.
 
-Run ``python architecture.py`` to (re)write the CSVs under ``architecture/``.
+Run ``uv run models/us_stanford_dime/code/architecture.py`` to (re)write the CSVs under ``architecture/``.
 """
 
 from __future__ import annotations
@@ -49,6 +49,7 @@ YEAR_DIR = "br_bd_diretorios_data_tempo.ano:ano"
 # contribution — one row per itemized contribution record
 # --------------------------------------------------------------------------
 
+# pyrefly: ignore [bad-assignment]
 CONTRIBUTION: list[Col] = [
     # partition
     (
@@ -599,6 +600,7 @@ CONTRIBUTION: list[Col] = [
 # recipient — one row per candidate or committee per election cycle
 # --------------------------------------------------------------------------
 
+# pyrefly: ignore [bad-assignment]
 RECIPIENT: list[Col] = [
     # partition
     (
@@ -1389,6 +1391,7 @@ RECIPIENT: list[Col] = [
 # contributor — one row per donor
 # --------------------------------------------------------------------------
 
+# pyrefly: ignore [bad-assignment]
 CONTRIBUTOR: list[Col] = [
     (
         "contributor_id",
@@ -1636,6 +1639,7 @@ CONTRIBUTOR: list[Col] = [
 # contributor_cycle — one row per donor per cycle in which they gave
 # --------------------------------------------------------------------------
 
+# pyrefly: ignore [bad-assignment]
 CONTRIBUTOR_CYCLE: list[Col] = [
     (
         "cycle",
@@ -1679,6 +1683,7 @@ CONTRIBUTOR_CYCLE: list[Col] = [
 # dicionario — code to label mapping for the coded columns above
 # --------------------------------------------------------------------------
 
+# pyrefly: ignore [bad-assignment]
 DICIONARIO: list[Col] = [
     (
         "id_tabela",
@@ -1755,6 +1760,7 @@ TABLES: dict[str, list[Col]] = {
 # original_name field so the cleaning step never restates the mapping.
 def rename_map(table: str) -> dict[str, str]:
     """Return ``{source column: architecture column}`` for one table."""
+    # pyrefly: ignore [bad-index]
     return {c[9]: c[0] for c in TABLES[table] if c[9] and "<" not in c[9]}
 
 

@@ -10,13 +10,12 @@ glossary does not cover.
 
 import json
 
-import constants as c
-import grains
-import layout
-import profile_data
 import pyarrow.parquet as pq
-import schema as col_schema
-from glossary import gloss
+
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import grains, layout, profile_data
+from models.us_cms_open_payments.code import schema as col_schema
+from models.us_cms_open_payments.code.glossary import gloss
 
 
 def main() -> None:
@@ -63,6 +62,7 @@ def main() -> None:
             else f"read_parquet('{root}/*/data.parquet')"
         )
         key = ", ".join(f'"{k}"' for k in grains.GRAIN[table])
+        # pyrefly: ignore [not-iterable]
         rows, unique = con.execute(
             f"SELECT count(*), count(DISTINCT ({key})) FROM {source}"
         ).fetchone()

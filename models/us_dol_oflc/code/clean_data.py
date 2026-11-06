@@ -11,7 +11,7 @@ writes hive-partitioned all-STRING Snappy Parquet to
 held in memory at a time.
 
 Usage:
-    uv run python models/us_dol_oflc/code/clean_data.py [program ...]
+    uv run models/us_dol_oflc/code/clean_data.py [program ...]
         [--years 2020-2026] [--resume]
 """
 

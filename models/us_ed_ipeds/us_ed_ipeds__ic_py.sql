@@ -151,4 +151,3 @@ select
 from
     {{ set_datalake_project("us_ed_ipeds_staging.ic_py") }} as t
     -- rematerialize us_ed_ipeds (table-approve re-trigger)
-    

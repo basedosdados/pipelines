@@ -33,13 +33,13 @@ gcs.Client.bucket = _patched_bucket
 
 # (table_slug, expected_row_count) — upload in this order
 TABLES = [
-    ("legislator", 12767),
-    ("term", 45532),
-    ("social_media", 519),
-    ("leadership_role", 156),
+    ("legislator", 12770),
+    ("term", 45535),
+    ("social_media", 518),
+    ("leadership_role", 157),
     ("committee", 559),
-    ("committee_membership", 3879),
-    ("district_office", 1312),
+    ("committee_membership", 3895),
+    ("district_office", 1306),
     ("executive_term", 131),
 ]
 

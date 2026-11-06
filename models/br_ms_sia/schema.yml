@@ -383,9 +383,13 @@ models:
           de Alta complexidade (APAC) ou do Boletim de Produção Ambulatorial Individualizado
           (BPA-I)
         tests:
-          - relationships:
+          # Exceções conhecidas: C141 e Q350 são usados pelo DataSUS mas não estão
+          # em br_bd_diretorios_brasil.cid_10 (verificado em 2026-09-25). 
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cid_10')
               field: subcategoria
+              ignore_values: [C141, Q350]
+              proportion_allowed_failures: 0
               config:
                 where: __most_recent_year_month__
       - name: cid_causas_associadas_categoria

@@ -29,7 +29,7 @@ excel_data = pd.ExcelFile(os.path.join(INPUT, "TDI_ANO_2020_21_22_23_24.xlsx"))
 print(excel_data.sheet_names)
 
 # %%
-df = excel_data.parse()
+df = excel_data.parse(sheet_name=0)
 
 # %%
 # Print the column names of the DataFrame to see what was read from the Excel sheet

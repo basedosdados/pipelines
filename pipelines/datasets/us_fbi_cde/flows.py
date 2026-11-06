@@ -11,7 +11,7 @@ the years it touches.
 from a dev-only run. With append, each partition blob is replaced wholesale,
 which is the semantics wanted here and touches nothing outside the window.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fbi_cde_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fbi_cde_flow``;
 the dev pool strips the schedule, the prod pool activates it paused.
 """
 
@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.tasks import (
@@ -28,7 +28,7 @@ from pipelines.datasets.us_fbi_cde.tasks import (
     discover_latest_year,
     download_window,
 )
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -46,29 +46,22 @@ DATASET_ID = constants.DATASET_ID.value
 # with every release and the one linked to the NIBRS raw data source.
 POLL_TABLE = "incident"
 
-# Every table refreshes at most once a year, so none of them falls under the BD
-# Pro rolling window, which applies to tables refreshed monthly or more often.
 # `dicionario` has no date column and therefore takes no coverage spec.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in [
-        "agency",
-        "incident",
-        "offense",
-        "offender",
-        "victim",
-        "victim_offense",
-        "victim_offender_relationship",
-        "arrestee",
-        "property",
-        "hate_crime",
-        "ucr_summary",
-    ]
-}
+TABLES_WITH_COVERAGE = [
+    "agency",
+    "incident",
+    "offense",
+    "offender",
+    "victim",
+    "victim_offense",
+    "victim_offender_relationship",
+    "arrestee",
+    "property",
+    "hate_crime",
+    "ucr_summary",
+]
 
-ALL_TABLES = [*list(_COVERAGE), "dicionario"]
+ALL_TABLES = [*TABLES_WITH_COVERAGE, "dicionario"]
 
 
 @flow(name="us_fbi_cde", log_prints=True)
@@ -92,7 +85,6 @@ def us_fbi_cde_flow(
         years_back: How many prior data years to refresh alongside the newest
             one. The FBI revises the two preceding years in each release.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -181,13 +173,12 @@ def us_fbi_cde_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 if table not in paths:
                     continue
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -207,14 +198,9 @@ def us_fbi_cde_flow(
 # September and early October, and occasionally later. Poll every few days
 # across September to November; the source-poll guard makes every run before the
 # release a cheap no-op.
-# pyrefly: ignore [missing-attribute]
 us_fbi_cde_flow.deploy_schedules = [
-    {
-        "cron": "23 15 2,6,10,14,18,22,26,30 9,10,11 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron("23 15 2,6,10,14,18,22,26,30 9,10,11 *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one state-year bundle in pandas at a time; Texas is the
 # largest at roughly 130 MB compressed.
-# pyrefly: ignore [missing-attribute]
 us_fbi_cde_flow.job_variables = {"memory": "16Gi"}

@@ -17,6 +17,8 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.oauth2 import service_account
 
+from pipelines.utils.utils import log
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Credenciais GCS via env vars
 # ──────────────────────────────────────────────────────────────────────────────
@@ -151,19 +153,24 @@ class DBTArtifactUploader:
 
     def run(self) -> None:
         if not self._should_run():
-            print(
+            log(
                 "DBTArtifactUploader: ignorado (não em Kubernetes e enable_upload=False)"
             )
             return
         self._init_gcs()
-        print("DBTArtifactUploader: iniciando upload de artefatos dbt")
+        uploaded = 0
         try:
             prefix = self._table_prefix()
             self._delete_once(prefix)
             for local_path, subfolder in self._list_files():
                 self._upload(local_path, subfolder)
+                uploaded += 1
         finally:
             self._cleanup()
+        log(
+            f"DBTArtifactUploader: {uploaded} artefato(s) enviado(s) para "
+            f"gs://{self.bucket_name}/{self._table_prefix()}"
+        )
 
     def _should_run(self) -> bool:
         return (
@@ -198,7 +205,7 @@ class DBTArtifactUploader:
         if blobs:
             # pyrefly: ignore [missing-attribute]
             self._bucket.delete_blobs(blobs)
-            print(
+            log(
                 f"DBTArtifactUploader: removidos {len(blobs)} artefatos antigos em {prefix}"
             )
         self._deleted_prefixes.add(prefix)
@@ -217,11 +224,10 @@ class DBTArtifactUploader:
         # pyrefly: ignore [missing-attribute]
         blob = self._bucket.blob(self._blob_path(subfolder, filename))
         blob.upload_from_filename(local_path)
-        print(f"DBTArtifactUploader: → gs://{self.bucket_name}/{blob.name}")
 
     def _cleanup(self) -> None:
         import shutil
 
         if os.path.exists(self.source_dir):
             shutil.rmtree(self.source_dir)
-            print(f"DBTArtifactUploader: {self.source_dir} removido")
+            log(f"DBTArtifactUploader: {self.source_dir} removido")

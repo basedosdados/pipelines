@@ -18,13 +18,11 @@ behind by onboarding collides with the pipeline's later overwrite. See
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     MG_SEP,
     MG_STATIC_TABLES,
@@ -79,6 +77,7 @@ def clean_static(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
         f"COPY (SELECT * FROM {rel}) TO '{dest / 'data.parquet'}' "
         "(FORMAT PARQUET, COMPRESSION SNAPPY)"
     )
+    # pyrefly: ignore [unsupported-operation]
     n = con.execute(f"SELECT count(*) FROM {rel}").fetchone()[0]
     print(f"  {table}: {n:,} rows")
     return n
@@ -142,6 +141,7 @@ def clean_yearly(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
             f"      FROM {rel} WHERE {year_col} IS NOT NULL) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out}')"
         ).fetchone()[0]
@@ -154,6 +154,7 @@ def clean_yearly(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
         f"FROM read_parquet('{dest}/data_*.parquet')"
     ).fetchone()
     print(
+        # pyrefly: ignore [unsupported-operation]
         f"  {table}: {total:,} rows across {len(srcs)} files "
         f"-> exercises {span[0]}-{span[1]} ({span[2]} distinct)"
     )

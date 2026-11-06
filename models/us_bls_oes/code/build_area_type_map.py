@@ -10,7 +10,7 @@ delineations, so they are pooled into a static lookup.
 The 2003-2004 releases use the pre-2003 OMB 4-digit MSA/PMSA codes, a different
 code system entirely; they are not covered here and fall back to area_type 4.
 
-Run: uv run python models/us_bls_oes/code/build_area_type_map.py
+Run: uv run models/us_bls_oes/code/build_area_type_map.py
 """
 
 import csv

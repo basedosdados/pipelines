@@ -1,0 +1,468 @@
+---
+version: 2
+models:
+  - name: us_treasury_fiscaldata__debt_outstanding
+    description: >-
+      Total U.S. public debt outstanding (Debt to the Penny), one row per
+      business day, split into debt held by the public and intragovernmental
+      holdings.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: record_date
+        description: >-
+          Date the debt figure was reported, published on business days
+        tests: [not_null]
+      - name: total_public_debt_outstanding
+        description: >-
+          Total public debt outstanding on the record date, the sum of debt held by
+          the public and intragovernmental holdings
+      - name: debt_held_by_public
+        description: >-
+          Portion of the total public debt held by the public rather than by
+          government accounts
+      - name: intragovernmental_holdings
+        description: >-
+          Portion of the total public debt held by government trust funds, revolving
+          funds, and special funds
+  - name: us_treasury_fiscaldata__historical_debt_outstanding
+    description: >-
+      Total public debt outstanding of the United States at the end of each
+      fiscal year, 1790 to the present, a high-level summary with no breakdown
+      of the debt components.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: record_date
+        description: >-
+          Date the debt figure reports, the last day of the fiscal year
+        tests: [not_null]
+      - name: fiscal_year
+        description: >-
+          U.S. federal fiscal year the debt figure reports
+      - name: debt_outstanding
+        description: >-
+          Total public debt outstanding of the U.S. government at the end of the
+          fiscal year
+  - name: us_treasury_fiscaldata__mts_summary
+    description: >-
+      Monthly Treasury Statement Table 1: summary of U.S. federal receipts,
+      outlays, and the deficit or surplus for the current month, one row per
+      statement line.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date, src_line_nbr]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Calendar month of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: record_date
+        description: >-
+          Last day of the month the statement reports
+        tests: [not_null]
+      - name: fiscal_year
+        description: >-
+          U.S. federal fiscal year of the record date, running October through
+          September
+      - name: src_line_nbr
+        description: >-
+          Source line number within the MTS table, stable across releases for a
+          given line
+        tests: [not_null]
+      - name: parent_id
+        description: >-
+          Classification id of the parent row in the statement hierarchy, empty for
+          top-level rows
+      - name: classification_id
+        description: >-
+          Classification id of the row within a single release, not stable across
+          releases
+      - name: classification_desc
+        description: >-
+          Name of the receipt source, spending agency, budget function, or financing
+          category the row reports
+      - name: sequence_level_nbr
+        description: >-
+          Depth of the row in the statement hierarchy, from 1 at the top to deeper
+          components
+      - name: current_month_gross_receipts
+        description: >-
+          Total receipts of the U.S. government in the current month
+      - name: current_month_gross_outlays
+        description: >-
+          Total outlays of the U.S. government in the current month
+      - name: current_month_deficit_or_surplus
+        description: >-
+          Budget deficit (negative) or surplus (positive) in the current month
+  - name: us_treasury_fiscaldata__mts_receipts
+    description: >-
+      Monthly Treasury Statement Table 4: receipts of the U.S. government by
+      source, with gross, refund, and net amounts for the current month, current
+      fiscal year to date, and prior fiscal year to date.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date, src_line_nbr]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Calendar month of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: record_date
+        description: >-
+          Last day of the month the statement reports
+        tests: [not_null]
+      - name: fiscal_year
+        description: >-
+          U.S. federal fiscal year of the record date, running October through
+          September
+      - name: src_line_nbr
+        description: >-
+          Source line number within the MTS table, stable across releases for a
+          given line
+        tests: [not_null]
+      - name: parent_id
+        description: >-
+          Classification id of the parent row in the statement hierarchy, empty for
+          top-level rows
+      - name: classification_id
+        description: >-
+          Classification id of the row within a single release, not stable across
+          releases
+      - name: classification_desc
+        description: >-
+          Name of the receipt source, spending agency, budget function, or financing
+          category the row reports
+      - name: sequence_level_nbr
+        description: >-
+          Depth of the row in the statement hierarchy, from 1 at the top to deeper
+          components
+      - name: current_month_gross_receipts
+        description: >-
+          Gross receipts from the source in the current month
+      - name: current_month_refunds
+        description: >-
+          Refunds of receipts from the source in the current month
+      - name: current_month_net_receipts
+        description: >-
+          Net receipts from the source in the current month
+      - name: current_fytd_gross_receipts
+        description: >-
+          Gross receipts from the source in the current fiscal year to date
+      - name: current_fytd_refunds
+        description: >-
+          Refunds of receipts from the source in the current fiscal year to date
+      - name: current_fytd_net_receipts
+        description: >-
+          Net receipts from the source in the current fiscal year to date
+      - name: prior_fytd_gross_receipts
+        description: >-
+          Gross receipts from the source in the prior fiscal year to date
+      - name: prior_fytd_refunds
+        description: >-
+          Refunds of receipts from the source in the prior fiscal year to date
+      - name: prior_fytd_net_receipts
+        description: >-
+          Net receipts from the source in the prior fiscal year to date
+  - name: us_treasury_fiscaldata__mts_outlays
+    description: >-
+      Monthly Treasury Statement Table 5: outlays of the U.S. government by
+      agency, with gross outlays, applicable receipts, and net outlays for the
+      current month, current fiscal year to date, and prior fiscal year to date.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date, src_line_nbr]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Calendar month of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: record_date
+        description: >-
+          Last day of the month the statement reports
+        tests: [not_null]
+      - name: fiscal_year
+        description: >-
+          U.S. federal fiscal year of the record date, running October through
+          September
+      - name: src_line_nbr
+        description: >-
+          Source line number within the MTS table, stable across releases for a
+          given line
+        tests: [not_null]
+      - name: parent_id
+        description: >-
+          Classification id of the parent row in the statement hierarchy, empty for
+          top-level rows
+      - name: classification_id
+        description: >-
+          Classification id of the row within a single release, not stable across
+          releases
+      - name: classification_desc
+        description: >-
+          Name of the receipt source, spending agency, budget function, or financing
+          category the row reports
+      - name: sequence_level_nbr
+        description: >-
+          Depth of the row in the statement hierarchy, from 1 at the top to deeper
+          components
+      - name: current_month_gross_outlays
+        description: >-
+          Gross outlays of the agency in the current month
+      - name: current_month_applicable_receipts
+        description: >-
+          Receipts applied against the agency's outlays in the current month
+      - name: current_month_net_outlays
+        description: >-
+          Net outlays of the agency in the current month
+      - name: current_fytd_gross_outlays
+        description: >-
+          Gross outlays of the agency in the current fiscal year to date
+      - name: current_fytd_applicable_receipts
+        description: >-
+          Receipts applied against the agency's outlays in the current fiscal year
+          to date
+      - name: current_fytd_net_outlays
+        description: >-
+          Net outlays of the agency in the current fiscal year to date
+      - name: prior_fytd_gross_outlays
+        description: >-
+          Gross outlays of the agency in the prior fiscal year to date
+      - name: prior_fytd_applicable_receipts
+        description: >-
+          Receipts applied against the agency's outlays in the prior fiscal year to
+          date
+      - name: prior_fytd_net_outlays
+        description: >-
+          Net outlays of the agency in the prior fiscal year to date
+  - name: us_treasury_fiscaldata__mts_means_of_financing
+    description: >-
+      Monthly Treasury Statement Table 6: means of financing the deficit or
+      disposition of the surplus, with net transactions and account balances.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date, src_line_nbr]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Calendar month of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: record_date
+        description: >-
+          Last day of the month the statement reports
+        tests: [not_null]
+      - name: fiscal_year
+        description: >-
+          U.S. federal fiscal year of the record date, running October through
+          September
+      - name: src_line_nbr
+        description: >-
+          Source line number within the MTS table, stable across releases for a
+          given line
+        tests: [not_null]
+      - name: parent_id
+        description: >-
+          Classification id of the parent row in the statement hierarchy, empty for
+          top-level rows
+      - name: classification_id
+        description: >-
+          Classification id of the row within a single release, not stable across
+          releases
+      - name: classification_desc
+        description: >-
+          Name of the receipt source, spending agency, budget function, or financing
+          category the row reports
+      - name: sequence_level_nbr
+        description: >-
+          Depth of the row in the statement hierarchy, from 1 at the top to deeper
+          components
+      - name: current_month_net_transactions
+        description: >-
+          Net financing transactions in the current month
+      - name: current_fytd_net_transactions
+        description: >-
+          Net financing transactions in the current fiscal year to date
+      - name: prior_fytd_net_transactions
+        description: >-
+          Net financing transactions in the prior fiscal year to date
+      - name: beginning_year_balance
+        description: >-
+          Account balance at the beginning of the fiscal year
+      - name: beginning_month_balance
+        description: >-
+          Account balance at the beginning of the month
+      - name: closing_month_balance
+        description: >-
+          Account balance at the close of the month
+  - name: us_treasury_fiscaldata__average_interest_rate
+    description: >-
+      Average interest rates the U.S. Treasury pays on its outstanding
+      marketable and non-marketable securities, one row per month and security.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [record_date, security_type, security_desc]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Calendar month of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: record_date
+        description: >-
+          Last day of the month the average interest rate reports
+        tests: [not_null]
+      - name: fiscal_year
+        description: >-
+          U.S. federal fiscal year of the record date, running October through
+          September
+      - name: security_type
+        description: >-
+          Broad Treasury security class, such as Marketable, Non-marketable, or
+          Interest-bearing Debt
+        tests: [not_null]
+      - name: security_desc
+        description: >-
+          Specific Treasury security the rate applies to, such as Treasury Notes,
+          Treasury Bonds, or Savings Bonds
+        tests: [not_null]
+      - name: avg_interest_rate
+        description: >-
+          Average interest rate the Treasury pays on the outstanding security, as
+          an
+          annual percentage
+  - name: us_treasury_fiscaldata__exchange_rate
+    description: >-
+      Treasury reporting rates of exchange, the official rates used to convert
+      foreign currency into U.S. dollars, one row per quarter, country, and
+      currency.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - record_date
+            - country
+            - currency
+            - effective_date
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year of the record date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: record_date
+        description: >-
+          Last day of the quarter the exchange rate reports
+        tests: [not_null]
+      - name: effective_date
+        description: >-
+          Date the exchange rate takes effect for reporting purposes
+      - name: country
+        description: >-
+          Country whose currency the rate converts
+        tests: [not_null]
+      - name: currency
+        description: >-
+          Currency the rate converts to U.S. dollars
+        tests: [not_null]
+      - name: country_currency_desc
+        description: >-
+          Country and currency combined, as published by the Treasury
+      - name: exchange_rate
+        description: >-
+          Units of the foreign currency per one U.S. dollar, the Treasury reporting
+          rate

@@ -2,14 +2,10 @@
 Flow br_poder360_pesquisas — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.poder360_pesquisas.tasks import crawler
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -33,7 +29,6 @@ def br_poder360_pesquisas__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -79,16 +74,11 @@ def br_poder360_pesquisas__microdados(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_poder360_pesquisas__microdados.deploy_schedules = [
-    {"cron": "42 3 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("42 3 * * *", timezone="America/Sao_Paulo")
 ]

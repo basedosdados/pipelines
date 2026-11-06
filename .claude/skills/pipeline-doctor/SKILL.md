@@ -55,7 +55,7 @@ ones it does not.
 script:
 
 ```bash
-uv run python .claude/skills/pipeline-doctor/scripts/deployments.py --pool basedosdados --paused
+uv run .claude/skills/pipeline-doctor/scripts/deployments.py --pool basedosdados --paused
 ```
 
 Read the `paused` field, never the schedule's own `active` flag: a paused

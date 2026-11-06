@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_departamento,STRING,"Código del departamento, de cinco dígitos",,no,,,no,Llave primaria. Los dos primeros dígitos corresponden a la jurisdicción,Código de departamento
+id_jurisdiccion,STRING,Código de la jurisdicción a la que pertenece el departamento,,no,br_bd_diretorios_ar.jurisdiccion:id_jurisdiccion,,no,,Código de jurisdicción
+nombre,STRING,Nombre del departamento,,no,,,no,"La unidad se denomina departamento en 21 provincias, partido en la provincia de Buenos Aires y comuna en la Ciudad Autónoma de Buenos Aires",Departamento

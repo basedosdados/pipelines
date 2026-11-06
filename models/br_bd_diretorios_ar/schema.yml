@@ -1,0 +1,223 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_ar__jurisdiccion
+    description: >
+      Directorio de las 24 jurisdicciones de Argentina: las 23 provincias y la
+      Ciudad Autónoma de Buenos Aires, con el código de dos dígitos del INDEC.
+      Fuente: Códigos geográficos del INDEC 2022, Censo Nacional de Población,
+      Hogares y Viviendas 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_jurisdiccion]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_jurisdiccion
+        description: >
+          Código de la jurisdicción, de dos dígitos
+        tests: [not_null, unique]
+      - name: nombre
+        description: >
+          Nombre de la jurisdicción
+        tests: [not_null]
+      - name: nombre_completo
+        description: >
+          Nombre oficial completo de la jurisdicción
+        tests: [not_null]
+      - name: sigla
+        description: >
+          Código de subdivisión de una letra según la norma ISO 3166-2:AR
+        tests: [not_null, unique]
+  - name: br_bd_diretorios_ar__departamento
+    description: >
+      Directorio de los 529 departamentos de Argentina, con su código de cinco
+      dígitos y la jurisdicción a la que pertenecen. La unidad se denomina
+      departamento en 21 provincias, partido en la provincia de Buenos Aires y
+      comuna en la Ciudad Autónoma de Buenos Aires. Es la tabla de referencia
+      para cruzar cualquier conjunto de datos argentino a nivel departamental.
+      Fuente: Códigos geográficos del INDEC 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_departamento]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_departamento
+        description: >
+          Código del departamento, de cinco dígitos. Los dos primeros
+          corresponden a la jurisdicción
+        tests: [not_null, unique]
+      - name: id_jurisdiccion
+        description: >
+          Código de la jurisdicción a la que pertenece el departamento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_ar__jurisdiccion')
+              field: id_jurisdiccion
+      - name: nombre
+        description: >
+          Nombre del departamento
+        tests: [not_null]
+  - name: br_bd_diretorios_ar__gobierno_local
+    description: >
+      Directorio de los 2.315 gobiernos locales de Argentina, con el código de
+      seis dígitos establecido por la Resolución INDEC 144/2022 y su categoría
+      según el régimen municipal de cada jurisdicción. El gobierno local no
+      anida en el departamento: 24 abarcan más de uno, de modo que la tabla solo
+      lleva la llave de la jurisdicción. Incluye 11 registros «Sin Gobierno
+      Local» y 24 «Indeterminado», ambos sin categoría. Fuente: Códigos
+      geográficos del INDEC 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_gobierno_local]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_bd_diretorios_ar__dicionario')
+          columns_covered_by_dictionary: [categoria]
+    columns:
+      - name: id_gobierno_local
+        description: >
+          Código del gobierno local, de seis dígitos. Los dos primeros
+          corresponden a la jurisdicción
+        tests: [not_null, unique]
+      - name: id_jurisdiccion
+        description: >
+          Código de la jurisdicción a la que pertenece el gobierno local
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_ar__jurisdiccion')
+              field: id_jurisdiccion
+      - name: nombre
+        description: >
+          Nombre del gobierno local
+        tests: [not_null]
+      - name: categoria
+        description: >
+          Categoría del gobierno local según el régimen municipal de cada
+          jurisdicción. Nula en los 35 registros «Sin Gobierno Local» e
+          «Indeterminado»
+  - name: br_bd_diretorios_ar__aglomerado
+    description: >
+      Directorio de los 3.706 aglomerados de Argentina. El aglomerado agrupa las
+      localidades censales que forman una misma mancha urbana; 119 agrupan más
+      de una localidad y llevan la etiqueta publicada por el INDEC, mientras que
+      los 3.587 restantes son de una sola localidad y toman su nombre. La tabla
+      no lleva llaves geográficas porque 14 aglomerados abarcan más de una
+      jurisdicción y 62 más de un departamento. Derivada del archivo de
+      localidades de los Códigos geográficos del INDEC 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_aglomerado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_aglomerado
+        description: >
+          Código del aglomerado, de cuatro dígitos
+        tests: [not_null, unique]
+      - name: nombre
+        description: >
+          Nombre del aglomerado
+        tests: [not_null]
+  - name: br_bd_diretorios_ar__localidad
+    description: >
+      Directorio de las 4.023 localidades censales de Argentina, con su código
+      de ocho dígitos y las llaves del departamento, la jurisdicción, el
+      gobierno local y el aglomerado a los que pertenece. Es el nivel más fino
+      del directorio. Fuente: Códigos geográficos del INDEC 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_localidad]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_bd_diretorios_ar__dicionario')
+          columns_covered_by_dictionary: [tipo]
+    columns:
+      - name: id_localidad
+        description: >
+          Código de la localidad censal, de ocho dígitos. Los cinco primeros
+          corresponden al departamento
+        tests: [not_null, unique]
+      - name: id_departamento
+        description: >
+          Código del departamento al que pertenece la localidad
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_ar__departamento')
+              field: id_departamento
+      - name: id_jurisdiccion
+        description: >
+          Código de la jurisdicción a la que pertenece la localidad. Redundante
+          respecto de id_departamento, se incluye para evitar un cruce adicional
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_ar__jurisdiccion')
+              field: id_jurisdiccion
+      - name: id_gobierno_local
+        description: >
+          Código del gobierno local al que pertenece la localidad
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_ar__gobierno_local')
+              field: id_gobierno_local
+      - name: id_aglomerado
+        description: >
+          Código del aglomerado al que pertenece la localidad
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_ar__aglomerado')
+              field: id_aglomerado
+      - name: nombre
+        description: >
+          Nombre de la localidad censal. No es único dentro del departamento:
+          11 localidades comparten nombre y departamento con otra
+        tests: [not_null]
+      - name: tipo
+        description: >
+          Tipo de localidad: LS para localidad simple y CA para componente de
+          aglomerado
+        tests: [not_null]
+  - name: br_bd_diretorios_ar__dicionario
+    description: >
+      Etiquetas de los valores codificados del directorio: la categoría de
+      gobierno local y el tipo de localidad. Las 20 categorías están transcritas
+      de la hoja «Definiciones» del archivo de gobiernos locales del INDEC; 18
+      aparecen en el Censo 2022. No cubre las columnas resueltas por llave
+      (id_jurisdiccion, id_departamento, id_gobierno_local, id_aglomerado),
+      cuya fuente de verdad son las demás tablas de este directorio.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Nombre de la tabla que contiene la columna descrita
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nombre de la columna descrita
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado almacenado en la columna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal del par clave-valor. Vacía en todas las filas: los
+          códigos del Censo 2022 no varían dentro del directorio
+      - name: valor
+        description: >
+          Significado del valor codificado
+        tests: [not_null]

@@ -18,26 +18,21 @@ which drops the **production** table, and fires from the dev half of the flow to
 ``"append"`` the upload ends in ``Storage.upload(if_exists="replace")``, which replaces
 each partition blob wholesale — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_cfpb_complaints_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_cfpb_complaints_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_cfpb_complaints.constants import constants
 from pipelines.datasets.us_cfpb_complaints.tasks import (
     clean_complaints,
     download_complaints,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -52,26 +47,6 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 COMPLAINT = constants.COMPLAINT.value
 DICIONARIO = constants.DICIONARIO.value
-
-# Coverage spec per table.
-#
-# `complaint` refreshes daily, so it carries the BD Pro rolling window: the most
-# recent 6 months are pro-only, everything older is free. Each run recomputes
-# free_end = source_end - free_lag, rewrites both DateTimeRanges, and re-issues the
-# BigQuery Row Access Policies, so the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises before
-# anything is written.
-#
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    COMPLAINT: PartBdpro(
-        date_column=DateOnly(col="date_received"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
 
 
 @flow(name="us_cfpb_complaints", log_prints=True)
@@ -92,7 +67,6 @@ def us_cfpb_complaints_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=COMPLAINT
     )
@@ -187,14 +161,12 @@ def us_cfpb_complaints_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id=COMPLAINT,
+                env="prod",
+                bq_project="basedosdados",
+            )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception. The
         # snapshot is ~1.4 GB zipped and 9.3 GB unzipped, plus ~1.4 GB of parquet.
@@ -207,11 +179,9 @@ def us_cfpb_complaints_flow(
 # least five minutes' spacing from each. Defaulting to :00 piles every pipeline onto
 # the same instant, where they compete for BigQuery slots and trip the daily quota
 # together.
-# pyrefly: ignore [missing-attribute]
 us_cfpb_complaints_flow.deploy_schedules = [
-    {"cron": "45 7 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("45 7 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams the CSV and buffers at most ~800k rows of Python strings,
 # but the 9.3 GB unzipped snapshot and ~1.4 GB of parquet share the pod's disk.
-# pyrefly: ignore [missing-attribute]
 us_cfpb_complaints_flow.job_variables = {"memory": "8Gi"}

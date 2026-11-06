@@ -12,7 +12,8 @@ Output: output/dicionario/data.parquet
 """
 
 import pandas as pd
-from common import LEGACY, MODERN, OUTPUT, load_cols
+
+from models.us_cfpb_hmda.code.common import LEGACY, MODERN, OUTPUT, load_cols
 
 # ---- shared code sets (modern 2018+) -------------------------------------------------
 ETHNICITY = {  # applicant/co-applicant ethnicity-1..5
@@ -395,6 +396,7 @@ def build() -> pd.DataFrame:
                     f"{table}: dicionario column {col!r} not in architecture"
                 )
             for chave, valor in mapping.items():
+                # pyrefly: ignore [unnecessary-type-conversion]
                 rows.append((table, col, str(chave), "", valor))
     return pd.DataFrame(
         rows,

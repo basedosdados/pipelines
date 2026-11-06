@@ -2,17 +2,13 @@
 Flows for br_cvm_oferta_publica_distribuicao — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.cvm_oferta_publica_distribuicao.tasks import (
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -35,7 +31,6 @@ def br_cvm_oferta_publica_distribuicao__dia(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -83,16 +78,11 @@ def br_cvm_oferta_publica_distribuicao__dia(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_comunicado"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cvm_oferta_publica_distribuicao__dia.deploy_schedules = [
-    {"cron": "45 6 * * 1-5", "timezone": "America/Sao_Paulo"}
+    Cron("45 6 * * 1-5", timezone="America/Sao_Paulo")
 ]

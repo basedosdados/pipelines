@@ -12,28 +12,21 @@ and does a **full replace** (dump_mode="overwrite"), not an incremental append.
 The source poll (on the newest quarter) short-circuits a scheduled run until BLS
 actually publishes a newer period, making the between-release runs cheap no-ops.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_qcew_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_qcew_flow`; the
 dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bls_qcew.constants import constants
 from pipelines.datasets.us_bls_qcew.tasks import (
     clean_qcew,
     latest_source_period,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-    YearQuarter,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -48,32 +41,6 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 NAICS_TABLES = constants.NAICS_TABLES.value
 POLL_TABLE = constants.POLL_TABLE.value
-
-# Coverage spec per NAICS table.
-#
-# The four `naics_quarterly_*` tables are refreshed quarterly, so they carry the
-# BD Pro rolling window: the most recent 6 months (the latest two closed
-# quarters) are pro-only, everything older is free. Each run recomputes
-# free_end = source_end - free_lag, rewrites both DateTimeRanges, and re-issues
-# the BigQuery Row Access Policies, so the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written — those were created at onboarding.
-#
-# The four `naics_annual_*` tables are lower-frequency and stay fully free.
-_QUARTERLY = PartBdpro(
-    date_column=YearQuarter(year="year", quarter="qtr"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-_ANNUAL = AllFree(
-    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-)
-_COVERAGE = {
-    table: (_QUARTERLY if "quarterly" in table else _ANNUAL)
-    for table in NAICS_TABLES
-}
 
 
 @flow(name="us_bls_qcew", log_prints=True)
@@ -101,7 +68,6 @@ def us_bls_qcew_flow(
             is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="naics"
     )
@@ -184,7 +150,6 @@ def us_bls_qcew_flow(
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=_COVERAGE[table],
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -199,11 +164,9 @@ def us_bls_qcew_flow(
 # and Wages news releases land in early March, June, September, and December.
 # Poll across the first ~10 days of those months at 16:00 BRT; the source-poll
 # guard no-ops until a new quarter actually appears in the singlefiles.
-# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.deploy_schedules = [
-    {"cron": "10 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("10 16 1-10 3,6,9,12 *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams ~15M-row singlefiles one chunk at a time (peak ~1.75GB
 # in pandas); give the worker headroom above that.
-# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.job_variables = {"memory": "8Gi"}

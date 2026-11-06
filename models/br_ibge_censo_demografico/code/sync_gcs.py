@@ -12,7 +12,7 @@ materialises ``basedosdados.<dataset>.*`` when the onboarding PR merges.
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      uv run python models/br_ibge_censo_demografico/code/sync_gcs.py \
+      uv run models/br_ibge_censo_demografico/code/sync_gcs.py \
         [--skip-staging] [--skip-aux] [--delete-local]
 """
 

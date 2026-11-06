@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,"Derived from the BLS period code M01-M12; NULL on annual-average rows, which carry period_id M13",period
+period_id,STRING,BLS period code identifying the month or the annual average,,yes,,,no,"BLS period code as published. M01-M12 are months; M13 is the annual average BLS publishes in the same files, on which month is NULL",period
+state_id,STRING,FIPS code of the state,,no,br_bd_diretorios_us.state:id_state,,no,"NULL on national rows, whose raw code 00 is an aggregate rather than a place",state_code
+region_id,STRING,Census region the estimate covers,,yes,,,no,JOLTS stores the four census regions in the same field as the state FIPS codes; they are split apart here. NULL on national and state rows,state_code
+series_id,STRING,Full BLS JOLTS series identifier,,no,,,no,"Kept alongside the decomposed dimensions so a series can be looked up directly against BLS. Example: JTS000000000000000JOL, total nonfarm job openings, seasonally adjusted",series_id
+industry_id,STRING,JOLTS industry code,,yes,,,no,"A 6-digit BLS code on the JOLTS industry hierarchy, coarser than NAICS and containing aggregates that span several NAICS sectors, so no directory link is declared",industry_code
+sizeclass_id,STRING,Establishment size class the estimate covers,,yes,,,no,,sizeclass_code
+dataelement_id,STRING,JOLTS data element the value reports,,yes,,,no,"Job openings, hires, total separations, quits, layoffs and discharges, other separations, the unemployed per job opening ratio, and survey response rates share the value column",dataelement_code
+ratelevel_id,STRING,Whether the value is a level or a rate,,yes,,,no,Levels are counts in thousands; rates are the element as a percent of employment,ratelevel_code
+seasonal_adjustment,STRING,Whether the series is seasonally adjusted (S) or not seasonally adjusted (U),,yes,,,no,"A dimension of the series, not a footnote: adjusted and unadjusted values for the same cell are different numbers and must never be mixed",seasonal
+value,FLOAT64,Published value of the series for the period,,no,,,no,"Units differ by row and are given in measurement_unit, so no single column-level unit applies. BLS prints - for an observation that was not published; those are NULL, not zero",value
+measurement_unit,STRING,Unit the value is measured in,,yes,,,no,"Derived by Data Basis from the dimension that fixes the unit (data type for CES, measure for LAUS, rate-or-level for JOLTS); not published as a field by BLS",
+footnote_id,STRING,BLS footnote code attached to the observation,,yes,,,no,"NULL when the observation carries no footnote. Codes flag preliminary and revised values and, in 2025, observations missing because of the lapse in appropriations",footnote_codes

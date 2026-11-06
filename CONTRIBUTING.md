@@ -148,14 +148,72 @@ uv run manage.py list-pipelines
 
 ### Testar uma pipeline localmente
 
-Escolha a pipeline que deseja executar (exemplo `pipelines.rj_escritorio.test_pipeline.flows.flow`). Crie um arquivo `test.py` na pasta e importe o flow
+> [!NOTE]
+> As funções `run_local`/`run_cloud` citadas em versões antigas deste guia não existem mais — eram do Prefect 1. O jeito atual (Prefect 3) é o que segue.
+
+O Prefect 3 sempre precisa de algum backend (servidor) pra rodar qualquer `@task`/`@flow`, mesmo fora de um deployment — não dá pra chamar a função "pura", sem mais nada, como no Prefect 1. `scripts/dev_local.sh` sobe esse backend localmente (servidor + work pool + worker, tudo rodando na sua própria máquina, sem precisar de Docker nem de nada além do que o `uv sync` já instalou).
+
+> [!IMPORTANT]
+> Só tem o que testar pra um dataset **que você já editou, ou acabou de criar** — o `up` deploya automaticamente o que for diferente de `origin/main` (commitado ou não, inclusive arquivo novo), mais os flows genéricos compartilhados (`build_and_promote`, `run_dbt_model`, transferência pra prod — sempre, mesmo sem mudança). Sem nenhuma mudança, ele sobe o servidor mas não deploya dataset nenhum.
+
+Edite ou crie o dataset primeiro, depois:
+
+```sh
+scripts/dev_local.sh up
+```
+
+> [!NOTE]
+> **`scripts/dev_local.sh: comando não encontrado` ou `Permission denied`?** Rode `chmod +x scripts/dev_local.sh` uma vez, ou use `bash scripts/dev_local.sh up` direto — funciona independente do bit de execução.
+
+A UI fica em `http://127.0.0.1:4200`. Se você não mudou nada ainda (ex. acabou de trocar de branch e quer testar um dataset que não é seu), o `up` não deploya nenhum dataset sozinho — mexa no dataset primeiro, ou force tudo: `scripts/dev_local.sh up --all` (deploya os ~330 flows do repositório, mais lento). Se 1-2 flows falharem no deploy com `503` (SQLite local sob concorrência, não um erro do flow em si), o script avisa qual foi e você redeploya só aquele.
+
+> [!IMPORTANT]
+> **`check_update` precisa das credenciais do Vault mesmo rodando local** — ele registra o poll no backend (`poll_source_for_update_task`/`commit_source_update_task`), que autentica via `get_credentials_from_secret`/`VAULT_ADDRESS`/`VAULT_TOKEN`. Sem isso no ambiente, quebra com `AttributeError: 'NoneType' object has no attribute 'strip'`. `up` já carrega isso do `.env` do repositório sozinho (ver `.env.example`) — não precisa sourcear nada manualmente.
+
+**Flow monolítico (ainda não migrado pro pipeline em estágios)**: roda pela UI igual a qualquer outro flow — não tem diferença entre monolítico e em estágios aqui, o botão "Run" funciona igual pra qualquer deployment. Se estava entre os `.py` alterados, já foi deployado (próximo parágrafo). Alternativa, pra um teste pontual sem deploy nenhum: o `@flow` também é uma função Python chamável direto (`materialize_after_dump=False`/`force_run=True`, ou nomes parecidos, garante que só escreve em dev):
 
 ```python
-from pipelines.datasets.test_pipeline.flows import flow
-from pipelines.utils.utils import run_local
+from pipelines.datasets.br_fgv_igp.flows import br_fgv_igp__igp_di_mes
 
-run_local(flow, parameters={"param": "val"})
+br_fgv_igp__igp_di_mes(materialize_after_dump=False, force_run=True)
 ```
+
+**Pipeline em estágios (`check_update`/`extract_and_load`, ver `pipelines/utils/stage_dispatch.py`)**: se você editou esse dataset antes do `up`, o deploy já aconteceu sozinho. Na UI (`http://127.0.0.1:4200`), ache o deployment `check_update: <dataset>__<tabela>` e clique "Run" → "Run now" — não precisa de nenhum `export` pra isso, é o navegador quem fala com o servidor local. Isso dispara a cadeia `check_update → extract_and_load → build_and_promote` automaticamente — igual em produção na lógica (achou dado novo → despacha o próximo estágio), mas rodando tudo localmente e só escrevendo em `basedosdados-dev`.
+
+> [!NOTE]
+> **Por que o despacho local não usa `run_deployment()` de verdade**: `run_deployment()` chamado de dentro de um flow já em execução (necessário pra encadear os estágios) quebra com `422 Unprocessable Entity` contra o servidor Prefect local — bug isolado que reproduz igual com qualquer subflow, mesmo sem `run_deployment()`/deployment nenhum envolvido (não é erro no seu dataset). `stage_dispatch.py` detecta o pool local (tag `env:local`) e, só nesse caso, chama a função do próximo estágio direto (`.fn()`, sem passar pelo mecanismo de subflow que está quebrado) em vez de despachar via deployment — o comportamento em dev real/produção não muda. Efeito colateral: localmente a cadeia roda **síncrona** (`check_update` só termina depois que `extract_and_load`/`build_and_promote` terminarem), ao contrário do fire-and-forget de produção — é por isso que, testando localmente, o comando de `deployment run` pode demorar bem mais que só o primeiro estágio.
+
+**Bônus — pela linha de comando em vez da UI**:
+
+```sh
+export PREFECT_API_URL="http://127.0.0.1:4200/api"   # ver nota abaixo se o comando a seguir falhar
+uv run prefect deployment run 'check_update: meu_dataset__minha_tabela/dev-check_update' --watch
+```
+
+Isso **precisa** de `export PREFECT_API_URL` nesse terminal (a saída do `up` já mostra a linha pronta) — `up` roda num processo filho, que não tem como alterar o ambiente do seu shell, diferente da UI (o navegador fala direto com o servidor, sem passar pelo seu terminal). `.env.example`/`.env` já apontam `PREFECT_API_URL` pro local por padrão, mas isso só vale pra `check_update`/`extract_and_load` (que leem `.env` de propósito) — não pro `prefect`/`deploy_flows.py` que você roda na mão.
+
+> [!WARNING]
+> **Nunca deixe `PREFECT_API_URL`/`PREFECT_API_KEY` do servidor real (`https://prefect3.basedosdados.org/api`) no `.env`.** O único uso legítimo deles hoje é `python -m pipelines.diagnostics health` — exporte os dois só na linha de comando, pontualmente, pra rodar esse comando específico. Se alguém no seu terminal já exportou a URL real antes, ela vence o `.env`, e qualquer `deployment run`/`deploy_flows.py` manual vai direto pra produção — confira com `echo $PREFECT_API_URL` se tiver dúvida.
+
+**Editou o código depois do `up`? Na maioria das vezes não precisa redeployar** — o worker local lê o arquivo do disco a cada execução (nada é empacotado), então mudança de lógica dentro do flow/task já vale no próximo run, sem mais nada (confirmado na prática: editar o corpo de um flow já deployado e rodar de novo, sem redeploy, pega a versão nova). Só precisa rodar isso se a mudança for em **metadado do deployment em si** — schedule, `job_variables`, `deploy_tags`, ou a assinatura de parâmetros do `@flow`:
+
+```sh
+uv run .github/workflows/scripts/deploy_flows.py --local --files pipelines/datasets/meu_dataset/flows.py
+```
+
+Quando terminar:
+
+```sh
+scripts/dev_local.sh down
+```
+
+#### Problemas conhecidos
+
+> [!WARNING]
+> **`.prefect-local/` de propriedade de outro usuário.** Acontece se uma execução anterior rodou o script com `sudo` por engano — `up` detecta isso antes de começar e já avisa com o comando certo pra resolver (`sudo chown -R "$USER" .prefect-local` ou, mais simples, `rm -rf .prefect-local` pra recomeçar do zero — o estado ali é descartável).
+
+> [!NOTE]
+> **Deploy falhou.** `up` já lista qual(is) flow(s) falharam e o motivo exato no aviso final — nem sempre é o `503` de concorrência do SQLite local (ver aviso acima); pode ser um erro real do próprio flow. Redeploye só o que faltou com `deploy_flows.py --local --files <arquivo>` depois de investigar.
 
 ### Testar uma pipeline na nuvem
 
