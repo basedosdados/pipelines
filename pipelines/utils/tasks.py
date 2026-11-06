@@ -96,6 +96,7 @@ def _check_staging(
         table = client.get_table(tb.table_full_name["staging"])
     except NotFound:
         return None  # primeiro upload: nada a comparar
+    print("Check staging")
     result = check(
         StagingSchema.from_table(table),
         UploadSchema.from_files(data_path, source_format),
