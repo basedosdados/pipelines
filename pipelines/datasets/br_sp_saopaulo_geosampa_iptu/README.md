@@ -63,19 +63,15 @@ campos.
 
 ## Cobertura BD Pro
 
-A tabela segue o padrão da BD de deixar os últimos 6 meses em BD Pro (`part_bdpro`).
-Como a tabela é anual, o ano mais recente fica em BD Pro e o resto fica aberto: com
-dados até 2026, 1995–2025 é aberto e 2026 é BD Pro. A cada ano novo, o
-`build_and_promote` recalcula as duas faixas e as Row Access Policies.
+A tabela é toda BD Pro (`all_bdpro`). A cobertura é lida do backend, a partir da
+coluna `ano` marcada com `coverage_entity = year`, e o backend tem uma única cobertura,
+BD Pro (`is_closed=true`). A cada ano novo, o `build_and_promote` estende a faixa até o
+ano carregado. Nesse tipo de cobertura, a pipeline não cria Row Access Policies no
+BigQuery.
 
-A cobertura é lida do backend, a partir da coluna `ano` marcada com
-`coverage_entity = year`. O backend precisa de duas coberturas: uma aberta
-(`is_closed=false`) e uma BD Pro (`is_closed=true`). A BD Pro é criada **sem faixa de
-datas**: uma faixa com o ano novo faria o `check_update` concluir que não há dado novo.
-A primeira execução cria a faixa, que depois deve ser marcada com `is_closed=true`,
-campo que a pipeline não grava.
-
-Até novembro de 2026, a tabela era toda BD Pro (1995–2025).
+Em novembro de 2026, a tabela chegou a ser configurada no padrão de deixar só o ano mais
+recente em BD Pro (`part_bdpro`). A decisão foi revertida, e a tabela continua toda
+BD Pro, como antes.
 
 ## Correção do histórico
 
