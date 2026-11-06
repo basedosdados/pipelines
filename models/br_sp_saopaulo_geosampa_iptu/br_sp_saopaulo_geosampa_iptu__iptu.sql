@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1995, "end": 2025, "interval": 1},
+            "range": {"start": 1995, "end": 2031, "interval": 1},
         },
     )
 }}
@@ -35,8 +35,8 @@ select distinct
     safe_cast(area_construida as int64) area_construida,
     safe_cast(area_ocupada as int64) area_ocupada,
     safe_cast(quantidade_pavimento as int64) quantidade_pavimento,
-    safe_cast(quantidade_esquina_imovel as string) quantidade_esquina_imovel,
+    safe_cast(quantidade_esquina_imovel as int64) quantidade_esquina_imovel,
     safe_cast(testada_imovel as float64) testada_imovel,
-    safe_cast(valor_terreno as int64) valor_terreno,
-    safe_cast(valor_construcao as int64) valor_construcao,
+    safe_cast(valor_terreno as float64) valor_terreno,
+    safe_cast(valor_construcao as float64) valor_construcao,
 from {{ set_datalake_project("br_sp_saopaulo_geosampa_iptu_staging.iptu") }} as t
