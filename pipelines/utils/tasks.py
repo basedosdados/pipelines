@@ -83,30 +83,6 @@ def _bq_safe_column_name(name: str) -> str:
     return re.sub(r"[^0-9a-zA-Z_]", "_", name)
 
 
-def _staging_client(tb: bd.Table) -> bigquery.Client:
-    """Devolve o cliente BigQuery que a própria `bd.Table` usa para a staging.
-
-    Nunca construa um `bigquery.Client()` novo para falar com a staging. O
-    cliente novo cai no ADC do pod, que não tem `bigquery.tables.get` nas
-    tabelas de staging; a lib carrega `BASEDOSDADOS_CREDENTIALS_STAGING`, que
-    tem. Os dois convivem no mesmo processo, então o sintoma é enganoso: em
-    2026-08-21 o flow `us_treasury_usaspending` (run `nano-cheetah`) logou
-    "Tabela já existe" — `tb.table_exists()`, cliente da lib — e um segundo
-    depois levou 403 `Permission bigquery.tables.get denied` na mesma tabela,
-    vindo de um `bigquery.Client()` construído à mão.
-
-    Só morde `dump_mode="append"`: o ramo `overwrite` não chama nenhuma das
-    duas funções de sync, e por isso o defeito passou despercebido.
-
-    Args:
-        tb: tabela `basedosdados` já instanciada, apontando para a staging.
-
-    Returns:
-        O cliente BigQuery autenticado com as credenciais de staging.
-    """
-    return tb.client["bigquery_staging"]
-
-
 def _sync_staging_schema(
     tb: bd.Table,
     data_path: str | Path,
@@ -143,7 +119,9 @@ def _sync_staging_schema(
         data_sample_path=header_path, source_format=source_format
     )
 
-    client = _staging_client(tb)
+    # O cliente da lib é quem criou a tabela externa e escreve no prefixo. Abrir
+    # um `bigquery.Client` aqui cairia no ADC do pod, sem permissão de update.
+    client = tb.client["bigquery_staging"]
     table = client.get_table(tb.table_full_name["staging"])
 
     current = {_bq_safe_column_name(field.name) for field in table.schema}
@@ -169,68 +147,6 @@ def _sync_staging_schema(
         "Colunas novas na fonte adicionadas ao schema da staging: "
         + ", ".join(field.name for field in new_fields)
     )
-
-
-def _sync_staging_source_uris(
-    tb: bd.Table,
-    bucket_name: str,
-    dataset_id: str,
-    table_id: str,
-) -> None:
-    """Reaponta a tabela externa de staging para o bucket do ambiente corrente.
-
-    A definição da tabela externa guarda o bucket que estava em uso quando ela
-    foi criada. Como `dump_mode="append"` só cria a tabela quando ela ainda não
-    existe, um bucket errado gravado uma vez fica gravado para sempre: as
-    execuções seguintes escrevem os blobs no bucket certo e o dbt continua lendo
-    o errado, silenciosamente.
-
-    Isso não é hipotético. Em 2026-08-19 a metade dev de um flow recriou
-    `basedosdados-staging.us_sec_edgar_staging.dicionario` apontando para
-    `gs://basedosdados-dev/...`, divergindo das quatro tabelas irmãs, e a
-    materialização de produção passou a ser construída a partir de blobs do
-    bucket de dev. Nenhum log de erro, nenhuma task falha.
-
-    A correção é feita no lugar, pela API do BigQuery, e é idempotente: quando a
-    URI já está correta a função não faz nada.
-
-    Args:
-        tb: tabela `basedosdados` já instanciada, apontando para a staging.
-        bucket_name: bucket do ambiente corrente.
-        dataset_id: `gcp_dataset_id` sem o sufixo `_staging`.
-        table_id: slug da tabela.
-    """
-    suffix = f"/staging/{dataset_id}/{table_id}/*"
-    expected = f"gs://{bucket_name}{suffix}"
-
-    client = _staging_client(tb)
-    table = client.get_table(tb.table_full_name["staging"])
-
-    config = table.external_data_configuration
-    if config is None:
-        return
-
-    current = list(config.source_uris or [])
-    if current == [expected]:
-        return
-
-    # Conservador de propósito: só corrige o caso em que a ÚNICA diferença é o
-    # bucket. Uma tabela com várias URIs, ou com um caminho fora da convenção,
-    # foi montada à mão por alguém — reescrevê-la seria trocar um estrago
-    # silencioso por outro. Nesses casos apenas avisa.
-    if len(current) != 1 or not current[0].endswith(suffix):
-        print(
-            f"AVISO: staging {tb.table_full_name['staging']} tem URIs fora da "
-            f"convenção ({current}); esperado {[expected]}. Não alterado — "
-            "verifique manualmente."
-        )
-        return
-
-    config.source_uris = [expected]
-    table.external_data_configuration = config
-    client.update_table(table, ["external_data_configuration"])
-
-    print(f"URI da staging corrigida: {current} -> {[expected]}")
 
 
 def _upload_to_gcs(
@@ -281,12 +197,6 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
-            _sync_staging_source_uris(
-                tb=tb,
-                bucket_name=bucket_name,
-                dataset_id=dataset_id,
-                table_id=table_id,
-            )
             _sync_staging_schema(
                 tb=tb,
                 data_path=data_path,
