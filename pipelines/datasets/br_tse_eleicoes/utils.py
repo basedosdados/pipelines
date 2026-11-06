@@ -101,17 +101,23 @@ class BrTseEleicoes:
         self.df_main = self.df_complement = self.path_main = (
             self.path_complement
         ) = None
+        self.path_zips: list[Path] = []
 
     def download_urls(self) -> None:
-        """
-        Gets all csv files from a url and saves them to a directory.
-        """
+        """Baixa os ZIPs da fonte para `path_input`, sem extrair."""
         for url in self.urls:
-            self.download_extract_zip(url.format(year=self.year))
+            save_path = self.download_zip(url.format(year=self.year))
+            self.path_zips.append(save_path)
 
-    def download_extract_zip(self, url: str, chunk_size=128) -> None:
-        """
-        Gets all csv files from a url and saves them to a directory.
+    def download_zip(self, url: str, chunk_size: int = 1024 * 1024) -> Path:
+        """Baixa um ZIP para `path_input`, gravando em blocos.
+
+        Args:
+            url: endereço do ZIP.
+            chunk_size: bytes lidos da resposta e gravados por vez.
+
+        Returns:
+            Caminho do ZIP salvo.
         """
         self.path_input.mkdir(parents=True, exist_ok=True)
 
@@ -132,6 +138,21 @@ class BrTseEleicoes:
             for chunk in r.iter_content(chunk_size=chunk_size):
                 fd.write(chunk)
 
+        return save_path
+
+    def read_source_data(self) -> None:
+        """Extrai os CSVs nacionais dos ZIPs baixados e carrega `df_main`/`df_complement`."""
+        for save_path in self.path_zips:
+            self.extract_read_zip(save_path)
+
+    def extract_read_zip(self, save_path: Path) -> None:
+        """Extrai os `*BRASIL.csv` de um ZIP e carrega o CSV correspondente.
+
+        O primeiro ZIP lido vira `df_main`; o seguinte, `df_complement`.
+
+        Args:
+            save_path: caminho do ZIP baixado.
+        """
         with zipfile.ZipFile(save_path) as z:
             members = [
                 name
@@ -159,6 +180,33 @@ class BrTseEleicoes:
                 self.path_complement, sep=";", encoding="ISO-8859-1", dtype=str
             )
 
+    def count_source_rows(self, chunk_size: int = 1024 * 1024) -> int:
+        """Conta as linhas de dados do CSV principal lendo os bytes dentro do ZIP.
+
+        Não extrai o arquivo nem o carrega inteiro: lê `chunk_size` bytes por
+        vez e conta as quebras de linha, descontando o cabeçalho.
+
+        Args:
+            chunk_size: bytes descompactados lidos por vez.
+
+        Returns:
+            Número de linhas do CSV, sem o cabeçalho.
+        """
+        line_breaks = 0
+        last_byte = b"\n"
+        with (
+            zipfile.ZipFile(self.path_zips[0]) as z,
+            z.open(self.source) as f,
+        ):
+            while chunk := f.read(chunk_size):
+                line_breaks += chunk.count(b"\n")
+                last_byte = chunk[-1:]
+
+        if last_byte != b"\n":
+            line_breaks += 1
+
+        return line_breaks - 1
+
     def get_data_source_max_date(self) -> bool:
         df_prod = bd.read_sql(
             self.query,
@@ -167,14 +215,14 @@ class BrTseEleicoes:
         )
         prod_len, last_modified = df_prod.iloc[0].to_numpy()
 
-        # pyrefly: ignore [missing-attribute]
-        if self.df_main.shape[0] > prod_len:
+        if self.count_source_rows() > prod_len:
             # pyrefly: ignore [bad-return]
             return datetime.today()
 
         return last_modified
 
     def formatar(self) -> None:
+        self.read_source_data()
         base = self.form_df_base()
         # Etapa de salvar a base
 
