@@ -298,12 +298,11 @@ def _upload_to_gcs(
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
             )
-            # mode="staging", NUNCA mode="all": `all` percorre staging E prod,
-            # apagando a tabela MATERIALIZADA de produção. E isso dispara na
-            # iteração dev do laço de ambientes também, porque `bd.Table`
-            # resolve os projetos do BigQuery pelo config do worker, não pelo
-            # `bucket_name` — então uma execução com materialize_to_prod=False
-            # apagava a tabela de produção e retornava antes de reconstruí-la.
+            # mode="staging", NUNCA mode="all": `all` apaga também a tabela
+            # materializada de prod. O `bd.Table` monta os nomes das tabelas
+            # pelo config do pod, não pelo `bucket_name`: no pool de prod, até
+            # a etapa de dev (bucket basedosdados-dev) apagaria
+            # `basedosdados.<dataset>.<tabela>`. Ver #2296.
             tb.delete(mode="staging")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
         header_path = dump_header(
