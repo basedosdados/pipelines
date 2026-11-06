@@ -3,7 +3,6 @@ Tasks compartilhadas — Prefect 3.
 """
 
 import json
-import re
 from pathlib import Path
 from time import sleep
 from typing import Any
@@ -15,8 +14,19 @@ from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery import TableReference
 from prefect import task
+from prefect.client.schemas.objects import State, TaskRun
+from prefect.states import Completed
 
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
+from pipelines.utils.schema_check import (
+    Column,
+    SchemaCheckResult,
+    SchemaMismatchError,
+    StagingSchema,
+    UploadSchema,
+    check,
+    schema_title,
+)
 from pipelines.utils.utils import log
 from pipelines.utils.vault import get_credentials_from_secret
 
@@ -66,27 +76,50 @@ def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def _bq_safe_column_name(name: str) -> str:
-    """Normaliza um nome de coluna como o BigQuery faz ao inferir o schema.
-
-    As colunas que o crawler não renomeia chegam com o nome cru da fonte —
-    com espaço e acento, quando é o caso. Ao criar a tabela externa o
-    BigQuery troca cada caractere inválido por `_`, então `Nome do município`
-    vira `Nome_do_munic_pio`.
-
-    Args:
-        name: nome como vem do arquivo de dados.
-
-    Returns:
-        O nome com todo caractere fora de `[0-9a-zA-Z_]` trocado por `_`.
+def _check_staging(
+    tb: bd.Table, data_path: str | Path, source_format: str, overwrite: bool
+) -> tuple[SchemaCheckResult, bigquery.Table] | None:
     """
-    return re.sub(r"[^0-9a-zA-Z_]", "_", name)
+    Compara o schema da tabela em staging, no BigQuery ao schema definido pelo
+    arquivo arquivo local a ser subido no GCS (parquet ou csv).
+    As classes StagingSchema e UploadSchema são usadas para representar cada um
+    e o resultado é um objeto SchemaCheckResult, com diferenças de nome e tipo de
+    colunas e a lista de colunas adicionadas.
+
+        Args: tb: tabela `basedosdados` representando a tabela no BigQuery.
+            data_path: arquivo ou diretório com os dados que serão carregados.
+            source_format: `"csv"` ou `"parquet"`.
+            overwrite: indicador de operação de sobrescrita.
+    """
+    client = tb.client["bigquery_staging"]
+    try:
+        table = client.get_table(tb.table_full_name["staging"])
+    except NotFound:
+        return None  # primeiro upload: nada a comparar
+    result = check(
+        StagingSchema.from_table(table),
+        UploadSchema.from_files(data_path, source_format),
+        source_format,
+        overwrite=overwrite,
+    )
+    return result, table
+
+
+def _retry_unless_schema_mismatch(
+    task: Any, task_run: TaskRun, state: State
+) -> bool:
+    """Não retenta divergência de schema: repetir não a resolve.
+
+    Qualquer outra falha, inclusive da própria checagem, é retentada.
+    """
+    error = state.result(raise_on_failure=False)
+    return not isinstance(error, SchemaMismatchError)
 
 
 def _sync_staging_schema(
     tb: bd.Table,
-    data_path: str | Path,
-    source_format: str,
+    table: bigquery.Table,
+    incoming: tuple[Column, ...],
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
 
@@ -103,35 +136,19 @@ def _sync_staging_schema(
     remove nem reordena. Um arquivo parcial ou uma carga de um período só não
     pode encolher o schema de uma tabela histórica.
 
-    A comparação é feita sobre os nomes normalizados por
-    `_bq_safe_column_name`: o arquivo traz o nome cru e a tabela guarda o nome
-    já sanitizado pelo BigQuery, então comparar as duas grafias direto acusa
-    coluna nova em toda execução. A coluna acrescentada também leva o nome
-    normalizado — o cru pode não ser um identificador válido.
+    As colunas chegam de `SchemaCheckResult.added_columns`, já com o nome
+    normalizado por `bq_safe_column_name` e comparadas com a staging. O tipo é
+    o do arquivo (Parquet); em CSV não há tipo e a coluna é `STRING`.
 
     Args:
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
-        data_path: arquivo ou diretório com os dados que serão carregados.
-        source_format: `"csv"` ou `"parquet"`.
+        table: `bigquery.Table` lido por `_check_staging`.
+        incoming: colunas do upload ausentes na staging.
     """
-    header_path = dump_header(data_path=data_path, source_format=source_format)
-    incoming = tb._load_staging_schema_from_data(
-        data_sample_path=header_path, source_format=source_format
-    )
-
-    # O cliente da lib é quem criou a tabela externa e escreve no prefixo. Abrir
-    # um `bigquery.Client` aqui cairia no ADC do pod, sem permissão de update.
     client = tb.client["bigquery_staging"]
-    table = client.get_table(tb.table_full_name["staging"])
-
-    current = {_bq_safe_column_name(field.name) for field in table.schema}
     new_fields = [
-        bigquery.SchemaField(
-            name=_bq_safe_column_name(field.name),
-            field_type=field.field_type,
-        )
-        for field in incoming
-        if _bq_safe_column_name(field.name) not in current
+        bigquery.SchemaField(name=c.name, field_type=c.data_type or "STRING")
+        for c in incoming
     ]
 
     if not new_fields:
@@ -156,7 +173,7 @@ def _upload_to_gcs(
     bucket_name: str,
     dump_mode: str = "append",
     source_format: str = "csv",
-) -> None:
+) -> SchemaCheckResult | None:
     # billing_project_id casado com o bucket: a SA do pod tem
     # serviceusage.services.use apenas no próprio projeto; o default
     # basedosdados-staging da lib dispara 403 em blob.exists().
@@ -177,7 +194,8 @@ def _upload_to_gcs(
         f"https://console.cloud.google.com/storage/browser/"
         f"{bucket_name}/staging/{dataset_id}/{table_id}"
     )
-
+    title = schema_title(dataset_id, table_id, source_format, dump_mode)
+    result = None
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
             header_path = dump_header(
@@ -197,14 +215,34 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
-            _sync_staging_schema(
+            checked = _check_staging(
                 tb=tb,
                 data_path=data_path,
                 source_format=source_format,
+                overwrite=False,
+            )
+            if checked is None:
+                raise RuntimeError(
+                    "Staging deixou de existir durante a checagem de schema "
+                    "— upload abortado."
+                )
+            result, table = checked
+            # Antes de alterar a staging ou o bucket.
+            result.raise_if_errors(title)
+            _sync_staging_schema(
+                tb=tb, table=table, incoming=result.added_columns
             )
 
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
+            # O schema antigo é lido antes da deleção.
+            checked = _check_staging(
+                tb=tb,
+                data_path=data_path,
+                source_format=source_format,
+                overwrite=True,
+            )
+            result = checked[0] if checked else None
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
             )
@@ -240,9 +278,14 @@ def _upload_to_gcs(
     print(
         f"Upload concluído: gs://{bucket_name}/staging/{dataset_id}/{table_id}"
     )
+    return result
 
 
-@task(retries=3, retry_delay_seconds=30)
+@task(
+    retries=3,
+    retry_delay_seconds=30,
+    retry_condition_fn=_retry_unless_schema_mismatch,
+)
 def upload_to_gcs(
     data_path: str | Path,
     dataset_id: str,
@@ -250,9 +293,14 @@ def upload_to_gcs(
     bucket_name: str,
     dump_mode: str = "append",
     source_format: str = "csv",
-) -> None:
-    """Faz upload dos dados para o bucket GCS e cria a tabela staging no BQ se necessário."""
-    _upload_to_gcs(
+) -> State | None:
+    """Faz upload dos dados para o bucket GCS e cria a tabela staging no BQ se necessário.
+
+    Havendo avisos de schema, retorna `Completed(name="SchemaWarning")`, que a
+    Automation do Prefect usa para alertar. Divergência de erro levanta
+    `SchemaMismatchError` antes de alterar a staging ou o bucket.
+    """
+    result = _upload_to_gcs(
         data_path=data_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -260,6 +308,12 @@ def upload_to_gcs(
         dump_mode=dump_mode,
         source_format=source_format,
     )
+    title = schema_title(dataset_id, table_id, source_format, dump_mode)
+    if result and result.warnings:
+        text = result.render(title)
+        log(text, "warning")
+        return Completed(name="SchemaWarning", message=text)
+    return None
 
 
 # ──────────────────────────────────────────────────────────────────────────────
