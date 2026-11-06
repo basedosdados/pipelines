@@ -300,8 +300,8 @@ há como saber.
 
 Por isso, nessa consulta o 404 é lido como resposta sem registros, sem novas tentativas, e não
 conta para o limite de falhas. Essas comissões continuam sendo consultadas em todo run; se a API
-passar a aceitar a sigla, as votações delas entram sem mudança no código. Cada 404 aparece no
-log.
+passar a aceitar a sigla, as votações delas entram sem mudança no código. O log mostra quantas
+consultas deram 404 e as primeiras delas.
 
 ### discurso
 

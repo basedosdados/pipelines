@@ -41,13 +41,17 @@ from pipelines.datasets.br_senado_dados_abertos.constants import (
 )
 
 
+class NotFoundError(RuntimeError):
+    """Resposta 404 da API, levantada por `get_json` com `fail_fast_on_404`."""
+
+
 def get_json(
     path: str,
     params: dict | None = None,
     retries: int = 6,
     backoff: float = 1.5,
     timeout: int = 120,
-    not_found_ok: bool = False,
+    fail_fast_on_404: bool = False,
 ) -> Any:
     """Lê um endpoint da API em JSON, tentando de novo em resposta vazia ou erro.
 
@@ -57,14 +61,15 @@ def get_json(
         retries: número de tentativas.
         backoff: base, em segundos, da espera linear entre as tentativas.
         timeout: tempo limite de cada requisição, em segundos.
-        not_found_ok: devolve None no primeiro 404, sem tentar de novo.
+        fail_fast_on_404: levanta `NotFoundError` no primeiro 404, sem tentar
+            de novo.
 
     Returns:
         O JSON lido (dict ou list), ou None quando todas as tentativas
-        respondem 200 com corpo vazio ou, com `not_found_ok`, quando a
-        resposta é 404.
+        respondem 200 com corpo vazio.
 
     Raises:
+        NotFoundError: com `fail_fast_on_404`, se a resposta for 404.
         httpx.RequestError: se alguma tentativa deu erro de rede e nenhuma
             teve sucesso.
         json.JSONDecodeError: se alguma tentativa recebeu JSON inválido e
@@ -84,9 +89,8 @@ def get_json(
                 follow_redirects=True,
             )
             last_status = response.status_code
-            if response.status_code == 404 and not_found_ok:
-                print(f"    GET {path}: HTTP 404, treated as no records")
-                return None
+            if response.status_code == 404 and fail_fast_on_404:
+                raise NotFoundError(f"GET {url}: HTTP 404")
             if (
                 response.status_code == 200
                 and response.content
@@ -376,7 +380,7 @@ def _fetch_many(
     def fetch(path: str) -> tuple[Any, Exception | None]:
         try:
             response = get_json(
-                path, retries=retries, not_found_ok=not_found_ok
+                path, retries=retries, fail_fast_on_404=not_found_ok
             )
             return response, None
         except Exception as error:
@@ -385,10 +389,22 @@ def _fetch_many(
     with ThreadPoolExecutor(max_workers=workers) as executor:
         results = list(executor.map(fetch, paths))
 
+    not_found_paths = [
+        path
+        for path, (_, error) in zip(paths, results, strict=True)
+        if isinstance(error, NotFoundError)
+    ]
+    if not_found_paths:
+        sample = ", ".join(not_found_paths[:5])
+        print(
+            f"    {len(not_found_paths)}/{len(paths)} requests answered HTTP "
+            f"404, treated as no records; first: {sample}"
+        )
+
     failed_paths = [
         path
         for path, (_, error) in zip(paths, results, strict=True)
-        if error is not None
+        if error is not None and not isinstance(error, NotFoundError)
     ]
     if failed_paths:
         ratio = len(failed_paths) / len(paths)
