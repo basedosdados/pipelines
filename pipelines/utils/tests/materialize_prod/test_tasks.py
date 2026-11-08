@@ -9,6 +9,7 @@ pro desenho completo. Os testes usam dublês mínimos de
 `google.cloud.storage` (sem bater em GCS de verdade).
 """
 
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -62,11 +63,24 @@ class _FakeClient:
         return self._buckets[bucket_name]
 
 
+@contextmanager
 def _patched_client(buckets: dict[str, _FakeBucket]):
-    return patch(
-        "pipelines.utils.materialize_prod.tasks.storage.Client",
-        return_value=_FakeClient(buckets),
-    )
+    """Mocka `storage.Client` e as credenciais de prod juntos.
+
+    Args:
+        buckets: buckets falsos, por nome, a usar no lugar dos reais.
+    """
+    with (
+        patch(
+            "pipelines.utils.materialize_prod.tasks.storage.Client",
+            return_value=_FakeClient(buckets),
+        ),
+        patch(
+            "pipelines.utils.materialize_prod.tasks._prod_storage_credentials",
+            return_value=None,
+        ),
+    ):
+        yield
 
 
 def _buckets_with(dev_blobs: list[str], prod_blobs: list[str] | None = None):

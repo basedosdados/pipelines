@@ -6,6 +6,7 @@ import pathlib
 from uuid import uuid4
 
 import basedosdados as bd
+from basedosdados.core.base import Base
 from google.cloud import storage
 from google.cloud.storage import Blob, Bucket
 from prefect import task
@@ -19,6 +20,15 @@ from pipelines.utils.utils import log
 # pelo worker — ver ftwca/investigacoes/pipelines/
 # promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+def _prod_storage_credentials():
+    """Carrega as credenciais de prod do SDK `basedosdados`.
+
+    Returns:
+        Credenciais de service account prontas pra passar a `storage.Client`.
+    """
+    return Base()._load_credentials("prod")
 
 
 def _delete_blobs_with_prefix(bucket: Bucket, prefix: str) -> int:
@@ -144,7 +154,9 @@ def copy_staging_to_prod(
         (preserva a subpasta de partição, se houver) — usado só pra
         inferir schema (`dump_header`/`Table.create`), nunca pro dado real.
     """
-    client = storage.Client(project=billing_project)
+    client = storage.Client(
+        project=billing_project, credentials=_prod_storage_credentials()
+    )
     source = client.bucket(source_bucket, user_project=billing_project)
     destination = client.bucket(
         destination_bucket, user_project=billing_project
@@ -197,7 +209,9 @@ def _delete_header_blobs(
         table_id: ID da tabela no backend/BigQuery.
         billing_project: projeto cobrado pelas operações no bucket.
     """
-    client = storage.Client(project=billing_project)
+    client = storage.Client(
+        project=billing_project, credentials=_prod_storage_credentials()
+    )
     bucket = client.bucket(bucket_name, user_project=billing_project)
     prefix = f"staging/{dataset_id}/{table_id}/"
     for blob in bucket.list_blobs(prefix=prefix):
