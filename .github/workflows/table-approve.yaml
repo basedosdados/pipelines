@@ -79,7 +79,7 @@ jobs:
       - name: Hardcode test target (validação do fix de credenciais)
         if: github.ref_name == 'feat/promote-dev-to-prod'
         id: test_target
-        run: echo "files=models/test_dataset/test_dataset__test_event_pipeline.sql"
+        run: echo "files=models/br_tse_eleicoes/br_tse_eleicoes__bens_candidato.sql"
           >> "$GITHUB_OUTPUT"
       - name: Checkout
         if: (steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
