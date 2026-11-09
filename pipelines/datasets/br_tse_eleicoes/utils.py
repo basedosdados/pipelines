@@ -187,7 +187,7 @@ class BrTseEleicoes:
         rows_read = len(base)
         base.to_csv(file_path, index=False)
 
-        check_rows_written(rows_read=rows_read, output_dir=path_output)
+        check_rows_written(rows_read=rows_read, output_dir=self.path_output)
 
     def form_df_base(self) -> None:
         pass

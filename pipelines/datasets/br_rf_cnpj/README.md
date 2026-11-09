@@ -168,10 +168,9 @@ fora de `UFS` e as que o dicionário remove no `dropna` e no `drop_duplicates`.
 A conferência supõe que a pasta de saída só tem o que a execução atual gravou,
 o que vale no pod novo de cada execução. Numa execução local, uma competência
 anterior que ficou em `output/<tabela>` faz a conferência falhar. No
-`dicionario`, que não tem marcador e é escrito em modo append, o `data.csv` é
-apagado no início de cada tentativa de `main`, para um retry não repetir linhas.
-Os arquivos segmentados são processados em ordem de nome, para o marcador
-`<folder_date>_<i>` apontar sempre para o mesmo arquivo.
+`dicionario`, o `data.csv` é escrito em modo append e não é apagado entre as
+tentativas da task: um retry depois de uma escrita parcial grava linhas
+repetidas, e a conferência reprova a tentativa.
 
 ## Resumo
 * Correção de encoding: os CSVs de origem da Receita Federal eram lidos incorretamente, gerando caracteres inválidos em campos de texto (ex.: razão social, nome fantasia). 

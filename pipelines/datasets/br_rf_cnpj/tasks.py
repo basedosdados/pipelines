@@ -13,7 +13,6 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     COMPONENTS_SPECS,
     CSV_CHUNK_SIZE,
     DATASET_ID,
-    DICIONARIO_TABLE_ID,
     DOWNLOAD_CHUNK_SIZE,
     DOWNLOAD_MAX_PARALLEL,
     DOWNLOAD_MAX_RETRIES,
@@ -137,17 +136,6 @@ def main(
     """
     arquivos_baixados = []  # List to track already downloaded files
     rows_read = 0
-
-    # O dicionário não tem marcador de retomada e é gravado em append: cada
-    # tentativa refaz todos os componentes. Sem apagar o `data.csv` aqui, um
-    # retry depois de uma escrita parcial duplicaria linhas.
-    if any(COMPONENTS_SPECS[table]["dicionario"] for table in tables):
-        _, dicionario_path = build_paths(
-            table_id=DICIONARIO_TABLE_ID, build_input=False
-        )
-        # pyrefly: ignore [unsupported-operation]
-        (dicionario_path / "data.csv").unlink(missing_ok=True)
-
     for table in tables:
         table_configs = COMPONENTS_SPECS[table]
 
@@ -163,14 +151,9 @@ def main(
             input_path, output_path = build_paths(table_id=table)
 
         if table_configs["segmentada"]:
-            # Ordenado pelo nome: o marcador e o arquivo de saída usam a
-            # posição `i`, e a ordem da listagem da Receita pode mudar entre
-            # tentativas.
-            files = sorted(
-                get_table_files(
-                    table_configs["table_name"],
-                    f"{URL}{folder_date}",
-                )
+            files = get_table_files(
+                table_configs["table_name"],
+                f"{URL}{folder_date}",
             )
             for i, item in enumerate(files):
                 nome_arquivo = item[0]
