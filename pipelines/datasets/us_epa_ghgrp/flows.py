@@ -60,7 +60,6 @@ def _materialize(paths: dict, target: str, bucket: str) -> None:
             table_id=table,
             bucket_name=bucket,
             dump_mode="overwrite",
-            source_format="parquet",
         )
         run_dbt(
             dataset_id=DATASET_ID,
