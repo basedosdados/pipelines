@@ -213,9 +213,8 @@ def test_sync_prod_staging_table_recreate_chama_table_create_e_limpa_header():
     assert fake_tb.create.call_args.kwargs["source_format"] == "parquet"
     mock_delete_header.assert_called_once()
     mock_sync_schema.assert_not_called()
-    # bd.Dataset(...).update(mode="prod") está desligado temporariamente
-    # (prefect@basedosdados não tem bigquery.datasets.update) — ver #2300.
-    mock_dataset.assert_not_called()
+    mock_dataset.assert_called_once_with("ds")
+    mock_dataset.return_value.update.assert_called_once_with(mode="prod")
 
 
 def test_sync_prod_staging_table_sem_recreate_so_sincroniza_schema():

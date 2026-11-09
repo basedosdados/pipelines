@@ -269,13 +269,10 @@ def sync_prod_staging_table(
             table_id=table_id,
             billing_project=billing_project_id,
         )
-        # Desligado temporariamente: prefect@basedosdados tem WRITER
-        # (roles/editor -> projectWriters) mas não OWNER nos datasets do
-        # BigQuery, e bd.Dataset.update() exige OWNER (bigquery.datasets.update)
-        # pra alterar a descrição. Confirmado via testIamPermissions e teste
-        # real (local e no pod) em 2026-11-08 — religar quando a SA tiver
-        # essa permissão.
-        # bd.Dataset(dataset_id).update(mode="prod")
+        # Sincroniza a descrição do dataset em prod — o table-approve já faz
+        # isso hoje a cada promoção; o pipelines nunca fez (lacuna real, não
+        # redundância).
+        bd.Dataset(dataset_id).update(mode="prod")
     else:
         _sync_staging_schema(
             tb=tb, data_sample_path=header_path, source_format=source_format
