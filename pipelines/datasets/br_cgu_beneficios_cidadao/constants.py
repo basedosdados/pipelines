@@ -18,13 +18,3 @@ BPC_TABLE_ID = "bpc"
 # período a baixar — mesmo valor do flow monolítico antigo
 # (`_run_cgu_beneficios_cidadao`/`pipelines/shared/cgu/flows.py`).
 RELATIVE_MONTH = 1
-
-# Formato em que `read_and_partition_beneficios_cidadao`
-# (`pipelines/shared/cgu/tasks.py`) grava cada tabela em disco — precisa
-# casar com o que `upload_to_gcs` espera encontrar, senão `dump_header`
-# estoura `FileNotFoundError` antes de qualquer escrita (issue #1677).
-SOURCE_FORMAT = {
-    NOVO_BOLSA_FAMILIA_TABLE_ID: "parquet",
-    GARANTIA_SAFRA_TABLE_ID: "parquet",
-    BPC_TABLE_ID: "csv",
-}
