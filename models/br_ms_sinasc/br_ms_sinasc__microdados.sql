@@ -73,8 +73,7 @@ select
     safe_cast(classificacao_pre_natal as string) classificacao_pre_natal,
     safe_cast(quantidade_filhos_vivos as int64) quantidade_filhos_vivos,
     safe_cast(quantidade_filhos_mortos as int64) quantidade_filhos_mortos,
-    -- naturalidade brasileira (8 + uf ou 800) vira 800 = brasil; país estrangeiro
-    -- mantém
+    -- mãe brasileira (8 + uf ou 800) vira 800 = brasil
     safe_cast(
         case
             when id_pais_mae not like '8%'
