@@ -78,8 +78,8 @@ models:
         description: Número de perdas fetais e abortos
       - name: id_pais_mae
         description: >
-          Código do país de nascimento da mãe estrangeira. Nulo para mãe
-          brasileira, cuja naturalidade está em id_uf_mae
+          Código do país de nascimento da mãe (800 = Brasil). Segue a tabela de
+          países do DATASUS, diferente da de id_pais_residencia
       - name: id_uf_mae
         description: >
           Código IBGE da UF de naturalidade da mãe. Quando ausente ou inválido

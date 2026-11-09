@@ -73,9 +73,17 @@ select
     safe_cast(classificacao_pre_natal as string) classificacao_pre_natal,
     safe_cast(quantidade_filhos_vivos as int64) quantidade_filhos_vivos,
     safe_cast(quantidade_filhos_mortos as int64) quantidade_filhos_mortos,
-    -- naturalidade 8xx é uf brasileira e vai para id_uf_mae; aqui só país estrangeiro
+    -- naturalidade brasileira (8 + uf ou 800) vira 800 = brasil; país estrangeiro
+    -- mantém
     safe_cast(
-        case when id_pais_mae not like '8%' then id_pais_mae end as string
+        case
+            when id_pais_mae not like '8%'
+            then id_pais_mae
+            when
+                id_pais_mae = '800'
+                or substr(id_pais_mae, 2, 2) in (select codigo_uf from codigos_uf_ibge)
+            then '800'
+        end as string
     ) id_pais_mae,
 
     -- uf inválida ou ausente é completada pela naturalidade (8 + código ibge da uf)
