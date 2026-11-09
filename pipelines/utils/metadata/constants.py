@@ -43,12 +43,14 @@ DATE_FORMAT_BY_KIND: dict[DateColumnKind, DateFormat] = {
 # constants.py de um dataset específico. 2Gi é provisório — o piloto
 # sintético (CSV, tabela pequena, pipelines/datasets/test_dataset/ (event_pipeline_*))
 # mediu ~1GB de uso real em 2026-09-01, bem abaixo do default de 4Gi do
-# work pool. O upload/download em si não escala com o tamanho do arquivo
-# (streaming pro disco, não pra memória — ver
-# `download_files_from_bucket_folders`/`basedosdados.Storage.upload`), mas
-# `dump_header()` em formato Parquet carrega um row group inteiro na
-# memória pra inferir o schema (CSV usa `nrows=1`, sempre seguro) —
-# reavaliar quando um dataset real com `source_format="parquet"` passar
-# por aqui. Ver tutoriais/iac/prefect3-override-de-recursos-por-flow.md no
-# ftwca pra mais contexto sobre o mecanismo de override.
+# work pool, com o padrão antigo de download+upload completo. Desde a
+# migração pra `copy_staging_to_prod` (cópia server-side via `copy_blob`,
+# ver ftwca/investigacoes/pipelines/
+# promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md), o worker não
+# baixa mais a tabela inteira — só um blob de amostra pra `dump_header()`
+# inferir schema (Parquet carrega um row group inteiro na memória; CSV usa
+# `nrows=1`, sempre seguro). Uso real deve ter caído desde a medição de
+# 2026-09-01 — reavaliar com um dataset real em produção. Ver
+# tutoriais/iac/prefect3-override-de-recursos-por-flow.md no ftwca pra mais
+# contexto sobre o mecanismo de override.
 BUILD_AND_PROMOTE_JOB_VARIABLES = {"memory_limit": "2Gi"}

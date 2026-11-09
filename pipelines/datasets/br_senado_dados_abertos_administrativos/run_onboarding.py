@@ -97,7 +97,6 @@ def upload(table_ids: list[str]) -> None:
             table_id=table_id,
             bucket_name="basedosdados-dev",
             dump_mode="overwrite",
-            source_format="parquet",
         )
 
 
