@@ -154,7 +154,6 @@ def stage_upload(result: dict) -> None:
         bucket_name="basedosdados-dev",
         # "append" acompanha a decisão do flow: acumular um retrato por execução.
         dump_mode="append",
-        source_format="parquet",
     )
     log.info("upload concluído")
 

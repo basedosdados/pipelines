@@ -67,7 +67,6 @@ def build_and_promote(
     download_billing_project: str = "basedosdados",
     update_metadata: bool = False,
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     """Materializa, testa e promove uma tabela pra prod, registrando a
     materialização ao final.
@@ -110,13 +109,6 @@ def build_and_promote(
             `ExtractAndLoad.dump_mode`, o mesmo usado no upload pro
             staging de dev em `extract_and_load`. Default `"append"`
             cobre invocação manual sem esse valor.
-        source_format: formato do arquivo em staging (`"csv"` ou
-            `"parquet"`) usado no upload pra prod dentro de
-            `transfer_files_to_prod_flow` — vem de
-            `ExtractAndLoad.source_format`. Default `"csv"` cobre
-            invocação manual sem esse valor; um dataset em `"parquet"`
-            que não passar isso corretamente falha com
-            `FileNotFoundError` ao promover (procuraria `.csv`).
     """
     rename_flow_run_dataset_table(
         prefix="Build and Promote: ",
@@ -152,7 +144,6 @@ def build_and_promote(
             bq_project=bq_project,
             prefect_mode=prefect_mode,
             dump_mode=dump_mode,
-            source_format=source_format,
         )
     elif update_metadata:
         register_table_materialization_task(

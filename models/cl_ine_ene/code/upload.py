@@ -101,7 +101,6 @@ def main():
         table_id=TABLE_ID,
         bucket_name=BUCKET,
         dump_mode=args.dump_mode,
-        source_format="parquet",
     )
     print("done")
 
