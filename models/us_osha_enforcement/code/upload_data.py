@@ -154,7 +154,6 @@ def main(argv: list[str] | None = None) -> int:
             table_id=slug,
             bucket_name=BUCKET,
             dump_mode="append",
-            source_format="parquet",
         )
         counts[slug] = _assert_staging(client, slug)
         log.info(f"{slug}: {counts[slug]:,} rows in staging")

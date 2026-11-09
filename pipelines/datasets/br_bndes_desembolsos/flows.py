@@ -73,7 +73,6 @@ def br_bndes_desembolsos__mensal(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -92,7 +91,6 @@ def br_bndes_desembolsos__mensal(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
     run_dbt(
