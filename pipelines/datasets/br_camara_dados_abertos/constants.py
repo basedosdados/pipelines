@@ -10,6 +10,13 @@ class constants(Enum):
     ANO_ATUAL = (datetime.now()).year
     ANO_ANTERIOR = ANO_ATUAL - 1
 
+    # o arquivo de 1999 traz todos os contratos
+    LICITACAO_CONTRATO_URL = "https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-1999.csv"
+    LICITACAO_CONTRATO_INPUT_PATH = "/tmp/input/licitacoesContratos-1999.csv"
+    LICITACAO_CONTRATO_OUTPUT_PATH = (
+        "/tmp/output/licitacao_contrato/licitacoesContratos_1999.csv"
+    )
+
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     }

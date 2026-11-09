@@ -43,13 +43,17 @@ def _camara_flow(table_id: str, cron: str):
             return
 
         filepath = save_data(table_id=table_id)
+        # licitacao_contrato substitui a staging pelo arquivo de 1999
+        dump_mode = (
+            "overwrite" if table_id == "licitacao_contrato" else "append"
+        )
 
         upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             bucket_name="basedosdados-dev",
-            dump_mode="append",
+            dump_mode=dump_mode,
         )
         run_dbt(
             dataset_id=dataset_id,
@@ -66,7 +70,7 @@ def _camara_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             bucket_name="basedosdados",
-            dump_mode="append",
+            dump_mode=dump_mode,
         )
 
         run_dbt(

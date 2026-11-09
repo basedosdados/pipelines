@@ -26,11 +26,14 @@ def save_data(table_id: str) -> str:
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
     df = download_and_read_data(table_id)
-    df = [df[0], df[1]]
-    output_path = [
-        constants_camara.TABLES_OUTPUT_PATH.value[table_id],
-        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
-    ]
+    if table_id == "licitacao_contrato":
+        output_path = [constants_camara.LICITACAO_CONTRATO_OUTPUT_PATH.value]
+    else:
+        df = [df[0], df[1]]
+        output_path = [
+            constants_camara.TABLES_OUTPUT_PATH.value[table_id],
+            constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
+        ]
     rows_read_by_file = {}
     for output_path_year, df_year in zip(output_path, df, strict=False):
         if table_id == "proposicao_microdados":
@@ -157,6 +160,13 @@ def save_data(table_id: str) -> str:
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def check_if_url_is_valid(table_id: str) -> bool:
+    if table_id == "licitacao_contrato":
+        requests.get(
+            constants_camara.LICITACAO_CONTRATO_URL.value,
+            headers=constants_camara.HEADERS.value,
+            timeout=60,
+        ).raise_for_status()
+        return True
     if (
         requests.get(
             constants_camara.TABLES_URL.value[table_id],
