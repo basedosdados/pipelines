@@ -159,7 +159,6 @@ def us_nsf_ncses_flow(
                 table_id=table,
                 bucket_name=bucket,
                 dump_mode="append",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,

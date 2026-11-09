@@ -181,7 +181,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         df = extract_table(table_id=table_id)
         return ExtractAndLoad(
             data_path=save_table(table_id=table_id, df=df),
-            source_format="parquet",
         )
 
     return extract_load_data
