@@ -7,3 +7,5 @@ select
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor,
 from {{ set_datalake_project("br_ms_sinasc_staging.dicionario") }} as t
+-- códigos 8xx (uf) saíram de id_pais_mae
+where not (coluna = 'id_pais_mae' and chave like '8%')

@@ -187,6 +187,38 @@ Cada ano reprocessado pelo flow passa a incluir as linhas ausentes daquele ano; 
 
 ---
 
+## Naturalidade da mãe: `id_pais_mae` e `id_uf_mae`
+
+Issue [#2267](https://github.com/basedosdados/pipelines/issues/2267).
+
+`id_pais_mae` vem de `NATURALMAE`, a **naturalidade da mãe** (estrutura do SINASC no FTP do DATASUS; manual de preenchimento da DN, campo 20). O campo traz:
+
+- mãe brasileira: `8` + código IBGE da UF (`835` = São Paulo; `800` = Brasil sem UF), conforme `NATURAL.CNV`;
+- mãe estrangeira: código do país, conforme `PAISES.CNV`.
+
+O modelo separa as duas informações:
+
+| Coluna | Regra |
+|---|---|
+| `id_pais_mae` | Mantém só códigos de país; os `8xx` viram `null` |
+| `id_uf_mae` | Mantém `CODUFNATU` quando é UF válida; senão usa os dígitos 2–3 de `NATURALMAE`; senão `null` |
+
+`id_uf_mae` válido nunca é sobrescrito: em 80 linhas (2015–2019) ele diverge de `NATURALMAE`, mas concorda com `id_municipio_mae`. O preenchimento não é imputação: usa outro campo da própria fonte.
+
+Efeito sobre a série (simulado sobre a produção em 2026-11):
+
+| Caso | Linhas | Anos |
+|---|---|---|
+| `id_uf_mae` nulo, preenchido pela naturalidade | 4.283.929 | 2011–2012 (fonte sem `CODUFNATU`) |
+| `id_uf_mae` inválido (`nu`, `85`, `81`…), preenchido pela naturalidade | 1.470 | 2019–2026 |
+| `id_uf_mae` inválido, sem naturalidade → `null` | 334 | 2018–2025 |
+
+O país de nascimento da mãe estrangeira é raro na fonte: 25 linhas em toda a série. `models/br_ms_sinasc/code/verificacao_naturalidade_mae.ipynb` mostra que a tabela reproduz o `.dbc` nesses casos.
+
+As chaves `8xx` de `id_pais_mae` são removidas do `dicionario` pelo modelo.
+
+---
+
 ## Política geral de qualidade
 
 - **Sem imputação sintética**: nenhum valor é gerado ou estimado para substituir ausências. Dados faltantes são representados como `null`.
