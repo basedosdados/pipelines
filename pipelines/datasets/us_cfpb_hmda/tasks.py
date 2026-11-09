@@ -79,5 +79,4 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=data_path,
         dump_mode="overwrite",
-        source_format="parquet",
     )
