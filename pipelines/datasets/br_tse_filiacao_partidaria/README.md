@@ -81,8 +81,9 @@ mesmo quando vazio.
 - **Paginação.** O flow pede páginas de 10.000 até reunir o `totalElements` do grupo e falha se a
   contagem não bater. Na carga de agosto de 2026, o maior grupo tinha 7.090 filiados, e todo grupo
   cabia numa página só; as páginas seguintes só entram se algum grupo passar do limite.
-- **Volume.** A coleta usa 16 threads, em blocos de 1.000 grupos. Cada bloco vai para o disco
-  antes do seguinte, para não manter os cerca de 17 milhões de filiações na memória.
+- **Volume.** A coleta usa 16 threads e mantém no máximo 64 grupos em andamento. Cada grupo vai
+  para o disco assim que termina, para não manter os cerca de 17 milhões de filiações na memória.
+  O log mostra o progresso a cada 10% dos grupos.
 - **Falhas.** Cada chamada tem até 5 tentativas, com espera crescente. Uma resposta sem JSON
   interrompe o flow na hora, com uma mensagem que lembra o fechamento nas eleições.
 

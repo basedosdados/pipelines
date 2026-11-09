@@ -10,10 +10,17 @@ import csv
 import shutil
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
+from collections.abc import Iterator
+from concurrent.futures import (
+    FIRST_COMPLETED,
+    Future,
+    ThreadPoolExecutor,
+    wait,
+)
 from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import date
+from itertools import islice
 from pathlib import Path
 from typing import Any
 
@@ -99,7 +106,8 @@ def fetch_json(url: str) -> Any:
                         "tira o sistema do ar durante as eleições."
                     ) from error
             last_error = RuntimeError(f"HTTP {response.status_code} em {url}")
-        time.sleep(constants.RETRY_DELAY_SECONDS.value * attempt)
+        if attempt < constants.MAX_ATTEMPTS.value:
+            time.sleep(constants.RETRY_DELAY_SECONDS.value * attempt)
     raise RuntimeError(
         f"A API do TSE falhou {constants.MAX_ATTEMPTS.value} vezes em {url}"
     ) from last_error
@@ -209,6 +217,39 @@ def fetch_group(group: Group) -> list[dict]:
     return records
 
 
+def fetch_groups(groups: list[Group]) -> Iterator[tuple[Group, list[dict]]]:
+    """Baixa os grupos em paralelo e entrega cada um assim que termina.
+
+    Usa `MAX_WORKERS` threads e mantém no máximo `MAX_IN_FLIGHT` grupos em
+    andamento. Se um grupo falha, cancela os que ainda não começaram.
+
+    Args:
+        groups: Grupos a consultar.
+
+    Yields:
+        O grupo e os registros dele, na ordem em que terminam.
+    """
+    pending = iter(groups)
+    with ThreadPoolExecutor(
+        max_workers=constants.MAX_WORKERS.value
+    ) as executor:
+        in_flight: dict[Future[list[dict]], Group] = {
+            executor.submit(fetch_group, group): group
+            for group in islice(pending, constants.MAX_IN_FLIGHT.value)
+        }
+        try:
+            while in_flight:
+                finished, _ = wait(in_flight, return_when=FIRST_COMPLETED)
+                for future in finished:
+                    group = in_flight.pop(future)
+                    yield group, future.result()
+                for group in islice(pending, len(finished)):
+                    in_flight[executor.submit(fetch_group, group)] = group
+        except BaseException:
+            executor.shutdown(cancel_futures=True)
+            raise
+
+
 def parse_date(value: list[int] | None) -> str | None:
     """Converte a data da API, uma lista `[ano, mes, dia, ...]`, para ISO.
 
@@ -289,11 +330,33 @@ def build_output_dir() -> Path:
     return output_dir
 
 
+def build_partition_file(
+    output_dir: Path, data_extracao: date, uf: str
+) -> Path:
+    """Cria a pasta da partição de uma UF e devolve o caminho do CSV.
+
+    Args:
+        output_dir: Diretório raiz das partições.
+        data_extracao: Data da coleta, que nomeia a partição.
+        uf: Sigla da UF, que nomeia a subpartição.
+
+    Returns:
+        O caminho do `data.csv` da partição.
+    """
+    partition = (
+        output_dir
+        / f"data_extracao={data_extracao.isoformat()}"
+        / f"sigla_uf={uf}"
+    )
+    partition.mkdir(parents=True)
+    return partition / "data.csv"
+
+
 def download_table(data_extracao: date) -> Path:
     """Baixa a lista inteira de filiados e grava a staging em CSV.
 
-    Grava à medida que baixa, um bloco de grupos por vez, sem manter a lista
-    inteira na memória. Cada UF vira um arquivo em
+    Grava cada grupo assim que ele termina, sem manter a lista inteira na
+    memória. Cada UF vira um arquivo em
     `data_extracao=<data_extracao>/sigla_uf=<UF>/data.csv`.
 
     Args:
@@ -304,48 +367,35 @@ def download_table(data_extracao: date) -> Path:
     """
     output_dir = build_output_dir()
     groups = list_groups()
-    print(f"{len(groups)} grupos a consultar")
+    total_groups = len(groups)
+    print(f"{total_groups} grupos a consultar")
 
     header = constants.API_COLUMNS.value + constants.EMPTY_COLUMNS.value
+    progress_step = max(total_groups // constants.PROGRESS_STEPS.value, 1)
     writers: dict[str, Any] = {}
+    done = 0
     written = 0
-    chunk_size = constants.CHUNK_SIZE.value
 
-    with (
-        ExitStack() as files,
-        ThreadPoolExecutor(
-            max_workers=constants.MAX_WORKERS.value
-        ) as executor,
-    ):
-        for start in range(0, len(groups), chunk_size):
-            chunk = groups[start : start + chunk_size]
-            for group, records in zip(
-                chunk, executor.map(fetch_group, chunk), strict=True
-            ):
-                writer = writers.get(group.uf)
-                if writer is None:
-                    partition = (
-                        output_dir
-                        / f"data_extracao={data_extracao.isoformat()}"
-                        / f"sigla_uf={group.uf}"
-                    )
-                    partition.mkdir(parents=True)
-                    file = files.enter_context(
-                        open(
-                            partition / "data.csv",
-                            "w",
-                            newline="",
-                            encoding="utf-8",
-                        )
-                    )
-                    writer = csv.writer(file)
-                    writer.writerow(header)
-                    writers[group.uf] = writer
-                writer.writerows(build_row(record) for record in records)
-                written += len(records)
-            print(
-                f"{start + len(chunk)}/{len(groups)} grupos, "
-                f"{written} filiações gravadas"
-            )
+    with ExitStack() as files:
+        for group, records in fetch_groups(groups):
+            writer = writers.get(group.uf)
+            if writer is None:
+                path = build_partition_file(
+                    output_dir, data_extracao, group.uf
+                )
+                file = files.enter_context(
+                    open(path, "w", newline="", encoding="utf-8")
+                )
+                writer = csv.writer(file)
+                writer.writerow(header)
+                writers[group.uf] = writer
+            writer.writerows(build_row(record) for record in records)
+            written += len(records)
+            done += 1
+            if done % progress_step == 0 or done == total_groups:
+                print(
+                    f"{done}/{total_groups} grupos, "
+                    f"{written} filiações gravadas"
+                )
 
     return output_dir

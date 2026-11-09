@@ -39,7 +39,8 @@ class constants(Enum):
     MAX_ATTEMPTS = 5
     RETRY_DELAY_SECONDS = 15
     MAX_WORKERS = 16
-    CHUNK_SIZE = 1_000
+    MAX_IN_FLIGHT = 64
+    PROGRESS_STEPS = 10
 
     PATH = "/tmp/br_tse_filiacao_partidaria/"
 
