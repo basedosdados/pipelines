@@ -152,7 +152,6 @@ def _run(
                 table_id=table_id,
                 bucket_name=bucket,
                 dump_mode="append",
-                source_format="parquet",
             )
 
         # Every table these states feed, deduplicated: `licitacao` is MG and BA, and
@@ -326,8 +325,8 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
     project where the worker's SA holds `serviceusage.services.use`. That is
     `basedosdados` on the prod pool. The dev pool's SA lacks it, so a dev dry run 403s
     on the very first read -- there is no dev exercise of this flow, and the read half
-    is instead proven by the repo's `download_files_from_bucket_folders` utility, which
-    reads the same bucket the same way.
+    is instead proven by the repo's `copy_staging_to_prod` utility, which reads the
+    same bucket the same way.
 
     Args:
         materialize_to_prod: Write the prod bucket (`basedosdados`). False writes the
@@ -366,7 +365,6 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
                 table_id=mirror,
                 bucket_name=bucket,
                 dump_mode="overwrite",
-                source_format="parquet",
             )
         # Run every model before testing any: relationships tests read sibling models.
         for table_id in rebuild_tables or []:

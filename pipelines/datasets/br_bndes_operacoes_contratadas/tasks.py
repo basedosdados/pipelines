@@ -366,7 +366,6 @@ def indiretas_automaticas_extract_load_data(
     return ExtractAndLoad(
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -401,7 +400,6 @@ def nao_automaticas_extract_load_data(
     return ExtractAndLoad(
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -433,7 +431,6 @@ def administracao_publica_extract_load_data(
     return ExtractAndLoad(
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -465,7 +462,6 @@ def exportacao_bens_extract_load_data(
     return ExtractAndLoad(
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -497,7 +493,6 @@ def exportacao_servicos_extract_load_data(
     return ExtractAndLoad(
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -529,5 +524,4 @@ def pre_embarque_extract_load_data(
     return ExtractAndLoad(
         data_path=str(output_dir),
         dump_mode="overwrite",
-        source_format="parquet",
     )
