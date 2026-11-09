@@ -152,7 +152,6 @@ def _run(
                 table_id=table_id,
                 bucket_name=bucket,
                 dump_mode="append",
-                source_format="parquet",
             )
 
         # Every table these states feed, deduplicated: `licitacao` is MG and BA, and
@@ -366,7 +365,6 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
                 table_id=mirror,
                 bucket_name=bucket,
                 dump_mode="overwrite",
-                source_format="parquet",
             )
         # Run every model before testing any: relationships tests read sibling models.
         for table_id in rebuild_tables or []:

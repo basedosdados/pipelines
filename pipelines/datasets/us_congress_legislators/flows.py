@@ -118,7 +118,6 @@ def us_congress_legislators_flow(
                 table_id=table_id,
                 bucket_name=bucket_name,
                 dump_mode="overwrite",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=dataset_id,

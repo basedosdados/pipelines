@@ -150,7 +150,6 @@ def make_extract_load_data_group_a(
         table_dir = write_table(out_root, table_id, df)
         return ExtractAndLoad(
             data_path=table_dir,
-            source_format="parquet",
         )
 
     return extract_load_data
@@ -226,7 +225,6 @@ def make_extract_load_data_group_b(
 
         return ExtractAndLoad(
             data_path=table_dir,
-            source_format="parquet",
         )
 
     return extract_load_data

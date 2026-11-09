@@ -224,7 +224,6 @@ def sync_prod_staging_table(
     dataset_id: str,
     table_id: str,
     sample_path: str,
-    source_format: str = "csv",
     bucket_name: str = "basedosdados",
     recreate: bool = True,
 ) -> None:
@@ -237,8 +236,6 @@ def sync_prod_staging_table(
         table_id: ID da tabela no backend/BigQuery.
         sample_path: diretório local com um blob de amostra, devolvido por
             `copy_staging_to_prod`.
-        source_format: formato esperado (`"csv"` ou `"parquet"`) — só uma
-            expectativa a conferir; `dump_header` detecta o real.
         bucket_name: bucket de prod onde a tabela staging vive.
         recreate: `True` (promoção sem `folders`, staging reconstruído do
             zero) recria a definição da tabela via `Table.create`. `False`
@@ -253,9 +250,7 @@ def sync_prod_staging_table(
         billing_project_id=billing_project_id,
     )
 
-    header_path, source_format = dump_header(
-        data_path=sample_path, source_format=source_format
-    )
+    header_path, source_format = dump_header(data_path=sample_path)
 
     if recreate or not tb.table_exists(mode="staging"):
         tb.create(

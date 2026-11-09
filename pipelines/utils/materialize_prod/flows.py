@@ -32,7 +32,6 @@ def transfer_files_to_prod_flow(
     bq_project: str = "basedosdados",
     prefect_mode: str = "prod",
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     """Copia o staging de dev pro staging de prod (cópia server-side, sem
     baixar/subir pelo worker), materializa, testa e registra a
@@ -71,13 +70,7 @@ def transfer_files_to_prod_flow(
             modo de escrita declarado (`copy_staging_to_prod`/
             `sync_prod_staging_table` decidem o comportamento a partir de
             `folders`). Mantido só pra não quebrar o caller atual
-            (`build_and_promote`); remoção completa de `dump_mode` e
-            `source_format` como parâmetros fica pra uma passada dedicada
-            depois, feita de uma vez — ver nota em
-            `promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md`.
-        source_format: formato esperado do arquivo em staging (`"csv"` ou
-            `"parquet"`) — só uma expectativa a conferir; `dump_header`
-            detecta o formato real e não quebra mais se divergir.
+            (`build_and_promote`).
     """
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
@@ -109,7 +102,6 @@ def transfer_files_to_prod_flow(
         dataset_id=dataset_id,
         table_id=table_id,
         sample_path=sample_path,
-        source_format=source_format,
         bucket_name="basedosdados",
         recreate=is_full_promotion,
     )

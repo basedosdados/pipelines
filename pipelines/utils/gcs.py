@@ -57,68 +57,46 @@ def list_blobs_with_prefix(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def dump_header(data_path: str | Path, source_format: str) -> tuple[str, str]:
+def dump_header(data_path: str | Path) -> tuple[str, str]:
     """Escreve só o cabeçalho de um CSV ou Parquet pra um arquivo temporário.
 
     Necessário pra criar a tabela staging no BQ antes do primeiro upload.
-
-    O formato real é detectado pela extensão do primeiro arquivo encontrado
-    em `data_path`, não assumido a partir de `source_format` — um
-    `source_format` errado (ex. tabela em parquet chamada com `"csv"`) não
-    procura mais só `.csv` e falha com `FileNotFoundError`; em vez disso,
-    usa o formato real encontrado e avisa a divergência.
+    O formato é sempre detectado pela extensão do primeiro arquivo
+    encontrado em `data_path` — nunca declarado pelo chamador.
 
     Args:
         data_path: arquivo ou diretório com os dados baixados/gerados.
-        source_format: formato declarado pelo chamador (`"csv"` ou
-            `"parquet"`) — usado só como expectativa a conferir, não como
-            filtro rígido de busca.
 
     Returns:
-        `(save_header_path, resolved_source_format)` — o diretório com o
-        arquivo de cabeçalho, e o formato real detectado (pode divergir do
-        `source_format` recebido; use este pros passos seguintes, como
-        `Table.create`/`_load_staging_schema_from_data`).
+        `(save_header_path, source_format)` — o diretório com o arquivo de
+        cabeçalho, e o formato detectado (`"csv"` ou `"parquet"`).
     """
     path = Path(data_path)
     if not path.is_dir():
         path = path.parent
 
     file: str | None = None
-    resolved_source_format: str | None = None
+    source_format: str | None = None
     for subdir, _, filenames in walk(str(path)):
         for fname in filenames:
             if fname.endswith(".csv"):
-                file, resolved_source_format = join(subdir, fname), "csv"
+                file, source_format = join(subdir, fname), "csv"
             elif fname.endswith(".parquet"):
-                file, resolved_source_format = join(subdir, fname), "parquet"
+                file, source_format = join(subdir, fname), "parquet"
             else:
                 continue
-            # Para de procurar assim que achar um arquivo do formato
-            # declarado — evita trocar de formato à toa quando os dois
-            # tipos de arquivo convivem no mesmo diretório por acidente
-            # (ex. resíduo de uma run anterior).
-            if resolved_source_format == source_format:
-                break
-        if file and resolved_source_format == source_format:
+            break
+        if file:
             break
 
-    if file is None or resolved_source_format is None:
+    if file is None or source_format is None:
         raise FileNotFoundError(
             f"Nenhum arquivo csv ou parquet encontrado em {path}"
         )
 
-    if resolved_source_format != source_format:
-        log(
-            f"dump_header: source_format={source_format!r} não bate com o "
-            f"arquivo real encontrado ({resolved_source_format!r}, {file}) "
-            f"— usando {resolved_source_format!r}.",
-            level="warning",
-        )
-
     save_header_path = f"data/{uuid4()}"
     partition_folders = [folder for folder in file.split("/") if "=" in folder]
-    ext = resolved_source_format
+    ext = source_format
 
     if partition_folders:
         partition_path = "/".join(partition_folders)
@@ -130,17 +108,17 @@ def dump_header(data_path: str | Path, source_format: str) -> tuple[str, str]:
 
     save_header_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if resolved_source_format == "csv":
+    if source_format == "csv":
         pd.read_csv(file, nrows=1, dtype=str).to_csv(
             save_header_file_path, index=False, encoding="utf-8"
         )
-    elif resolved_source_format == "parquet":
+    elif source_format == "parquet":
         pf = pq.ParquetFile(file)
         pf.read_row_group(0).slice(0, 1).to_pandas().astype(str).to_parquet(
             save_header_file_path, index=False
         )
 
-    return save_header_path, resolved_source_format
+    return save_header_path, source_format
 
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -205,19 +205,17 @@ def test_sync_prod_staging_table_recreate_chama_table_create_e_limpa_header():
             dataset_id="ds",
             table_id="tb",
             sample_path="/tmp/sample",
-            source_format="csv",
             recreate=True,
         )
 
-    mock_dump_header.assert_called_once_with(
-        data_path="/tmp/sample", source_format="csv"
-    )
+    mock_dump_header.assert_called_once_with(data_path="/tmp/sample")
     fake_tb.create.assert_called_once()
     assert fake_tb.create.call_args.kwargs["source_format"] == "parquet"
     mock_delete_header.assert_called_once()
     mock_sync_schema.assert_not_called()
-    mock_dataset.assert_called_once_with("ds")
-    mock_dataset.return_value.update.assert_called_once_with(mode="prod")
+    # bd.Dataset(...).update(mode="prod") está desligado temporariamente
+    # (prefect@basedosdados não tem bigquery.datasets.update) — ver #2300.
+    mock_dataset.assert_not_called()
 
 
 def test_sync_prod_staging_table_sem_recreate_so_sincroniza_schema():
@@ -244,13 +242,10 @@ def test_sync_prod_staging_table_sem_recreate_so_sincroniza_schema():
             dataset_id="ds",
             table_id="tb",
             sample_path="/tmp/sample",
-            source_format="csv",
             recreate=False,
         )
 
-    mock_dump_header.assert_called_once_with(
-        data_path="/tmp/sample", source_format="csv"
-    )
+    mock_dump_header.assert_called_once_with(data_path="/tmp/sample")
     mock_sync_schema.assert_called_once_with(
         tb=fake_tb, data_sample_path="/tmp/fake-header", source_format="csv"
     )
@@ -284,7 +279,6 @@ def test_sync_prod_staging_table_sem_recreate_mas_tabela_nao_existe_cria():
             dataset_id="ds",
             table_id="tb",
             sample_path="/tmp/sample",
-            source_format="csv",
             recreate=False,
         )
 

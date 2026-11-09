@@ -127,7 +127,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=result[TABLE_ID],
         dump_mode="append",
-        source_format="parquet",
     )
 
 
@@ -205,5 +204,4 @@ def realizados_extract_load_data(download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=result["data_path"],
         dump_mode="append",
-        source_format="parquet",
     )

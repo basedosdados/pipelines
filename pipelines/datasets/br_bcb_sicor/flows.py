@@ -31,7 +31,6 @@ def _run_bcb_sicor(
     target: str,
     force_run: bool,
     dump_mode: str,
-    source_format: str,
     download_all_files: bool = False,
     local_redis_execution: bool = False,
 ) -> None:
@@ -72,7 +71,6 @@ def _run_bcb_sicor(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     run_dbt(
@@ -91,7 +89,6 @@ def _run_bcb_sicor(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     run_dbt(
@@ -122,7 +119,6 @@ def _sicor_flow(
     table_id: str,
     cron: str,
     dump_mode: str = "overwrite",
-    source_format: str = "parquet",
 ):
     @flow(
         name=f"br_bcb_sicor__{table_id}",
@@ -146,7 +142,6 @@ def _sicor_flow(
             target=target,
             force_run=force_run,
             dump_mode=dump_mode,
-            source_format=source_format,
             download_all_files=download_all_files,
             local_redis_execution=local_redis_execution,
         )
@@ -216,7 +211,6 @@ br_bcb_sicor__operacoes_desclassificadas = _sicor_flow(
 br_bcb_sicor__empreendimento = _sicor_flow(
     table_id="empreendimento",
     cron="35 5 * * 1-5",
-    source_format="csv",
 )
 
 # Tabelas de domínio: não têm `ano_emissao`/`mes_emissao`, então a cobertura é
@@ -229,7 +223,6 @@ br_bcb_sicor__instituicao_financeira = _sicor_flow(
 br_bcb_sicor__fonte_recurso = _sicor_flow(
     table_id="fonte_recurso",
     cron="55 5 * * 1-5",
-    source_format="csv",
 )
 
 # ── Proagro ──────────────────────────────────────────────────────────────────
@@ -301,7 +294,6 @@ def br_bcb_sicor__dicionario(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        source_format="csv",
     )
 
     run_dbt(
@@ -320,7 +312,6 @@ def br_bcb_sicor__dicionario(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="overwrite",
-        source_format="csv",
     )
 
     run_dbt(

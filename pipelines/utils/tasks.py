@@ -156,7 +156,6 @@ def _upload_to_gcs(
     table_id: str,
     bucket_name: str,
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     # billing_project_id casado com o bucket: a SA do pod tem
     # serviceusage.services.use apenas no próprio projeto; o default
@@ -181,9 +180,7 @@ def _upload_to_gcs(
 
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
-            header_path, source_format = dump_header(
-                data_path=data_path, source_format=source_format
-            )
+            header_path, source_format = dump_header(data_path=data_path)
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
@@ -198,9 +195,7 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
-            header_path, source_format = dump_header(
-                data_path=data_path, source_format=source_format
-            )
+            header_path, source_format = dump_header(data_path=data_path)
             _sync_staging_schema(
                 tb=tb,
                 data_sample_path=header_path,
@@ -214,9 +209,7 @@ def _upload_to_gcs(
             )
             tb.delete(mode="all")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
-        header_path, source_format = dump_header(
-            data_path=data_path, source_format=source_format
-        )
+        header_path, source_format = dump_header(data_path=data_path)
         tb.create(
             path=header_path,
             if_storage_data_exists="replace",
@@ -253,7 +246,6 @@ def upload_to_gcs(
     table_id: str,
     bucket_name: str,
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     """Faz upload dos dados para o bucket GCS e cria a tabela staging no BQ se necessário."""
     _upload_to_gcs(
@@ -262,7 +254,6 @@ def upload_to_gcs(
         table_id=table_id,
         bucket_name=bucket_name,
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
 

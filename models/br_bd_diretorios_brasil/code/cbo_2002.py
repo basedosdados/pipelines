@@ -146,5 +146,4 @@ if __name__ == "__main__":
         dataset_id=DATASET_ID,
         table_id=TABLE_ID,
         bucket_name="basedosdados-dev",
-        source_format="parquet",
     )
