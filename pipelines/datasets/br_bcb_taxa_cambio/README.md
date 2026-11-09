@@ -12,16 +12,12 @@ intermediários e fechamento.
 
 ## Estrutura
 
-A coleta fica separada do flow, em `crawler/`:
-
 ```text
-pipelines/crawler/bcb_taxa_cambio/
-├── constants.py   URLs da API e da planilha de arquitetura
-├── utils.py       download, limpeza e escrita particionada
-└── tasks.py       @task envolvendo utils
-
 pipelines/datasets/br_bcb_taxa_cambio/
-├── flows.py       o @flow: ordem das etapas e horário
+├── constants.py   DATASET_ID/table_id, Coverage (PartBdpro) e URLs da API/planilha de arquitetura
+├── utils.py       download, limpeza e escrita particionada
+├── tasks.py       get_latest_update/extract_load_data (lógica específica) e as @task envolvendo utils
+├── flows.py       a fiação: CheckThenExtractLoadPipeline + os dois @flow
 └── README.md      este arquivo
 
 models/br_bcb_taxa_cambio/
@@ -31,27 +27,32 @@ models/br_bcb_taxa_cambio/
 
 ## Como o flow funciona
 
-Roda todo dia às 8h40 de São Paulo.
+Pipeline em estágios (staged pipeline): `check_update` dispara
+`extract_and_load`, que dispara o `build_and_promote` genérico — ver
+`pipelines/utils/stage_dispatch.py`. Tabela única, sem dependência entre
+etapas além da cadeia normal.
 
-Primeiro pergunta ao PTAX qual foi a última data publicada, consultando só o dólar
-numa janela de quinze dias — as dez moedas saem no mesmo boletim, então a data do
-dólar vale para a tabela. Se essa data não for mais nova que o fim da cobertura
-registrada, o flow encerra sem baixar nada. **A execução termina em verde nesse
-caso**, então saber se houve ingestão exige ler o log.
+`check_update` roda todo dia às 8h40 de São Paulo. Pergunta ao PTAX qual foi a
+última data publicada, consultando só o dólar numa janela de quinze dias — as
+dez moedas saem no mesmo boletim, então a data do dólar vale para a tabela. Se
+essa data não for mais nova que o fim da cobertura registrada, o estágio
+encerra sem disparar o download.
 
-Havendo novidade, consulta `/Moedas` e baixa, para cada moeda, o ano corrente
-inteiro — de 1º de janeiro até hoje. Não há download incremental.
+Havendo novidade, `extract_and_load` consulta `/Moedas` e baixa, para cada
+moeda, o ano corrente inteiro — de 1º de janeiro até hoje. Não há download
+incremental.
 
-A saída é particionada por `ano` e sobe com `dump_mode="append"`, primeiro para
-`basedosdados-dev` e depois para `basedosdados`. O arquivo gravado tem sempre o
-mesmo nome, então a partição do ano corrente é substituída a cada execução. Carregar
-a mesma partição com um nome de arquivo diferente soma as linhas em vez de
-substituí-las.
+A saída é particionada por `ano` e sobe com `dump_mode="append"` — o build-and-
+promote genérico cuida de levar pra staging e promover pra prod. O arquivo
+gravado tem sempre o mesmo nome, então a partição do ano corrente é substituída
+a cada execução. Carregar a mesma partição com um nome de arquivo diferente
+soma as linhas em vez de substituí-las.
 
-O parâmetro `anos` recarrega anos específicos, um de cada vez, e sobe tudo num
-upload só no fim — cada ano tem sua própria partição no mesmo diretório. Nesse modo
-o flow não consulta a fonte nem grava Poll ou Update, porque os anos pedidos estão
-no passado e o poll encerraria a execução antes do download.
+Um disparo manual do deployment de `extract_and_load` aceita `anos` (lista de
+anos) em `download_params`, pra recarregar anos específicos do passado num
+upload só — cada ano fica em sua própria partição no mesmo diretório. Esse
+caminho nunca passa pelo `check_update`, então não consulta a fonte nem grava
+Poll ou Update.
 
 ### A arquitetura é lida em tempo de execução
 

@@ -1,204 +1,293 @@
 """Flows for us_bea — Prefect 3.
 
 US Bureau of Economic Analysis (BEA) economic accounts, pulled from the BEA REST
-API. BEA benchmark revisions rewrite historical values, so each run re-fetches
-the full history and overwrites staging (``dump_mode="overwrite"``), rather than
-appending. A single flow downloads once and rebuilds all six tables.
+API. BEA benchmark revisions rewrite historical values, so each table's
+extract_and_load re-fetches its full history and overwrites staging
+(``dump_mode="overwrite"``), rather than appending.
+
+Migrated to the staged pipeline: check_update -> extract_and_load ->
+build_and_promote, one pair of flows per table (``CheckThenExtractLoadPipeline``
+via ``pipeline_factory`` — the repo-wide default shape, same layout as
+``br_ibge_ipca``/``au_geoscape_gnaf``). The original one-shot
+``check_and_download`` variant considered for this dataset was cancelled before
+being built; every dataset in this repo uses check_update -> extract_and_load,
+even when (as here, for nipa/gdp_by_industry/regional_state) the check itself
+has to download the series to find a reference date — ``extract_load_data``
+downloads it again, independently, moments later if new data is found. The
+duplicated download cost is accepted in exchange for a single pipeline shape
+across the whole repo.
+
+Each BEA "dataset" family (NIPA / GDPbyIndustry / Regional) already has its own
+independent GetData calls — there is no single shared download being split
+across tables here (contrast au_geoscape_gnaf, where one release zip builds 4
+tables at once). ``models/us_bea/schema.yml`` also has no ``ref()`` between the
+six us_bea models, so there is no dbt test-ordering reason for a batched
+extract_and_load either (contrast br_bcb_ifdata/au_rba_statistical_tables).
 
 Coverage tier: all six tables are ``AllFree``. ``nipa`` is a mixed-frequency
 table (annual/quarterly rows have a NULL ``month``), so a monthly Row Access
 Policy would paywall those rows forever (``DATE(year, month, 1)`` is NULL) — it
 is therefore NOT paywalled. ``nipa``'s ``(year, month)`` coverage still drives
-the monthly source poll; it just does not gate access. ``dicionario`` has no
-date column, so it takes no coverage spec. If a rolling BD Pro paywall is wanted
-later, add an end-of-period ``date`` column to ``nipa`` and key the policy on it.
+its own monthly source poll. ``dicionario`` has no date column, so it takes
+``NonHistorical`` coverage and polls via ``compare_against="table_update"``,
+reusing nipa's monthly reference as a freshness proxy (see the banner in
+tasks.py). If a rolling BD Pro paywall is wanted later, add an end-of-period
+``date`` column to ``nipa`` and key the policy on it.
 
-Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_bea_flow``; the
-dev pool ignores the schedule, the prod pool activates it (paused).
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers all 12
+flows below; the dev pool ignores the check_update schedules, the prod pool
+activates them (deployed paused).
 """
 
-import shutil
-import tempfile
-
-from prefect.schedules import Cron
+from prefect.schedules import Cron, Schedule
 
 from pipelines.datasets.us_bea.constants import constants
-from pipelines.datasets.us_bea.tasks import clean_bea
+from pipelines.datasets.us_bea.tasks import (
+    make_extract_load_data,
+    make_get_latest_update,
+)
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearMonth,
-    YearOnly,
-    YearQuarter,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags, pipeline_factory
 
 DATASET_ID = constants.DATASET_ID.value
 
-# The table whose coverage drives the source poll: nipa is the high-frequency
-# (monthly) table.
-POLL_TABLE = "nipa"
-
-# Coverage spec per table (see module docstring). `dicionario` is intentionally
-# absent — no date column, no coverage.
-_COVERAGE = {
-    # nipa mixes A/Q/M frequencies (annual/quarterly rows have NULL month), so a
-    # monthly Row Access Policy would paywall those rows forever. Kept AllFree;
-    # the YearMonth date column still drives the monthly source poll.
-    "nipa": AllFree(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    # gdp_by_industry and regional_state mix annual + quarterly rows (no monthly);
-    # the finest grain present is quarterly, so their coverage is quarter-level
-    # (YearQuarter → YEAR_MONTH, quarter mapped to month = quarter*3). County and
-    # metro are genuinely annual and stay year-level.
-    "gdp_by_industry": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "regional_state": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "regional_county": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "regional_metro": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
-
-
-@flow(name="us_bea", log_prints=True)
-def us_bea_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Download the BEA economic accounts, rebuild all six tables, materialize.
-
-    BEA benchmark revisions rewrite history, so each run is a full replace
-    (``dump_mode="overwrite"``) rather than an incremental append. The source
-    poll short-circuits the run when BEA has not published a newer month, which
-    makes a scheduled run a cheap no-op between releases.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new month.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="us_bea"
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="us_bea_")
-    try:
-        result = clean_bea(work_dir=work_dir)
-        max_ym = result["max_year_month"]
-
-        # Skip the run when BEA has not published a newer month (unless forced).
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        # Commit the source Update up front: if the flow fails mid-way, the
-        # source metadata still records that new data had been published.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging + materialize/test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run/test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-    finally:
-        # Covers both early returns (no new data, dev-only) and any exception.
-        shutil.rmtree(work_dir, ignore_errors=True)
-
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+)
 
 # BEA refreshes NIPA monthly (personal income near month-end; benchmark and GDP
-# revisions land irregularly). Poll across a few late-month days at 16:00 BRT;
-# the source-poll guard no-ops until a new month actually appears.
-us_bea_flow.deploy_schedules = [
-    Cron("40 16 25,26,27,28 * *", timezone="America/Sao_Paulo")
-]
-# The clean step streams the ~50M-row county family through pandas/arrow in
-# 500k-row flushes; give the worker headroom.
-us_bea_flow.job_variables = {"memory": "8Gi"}
+# revisions land irregularly), and the other tables tend to update around the
+# same late-month window. Poll across the same few late-month days as the old
+# monolithic schedule (``40 16 25,26,27,28 * *``) at 16:00 BRT, staggered a few
+# minutes apart per table so their extract_and_loads, if all triggered by the
+# same release window, don't all claim a worker at once. ``nipa`` keeps the
+# exact original minute.
+_POLL_DAYS = "25,26,27,28"
+
+# regional_county streams through pandas/arrow in 500k-row flushes (~50M rows,
+# same as the old monolithic flow) — give both its check_update (which fetches
+# the same full family to find the latest year) and its extract_and_load the
+# same memory headroom the single flow used to get.
+_COUNTY_JOB_VARIABLES = {"memory": "8Gi"}
+
+
+def _cron(hour: int, minute: int) -> list[Schedule]:
+    return [
+        Cron(f"{minute} {hour} {_POLL_DAYS} * *", timezone="America/Sao_Paulo")
+    ]
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# nipa
+# check_update: check_update: us_bea__nipa
+# extract_and_load: extract_and_load: us_bea__nipa
+# ──────────────────────────────────────────────────────────────────────────────
+
+_nipa_pipeline = make_pipeline("nipa", date_format="%Y-%m")
+
+
+@flow(name=_nipa_pipeline.check_update_flow_name, log_prints=True)
+def us_bea_nipa_check_update() -> None:
+    _nipa_pipeline.run_check_update()
+
+
+us_bea_nipa_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "nipa"
+)
+us_bea_nipa_check_update.deploy_schedules = _cron(16, 40)
+
+
+@flow(name=_nipa_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_bea_nipa_download(download_params: dict) -> None:
+    _nipa_pipeline.run_extract_and_load(download_params)
+
+
+us_bea_nipa_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "nipa"
+)
+_nipa_pipeline.extract_load_deployment = us_bea_nipa_download.fn.__name__
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# gdp_by_industry
+# check_update: check_update: us_bea__gdp_by_industry
+# extract_and_load: extract_and_load: us_bea__gdp_by_industry
+# ──────────────────────────────────────────────────────────────────────────────
+
+_gdp_by_industry_pipeline = make_pipeline(
+    "gdp_by_industry", date_format="%Y-%m"
+)
+
+
+@flow(name=_gdp_by_industry_pipeline.check_update_flow_name, log_prints=True)
+def us_bea_gdp_by_industry_check_update() -> None:
+    _gdp_by_industry_pipeline.run_check_update()
+
+
+us_bea_gdp_by_industry_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "gdp_by_industry"
+)
+us_bea_gdp_by_industry_check_update.deploy_schedules = _cron(16, 45)
+
+
+@flow(
+    name=_gdp_by_industry_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def us_bea_gdp_by_industry_download(download_params: dict) -> None:
+    _gdp_by_industry_pipeline.run_extract_and_load(download_params)
+
+
+us_bea_gdp_by_industry_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "gdp_by_industry"
+)
+_gdp_by_industry_pipeline.extract_load_deployment = (
+    us_bea_gdp_by_industry_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# regional_state
+# check_update: check_update: us_bea__regional_state
+# extract_and_load: extract_and_load: us_bea__regional_state
+# ──────────────────────────────────────────────────────────────────────────────
+
+_regional_state_pipeline = make_pipeline("regional_state", date_format="%Y-%m")
+
+
+@flow(name=_regional_state_pipeline.check_update_flow_name, log_prints=True)
+def us_bea_regional_state_check_update() -> None:
+    _regional_state_pipeline.run_check_update()
+
+
+us_bea_regional_state_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "regional_state"
+)
+us_bea_regional_state_check_update.deploy_schedules = _cron(16, 50)
+
+
+@flow(
+    name=_regional_state_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def us_bea_regional_state_download(download_params: dict) -> None:
+    _regional_state_pipeline.run_extract_and_load(download_params)
+
+
+us_bea_regional_state_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "regional_state"
+)
+_regional_state_pipeline.extract_load_deployment = (
+    us_bea_regional_state_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# regional_metro
+# check_update: check_update: us_bea__regional_metro
+# extract_and_load: extract_and_load: us_bea__regional_metro
+# ──────────────────────────────────────────────────────────────────────────────
+
+_regional_metro_pipeline = make_pipeline("regional_metro", date_format="%Y")
+
+
+@flow(name=_regional_metro_pipeline.check_update_flow_name, log_prints=True)
+def us_bea_regional_metro_check_update() -> None:
+    _regional_metro_pipeline.run_check_update()
+
+
+us_bea_regional_metro_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "regional_metro"
+)
+us_bea_regional_metro_check_update.deploy_schedules = _cron(16, 55)
+
+
+@flow(
+    name=_regional_metro_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def us_bea_regional_metro_download(download_params: dict) -> None:
+    _regional_metro_pipeline.run_extract_and_load(download_params)
+
+
+us_bea_regional_metro_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "regional_metro"
+)
+_regional_metro_pipeline.extract_load_deployment = (
+    us_bea_regional_metro_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# regional_county
+# check_update: check_update: us_bea__regional_county
+# extract_and_load: extract_and_load: us_bea__regional_county
+#
+# ~50M rows — see `_COUNTY_JOB_VARIABLES` above.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_regional_county_pipeline = make_pipeline("regional_county", date_format="%Y")
+
+
+@flow(name=_regional_county_pipeline.check_update_flow_name, log_prints=True)
+def us_bea_regional_county_check_update() -> None:
+    _regional_county_pipeline.run_check_update()
+
+
+us_bea_regional_county_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "regional_county"
+)
+us_bea_regional_county_check_update.deploy_schedules = _cron(17, 0)
+us_bea_regional_county_check_update.job_variables = _COUNTY_JOB_VARIABLES
+
+
+@flow(
+    name=_regional_county_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def us_bea_regional_county_download(download_params: dict) -> None:
+    _regional_county_pipeline.run_extract_and_load(download_params)
+
+
+us_bea_regional_county_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "regional_county"
+)
+us_bea_regional_county_download.job_variables = _COUNTY_JOB_VARIABLES
+_regional_county_pipeline.extract_load_deployment = (
+    us_bea_regional_county_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# dicionario
+# check_update: check_update: us_bea__dicionario
+# extract_and_load: extract_and_load: us_bea__dicionario
+#
+# NonHistorical (no date column) — `make_get_latest_update` reuses nipa's
+# monthly reference and compares against `Table.Update.latest` instead of
+# `Coverage` for this table_id, see the banner in tasks.py.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_dicionario_pipeline = make_pipeline("dicionario", date_format="%Y-%m")
+
+
+@flow(name=_dicionario_pipeline.check_update_flow_name, log_prints=True)
+def us_bea_dicionario_check_update() -> None:
+    _dicionario_pipeline.run_check_update()
+
+
+us_bea_dicionario_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "dicionario"
+)
+us_bea_dicionario_check_update.deploy_schedules = _cron(17, 5)
+
+
+@flow(name=_dicionario_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_bea_dicionario_download(download_params: dict) -> None:
+    _dicionario_pipeline.run_extract_and_load(download_params)
+
+
+us_bea_dicionario_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "dicionario"
+)
+_dicionario_pipeline.extract_load_deployment = (
+    us_bea_dicionario_download.fn.__name__
+)

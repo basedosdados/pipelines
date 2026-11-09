@@ -1,148 +1,194 @@
 """
-Flow compartilhado para br_tse_eleicoes — Prefect 3.
+Flows para br_tse_eleicoes — Prefect 3.
+
+Migrado por completo pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote, um par de flows por
+tabela (candidatos, bens_candidato, despesas_candidato, receitas_candidato) —
+sem dependência real entre elas (ver banner em tasks.py), então a regra padrão
+de 1 flow por tabela se aplica sem exceção.
+
+check_update baixa o ZIP da fonte pra `YEAR` (constants.py) e compara a
+contagem de linhas contra o que já está em prod pra aquele ano
+(`utils.BrTseEleicoes.get_data_source_max_date`) — reusa `Table.Update.latest`
+como alvo de comparação (`compare_against="table_update"`), não `Coverage`,
+porque o valor comparado é um timestamp de execução
+(`datetime.today()`/`last_modified`), não uma competência. extract_and_load
+refaz o download de forma independente (custo duplicado aceito) e formata os
+dados; a materialização (dbt run/test dev+prod, registro de cobertura) fica a
+cargo do `build_and_promote` genérico, disparado por
+`CheckThenExtractLoadPipeline`.
+
+`YEAR` precisa ser atualizado manualmente a cada novo ciclo eleitoral — mesma
+manutenção manual que o flow monolítico antigo já exigia (lá, o default do
+parâmetro `year` do flow).
 """
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_tse_eleicoes.tasks import (
-    flows_control,
-    get_data_source_max_date,
-    preparing_data,
-)
+from pipelines.datasets.br_tse_eleicoes.constants import DATASET_ID
+from pipelines.datasets.br_tse_eleicoes.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    YearOnly,
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
+
+# ──────────────────────────────────────────────────────────────────────────────
+# candidatos
+# check_update: br_tse_eleicoes__candidatos
+# extract_and_load: br_tse_eleicoes__candidatos
+# ──────────────────────────────────────────────────────────────────────────────
+
+CANDIDATOS_TABLE_ID = "candidatos"
+_candidatos_pipeline = make_pipeline(CANDIDATOS_TABLE_ID)
+
+
+@flow(name=_candidatos_pipeline.check_update_flow_name, log_prints=True)
+def br_tse_eleicoes_candidatos_check_update() -> None:
+    _candidatos_pipeline.run_check_update()
+
+
+br_tse_eleicoes_candidatos_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, CANDIDATOS_TABLE_ID
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
+# Mesmo cron do flow monolítico antigo.
+br_tse_eleicoes_candidatos_check_update.deploy_schedules = [
+    Cron("0 5 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_candidatos_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_tse_eleicoes_candidatos_download(download_params: dict) -> None:
+    _candidatos_pipeline.run_extract_and_load(download_params)
+
+
+br_tse_eleicoes_candidatos_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, CANDIDATOS_TABLE_ID
 )
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+_candidatos_pipeline.extract_load_deployment = (
+    br_tse_eleicoes_candidatos_download.fn.__name__
 )
 
 
-## Comment to deploy
-def _tse_flow(table_id: str, cron: str | None):
-    @flow(
-        name=f"br_tse_eleicoes__{table_id}",
-        log_prints=True,
-    )
-    def _flow(
-        dataset_id: str = "br_tse_eleicoes",
-        table_id: str = table_id,
-        year: int | str = 2026,
-        materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
-        update_metadata: bool = True,
-        force_run: bool = False,
-    ) -> None:
-        rename_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-        )
+# ──────────────────────────────────────────────────────────────────────────────
+# bens_candidato
+# check_update: br_tse_eleicoes__bens_candidato
+# extract_and_load: br_tse_eleicoes__bens_candidato
+# ──────────────────────────────────────────────────────────────────────────────
 
-        flow = flows_control(table_id=table_id, mode="prod", year=year)
-        data_source_max_date = get_data_source_max_date(flow_class=flow)
-
-        if not force_run:
-            has_new_data = poll_source_for_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_source_max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-                compare_against="table_update",
-            )
-            if not has_new_data:
-                return
-
-        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-        # novo publicado, mesmo que a tabela não tenha sido atualizada.
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=data_source_max_date,
-            env="prod",
-            date_format="%Y-%m-%d",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_after_dump,
-        )
-
-        ready_data_path = preparing_data(flow_class=flow)
-
-        upload_to_gcs(
-            data_path=ready_data_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados-dev",
-            dump_mode="append",
-        )
-
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            target="dev",
-        )
-
-        if not materialize_after_dump:
-            return
-
-        upload_to_gcs(
-            data_path=ready_data_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados",
-            dump_mode="append",
-        )
-
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            target="prod",
-        )
-
-        if update_metadata:
-            # Legado lia data_eleicao (DATE) mas formatava p/ "%Y" → cobertura
-            # year-only. O domínio refatorado proíbe DateOnly+YEAR (R4); a coluna
-            # `ano` (partição canônica das tabelas TSE) dá a mesma granularidade
-            # ano-only de forma R4-limpa. ⚠ oráculo in-pod: comparar só o ano.
-            register_table_materialization_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                coverage=AllFree(
-                    date_column=YearOnly(col="ano"),
-                    date_format=DateFormat.YEAR,
-                ),
-                env="prod",
-                bq_project="basedosdados",
-            )
-
-    _flow.deploy_schedules = (
-        [Cron(cron, timezone="America/Sao_Paulo")] if cron else []
-    )
-    return _flow
+BENS_CANDIDATO_TABLE_ID = "bens_candidato"
+_bens_candidato_pipeline = make_pipeline(BENS_CANDIDATO_TABLE_ID)
 
 
-# Schedules eram comentados no Prefect 0 — mantém sem cron por enquanto.
-br_tse_eleicoes__candidatos = _tse_flow(
-    table_id="candidatos", cron="0 5 * * *"
+@flow(name=_bens_candidato_pipeline.check_update_flow_name, log_prints=True)
+def br_tse_eleicoes_bens_candidato_check_update() -> None:
+    _bens_candidato_pipeline.run_check_update()
+
+
+br_tse_eleicoes_bens_candidato_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, BENS_CANDIDATO_TABLE_ID
 )
-br_tse_eleicoes__bens_candidato = _tse_flow(
-    table_id="bens_candidato", cron="30 5 * * *"
+# Mesmo cron do flow monolítico antigo.
+br_tse_eleicoes_bens_candidato_check_update.deploy_schedules = [
+    Cron("30 5 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_bens_candidato_pipeline.extract_and_load_flow_name, log_prints=True
 )
-br_tse_eleicoes__despesas_candidato = _tse_flow(
-    table_id="despesas_candidato", cron="0 6 * * *"
+def br_tse_eleicoes_bens_candidato_download(download_params: dict) -> None:
+    _bens_candidato_pipeline.run_extract_and_load(download_params)
+
+
+br_tse_eleicoes_bens_candidato_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, BENS_CANDIDATO_TABLE_ID
 )
-br_tse_eleicoes__receitas_candidato = _tse_flow(
-    table_id="receitas_candidato", cron="30 6 * * *"
+_bens_candidato_pipeline.extract_load_deployment = (
+    br_tse_eleicoes_bens_candidato_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# despesas_candidato
+# check_update: br_tse_eleicoes__despesas_candidato
+# extract_and_load: br_tse_eleicoes__despesas_candidato
+# ──────────────────────────────────────────────────────────────────────────────
+
+DESPESAS_CANDIDATO_TABLE_ID = "despesas_candidato"
+_despesas_candidato_pipeline = make_pipeline(DESPESAS_CANDIDATO_TABLE_ID)
+
+
+@flow(
+    name=_despesas_candidato_pipeline.check_update_flow_name, log_prints=True
+)
+def br_tse_eleicoes_despesas_candidato_check_update() -> None:
+    _despesas_candidato_pipeline.run_check_update()
+
+
+br_tse_eleicoes_despesas_candidato_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, DESPESAS_CANDIDATO_TABLE_ID
+)
+# Mesmo cron do flow monolítico antigo.
+br_tse_eleicoes_despesas_candidato_check_update.deploy_schedules = [
+    Cron("0 6 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_despesas_candidato_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_tse_eleicoes_despesas_candidato_download(
+    download_params: dict,
+) -> None:
+    _despesas_candidato_pipeline.run_extract_and_load(download_params)
+
+
+br_tse_eleicoes_despesas_candidato_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DESPESAS_CANDIDATO_TABLE_ID
+)
+_despesas_candidato_pipeline.extract_load_deployment = (
+    br_tse_eleicoes_despesas_candidato_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# receitas_candidato
+# check_update: br_tse_eleicoes__receitas_candidato
+# extract_and_load: br_tse_eleicoes__receitas_candidato
+# ──────────────────────────────────────────────────────────────────────────────
+
+RECEITAS_CANDIDATO_TABLE_ID = "receitas_candidato"
+_receitas_candidato_pipeline = make_pipeline(RECEITAS_CANDIDATO_TABLE_ID)
+
+
+@flow(
+    name=_receitas_candidato_pipeline.check_update_flow_name, log_prints=True
+)
+def br_tse_eleicoes_receitas_candidato_check_update() -> None:
+    _receitas_candidato_pipeline.run_check_update()
+
+
+br_tse_eleicoes_receitas_candidato_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, RECEITAS_CANDIDATO_TABLE_ID
+)
+# Mesmo cron do flow monolítico antigo.
+br_tse_eleicoes_receitas_candidato_check_update.deploy_schedules = [
+    Cron("30 6 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_receitas_candidato_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_tse_eleicoes_receitas_candidato_download(
+    download_params: dict,
+) -> None:
+    _receitas_candidato_pipeline.run_extract_and_load(download_params)
+
+
+br_tse_eleicoes_receitas_candidato_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, RECEITAS_CANDIDATO_TABLE_ID
+)
+_receitas_candidato_pipeline.extract_load_deployment = (
+    br_tse_eleicoes_receitas_candidato_download.fn.__name__
 )

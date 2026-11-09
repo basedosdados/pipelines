@@ -22,16 +22,19 @@ from urllib3.util.retry import Retry
 
 from pipelines.datasets.br_ibge_ppm.constants import constants
 from pipelines.utils.metadata.client import MetadataClient
+from pipelines.utils.utils import brasil_proxy_dict
 
 
 def build_session() -> requests.Session:
-    """Sessão que repete quando a API do IBGE falha.
+    """Sessão que repete quando a API do IBGE falha e sai pelo proxy brasileiro.
 
     Um pedido cobre os 5.570 municípios de uma vez, e o servidor responde 5xx
-    com alguma frequência nesse volume.
+    com alguma frequência nesse volume. Sem `BRASIL_PROXY_URL` definida, a
+    sessão sai direto.
 
     Returns:
-        A sessão, com repetição e espera crescente entre tentativas.
+        A sessão, com repetição, espera crescente entre tentativas e o proxy
+        brasileiro quando ele existe.
     """
     retry = Retry(
         total=5,
@@ -43,6 +46,9 @@ def build_session() -> requests.Session:
     )
     session = requests.Session()
     session.mount("https://", HTTPAdapter(max_retries=retry))
+    proxies = brasil_proxy_dict()
+    if proxies is not None:
+        session.proxies.update(proxies)
     return session
 
 
@@ -492,6 +498,36 @@ def clean_table(table_id: str, ano: str) -> Path:
         output_dir,
     )
     return output_dir
+
+
+def assemble_data_path(table_id: str, output_dirs: list[Path]) -> Path:
+    """Reúne num só diretório as partições de todos os anos de uma execução.
+
+    O pipeline em estágios sobe um único `data_path` por execução de
+    extract_and_load, mas `clean_table` devolve um `output/<ano>/` por ano —
+    e uma execução sem backfill costuma processar mais de um ano (o IBGE
+    revisa o ano anterior a cada divulgação, ver `resolve_years`). Esta
+    função move a pasta `ano=<ano>` de cada `output_dir` pra uma raiz
+    compartilhada, que o upload então enxerga como as partições Hive
+    atualizadas nesta execução.
+
+    Args:
+        table_id: Slug da tabela.
+        output_dirs: Diretórios devolvidos por `clean_table`, um por ano
+            processado nesta execução.
+
+    Returns:
+        O diretório compartilhado, no formato esperado por `upload_to_gcs`.
+    """
+    combined_dir = Path(constants.PATH.value) / table_id / "combined"
+    shutil.rmtree(combined_dir, ignore_errors=True)
+    combined_dir.mkdir(parents=True, exist_ok=True)
+
+    for output_dir in output_dirs:
+        for leaf in output_dir.iterdir():
+            shutil.move(str(leaf), str(combined_dir / leaf.name))
+
+    return combined_dir
 
 
 def build_schema(table_id: str) -> pa.Schema:

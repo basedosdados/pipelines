@@ -4,7 +4,7 @@ Flows for br_fgv_igp — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.fgv_igp.flows import _run_fgv_igp
+from pipelines.datasets.br_fgv_igp.tasks import _run_fgv_igp
 from pipelines.utils.flow import flow
 
 

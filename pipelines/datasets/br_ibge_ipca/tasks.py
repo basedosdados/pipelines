@@ -5,12 +5,12 @@ Tasks for br_ibge_ipca.
 from collections.abc import Callable
 from datetime import date
 
-from pipelines.crawler.ibge_inflacao.tasks import (
+from pipelines.datasets.br_ibge_ipca.constants import DATASET_ID
+from pipelines.shared.ibge_inflacao.tasks import (
     check_for_updates,
     collect_data_utils,
     json_to_csv,
 )
-from pipelines.datasets.br_ibge_ipca.constants import COVERAGE, DATASET_ID
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -52,7 +52,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         filepath = json_to_csv(table_id=table_id, dataset_id=DATASET_ID)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=filepath,
         )
 

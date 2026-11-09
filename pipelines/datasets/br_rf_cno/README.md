@@ -10,7 +10,7 @@ tributárias e obter a certidão de regularidade fiscal da obra.
 - **Fonte do download:** um único ZIP (~306 MB) em
   `https://arquivos.receitafederal.gov.br/public.php/dav/files/gn672Ad4CF8N6TK/Dados/Cadastros/CNO/cno.zip`.
 - **Data de referência (`data_extracao`):** lida do header `Last-Modified` do `cno.zip` via
-  `HEAD` (httpx), em `check_need_for_update` (`pipelines/crawler/rf/tasks.py`). **Não** é
+  `HEAD` (httpx), em `check_need_for_update` (`pipelines/shared/rf/tasks.py`). **Não** é
   derivada do conteúdo dos dados. Antes usava `PROPFIND` (WebDAV), abandonado por causa do WAF
   (ver *Acesso à fonte e o WAF*).
 - **RawDataSource registrada** aponta para a página do portal de dados abertos
@@ -26,7 +26,7 @@ que interfere no acesso automatizado. Dois efeitos, com os respectivos contornos
   Por isso `check_need_for_update` não lista mais o diretório via `PROPFIND`; lê a data pelo
   header `Last-Modified` do `cno.zip` via `HEAD`.
 - **Bloqueia User-Agents "crus"** (ex.: o default `python-httpx`). Por isso o download
-  (`download_file_async`/`download_chunk` em `pipelines/crawler/rf/utils.py`) envia headers de
+  (`download_file_async`/`download_chunk` em `pipelines/shared/rf/utils.py`) envia headers de
   browser (constante `_BROWSER_HEADERS`) tanto no `HEAD` (que lê o `content-length`) quanto nos
   `GET` de range, com `follow_redirects=True`.
 - **É errático:** o mesmo endpoint alterna `200`/`404` e pode fazer rate-limit por IP. O `HEAD`
@@ -37,7 +37,7 @@ que interfere no acesso automatizado. Dois efeitos, com os respectivos contornos
 
 O diretório do dataset (`pipelines/datasets/br_rf_cno/flows.py`) é só um wrapper fino:
 cada tabela tem um flow que chama `_run_rf` do módulo compartilhado
-`pipelines/crawler/rf/flows.py`. Sequência de `_run_rf`:
+`pipelines/shared/rf/flows.py`. Sequência de `_run_rf`:
 
 1. `check_need_for_update` → data da fonte (header `Last-Modified` via `HEAD`).
 2. `poll_source_for_update_task` (poll **deferido**) — grava só o `Poll`, retorna se há
@@ -60,7 +60,7 @@ uma consequência importante — ver *Causa raiz* abaixo.
 
 ## Tabelas e Particularidades
 
-Mapeamento arquivo→tabela (`TABLES_RENAME`/`COLUMNS_RENAME` em `pipelines/crawler/rf/constants.py`):
+Mapeamento arquivo→tabela (`TABLES_RENAME`/`COLUMNS_RENAME` em `pipelines/shared/rf/constants.py`):
 
 | Arquivo (ZIP) | Tabela | Publicada? |
 |---|---|---|

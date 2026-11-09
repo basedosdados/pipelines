@@ -23,15 +23,16 @@ o grupo RD de SP em 2025-07.
 
 | Arquivo | Papel |
 |---|---|
-| `pipelines/datasets/br_ms_sih/flows.py` | Um flow por tabela, montado por `_sih_flow(table_id, cron)` |
-| `pipelines/crawler/datasus/flows.py` | `_run_dbf_to_parquet`, compartilhado com o SIA: poll → download → `.dbc` → parquet → upload → dbt → metadados |
-| `pipelines/crawler/datasus/tasks.py` | Tasks de FTP, descompressão e conversão para parquet |
+| `pipelines/datasets/br_ms_sih/flows.py` | Flows e agendamentos das duas tabelas |
+| `pipelines/datasets/br_ms_sih/tasks.py` | Listagem do FTP, download e conversão para parquet |
+| `pipelines/datasets/br_ms_sih/constants.py` | Ids das tabelas e regra de acesso BD Pro (`PartBdpro`) |
+| `pipelines/shared/datasus/tasks.py` | Tasks de FTP, descompressão e conversão, compartilhadas com o SIA e o SINAN |
 | `models/br_ms_sih/` | Modelos dbt das duas tabelas e do `dicionario` |
 
 ## Nome dos arquivos parquet
 
 A conversão para parquet é feita por `read_dbf_save_parquet_chunks`, função
-compartilhada pelo SIH, pelo SIA e pelo SINAN. O `_run_dbf_to_parquet` passa
+compartilhada pelo SIH, pelo SIA e pelo SINAN. O `tasks.py` do conjunto passa
 `name_by_source_file=True`, então cada parquet leva o nome do arquivo do FTP de onde
 saiu:
 
@@ -59,5 +60,7 @@ Nos dois casos, a pasta do mês precisa ser apagada na staging antes da recarga.
 
 ## Recarregar um mês
 
-O flow aceita `year_month_to_extract` nos formatos `"2507"`, `"202507"` ou `"2025-07"`,
-e seleciona só os arquivos daquela competência.
+Os modelos `br_ms_sih__aihs_reduzidas` e `br_ms_sih__servicos_profissionais` são
+incrementais: cada `dbt run` insere só os meses posteriores ao maior mês que já está na
+tabela. Recarregar a staging de um mês passado não muda a tabela. Para refazer esse mês na
+tabela, é preciso apagá-lo e inseri-lo de novo a partir da staging.

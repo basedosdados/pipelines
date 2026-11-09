@@ -9,7 +9,7 @@ RAIS is fully open data: both tables register an `AllFree` coverage, with no BD
 Pro window and no row access policies.
 """
 
-from pipelines.crawler.me_rais.flows import _run_rais
+from pipelines.datasets.br_me_rais.tasks import _run_rais
 from pipelines.utils.flow import flow
 
 

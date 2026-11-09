@@ -1,141 +1,67 @@
 """
 Flows para br_cgu_emendas_parlamentares — Prefect 3.
+
+Migrado por completo pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote. Uma única tabela
+(`microdados`). Lógica específica do dataset mora em `tasks.py`, constantes
+em `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` +
+`@flow`).
+
+A fonte não expõe nenhuma data de última atualização — `get_latest_update`
+precisa baixar o .zip inteiro e comparar nº de linhas com a tabela em prod
+pra decidir se há dado novo (ver banner de `tasks.py`); `extract_and_load`
+baixa de novo, de forma independente.
 """
 
 from prefect.schedules import Cron
 
+from pipelines.datasets.br_cgu_emendas_parlamentares.constants import (
+    DATASET_ID,
+    MICRODADOS_TABLE_ID,
+)
 from pipelines.datasets.br_cgu_emendas_parlamentares.tasks import (
-    convert_str_to_float,
-    get_last_modified_time,
+    extract_load_data,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+
+_microdados_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=MICRODADOS_TABLE_ID,
+    get_latest_update=get_latest_update,
+    extract_load_data=extract_load_data,
 )
 
 
-@flow(
-    name="br_cgu_emendas_parlamentares__microdados",
-    log_prints=True,
+@flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
+def br_cgu_emendas_parlamentares_microdados_check_update() -> None:
+    _microdados_pipeline.run_check_update()
+
+
+br_cgu_emendas_parlamentares_microdados_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
 )
-def br_cgu_emendas_parlamentares__microdados(
-    dataset_id: str = "br_cgu_emendas_parlamentares",
-    table_id: str = "microdados",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    """Atualiza a tabela `microdados` de Emendas Parlamentares (CGU).
-
-    Baixa a base do Portal da Transparência e compara seu número de linhas com
-    o da tabela em prod para decidir se há dado novo.
-
-    Args:
-        dataset_id: ID do dataset no BigQuery.
-        table_id: ID da tabela no BigQuery.
-        materialize_after_dump: Se `True`, sobe os dados e roda o dbt em prod
-            após a etapa em dev. Se `False`, para depois de dev.
-        update_metadata: Se `True`, grava o Update da fonte e atualiza a
-            cobertura da tabela no backend de prod.
-        target: Target do dbt na materialização em prod.
-        force_run: Se `True`, pula a checagem de novidade na fonte.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    max_modified_time = get_last_modified_time()
-
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=max_modified_time,
-            env="prod",
-            date_format="%Y-%m-%d",
-            compare_against="table_update",
-        )
-        if not has_new_data:
-            return
-
-    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-    # novo publicado, mesmo que a tabela não tenha sido atualizada.
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=max_modified_time,
-        env="prod",
-        date_format="%Y-%m-%d",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
-
-    output_path = convert_str_to_float()
-
-    upload_to_gcs(
-        data_path=output_path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-        source_format="csv",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=output_path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-        source_format="csv",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearOnly(col="ano_emenda"),
-                date_format=DateFormat.YEAR,
-                free_lag=FreeLag(unit="years", value=1),
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
-
-
-br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
+# Mesmo cron do flow monolítico antigo (main).
+br_cgu_emendas_parlamentares_microdados_check_update.deploy_schedules = [
     Cron("30 19 * * *", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_microdados_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_cgu_emendas_parlamentares_microdados_download(
+    download_params: dict,
+) -> None:
+    _microdados_pipeline.run_extract_and_load(download_params)
+
+
+br_cgu_emendas_parlamentares_microdados_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
+)
+_microdados_pipeline.extract_load_deployment = (
+    br_cgu_emendas_parlamentares_microdados_download.fn.__name__
+)

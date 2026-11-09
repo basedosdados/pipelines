@@ -74,3 +74,13 @@ class constants(Enum):
         / "code"
         / "architecture"
     )
+
+
+# Table ids. Kept here as plain literals (not Enum members) so `tasks.py`/
+# `flows.py` can import them directly — one independent check_update/
+# extract_and_load pair per table (see `pipelines.utils.stage_dispatch.
+# pipeline_factory`), same convention as `br_cgu_sancoes`.
+MUNICIPIO_DELITOS_TABLE_ID = "municipio_delitos"
+ESTATAL_DELITOS_TABLE_ID = "estatal_delitos"
+ESTATAL_VICTIMAS_TABLE_ID = "estatal_victimas"
+MUNICIPIO_VICTIMAS_TABLE_ID = "municipio_victimas"

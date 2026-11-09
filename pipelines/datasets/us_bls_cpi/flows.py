@@ -1,195 +1,224 @@
-"""
-Flows for us_bls_cpi — Prefect 3.
+"""Flows for us_bls_cpi — Prefect 3.
 
 US Consumer Price Index (BLS), CPI-U + CPI-W. The BLS flat files carry the full
-history every month, so each run is a **full replace** (dump_mode="overwrite"),
-not an incremental append. A single flow downloads once and rebuilds all four
-tables. Schedule targets the BLS monthly release window (~2nd week).
+history on every release, so each table's extract_and_load rebuilds and
+overwrites it in full (``dump_mode="overwrite"``), rather than appending.
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the
-dev pool ignores the schedule, the prod pool activates it.
+Migrated to the staged pipeline: check_update -> extract_and_load ->
+build_and_promote, one pair of flows per table (``CheckThenExtractLoadPipeline``
+via ``pipeline_factory`` — the repo-wide default shape, same layout as
+``br_ibge_ipca``/``us_bea``/``au_geoscape_gnaf``). The ``check_and_download``
+one-shot variant once considered for this dataset was cancelled before being
+built; every dataset in this repo uses check_update -> extract_and_load, even
+when (as here) the check itself has to download the flat files to find a
+reference date — ``extract_load_data`` downloads them again, independently,
+moments later if new data is found. The duplicated download cost (several
+hundred MB) is accepted in exchange for a single pipeline shape across the
+whole repo.
+
+A single download builds all 4 tables (``monthly``, ``annual``, ``semiannual``,
+``dicionario`` — ``clean_all`` in utils.py), but each still gets its own
+check_update/extract_and_load pair: ``models/us_bls_cpi/schema.yml`` has no
+``ref()`` between the dataset's own models (only to the external
+``br_bd_diretorios_data_tempo`` directory tables), so there is no cross-table
+dbt test-ordering reason to batch them (contrast ``br_bcb_ifdata``/
+``au_rba_statistical_tables`, which keep a single pair for exactly that
+reason). See the banner in tasks.py for the redundant-re-download rationale.
+
+Coverage tier: ``monthly`` is ``PartBdpro`` (BD Pro rolling window, most recent
+6 months pro-only); ``annual``/``semiannual`` are ``AllFree``; ``dicionario``
+has no date column, so it takes ``NonHistorical`` and polls via
+``compare_against="table_update"``, reusing the monthly table's reference as a
+freshness proxy (see constants.py / the banner in tasks.py).
+
+Memory: ``clean_cpi`` always rebuilds all 4 tables regardless of which
+table_id asked (``clean_all`` holds ~4M rows in pandas), so every check_update
+and extract_and_load flow below needs the same headroom as the old monolithic
+flow.
+
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers all 8
+flows below; the dev pool ignores the check_update schedules, the prod pool
+activates them (deployed paused).
 """
 
-import shutil
-import tempfile
-
-from prefect.schedules import Cron
+from prefect.schedules import Cron, Schedule
 
 from pipelines.datasets.us_bls_cpi.constants import constants
-from pipelines.datasets.us_bls_cpi.tasks import clean_cpi, download_cpi
+from pipelines.datasets.us_bls_cpi.tasks import (
+    make_extract_load_data,
+    make_get_latest_update,
+)
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags, pipeline_factory
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table.
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+)
+
+# BLS releases CPI monthly, ~2nd week, on a US business day. Poll across the
+# same mid-month days as the old monolithic schedule
+# (``"5 16 10,11,12,13,14,15 * *"``) at 16:00 BRT, staggered a few minutes
+# apart per table so their extract_and_loads, if all triggered by the same
+# release window, don't all claim a worker at once. ``monthly`` keeps the
+# exact original minute.
+_POLL_DAYS = "10,11,12,13,14,15"
+
+
+def _cron(hour: int, minute: int) -> list[Schedule]:
+    return [
+        Cron(f"{minute} {hour} {_POLL_DAYS} * *", timezone="America/Sao_Paulo")
+    ]
+
+
+# `clean_cpi` holds ~4M rows in pandas for every call, regardless of table_id
+# — same headroom the old single monolithic flow used.
+_JOB_VARIABLES = {"memory": "8Gi"}
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# monthly
+# check_update: check_update: us_bls_cpi__monthly
+# extract_and_load: extract_and_load: us_bls_cpi__monthly
+# ──────────────────────────────────────────────────────────────────────────────
+
+_monthly_pipeline = make_pipeline("monthly", date_format="%Y-%m")
+
+
+@flow(name=_monthly_pipeline.check_update_flow_name, log_prints=True)
+def us_bls_cpi_monthly_check_update() -> None:
+    _monthly_pipeline.run_check_update()
+
+
+us_bls_cpi_monthly_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "monthly"
+)
+us_bls_cpi_monthly_check_update.deploy_schedules = _cron(16, 5)
+us_bls_cpi_monthly_check_update.job_variables = _JOB_VARIABLES
+
+
+@flow(name=_monthly_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_bls_cpi_monthly_download(download_params: dict) -> None:
+    _monthly_pipeline.run_extract_and_load(download_params)
+
+
+us_bls_cpi_monthly_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "monthly"
+)
+us_bls_cpi_monthly_download.job_variables = _JOB_VARIABLES
+_monthly_pipeline.extract_load_deployment = (
+    us_bls_cpi_monthly_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# annual
+# check_update: check_update: us_bls_cpi__annual
+# extract_and_load: extract_and_load: us_bls_cpi__annual
+# ──────────────────────────────────────────────────────────────────────────────
+
+_annual_pipeline = make_pipeline("annual", date_format="%Y")
+
+
+@flow(name=_annual_pipeline.check_update_flow_name, log_prints=True)
+def us_bls_cpi_annual_check_update() -> None:
+    _annual_pipeline.run_check_update()
+
+
+us_bls_cpi_annual_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "annual"
+)
+us_bls_cpi_annual_check_update.deploy_schedules = _cron(16, 10)
+us_bls_cpi_annual_check_update.job_variables = _JOB_VARIABLES
+
+
+@flow(name=_annual_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_bls_cpi_annual_download(download_params: dict) -> None:
+    _annual_pipeline.run_extract_and_load(download_params)
+
+
+us_bls_cpi_annual_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "annual"
+)
+us_bls_cpi_annual_download.job_variables = _JOB_VARIABLES
+_annual_pipeline.extract_load_deployment = (
+    us_bls_cpi_annual_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# semiannual
+# check_update: check_update: us_bls_cpi__semiannual
+# extract_and_load: extract_and_load: us_bls_cpi__semiannual
+# ──────────────────────────────────────────────────────────────────────────────
+
+_semiannual_pipeline = make_pipeline("semiannual", date_format="%Y")
+
+
+@flow(name=_semiannual_pipeline.check_update_flow_name, log_prints=True)
+def us_bls_cpi_semiannual_check_update() -> None:
+    _semiannual_pipeline.run_check_update()
+
+
+us_bls_cpi_semiannual_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "semiannual"
+)
+us_bls_cpi_semiannual_check_update.deploy_schedules = _cron(16, 15)
+us_bls_cpi_semiannual_check_update.job_variables = _JOB_VARIABLES
+
+
+@flow(name=_semiannual_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_bls_cpi_semiannual_download(download_params: dict) -> None:
+    _semiannual_pipeline.run_extract_and_load(download_params)
+
+
+us_bls_cpi_semiannual_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "semiannual"
+)
+us_bls_cpi_semiannual_download.job_variables = _JOB_VARIABLES
+_semiannual_pipeline.extract_load_deployment = (
+    us_bls_cpi_semiannual_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# dicionario
+# check_update: check_update: us_bls_cpi__dicionario
+# extract_and_load: extract_and_load: us_bls_cpi__dicionario
 #
-# `monthly` is the high-frequency table, so it carries the BD Pro rolling
-# window: the most recent 6 months are pro-only, everything older is free.
-# Each run recomputes free_end = source_end - free_lag, rewrites both
-# DateTimeRanges, and re-issues the BigQuery Row Access Policies, so the
-# window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro
-# (is_closed=True) Coverage to already exist on the table, or
-# assert_coverage_topology raises before anything is written.
-#
-# annual and semiannual are lower-frequency and stay fully free.
-# `dicionario` has no date column, so it takes no coverage spec at all.
-_COVERAGE = {
-    "monthly": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "annual": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "semiannual": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# NonHistorical (no date column) — `make_get_latest_update` reuses the
+# monthly table's `(year, month)` reference and compares against
+# `Table.Update.latest` instead of `Coverage` for this table_id, see the
+# banner in tasks.py.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_dicionario_pipeline = make_pipeline("dicionario", date_format="%Y-%m")
 
 
-@flow(name="us_bls_cpi", log_prints=True)
-def us_bls_cpi_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Download the BLS CPI flat files, rebuild all four tables, materialize them.
-
-    BLS ships the full history on every release, so each run is a full replace
-    (``dump_mode="overwrite"``) rather than an incremental append. The source poll
-    short-circuits the run when BLS has not published a new month, which makes a
-    scheduled run a cheap no-op between releases.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new month.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="us_bls_cpi_")
-    try:
-        input_dir = download_cpi(work_dir=work_dir)
-        result = clean_cpi(work_dir=work_dir, input_dir=input_dir)
-        max_ym = result["max_year_month"]
-
-        # Skip the run when BLS has not published a newer month (unless forced).
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id="monthly",
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-        # novo publicado, mesmo que a tabela não tenha sido atualizada.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id="monthly",
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging + materialize/test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run/test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-    finally:
-        # Covers both early returns (no new data, dev-only) and any exception.
-        # The k8s work pool gives each run a fresh pod, but a process/local
-        # worker reuses its filesystem — the download is several hundred MB.
-        shutil.rmtree(work_dir, ignore_errors=True)
+@flow(name=_dicionario_pipeline.check_update_flow_name, log_prints=True)
+def us_bls_cpi_dicionario_check_update() -> None:
+    _dicionario_pipeline.run_check_update()
 
 
-# BLS releases CPI monthly, ~2nd week, on a US business day. Poll across a few
-# mid-month days at 16:00 BRT; the source-poll guard no-ops until a new month
-# actually appears.
-us_bls_cpi_flow.deploy_schedules = [
-    Cron("5 16 10,11,12,13,14,15 * *", timezone="America/Sao_Paulo")
-]
-# The clean step holds ~4M rows in pandas; give the worker headroom.
-us_bls_cpi_flow.job_variables = {"memory": "8Gi"}
+us_bls_cpi_dicionario_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "dicionario"
+)
+us_bls_cpi_dicionario_check_update.deploy_schedules = _cron(16, 20)
+us_bls_cpi_dicionario_check_update.job_variables = _JOB_VARIABLES
+
+
+@flow(name=_dicionario_pipeline.extract_and_load_flow_name, log_prints=True)
+def us_bls_cpi_dicionario_download(download_params: dict) -> None:
+    _dicionario_pipeline.run_extract_and_load(download_params)
+
+
+us_bls_cpi_dicionario_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "dicionario"
+)
+us_bls_cpi_dicionario_download.job_variables = _JOB_VARIABLES
+_dicionario_pipeline.extract_load_deployment = (
+    us_bls_cpi_dicionario_download.fn.__name__
+)

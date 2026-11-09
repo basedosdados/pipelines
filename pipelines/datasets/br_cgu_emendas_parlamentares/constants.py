@@ -1,5 +1,9 @@
 from enum import Enum
 
+DATASET_ID = "br_cgu_emendas_parlamentares"
+
+MICRODADOS_TABLE_ID = "microdados"
+
 
 class constants(Enum):
     URL = "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares/UNICO"

@@ -24,15 +24,16 @@ o grupo PA de SP em 2025-07. UFs com muitos registros têm o mês dividido em pa
 
 | Arquivo | Papel |
 |---|---|
-| `pipelines/datasets/br_ms_sia/flows.py` | Um flow por tabela, montado por `_sia_flow(table_id, cron)` |
-| `pipelines/crawler/datasus/flows.py` | `_run_dbf_to_parquet`, compartilhado com o SIH: poll → download → `.dbc` → parquet → upload → dbt → metadados |
-| `pipelines/crawler/datasus/tasks.py` | Tasks de FTP, descompressão e conversão para parquet |
+| `pipelines/datasets/br_ms_sia/flows.py` | Flows e agendamentos das duas tabelas |
+| `pipelines/datasets/br_ms_sia/tasks.py` | Listagem do FTP, download e conversão para parquet |
+| `pipelines/datasets/br_ms_sia/constants.py` | Ids das tabelas e regra de acesso BD Pro (`PartBdpro`) |
+| `pipelines/shared/datasus/tasks.py` | Tasks de FTP, descompressão e conversão, compartilhadas com o SIH e o SINAN |
 | `models/br_ms_sia/` | Modelos dbt das duas tabelas e do `dicionario` |
 
 ## Nome dos arquivos parquet
 
 A conversão para parquet é feita por `read_dbf_save_parquet_chunks`, função
-compartilhada pelo SIA, pelo SIH e pelo SINAN. O `_run_dbf_to_parquet` passa
+compartilhada pelo SIA, pelo SIH e pelo SINAN. O `tasks.py` do conjunto passa
 `name_by_source_file=True`, então cada parquet leva o nome do arquivo do FTP de onde
 saiu:
 
@@ -60,10 +61,45 @@ Nos dois casos, a pasta do mês precisa ser apagada na staging antes da recarga.
 
 ## Recarregar um mês
 
-O flow aceita `year_month_to_extract` nos formatos `"2507"`, `"202507"` ou `"2025-07"`,
-e seleciona só os arquivos daquela competência.
-
 O modelo `br_ms_sia__producao_ambulatorial` é incremental: cada `dbt run` insere apenas o
 mês seguinte ao maior mês que já está na tabela. Recarregar a staging de um mês passado
 não muda a tabela. Para refazer esse mês na tabela, é preciso apagá-lo e inseri-lo de novo
 a partir da staging.
+
+## Linhas idênticas
+
+O SIA/PA não tem identificador de registro, e os arquivos do FTP trazem linhas idênticas em
+todas as colunas. Por isso o `producao_ambulatorial` não tem chave única nem teste de
+unicidade de linhas.
+
+Medição em 2025-07, todas as UFs:
+
+| Onde | Colunas comparadas | Linhas | Distintas | Repetidas |
+|---|---|---|---|---|
+| Staging | 65 (todas as do arquivo, mais `ano`, `mes` e `sigla_uf`) | 70.903.570 | 49.822.817 | 21.080.753 |
+| Tabela | 59 (as do modelo) | 70.903.570 | 49.122.952 | 21.780.618 |
+
+As 699.865 repetidas a mais na tabela vêm das colunas que o modelo descarta ou transforma.
+Na staging, a repetição aparece em todas as UFs, de 15% no PI (47.517 de 314.945) a 39% no
+MT (817.257 de 2.078.910).
+
+```sql
+select
+    sigla_uf,
+    count(*) as linhas,
+    count(distinct to_json_string(t)) as linhas_distintas,
+    count(*) - count(distinct to_json_string(t)) as linhas_repetidas
+from `basedosdados-staging.br_ms_sia_staging.producao_ambulatorial` as t
+where ano = '2025' and mes = '7'
+group by rollup (sigla_uf)
+order by sigla_uf nulls first
+```
+
+```sql
+select
+    count(*) as linhas,
+    count(distinct to_json_string(t)) as linhas_distintas,
+    count(*) - count(distinct to_json_string(t)) as linhas_repetidas
+from `basedosdados.br_ms_sia.producao_ambulatorial` as t
+where ano = 2025 and mes = 7
+```

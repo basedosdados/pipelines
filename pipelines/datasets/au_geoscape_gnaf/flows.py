@@ -10,208 +10,215 @@ G-NAF is Open-G-NAF/CC-BY, so every table is ``AllFree`` — no BD Pro rolling
 window, no Row Access Policies. The quarterly cadence is well below the
 monthly-or-more paywall threshold.
 
-The run resolves the current release from the CKAN API and polls cheaply first
-(the resolved ``snapshot_date`` vs the free ``Coverage``), only downloading the
-~1.6 GB payload when a newer quarterly snapshot has actually been published — so
-a scheduled run is a cheap no-op between quarterly releases.
+Migrated to the staged pipeline: check_update -> extract_and_load ->
+build_and_promote, one pair of flows per table (``CheckThenExtractLoadPipeline``
+via ``pipeline_factory`` — the repo-wide default shape, same layout as
+``br_ibge_ipca``). A single release zip builds all 4 tables at once
+(``clean_all``, see the banner in ``tasks.py``), but each table's
+check_update/extract_and_load pair re-resolves and re-downloads that zip
+independently and keeps only the table it's responsible for — redundant
+downloads accepted in exchange for uniformity, see the banner in ``tasks.py``.
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``;
-the dev pool ignores the schedule, the prod pool activates it (deployed paused).
+Each table's check_update resolves the current release from the CKAN API and
+polls cheaply first (the resolved ``snapshot_date`` vs the free ``Coverage``,
+or vs ``Table.Update.latest`` for ``dicionario``), only dispatching its own
+extract_and_load — which downloads the ~1.6 GB payload — when a newer
+quarterly snapshot has actually been published, so a scheduled run is a cheap
+no-op between quarterly releases. The 4 check_update schedules are staggered
+across the same release days (30 min apart) so their extract_and_loads, if all
+triggered by the same release, don't all claim a 16Gi worker at once.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers all 8 flows
+below; the dev pool ignores the check_update schedules, the prod pool
+activates them (deployed paused).
 """
 
-import shutil
-import tempfile
-
-from prefect.schedules import Cron
+from prefect.schedules import Cron, Schedule
 
 from pipelines.datasets.au_geoscape_gnaf.constants import constants
 from pipelines.datasets.au_geoscape_gnaf.tasks import (
-    check_source_gnaf,
-    clean_gnaf,
-    download_gnaf,
+    make_extract_load_data,
+    make_get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags, pipeline_factory
 
 DATASET_ID = constants.DATASET_ID.value
-CORE_TABLE = constants.CORE_TABLE.value
-
-# Coverage spec per table. G-NAF is CC-BY / Open-G-NAF, so every dated table is
-# AllFree — the whole stacked history is public. `snapshot_date` (a DATE) is the
-# coverage column. `dicionario` has no date column, so it takes no coverage spec.
-_ALL_FREE = AllFree(
-    date_column=DateOnly(col="snapshot_date"),
-    date_format=DateFormat.YEAR_MD,
-)
-_COVERAGE = {
-    "address_detail": _ALL_FREE,
-    "street_locality": _ALL_FREE,
-    "locality": _ALL_FREE,
-}
-
-
-@flow(name="au_geoscape_gnaf", log_prints=True)
-def au_geoscape_gnaf_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Refresh au_geoscape_gnaf with the latest quarterly G-NAF snapshot.
-
-    Resolves the current release from CKAN, polls the source (the resolved
-    ``snapshot_date`` vs the free ``Coverage``) and short-circuits when nothing
-    newer has been published, unless ``force_run``. On new data, downloads +
-    cleans the snapshot, uploads it to staging (``dump_mode="overwrite"``) and
-    lets the incremental dbt models append its ``snapshot_date`` partition to the
-    prod tables.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage (AllFree) and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Download and materialize even when the source poll reports no
-            new snapshot.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
-    )
-
-    # Cheap poll first: resolve the current release and ask whether its snapshot
-    # is newer than the coverage we already publish.
-    source = check_source_gnaf()
-    snapshot_date = source["snapshot_date"]
-    has_new_data = poll_source_for_update_task(
-        dataset_id=DATASET_ID,
-        table_id=CORE_TABLE,
-        source_max_date=snapshot_date,
-        env="prod",
-        date_format="%Y-%m-%d",
-        compare_against="coverage",
-    )
-    if not has_new_data and not force_run:
-        return
-
-    work_dir = tempfile.mkdtemp(prefix="au_geoscape_gnaf_")
-    try:
-        zip_path = download_gnaf(work_dir=work_dir, url=source["url"])
-        result = clean_gnaf(
-            work_dir=work_dir,
-            zip_path=zip_path,
-            snapshot_date=snapshot_date,
-        )
-        max_date = result["snapshot_date"]
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging (overwrite with the new snapshot) + run ALL tables
-            # first, THEN test. address_detail/street_locality/locality each carry a
-            # custom_dictionary_coverage test that references the dicionario model, so
-            # a per-table run/test would test a table while dicionario is not yet
-            # materialized — it errors on a fresh target (no dicionario table). Split
-            # run and test into separate passes so every table exists before any test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + run ALL tables first, THEN test (see the dev-phase
-        # note). Incremental dbt appends the new snapshot_date partition.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-            # Record the source Update (its max coverage date = the snapshot date).
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=CORE_TABLE,
-                source_max_date=max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-                update_metadata=update_metadata,
-                materialize_after_dump=materialize_to_prod,
-            )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
-
 
 # The source republishes quarterly (Feb/May/Aug/Nov), landing mid-month; the
 # exact day drifts (the Aug 2026 release landed on the 17th). Poll on several
-# days across the second half of each release month at 16:00 BRT. The
-# coverage-based source poll no-ops (no download) until a new snapshot appears.
-au_geoscape_gnaf_flow.deploy_schedules = [
-    Cron("35 16 14,17,20,23,26 2,5,8,11 *", timezone="America/Sao_Paulo")
-]
+# days across the second half of each release month at 16:00 BRT, staggered
+# 30 min apart per table (see the module banner). The coverage-based source
+# poll no-ops (no download) until a new snapshot appears.
+_POLL_DAYS = "14,17,20,23,26"
+_POLL_MONTHS = "2,5,8,11"
+
+
+def _cron(hour: int, minute: int) -> list[Schedule]:
+    return [
+        Cron(
+            f"{minute} {hour} {_POLL_DAYS} {_POLL_MONTHS} *",
+            timezone="America/Sao_Paulo",
+        )
+    ]
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+)
+
 # The clean step builds one state's frames at a time (NSW is the largest) and the
-# download is ~1.6 GB; give the worker headroom.
-au_geoscape_gnaf_flow.job_variables = {"memory": "16Gi"}
+# download is ~1.6 GB; give each worker headroom, same as the old monolithic flow.
+_EXTRACT_AND_LOAD_JOB_VARIABLES = {"memory": "16Gi"}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# address_detail
+# check_update: address_detail: au_geoscape_gnaf__address_detail
+# extract_and_load: extract_and_load: au_geoscape_gnaf__address_detail
+# ──────────────────────────────────────────────────────────────────────────────
+
+_address_detail_pipeline = make_pipeline("address_detail")
+
+
+@flow(name=_address_detail_pipeline.check_update_flow_name, log_prints=True)
+def au_geoscape_gnaf_address_detail_check_update() -> None:
+    _address_detail_pipeline.run_check_update()
+
+
+au_geoscape_gnaf_address_detail_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "address_detail"
+)
+au_geoscape_gnaf_address_detail_check_update.deploy_schedules = _cron(16, 35)
+
+
+@flow(
+    name=_address_detail_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def au_geoscape_gnaf_address_detail_download(download_params: dict) -> None:
+    _address_detail_pipeline.run_extract_and_load(download_params)
+
+
+au_geoscape_gnaf_address_detail_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "address_detail"
+)
+au_geoscape_gnaf_address_detail_download.job_variables = (
+    _EXTRACT_AND_LOAD_JOB_VARIABLES
+)
+_address_detail_pipeline.extract_load_deployment = (
+    au_geoscape_gnaf_address_detail_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# street_locality
+# check_update: check_update: au_geoscape_gnaf__street_locality
+# extract_and_load: extract_and_load: au_geoscape_gnaf__street_locality
+# ──────────────────────────────────────────────────────────────────────────────
+
+_street_locality_pipeline = make_pipeline("street_locality")
+
+
+@flow(name=_street_locality_pipeline.check_update_flow_name, log_prints=True)
+def au_geoscape_gnaf_street_locality_check_update() -> None:
+    _street_locality_pipeline.run_check_update()
+
+
+au_geoscape_gnaf_street_locality_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "street_locality"
+)
+au_geoscape_gnaf_street_locality_check_update.deploy_schedules = _cron(17, 5)
+
+
+@flow(
+    name=_street_locality_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def au_geoscape_gnaf_street_locality_download(download_params: dict) -> None:
+    _street_locality_pipeline.run_extract_and_load(download_params)
+
+
+au_geoscape_gnaf_street_locality_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "street_locality"
+)
+au_geoscape_gnaf_street_locality_download.job_variables = (
+    _EXTRACT_AND_LOAD_JOB_VARIABLES
+)
+_street_locality_pipeline.extract_load_deployment = (
+    au_geoscape_gnaf_street_locality_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# locality
+# check_update: check_update: au_geoscape_gnaf__locality
+# extract_and_load: extract_and_load: au_geoscape_gnaf__locality
+# ──────────────────────────────────────────────────────────────────────────────
+
+_locality_pipeline = make_pipeline("locality")
+
+
+@flow(name=_locality_pipeline.check_update_flow_name, log_prints=True)
+def au_geoscape_gnaf_locality_check_update() -> None:
+    _locality_pipeline.run_check_update()
+
+
+au_geoscape_gnaf_locality_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "locality"
+)
+au_geoscape_gnaf_locality_check_update.deploy_schedules = _cron(17, 35)
+
+
+@flow(name=_locality_pipeline.extract_and_load_flow_name, log_prints=True)
+def au_geoscape_gnaf_locality_download(download_params: dict) -> None:
+    _locality_pipeline.run_extract_and_load(download_params)
+
+
+au_geoscape_gnaf_locality_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "locality"
+)
+au_geoscape_gnaf_locality_download.job_variables = (
+    _EXTRACT_AND_LOAD_JOB_VARIABLES
+)
+_locality_pipeline.extract_load_deployment = (
+    au_geoscape_gnaf_locality_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# dicionario
+# check_update: check_update: au_geoscape_gnaf__dicionario
+# extract_and_load: extract_and_load: au_geoscape_gnaf__dicionario
+#
+# NonHistorical (no date column) — `make_get_latest_update` compares against
+# `Table.Update.latest` instead of `Coverage` for this table_id, see tasks.py.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_dicionario_pipeline = make_pipeline("dicionario")
+
+
+@flow(name=_dicionario_pipeline.check_update_flow_name, log_prints=True)
+def au_geoscape_gnaf_dicionario_check_update() -> None:
+    _dicionario_pipeline.run_check_update()
+
+
+au_geoscape_gnaf_dicionario_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, "dicionario"
+)
+au_geoscape_gnaf_dicionario_check_update.deploy_schedules = _cron(18, 5)
+
+
+@flow(name=_dicionario_pipeline.extract_and_load_flow_name, log_prints=True)
+def au_geoscape_gnaf_dicionario_download(download_params: dict) -> None:
+    _dicionario_pipeline.run_extract_and_load(download_params)
+
+
+au_geoscape_gnaf_dicionario_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, "dicionario"
+)
+au_geoscape_gnaf_dicionario_download.job_variables = (
+    _EXTRACT_AND_LOAD_JOB_VARIABLES
+)
+_dicionario_pipeline.extract_load_deployment = (
+    au_geoscape_gnaf_dicionario_download.fn.__name__
+)

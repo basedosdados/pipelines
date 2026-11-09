@@ -4,6 +4,11 @@ Constantes de br_ms_sinasc.
 
 from enum import Enum
 
+DATASET_ID = "br_ms_sinasc"
+
+# Única tabela do dataset hoje.
+MICRODADOS_TABLE_ID = "microdados"
+
 
 class constants(Enum):
     """Constantes de br_ms_sinasc."""

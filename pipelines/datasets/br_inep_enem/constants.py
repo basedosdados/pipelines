@@ -4,6 +4,16 @@ Constantes de br_inep_enem.
 
 from enum import Enum
 
+# Migrado pro pipeline em estágios (staged pipeline) — DATASET_ID e os
+# TABLE_ID abaixo seguem a convenção usada por `pipeline_factory`/
+# `CheckThenExtractLoadPipeline`, mesmo padrão de `br_ibge_ppm`/`br_ibge_ipca`.
+# `questionario_socioeconomico` fica fora: não tem flow agendado, de
+# propósito (ver README.md), então não entra no pipeline em estágios.
+DATASET_ID = "br_inep_enem"
+
+PARTICIPANTES_TABLE_ID = "participantes"
+RESULTADOS_TABLE_ID = "resultados"
+
 
 class constants(Enum):
     """Constantes de br_inep_enem."""

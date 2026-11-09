@@ -1,247 +1,79 @@
+"""Flows for au_abs_prices_inflation — Prefect 3.
+
+Migrated to the one-flow-per-table shape: 7 independent check_update /
+extract_and_load pairs -- `cpi_quarterly`, `cpi_monthly`, and the five other
+ABS releases (`wage_price_index`, `producer_price_index`,
+`international_trade_price_index`, `living_cost_index`, `dwelling_value`) --
+wired through `CheckThenExtractLoadPipeline`/`pipeline_factory` (see
+`tasks.py`). No cross-table dbt test ties any of these tables together
+(`models/au_abs_prices_inflation/schema.yml` scopes every test to its own
+model), so the repo-wide one-pipeline-per-table_id rule applies with no
+exception here -- including the two CPI tables, which used to share a single
+flow (see below).
+
+ABS exposes no cheap "has this changed" signal (no trustworthy Last-Modified,
+no version header): the only way to know the latest published period is to
+download and parse the release's workbooks. So, same as every other
+staged-pipeline dataset, check_update downloads and parses whatever
+extract_and_load would need to decide the reference date, and
+extract_and_load downloads and parses it again, independently, when
+dispatched -- duplicate download cost, accepted in exchange for the uniform
+check_update -> extract_and_load shape (see `tasks.py`'s module docstring).
+
+`cpi_quarterly` and `cpi_monthly` used to share one flow
+(`au_abs_prices_inflation_cpi_flow`) that downloaded the release once and
+materialized both tables inline. Splitting them one-per-table costs nothing
+extra here: `constants.SOURCE_TABLES` already lists each frequency's source
+workbooks disjointly, so `cpi.download_frequency` downloads only what each
+table's own pipeline needs -- no redundant fetch between the two, unlike the
+genuinely-shared-download cases (`au_ato_abr`, `br_mf_divida_ativa`) that
+still pay a real duplicate-download cost for the one-per-table shape. The
+five other releases were already one table per flow; they gain the
+check_update/extract_and_load split and `build_and_promote` dispatch instead
+of materializing inline.
+
+Every ABS release ships the full history in its workbooks, so each run is a
+full replace, not an incremental append -- see `tasks.py`'s module docstring
+for why `ExtractAndLoad`'s default `dump_mode="append"` is correct here
+despite the name. The source poll (`CheckThenExtractLoadPipeline.run_check_update`)
+short-circuits a run until the source has published a newer period, which
+makes a scheduled check_update run a cheap no-op between releases.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers every flow
+defined here; the dev pool ignores the schedules, the prod pool activates them.
 """
-Flows for au_abs_prices_inflation — Prefect 3.
-
-The dataset spans the whole ABS "Price indexes and inflation" topic, and each
-ABS release has its own publication cadence, its own landing page and its own
-fact table. So there is **one flow per release**, each polling its own source
-and owning its own table: a release that fails to parse cannot block the
-others, and the crons spread naturally across the quarter.
-
-Every ABS release ships the full history in its time-series spreadsheets, so
-each run is a **full replace** (``dump_mode="overwrite"``), not an incremental
-append. The source poll short-circuits a run until ABS publishes a newer
-period, which makes a scheduled run a cheap no-op between releases.
-
-Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers every flow defined
-here; the dev pool ignores the schedules, the prod pool activates them.
-"""
-
-import shutil
-import tempfile
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.au_abs_prices_inflation.constants import constants
+from pipelines.datasets.au_abs_prices_inflation.constants import (
+    CPI_MONTHLY_TABLE_ID,
+    CPI_QUARTERLY_TABLE_ID,
+    constants,
+)
 from pipelines.datasets.au_abs_prices_inflation.tasks import (
-    clean_cpi,
-    clean_price_release,
-    download_cpi,
-    download_price_release,
+    make_cpi_pipeline,
+    make_release_pipeline,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearQuarter,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
 
-# Every ABS release republishes its full history, so each run is a full
-# replace. That is `append`, not `overwrite`, despite the names.
-#
-# `dump_mode="overwrite"` calls `tb.delete(mode="all")`, which drops the
-# MATERIALIZED PRODUCTION table, not just the staging external table -- and
-# `bd.Table` resolves its projects from the worker's config.toml rather than
-# from `bucket_name`, so it fires from the dev half too. A dev-only validation
-# run (`materialize_to_prod=False`) would delete the prod table and then return
-# before rebuilding it, reporting every task Completed. Confirmed on
-# us_sec_edgar, 2026-08-19.
-#
-# `append` ends in `st.upload(..., if_exists="replace")`, which replaces each
-# blob wholesale. Since every partition writes one `data.parquet` under
-# `year=YYYY/` and each release ships the whole history, the file names are
-# identical run to run and the semantics are the same -- without the delete.
-_DUMP_MODE = "append"
-
-# ---------------------------------------------------------------------------
-# Consumer Price Index (former catalogue 6401.0) — monthly release
-# ---------------------------------------------------------------------------
-# Coverage spec per table.
-#
-# `cpi_monthly` is the high-frequency table, so it carries the BD Pro rolling
-# window: the most recent 6 months are pro-only, everything older is free.
-# Each run recomputes free_end = source_end - free_lag, rewrites both
-# DateTimeRanges, and re-issues the BigQuery Row Access Policies, so the window
-# slides forward on its own. part_bdpro requires BOTH a free (is_closed=False)
-# and a pro (is_closed=True) Coverage to already exist on the table, or
-# assert_coverage_topology raises before anything is written.
-#
-# `cpi_quarterly` refreshes only quarterly (less than monthly), so it stays
-# fully free.
-_CPI_COVERAGE = {
-    "cpi_quarterly": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "cpi_monthly": PartBdpro(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
-
-
-@flow(name="au_abs_prices_inflation_cpi", log_prints=True)
-def au_abs_prices_inflation_cpi_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Download the current ABS CPI release, rebuild both tables, materialize them.
-
-    ABS ships the full history on every release, so each run is a full replace
-    (``dump_mode="overwrite"``). The source poll short-circuits the run when ABS
-    has not published a new month, making a scheduled run a cheap no-op between
-    releases.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. No effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new month.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="au_abs_prices_inflation_cpi_")
-    try:
-        input_dir = download_cpi(work_dir=work_dir)
-        result = clean_cpi(work_dir=work_dir, input_dir=input_dir)
-        max_ym = result["max_year_month"]
-
-        # Skip the run when ABS has not published a newer month (unless forced).
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id="cpi_monthly",
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-        # novo publicado, mesmo que a tabela não tenha sido atualizada.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id="cpi_monthly",
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        tables = [TABLE_ID[f] for f in constants.SOURCE_TABLES.value]
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging + materialize/test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode=_DUMP_MODE,
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run/test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode=_DUMP_MODE,
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _CPI_COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-    finally:
-        # Covers early returns (no new data, dev-only) and any exception.
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
-# ABS publishes the monthly CPI in the last week of each month (moving to the
-# 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT; the
-# source-poll guard no-ops until a new month lands.
-au_abs_prices_inflation_cpi_flow.deploy_schedules = [
+# ABS publishes the monthly CPI release in the last week of each month (moving
+# to the 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT;
+# the source-poll guard no-ops until a new period lands for that table -- a
+# new month for cpi_monthly, a new quarter for cpi_quarterly (same release,
+# different cadence per table, see constants.py's CPI_COVERAGE comment).
+_CPI_CHECK_UPDATE_SCHEDULE = [
     Cron("15 16 22,23,24,25,26,27,28 * *", timezone="America/Sao_Paulo")
 ]
-
-# ---------------------------------------------------------------------------
-# The other five ABS releases, one flow each
-# ---------------------------------------------------------------------------
-# Every one of these is quarterly, so every table stays AllFree: the BD Pro
-# rolling window applies only to tables refreshed monthly or more often. That
-# also means none of them issues Row Access Policies.
-#
-# The poll compares a "%Y-%m" string against the registered coverage, and the
-# coverage for a YearQuarter column is stored as MAX(DATE(year, quarter * 3, 1))
-# formatted the same way -- so `clean_all` reports the release's latest period
-# as a year-MONTH. Polling at a coarser granularity than the coverage is stored
-# at compares mismatched clocks, and the guard then either never fires or fires
-# on every run.
-_RELEASE_COVERAGE = AllFree(
-    date_column=YearQuarter(year="year", quarter="quarter"),
-    date_format=DateFormat.YEAR_MONTH,
-)
 
 # Poll windows follow each release's published calendar, read off its landing
 # page. The minutes are deliberately distinct and none is 0: same-instant runs
 # compete for BigQuery slots, and if the daily quota trips they all fail
 # together. The source poll no-ops until a new quarter lands, so a generous
 # window costs only a download.
-_RELEASE_SCHEDULE = {
+_RELEASE_CHECK_UPDATE_CRON = {
     # Released mid-February, May, August and November (18 Nov 2026, 17 Feb 2027).
     "wage_price_index": "17 14 16,17,18,19,20,21,22 2,5,8,11 *",
     # Released end of January, April, July and October (30 Oct 2026, 29 Jan 2027).
@@ -255,125 +87,137 @@ _RELEASE_SCHEDULE = {
 }
 
 
-def _build_release_flow(release: str):
-    """Build one ABS release's flow.
+def _build_cpi_table_flows(table_id: str, schedule: list):
+    """Build one CPI table's check_update/extract_and_load flow pair."""
+    pipeline = make_cpi_pipeline(table_id)
 
-    A factory rather than five copies of the same body. Prefect's deploy script
-    picks up any module-level ``Flow`` whose function is defined in this file,
-    and the inner function is, so a factory deploys exactly like a top-level
-    flow -- the same pattern ``pipelines/crawler/ibge_inflacao`` uses.
-    """
+    @flow(name=pipeline.check_update_flow_name, log_prints=True)
+    def check_update() -> None:
+        pipeline.run_check_update()
 
-    @flow(name=f"au_abs_prices_inflation_{release}", log_prints=True)
-    def _release_flow(
-        materialize_to_prod: bool = True,
-        update_metadata: bool = True,
-        force_run: bool = False,
-    ) -> None:
-        """Download the current ABS release, rebuild its table, materialize it.
+    check_update.deploy_tags = deploy_tags(
+        DATASET_ID, Etapa.CHECK_UPDATE, table_id
+    )
+    check_update.deploy_schedules = schedule
 
-        ABS ships the full history on every release, so each run is a full
-        replace. The source poll short-circuits the run when ABS has not
-        published a new quarter, making a scheduled run a cheap no-op between
-        releases.
+    @flow(name=pipeline.extract_and_load_flow_name, log_prints=True)
+    def extract_and_load(download_params: dict) -> None:
+        pipeline.run_extract_and_load(download_params)
 
-        Args:
-            materialize_to_prod: Continue past the dev materialization to write
-                the prod staging bucket and run dbt against ``target="prod"``.
-                Set False to exercise only the dev half -- required for a safe
-                test run, since the default writes production.
-            update_metadata: After a successful prod materialization, register
-                table coverage and commit the source update. No effect when
-                ``materialize_to_prod`` is False.
-            force_run: Materialize even when the poll reports no new quarter.
-        """
-        rename_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=DATASET_ID, table_id=release
-        )
+    extract_and_load.deploy_tags = deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, table_id
+    )
+    pipeline.extract_load_deployment = extract_and_load.fn.__name__
 
-        work_dir = tempfile.mkdtemp(
-            prefix=f"au_abs_prices_inflation_{release}_"
-        )
-        try:
-            input_dir = download_price_release(
-                release=release, work_dir=work_dir
-            )
-            result = clean_price_release(
-                release=release, work_dir=work_dir, input_dir=input_dir
-            )
-            max_ym = result[f"{release}__max_year_month"]
+    return check_update, extract_and_load
 
-            has_new_data = poll_source_for_update_task(
-                dataset_id=DATASET_ID,
-                table_id=release,
-                source_max_date=max_ym,
-                env="prod",
-                date_format="%Y-%m",
-                compare_against="coverage",
-            )
-            if not has_new_data and not force_run:
-                return
 
-            # Commit the source Update before materializing: if the flow dies
-            # midway, the source metadata still records that ABS had published
-            # a new quarter, even though the table was not refreshed.
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=release,
-                source_max_date=max_ym,
-                env="prod",
-                date_format="%Y-%m",
-                update_metadata=update_metadata,
-                materialize_after_dump=materialize_to_prod,
-            )
+def _build_release_flows(release: str):
+    """Build one ABS release's check_update/extract_and_load flow pair."""
+    pipeline = make_release_pipeline(release)
 
-            # The dev materialization is the pre-arm validation path, not part
-            # of a production run: it rebuilds and re-tests the table in
-            # basedosdados-dev, which nothing downstream reads. An armed run
-            # skips it -- prod runs the same model and tests seconds later.
-            bucket = (
-                "basedosdados" if materialize_to_prod else "basedosdados-dev"
-            )
-            target = "prod" if materialize_to_prod else "dev"
-            upload_to_gcs(
-                data_path=result[release],
-                dataset_id=DATASET_ID,
-                table_id=release,
-                bucket_name=bucket,
-                dump_mode=_DUMP_MODE,
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=release,
-                dbt_command="run/test",
-                target=target,
-            )
-            if not materialize_to_prod:
-                return
+    @flow(name=pipeline.check_update_flow_name, log_prints=True)
+    def check_update() -> None:
+        pipeline.run_check_update()
 
-            if update_metadata:
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=release,
-                    coverage=_RELEASE_COVERAGE,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-        finally:
-            # Covers early returns (no new data, dev-only) and any exception.
-            shutil.rmtree(work_dir, ignore_errors=True)
-
-    _release_flow.deploy_schedules = [
-        Cron(_RELEASE_SCHEDULE[release], timezone="America/Sao_Paulo")
+    check_update.deploy_tags = deploy_tags(
+        DATASET_ID, Etapa.CHECK_UPDATE, release
+    )
+    check_update.deploy_schedules = [
+        Cron(_RELEASE_CHECK_UPDATE_CRON[release], timezone="America/Sao_Paulo")
     ]
-    return _release_flow
+
+    @flow(name=pipeline.extract_and_load_flow_name, log_prints=True)
+    def extract_and_load(download_params: dict) -> None:
+        pipeline.run_extract_and_load(download_params)
+
+    extract_and_load.deploy_tags = deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, release
+    )
+    pipeline.extract_load_deployment = extract_and_load.fn.__name__
+
+    return check_update, extract_and_load
 
 
-wage_price_index_flow = _build_release_flow("wage_price_index")
-producer_price_index_flow = _build_release_flow("producer_price_index")
-international_trade_price_index_flow = _build_release_flow(
-    "international_trade_price_index"
-)
-living_cost_index_flow = _build_release_flow("living_cost_index")
-dwelling_value_flow = _build_release_flow("dwelling_value")
+# ──────────────────────────────────────────────────────────────────────────────
+# cpi_quarterly
+# check_update: au_abs_prices_inflation__cpi_quarterly
+# extract_and_load: au_abs_prices_inflation__cpi_quarterly
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_cpi_quarterly_check_update,
+    au_abs_prices_inflation_cpi_quarterly_download,
+) = _build_cpi_table_flows(CPI_QUARTERLY_TABLE_ID, _CPI_CHECK_UPDATE_SCHEDULE)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# cpi_monthly
+# check_update: au_abs_prices_inflation__cpi_monthly
+# extract_and_load: au_abs_prices_inflation__cpi_monthly
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_cpi_monthly_check_update,
+    au_abs_prices_inflation_cpi_monthly_download,
+) = _build_cpi_table_flows(CPI_MONTHLY_TABLE_ID, _CPI_CHECK_UPDATE_SCHEDULE)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# wage_price_index
+# check_update: au_abs_prices_inflation__wage_price_index
+# extract_and_load: au_abs_prices_inflation__wage_price_index
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_wage_price_index_check_update,
+    au_abs_prices_inflation_wage_price_index_download,
+) = _build_release_flows("wage_price_index")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# producer_price_index
+# check_update: au_abs_prices_inflation__producer_price_index
+# extract_and_load: au_abs_prices_inflation__producer_price_index
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_producer_price_index_check_update,
+    au_abs_prices_inflation_producer_price_index_download,
+) = _build_release_flows("producer_price_index")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# international_trade_price_index
+# check_update: au_abs_prices_inflation__international_trade_price_index
+# extract_and_load: au_abs_prices_inflation__international_trade_price_index
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_international_trade_price_index_check_update,
+    au_abs_prices_inflation_international_trade_price_index_download,
+) = _build_release_flows("international_trade_price_index")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# living_cost_index
+# check_update: au_abs_prices_inflation__living_cost_index
+# extract_and_load: au_abs_prices_inflation__living_cost_index
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_living_cost_index_check_update,
+    au_abs_prices_inflation_living_cost_index_download,
+) = _build_release_flows("living_cost_index")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# dwelling_value
+# check_update: au_abs_prices_inflation__dwelling_value
+# extract_and_load: au_abs_prices_inflation__dwelling_value
+# ──────────────────────────────────────────────────────────────────────────────
+
+(
+    au_abs_prices_inflation_dwelling_value_check_update,
+    au_abs_prices_inflation_dwelling_value_download,
+) = _build_release_flows("dwelling_value")

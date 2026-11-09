@@ -7,7 +7,7 @@ Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 
 O antigo `_cnes_flow`/`_run_cnes` monolítico segue existindo em
-`pipelines/crawler/datasus/flows.py`, ainda usado por
+`pipelines/shared/datasus/flows.py`, ainda usado por
 `br_ms_sia`/`br_ms_sih`/`br_ms_sinan` (não migrados ainda) — não removido
 daqui.
 """

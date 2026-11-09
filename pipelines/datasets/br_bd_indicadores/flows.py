@@ -2,7 +2,7 @@
 Flows for br_bd_indicadores — Prefect 3.
 """
 
-from pipelines.crawler.bd_indicadores.tasks import (
+from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
     crawler_report_ga,

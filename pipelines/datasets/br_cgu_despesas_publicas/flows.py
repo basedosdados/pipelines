@@ -3,347 +3,137 @@
 Execução mensal da despesa do Governo Federal (Portal da Transparência, CGU):
 empenhado, liquidado, pago e movimentação de restos a pagar, por órgão, unidade
 gestora, unidade orçamentária, função, programa, ação, plano orçamentário,
-localizador e natureza da despesa, um arquivo por mês desde 2014-01.
+localizador e natureza da despesa, um arquivo por mês desde 2014-01. Um segundo
+produto do mesmo host, ``favorecido`` (recebimentos por favorecido), é tratado
+como uma segunda tabela independente — ver ``tasks.py``.
 
-**Why this refreshes a trailing window rather than rebuilding everything.** The
-source restates closed months, but each month is restated on its own schedule
-and the full history is ~150 files and ~10 GB — a 25-minute download. So a
-scheduled run re-pulls only the last ``months_back`` months and uploads with
-``dump_mode="append"``, which replaces exactly the ``ano=/mes=`` partitions it
-wrote and leaves the rest intact. ``dump_mode="overwrite"`` would be wrong here:
-combined with a trailing window it would rebuild the table from the window alone
-and destroy the history. Restatements older than the window are picked up by a
-``full_refresh=True`` run.
+Migrado por completo pro pipeline em estágios (staged pipeline): check_update
+-> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
+Lógica específica do dataset mora em ``tasks.py`` (reaproveitando ``utils.py``,
+inalterado), constantes em ``constants.py`` — aqui só a fiação
+(``CheckThenExtractLoadPipeline`` + ``@flow``).
 
-Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
-``br_cgu_despesas_publicas_flow``; the dev pool ignores the schedule, the prod
-pool activates it.
+**Why extract_and_load re-pulls a trailing window rather than rebuilding
+everything.** The source restates closed months, but each month is restated on
+its own schedule and the full history is ~150 files and ~10 GB — a 25-minute
+download. So a scheduled run re-pulls only the last ``months_back`` months
+(default 6) and uploads with ``dump_mode="append"``, which replaces exactly the
+``ano=/mes=`` partitions it wrote and leaves the rest intact —
+``dump_mode="overwrite"`` would rebuild the table from the window alone and
+destroy the history. Restatements older than the window need a manual
+``extract_and_load`` trigger with ``full_refresh=True`` in ``download_params``
+(see ``tasks.py``).
+
+O antigo ``br_cgu_despesas_publicas_flow``/``br_cgu_despesas_publicas_favorecido_flow``
+monolíticos (check+download+clean+upload+dbt num só flow, por tabela) são
+substituídos por completo por este módulo.
 """
-
-import shutil
-import tempfile
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_cgu_despesas_publicas.constants import constants
-from pipelines.datasets.br_cgu_despesas_publicas.tasks import (
-    clean_despesas,
-    download_despesas,
-    probe_source,
+from pipelines.datasets.br_cgu_despesas_publicas.constants import (
+    DATASET_ID,
+    FAVORECIDO_TABLE_ID,
+    TABLE_ID,
 )
+from pipelines.datasets.br_cgu_despesas_publicas.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
+
+# ──────────────────────────────────────────────────────────────────────────────
+# execucao
+# check_update: br_cgu_despesas_publicas__execucao
+# extract_and_load: br_cgu_despesas_publicas__execucao
+# ──────────────────────────────────────────────────────────────────────────────
+
+_execucao_pipeline = make_pipeline(TABLE_ID)
+
+
+@flow(name=_execucao_pipeline.check_update_flow_name, log_prints=True)
+def br_cgu_despesas_publicas_execucao_check_update() -> None:
+    _execucao_pipeline.run_check_update()
+
+
+br_cgu_despesas_publicas_execucao_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, TABLE_ID
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
-
-DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
-FAVORECIDO_TABLE_ID = "favorecido"
-
-# Monthly table, so the BD Pro rolling window applies: the most recent six
-# months are pro-only and everything older is free. register_table_materialization_task
-# recomputes free_end on every run and re-issues the BigQuery Row Access
-# Policies, so the window slides on its own.
-#
-# This requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-_COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
-)
-
-
-@flow(name="br_cgu_despesas_publicas", log_prints=True)
-def br_cgu_despesas_publicas_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-    months_back: int = 6,
-    full_refresh: bool = False,
-) -> None:
-    """Refresh br_cgu_despesas_publicas.execucao from the Portal da Transparência.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. No effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the portal has not regenerated the
-            current month since the last refresh.
-        months_back: Size of the trailing window of months to re-pull.
-        full_refresh: Re-pull every month from 2014-01. Slow (~25 min of paced
-            downloading) — use when the source has restated older months.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="br_cgu_despesas_publicas_")
-    try:
-        # One HEAD before spending the download budget. The CGU host CAPTCHA-
-        # blocks bursts, so the run asks the cheapest question first.
-        max_modified = probe_source()
-
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            source_max_date=max_modified,
-            env="prod",
-            date_format="%Y-%m-%d",
-            compare_against="table_update",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        downloaded = download_despesas(
-            work_dir=work_dir,
-            months_back=months_back,
-            full_refresh=full_refresh,
-        )
-        result = clean_despesas(
-            work_dir=work_dir,
-            input_dir=downloaded["input_dir"],
-            months=downloaded["months"],
-        )
-        print(
-            f"cleaned {len(result['rows'])} months, {result['total']:,} rows "
-            f"(through {result['max_period']})"
-        )
-
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            source_max_date=max_modified,
-            env="prod",
-            date_format="%Y-%m-%d",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        if not materialize_to_prod:
-            upload_to_gcs(
-                data_path=result["path"],
-                dataset_id=DATASET_ID,
-                table_id=TABLE_ID,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=TABLE_ID,
-                dbt_command="run",
-                target="dev",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=TABLE_ID,
-                dbt_command="test",
-                target="dev",
-            )
-            return
-
-        upload_to_gcs(
-            data_path=result["path"],
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            bucket_name="basedosdados",
-            dump_mode="append",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            dbt_command="run",
-            target="prod",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            dbt_command="test",
-            target="prod",
-        )
-
-        if update_metadata:
-            register_table_materialization_task(
-                dataset_id=DATASET_ID,
-                table_id=TABLE_ID,
-                coverage=_COVERAGE,
-                env="prod",
-                bq_project="basedosdados",
-            )
-    finally:
-        # Covers both early returns and any exception. The scratch directory
-        # holds several GB of raw CSV.
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
 # CGU refreshes the monthly execution files a few days into each month. Poll
-# across a few early-month days at 06:47 BRT; the source-poll guard no-ops a run
-# that finds nothing new.
-br_cgu_despesas_publicas_flow.deploy_schedules = [
+# across a few early-month days at 06:47 BRT; the source-poll guard no-ops a
+# run that finds nothing new. Mesmo cron do flow monolítico antigo (main).
+br_cgu_despesas_publicas_execucao_check_update.deploy_schedules = [
     Cron("47 6 4,6,8,10 * *", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_execucao_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_cgu_despesas_publicas_execucao_download(download_params: dict) -> None:
+    _execucao_pipeline.run_extract_and_load(download_params)
+
+
+br_cgu_despesas_publicas_execucao_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, TABLE_ID
+)
+_execucao_pipeline.extract_load_deployment = (
+    br_cgu_despesas_publicas_execucao_download.fn.__name__
+)
 # The clean step holds one month (~60k rows x 46 string columns) at a time, but
 # the raw CSVs for a six-month window are ~400 MB on disk. `memory` alone is
-# silently dropped by the work pool template — the effective key is `memory_limit`.
-br_cgu_despesas_publicas_flow.job_variables = {
+# silently dropped by the work pool template — the effective key is
+# `memory_limit`. Mesmo valor do flow monolítico antigo.
+br_cgu_despesas_publicas_execucao_download.job_variables = {
     "memory_limit": "6Gi",
     "memory_request": "2Gi",
 }
 
 
-# ---------------------------------------------------------------------------
+# ──────────────────────────────────────────────────────────────────────────────
 # favorecido — recebimentos por favorecido, a second monthly product on the
-# same host. It gets its own flow rather than a second table inside the
-# execucao flow: the two products are published independently, and execucao is
-# already live in production, so widening its flow would put a working pipeline
-# at risk for no gain.
-# ---------------------------------------------------------------------------
+# same host. It gets its own check_update/extract_and_load pair rather than
+# sharing execucao's: the two products are published independently, download
+# from a different endpoint, and have no dbt cross-table dependency between
+# them (no `ref()` from one table to the other in schema.yml) — just the
+# accepted 1-flow-per-table trade-off, same download logic parametrized by
+# `table` (see `tasks.py`/`constants.PRODUCTS`).
+# check_update: br_cgu_despesas_publicas__favorecido
+# extract_and_load: br_cgu_despesas_publicas__favorecido
+# ──────────────────────────────────────────────────────────────────────────────
 
-_FAVORECIDO_COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-    free_lag=FreeLag(unit="months", value=6),
+_favorecido_pipeline = make_pipeline(FAVORECIDO_TABLE_ID)
+
+
+@flow(name=_favorecido_pipeline.check_update_flow_name, log_prints=True)
+def br_cgu_despesas_publicas_favorecido_check_update() -> None:
+    _favorecido_pipeline.run_check_update()
+
+
+br_cgu_despesas_publicas_favorecido_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, FAVORECIDO_TABLE_ID
 )
-
-
-@flow(name="br_cgu_despesas_publicas_favorecido", log_prints=True)
-def br_cgu_despesas_publicas_favorecido_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-    months_back: int = 6,
-    full_refresh: bool = False,
-) -> None:
-    """Refresh br_cgu_despesas_publicas.favorecido from the Portal da Transparência.
-
-    Same shape as the execucao flow — trailing window, ``dump_mode="append"`` so
-    the window cannot erase history, and the same WAF pacing — but pointed at
-    the ``despesas-favorecidos`` product, whose period column is "MM/AAAA" at
-    index 10 rather than "AAAA/MM" at index 0. Both are declared in
-    ``constants.PRODUCTS`` and neither is inferred.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update.
-        force_run: Materialize even when the portal has not regenerated the
-            current month since the last refresh.
-        months_back: Size of the trailing window of months to re-pull.
-        full_refresh: Re-pull every month from 2014-01. Slow — the full history
-            is ~26 GB of CSV and about an hour of paced downloading.
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=FAVORECIDO_TABLE_ID
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="br_cgu_favorecido_")
-    try:
-        max_modified = probe_source(table=FAVORECIDO_TABLE_ID)
-
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=FAVORECIDO_TABLE_ID,
-            source_max_date=max_modified,
-            env="prod",
-            date_format="%Y-%m-%d",
-            compare_against="table_update",
-        )
-        if not has_new_data and not force_run:
-            return
-
-        downloaded = download_despesas(
-            work_dir=work_dir,
-            months_back=months_back,
-            full_refresh=full_refresh,
-            table=FAVORECIDO_TABLE_ID,
-        )
-        result = clean_despesas(
-            work_dir=work_dir,
-            input_dir=downloaded["input_dir"],
-            months=downloaded["months"],
-            table=FAVORECIDO_TABLE_ID,
-        )
-        print(
-            f"cleaned {len(result['rows'])} months, {result['total']:,} rows "
-            f"(through {result['max_period']})"
-        )
-
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=FAVORECIDO_TABLE_ID,
-            source_max_date=max_modified,
-            env="prod",
-            date_format="%Y-%m-%d",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
-        target = "prod" if materialize_to_prod else "dev"
-        upload_to_gcs(
-            data_path=result["path"],
-            dataset_id=DATASET_ID,
-            table_id=FAVORECIDO_TABLE_ID,
-            bucket_name=bucket,
-            dump_mode="append",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=FAVORECIDO_TABLE_ID,
-            dbt_command="run",
-            target=target,
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=FAVORECIDO_TABLE_ID,
-            dbt_command="test",
-            target=target,
-        )
-
-        if materialize_to_prod and update_metadata:
-            register_table_materialization_task(
-                dataset_id=DATASET_ID,
-                table_id=FAVORECIDO_TABLE_ID,
-                coverage=_FAVORECIDO_COVERAGE,
-                env="prod",
-                bq_project="basedosdados",
-            )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
 # CGU regenerates the favorecidos files a few days into each month, alongside
-# the execucao ones. Offset from the execucao flow so the two do not compete for
-# the same WAF budget or BigQuery slots.
-br_cgu_despesas_publicas_favorecido_flow.deploy_schedules = [
+# the execucao ones. Offset from the execucao check so the two do not compete
+# for the same WAF budget. Mesmo cron do flow monolítico antigo (main).
+br_cgu_despesas_publicas_favorecido_check_update.deploy_schedules = [
     Cron("58 7 4,6,8,10 * *", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_favorecido_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_cgu_despesas_publicas_favorecido_download(
+    download_params: dict,
+) -> None:
+    _favorecido_pipeline.run_extract_and_load(download_params)
+
+
+br_cgu_despesas_publicas_favorecido_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, FAVORECIDO_TABLE_ID
+)
+_favorecido_pipeline.extract_load_deployment = (
+    br_cgu_despesas_publicas_favorecido_download.fn.__name__
+)
 # A six-month window is ~900 MB of raw CSV and ~4.5M rows held one month at a
-# time. `memory` alone is silently dropped by the work pool template.
-br_cgu_despesas_publicas_favorecido_flow.job_variables = {
+# time. `memory` alone is silently dropped by the work pool template. Mesmo
+# valor do flow monolítico antigo.
+br_cgu_despesas_publicas_favorecido_download.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",
 }

@@ -4,6 +4,23 @@ Constantes de br_ms_sim.
 
 from enum import Enum
 
+DATASET_ID = "br_ms_sim"
+
+# Única tabela com extract_and_load próprio — as agregadas (ver
+# AGGREGATE_TABLES mais abaixo) são derivadas dela via dbt.
+MICRODADOS_TABLE_ID = "microdados"
+
+# Modelos dbt calculados a partir do microdados. São tabelas, não views: só
+# acompanham o microdados se forem rematerializadas depois dele — ver
+# `promote_primary_and_derived_tables` em `flows.py`. Mesma granularidade
+# anual do microdados.
+AGGREGATE_TABLES = [
+    "municipio",
+    "municipio_causa",
+    "municipio_causa_idade",
+    "municipio_causa_idade_sexo_raca",
+]
+
 
 class constants(Enum):
     """Constantes de br_ms_sim."""
@@ -75,15 +92,6 @@ class constants(Enum):
             "partition_columns": ["ano", "sigla_uf"],
         },
     }
-
-    # Modelos dbt calculados a partir do microdados. São tabelas, não views:
-    # só acompanham o microdados se forem rematerializadas depois dele.
-    AGGREGATE_TABLES = [
-        "municipio",
-        "municipio_causa",
-        "municipio_causa_idade",
-        "municipio_causa_idade_sexo_raca",
-    ]
 
     DATE_COLUMNS = [
         "data_obito",

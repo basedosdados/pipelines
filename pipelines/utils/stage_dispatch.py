@@ -25,8 +25,13 @@ from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
+    register_table_materialization_task,
 )
-from pipelines.utils.tasks import rename_flow_run_dataset_table, upload_to_gcs
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
+    run_dbt,
+    upload_to_gcs,
+)
 
 
 class Etapa(StrEnum):
@@ -66,9 +71,6 @@ class ExtractAndLoad:
     """O que `extract_load_data` de um dataset devolve pro extract_and_load.
 
     Attributes:
-        coverage: `CoverageSpec.model_dump()` (`AllFree`/`AllBdpro`/
-            `PartBdpro`/`NonHistorical` — ver
-            `pipelines.utils.metadata.domain`).
         data_path: caminho local que `extract_load_data` escreveu. Numa
             tabela particionada, precisa ser um diretório organizado
             exatamente na estrutura Hive que será promovida (ex.
@@ -87,7 +89,6 @@ class ExtractAndLoad:
         source_format: formato do arquivo em `data_path`.
     """
 
-    coverage: dict
     data_path: str
     prefect_mode: str = "prod"
     dump_mode: str = "append"
@@ -200,8 +201,7 @@ def _run_flow_locally(deployment_full_name: str, parameters: dict) -> Any:
     `run_deployment()` chamado de dentro de um flow já em execução quebra
     com `422 Unprocessable Entity` contra o servidor Prefect local
     (`scripts/dev_local.sh`) — não ocorre em produção. `validate_parameters()`
-    aplica a mesma coerção de tipos que `run_deployment()` faria
-    (`dict` -> `CoverageSpec`, etc.).
+    aplica a mesma coerção de tipos que `run_deployment()` faria.
 
     Args:
         deployment_full_name: `"<flow name>/<deployment name>"`, mesmo
@@ -375,7 +375,6 @@ def dispatch_build_and_promote(
     parameters = {
         "dataset_id": dataset_id,
         "table_id": table_id,
-        "coverage": result.coverage,
         "env": env,
         "bq_project": metadata_constants.MODE_PROJECT.value[
             result.prefect_mode
@@ -395,6 +394,101 @@ def dispatch_build_and_promote(
             parameters=parameters,
             timeout=0,
             as_subflow=True,
+        )
+
+
+def promote_primary_and_derived_tables(
+    dataset_id: str,
+    table_id: str,
+    data_path: str,
+    derived_table_ids: list[str],
+    env: str = "prod",
+    prefect_mode: str = "prod",
+    dump_mode: str = "append",
+    source_format: str = "csv",
+) -> None:
+    """Materializa `table_id` e re-materializa tabelas derivadas junto, inline.
+
+    Pra quando uma tabela "mãe" tem uma ou mais tabelas "filhas" sem
+    `extract_and_load` próprio — só `dbt run/test` lendo da mãe já
+    materializada (ex. agregados calculados a partir de um `microdados`).
+    `dispatch_build_and_promote` não serve aqui: ele despacha
+    `build_and_promote` por uma única tabela, que por sua vez baixa o
+    staging de dev daquela tabela — as filhas não têm staging nenhum pra
+    baixar. Esta função substitui esse dispatch por completo, fazendo
+    upload/dbt/registro de todas as tabelas (mãe + filhas) na própria run
+    do `extract_and_load`, igual o flow monolítico antigo já fazia.
+
+    Mesma garantia estrutural de `dispatch_build_and_promote`:
+    `promote_to_prod` nunca é parâmetro do chamador, vem de `_dev_prefix()`
+    — um dataset rodando num deployment de dev nunca promove pra prod de
+    verdade.
+
+    A coverage de cada tabela (mãe e filhas) é buscada do backend, uma vez
+    por tabela, dentro de `register_table_materialization_task` — nem
+    `table_id` nem `derived_table_ids` precisam vir com uma coverage já
+    montada.
+
+    Args:
+        dataset_id: ID do dataset no backend/BigQuery.
+        table_id: ID da tabela mãe — a que `extract_load_data` baixou.
+        data_path: caminho local escrito por `extract_load_data` pra
+            `table_id` (mesmo valor que iria em `ExtractAndLoad.data_path`).
+        derived_table_ids: tabelas filhas, sem download próprio — só
+            `dbt run/test` lendo da mãe.
+        env: backend de destino.
+        prefect_mode: resolve o projeto de billing/BigQuery
+            (`MODE_PROJECT`) e é repassado a
+            `register_table_materialization_task`.
+        dump_mode: modo de escrita no BigQuery pro upload da mãe em prod.
+        source_format: formato do arquivo em staging (`"csv"`/`"parquet"`)
+            pro upload da mãe em prod.
+    """
+    bq_project = metadata_constants.MODE_PROJECT.value[prefect_mode]
+    all_table_ids = [table_id, *derived_table_ids]
+
+    for t in all_table_ids:
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=t,
+            dbt_command="run/test",
+            target="dev",
+        )
+
+    if _dev_prefix():
+        return
+
+    upload_to_gcs(
+        data_path=data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode=dump_mode,
+        source_format=source_format,
+    )
+
+    for t in all_table_ids:
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=t,
+            dbt_command="run/test",
+            target="prod",
+        )
+
+    register_table_materialization_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        env=env,
+        bq_project=bq_project,
+        prefect_mode=prefect_mode,
+    )
+    for t in derived_table_ids:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=t,
+            env=env,
+            bq_project=bq_project,
+            prefect_mode=prefect_mode,
         )
 
 
@@ -598,4 +692,60 @@ class CheckThenExtractLoadPipeline:
             table_id=self.table_id,
             result=download_result,
             env=self.env,
+        )
+
+    def run_extract_and_load_with_derived_tables(
+        self,
+        download_params: dict,
+        *,
+        derived_table_ids: list[str],
+    ) -> None:
+        """Corpo completo do estágio extract_and_load — tabela mãe + derivadas.
+
+        Mesmo papel de `run_extract_and_load`, pra quando a tabela mãe tem
+        tabelas derivadas sem extração própria — só `dbt run/test` lendo
+        dela (ex. agregados calculados a partir de um `microdados`).
+        Termina em `promote_primary_and_derived_tables` em vez de
+        `dispatch_build_and_promote` (que só sabe materializar uma tabela
+        por vez, cada uma baixando seu próprio staging de dev — as
+        derivadas não têm nenhum). Ver `promote_primary_and_derived_tables`
+        pro motivo completo.
+
+        Não preenche `partition_folders` (ao contrário de
+        `run_extract_and_load`) — `promote_primary_and_derived_tables`
+        ainda não tem suporte a promover só uma fatia particionada: hoje
+        só serve pra tabela mãe sem partição.
+
+        Args:
+            download_params: dict recebido do estágio anterior via
+                `run_deployment()` — sempre tem `reference_date`.
+            derived_table_ids: tabelas derivadas, sem download próprio —
+                só `dbt run/test` lendo da mãe.
+        """
+        rename_flow_run_dataset_table(
+            prefix="Extract and Load: ",
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
+        )
+
+        download_result = self.extract_load_data(download_params)
+
+        upload_to_gcs(
+            data_path=download_result.data_path,
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
+            bucket_name="basedosdados-dev",
+            dump_mode=download_result.dump_mode,
+            source_format=download_result.source_format,
+        )
+
+        promote_primary_and_derived_tables(
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
+            data_path=download_result.data_path,
+            derived_table_ids=derived_table_ids,
+            env=self.env,
+            prefect_mode=download_result.prefect_mode,
+            dump_mode=download_result.dump_mode,
+            source_format=download_result.source_format,
         )

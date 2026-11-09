@@ -59,26 +59,44 @@ def build_session() -> requests.Session:
     return session
 
 
-def build_paths(table_id: str) -> tuple[Path, Path]:
-    """Cria os diretórios de trabalho da tabela.
+def build_input_dir(table_id: str) -> Path:
+    """Cria, sem apagar, o diretório de entrada da tabela.
 
-    O `output/` é apagado a cada chamada, de modo que sobra de uma execução
-    anterior não entre no upload seguinte. O `input/` é preservado, porque a
-    limpeza precisa do que o download acabou de escrever e porque o zip parcial
-    de uma tentativa interrompida é o que permite retomar a seguinte.
+    Preservado entre chamadas porque a limpeza precisa do que o download
+    acabou de escrever, e porque o zip parcial de uma tentativa interrompida
+    é o que permite retomar a seguinte.
 
     Args:
         table_id: Slug da tabela.
 
     Returns:
-        Os caminhos de `input/` e de `output/`, nessa ordem.
+        O caminho de `input/`.
     """
-    base = Path(constants.PATH.value) / table_id
-    input_dir, output_dir = base / "input", base / "output"
-    shutil.rmtree(output_dir, ignore_errors=True)
+    input_dir = Path(constants.PATH.value) / table_id / "input"
     input_dir.mkdir(parents=True, exist_ok=True)
+    return input_dir
+
+
+def build_output_dir(table_id: str, ano: str) -> Path:
+    """Cria o diretório de saída da edição, apagado a cada chamada.
+
+    Um diretório por edição: sobra de uma execução anterior não entra no
+    upload seguinte, e um backfill que processa mais de uma edição na mesma
+    execução não perde o particionado de uma edição ao limpar a seguinte —
+    `assemble_data_path` reúne as edições processadas num só diretório antes
+    do upload.
+
+    Args:
+        table_id: Slug da tabela.
+        ano: Edição processada, no formato `%Y`.
+
+    Returns:
+        O caminho de `output/<ano>/`.
+    """
+    output_dir = Path(constants.PATH.value) / table_id / "output" / ano
+    shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True, exist_ok=True)
-    return input_dir, output_dir
+    return output_dir
 
 
 def get_source_max_date() -> str:
@@ -254,7 +272,7 @@ def download_table(table_id: str, ano: str) -> Path:
     Raises:
         FileNotFoundError: Se o zip não tiver o CSV esperado da tabela.
     """
-    input_dir, _ = build_paths(table_id)
+    input_dir = build_input_dir(table_id)
     url = constants.DOWNLOAD_LINK.value.format(ano=ano)
     zip_path = input_dir / f"microdados_enem_{ano}.zip"
     prefixo = constants.TABLES.value[table_id]["file_prefix"]
@@ -392,7 +410,8 @@ def clean_table(table_id: str, ano: str) -> Path:
     Raises:
         FileNotFoundError: Se o CSV da edição não estiver em `input/`.
     """
-    input_dir, output_dir = build_paths(table_id)
+    input_dir = build_input_dir(table_id)
+    output_dir = build_output_dir(table_id, ano)
     prefixo = constants.TABLES.value[table_id]["file_prefix"]
 
     arquivos = [
@@ -412,6 +431,34 @@ def clean_table(table_id: str, ano: str) -> Path:
         output_dir,
     )
     return output_dir
+
+
+def assemble_data_path(table_id: str, output_dirs: list[Path]) -> Path:
+    """Reúne num só diretório as partições de todas as edições de uma execução.
+
+    O pipeline em estágios sobe um único `data_path` por execução de
+    extract_and_load, mas `clean_table` devolve um `output/<ano>/` por
+    edição — e um backfill costuma processar mais de uma. Esta função move a
+    pasta `ano=<ano>` de cada `output_dir` pra uma raiz compartilhada, que o
+    upload então enxerga como as partições Hive atualizadas nesta execução.
+
+    Args:
+        table_id: Slug da tabela.
+        output_dirs: Diretórios devolvidos por `clean_table`, um por edição
+            processada nesta execução.
+
+    Returns:
+        O diretório compartilhado, no formato esperado por `upload_to_gcs`.
+    """
+    combined_dir = Path(constants.PATH.value) / table_id / "combined"
+    shutil.rmtree(combined_dir, ignore_errors=True)
+    combined_dir.mkdir(parents=True, exist_ok=True)
+
+    for output_dir in output_dirs:
+        for leaf in output_dir.iterdir():
+            shutil.move(str(leaf), str(combined_dir / leaf.name))
+
+    return combined_dir
 
 
 def write_partitions(

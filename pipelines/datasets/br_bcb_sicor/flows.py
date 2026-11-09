@@ -4,9 +4,18 @@ Flows para br_bcb_sicor — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.bcb.flows import _run_bcb_sicor
-from pipelines.crawler.bcb.tasks import create_load_dictionary
+from pipelines.datasets.br_bcb_sicor.tasks import (
+    create_load_dictionary,
+    download_table,
+    get_sicor_table_size,
+    search_sicor_links,
+)
 from pipelines.utils.flow import flow
+from pipelines.utils.metadata.tasks import (
+    commit_source_size_update_task,
+    poll_source_size_for_update_task,
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
     run_dbt,
@@ -14,13 +23,106 @@ from pipelines.utils.tasks import (
 )
 
 
+def _run_bcb_sicor(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+    dump_mode: str,
+    source_format: str,
+    download_all_files: bool = False,
+    local_redis_execution: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    download_links = search_sicor_links()
+
+    table_size = get_sicor_table_size(
+        download_links,
+        table_id=table_id,
+        download_all_files=download_all_files,
+    )
+
+    if not force_run:
+        has_new_data = poll_source_size_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            byte_length=table_size,
+            env="prod",
+            local_execution=local_redis_execution,
+        )
+        if not has_new_data:
+            print(f"Não há atualizações para a tabela {table_id}!")
+            return
+
+    print("Existem atualizações! A run será iniciada.")
+    download_dir = download_table(
+        download_links,
+        table_id=table_id,
+        download_all_files=download_all_files,
+    )
+
+    upload_to_gcs(
+        data_path=download_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode=dump_mode,
+        source_format=source_format,
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=download_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode=dump_mode,
+        source_format=source_format,
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+        commit_source_size_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            byte_length=table_size,
+            env="prod",
+            local_execution=local_redis_execution,
+        )
+
+
 def _sicor_flow(
     table_id: str,
     cron: str,
     dump_mode: str = "overwrite",
     source_format: str = "parquet",
-    coverage_type: str = "part_bdpro",
-    historical_database: bool = True,
 ):
     @flow(
         name=f"br_bcb_sicor__{table_id}",
@@ -45,8 +147,6 @@ def _sicor_flow(
             force_run=force_run,
             dump_mode=dump_mode,
             source_format=source_format,
-            coverage_type=coverage_type,
-            historical_database=historical_database,
             download_all_files=download_all_files,
             local_redis_execution=local_redis_execution,
         )
@@ -117,8 +217,6 @@ br_bcb_sicor__empreendimento = _sicor_flow(
     table_id="empreendimento",
     cron="35 5 * * 1-5",
     source_format="csv",
-    coverage_type="all_free",
-    historical_database=False,
 )
 
 # Tabelas de domínio: não têm `ano_emissao`/`mes_emissao`, então a cobertura é
@@ -126,16 +224,12 @@ br_bcb_sicor__empreendimento = _sicor_flow(
 br_bcb_sicor__instituicao_financeira = _sicor_flow(
     table_id="instituicao_financeira",
     cron="45 5 * * 1-5",
-    coverage_type="all_free",
-    historical_database=False,
 )
 
 br_bcb_sicor__fonte_recurso = _sicor_flow(
     table_id="fonte_recurso",
     cron="55 5 * * 1-5",
     source_format="csv",
-    coverage_type="all_free",
-    historical_database=False,
 )
 
 # ── Proagro ──────────────────────────────────────────────────────────────────

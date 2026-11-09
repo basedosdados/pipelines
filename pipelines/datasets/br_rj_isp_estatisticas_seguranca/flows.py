@@ -4,7 +4,7 @@ Flows for br_rj_isp_estatisticas_seguranca — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.isp.flows import _run_isp
+from pipelines.datasets.br_rj_isp_estatisticas_seguranca.tasks import _run_isp
 from pipelines.utils.flow import flow
 
 

@@ -26,7 +26,6 @@ from pipelines.datasets.us_state_foreign_assistance.tasks import (
     download_source,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -42,17 +41,8 @@ DATASET_ID = constants.DATASET_ID.value
 TABLES = constants.TABLES.value  # transaction, budget, dicionario
 POLL_TABLE = "transaction"
 
-# Both fact tables are annual (fiscal year) and refreshed quarterly, below the
-# monthly threshold for a BD Pro window, so they stay fully free. `dicionario`
-# has no date column and takes no coverage spec.
-_COVERAGE = {
-    "transaction": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "budget": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-}
+# `dicionario` has no date column and takes no coverage spec.
+TABLES_WITH_COVERAGE = ["transaction", "budget"]
 
 
 def _upload_and_run(result: dict, bucket_name: str, target: str) -> None:
@@ -155,11 +145,10 @@ def us_state_foreign_assistance_flow(
         _upload_and_run(result, bucket_name="basedosdados", target="prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table in TABLES_WITH_COVERAGE:
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
                 )
@@ -182,7 +171,7 @@ us_state_foreign_assistance_flow.deploy_schedules = [
 # `memory_limit` and `memory_request` separately from `memory`, and a run that set
 # only `memory` was OOM-killed well below the value it asked for — so `memory`
 # alone is not reliably the container limit. Flows with a real memory floor
-# (br_me_cnpj, br_anatel_telefonia_movel, br_sfb_sicar) all set the explicit pair.
+# (br_anatel_telefonia_movel, br_sfb_sicar) all set the explicit pair.
 us_state_foreign_assistance_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

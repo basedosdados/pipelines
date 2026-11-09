@@ -1,215 +1,694 @@
-"""
-Flows for br_senado_dados_abertos — Prefect 3.
-
-Senado Federal legislative open data. One flow refreshes all 18 tables from the
-public Legislative Open Data API each day: the ten dimensions in full, the eight
-time-series tables (votacao, votacao_parlamentar, votacao_orientacao_bancada,
-processo, relatoria, votacao_comissao, votacao_comissao_parlamentar, discurso)
-for the recent window only — uploaded with ``dump_mode="append"``, which replaces
-just those ``ano=`` partitions and leaves history in place. Like
-the Câmara pipeline, there is no source-poll gate: legislative activity changes
-continuously, so a daily run is always meaningful.
-
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
-the dev pool ignores the schedule, the prod pool activates it.
-"""
-
-import shutil
-import tempfile
+"""Flows de br_senado_dados_abertos — Prefect 3, modelo em estágios."""
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_senado_dados_abertos.constants import constants
-from pipelines.datasets.br_senado_dados_abertos.tasks import extract_clean
+from pipelines.datasets.br_senado_dados_abertos.constants import (
+    constants,
+    constants_bloco,
+    constants_comissao,
+    constants_discurso,
+    constants_lideranca,
+    constants_mesa,
+    constants_partido,
+    constants_processo,
+    constants_relatoria,
+    constants_senador,
+    constants_senador_cargo,
+    constants_senador_comissao,
+    constants_senador_filiacao,
+    constants_senador_mandato,
+    constants_votacao,
+    constants_votacao_comissao,
+    constants_votacao_comissao_parlamentar,
+    constants_votacao_orientacao_bancada,
+    constants_votacao_parlamentar,
+)
+from pipelines.datasets.br_senado_dados_abertos.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
+
+_senador_pipeline = make_pipeline(constants_senador.TABLE_ID.value)
+
+
+@flow(name=_senador_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_check_update() -> None:
+    _senador_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_senador_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador.TABLE_ID.value,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
-
-DATASET_ID = constants.DATASET_ID.value
-ALL_TABLES = constants.ALL_TABLES.value
-
-# BD Pro rolling window: the eight time-series tables paywall their most recent
-# 6 months (part_bdpro), everything older is free. register_table_materialization_task
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges, and
-# re-issues the BigQuery Row Access Policies each run, so the window slides on
-# its own. It requires BOTH a free and a pro Coverage to already exist on the
-# table, or assert_coverage_topology raises — the pro Coverage is created once
-# before the pipeline is first armed. The dimension tables stay fully free and
-# keep their onboarding coverage, so they are not re-registered here.
-_COVERAGE = {
-    "votacao": PartBdpro(
-        date_column=DateOnly(col="data_sessao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "votacao_parlamentar": PartBdpro(
-        date_column=DateOnly(col="data_sessao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "votacao_orientacao_bancada": PartBdpro(
-        date_column=DateOnly(col="data_votacao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "processo": PartBdpro(
-        date_column=DateOnly(col="data_apresentacao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "relatoria": PartBdpro(
-        date_column=DateOnly(col="data_designacao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "votacao_comissao": PartBdpro(
-        date_column=DateOnly(col="data_reuniao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "votacao_comissao_parlamentar": PartBdpro(
-        date_column=DateOnly(col="data_reuniao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-    "discurso": PartBdpro(
-        date_column=DateOnly(col="data_sessao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
-
-
-@flow(name="br_senado_dados_abertos", log_prints=True)
-def br_senado_dados_abertos_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Refresh all ten Senate tables and materialize them.
-
-    Dimensions are rebuilt in full; the time-series tables refresh the recent
-    window and append (replacing only those partitions). There is no source
-    poll — the run always materializes.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, roll the BD Pro
-            coverage window (re-issuing Row Access Policies) and commit the source
-            update. No effect when ``materialize_to_prod`` is False.
-        force_run: Accepted for parity with the other dataset flows; this flow has
-            no source-poll gate, so it does not change behavior.
-    """
-    _ = force_run
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
-    )
-
-    work_dir = tempfile.mkdtemp(prefix="br_senado_dados_abertos_")
-    try:
-        result = extract_clean(
-            work_dir=work_dir, prior_years=constants.REFRESH_PRIOR_YEARS.value
-        )
-        max_ds = result["max_data_sessao"]
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        # Build every table before testing any of them. A test may read a
-        # sibling model — today only the directory refs (uf, ano), but an
-        # intra-dataset `relationships` added later would fail on a clean
-        # environment if the sibling had not been built yet, and pass in a
-        # re-run only because a stale copy survived.
-        if not materialize_to_prod:
-            # Dev: upload staging (append = replace refreshed partitions) + dbt.
-            for table in ALL_TABLES:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="append",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in ALL_TABLES:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + dbt.
-        for table in ALL_TABLES:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in ALL_TABLES:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="votacao",
-                source_max_date=max_ds,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
-# Legislative activity updates on business days; refresh every morning (BRT).
-br_senado_dados_abertos_flow.deploy_schedules = [
+br_senado_dados_abertos_senador_check_update.deploy_schedules = [
     Cron("15 8 * * *", timezone="America/Sao_Paulo")
 ]
-br_senado_dados_abertos_flow.job_variables = {"memory": "4Gi"}
+
+
+@flow(name=_senador_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_download(download_params: dict) -> None:
+    _senador_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_senador_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador.TABLE_ID.value,
+)
+_senador_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_senador_download.fn.__name__
+)
+
+
+_partido_pipeline = make_pipeline(constants_partido.TABLE_ID.value)
+
+
+@flow(name=_partido_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_partido_check_update() -> None:
+    _partido_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_partido_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_partido.TABLE_ID.value,
+)
+br_senado_dados_abertos_partido_check_update.deploy_schedules = [
+    Cron("23 8 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_partido_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_partido_download(download_params: dict) -> None:
+    _partido_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_partido_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_partido.TABLE_ID.value,
+)
+_partido_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_partido_download.fn.__name__
+)
+
+
+_bloco_pipeline = make_pipeline(constants_bloco.TABLE_ID.value)
+
+
+@flow(name=_bloco_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_bloco_check_update() -> None:
+    _bloco_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_bloco_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_bloco.TABLE_ID.value,
+)
+br_senado_dados_abertos_bloco_check_update.deploy_schedules = [
+    Cron("31 8 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_bloco_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_bloco_download(download_params: dict) -> None:
+    _bloco_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_bloco_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_bloco.TABLE_ID.value,
+)
+_bloco_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_bloco_download.fn.__name__
+)
+
+
+_lideranca_pipeline = make_pipeline(constants_lideranca.TABLE_ID.value)
+
+
+@flow(name=_lideranca_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_lideranca_check_update() -> None:
+    _lideranca_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_lideranca_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_lideranca.TABLE_ID.value,
+)
+br_senado_dados_abertos_lideranca_check_update.deploy_schedules = [
+    Cron("39 8 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_lideranca_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_lideranca_download(download_params: dict) -> None:
+    _lideranca_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_lideranca_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_lideranca.TABLE_ID.value,
+)
+_lideranca_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_lideranca_download.fn.__name__
+)
+
+
+_comissao_pipeline = make_pipeline(constants_comissao.TABLE_ID.value)
+
+
+@flow(name=_comissao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_comissao_check_update() -> None:
+    _comissao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_comissao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_comissao.TABLE_ID.value,
+)
+br_senado_dados_abertos_comissao_check_update.deploy_schedules = [
+    Cron("47 8 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_comissao_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_comissao_download(download_params: dict) -> None:
+    _comissao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_comissao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_comissao.TABLE_ID.value,
+)
+_comissao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_comissao_download.fn.__name__
+)
+
+
+_mesa_pipeline = make_pipeline(constants_mesa.TABLE_ID.value)
+
+
+@flow(name=_mesa_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_mesa_check_update() -> None:
+    _mesa_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_mesa_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_mesa.TABLE_ID.value,
+)
+br_senado_dados_abertos_mesa_check_update.deploy_schedules = [
+    Cron("55 8 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_mesa_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_mesa_download(download_params: dict) -> None:
+    _mesa_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_mesa_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_mesa.TABLE_ID.value,
+)
+_mesa_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_mesa_download.fn.__name__
+)
+
+
+_senador_mandato_pipeline = make_pipeline(
+    constants_senador_mandato.TABLE_ID.value
+)
+
+
+@flow(name=_senador_mandato_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_mandato_check_update() -> None:
+    _senador_mandato_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_senador_mandato_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador_mandato.TABLE_ID.value,
+)
+br_senado_dados_abertos_senador_mandato_check_update.deploy_schedules = [
+    Cron("3 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_senador_mandato_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def br_senado_dados_abertos_senador_mandato_download(
+    download_params: dict,
+) -> None:
+    _senador_mandato_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_senador_mandato_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_mandato.TABLE_ID.value,
+)
+_senador_mandato_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_senador_mandato_download.fn.__name__
+)
+
+
+_senador_filiacao_pipeline = make_pipeline(
+    constants_senador_filiacao.TABLE_ID.value
+)
+
+
+@flow(name=_senador_filiacao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_filiacao_check_update() -> None:
+    _senador_filiacao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_senador_filiacao_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_senador_filiacao.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_senador_filiacao_check_update.deploy_schedules = [
+    Cron("11 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_senador_filiacao_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def br_senado_dados_abertos_senador_filiacao_download(
+    download_params: dict,
+) -> None:
+    _senador_filiacao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_senador_filiacao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_filiacao.TABLE_ID.value,
+)
+_senador_filiacao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_senador_filiacao_download.fn.__name__
+)
+
+
+_senador_comissao_pipeline = make_pipeline(
+    constants_senador_comissao.TABLE_ID.value
+)
+
+
+@flow(name=_senador_comissao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_comissao_check_update() -> None:
+    _senador_comissao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_senador_comissao_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_senador_comissao.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_senador_comissao_check_update.deploy_schedules = [
+    Cron("19 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_senador_comissao_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def br_senado_dados_abertos_senador_comissao_download(
+    download_params: dict,
+) -> None:
+    _senador_comissao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_senador_comissao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_comissao.TABLE_ID.value,
+)
+_senador_comissao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_senador_comissao_download.fn.__name__
+)
+
+
+_senador_cargo_pipeline = make_pipeline(constants_senador_cargo.TABLE_ID.value)
+
+
+@flow(name=_senador_cargo_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_cargo_check_update() -> None:
+    _senador_cargo_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_senador_cargo_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador_cargo.TABLE_ID.value,
+)
+br_senado_dados_abertos_senador_cargo_check_update.deploy_schedules = [
+    Cron("27 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_senador_cargo_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_senador_cargo_download(
+    download_params: dict,
+) -> None:
+    _senador_cargo_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_senador_cargo_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_cargo.TABLE_ID.value,
+)
+_senador_cargo_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_senador_cargo_download.fn.__name__
+)
+
+
+_votacao_pipeline = make_pipeline(constants_votacao.TABLE_ID.value)
+
+
+@flow(name=_votacao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_votacao_check_update() -> None:
+    _votacao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_votacao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_votacao.TABLE_ID.value,
+)
+br_senado_dados_abertos_votacao_check_update.deploy_schedules = [
+    Cron("35 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_votacao_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_votacao_download(download_params: dict) -> None:
+    _votacao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_votacao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_votacao.TABLE_ID.value,
+)
+_votacao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_votacao_download.fn.__name__
+)
+
+
+_votacao_parlamentar_pipeline = make_pipeline(
+    constants_votacao_parlamentar.TABLE_ID.value
+)
+
+
+@flow(
+    name=_votacao_parlamentar_pipeline.check_update_flow_name, log_prints=True
+)
+def br_senado_dados_abertos_votacao_parlamentar_check_update() -> None:
+    _votacao_parlamentar_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_votacao_parlamentar_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_votacao_parlamentar.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_votacao_parlamentar_check_update.deploy_schedules = [
+    Cron("43 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_votacao_parlamentar_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_votacao_parlamentar_download(
+    download_params: dict,
+) -> None:
+    _votacao_parlamentar_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_votacao_parlamentar_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_votacao_parlamentar.TABLE_ID.value,
+)
+_votacao_parlamentar_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_votacao_parlamentar_download.fn.__name__
+)
+
+
+_votacao_orientacao_bancada_pipeline = make_pipeline(
+    constants_votacao_orientacao_bancada.TABLE_ID.value
+)
+
+
+@flow(
+    name=_votacao_orientacao_bancada_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_votacao_orientacao_bancada_check_update() -> None:
+    _votacao_orientacao_bancada_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_votacao_orientacao_bancada_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_votacao_orientacao_bancada.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_votacao_orientacao_bancada_check_update.deploy_schedules = [
+    Cron("51 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_votacao_orientacao_bancada_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_votacao_orientacao_bancada_download(
+    download_params: dict,
+) -> None:
+    _votacao_orientacao_bancada_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_votacao_orientacao_bancada_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_votacao_orientacao_bancada.TABLE_ID.value,
+    )
+)
+_votacao_orientacao_bancada_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_votacao_orientacao_bancada_download.fn.__name__
+)
+
+
+_processo_pipeline = make_pipeline(constants_processo.TABLE_ID.value)
+
+
+@flow(name=_processo_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_processo_check_update() -> None:
+    _processo_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_processo_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_processo.TABLE_ID.value,
+)
+br_senado_dados_abertos_processo_check_update.deploy_schedules = [
+    Cron("59 9 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_processo_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_processo_download(download_params: dict) -> None:
+    _processo_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_processo_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_processo.TABLE_ID.value,
+)
+_processo_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_processo_download.fn.__name__
+)
+
+
+_relatoria_pipeline = make_pipeline(constants_relatoria.TABLE_ID.value)
+
+
+@flow(name=_relatoria_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_relatoria_check_update() -> None:
+    _relatoria_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_relatoria_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_relatoria.TABLE_ID.value,
+)
+br_senado_dados_abertos_relatoria_check_update.deploy_schedules = [
+    Cron("7 10 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_relatoria_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_relatoria_download(download_params: dict) -> None:
+    _relatoria_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_relatoria_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_relatoria.TABLE_ID.value,
+)
+_relatoria_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_relatoria_download.fn.__name__
+)
+
+
+_votacao_comissao_pipeline = make_pipeline(
+    constants_votacao_comissao.TABLE_ID.value
+)
+
+
+@flow(name=_votacao_comissao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_votacao_comissao_check_update() -> None:
+    _votacao_comissao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_votacao_comissao_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_votacao_comissao.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_votacao_comissao_check_update.deploy_schedules = [
+    Cron("15 10 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_votacao_comissao_pipeline.extract_and_load_flow_name, log_prints=True
+)
+def br_senado_dados_abertos_votacao_comissao_download(
+    download_params: dict,
+) -> None:
+    _votacao_comissao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_votacao_comissao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_votacao_comissao.TABLE_ID.value,
+)
+_votacao_comissao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_votacao_comissao_download.fn.__name__
+)
+
+
+_votacao_comissao_parlamentar_pipeline = make_pipeline(
+    constants_votacao_comissao_parlamentar.TABLE_ID.value
+)
+
+
+@flow(
+    name=_votacao_comissao_parlamentar_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_votacao_comissao_parlamentar_check_update() -> (
+    None
+):
+    _votacao_comissao_parlamentar_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_votacao_comissao_parlamentar_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_votacao_comissao_parlamentar.TABLE_ID.value,
+)
+br_senado_dados_abertos_votacao_comissao_parlamentar_check_update.deploy_schedules = [
+    Cron("23 10 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_votacao_comissao_parlamentar_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_votacao_comissao_parlamentar_download(
+    download_params: dict,
+) -> None:
+    _votacao_comissao_parlamentar_pipeline.run_extract_and_load(
+        download_params
+    )
+
+
+br_senado_dados_abertos_votacao_comissao_parlamentar_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_votacao_comissao_parlamentar.TABLE_ID.value,
+    )
+)
+_votacao_comissao_parlamentar_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_votacao_comissao_parlamentar_download.fn.__name__
+)
+
+
+_discurso_pipeline = make_pipeline(constants_discurso.TABLE_ID.value)
+
+
+@flow(name=_discurso_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_discurso_check_update() -> None:
+    _discurso_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_discurso_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_discurso.TABLE_ID.value,
+)
+br_senado_dados_abertos_discurso_check_update.deploy_schedules = [
+    Cron("31 10 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_discurso_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_discurso_download(download_params: dict) -> None:
+    _discurso_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_discurso_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_discurso.TABLE_ID.value,
+)
+_discurso_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_discurso_download.fn.__name__
+)
