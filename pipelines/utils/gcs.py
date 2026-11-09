@@ -57,35 +57,46 @@ def list_blobs_with_prefix(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def dump_header(data_path: str | Path, source_format: str) -> str:
-    """
-    Escreve apenas o cabeçalho de um CSV ou Parquet para um arquivo temporário.
-    Necessário para criar a tabela staging no BQ antes do primeiro upload.
-    Retorna o caminho do diretório com o arquivo de cabeçalho.
+def dump_header(data_path: str | Path) -> tuple[str, str]:
+    """Escreve só o cabeçalho de um CSV ou Parquet pra um arquivo temporário.
+
+    Necessário pra criar a tabela staging no BQ antes do primeiro upload.
+    O formato é sempre detectado pela extensão do primeiro arquivo
+    encontrado em `data_path` — nunca declarado pelo chamador.
+
+    Args:
+        data_path: arquivo ou diretório com os dados baixados/gerados.
+
+    Returns:
+        `(save_header_path, source_format)` — o diretório com o arquivo de
+        cabeçalho, e o formato detectado (`"csv"` ou `"parquet"`).
     """
     path = Path(data_path)
     if not path.is_dir():
         path = path.parent
 
     file: str | None = None
+    source_format: str | None = None
     for subdir, _, filenames in walk(str(path)):
         for fname in filenames:
-            if (source_format == "csv" and fname.endswith(".csv")) or (
-                source_format == "parquet" and fname.endswith(".parquet")
-            ):
-                file = join(subdir, fname)
-                break
+            if fname.endswith(".csv"):
+                file, source_format = join(subdir, fname), "csv"
+            elif fname.endswith(".parquet"):
+                file, source_format = join(subdir, fname), "parquet"
+            else:
+                continue
+            break
         if file:
             break
 
-    if file is None:
+    if file is None or source_format is None:
         raise FileNotFoundError(
-            f"Nenhum arquivo {source_format} encontrado em {path}"
+            f"Nenhum arquivo csv ou parquet encontrado em {path}"
         )
 
     save_header_path = f"data/{uuid4()}"
     partition_folders = [folder for folder in file.split("/") if "=" in folder]
-    ext = source_format  # csv ou parquet
+    ext = source_format
 
     if partition_folders:
         partition_path = "/".join(partition_folders)
@@ -107,7 +118,7 @@ def dump_header(data_path: str | Path, source_format: str) -> str:
             save_header_file_path, index=False
         )
 
-    return save_header_path
+    return save_header_path, source_format
 
 
 # ──────────────────────────────────────────────────────────────────────────────

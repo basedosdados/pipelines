@@ -116,7 +116,6 @@ def world_bis_property_prices_flow(
                 table_id=TABLE_ID,
                 bucket_name="basedosdados-dev",
                 dump_mode=_DUMP_MODE,
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,
@@ -133,7 +132,6 @@ def world_bis_property_prices_flow(
             table_id=TABLE_ID,
             bucket_name="basedosdados",
             dump_mode=_DUMP_MODE,
-            source_format="parquet",
         )
         run_dbt(
             dataset_id=DATASET_ID,
