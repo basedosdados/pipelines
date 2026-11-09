@@ -6,6 +6,7 @@ import contextlib
 import ftplib
 import gc
 import re
+import shutil
 from pathlib import Path
 
 import basedosdados as bd
@@ -174,6 +175,10 @@ def build_partitions(
     """Clean and partition RAIS data for one year, writing CSV output."""
     year_input_dir = Path(input_dir) / str(year)
     output_dir = Path(output_dir)
+    # `to_partitions` grava em append: sobra de uma tentativa anterior do mesmo
+    # ano no mesmo diretório duplicaria linhas.
+    year_output_dir = output_dir / f"ano={year}"
+    shutil.rmtree(year_output_dir, ignore_errors=True)
 
     df_municipio = bd.read_sql(
         "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados-dev.br_bd_diretorios_brasil.municipio`",
@@ -190,7 +195,7 @@ def build_partitions(
             year, year_input_dir, output_dir, df_municipio
         )
 
-    check_rows_written(rows_read=rows_read, output_dir=output_dir)
+    check_rows_written(rows_read=rows_read, output_dir=year_output_dir)
 
     return output_dir
 
