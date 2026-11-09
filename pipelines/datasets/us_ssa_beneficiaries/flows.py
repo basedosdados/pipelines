@@ -117,7 +117,6 @@ def us_ssa_beneficiaries_flow(
                 table_id=table,
                 bucket_name=bucket,
                 dump_mode="overwrite",
-                source_format="parquet",
             )
         for table in tables:
             run_dbt(
