@@ -189,7 +189,6 @@ def br_mps_beneficios_flow(
             table_id=DICIONARIO,
             bucket_name=bucket,
             dump_mode="overwrite",
-            source_format="parquet",
         )
         for table_id, result in staged.items():
             # append, not overwrite: the run stages one new competência as its
@@ -201,7 +200,6 @@ def br_mps_beneficios_flow(
                 table_id=table_id,
                 bucket_name=bucket,
                 dump_mode="append",
-                source_format="parquet",
             )
 
         for table_id in (DICIONARIO, *staged):
