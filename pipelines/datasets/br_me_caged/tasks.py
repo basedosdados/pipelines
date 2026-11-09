@@ -647,7 +647,6 @@ def extract_load_data(table_id: str, download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=filepath,
         dump_mode="append",
-        source_format="csv",
     )
 
 
