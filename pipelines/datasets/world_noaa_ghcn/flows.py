@@ -143,7 +143,6 @@ def world_noaa_ghcn_flow(
                 table_id=table,
                 bucket_name=bucket,
                 dump_mode="append",
-                source_format="parquet",
             )
         for table in ALL_TABLES:
             run_dbt(

@@ -96,7 +96,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             # `pre_process_files` grava parquet — sem declarar o formato, o
             # `dump_header` chamado por `_sync_staging_schema` procura .csv e
             # não encontra nada (mesmo aviso já existente no flow antigo).
-            source_format="parquet",
         )
 
     return extract_load_data
