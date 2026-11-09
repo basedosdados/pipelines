@@ -8,7 +8,6 @@ import os
 import shutil
 import time
 from functools import lru_cache
-from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
@@ -23,7 +22,7 @@ from pipelines.utils.apply_architecture_to_dataframe.utils import (
     rename_columns,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
-from pipelines.utils.utils import download_and_unzip_file, log
+from pipelines.utils.utils import log
 
 
 def build_urls(
@@ -99,123 +98,6 @@ def build_input(table_id):
     return list_input
 
 
-def download_file(
-    dataset_id: str,
-    table_id: str,
-    relative_month=int,
-    # pyrefly: ignore [bad-return]
-) -> datetime.date:
-    """
-    Downloads and unzips a file from a specified URL based on the given table ID, year, and month.
-
-    Parameters:
-    table_id (str): The identifier for the table to download data for.
-    year (int): The year for which data is to be downloaded.
-    month (int): The month for which data is to be downloaded.
-    relative_month (int): The relative month used for querying metadata.
-
-    Returns:
-    None: If the file is successfully downloaded and unzipped.
-    str: The next date in the API if the URL is found.
-    str: The last date in the API if the URL is not found.
-    """
-
-    last_date_in_api, next_date_in_api = last_date_in_metadata(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        # pyrefly: ignore [bad-argument-type]
-        relative_month=relative_month,
-    )
-    value_constants = constants.TABELAS.value[dataset_id][table_id]
-    if dataset_id in [
-        "br_cgu_cartao_pagamento",
-        "br_cgu_licitacao_contrato",
-        "br_cgu_beneficios_cidadao",
-    ]:
-        # pyrefly: ignore [bad-argument-type]
-        input = Path(value_constants["INPUT"])
-        if not os.path.exists(input):
-            os.makedirs(input)
-        url = build_urls(
-            # pyrefly: ignore [bad-argument-type]
-            url=value_constants["URL"],
-            year=next_date_in_api.year,
-            month=next_date_in_api.month,
-            table_id=table_id,
-            dataset_id=dataset_id,
-        )
-
-        if dataset_id == "br_cgu_beneficios_cidadao" and isinstance(url, str):
-            url = url.rstrip("/")
-            headers = {
-                "User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]
-            }
-            status = source_url_is_available(url=url)
-        else:
-            headers = None
-            status = (
-                (
-                    requests.get(
-                        url=url, headers=headers, timeout=30
-                    ).status_code
-                    == 200
-                )
-                if isinstance(url, str)
-                else all(
-                    [
-                        requests.get(
-                            url=_url, headers=headers, timeout=30
-                        ).status_code
-                        == 200
-                        for _url in url
-                    ]
-                )
-            )
-
-        if status:
-            log(f"------------------ URL = {url} ------------------")
-            download_and_unzip_file(
-                # pyrefly: ignore [bad-argument-type]
-                url,
-                # pyrefly: ignore [bad-argument-type]
-                value_constants["INPUT"],
-                headers=headers,
-            )
-            return next_date_in_api
-        else:
-            log("URL não encontrada. Fazendo uma query na BD")
-            log(f"------------------ URL = {url} ------------------")
-            return last_date_in_api
-
-    elif dataset_id == "br_cgu_servidores_executivo_federal":
-        urls = build_urls(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            # pyrefly: ignore [bad-argument-type]
-            url=value_constants["URL"],
-            year=next_date_in_api.year,
-            month=next_date_in_api.month,
-        )
-        input_dirs = build_input(table_id)
-        log(f"------------------ URL = {urls} ------------------")
-
-        headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
-
-        for url, input_dir in zip(urls, input_dirs, strict=False):
-            log(f"Validating: {url}")
-            status = source_url_is_available(url=url)
-            if status:
-                destino = f"{value_constants['INPUT']}/{input_dir}"
-                download_and_unzip_file(url, destino, headers=headers)
-            else:
-                log(
-                    f"URL indisponível (não publicada ou bloqueada), pulando: {url}",
-                    level="warning",
-                )
-
-        return next_date_in_api
-
-
 # Função para carregar o dataframe
 @lru_cache(maxsize=1)  # Cache para evitar recarregar a tabela
 def load_municipio() -> None:
@@ -250,19 +132,19 @@ def read_csv(
     """
     Reads a CSV file from a specified path and processes its columns.
 
-        Args:
-            table_id (str): The identifier for the table to be read.
-            url (str): The URL from which the CSV file is to be read.
-            column_replace (List, optional): A list of column names whose values need to be replaced. Default is ['VALOR_TRANSACAO'].
+    Args:
+        table_id (str): The identifier for the table to be read.
+        url (str): The URL from which the CSV file is to be read.
+        column_replace (List, optional): A list of column names whose values need to be replaced. Default is ['VALOR_TRANSACAO'].
 
-        Returns:
-            pd.DataFrame: A DataFrame containing the processed data from the CSV file.
+    Returns:
+        pd.DataFrame: A DataFrame containing the processed data from the CSV file.
 
-        Notes:
-            - The function reads the CSV file from a directory specified in a constants file.
-            - It assumes the CSV file is encoded in 'latin1' and uses ';' as the separator.
-            - Column names are converted to uppercase, spaces are replaced with underscores, and accents are removed.
-            - For columns specified in `column_replace`, commas in their values are replaced  with dots and the values are converted to float.
+    Notes:
+        - The function reads the CSV file from a directory specified in a constants file.
+        - It assumes the CSV file is encoded in 'latin1' and uses ';' as the separator.
+        - Column names are converted to uppercase, spaces are replaced with underscores, and accents are removed.
+        - For columns specified in `column_replace`, commas in their values are replaced  with dots and the values are converted to float.
     """
 
     column_replace = (
@@ -335,22 +217,16 @@ def read_csv(
         return df
 
 
-def last_date_in_metadata(
-    dataset_id: str, table_id: str, relative_month: int
-) -> tuple[datetime.date, datetime.date]:
+def last_date_in_metadata(dataset_id: str, table_id: str) -> datetime.date:
     """
-    Retrieves the most recent date from the metadata of a specified dataset and table,
-    and calculates the next date based on a relative month offset.
+    Retorna a data mais recente de cobertura da tabela no backend de produção.
 
     Args:
         dataset_id (str): The ID of the dataset to query.
         table_id (str): The ID of the table within the dataset to query.
-        relative_month (int): The number of months to add to the most recent date to calculate the next date.
 
     Returns:
-        tuple: A tuple containing:
-            - last_date_in_api (datetime.date): The most recent date found in the API.
-            - next_date_in_api (datetime.date): The date obtained by adding the relative month to the most recent date.
+        last_date_in_api (datetime.date): The most recent date found in the API.
     """
 
     backend = bd.Backend(graphql_url=get_url("prod"))
@@ -360,6 +236,36 @@ def last_date_in_metadata(
         date_format="%Y-%m",
         backend=backend,
     )
+    return last_date_in_api
+
+
+def most_recent_available_date(
+    dataset_id: str,
+    table_id: str,
+    relative_month: int,
+    last_date_in_api: datetime.date,
+    availability_criteria: tuple[int, ...] = (200, 202, 405),
+) -> datetime.date:
+    """Encontra o mês mais recente já publicado na fonte.
+
+    Parte de `last_date_in_api + relative_month` e avança de `relative_month`
+    em `relative_month` enquanto TODAS as URLs do mês estiverem disponíveis,
+    até `MAX_MONTH_RANGE` passos ou a data de hoje. A disponibilidade é
+    "tudo ou nada": basta uma URL indisponível para o mês não valer.
+
+    Args:
+        dataset_id: ID do dataset.
+        table_id: ID da tabela.
+        relative_month: Passo, em meses, entre períodos consecutivos.
+        last_date_in_api: Última data já presente no backend.
+        availability_criteria: Status HTTP tratados como "pode estar
+            disponível" por `source_url_is_available`.
+
+    Returns:
+        O mês mais recente com todas as URLs disponíveis, ou
+        `last_date_in_api` se nenhum mês novo estiver publicado.
+    """
+
     status = False
     next_date_in_api = last_date_in_api + relativedelta(months=relative_month)
     value_constants = constants.TABELAS.value[dataset_id][table_id]
@@ -381,15 +287,24 @@ def last_date_in_metadata(
         log(f"Last date in API: {last_date_in_api}")
         log(f"Next date in API: {next_date_in_api}")
         if isinstance(urls, list):
-            status = all([source_url_is_available(url) for url in urls])
+            status = all(
+                [
+                    source_url_is_available(
+                        url, availability_criteria=availability_criteria
+                    )
+                    for url in urls
+                ]
+            )
         else:
-            status = source_url_is_available(urls)
+            status = source_url_is_available(
+                urls, availability_criteria=availability_criteria
+            )
         next_date_in_api = next_date_in_api + relativedelta(
             months=relative_month
         )
         _range_counter += 1
     next_date_in_api = next_date_in_api - relativedelta(months=relative_month)
-    return last_date_in_api, next_date_in_api
+    return next_date_in_api
 
 
 def create_column_ano(df: pd.DataFrame, csv_path: str) -> pd.DataFrame:
@@ -600,6 +515,7 @@ def source_url_is_available(
     url: str,
     max_retries: int = 5,
     wait_seconds: int = 30,
+    availability_criteria: tuple[int, ...] = (200, 202, 405),
 ) -> bool:
     """Verifica se o ZIP da fonte (portal CGU) está pronto para download.
 
@@ -607,19 +523,16 @@ def source_url_is_available(
     o ZIP e 200 (via redirect) quando pronto. Requisições sem User-Agent de
     navegador são bloqueadas com 405.
 
-    Parameters
-    ----------
-    url : str
-        URL de download do mês no portal da transparência.
-    max_retries : int
-        Tentativas enquanto a resposta for 202 (preparando).
-    wait_seconds : int
-        Segundos de espera entre tentativas quando 202.
+    Args:
+        url (str): URL de download do mês no portal da transparência.
+        max_retries (int): Tentativas enquanto a resposta for 202 (preparando).
+        wait_seconds (int): Segundos de espera entre tentativas quando 202.
+        availability_criteria (tuple[int, ...]): Códigos HTTP considerados
+            válidos ou como indisponibilidade apenas temporária.
 
-    Returns
-    -------
-    bool
-        True se o arquivo existe/está pronto; False caso contrário.
+    Returns:
+        bool
+            True se o arquivo existe/está pronto; False caso contrário.
     """
     headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
 
@@ -627,17 +540,18 @@ def source_url_is_available(
         with requests.get(
             url=url, headers=headers, stream=True, timeout=30
         ) as response:
-            if response.status_code == 200:
-                time.sleep(5)
-                return True
-            elif response.status_code == 202:
-                log(f"preparando ZIP, tentativa {t}")
-                time.sleep(wait_seconds)
-            elif response.status_code == 405:
-                log(
-                    f"Requisição com status code: {response.status_code}. Retry {t}"
-                )
-                time.sleep(15)
+            if response.status_code in availability_criteria:
+                if response.status_code == 200:
+                    time.sleep(5)
+                    return True
+                elif response.status_code == 202:
+                    log(f"preparando ZIP, tentativa {t}")
+                    time.sleep(wait_seconds)
+                else:
+                    log(
+                        f"Requisição com status code: {response.status_code}. Retry {t}"
+                    )
+                    time.sleep(15)
             else:
                 log(
                     f"Comportamento inesperado, requisição com status code: {response.status_code}"

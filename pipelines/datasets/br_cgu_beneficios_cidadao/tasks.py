@@ -3,14 +3,9 @@ Tasks for br_cgu_beneficios_cidadao.
 
 A fonte (Portal da Transparência) não expõe uma data de última atualização
 fora do próprio arquivo: descobrir se há mês novo exige checar a
-disponibilidade do ZIP mês a mês e baixá-lo quando disponível
-(`get_current_date_and_download_file`, em `pipelines/shared/cgu/tasks.py`
-— o ZIP é assíncrono, `source_url_is_available` faz polling até ficar
-pronto). A variante "check_and_download" que trataria esse caso à parte foi
-cancelada — decisão: todo dataset usa check_update -> extract_and_load,
-mesmo quando o check precisa baixar dado pra descobrir a data.
-`extract_load_data` baixa a fonte de novo, de forma independente — custo
-duplicado aceito.
+disponibilidade da URL mês a mês. A variante "check_and_download" que
+trataria esse caso à parte foi cancelada — decisão: todo dataset usa
+check_update -> extract_and_load.
 
 As 3 tabelas (`novo_bolsa_familia`, `garantia_safra`, `bpc`) têm cada uma
 sua própria URL/ZIP — nenhuma depende do download de outra, e não há
@@ -27,8 +22,12 @@ from pipelines.datasets.br_cgu_beneficios_cidadao.constants import (
     SOURCE_FORMAT,
 )
 from pipelines.shared.cgu.tasks import (
-    get_current_date_and_download_file,
+    download_file,
     read_and_partition_beneficios_cidadao,
+)
+from pipelines.shared.cgu.utils import (
+    last_date_in_metadata,
+    most_recent_available_date,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -39,26 +38,32 @@ from pipelines.utils.stage_dispatch import (
 
 def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
     def get_latest_update() -> SourceInspection:
-        reference_datetime = get_current_date_and_download_file(
-            table_id=table_id,
+        # Disponibilidade "tudo-ou-nada": o Portal publica os subsistemas de
+        # `table_id` em datas escalonadas dentro do mês, então o candidato só
+        # vale se TODOS já estiverem publicados
+        last_date_in_api = last_date_in_metadata(
             dataset_id=DATASET_ID,
-            relative_month=RELATIVE_MONTH,
+            table_id=table_id,
         )
-        return SourceInspection(reference_date=reference_datetime.date())
+        reference_date = most_recent_available_date(
+            dataset_id=DATASET_ID,
+            table_id=table_id,
+            relative_month=RELATIVE_MONTH,
+            last_date_in_api=last_date_in_api,
+        )
+        return SourceInspection(
+            reference_date=reference_date, compare_against="coverage"
+        )
 
     return get_latest_update
 
 
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        # `reference_date` em `download_params` não é usado pra parametrizar
-        # o download: `get_current_date_and_download_file` recalcula o mês
-        # a baixar sozinho, a partir da última data em metadados + relative_month
-        # — mesmo cálculo que o check_update acabou de fazer.
-        get_current_date_and_download_file(
+        download_file(
             table_id=table_id,
             dataset_id=DATASET_ID,
-            relative_month=RELATIVE_MONTH,
+            reference_date=download_params["reference_date"],
         )
         filepath = read_and_partition_beneficios_cidadao(table_id=table_id)
 
