@@ -167,7 +167,11 @@ class BrTseEleicoes:
             self.path_main = self.path_input / self.source
             # pyrefly: ignore [no-matching-overload]
             self.df_main = pd.read_csv(
-                self.path_main, sep=";", encoding="ISO-8859-1", dtype=str
+                self.path_main,
+                sep=";",
+                encoding="ISO-8859-1",
+                dtype=str,
+                usecols=self.source_columns(),
             )
 
         else:
@@ -235,6 +239,14 @@ class BrTseEleicoes:
 
     def form_df_base(self) -> None:
         pass
+
+    def source_columns(self) -> list[str] | None:
+        """Colunas do CSV principal que a tabela usa.
+
+        Returns:
+            Nomes das colunas a ler; `None` lê todas.
+        """
+        return None
 
 
 # Classes Dos Flows
@@ -337,44 +349,59 @@ class BensCandidato(BrTseEleicoes):
 
 
 class DespesasCandidato(BrTseEleicoes):
+    def source_columns(self) -> list[str]:
+        """Colunas do CSV de despesas que a tabela usa.
+
+        Returns:
+            Colunas de origem de `ORDER_DESPESAS`, sem as criadas vazias nem o
+            `id_municipio` do diretório, mais `SG_UE` e `CD_MUNICIPIO_FORNECEDOR`.
+        """
+        vazios = tse_constants.VAZIOS_DESPESA.value
+        columns = {
+            origin
+            for target, origin in tse_constants.ORDER_DESPESAS.value.items()
+            if target not in vazios and origin != "id_municipio"
+        }
+        columns.add("SG_UE")
+        columns.add("CD_MUNICIPIO_FORNECEDOR")
+        return sorted(columns)
+
     # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
+        """Monta a tabela de despesas a partir do CSV lido em `df_main`.
+
+        Busca o `id_municipio` num dicionário `id_municipio_tse` → `id_municipio`
+        e formata coluna a coluna, tirando cada coluna de origem de `df_main`
+        assim que ela é usada, sem copiar a tabela inteira.
+
+        Returns:
+            Tabela com as colunas de `ORDER_DESPESAS`, já formatadas.
+        """
         municipios = bd.read_sql(
             tse_constants.QUERY_MUNICIPIOS.value,
             from_file=True,
             billing_project_id=self.billing_project_id,
         )
-        # Precisamos limpas alguns zero a esquerda
-
-        for date_column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
-            # pyrefly: ignore [unsupported-operation]
-            self.df_main[date_column] = self.df_main[date_column].str.lstrip(
-                "0"
+        id_municipio_by_tse = dict(
+            zip(
+                municipios["id_municipio_tse"],
+                municipios["id_municipio"],
+                strict=True,
             )
-
-        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
-        # pyrefly: ignore [missing-attribute]
-        self.df_main.loc[
-            # pyrefly: ignore [unsupported-operation]
-            ~self.df_main["SG_UE"].astype(str).str.isdigit(), "SG_UE"
-        ] = None
-        # pyrefly: ignore [missing-attribute]
-        self.df_main = self.df_main.merge(
-            municipios,
-            left_on="SG_UE",
-            right_on="id_municipio_tse",
-            how="left",
         )
-        self.df_main[tse_constants.VAZIOS_DESPESA.value] = ""
 
-        base = self.df_main.loc[:, tse_constants.ORDER_DESPESAS.value.values()]
+        # pyrefly: ignore [bad-assignment]
+        source: pd.DataFrame = self.df_main
+        self.df_main = None
 
-        del self.df_main
-        base = base.fillna("")
-        base.columns = tse_constants.ORDER_DESPESAS.value.keys()
-        base = base.replace(self.remove, regex=False)
+        for column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
+            source[column] = source[column].str.lstrip("0")
+        source.loc[~source["SG_UE"].astype(str).str.isdigit(), "SG_UE"] = None
+        source["id_municipio"] = source["SG_UE"].map(id_municipio_by_tse)
 
-        slug_columns_format = [
+        order = tse_constants.ORDER_DESPESAS.value
+        vazios = tse_constants.VAZIOS_DESPESA.value
+        slug_columns = [
             "tipo_eleicao",
             "cargo",
             "origem_despesa",
@@ -383,16 +410,33 @@ class DespesasCandidato(BrTseEleicoes):
             "descricao_cnae_2_fornecedor",
             "tipo_fornecedor",
         ]
-        base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
-
-        # Formatar datas
         date_columns = [
             "data_eleicao",
             "data_despesa",
             "data_prestacao_contas",
         ]
-        base[date_columns] = base[date_columns].applymap(conv_data)
-        base.tipo_eleicao = base.tipo_eleicao.str.replace(
+
+        last_target_by_origin = {}
+        for target, origin in order.items():
+            last_target_by_origin[origin] = target
+
+        base = pd.DataFrame(index=source.index)
+        for target, origin in order.items():
+            if target in vazios:
+                column = pd.Series("", index=source.index)
+            elif last_target_by_origin[origin] == target:
+                column = source.pop(origin)
+            else:
+                column = source[origin]
+            column = column.fillna("").replace(self.remove, regex=False)
+            if target in slug_columns:
+                column = column.map(slugify)
+            if target in date_columns:
+                column = column.map(conv_data)
+            base[target] = column
+        del source
+
+        base["tipo_eleicao"] = base["tipo_eleicao"].str.replace(
             rf"eleicoes municipais {self.year}(?!\s-\s)",
             "eleicao ordinaria",
             regex=True,
