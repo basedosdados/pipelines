@@ -12,7 +12,14 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - sigla_uf
+            - sigla_partido
+            - titular_suplente
+            - mandato
+            - data_nascimento
+            - email
     columns:
       - name: id_senador
         description: >
@@ -66,7 +73,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_despesa]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [detalhamento]
     columns:
       - name: ano
         description: >
@@ -129,8 +137,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_senador]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [fax]
+          at_least: 0.95
+          ignore_values: [fax, chefe_gabinete]
     columns:
       - name: data_extracao
         description: >
@@ -166,8 +174,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_senador, nome_escritorio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [sigla_setor]
+          at_least: 0.95
+          ignore_values: [sigla_setor, telefone]
     columns:
       - name: data_extracao
         description: >
@@ -203,7 +211,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_senador]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -238,8 +246,8 @@ models:
             - tipo_beneficio
             - regime
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [data_fim]
+          at_least: 0.95
+          ignore_values: [data_fim, valor_remuneracao]
     columns:
       - name: data_extracao
         description: >
@@ -276,8 +284,18 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_servidor]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [tipo_cessao, orgao_origem, orgao_destino]
+          at_least: 0.95
+          ignore_values:
+            - cargo
+            - especialidade
+            - padrao
+            - codigo_funcao
+            - funcao
+            - sigla_lotacao
+            - lotacao
+            - tipo_cessao
+            - orgao_origem
+            - orgao_destino
     columns:
       - name: data_extracao
         description: >
@@ -350,7 +368,13 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, nome, sigla_lotacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - cargo
+            - categoria
+            - funcao
+            - afastamento
+            - isencao_ponto
     columns:
       - name: data_extracao
         description: >
@@ -406,7 +430,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes, id_remuneracao, tipo_folha]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -489,7 +513,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes, id_hora_extra, mes_ano_prestacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -536,7 +560,7 @@ models:
             - data
             - sigla_setor_prestacao
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -584,7 +608,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, matricula, tipo_quadro]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -620,7 +644,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, matricula, data_vacancia]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -652,7 +676,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, matricula, tipo_cessao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [cargo, categoria, lotacao, data_exercicio]
     columns:
       - name: data_extracao
         description: >
@@ -694,7 +719,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_pensionista]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [codigo_funcao, funcao]
     columns:
       - name: data_extracao
@@ -758,7 +783,16 @@ models:
             - tipo_contratacao
             - id_contratacao
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - numero_formatado
+            - status
+            - numero_licitacao
+            - sigla_unidade_gestora
+            - unidade_gestora
+            - fundamentacao_legal
+            - data_publicacao
+            - data_fim_vigencia
     columns:
       - name: data_extracao
         description: >
@@ -848,7 +882,7 @@ models:
             - sigla_orgao_gestor
             - tipo_gestao
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -883,7 +917,7 @@ models:
             - id_contratacao
             - id_item
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -925,7 +959,8 @@ models:
             - id_contratacao
             - id_garantia
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_vencimento]
     columns:
       - name: data_extracao
         description: >
@@ -966,7 +1001,8 @@ models:
             - id_contratacao
             - id_pagamento
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [observacao]
     columns:
       - name: data_extracao
         description: >
@@ -1014,7 +1050,8 @@ models:
             - id_contratacao
             - id_documento_fiscal
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_emissao, data_vencimento]
     columns:
       - name: data_extracao
         description: >
@@ -1056,7 +1093,7 @@ models:
             - id_pagamento
             - id_empenho
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1099,7 +1136,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_contratacao, id_aditivo]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [valor, data_publicacao]
     columns:
       - name: data_extracao
         description: >
@@ -1139,7 +1177,7 @@ models:
             - id_contratacao
             - id_acionamento
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1167,7 +1205,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_licitacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [situacao]
     columns:
       - name: data_extracao
         description: >
@@ -1209,7 +1248,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_licitacao, id_detalhamento]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1244,7 +1283,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_empresa]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1269,7 +1308,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, cpf, nome, id_item_contrato]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1310,7 +1349,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, cpf, nome, fornecedor]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1344,7 +1383,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, nome, sigla_orgao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1372,7 +1411,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, codigo_ato_concessao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [prazo_aplicacao, prazo_comprovacao]
     columns:
       - name: ano
@@ -1452,7 +1491,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, codigo_ato_concessao, numero]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -1496,7 +1535,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_transacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -1549,7 +1588,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_transacao, id_objeto]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -1596,7 +1635,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_movimentacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -1649,7 +1688,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_movimentacao, id_subtipo]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: >
@@ -1707,7 +1746,35 @@ models:
             - nivel_escolaridade
             - padrao_nivel_referencia
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - data_referencia
+            - categoria
+            - classe
+            - grupo
+            - cargo
+            - nivel
+            - especialidade
+            - referencia
+            - tabela_vencimento
+            - plano_carreira
+            - nivel_escolaridade
+            - padrao_nivel_referencia
+            - quantidade_cargos
+            - quantidade_ocupados
+            - quantidade_vagos
+            - quantidade_subtotal
+            - quantidade_total
+            - quantidade_com_opcao
+            - quantidade_sem_opcao
+            - quantidade_sem_vinculo
+            - quantidade_estaveis
+            - quantidade_nao_estaveis
+            - quantidade_total_ativo
+            - quantidade_aposentados
+            - quantidade_instituidores_pensao
+            - quantidade_beneficiarios_pensao
+            - quantidade_total_inativo
     columns:
       - name: data_extracao
         description: >
@@ -1819,12 +1886,14 @@ models:
             - sigla_setor
             - matricula_titular
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values:
             - matricula_substituto
             - nome_substituto
             - data_inicio_substituicao
             - data_fim_substituicao
+            - telefone
+            - endereco
     columns:
       - name: data_extracao
         description: >
@@ -1889,7 +1958,7 @@ models:
             - ano_direito
             - mes_direito
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: data_extracao
         description: >
@@ -1927,7 +1996,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
