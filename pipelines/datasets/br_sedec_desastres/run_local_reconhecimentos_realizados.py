@@ -69,7 +69,6 @@ def upload_to_dev(data_path: Path) -> None:
         table_id=TABLE_ID,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format="parquet",
     )
 
 

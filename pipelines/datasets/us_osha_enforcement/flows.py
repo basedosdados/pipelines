@@ -131,7 +131,6 @@ def us_osha_enforcement_flow(
                 table_id=table,
                 bucket_name=bucket,
                 dump_mode="append",
-                source_format="parquet",
             )
         for table in tables:
             run_dbt(
