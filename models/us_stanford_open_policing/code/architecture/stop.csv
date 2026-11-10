@@ -1,0 +1,73 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the stop,,no,,year,no,Derived from date. Partition column. Null for the few stops whose agency recorded no date,
+state_abbreviation,STRING,Two-letter postal abbreviation of the state,,no,,,no,Taken from the source file name. Partition column of the staging files,
+state_id,STRING,Two-digit FIPS code of the state,,no,br_bd_diretorios_us.state:id_state,,no,Not in the source. Added by Data Basis from state_abbreviation,
+jurisdiction_id,STRING,"Identifier of the jurisdiction whose agency recorded the stop, in the form state_place, e.g. ca_san_diego or tx_statewide",,no,,,no,Taken from the source file name. One source file per jurisdiction. Join to the jurisdiction table for its name and type,
+raw_row_number,STRING,"Row number of the record in the agency's raw file, used to join the standardized data back to the raw data",,no,,,no,"Where the project merged several raw rows into one stop, holds their raw row numbers joined by a pipe",raw_row_number
+date,DATE,Date of the stop,,no,,,no,"Where the agency reports only the year or quarter, set to the first day of that period. Null for the few stops whose agency recorded no date",date
+time,TIME,"Time of the stop, 24-hour clock",,no,,,no,,time
+location,STRING,"Free-text location of the stop, e.g. a street address or highway mile marker",,no,,,yes,"Sometimes the concatenation of several raw fields, such as street number and street name",location
+lat,FLOAT64,Latitude of the stop,,no,,degree,yes,Provided by the agency or geocoded by the project from the location. Geocodes more than 4 standard deviations from the jurisdiction's median were set to null,lat
+lng,FLOAT64,Longitude of the stop,,no,,degree,yes,Provided by the agency or geocoded by the project from the location. Geocodes more than 4 standard deviations from the jurisdiction's median were set to null,lng
+geocode_source,STRING,"Geocoding service used for lat and lng: GM for Google Maps, SGC for the Stanford Geospatial Center",,no,,,no,Only filled for the jurisdictions refreshed in the 2023 release,geocode_source
+county_name,STRING,Name of the county where the stop took place,,no,,,no,,county_name
+neighborhood,STRING,Neighborhood of the stop,,no,,,no,Some agencies report a neighborhood instead of a location or beat,neighborhood
+beat,STRING,Police beat,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",beat
+district,STRING,Police district,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",district
+subdistrict,STRING,Police subdistrict,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",subdistrict
+division,STRING,Police division,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",division
+subdivision,STRING,Police subdivision,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",subdivision
+police_grid_number,STRING,Police grid number,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",police_grid_number
+precinct,STRING,Police precinct,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",precinct
+region,STRING,Police region,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",region
+reporting_area,STRING,Police reporting area,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",reporting_area
+sector,STRING,Police sector,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",sector
+subsector,STRING,Police subsector,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",subsector
+substation,STRING,Police substation,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",substation
+service_area,STRING,Police service area,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",service_area
+zone,STRING,Police zone,,no,,,no,"Police geography as recorded by the agency or, where the project had the department's shapefiles and the stop's coordinates, assigned by spatial join",zone
+subject_age,FLOAT64,Age of the stopped person,,no,,year,no,"Computed from the date of birth and the stop date where the agency reports a date of birth, so it can be fractional. Values outside 10-110 set to null",subject_age
+subject_race,STRING,"Race of the stopped person: white, black, hispanic, asian/pacific islander, other or unknown",,no,,,no,Standardized by the project from the agency's own categories,subject_race
+subject_sex,STRING,Recorded sex of the stopped person: male or female,,no,,,no,,subject_sex
+officer_id_hash,STRING,"Hash of the officer's identifier, unique to one officer within a jurisdiction",,no,,,yes,"The badge number itself is withheld by the project for privacy. Where badge numbers are not unique (South Carolina statewide, Seattle) the hash also uses other officer attributes. Not comparable across jurisdictions",officer_id_hash
+officer_age,FLOAT64,Age of the officer,,no,,year,no,Computed from the date of birth and the stop date where available. Values outside 10-100 set to null,officer_age
+officer_race,STRING,"Race of the officer: white, black, hispanic, asian/pacific islander, other or unknown",,no,,,no,,officer_race
+officer_sex,STRING,Recorded sex of the officer: male or female,,no,,,no,,officer_sex
+officer_years_of_service,FLOAT64,Years the officer has served in the department,,no,,year,no,,officer_years_of_service
+officer_assignment,STRING,Department or subdivision to which the officer is assigned,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,officer_assignment
+department_id,STRING,Identifier of the department or subdivision to which the officer is assigned,,no,,,no,,department_id
+department_name,STRING,Name of the department or subdivision to which the officer is assigned,,no,,,no,,department_name
+unit,STRING,Unit to which the officer is assigned,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,unit
+type,STRING,Type of stop: vehicular or pedestrian,,no,,,no,,type
+disposition,STRING,Disposition of the stop,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,disposition
+violation,STRING,Violation for which the person was stopped,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions. Multiple violations are separated by a pipe,violation
+arrest_made,STRING,Whether an arrest was made,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it,arrest_made
+citation_issued,STRING,Whether a citation was issued,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it,citation_issued
+warning_issued,STRING,Whether a warning was issued,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it,warning_issued
+outcome,STRING,"Strictest action taken among arrest, citation, summons and warning",,no,,,no,,outcome
+contraband_found,STRING,Whether contraband was found,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Set to null by the project where search_conducted is null,contraband_found
+contraband_drugs,STRING,Whether drugs were found,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Only defined when contraband_found is TRUE,contraband_drugs
+contraband_weapons,STRING,Whether weapons were found,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Only defined when contraband_found is TRUE,contraband_weapons
+contraband_alcohol,STRING,Whether alcohol was found,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Only defined when contraband_found is TRUE,contraband_alcohol
+contraband_other,STRING,Whether contraband other than drugs and weapons was found,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Only defined when contraband_found is TRUE,contraband_other
+frisk_performed,STRING,Whether a frisk was performed,,no,,,no,"Source values TRUE/FALSE kept as text; empty when the agency does not record it. A frisk is distinct from a search, but some agencies record frisks as a search type",frisk_performed
+search_conducted,STRING,"Whether any search was conducted, of a driver, passenger or vehicle",,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Excludes frisks where the agency distinguishes the two,search_conducted
+search_person,STRING,Whether a person was searched,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Only defined when search_conducted is TRUE,search_person
+search_vehicle,STRING,Whether the vehicle was searched,,no,,,no,Source values TRUE/FALSE kept as text; empty when the agency does not record it. Only defined when search_conducted is TRUE,search_vehicle
+search_basis,STRING,"Basis for the search: k9, plain view, consent, probable cause or other",,no,,,no,"Where a search happened but no reason was recorded, the project assumes probable cause",search_basis
+reason_for_arrest,STRING,Reason for the arrest,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,reason_for_arrest
+reason_for_frisk,STRING,Reason for the frisk,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,reason_for_frisk
+reason_for_search,STRING,Reason for the search,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,reason_for_search
+reason_for_stop,STRING,Reason for the stop,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,reason_for_stop
+speed,FLOAT64,Recorded speed of the vehicle,,no,,mile_per_hour,no,,speed
+posted_speed,FLOAT64,Speed limit where the stop took place,,no,,mile_per_hour,no,,posted_speed
+charged_speed,FLOAT64,Speed stated in the charge,,no,,mile_per_hour,no,,charged_speed
+use_of_force_description,STRING,Description of the force used,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,use_of_force_description
+use_of_force_reason,STRING,Reason for the use of force,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,use_of_force_reason
+vehicle_color,STRING,Color of the vehicle,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,vehicle_color
+vehicle_make,STRING,Make of the vehicle,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,vehicle_make
+vehicle_model,STRING,Model of the vehicle,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,vehicle_model
+vehicle_type,STRING,Type of vehicle,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,vehicle_type
+vehicle_registration_state,STRING,State where the vehicle is registered,,no,,,no,Free text as recorded by the agency; format varies across jurisdictions,vehicle_registration_state
+vehicle_year,INT64,Model year of the vehicle,,no,,year,no,Null for any year before 1800,vehicle_year
+notes,STRING,Officer notes on the stop,,no,,,yes,Free text as recorded by the agency; format varies across jurisdictions,notes
