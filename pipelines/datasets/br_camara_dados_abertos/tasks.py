@@ -4,6 +4,7 @@ Tasks for br_camara_dados_abertos — Prefect 3.
 
 import os
 
+import basedosdados as bd
 import requests
 from prefect import task
 
@@ -191,3 +192,27 @@ def check_if_url_is_valid(table_id: str) -> bool:
         return False
     else:
         raise ValueError("URL is not valid")
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def remove_stale_staging_files(
+    dataset_id: str, table_id: str, bucket_name: str
+) -> None:
+    """apaga da staging tudo que não é o arquivo de 1999, depois do upload."""
+    prefix = f"staging/{dataset_id}/{table_id}/"
+    keep = prefix + os.path.basename(
+        constants_camara.LICITACAO_CONTRATO_OUTPUT_PATH.value
+    )
+    storage = bd.Storage(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    )
+    blobs = list(storage.bucket.list_blobs(prefix=prefix))
+    if keep not in [blob.name for blob in blobs]:
+        raise FileNotFoundError(f"gs://{bucket_name}/{keep} não foi enviado")
+    for blob in blobs:
+        if blob.name != keep:
+            blob.delete()
+            log(f"Removido gs://{bucket_name}/{blob.name}")

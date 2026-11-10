@@ -35,9 +35,12 @@ contratos daquele ano **em diante**, e `licitacoesContratos-1999.csv`, todos. Co
 vários desses arquivos na staging, o mesmo contrato aparecia em mais de um, e um
 contrato alterado pela Câmara ficava com a versão nova e a antiga (#2280).
 
-Por isso essa tabela baixa só o arquivo de 1999 e substitui a staging inteira por ele
-(`dump_mode="overwrite"`). A tabela espelha a fonte: contratos alterados aparecem na
-versão atual, e contratos removidos pela Câmara saem da tabela.
+Por isso essa tabela baixa só o arquivo de 1999, sempre gravado como
+`licitacoesContratos_1999.csv`, e o envia com `dump_mode="append"`, que substitui o
+arquivo de mesmo nome. Só depois do upload, `remove_stale_staging_files` apaga os
+demais arquivos da pasta da staging; se o arquivo de 1999 não estiver lá, a execução
+para sem apagar nada. A tabela espelha a fonte: contratos alterados aparecem na versão
+atual, e contratos removidos pela Câmara saem da tabela.
 
 Antes do upload, `check_historico_cobre_ano_atual` confere se todas as linhas do
 arquivo do ano atual estão no de 1999 e interrompe a execução se faltar alguma. Se o
@@ -101,13 +104,15 @@ função, `_camara_flow`, em `flows.py`. Cada execução:
    `check_rows_written` (`pipelines/utils/data_tests/rows.py`) compara as linhas dos
    CSVs da pasta da tabela com as gravadas e para a execução, antes do upload, se
    faltar ou sobrar linha. Nas tabelas de arquivo único, os dois anos são gravados no
-   mesmo arquivo, e a conta usa só a última gravação.
+   mesmo arquivo, e a conta usa só a última gravação. Em `licitacao_contrato`, a conta
+   é feita sobre o único arquivo, o de 1999.
 4. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
    `basedosdados-dev` e o dbt roda e testa em dev; só então vão para o bucket
    `basedosdados` e o dbt roda e testa em produção. Uma falha em dev impede a ida para
    produção. Como o nome do arquivo de cada ano é fixo, reenviar um ano substitui o
    arquivo anterior; os anos mais antigos, enviados em execuções passadas, continuam na
-   staging. Em `licitacao_contrato`, a staging é apagada e recebe só o arquivo de 1999.
+   staging. Em `licitacao_contrato`, depois de cada upload, a staging
+   fica só com o arquivo de 1999.
 5. **Atualiza a cobertura**: `register_table_materialization_task` registra a
    cobertura da tabela no site.
 
