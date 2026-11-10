@@ -27,7 +27,7 @@ from pipelines.utils.schema_check import (
     check,
     schema_title,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import bq_safe_column_name, log
 from pipelines.utils.vault import get_credentials_from_secret
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -119,8 +119,10 @@ def _retry_unless_schema_mismatch(
 
 def _sync_staging_schema(
     tb: bd.Table,
-    table: bigquery.Table,
-    incoming: tuple[Column, ...],
+    table: bigquery.Table | None = None,
+    incoming: tuple[Column, ...] | None = None,
+    data_sample_path: str | Path | None = None,
+    source_format: str | None = None,
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
 
@@ -145,12 +147,44 @@ def _sync_staging_schema(
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
         table: `bigquery.Table` lido por `_check_staging`.
         incoming: colunas do upload ausentes na staging.
+        data_sample_path: arquivo de amostra já resolvido por `dump_header`
+            (não o dado bruto — o chamador resolve `dump_header` antes).
+        source_format: formato real já resolvido por `dump_header`
+            (`"csv"` ou `"parquet"`).
     """
+    # O cliente da lib é quem criou a tabela externa e escreve no prefixo. Abrir
+    # um `bigquery.Client` aqui cairia no ADC do pod, sem permissão de update.
     client = tb.client["bigquery_staging"]
-    new_fields = [
-        bigquery.SchemaField(name=c.name, field_type=c.data_type or "STRING")
-        for c in incoming
-    ]
+
+    if table is None:
+        table = client.get_table(tb.table_full_name["staging"])
+
+    if incoming is None:
+        # Sem a checagem (ex.: promoção parcial em `materialize_prod`): as
+        # colunas novas saem do header, comparadas com a staging.
+        if data_sample_path is None or source_format is None:
+            raise ValueError(
+                "Sem `incoming`, informe `data_sample_path` e `source_format`."
+            )
+        header_fields = tb._load_staging_schema_from_data(
+            data_sample_path=data_sample_path, source_format=source_format
+        )
+        current = {bq_safe_column_name(field.name) for field in table.schema}
+        new_fields = [
+            bigquery.SchemaField(
+                name=bq_safe_column_name(field.name),
+                field_type=field.field_type,
+            )
+            for field in header_fields
+            if bq_safe_column_name(field.name) not in current
+        ]
+    else:
+        new_fields = [
+            bigquery.SchemaField(
+                name=c.name, field_type=c.data_type or "STRING"
+            )
+            for c in incoming
+        ]
 
     if not new_fields:
         return
@@ -173,8 +207,20 @@ def _upload_to_gcs(
     table_id: str,
     bucket_name: str,
     dump_mode: str = "append",
-    source_format: str = "csv",
-) -> SchemaCheckResult | None:
+) -> tuple[SchemaCheckResult | None, str]:
+    """Sobe os dados para a staging, checando o schema antes de alterar algo.
+
+    Returns:
+        `(result, source_format)`: o resultado da checagem (`None` quando não
+        houve comparação, isto é, no primeiro upload) e o formato detectado
+        por `dump_header`.
+    """
+    # Valida antes de qualquer efeito colateral
+    if dump_mode not in ("append", "overwrite"):
+        raise ValueError(
+            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
+        )
+
     # billing_project_id casado com o bucket: a SA do pod tem
     # serviceusage.services.use apenas no próprio projeto; o default
     # basedosdados-staging da lib dispara 403 em blob.exists().
@@ -195,13 +241,11 @@ def _upload_to_gcs(
         f"https://console.cloud.google.com/storage/browser/"
         f"{bucket_name}/staging/{dataset_id}/{table_id}"
     )
+    header_path, source_format = dump_header(data_path=data_path)
     title = schema_title(dataset_id, table_id, source_format, dump_mode)
     result = None
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
-            header_path = dump_header(
-                data_path=data_path, source_format=source_format
-            )
             tb.create(
                 path=header_path,
                 if_storage_data_exists="replace",
@@ -234,7 +278,7 @@ def _upload_to_gcs(
                 tb=tb, table=table, incoming=result.added_columns
             )
 
-    elif dump_mode == "overwrite":
+    else:  # overwrite
         if tb.table_exists(mode="staging"):
             # O schema antigo é lido antes da deleção.
             checked = _check_staging(
@@ -247,11 +291,13 @@ def _upload_to_gcs(
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
             )
-            tb.delete(mode="all")
+            # mode="staging", NUNCA mode="all": `all` apaga também a tabela
+            # materializada de prod. O `bd.Table` monta os nomes das tabelas
+            # pelo config do pod, não pelo `bucket_name`: no pool de prod, até
+            # a etapa de dev (bucket basedosdados-dev) apagaria
+            # `basedosdados.<dataset>.<tabela>`. Ver #2296.
+            tb.delete(mode="staging")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
-        header_path = dump_header(
-            data_path=data_path, source_format=source_format
-        )
         tb.create(
             path=header_path,
             if_storage_data_exists="replace",
@@ -265,11 +311,6 @@ def _upload_to_gcs(
             f"Tabela recriada: {tb.table_full_name['staging']}\n{storage_link}"
         )
 
-    else:
-        raise ValueError(
-            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
-        )
-
     if not tb.table_exists(mode="staging"):
         raise RuntimeError(
             "Tabela não existe em staging após criação — upload abortado."
@@ -279,7 +320,7 @@ def _upload_to_gcs(
     print(
         f"Upload concluído: gs://{bucket_name}/staging/{dataset_id}/{table_id}"
     )
-    return result
+    return result, source_format
 
 
 @task(
@@ -293,7 +334,6 @@ def upload_to_gcs(
     table_id: str,
     bucket_name: str,
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> State | None:
     """Faz upload dos dados para o bucket GCS e cria a tabela staging no BQ se necessário.
 
@@ -301,13 +341,12 @@ def upload_to_gcs(
     Automation do Prefect usa para alertar. Divergência de erro levanta
     `SchemaMismatchError` antes de alterar a staging ou o bucket.
     """
-    result = _upload_to_gcs(
+    result, source_format = _upload_to_gcs(
         data_path=data_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name=bucket_name,
         dump_mode=dump_mode,
-        source_format=source_format,
     )
     title = schema_title(dataset_id, table_id, source_format, dump_mode)
     if result and result.warnings:
@@ -322,11 +361,42 @@ def upload_to_gcs(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _resolve_dbt_model_path(dataset_id: str, table_id: str) -> Path:
+    """Resolve o caminho do modelo dbt, com ou sem o prefixo `{dataset_id}__`.
+
+    A maioria dos modelos do repositório nomeia o arquivo
+    `{dataset_id}__{table_id}.sql` (o alias real da tabela vem de
+    `config(alias=...)` dentro do SQL, pra evitar colisão de nome de modelo
+    entre datasets). Uma minoria nomeia o arquivo direto como
+    `{table_id}.sql`. Detecta qual dos dois existe de verdade em vez de
+    depender de um booleano declarado pelo chamador — fonte recorrente de
+    bugs quando calculado errado (ex. `table-approve` inferindo pelo nome do
+    arquivo `.sql` modificado no PR).
+
+    Args:
+        dataset_id: ID do dataset no backend/BigQuery.
+        table_id: ID da tabela no backend/BigQuery.
+
+    Returns:
+        O caminho do modelo dbt a selecionar — o com prefixo, se existir;
+        senão o sem prefixo; senão o com prefixo mesmo assim, pra manter a
+        mensagem de erro de "modelo não encontrado" de sempre.
+    """
+    models_folder = Path("models") / dataset_id
+    aliased_path = models_folder / f"{dataset_id}__{table_id}.sql"
+    plain_path = models_folder / f"{table_id}.sql"
+
+    if aliased_path.exists():
+        return aliased_path
+    if plain_path.exists():
+        return plain_path
+    return aliased_path
+
+
 @task(retries=0)
 def run_dbt(
     dataset_id: str,
     table_id: str | None = None,
-    dbt_alias: bool = True,
     dbt_command: str = "run/test",
     target: str = "dev",
     flags: str | None = None,
@@ -342,9 +412,7 @@ def run_dbt(
 
     models_folder = Path("models") / dataset_id
     if table_id is not None:
-        selected = models_folder / (
-            f"{dataset_id}__{table_id}.sql" if dbt_alias else f"{table_id}.sql"
-        )
+        selected = _resolve_dbt_model_path(dataset_id, table_id)
     else:
         selected = models_folder
 

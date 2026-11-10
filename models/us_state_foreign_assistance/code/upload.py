@@ -100,7 +100,6 @@ def upload_table(table: str, expected: int | None) -> None:
         table_id=table,
         bucket_name=BUCKET,
         dump_mode="append",
-        source_format="parquet",
     )
 
     tbl = bq.get_table(ref)

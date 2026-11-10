@@ -221,7 +221,6 @@ def cl_chilecompra_mercado_publico_flow(
                 # table. Partition paths are deterministic, so re-uploading a revised month
                 # replaces exactly that partition's file.
                 dump_mode="append",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,
@@ -247,7 +246,6 @@ def cl_chilecompra_mercado_publico_flow(
                 table_id=table,
                 bucket_name="basedosdados",
                 dump_mode="append",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,

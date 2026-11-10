@@ -13,6 +13,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 from google.api_core.exceptions import NotFound, ServiceUnavailable
+from google.cloud import bigquery
 from prefect import flow
 from prefect.states import Completed
 from prefect.testing.utilities import prefect_test_harness
@@ -32,8 +33,13 @@ ARGS = {"dataset_id": "ds", "table_id": "tb", "bucket_name": "bkt"}
 
 # Fixtures
 @pytest.fixture
-def gcp(monkeypatch):
-    """Substitui as bordas de rede e devolve o mock pai (ordem em `mock_calls`)."""
+def gcp(monkeypatch, tmp_path):
+    """Substitui as bordas de rede e devolve o mock pai (ordem em `mock_calls`).
+
+    `dump_header` é o real (detecta o formato e grava o header em `data/<uuid>`,
+    relativo ao cwd), então o cwd vai para `tmp_path`.
+    """
+    monkeypatch.chdir(tmp_path)
     parent = MagicMock()
     tb = create_autospec(bd.Table, instance=True)
     st = create_autospec(bd.Storage, instance=True)
@@ -48,7 +54,6 @@ def gcp(monkeypatch):
 
     monkeypatch.setattr(tasks.bd, "Table", lambda **kw: tb)
     monkeypatch.setattr(tasks.bd, "Storage", lambda **kw: st)
-    monkeypatch.setattr(tasks, "dump_header", lambda **kw: "header")
     return parent
 
 
@@ -80,7 +85,7 @@ def test_append_sem_staging_cria_e_nao_checa(gcp, tmp_path):
     gcp.tb.table_exists.side_effect = lambda **kw: state["exists"]
     gcp.tb.create.side_effect = lambda **kw: state.update(exists=True)
 
-    result = _upload_to_gcs(data, **ARGS)
+    result, _ = _upload_to_gcs(data, **ARGS)
 
     assert result is None
     gcp.tb.create.assert_called_once()
@@ -92,7 +97,7 @@ def test_append_sem_mudancas_sobe_sem_alterar_schema(gcp, tmp_path):
     data = write_csv(tmp_path / "d", ["a", "b"])
     gcp.client.get_table.return_value = staging_table(["a", "b"])
 
-    result = _upload_to_gcs(data, **ARGS)
+    result, _ = _upload_to_gcs(data, **ARGS)
 
     # pyrefly: ignore [missing-attribute]
     assert not result.has_changes
@@ -119,7 +124,7 @@ def test_append_coluna_nova_atualiza_schema_antes_do_upload(gcp, tmp_path):
     table = staging_table(["a", "b"])
     gcp.client.get_table.return_value = table
 
-    result = _upload_to_gcs(data, **ARGS)
+    result, _ = _upload_to_gcs(data, **ARGS)
 
     # pyrefly: ignore [missing-attribute]
     assert result.warnings and not result.errors
@@ -143,7 +148,7 @@ def test_append_parquet_coluna_nova_usa_tipo_do_arquivo(gcp, tmp_path):
     table = staging_table(["a"])
     gcp.client.get_table.return_value = table
 
-    _upload_to_gcs(data, source_format="parquet", **ARGS)
+    _upload_to_gcs(data, **ARGS)
 
     novo = table.schema[-1]
     assert (novo.name, novo.field_type) == ("n", "INT64")
@@ -154,7 +159,7 @@ def test_append_parquet_tipo_incompativel_e_erro(gcp, tmp_path):
     gcp.client.get_table.return_value = staging_table(["a"])  # STRING
 
     with pytest.raises(SchemaMismatchError, match="a \\(STRING -> INT64\\)"):
-        _upload_to_gcs(data, source_format="parquet", **ARGS)
+        _upload_to_gcs(data, **ARGS)
     gcp.st.upload.assert_not_called()
 
 
@@ -165,7 +170,7 @@ def test_append_particionado_ignora_chaves_na_comparacao(gcp, tmp_path):
         ["a", "b", "ano"], keys=["ano"]
     )
 
-    result = _upload_to_gcs(data, **ARGS)
+    result, _ = _upload_to_gcs(data, **ARGS)
 
     # pyrefly: ignore [missing-attribute]
     assert not result.has_changes
@@ -228,7 +233,7 @@ def test_overwrite_com_divergencia_nao_bloqueia_so_avisa(gcp, tmp_path):
     data = write_csv(tmp_path / "d", ["b", "a"])  # em append seria erro
     gcp.client.get_table.return_value = staging_table(["a", "b"])
 
-    result = _upload_to_gcs(data, dump_mode="overwrite", **ARGS)
+    result, _ = _upload_to_gcs(data, dump_mode="overwrite", **ARGS)
 
     # pyrefly: ignore [missing-attribute]
     assert not result.errors
@@ -245,7 +250,7 @@ def test_overwrite_sem_staging_previa_nao_checa(gcp, tmp_path):
     gcp.tb.table_exists.side_effect = lambda **kw: state["exists"]
     gcp.tb.create.side_effect = lambda **kw: state.update(exists=True)
 
-    result = _upload_to_gcs(data, dump_mode="overwrite", **ARGS)
+    result, _ = _upload_to_gcs(data, dump_mode="overwrite", **ARGS)
 
     assert result is None
     gcp.client.get_table.assert_not_called()
@@ -257,7 +262,7 @@ def test_overwrite_sem_mudancas_nao_avisa(gcp, tmp_path):
     data = write_csv(tmp_path / "d", ["a"])
     gcp.client.get_table.return_value = staging_table(["a"])
 
-    result = _upload_to_gcs(data, dump_mode="overwrite", **ARGS)
+    result, _ = _upload_to_gcs(data, dump_mode="overwrite", **ARGS)
 
     # pyrefly: ignore [missing-attribute]
     assert not result.has_changes
@@ -273,6 +278,43 @@ def test_dump_mode_invalido_nao_tem_efeito_colateral(gcp, tmp_path):
     gcp.st.upload.assert_not_called()
     gcp.tb.create.assert_not_called()
     gcp.tb.delete.assert_not_called()
+    # `dump_header` grava em `data/<uuid>`: a validação vem antes dele.
+    assert not (tmp_path / "data").exists()
+
+
+# _sync_staging_schema sem `incoming` (caminho do `materialize_prod`)
+def test_sync_sem_incoming_acrescenta_so_colunas_novas_do_header(gcp):
+    table = staging_table(["a"])
+    gcp.client.get_table.return_value = table
+    gcp.tb._load_staging_schema_from_data.return_value = [
+        bigquery.SchemaField("a", "STRING"),
+        bigquery.SchemaField("Nova col", "STRING"),
+    ]
+
+    tasks._sync_staging_schema(
+        gcp.tb, data_sample_path="h", source_format="csv"
+    )
+
+    gcp.client.update_table.assert_called_once_with(table, ["schema"])
+    assert [f.name for f in table.schema] == ["a", "Nova_col"]
+
+
+def test_sync_sem_incoming_sem_colunas_novas_nao_altera(gcp):
+    gcp.client.get_table.return_value = staging_table(["a"])
+    gcp.tb._load_staging_schema_from_data.return_value = [
+        bigquery.SchemaField("a", "STRING")
+    ]
+
+    tasks._sync_staging_schema(
+        gcp.tb, data_sample_path="h", source_format="csv"
+    )
+
+    gcp.client.update_table.assert_not_called()
+
+
+def test_sync_sem_incoming_exige_amostra_e_formato(gcp):
+    with pytest.raises(ValueError, match="data_sample_path"):
+        tasks._sync_staging_schema(gcp.tb)
 
 
 # Task upload_to_gcs: tradução do resultado
@@ -282,7 +324,7 @@ def _result(*findings):
 
 def test_task_devolve_schema_warning_quando_ha_avisos(monkeypatch):
     result = _result(Finding(Severity.WARNING, "colunas novas: c"))
-    monkeypatch.setattr(tasks, "_upload_to_gcs", lambda **kw: result)
+    monkeypatch.setattr(tasks, "_upload_to_gcs", lambda **kw: (result, "csv"))
 
     state = upload_to_gcs.fn("x", **ARGS)
 
@@ -296,7 +338,7 @@ def test_task_devolve_schema_warning_quando_ha_avisos(monkeypatch):
 
 @pytest.mark.parametrize("result", [None, _result()])
 def test_task_devolve_none_sem_avisos(monkeypatch, result):
-    monkeypatch.setattr(tasks, "_upload_to_gcs", lambda **kw: result)
+    monkeypatch.setattr(tasks, "_upload_to_gcs", lambda **kw: (result, "csv"))
     assert upload_to_gcs.fn("x", **ARGS) is None
 
 

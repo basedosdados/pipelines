@@ -102,5 +102,4 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=str(filepath),
         dump_mode="append",
-        source_format="csv",
     )
