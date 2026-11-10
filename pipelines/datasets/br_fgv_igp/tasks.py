@@ -50,6 +50,13 @@ def clean_fgv_df(igp_data: IGPData) -> pathlib.Path:
 
     df = igp_data.df
 
+    df = df.drop(
+        columns=["indice_fechamento_mensal"]
+    )  # Erro (a2, falta no fim)
+    # df = df.drop(columns=["variacao_mensal"])                           # Erro (a2, falta no meio)
+    # df.insert(1, "coluna_teste", "x")                                   # Erro (a1 no meio)
+    # df = df.rename(columns={"variacao_mensal": "variacao_mensal_x"})    # Erro (renomeação, a1 + a2)
+
     df.to_csv(
         filepath,
         encoding="utf-8",
