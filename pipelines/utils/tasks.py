@@ -207,7 +207,12 @@ def _upload_to_gcs(
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
             )
-            tb.delete(mode="all")
+            # mode="staging", NUNCA mode="all": `all` apaga também a tabela
+            # materializada de prod. O `bd.Table` monta os nomes das tabelas
+            # pelo config do pod, não pelo `bucket_name`: no pool de prod, até
+            # a etapa de dev (bucket basedosdados-dev) apagaria
+            # `basedosdados.<dataset>.<tabela>`. Ver #2296.
+            tb.delete(mode="staging")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
         header_path, source_format = dump_header(data_path=data_path)
         tb.create(
