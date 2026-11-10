@@ -29,11 +29,13 @@ def main() -> None:
         if c not in ("year", "state_abbreviation")
     ]
     exprs = ", ".join(f'count("{c}")' for c in cols)
-    n, *counts = duckdb.sql(
+    row = duckdb.sql(
         f"select count(*), {exprs} from read_parquet('{glob}', "
         "hive_partitioning = true, union_by_name = true) "
         f"where try_cast(year as int) >= {FROM_YEAR}"
     ).fetchone()
+    assert row is not None
+    n, *counts = row
     print(f"stops since {FROM_YEAR}: {n:,}")
     for c, k in sorted(zip(cols, counts, strict=True), key=lambda x: x[1]):
         if k / n < THRESHOLD:

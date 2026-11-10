@@ -174,18 +174,18 @@ def render_schema() -> str:
             out.append(f"      - name: {name}")
             out.append("        description: >-")
             out.append(_block(textwrap.fill(en, 72), 10))
-            tests = []
+            col_tests: list[str | tuple[str, str]] = []
             if name in NOT_NULL[table]:
-                tests.append("not_null")
+                col_tests.append("not_null")
             rel = RELATIONSHIPS.get(name) or (
                 STOP_RELATIONSHIPS.get(name) if table == "stop" else None
             )
             if rel:
-                tests.append(rel)
-            if not tests:
+                col_tests.append(rel)
+            if not col_tests:
                 continue
             out.append("        tests:")
-            for t in tests:
+            for t in col_tests:
                 if t == "not_null":
                     out.append("          - not_null")
                 else:

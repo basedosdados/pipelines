@@ -110,6 +110,7 @@ def clean_one(slug: str, con: duckdb.DuckDBPyConnection) -> dict:
         from cleaned
         """
     ).fetchone()
+    assert stats is not None
     rows, start, end, null_date, dup_raw, null_raw = stats
 
     STOP_DIR.mkdir(parents=True, exist_ok=True)

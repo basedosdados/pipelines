@@ -466,7 +466,9 @@ def main() -> None:
                 observations_pt=c["observations_pt"],
                 observations_en=c["observations_en"],
                 observations_es=c["observations_es"],
-                observation_level_id=ol_ids.get(level_of.get(col)),
+                observation_level_id=ol_ids.get(level_of[col])
+                if col in level_of
+                else None,
                 env=env,
             )
         print(f"  flagged {sorted(set(level_of) | set(parts))}")

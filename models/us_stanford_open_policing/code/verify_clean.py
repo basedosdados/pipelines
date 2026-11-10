@@ -54,6 +54,7 @@ def parquet_counts(slug: str, cols: list[str]) -> tuple[int, dict[str, int]]:
     row = duckdb.sql(
         f"select count(*), {exprs} from read_parquet('{glob}', hive_partitioning = false)"
     ).fetchone()
+    assert row is not None
     return row[0], dict(zip(cols, row[1:], strict=True))
 
 
