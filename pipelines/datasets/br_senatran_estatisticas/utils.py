@@ -745,11 +745,6 @@ def output_file_to_parquet(
 
     pd_df = df.to_pandas()
     pd_df = pd_df.astype(str)
-    pd_df = pd_df.drop(columns=["quantidade"])  # Erro (a2, coluna faltando)
-    # pd_df["quantidade"] = pd.to_numeric(pd_df["quantidade"])    # Erro (a4, tipo incompatível)
-    # partition_columns=["mes", "ano"]                            # Erro (a5, layout de partição) (ordem invertida)
-    # pd_df = pd_df[["ano", "mes", "tipo_veiculo", "sigla_uf",    # Warning (a3 em Parquet casa por nome
-    #             "quantidade"]]
     savepath = Path(output_dir) / table_id
 
     to_partitions(
