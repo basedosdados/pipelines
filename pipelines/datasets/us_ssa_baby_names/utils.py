@@ -12,6 +12,7 @@ import json
 import logging
 import re
 import shutil
+import time
 import zipfile
 from pathlib import Path
 
@@ -34,24 +35,70 @@ def download_all(input_dir: Path) -> list[Path]:
     and plain curl regardless of headers; curl_cffi's Chrome TLS fingerprint is
     admitted (as in us_ssa_beneficiaries).
     """
-    from curl_cffi import requests as cr
-
     input_dir.mkdir(parents=True, exist_ok=True)
     written = []
-    for name in constants.SOURCE_ZIPS.value:
-        url = constants.BASE_URL.value + name
-        response = cr.get(url, impersonate="chrome", timeout=600)
-        response.raise_for_status()
-        # Fail loudly on a WAF interstitial served with HTTP 200.
-        if not response.content.startswith(b"PK"):
-            raise ValueError(
-                f"{url} did not return a zip (got {response.content[:120]!r})"
-            )
+    for name, path in constants.SOURCE_PATHS.value.items():
         dest = input_dir / name
-        dest.write_bytes(response.content)
-        log.info(f"downloaded {name} ({len(response.content):,} bytes)")
+        if dest.exists() and zipfile.is_zipfile(dest):
+            log.info(f"{name} already downloaded, skipping")
+            written.append(dest)
+            continue
+        _download_ranged(constants.BASE_URL.value + path, dest)
+        if not zipfile.is_zipfile(dest):
+            raise ValueError(f"{dest} is not a valid zip")
+        log.info(f"downloaded {name} ({dest.stat().st_size:,} bytes)")
         written.append(dest)
     return written
+
+
+def _download_ranged(url: str, dest: Path, chunk: int = 512 * 1024) -> None:
+    """Download ``url`` to ``dest`` in HTTP Range chunks, resuming a ``.part`` file.
+
+    The Akamai edge drops a long-running response after a couple of minutes, so
+    a single GET of a multi-megabyte archive fails on a slow link. Each chunk is
+    retried on its own and progress survives a restart.
+    """
+    from curl_cffi import requests as cr
+
+    part = dest.with_name(dest.name + ".part")
+    head = cr.get(
+        url, impersonate="chrome", timeout=120, headers={"Range": "bytes=0-0"}
+    )
+    if head.status_code != 206:
+        raise ValueError(f"{url}: no Range support (HTTP {head.status_code})")
+    total = int(head.headers["content-range"].rsplit("/", 1)[1])
+    done = part.stat().st_size if part.exists() else 0
+    with part.open("ab") as f:
+        while done < total:
+            end = min(done + chunk, total) - 1
+            for attempt in range(1, 6):
+                try:
+                    r = cr.get(
+                        url,
+                        impersonate="chrome",
+                        timeout=600,
+                        headers={"Range": f"bytes={done}-{end}"},
+                    )
+                    if (
+                        r.status_code != 206
+                        or len(r.content) != end - done + 1
+                    ):
+                        raise ValueError(
+                            f"HTTP {r.status_code}, {len(r.content)} bytes"
+                        )
+                    break
+                except (cr.exceptions.RequestException, ValueError) as e:
+                    if attempt == 5:
+                        raise
+                    log.warning(
+                        f"{dest.name} bytes {done}-{end}: {e}; retrying"
+                    )
+                    time.sleep(10 * attempt)
+            f.write(r.content)
+            f.flush()
+            done = end + 1
+            log.info(f"{dest.name}: {done:,}/{total:,} bytes")
+    part.replace(dest)
 
 
 def read_arch(table: str) -> list[dict]:
@@ -114,13 +161,19 @@ def read_subnational(zip_path: Path) -> pa.Table:
 
 
 def add_state_id(tbl: pa.Table) -> pa.Table:
+    """Add the FIPS ``state_id``.
+
+    ``TR`` is SSA's aggregate of American Samoa, Guam, the Northern Mariana
+    Islands and the U.S. Virgin Islands; it has no FIPS code and gets NULL.
+    """
     fips = constants.STATE_FIPS.value
+    agg = constants.TERRITORY_AGGREGATE.value
     abbrev = tbl["state_abbreviation"].to_pylist()
-    unknown = sorted({a for a in abbrev if a not in fips})
+    unknown = sorted({a for a in abbrev if a not in fips and a != agg})
     if unknown:
         raise ValueError(f"state_abbreviation without a FIPS code: {unknown}")
     return tbl.add_column(
-        1, "state_id", pa.array([fips[a] for a in abbrev], pa.string())
+        1, "state_id", pa.array([fips.get(a) for a in abbrev], pa.string())
     )
 
 
@@ -234,7 +287,9 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
         ]
     )
     sub = add_state_id(sub)
-    validate(sub, ["year", "state_id", "sex", "name"], "first_name_state")
+    validate(
+        sub, ["year", "state_abbreviation", "sex", "name"], "first_name_state"
+    )
     rows["first_name_state"] = write_table(
         to_string_table(sub, "first_name_state"),
         "first_name_state",

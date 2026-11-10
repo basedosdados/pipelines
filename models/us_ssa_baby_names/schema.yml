@@ -37,7 +37,7 @@ models:
       de número de Seguro Social.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, state_id, sex, name]
+          combination_of_columns: [year, state_abbreviation, sex, name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage_eng:
@@ -52,7 +52,6 @@ models:
         description: >-
           Código FIPS de dois dígitos do estado ou território de nascimento
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_us__state')
               field: id_state

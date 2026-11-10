@@ -60,21 +60,21 @@ DATASET = dict(
     "Unidos, por sexo e ano de nascimento, segundo os pedidos de número de Seguro "
     "Social registrados pela Social Security Administration (SSA). A série nacional "
     "começa em 1880; a série por estado começa em 1910 para os 50 estados e o Distrito "
-    "de Colúmbia e em 1998 para cinco territórios. A SSA omite combinações com menos "
+    "de Colúmbia e em 1998 para Porto Rico e os demais territórios. A SSA omite combinações com menos "
     "de 5 ocorrências para proteger a privacidade e acrescenta um ano a cada edição "
     "anual, publicada em maio.",
     description_en="Frequency of each first name among people born in the United "
     "States, by sex and year of birth, from Social Security number applications "
     "recorded by the Social Security Administration (SSA). The national series starts "
     "in 1880; the state series starts in 1910 for the 50 states and the District of "
-    "Columbia and in 1998 for five territories. SSA omits combinations with fewer than "
+    "Columbia and in 1998 for Puerto Rico and the other territories. SSA omits combinations with fewer than "
     "5 occurrences to protect privacy, and adds one year with each annual release, "
     "published in May.",
     description_es="Frecuencia de cada nombre de pila entre las personas nacidas en "
     "Estados Unidos, por sexo y año de nacimiento, según las solicitudes de número de "
     "Seguro Social registradas por la Social Security Administration (SSA). La serie "
     "nacional comienza en 1880; la serie por estado comienza en 1910 para los 50 "
-    "estados y el Distrito de Columbia y en 1998 para cinco territorios. La SSA omite "
+    "estados y el Distrito de Columbia y en 1998 para Puerto Rico y los demás territorios. La SSA omite "
     "las combinaciones con menos de 5 ocurrencias para proteger la privacidad y añade "
     "un año con cada edición anual, publicada en mayo.",
 )
@@ -121,21 +121,26 @@ TABLES: dict[str, dict[str, Any]] = {
         name_es="Nombres de pila por estado",
         description_pt="Uma linha por prenome, sexo, estado ou território e ano de "
         "nascimento, com o número de pessoas nascidas ali que receberam o nome. Os 50 "
-        "estados e o Distrito de Colúmbia desde 1910; Porto Rico, Guam, Ilhas Virgens "
-        "Americanas, Samoa Americana e Ilhas Marianas do Norte desde 1998. Inclui "
+        "estados e o Distrito de Colúmbia desde 1910; Porto Rico desde 1998; e, desde "
+        "1998, a soma de Samoa Americana, Guam, Ilhas Marianas do Norte e Ilhas "
+        "Virgens Americanas, publicada pela SSA apenas agregada (sigla TR, state_id "
+        "nulo). Inclui "
         "apenas combinações com 5 ou mais ocorrências no estado, de modo que a soma "
         "dos estados é menor que o total nacional.",
         description_en="One row per first name, sex, state or territory and year of "
         "birth, with the number of people born there who were given the name. The 50 "
-        "states and the District of Columbia from 1910; Puerto Rico, Guam, the U.S. "
-        "Virgin Islands, American Samoa and the Northern Mariana Islands from 1998. "
+        "states and the District of Columbia from 1910; Puerto Rico from 1998; and, from "
+        "1998, the sum of American Samoa, Guam, the Northern Mariana Islands and the "
+        "U.S. Virgin Islands, which SSA publishes only combined (abbreviation TR, null "
+        "state_id). "
         "Only combinations with 5 or more occurrences in the state, so the states sum "
         "to less than the national total.",
         description_es="Una fila por nombre de pila, sexo, estado o territorio y año "
         "de nacimiento, con el número de personas nacidas allí que recibieron el "
-        "nombre. Los 50 estados y el Distrito de Columbia desde 1910; Puerto Rico, "
-        "Guam, las Islas Vírgenes de EE. UU., Samoa Americana y las Islas Marianas del "
-        "Norte desde 1998. Solo combinaciones con 5 o más ocurrencias en el estado, "
+        "nombre. Los 50 estados y el Distrito de Columbia desde 1910; Puerto Rico desde "
+        "1998; y, desde 1998, la suma de Samoa Americana, Guam, las Islas Marianas del "
+        "Norte y las Islas Vírgenes de EE. UU., que la SSA publica solo agregada (sigla "
+        "TR, state_id nulo). Solo combinaciones con 5 o más ocurrencias en el estado, "
         "por lo que la suma de los estados es menor que el total nacional.",
         ols={"state_id": "state", "name": NAME_ENTITY, "year": "year"},
         first_year=1910,

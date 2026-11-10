@@ -27,14 +27,22 @@ class constants(Enum):
     NATIONAL_ZIP = "names.zip"
     STATE_ZIP = "namesbystate.zip"
     TERRITORY_ZIP = "namesbyterritory.zip"
-    SOURCE_ZIPS = [NATIONAL_ZIP, STATE_ZIP, TERRITORY_ZIP]
+    # archive -> path under BASE_URL (the state and territory files sit in
+    # subdirectories; the bare file names 404)
+    SOURCE_PATHS = {
+        NATIONAL_ZIP: "names.zip",
+        STATE_ZIP: "state/namesbystate.zip",
+        TERRITORY_ZIP: "territory/namesbyterritory.zip",
+    }
 
     TABLES = ["first_name", "first_name_state", "dictionary"]
     PARTITION_COL = "year"
 
     # Postal abbreviation -> FIPS code, as in br_bd_diretorios_us.state
     # (abbreviation -> id_state). The state archive has the 50 states and DC;
-    # the territory archive has AS, GU, MP, PR and VI.
+    # the territory archive has PR and TR, SSA's aggregate of AS, GU, MP and VI,
+    # which has no FIPS code (state_id NULL).
+    TERRITORY_AGGREGATE = "TR"
     STATE_FIPS = {
         "AK": "02", "AL": "01", "AR": "05", "AS": "60", "AZ": "04", "CA": "06",
         "CO": "08", "CT": "09", "DC": "11", "DE": "10", "FL": "12", "GA": "13",
