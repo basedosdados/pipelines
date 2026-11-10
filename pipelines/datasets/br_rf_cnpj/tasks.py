@@ -34,6 +34,7 @@ from pipelines.datasets.br_rf_cnpj.utils import (
     process_csv_socios,
     process_manual_dictionaries,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -134,6 +135,7 @@ def main(
         str: The path to the output folder where the data has been organized.
     """
     arquivos_baixados = []  # List to track already downloaded files
+    rows_read = 0
     for table in tables:
         table_configs = COMPONENTS_SPECS[table]
 
@@ -157,8 +159,6 @@ def main(
                 nome_arquivo = item[0]
                 url_download = item[1]
 
-                # Apenas um marcador (um arquivo vazio)
-                # Evita baixar e processar de novo o que já ficou pronto.
                 marcador = (
                     Path("tmp")
                     / "br_rf_cnpj"
@@ -169,6 +169,7 @@ def main(
                 if marcador.exists():
                     log(f"{nome_arquivo} já processado; pulando.")
                     arquivos_baixados.append(nome_arquivo)
+                    rows_read += int(marcador.read_text())
                     continue
 
                 if nome_arquivo not in arquivos_baixados:
@@ -186,8 +187,9 @@ def main(
                         )
                     )
 
+                    file_rows = 0
                     if table_configs["table_name"] == "Estabelecimentos":
-                        process_csv_estabelecimentos(
+                        file_rows = process_csv_estabelecimentos(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -199,7 +201,7 @@ def main(
                         )
 
                     elif table_configs["table_name"] == "Socios":
-                        process_csv_socios(
+                        file_rows = process_csv_socios(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -210,7 +212,7 @@ def main(
                             chunk_size,
                         )
                     elif table_configs["table_name"] == "Empresas":
-                        process_csv_empresas(
+                        file_rows = process_csv_empresas(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -221,8 +223,9 @@ def main(
                             chunk_size,
                         )
 
+                    rows_read += file_rows
                     marcador.parent.mkdir(parents=True, exist_ok=True)
-                    marcador.touch()
+                    marcador.write_text(str(file_rows))
         else:
             nome_arquivo = f"{table_configs['table_name']}"
             url_download = (
@@ -240,13 +243,21 @@ def main(
 
             if table_configs["dicionario"]:
                 if table_configs["manual"]:
-                    # pyrefly: ignore [bad-argument-type]
-                    process_manual_dictionaries(output_path, table)
+                    rows_read += process_manual_dictionaries(
+                        # pyrefly: ignore [bad-argument-type]
+                        output_path,
+                        table,
+                    )
                 else:
-                    # pyrefly: ignore [bad-argument-type]
-                    process_csv_dicionario(input_path, output_path, table)
+                    rows_read += process_csv_dicionario(
+                        # pyrefly: ignore [bad-argument-type]
+                        input_path,
+                        # pyrefly: ignore [bad-argument-type]
+                        output_path,
+                        table,
+                    )
             elif table_configs["table_name"] == "Simples":
-                process_csv_simples(
+                rows_read += process_csv_simples(
                     # pyrefly: ignore [bad-argument-type]
                     input_path,
                     # pyrefly: ignore [bad-argument-type]
@@ -256,6 +267,10 @@ def main(
                     table,
                     chunk_size,
                 )
+
+    # pyrefly: ignore [bad-argument-type, unbound-name]
+    check_rows_written(rows_read=rows_read, output_dir=output_path)
+
     # pyrefly: ignore[bad-return]
     # pyrefly: ignore [unbound-name]
     return output_path
