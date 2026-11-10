@@ -144,12 +144,33 @@ O que mudou:
 - **Retry sem refazer o que já ficou pronto:** a task `download_and_process_files` tem `retries=3` e
   recomeça do início. Cada arquivo processado deixa um marcador em
   `tmp/br_rf_cnpj/done/<tabela>/<folder_date>_<i>` (fora de `input` e `output`), 
-  e o retry pula os arquivos já feitos. Como a escrita de `estabelecimentos` é 
+  e o retry pula os arquivos já feitos. O marcador guarda quantas linhas aquele
+  arquivo mandou gravar, e o retry soma esse número à contagem da seção 9.
+  Como a escrita de `estabelecimentos` é 
   em modo append, as sobras `estabelecimentos_<i>.csv` do arquivo que estava em 
   processamento são apagadas  antes de reprocessá-lo, para não duplicar linhas.
 
 Os marcadores moram no `tmp/` do pod; como cada execução roda em um pod novo,
 não há risco de marcador de uma competência anterior.
+
+## 9. Conferência das linhas gravadas antes do upload
+
+No fim de `main`, `check_rows_written` (`pipelines/utils/data_tests/rows.py`)
+compara as linhas que `process_csv_*` e `process_manual_dictionaries` passaram
+ao `to_csv` com as linhas dos CSVs em `tmp/br_rf_cnpj/output/<tabela>`, a pasta
+que vai para o upload. Se os números não batem, a task falha com `ValueError`
+antes de subir qualquer arquivo.
+
+A contagem é feita logo antes de cada escrita, então o que o tratamento descarta
+antes dela não entra na conta: as linhas de `estabelecimentos` com `sigla_uf`
+fora de `UFS` e as que o dicionário remove no `dropna` e no `drop_duplicates`.
+
+A conferência supõe que a pasta de saída só tem o que a execução atual gravou,
+o que vale no pod novo de cada execução. Numa execução local, uma competência
+anterior que ficou em `output/<tabela>` faz a conferência falhar. No
+`dicionario`, o `data.csv` é escrito em modo append e não é apagado entre as
+tentativas da task: um retry depois de uma escrita parcial grava linhas
+repetidas, e a conferência reprova a tentativa.
 
 ## Resumo
 * Correção de encoding: os CSVs de origem da Receita Federal eram lidos incorretamente, gerando caracteres inválidos em campos de texto (ex.: razão social, nome fantasia). 
@@ -159,3 +180,4 @@ não há risco de marcador de uma competência anterior.
 * Preservação do histórico: dados anteriores a maio/2023, hoje indisponíveis na fonte original, foram preservados em tabelas legado e continuam incluídos na base a cada atualização completa da tabela.
 * Alerta de fonte: o documento do sócio pessoa jurídica (tabela `socios`, `tipo = "1"`) passou a ser publicado pela Receita Federal com 8 caracteres em vez dos 14 caracteres do CNPJ completo, a partir da competência 2026-08.
 * Robustez do download: chunks e zips são validados, o zip corrompido é baixado de novo só para aquele arquivo, a listagem da Receita Federal tem timeout maior com retry, e um retry da task não refaz os arquivos já processados.
+* Conferência das linhas gravadas: antes do upload, a task compara as linhas passadas ao `to_csv` com as gravadas na pasta da tabela e falha se diferirem.

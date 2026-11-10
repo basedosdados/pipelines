@@ -39,6 +39,7 @@ from pipelines.datasets.br_rf_cnpj.utils import (
     validate_expected_file_count,
     validate_partition_rows,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
     SourceInspection,
@@ -139,6 +140,7 @@ def download_and_process_files(
         str: The path to the output folder where the data has been organized.
     """
     arquivos_baixados = []  # List to track already downloaded files
+    rows_read = 0
     for table in tables:
         table_configs = COMPONENTS_SPECS[table]
 
@@ -176,6 +178,7 @@ def download_and_process_files(
                 if marcador.exists():
                     log(f"{nome_arquivo} já processado; pulando.")
                     arquivos_baixados.append(nome_arquivo)
+                    rows_read += int(marcador.read_text())
                     continue
 
                 if nome_arquivo not in arquivos_baixados:
@@ -193,8 +196,9 @@ def download_and_process_files(
                         )
                     )
 
+                    file_rows = 0
                     if table_configs["table_name"] == "Estabelecimentos":
-                        stats = process_csv_estabelecimentos(
+                        file_rows = process_csv_estabelecimentos(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -206,13 +210,14 @@ def download_and_process_files(
                         )
                         # Antes do marcador: se falhar, o retry refaz o arquivo
                         validate_partition_rows(
-                            **stats,
+                            rows_in=chunk_size,
+                            rows_out=file_rows,
                             tolerance=ROW_LOSS_TOLERANCE,
                             arquivo=nome_arquivo,
                         )
 
                     elif table_configs["table_name"] == "Socios":
-                        process_csv_socios(
+                        file_rows = process_csv_socios(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -223,7 +228,7 @@ def download_and_process_files(
                             chunk_size,
                         )
                     elif table_configs["table_name"] == "Empresas":
-                        process_csv_empresas(
+                        file_rows = process_csv_empresas(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -234,8 +239,9 @@ def download_and_process_files(
                             chunk_size,
                         )
 
+                    rows_read += file_rows
                     marcador.parent.mkdir(parents=True, exist_ok=True)
-                    marcador.touch()
+                    marcador.write_text(str(file_rows))
 
             concluidos = len(list(done_dir.glob(f"{folder_date}_*")))
             if concluidos != len(files):
@@ -260,13 +266,21 @@ def download_and_process_files(
 
             if table_configs["dicionario"]:
                 if table_configs["manual"]:
-                    # pyrefly: ignore [bad-argument-type]
-                    process_manual_dictionaries(output_path, table)
+                    rows_read += process_manual_dictionaries(
+                        # pyrefly: ignore [bad-argument-type]
+                        output_path,
+                        table,
+                    )
                 else:
-                    # pyrefly: ignore [bad-argument-type]
-                    process_csv_dicionario(input_path, output_path, table)
+                    rows_read += process_csv_dicionario(
+                        # pyrefly: ignore [bad-argument-type]
+                        input_path,
+                        # pyrefly: ignore [bad-argument-type]
+                        output_path,
+                        table,
+                    )
             elif table_configs["table_name"] == "Simples":
-                process_csv_simples(
+                rows_read += process_csv_simples(
                     # pyrefly: ignore [bad-argument-type]
                     input_path,
                     # pyrefly: ignore [bad-argument-type]
@@ -276,6 +290,10 @@ def download_and_process_files(
                     table,
                     chunk_size,
                 )
+
+    # pyrefly: ignore [bad-argument-type, unbound-name]
+    check_rows_written(rows_read=rows_read, output_dir=output_path)
+
     # pyrefly: ignore[bad-return]
     # pyrefly: ignore [unbound-name]
     return output_path
