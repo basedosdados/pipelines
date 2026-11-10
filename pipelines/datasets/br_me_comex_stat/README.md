@@ -111,10 +111,10 @@ interrompe a run antes de subir arquivo.
    conferência do MDIC, como descrito em "A validação contra os totais oficiais
    derruba a run". Reprova arquivo sem nenhuma linha de dado; nos outros, o
    passo 1 garante um `ano` só.
-3. `check_rows_written` (`utils.py` do conjunto) roda depois de todos os
-   arquivos e compara as linhas lidas com as linhas dos `data.csv` gravados nas
-   partições. Detecta linha perdida (coluna de partição vazia) e linha a mais (o
-   `to_partitions` grava em modo de acréscimo).
+3. `check_rows_written` (`pipelines/utils/data_tests/rows.py`) roda depois de
+   todos os arquivos e compara as linhas lidas com as linhas dos `data.csv`
+   gravados nas partições. Detecta linha perdida (coluna de partição vazia) e
+   linha a mais (o `to_partitions` grava em modo de acréscimo).
 
 ### Testes do dbt
 
