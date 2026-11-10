@@ -12,7 +12,6 @@ from pipelines.datasets.br_bd_diretorios_brasil.tasks import (
     fetch_diretorio_publicado,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import NonHistorical
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -50,7 +49,6 @@ def br_bd_diretorios_brasil__escola(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -69,7 +67,6 @@ def br_bd_diretorios_brasil__escola(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -83,7 +80,6 @@ def br_bd_diretorios_brasil__escola(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=NonHistorical(),
             env="prod",
             bq_project="basedosdados",
         )

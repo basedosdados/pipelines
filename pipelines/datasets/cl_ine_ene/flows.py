@@ -31,12 +31,6 @@ from pipelines.datasets.cl_ine_ene.tasks import (
     probe_source_max_period,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -50,25 +44,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 TABLE_ID = constants.TABLE_ID.value
-
-# The ENE refreshes monthly, so `microdato` carries the BD Pro rolling window:
-# the most recent 6 moving quarters are pro-only, everything older is free. Each
-# run recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges
-# and re-issues the BigQuery Row Access Policies, so the window slides on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written.
-#
-# `dicionario` is a literal dbt model with no date column, so it takes no
-# coverage spec and is never uploaded — only built.
-_COVERAGE = {
-    TABLE_ID: PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
-    ),
-}
 
 
 @flow(name="cl_ine_ene", log_prints=True)
@@ -205,7 +180,6 @@ def cl_ine_ene_flow(
                 table_id=TABLE_ID,
                 bucket_name="basedosdados-dev",
                 dump_mode=dump_mode,
-                source_format="parquet",
             )
             # Build every table first, then test: the dicionario coverage test
             # reads microdato, so an interleaved run/test would test against a
@@ -232,7 +206,6 @@ def cl_ine_ene_flow(
             table_id=TABLE_ID,
             bucket_name="basedosdados",
             dump_mode=dump_mode,
-            source_format="parquet",
         )
         for table in constants.DBT_TABLES.value:
             run_dbt(
@@ -250,14 +223,12 @@ def cl_ine_ene_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id=TABLE_ID,
+                env="prod",
+                bq_project="basedosdados",
+            )
     finally:
         # Covers both early returns and any exception. A full refresh downloads
         # ~6.5 GB, which a process worker would otherwise keep on disk.

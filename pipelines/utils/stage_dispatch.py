@@ -22,7 +22,6 @@ from prefect.client.orchestration import get_client
 from prefect.deployments import run_deployment
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
-from pipelines.utils.metadata.domain import CoverageSpec
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -72,9 +71,6 @@ class ExtractAndLoad:
     """O que `extract_load_data` de um dataset devolve pro extract_and_load.
 
     Attributes:
-        coverage: `CoverageSpec.model_dump()` (`AllFree`/`AllBdpro`/
-            `PartBdpro`/`NonHistorical` — ver
-            `pipelines.utils.metadata.domain`).
         data_path: caminho local que `extract_load_data` escreveu. Numa
             tabela particionada, precisa ser um diretório organizado
             exatamente na estrutura Hive que será promovida (ex.
@@ -90,14 +86,11 @@ class ExtractAndLoad:
             dataset — não é parâmetro do construtor. `None` pra tabela
             sem partição (nenhuma pasta Hive achada em `data_path`).
         dump_mode: modo de escrita no BigQuery.
-        source_format: formato do arquivo em `data_path`.
     """
 
-    coverage: dict
     data_path: str
     prefect_mode: str = "prod"
     dump_mode: str = "append"
-    source_format: str = "csv"
     partition_folders: list[str] | None = field(default=None, init=False)
 
 
@@ -206,8 +199,7 @@ def _run_flow_locally(deployment_full_name: str, parameters: dict) -> Any:
     `run_deployment()` chamado de dentro de um flow já em execução quebra
     com `422 Unprocessable Entity` contra o servidor Prefect local
     (`scripts/dev_local.sh`) — não ocorre em produção. `validate_parameters()`
-    aplica a mesma coerção de tipos que `run_deployment()` faria
-    (`dict` -> `CoverageSpec`, etc.).
+    aplica a mesma coerção de tipos que `run_deployment()` faria.
 
     Args:
         deployment_full_name: `"<flow name>/<deployment name>"`, mesmo
@@ -381,7 +373,6 @@ def dispatch_build_and_promote(
     parameters = {
         "dataset_id": dataset_id,
         "table_id": table_id,
-        "coverage": result.coverage,
         "env": env,
         "bq_project": metadata_constants.MODE_PROJECT.value[
             result.prefect_mode
@@ -390,7 +381,6 @@ def dispatch_build_and_promote(
         "promote_to_prod": not _dev_prefix(),
         "partition_folders": result.partition_folders,
         "dump_mode": result.dump_mode,
-        "source_format": result.source_format,
     }
     name = deployment_name(dataset_id, Etapa.BUILD_AND_PROMOTE)
     if _is_local():
@@ -408,13 +398,10 @@ def promote_primary_and_derived_tables(
     dataset_id: str,
     table_id: str,
     data_path: str,
-    coverage: CoverageSpec,
     derived_table_ids: list[str],
-    derived_coverage: CoverageSpec | dict[str, CoverageSpec],
     env: str = "prod",
     prefect_mode: str = "prod",
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     """Materializa `table_id` e re-materializa tabelas derivadas junto, inline.
 
@@ -433,24 +420,23 @@ def promote_primary_and_derived_tables(
     — um dataset rodando num deployment de dev nunca promove pra prod de
     verdade.
 
+    A coverage de cada tabela (mãe e filhas) é buscada do backend, uma vez
+    por tabela, dentro de `register_table_materialization_task` — nem
+    `table_id` nem `derived_table_ids` precisam vir com uma coverage já
+    montada.
+
     Args:
         dataset_id: ID do dataset no backend/BigQuery.
         table_id: ID da tabela mãe — a que `extract_load_data` baixou.
         data_path: caminho local escrito por `extract_load_data` pra
             `table_id` (mesmo valor que iria em `ExtractAndLoad.data_path`).
-        coverage: `CoverageSpec` da tabela mãe.
         derived_table_ids: tabelas filhas, sem download próprio — só
             `dbt run/test` lendo da mãe.
-        derived_coverage: `CoverageSpec` das filhas. Uma só, aplicada a
-            todas, ou um dict `{table_id: CoverageSpec}` quando elas não
-            compartilham a mesma cobertura.
         env: backend de destino.
         prefect_mode: resolve o projeto de billing/BigQuery
             (`MODE_PROJECT`) e é repassado a
             `register_table_materialization_task`.
         dump_mode: modo de escrita no BigQuery pro upload da mãe em prod.
-        source_format: formato do arquivo em staging (`"csv"`/`"parquet"`)
-            pro upload da mãe em prod.
     """
     bq_project = metadata_constants.MODE_PROJECT.value[prefect_mode]
     all_table_ids = [table_id, *derived_table_ids]
@@ -472,7 +458,6 @@ def promote_primary_and_derived_tables(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     for t in all_table_ids:
@@ -486,21 +471,14 @@ def promote_primary_and_derived_tables(
     register_table_materialization_task(
         dataset_id=dataset_id,
         table_id=table_id,
-        coverage=coverage,
         env=env,
         bq_project=bq_project,
         prefect_mode=prefect_mode,
     )
     for t in derived_table_ids:
-        t_coverage = (
-            derived_coverage[t]
-            if isinstance(derived_coverage, dict)
-            else derived_coverage
-        )
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=t,
-            coverage=t_coverage,
             env=env,
             bq_project=bq_project,
             prefect_mode=prefect_mode,
@@ -699,7 +677,6 @@ class CheckThenExtractLoadPipeline:
             table_id=self.table_id,
             bucket_name="basedosdados-dev",
             dump_mode=download_result.dump_mode,
-            source_format=download_result.source_format,
         )
 
         dispatch_build_and_promote(
@@ -713,9 +690,7 @@ class CheckThenExtractLoadPipeline:
         self,
         download_params: dict,
         *,
-        coverage: CoverageSpec,
         derived_table_ids: list[str],
-        derived_coverage: CoverageSpec | dict[str, CoverageSpec],
     ) -> None:
         """Corpo completo do estágio extract_and_load — tabela mãe + derivadas.
 
@@ -736,12 +711,8 @@ class CheckThenExtractLoadPipeline:
         Args:
             download_params: dict recebido do estágio anterior via
                 `run_deployment()` — sempre tem `reference_date`.
-            coverage: `CoverageSpec` da tabela mãe.
             derived_table_ids: tabelas derivadas, sem download próprio —
                 só `dbt run/test` lendo da mãe.
-            derived_coverage: `CoverageSpec` das derivadas. Uma só,
-                aplicada a todas, ou um dict `{table_id: CoverageSpec}`
-                quando elas não compartilham a mesma cobertura.
         """
         rename_flow_run_dataset_table(
             prefix="Extract and Load: ",
@@ -757,18 +728,14 @@ class CheckThenExtractLoadPipeline:
             table_id=self.table_id,
             bucket_name="basedosdados-dev",
             dump_mode=download_result.dump_mode,
-            source_format=download_result.source_format,
         )
 
         promote_primary_and_derived_tables(
             dataset_id=self.dataset_id,
             table_id=self.table_id,
             data_path=download_result.data_path,
-            coverage=coverage,
             derived_table_ids=derived_table_ids,
-            derived_coverage=derived_coverage,
             env=self.env,
             prefect_mode=download_result.prefect_mode,
             dump_mode=download_result.dump_mode,
-            source_format=download_result.source_format,
         )

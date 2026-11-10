@@ -19,7 +19,6 @@ def _igp_flow(table_id: str, indice: str, periodo: str, cron: str | None):
         indice: str = indice,
         periodo: str = periodo,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = False,
         target: str = "prod",
         force_run: bool = False,
     ) -> None:
@@ -29,7 +28,6 @@ def _igp_flow(table_id: str, indice: str, periodo: str, cron: str | None):
             indice=indice,
             periodo=periodo,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             target=target,
             force_run=force_run,
         )

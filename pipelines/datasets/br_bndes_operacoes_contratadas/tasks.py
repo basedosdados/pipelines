@@ -364,10 +364,8 @@ def indiretas_automaticas_extract_load_data(
     csv_path = download_source_csv(table_id=table_id)
     output_dir = clean_and_partition(csv_path=csv_path, table_id=table_id)
     return ExtractAndLoad(
-        coverage=constants_indiretas_automaticas.COVERAGE.value.model_dump(),
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -400,10 +398,8 @@ def nao_automaticas_extract_load_data(
     csv_path = download_source_csv(table_id=table_id)
     output_dir = clean_and_partition(csv_path=csv_path, table_id=table_id)
     return ExtractAndLoad(
-        coverage=constants_nao_automaticas.COVERAGE.value.model_dump(),
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -433,10 +429,8 @@ def administracao_publica_extract_load_data(
     csv_path = download_administracao_publica_csv()
     output_dir = clean_and_partition_administracao_publica(csv_path=csv_path)
     return ExtractAndLoad(
-        coverage=constants_administracao_publica.COVERAGE.value.model_dump(),
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -466,10 +460,8 @@ def exportacao_bens_extract_load_data(
     csv_path = download_exportacao_bens_csv()
     output_dir = clean_and_partition_exportacao_bens(csv_path=csv_path)
     return ExtractAndLoad(
-        coverage=constants_exportacao_bens.COVERAGE.value.model_dump(),
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -499,10 +491,8 @@ def exportacao_servicos_extract_load_data(
     csv_path = download_exportacao_servicos_csv()
     output_dir = clean_and_partition_exportacao_servicos(csv_path=csv_path)
     return ExtractAndLoad(
-        coverage=constants_exportacao_servicos.COVERAGE.value.model_dump(),
         data_path=output_dir,
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
 
@@ -532,8 +522,6 @@ def pre_embarque_extract_load_data(
     csv_path = download_table()
     output_dir = clean_table(csv_path=csv_path)
     return ExtractAndLoad(
-        coverage=constants_pre_embarque.COVERAGE.value.model_dump(),
         data_path=str(output_dir),
         dump_mode="overwrite",
-        source_format="parquet",
     )

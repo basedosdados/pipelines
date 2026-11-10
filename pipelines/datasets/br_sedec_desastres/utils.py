@@ -1,14 +1,4 @@
-"""Download e limpeza do br_sedec_desastres.
-
-Funções puras: nada aqui importa Prefect no nível do módulo. Quem embala em
-`@task` é o `tasks.py`. O `log()` vem de `pipelines.utils.utils` e resolve o
-logger do Prefect só em tempo de chamada — dentro de uma task ele escreve no log
-do run, fora dela cai no `logging` padrão —, então o módulo segue importável sem
-o Prefect instalado.
-
-O schema (ordem das colunas, tipos, nome de origem) vem de `constants.COLUNAS`,
-não de arquivo — a planilha de arquitetura não é versionada.
-"""
+"""Download e limpeza das tabelas do br_sedec_desastres."""
 
 import base64
 import contextlib
@@ -17,15 +7,13 @@ import shutil
 import socket
 import threading
 import time
-from collections.abc import Callable
-from datetime import date
+import unicodedata
+from collections.abc import Callable, Generator
+from datetime import date, timedelta
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-import pandas as pd
 import polars as pl
-import pyarrow as pa
-import pyarrow.parquet as pq
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -35,39 +23,20 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from pipelines.datasets.br_sedec_desastres.constants import constants
+from pipelines.datasets.br_sedec_desastres.constants import (
+    constants,
+    reconhecimentos_realizados,
+    reconhecimentos_vigentes,
+)
 from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
 
-PA = {
-    "INT64": pa.int64(),
-    "FLOAT64": pa.float64(),
-    "STRING": pa.string(),
-    "DATE": pa.date32(),
-    "BOOL": pa.bool_(),
-}
-
-
-# Abaixo disto a resposta não é o relatório: a página real passa de 250 KB, e o
-# que o pod recebeu quando o WAF barrou tinha 165 bytes.
 _HTML_MINIMO = 2000
 
 
-# ── download ────────────────────────────────────────────────────────────────
 def _checar_fonte() -> None:
-    """Registra o que a fonte responde a requisições simples, sem browser.
+    """Registra no log o que a fonte responde a requisições simples, sem navegador.
 
-    Existe para separar três causas que chegam ao selenium como o mesmo timeout:
-
-    - **conteúdo do pedido** (User-Agent, headers, browser headless detectado):
-      se esta checagem passar e o Chrome não, o barrado é o browser, e o caminho
-      é montar o postback com ``requests`` em vez de dirigir o navegador;
-    - **origem de rede**: se a raiz e o caminho do relatório levarem o mesmo
-      erro, o negado é o IP de saída, e não há correção possível no código;
-    - **regra por caminho**: se a raiz passar e só o relatório cair, a política
-      é do path, e vale investigar sessão, ``Referer`` e ordem de navegação.
-
-    Nunca levanta: é diagnóstico, e falhar aqui não deve impedir a tentativa com
-    o browser.
+    Nunca levanta exceção.
     """
     proxies = brasil_proxy_dict()
     log(f"proxy brasileiro {'em uso' if proxies else 'não configurado'}")
@@ -137,6 +106,66 @@ def _injeta_credencial(cabecalho: bytes, credencial: str) -> bytes:
     return b"\r\n".join(linhas)
 
 
+def _handle_client(
+    client: socket.socket, upstream: tuple[str | None, int], credential: str
+) -> None:
+    """Repassa ao Squid uma conexão do Chrome, com a credencial no cabeçalho.
+
+    Args:
+        client: Conexão aberta pelo Chrome com o repasse.
+        upstream: Endereço ``(host, porta)`` do Squid.
+        credential: Valor pronto do ``Proxy-Authorization``.
+    """
+    try:
+        header = b""
+        while b"\r\n\r\n" not in header:
+            chunk = client.recv(65536)
+            if not chunk:
+                return
+            header += chunk
+
+        header, rest = header.split(b"\r\n\r\n", 1)
+        squid = socket.create_connection(upstream, timeout=60)
+        squid.settimeout(None)
+        squid.sendall(
+            _injeta_credencial(header, credential) + b"\r\n\r\n" + rest
+        )
+
+        threading.Thread(
+            target=_repassa, args=(squid, client), daemon=True
+        ).start()
+        _repassa(client, squid)
+    except OSError as error:
+        log(
+            f"repasse do proxy falhou: {type(error).__name__}: {error}",
+            "warning",
+        )
+    finally:
+        client.close()
+
+
+def _accept_clients(
+    server: socket.socket, upstream: tuple[str | None, int], credential: str
+) -> None:
+    """Aceita conexões no repasse até o socket fechar, uma thread por conexão.
+
+    Args:
+        server: Socket do repasse, já escutando.
+        upstream: Endereço ``(host, porta)`` do Squid.
+        credential: Valor pronto do ``Proxy-Authorization``.
+    """
+    while True:
+        try:
+            client, _ = server.accept()
+        except OSError:
+            return
+        threading.Thread(
+            target=_handle_client,
+            args=(client, upstream, credential),
+            daemon=True,
+        ).start()
+
+
 def _proxy_local(url_proxy: str) -> tuple[str, Callable[[], None]]:
     """Sobe em ``127.0.0.1`` um proxy que repassa ao Squid com a credencial.
 
@@ -146,62 +175,27 @@ def _proxy_local(url_proxy: str) -> tuple[str, Callable[[], None]]:
     Returns:
         O endereço ``host:porta`` do repasse e a função que o encerra.
     """
-    partes = urlparse(url_proxy)
-    credencial = (
-        "Basic "
-        + base64.b64encode(
-            f"{unquote(partes.username or '')}:{unquote(partes.password or '')}".encode()
-        ).decode()
+    parts = urlparse(url_proxy)
+    user = unquote(parts.username or "")
+    password = unquote(parts.password or "")
+    credential = (
+        "Basic " + base64.b64encode(f"{user}:{password}".encode()).decode()
     )
-    upstream = (partes.hostname, partes.port or 3128)
+    upstream = (parts.hostname, parts.port or 3128)
 
-    servidor = socket.socket()
-    servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    servidor.bind(("127.0.0.1", 0))
-    servidor.listen(32)
-    porta = servidor.getsockname()[1]
+    server = socket.socket()
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(("127.0.0.1", 0))
+    server.listen(32)
+    port = server.getsockname()[1]
 
-    def atende(cliente: socket.socket) -> None:
-        try:
-            cabecalho = b""
-            while b"\r\n\r\n" not in cabecalho:
-                pedaco = cliente.recv(65536)
-                if not pedaco:
-                    return
-                cabecalho += pedaco
-
-            cabecalho, resto = cabecalho.split(b"\r\n\r\n", 1)
-            saida = socket.create_connection(upstream, timeout=60)
-            saida.settimeout(None)
-            saida.sendall(
-                _injeta_credencial(cabecalho, credencial) + b"\r\n\r\n" + resto
-            )
-
-            threading.Thread(
-                target=_repassa, args=(saida, cliente), daemon=True
-            ).start()
-            _repassa(cliente, saida)
-        except OSError as erro:
-            log(
-                f"repasse do proxy falhou: {type(erro).__name__}: {erro}",
-                "warning",
-            )
-        finally:
-            cliente.close()
-
-    def aceita() -> None:
-        while True:
-            try:
-                cliente, _ = servidor.accept()
-            except OSError:
-                return
-            threading.Thread(
-                target=atende, args=(cliente,), daemon=True
-            ).start()
-
-    threading.Thread(target=aceita, daemon=True).start()
-    log(f"repasse do proxy ouvindo em 127.0.0.1:{porta}")
-    return f"127.0.0.1:{porta}", servidor.close
+    threading.Thread(
+        target=_accept_clients,
+        args=(server, upstream, credential),
+        daemon=True,
+    ).start()
+    log(f"repasse do proxy ouvindo em 127.0.0.1:{port}")
+    return f"127.0.0.1:{port}", server.close
 
 
 def _chrome_options(
@@ -211,15 +205,12 @@ def _chrome_options(
 
     Args:
         download_dir: Diretório onde o Chrome grava o export.
-        endereco_proxy: ``host:porta`` do repasse local, quando há proxy. O
-            S2ID recusa IP estrangeiro com 403 e uma página de bloqueio, que é
-            o que o cluster, em ``us-central1``, recebe hoje.
+        endereco_proxy: ``host:porta`` do repasse local, quando há proxy.
 
     Returns:
         Opções prontas para passar ao ``webdriver.Chrome``.
     """
     options = webdriver.ChromeOptions()
-    # https://github.com/SeleniumHQ/selenium/issues/11637
     options.add_experimental_option(
         "prefs",
         {
@@ -233,7 +224,6 @@ def _chrome_options(
     options.add_argument("--disable-gpu")
     options.add_argument("--no-first-run")
     options.add_argument("--no-sandbox")
-    # Essencial no k8s: o /dev/shm do pod é pequeno e o Chrome morre sem isso.
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--no-default-browser-check")
     options.add_argument("--window-size=1920,1080")
@@ -245,15 +235,64 @@ def _chrome_options(
     return options
 
 
+@contextlib.contextmanager
+def _open_report(
+    input_dir: Path,
+) -> Generator[webdriver.Chrome, None, None]:
+    """Abre a página dos relatórios num Chrome headless que baixa em ``input_dir``.
+
+    Recria ``input_dir`` vazio e faz a pré-checagem da fonte antes de abrir o
+    Chrome. Na saída, fecha o Chrome e o repasse do proxy.
+
+    Args:
+        input_dir: Diretório de destino dos downloads.
+
+    Yields:
+        O WebDriver já na página dos relatórios.
+    """
+    shutil.rmtree(input_dir, ignore_errors=True)
+    input_dir.mkdir(parents=True)
+
+    _checar_fonte()
+
+    proxy_url = brasil_proxy_url()
+    proxy_address, close_proxy = (
+        _proxy_local(proxy_url) if proxy_url else (None, lambda: None)
+    )
+
+    driver = None
+    try:
+        log("resolvendo o chromedriver")
+        service = ChromeService(ChromeDriverManager().install())
+        log(f"chromedriver em {service.path}; abrindo o Chrome")
+        driver = webdriver.Chrome(
+            service=service,
+            options=_chrome_options(input_dir, proxy_address),
+        )
+
+        log(f"carregando {constants.BASE_URL.value}")
+        started = time.monotonic()
+        driver.get(constants.BASE_URL.value)
+        html = driver.page_source
+        if len(html) < _HTML_MINIMO:
+            log(f"html recebido na íntegra: {html!r}", "warning")
+        log(
+            f"página carregada em {time.monotonic() - started:.1f}s | "
+            f"título={driver.title!r} | html={len(html)} bytes"
+        )
+
+        yield driver
+    finally:
+        if driver is not None:
+            driver.quit()
+        close_proxy()
+
+
 def _click(driver, xpath: str, timeout: int, descricao: str) -> None:
     """Espera o elemento ficar clicável e clica nele.
 
-    Ao estourar, registra quantos elementos casam o XPath antes de propagar o
-    erro. É a informação que separa os dois modos de falha: zero significa que o
-    elemento não está na página (bloqueio da fonte, página de erro ou HTML que
-    mudou), enquanto um ou mais significa que ele existe e nunca ficou clicável
-    (painel fechado, overlay por cima). Sem isso, os dois casos chegam como o
-    mesmo ``TimeoutException`` sem contexto nenhum.
+    No timeout, registra no log quantos elementos casam o XPath antes de
+    propagar o erro.
 
     Args:
         driver: WebDriver ativo.
@@ -280,15 +319,28 @@ def _click(driver, xpath: str, timeout: int, descricao: str) -> None:
         raise
 
 
-def _is_in_flight(path: Path) -> bool:
-    """Diz se o Chrome ainda está escrevendo o arquivo.
+def _fill_date(driver, xpath: str, value: date, timeout: int) -> None:
+    """Escreve uma data num campo de calendário somente leitura.
 
-    O Chrome usa dois esquemas de nome para transferência em andamento, e os dois
-    precisam ser reconhecidos: ``<nome>.crdownload`` e um temporário oculto
-    chamado ``.com.google.Chrome.XXXXXX``, que ele escreve e depois renomeia no
-    lugar. Tratar o temporário como download pronto devolve um caminho que
-    desaparece antes de dar tempo de renomear — e deixa o export de verdade
-    sobrando, sem dono, para ser confundido com o arquivo da UF seguinte.
+    Args:
+        driver: WebDriver ativo.
+        xpath: XPath do ``<input>`` do calendário.
+        value: Data a escrever.
+        timeout: Segundos de espera até o campo existir.
+    """
+    field = WebDriverWait(driver, timeout).until(
+        ec.presence_of_element_located((By.XPATH, xpath))
+    )
+    driver.execute_script(
+        "arguments[0].value = arguments[1];", field, f"{value:%d/%m/%Y}"
+    )
+
+
+def _is_in_flight(path: Path) -> bool:
+    """Diz se o arquivo é um download do Chrome ainda em andamento.
+
+    Reconhece ``<nome>.crdownload`` e os temporários ocultos
+    ``.com.google.Chrome.*`` e ``.org.chromium.*``.
 
     Args:
         path: Uma entrada do diretório.
@@ -301,83 +353,10 @@ def _is_in_flight(path: Path) -> bool:
     )
 
 
-def _base_do_estado(driver) -> str:
-    """Lê na página o id do widget de estado, que o JSF gera e troca sozinho.
-
-    O widget e o painel de opções do PrimeFaces se chamam ``<base>`` e
-    ``<base>_panel``, onde ``<base>`` é o id do ``<select>`` sem o ``_input``.
-    O select é achado pelas UFs que ele contém, não pelo id.
-
-    Args:
-        driver: WebDriver ativo, já na página do relatório.
-
-    Returns:
-        O id do widget, sem o sufixo ``_input``.
-
-    Raises:
-        ValueError: Se o select do estado não estiver na página.
-    """
-    achados = driver.find_elements(
-        By.XPATH, constants.XPATHS.value["estado_select_oculto"]
-    )
-    if not achados:
-        raise ValueError(
-            "não achei o select de estado no painel de vigentes; a página mudou"
-        )
-    identificador = achados[0].get_attribute("id") or ""
-    return identificador.removesuffix("_input")
-
-
-def _read_ufs(driver) -> list[tuple[str, str]]:
-    """Lê as opções do dropdown de estado como pares ``(sigla, nome)``.
-
-    Os ``<li>`` clicáveis são rotulados pelo nome ("Acre"), enquanto o
-    ``<select>`` nativo escondido tem a sigla ("AC") — por isso os dois são
-    necessários: o nome para clicar, a sigla para nomear o arquivo baixado. Ler
-    atributo de elemento escondido é permitido; só interagir com ele não é.
-
-    Note que ``.text`` devolve string vazia em elemento escondido, daí o
-    ``textContent``.
-
-    Args:
-        driver: WebDriver ativo, já na página do relatório.
-
-    Returns:
-        Um par ``(sigla, nome)`` por estado, na ordem da própria fonte.
-
-    Raises:
-        ValueError: Se o dropdown não tiver os 27 estados esperados.
-    """
-    xpath = constants.XPATHS.value["estado_select_oculto"]
-    options = driver.find_elements(By.XPATH, f"{xpath}/option")
-    ufs = [
-        (
-            option.get_attribute("value").strip(),
-            (option.get_attribute("textContent") or "").strip(),
-        )
-        for option in options
-    ]
-    ufs = [(sigla, nome) for sigla, nome in ufs if sigla]
-    if len(ufs) != 27:
-        raise ValueError(f"esperava 27 estados, achei {len(ufs)}: {ufs}")
-    return ufs
-
-
 def _wait_for_download(
     download_dir: Path, timeout: int, seen: set[str]
 ) -> Path:
-    """Bloqueia até o Chrome terminar de escrever um CSV **novo**.
-
-    Um arquivo só conta como o download novo quando é ``.csv``, não é
-    transferência em andamento (ver :func:`_is_in_flight`), não está em ``seen``,
-    e nada mais está em andamento. Sondar isso é melhor que dormir um número fixo
-    de segundos, que é o que deixa os outros crawlers de selenium do repo
-    frágeis.
-
-    O ``seen`` é o que permite usar isso dentro de um laço: o relatório é
-    exportado uma vez por estado, então já na segunda volta o diretório tem um
-    arquivo pronto, e "qualquer arquivo completo" devolveria o export do estado
-    anterior.
+    """Espera o Chrome terminar de gravar um CSV que não esteja em ``seen``.
 
     Args:
         download_dir: Diretório configurado como destino do Chrome.
@@ -405,8 +384,6 @@ def _wait_for_download(
             log(f"download concluído: {new_files[0].name}")
             return new_files[0]
         time.sleep(1)
-    # O conteúdo do diretório é o que separa "o clique não disparou download
-    # nenhum" de "baixou mas travou pela metade" — os dois chegam aqui iguais.
     presentes = sorted(p.name for p in download_dir.iterdir() if p.is_file())
     log(
         f"timeout de download após {timeout}s | {len(seen)} já baixados | "
@@ -419,69 +396,74 @@ def _wait_for_download(
     )
 
 
-def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
-    """Baixa o relatório "Reconhecimentos vigentes" do S2ID.
+def _base_do_estado(driver) -> str:
+    """Lê na página o id do widget de estado da vigentes.
 
-    Dirige um Chrome headless porque a fonte é uma aplicação JSF/PrimeFaces: o
-    export sai de um postback de formulário atrelado a sessão e ``ViewState``,
-    não de uma URL de download estável.
-
-    Exporta uma vez **por estado**: o dropdown de estado do relatório não tem
-    opção "todos" (27 opções, nenhuma vazia), então o retrato nacional é a
-    concatenação de 27 downloads. Cada arquivo é renomeado para ``<sigla>.csv``,
-    para a UF sobreviver mesmo que não venha como coluna do export.
+    O id do widget é o do ``<select>`` oculto sem o sufixo ``_input``.
 
     Args:
-        input_dir: Diretório de destino; criado se não existir.
+        driver: WebDriver ativo, já na página do relatório.
+
+    Returns:
+        O id do widget, sem o sufixo ``_input``.
+
+    Raises:
+        ValueError: Se o select do estado não estiver na página.
+    """
+    achados = driver.find_elements(
+        By.XPATH, reconhecimentos_vigentes.XPATHS.value["estado_select_oculto"]
+    )
+    if not achados:
+        raise ValueError(
+            "não achei o select de estado no painel de vigentes; a página mudou"
+        )
+    identificador = achados[0].get_attribute("id") or ""
+    return identificador.removesuffix("_input")
+
+
+def _read_ufs(driver) -> list[tuple[str, str]]:
+    """Lê as opções do select oculto de estado como pares ``(sigla, nome)``.
+
+    Args:
+        driver: WebDriver ativo, já na página do relatório.
+
+    Returns:
+        Um par ``(sigla, nome)`` por estado, na ordem da própria fonte.
+
+    Raises:
+        ValueError: Se o dropdown não tiver os 27 estados esperados.
+    """
+    xpath = reconhecimentos_vigentes.XPATHS.value["estado_select_oculto"]
+    options = driver.find_elements(By.XPATH, f"{xpath}/option")
+    ufs = [
+        (
+            option.get_attribute("value").strip(),
+            (option.get_attribute("textContent") or "").strip(),
+        )
+        for option in options
+    ]
+    ufs = [(sigla, nome) for sigla, nome in ufs if sigla]
+    if len(ufs) != 27:
+        raise ValueError(f"esperava 27 estados, achei {len(ufs)}: {ufs}")
+    return ufs
+
+
+def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
+    """Baixa o relatório "Reconhecimentos vigentes" do S2ID, um export por UF.
+
+    Cada export é renomeado para ``<sigla>.csv``.
+
+    Args:
+        input_dir: Diretório de destino; recriado vazio.
 
     Returns:
         O diretório com os 27 exports baixados.
     """
-    xpaths = constants.XPATHS.value
+    xpaths = reconhecimentos_vigentes.XPATHS.value
     element_timeout = constants.ELEMENT_TIMEOUT.value
     download_timeout = constants.DOWNLOAD_TIMEOUT.value
 
-    # Uma retentativa reaproveita o mesmo work_dir e o `seen` nasce vazio: um CSV
-    # sobrando da tentativa anterior é devolvido por _wait_for_download antes de o
-    # download novo começar (nesse instante nada está em andamento), e renomeado
-    # para a UF errada. A checagem de `UF != sigla_uf` no build acusa isso, então
-    # sem limpar o diretório o retry não tem como dar certo.
-    shutil.rmtree(input_dir, ignore_errors=True)
-    input_dir.mkdir(parents=True)
-
-    _checar_fonte()
-
-    url_proxy = brasil_proxy_url()
-    endereco_proxy, encerra_proxy = (
-        _proxy_local(url_proxy) if url_proxy else (None, lambda: None)
-    )
-
-    driver = None
-    try:
-        log("resolvendo o chromedriver")
-        service = ChromeService(ChromeDriverManager().install())
-        log(f"chromedriver em {service.path}; abrindo o Chrome")
-
-        driver = webdriver.Chrome(
-            service=service,
-            options=_chrome_options(input_dir, endereco_proxy),
-        )
-        log(f"carregando {constants.BASE_URL.value}")
-        inicio = time.monotonic()
-        driver.get(constants.BASE_URL.value)
-        # Título e tamanho do HTML logo após o get: uma página de bloqueio ou de
-        # erro se denuncia aqui, e não 120s depois num timeout sem contexto.
-        html = driver.page_source
-        if len(html) < _HTML_MINIMO:
-            # Curto demais para ser o relatório, que passa de 250 KB. O HTML
-            # inteiro cabe no log e é o que distingue rejeição de WAF, página de
-            # erro do servidor e aplicação que não renderizou.
-            log(f"html recebido na íntegra: {html!r}", "warning")
-        log(
-            f"página carregada em {time.monotonic() - inicio:.1f}s | "
-            f"título={driver.title!r} | html={len(driver.page_source)} bytes"
-        )
-
+    with _open_report(input_dir) as driver:
         _click(driver, xpaths["painel"], element_timeout, "painel de vigentes")
 
         ufs = _read_ufs(driver)
@@ -496,9 +478,9 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
         )
 
         seen: set[str] = set()
-        for i, (sigla, nome) in enumerate(ufs, start=1):
-            log(f"[{i}/{len(ufs)}] {sigla} ({nome})")
-            inicio_uf = time.monotonic()
+        for uf_number, (sigla, nome) in enumerate(ufs, start=1):
+            log(f"[{uf_number}/{len(ufs)}] {sigla} ({nome})")
+            started = time.monotonic()
 
             _click(
                 driver,
@@ -519,46 +501,153 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
                 f"botão Exportar CSV ({sigla})",
             )
 
-            baixado = _wait_for_download(input_dir, download_timeout, seen)
-            destino = input_dir / f"{sigla}.csv"
-            baixado.rename(destino)
-            seen.add(destino.name)
+            downloaded = _wait_for_download(input_dir, download_timeout, seen)
+            target = input_dir / f"{sigla}.csv"
+            downloaded.rename(target)
+            seen.add(target.name)
             log(
-                f"[{i}/{len(ufs)}] {sigla}: {destino.stat().st_size} bytes em "
-                f"{time.monotonic() - inicio_uf:.1f}s"
+                f"[{uf_number}/{len(ufs)}] {sigla}: {target.stat().st_size} bytes em "
+                f"{time.monotonic() - started:.1f}s"
             )
 
         log(f"{len(seen)} arquivos em {input_dir}")
-        return input_dir
-    finally:
-        if driver is not None:
-            driver.quit()
-        encerra_proxy()
+
+    return input_dir
 
 
-# ── transform ───────────────────────────────────────────────────────────────
+def recent_years(today: date) -> list[int]:
+    """Devolve os anos que o flow recarrega: o corrente e, em janeiro, o anterior.
+
+    Args:
+        today: Data da execução.
+
+    Returns:
+        Os anos em ordem crescente.
+    """
+    return sorted({(today - timedelta(days=31)).year, today.year})
+
+
+def build_windows(years: list[int], today: date) -> list[tuple[date, date]]:
+    """Divide cada ano em semestres, sem passar do dia de hoje.
+
+    Args:
+        years: Anos a consultar.
+        today: Data da execução, limite superior da última janela.
+
+    Returns:
+        Pares ``(primeiro dia, último dia)`` em ordem cronológica.
+
+    Raises:
+        ValueError: Se algum ano for anterior ao primeiro ano da fonte.
+    """
+    first_year = reconhecimentos_realizados.PRIMEIRO_ANO.value
+    if min(years) < first_year:
+        raise ValueError(
+            f"a fonte começa em {first_year}; pedidos: {sorted(years)}"
+        )
+
+    windows = []
+    for year in sorted(years):
+        for first_day, last_day in (
+            (date(year, 1, 1), date(year, 6, 30)),
+            (date(year, 7, 1), date(year, 12, 31)),
+        ):
+            if first_day <= today:
+                windows.append((first_day, min(last_day, today)))
+    return windows
+
+
+def download_reconhecimentos_realizados(
+    input_dir: Path, windows: list[tuple[date, date]]
+) -> Path:
+    """Baixa o relatório "Reconhecimentos realizados" do S2ID, uma janela por arquivo.
+
+    Cada export cobre o país inteiro ("Todas as tipologias" e "Todos os
+    estados") no período da janela, e é renomeado para
+    ``<AAAAMMDD primeiro dia>_<AAAAMMDD último dia>.csv``.
+
+    Args:
+        input_dir: Diretório de destino; recriado vazio.
+        windows: Pares ``(primeiro dia, último dia)``, vindos de
+            :func:`build_windows`.
+
+    Returns:
+        O diretório com um export por janela.
+    """
+    xpaths = reconhecimentos_realizados.XPATHS.value
+    element_timeout = constants.ELEMENT_TIMEOUT.value
+    download_timeout = constants.DOWNLOAD_TIMEOUT.value
+
+    with _open_report(input_dir) as driver:
+        _click(
+            driver, xpaths["painel"], element_timeout, "painel de realizados"
+        )
+        _click(
+            driver,
+            xpaths["todas_tipologias"],
+            element_timeout,
+            "checkbox de todas as tipologias",
+        )
+        _click(
+            driver,
+            xpaths["todos_estados"],
+            element_timeout,
+            "checkbox de todos os estados",
+        )
+
+        seen: set[str] = set()
+        for window_number, (first_day, last_day) in enumerate(
+            windows, start=1
+        ):
+            log(
+                f"[{window_number}/{len(windows)}] "
+                f"{first_day:%d/%m/%Y} a {last_day:%d/%m/%Y}"
+            )
+            _fill_date(
+                driver, xpaths["data_inicial"], first_day, element_timeout
+            )
+            _fill_date(driver, xpaths["data_final"], last_day, element_timeout)
+            _click(
+                driver,
+                xpaths["exportar_csv"],
+                element_timeout,
+                f"botão Exportar CSV ({first_day:%Y-%m-%d})",
+            )
+
+            downloaded = _wait_for_download(input_dir, download_timeout, seen)
+            target = input_dir / f"{first_day:%Y%m%d}_{last_day:%Y%m%d}.csv"
+            downloaded.rename(target)
+            seen.add(target.name)
+            log(
+                f"[{window_number}/{len(windows)}] {target.stat().st_size} bytes"
+            )
+
+    return input_dir
+
+
+def _write_parquet(df: pl.DataFrame, columns: list[str], path: Path) -> None:
+    """Grava ``df`` como parquet Snappy todo STRING, na ordem de ``columns``.
+
+    Args:
+        df: Linhas a gravar.
+        columns: Nomes das colunas, na ordem do arquivo.
+        path: Caminho do arquivo; o diretório é criado se não existir.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.select(
+        [pl.col(column).cast(pl.String) for column in columns]
+    ).write_parquet(path, compression="snappy")
+
+
 def _parse_export(path: Path) -> tuple[pl.DataFrame, int]:
-    """Lê um export de UF e devolve as linhas mais o total que a fonte declara.
-
-    O export é um *relatório*, não um CSV simples. Verificado nos 27 arquivos em
-    2026-08-05:
-
-    - quatro linhas de preâmbulo (ministério, secretaria, título do relatório,
-      ``UF: XX``) antes do cabeçalho de colunas, que sempre começa com ``UF;``;
-    - toda linha de dados tem um ``;`` **sobrando** no fim, ou seja 7 campos
-      contra 6 do cabeçalho — é isso que faz uma leitura ingênua falhar com
-      "found more fields than defined in 'Schema'";
-    - depois uma linha vazia e um rodapé
-      ``Total de reconhecimentos vigentes: ;N;``.
-
-    Vale guardar esse rodapé: o ``N`` é a contagem da própria fonte, então ele
-    valida o parsing em vez de a gente só confiar nele.
+    """Lê um export de UF da vigentes e devolve as linhas e o total do rodapé.
 
     Args:
         path: Um export ``<sigla>.csv``.
 
     Returns:
-        As linhas lidas e o total declarado no rodapé.
+        As linhas lidas e o total declarado em
+        ``Total de reconhecimentos vigentes``.
     """
     csv_rows = path.read_text(encoding="latin-1").splitlines()
 
@@ -587,12 +676,49 @@ def _parse_export(path: Path) -> tuple[pl.DataFrame, int]:
     return df, total_rows
 
 
-def build_reconhecimentos_vigentes(input_dir: Path) -> pd.DataFrame:
-    """Monta a tabela limpa a partir dos exports baixados.
+def _read_vigentes_exports(input_dir: Path) -> pl.DataFrame:
+    """Lê os 27 exports por UF da vigentes, conferindo cada um com o rodapé.
 
-    Concatena os 27 exports por UF, renomeia as colunas da fonte para os nomes do
-    staging (mapeando pelo ``original_name`` de ``constants.COLUNAS``) e devolve
-    as linhas prontas para o :func:`write_partitioned`.
+    Args:
+        input_dir: Diretório com os exports ``<sigla>.csv``.
+
+    Returns:
+        As linhas de todos os exports, com ``sigla_uf`` tirada do nome do
+        arquivo no lugar da coluna ``UF``.
+
+    Raises:
+        ValueError: Se não houver 27 exports, se um export divergir do próprio
+            rodapé ou se a UF de uma linha divergir do nome do arquivo.
+    """
+    paths = sorted(input_dir.glob("*.csv"))
+    if len(paths) != 27:
+        raise ValueError(
+            f"esperava 27 CSVs em {input_dir}, achei {len(paths)}"
+        )
+
+    dfs = []
+    for path in paths:
+        df, total = _parse_export(path)
+        if len(df) != total:
+            raise ValueError(
+                f"{path.stem}: {len(df)} linhas != rodapé {total}"
+            )
+        dfs.append(df.with_columns(pl.lit(path.stem).alias("sigla_uf")))
+
+    df = pl.concat(dfs, how="vertical")
+
+    mismatched = df.filter(pl.col("UF") != pl.col("sigla_uf"))
+    if len(mismatched) > 0:
+        raise ValueError(
+            f"UF do CSV difere do nome do arquivo em {len(mismatched)} linhas: "
+            f"{mismatched.select('UF', 'sigla_uf').unique().to_dicts()}"
+        )
+
+    return df.drop("UF")
+
+
+def build_reconhecimentos_vigentes(input_dir: Path) -> pl.DataFrame:
+    """Monta a tabela vigentes a partir dos 27 exports por UF.
 
     Args:
         input_dir: Diretório com os exports ``<sigla>.csv``, vindos de
@@ -601,120 +727,40 @@ def build_reconhecimentos_vigentes(input_dir: Path) -> pd.DataFrame:
     Returns:
         Uma linha por reconhecimento vigente no retrato.
     """
-    sorted_files = sorted(input_dir.glob("*.csv"))
+    renames = reconhecimentos_vigentes.STAGING_SUBSTITUICOES.value
 
-    if len(sorted_files) != 27:
-        raise ValueError(
-            f"esperava 27 CSVs em {input_dir}, achei {len(sorted_files)}"
-        )
+    df = _read_vigentes_exports(input_dir)
 
-    dfs_polars = []
-    total = 0
-
-    for path in sorted_files:
-        df, total_df = _parse_export(path)
-
-        if len(df) != total_df:
-            raise ValueError(
-                f"{path.stem}: {len(df)} linhas != rodapé {total_df}"
+    df = df.rename(
+        {
+            column["original_name"]: renames.get(
+                column["name"], column["name"]
             )
-
-        df = df.with_columns(pl.lit(path.stem).alias("sigla_uf"))
-
-        dfs_polars.append(df)
-
-        total += total_df
-
-    concated_dfs: pl.DataFrame = pl.concat(dfs_polars, how="vertical")
-
-    if len(concated_dfs) != total:
-        raise ValueError("Erro no download dos arquivos!")
-
-    mismatched_values = concated_dfs.filter(pl.col("UF") != pl.col("sigla_uf"))
-
-    if len(mismatched_values) > 0:
-        raise ValueError(
-            f"UF do CSV difere do nome do arquivo em {len(mismatched_values)} linhas: "
-            f"{mismatched_values.select('UF', 'sigla_uf').unique().to_dicts()}"
-        )
-
-    concated_dfs = concated_dfs.drop("UF")
-
-    renamed_cols = {
-        col["original_name"]: constants.STAGING_SUBSTITUICOES.value.get(
-            col["name"], col["name"]
-        )
-        for col in constants.COLUNAS.value
-        if col["original_name"]
-        and col["original_name"] not in ("UF", "COBRADE")
-    }
-
-    concated_dfs = concated_dfs.rename(renamed_cols)
-
-    concated_dfs = concated_dfs.with_columns(
-        pl.col("COBRADE").str.splitn(" - ", 2).alias("partes")
-    ).unnest("partes")
-
-    concated_dfs = concated_dfs.rename(
-        {"field_0": "id_cobrade", "field_1": "nome_cobrade"}
+            for column in reconhecimentos_vigentes.COLUNAS.value
+            if column["original_name"]
+            and column["original_name"] not in ("UF", "COBRADE")
+        }
     )
 
-    concated_dfs = concated_dfs.drop("COBRADE")
+    df = (
+        df.with_columns(pl.col("COBRADE").str.splitn(" - ", 2).alias("parts"))
+        .unnest("parts")
+        .rename({"field_0": "id_cobrade", "field_1": "nome_cobrade"})
+        .drop("COBRADE")
+    )
 
-    concated_dfs = concated_dfs.with_columns(
+    return df.with_columns(
         pl.col("data_ocorrencia").str.to_date("%d/%m/%Y"),
         pl.col("data_vigencia").str.to_date("%d/%m/%Y"),
+        pl.lit(date.today()).alias("data_extracao"),
     )
 
-    concated_dfs = concated_dfs.with_columns(
-        pl.lit(date.today()).alias("data_extracao")
-    )
 
-    return concated_dfs.to_pandas()
+def write_partitioned(df: pl.DataFrame, table: str, output_dir: Path) -> Path:
+    """Grava a tabela vigentes como parquet todo STRING, particionado por ``data_extracao``.
 
-
-def clean_all(input_dir: Path, output_dir: Path) -> dict:
-    """Monta todas as tabelas a partir dos exports baixados.
-
-    Args:
-        input_dir: Diretório com os exports baixados.
-        output_dir: Diretório raiz de saída.
-
-    Returns:
-        Um mapa de slug da tabela para o diretório particionado, mais
-        ``"max_date"`` — a data do retrato, que alimenta o poll da fonte em
-        ``flows.py``.
-    """
-    table = constants.TABLE_ID.value
-    df = build_reconhecimentos_vigentes(input_dir)
-    table_in_dir = write_partitioned(df, table, output_dir)
-    return {
-        table: table_in_dir,
-        "max_date": df["data_extracao"].max().strftime("%Y-%m-%d"),
-    }
-
-
-def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
-    """Grava a tabela como parquet Snappy todo STRING, particionado em hive.
-
-    O staging é todo STRING por convenção da BD: o modelo dbt faz ``safe_cast``
-    de cada coluna para o tipo real, e o ``pipelines.utils.gcs.dump_header``
-    transforma em string o arquivo de cabeçalho de onde o BigQuery infere o
-    schema do staging. Emitir parquet tipado contra esse schema STRING faz o
-    BigQuery rejeitar os arquivos ("has type DOUBLE which does not match the
-    target cpp_type STRING_PIECE").
-
-    Os valores passam primeiro pelos tipos reais, para um inteiro serializar como
-    ``"2024"`` e não ``"2024.0"``, e só então são convertidos para string via
-    arrow — nunca com ``astype(str)``, que escreve NULL como o literal ``"nan"``
-    e derrota o ``safe_cast`` do dbt.
-
-    A ordem das colunas vem de ``constants.COLUNAS`` com
-    ``STAGING_SUBSTITUICOES`` aplicado: ``COLUNAS`` descreve a tabela **final**, e
-    uma de suas colunas (``id_municipio``) é produzida pelo modelo dbt, não
-    carregada pelo parquet. Substituir em vez de pular mantém o descasamento
-    explícito — um nome de coluna errado de verdade continua levantando
-    ``KeyError``.
+    A ordem das colunas é a de ``reconhecimentos_vigentes.COLUNAS``, com
+    ``STAGING_SUBSTITUICOES`` aplicado.
 
     Args:
         df: Linhas limpas, vindas de :func:`build_reconhecimentos_vigentes`.
@@ -724,32 +770,245 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
     Returns:
         O diretório da tabela, ``<output_dir>/<table>/<partição>/data.parquet``.
     """
-    arch = constants.COLUNAS.value
-    subs = constants.STAGING_SUBSTITUICOES.value
-    order = [subs.get(a["name"], a["name"]) for a in arch]
-    typed_schema = pa.schema(
+    renames = reconhecimentos_vigentes.STAGING_SUBSTITUICOES.value
+    columns = [
+        renames.get(column["name"], column["name"])
+        for column in reconhecimentos_vigentes.COLUNAS.value
+    ]
+    table_dir = output_dir / table
+
+    for extraction_date in df["data_extracao"].unique().sort():
+        partition_dir = table_dir / f"data_extracao={extraction_date:%Y-%m-%d}"
+        rows = df.filter(pl.col("data_extracao") == extraction_date)
+        _write_parquet(rows, columns, partition_dir / "data.parquet")
+
+    log(f"{table}: {len(df):,} linhas -> {table_dir}")
+    return table_dir
+
+
+def clean_all(input_dir: Path, output_dir: Path) -> dict:
+    """Monta e grava a tabela vigentes a partir dos exports baixados.
+
+    Args:
+        input_dir: Diretório com os exports baixados.
+        output_dir: Diretório raiz de saída.
+
+    Returns:
+        Um mapa do slug da tabela para o diretório particionado, mais
+        ``"max_date"``, a data do retrato.
+    """
+    table = reconhecimentos_vigentes.TABLE_ID.value
+    df = build_reconhecimentos_vigentes(input_dir)
+    table_dir = write_partitioned(df, table, output_dir)
+    max_date = df.select(
+        pl.col("data_extracao").max().dt.strftime("%Y-%m-%d")
+    ).item()
+    return {table: table_dir, "max_date": max_date}
+
+
+def _parse_realizados(path: Path) -> tuple[pl.DataFrame, int]:
+    """Lê um export de realizados e devolve as linhas e o total do rodapé.
+
+    Args:
+        path: Um export ``<primeiro dia>_<último dia>.csv``.
+
+    Returns:
+        As linhas lidas e o total declarado em
+        ``Total de reconhecimentos realizados``.
+
+    Raises:
+        ValueError: Se o arquivo não tiver o rodapé de total.
+    """
+    csv_rows = path.read_text(encoding="latin-1").splitlines()
+
+    header_index = next(
+        index for index, row in enumerate(csv_rows) if row.startswith("Nº;UF;")
+    )
+    header = csv_rows[header_index]
+
+    total_rows = None
+    df_rows = []
+    for row in csv_rows[header_index + 1 :]:
+        if row == "" or row.startswith("Total de municípios"):
+            continue
+        if row.startswith("Total de reconhecimentos realizados"):
+            total_rows = int(row.split(";")[1])
+            continue
+        if row.count(";") > header.count(";") and row.endswith(";"):
+            row = row[:-1]
+        df_rows.append(row)
+
+    if total_rows is None:
+        raise ValueError(f"{path.name}: sem o rodapé de total")
+
+    data_in_buffer = io.StringIO("\n".join([header, *df_rows]))
+    df = pl.read_csv(data_in_buffer, separator=";", infer_schema_length=0)
+    return df, total_rows
+
+
+def _read_realizados_exports(input_dir: Path) -> pl.DataFrame:
+    """Lê os exports da realizados, conferindo cada um com o rodapé.
+
+    Args:
+        input_dir: Diretório com os exports ``<primeiro dia>_<último dia>.csv``.
+
+    Returns:
+        As linhas de todos os exports, com ``ano`` tirado do nome do arquivo.
+
+    Raises:
+        ValueError: Se um export divergir do próprio rodapé ou se nenhum
+            reconhecimento vier.
+    """
+    dfs = []
+    for path in sorted(input_dir.glob("*.csv")):
+        df, total = _parse_realizados(path)
+        if len(df) != total:
+            raise ValueError(
+                f"{path.stem}: {len(df)} linhas != rodapé {total}"
+            )
+        dfs.append(df.with_columns(pl.lit(int(path.stem[:4])).alias("ano")))
+
+    if not dfs or sum(len(df) for df in dfs) == 0:
+        raise ValueError(f"nenhum reconhecimento nos exports de {input_dir}")
+
+    return pl.concat(dfs, how="vertical")
+
+
+def _cobrade_key(name: str) -> str:
+    """Reduz o nome de uma tipologia a maiúsculas sem acento, só letras e dígitos.
+
+    Args:
+        name: Nome da tipologia, como vem do export ou do painel.
+
+    Returns:
+        A chave de comparação.
+    """
+    without_accents = unicodedata.normalize("NFD", name.upper())
+    return "".join(char for char in without_accents if char.isalnum())
+
+
+def _add_cobrade(df: pl.DataFrame) -> pl.DataFrame:
+    """Troca a coluna ``Desastre`` por ``id_cobrade`` e ``nome_cobrade``.
+
+    O nome do export é comparado com os de ``reconhecimentos_realizados.COBRADE``
+    pela chave de :func:`_cobrade_key`.
+
+    Args:
+        df: Linhas com a coluna ``Desastre``.
+
+    Returns:
+        As mesmas linhas, com ``id_cobrade`` e ``nome_cobrade`` no lugar de
+        ``Desastre``.
+
+    Raises:
+        ValueError: Se algum nome não tiver código.
+    """
+    cobrade = reconhecimentos_realizados.COBRADE.value
+    code_by_key = {_cobrade_key(name): code for code, name in cobrade.items()}
+
+    df = df.with_columns(
+        pl.col("Desastre")
+        .map_elements(
+            lambda name: code_by_key.get(_cobrade_key(name)),
+            return_dtype=pl.String,
+        )
+        .alias("id_cobrade")
+    )
+
+    unmatched = df.filter(
+        pl.col("Desastre").is_not_null() & pl.col("id_cobrade").is_null()
+    )
+    if len(unmatched) > 0:
+        raise ValueError(
+            "desastre sem código COBRADE: "
+            f"{unmatched['Desastre'].unique().to_list()}"
+        )
+
+    return df.with_columns(
+        pl.col("id_cobrade")
+        .map_elements(cobrade.get, return_dtype=pl.String)
+        .alias("nome_cobrade")
+    ).drop("Desastre")
+
+
+def build_reconhecimentos_realizados(input_dir: Path) -> pl.DataFrame:
+    """Monta a tabela realizados a partir dos exports baixados.
+
+    Args:
+        input_dir: Diretório com os exports, vindos de
+            :func:`download_reconhecimentos_realizados`.
+
+    Returns:
+        Uma linha por reconhecimento, nas colunas de
+        ``reconhecimentos_realizados.COLUNAS``.
+    """
+    columns = reconhecimentos_realizados.COLUNAS.value
+
+    df = _read_realizados_exports(input_dir)
+
+    df = df.rename(
+        {
+            column["original_name"]: column["name"]
+            for column in columns
+            if column["original_name"]
+            and column["original_name"] != "Desastre"
+        }
+    )
+
+    df = _add_cobrade(df)
+
+    df = df.with_columns(
         [
-            pa.field(subs.get(a["name"], a["name"]), PA[a["bigquery_type"]])
-            for a in arch
+            pl.col(column["name"]).str.to_date("%d/%m/%Y")
+            for column in columns
+            if column["bigquery_type"] == "DATE"
         ]
     )
-    string_schema = pa.schema([pa.field(nome, pa.string()) for nome in order])
-    out = df[order]
-    tdir = output_dir / table
 
-    # Decidido: acumular histórico, um retrato por execução (ver README).
-    partition_col = "data_extracao"
-    for key, g in out.groupby(partition_col, sort=True):
-        # Formatar a chave explicitamente: pandas não tem tipo `date`, então a
-        # coluna Date do polars chega aqui como datetime64 e a chave do groupby é
-        # um Timestamp. Interpolada direto, ela renderiza
-        # "data_extracao=2026-08-05 00:00:00" — com espaço no nome do diretório,
-        # o que quebra a partição hive no BigQuery.
-        pdir = tdir / f"{partition_col}={key:%Y-%m-%d}"
-        pdir.mkdir(parents=True, exist_ok=True)
-        at = pa.Table.from_pandas(g, schema=typed_schema, preserve_index=False)
-        at = at.cast(string_schema)
-        pq.write_table(at, pdir / "data.parquet", compression="snappy")
+    return df.select([column["name"] for column in columns])
 
-    log(f"{table}: {len(out):,} linhas -> {tdir}")
-    return tdir
+
+def write_realizados(df: pl.DataFrame, output_dir: Path) -> Path:
+    """Grava a tabela realizados como parquet todo STRING, particionado por ``ano``.
+
+    Args:
+        df: Linhas limpas, vindas de :func:`build_reconhecimentos_realizados`.
+        output_dir: Diretório raiz de saída.
+
+    Returns:
+        O diretório da tabela, ``<output_dir>/<tabela>/ano=<ano>/data.parquet``.
+    """
+    columns = [
+        column["name"] for column in reconhecimentos_realizados.COLUNAS.value
+    ]
+    table_dir = output_dir / reconhecimentos_realizados.TABLE_ID.value
+
+    for year in df["ano"].unique().sort():
+        rows = df.filter(pl.col("ano") == year)
+        _write_parquet(
+            rows, columns, table_dir / f"ano={year}" / "data.parquet"
+        )
+        log(f"ano={year}: {len(rows):,} linhas")
+
+    return table_dir
+
+
+def clean_all_realizados(input_dir: Path, output_dir: Path) -> dict:
+    """Monta e grava a tabela realizados a partir dos exports baixados.
+
+    Args:
+        input_dir: Diretório com os exports baixados.
+        output_dir: Diretório raiz de saída.
+
+    Returns:
+        ``"data_path"``, o diretório particionado, e ``"max_date"``, a maior
+        data de ``reconhecimentos_realizados.COLUNA_DATA``.
+    """
+    df = build_reconhecimentos_realizados(input_dir)
+    data_path = write_realizados(df, output_dir)
+    max_date = df.select(
+        pl.col(reconhecimentos_realizados.COLUNA_DATA.value)
+        .max()
+        .dt.strftime("%Y-%m-%d")
+    ).item()
+    return {"data_path": str(data_path), "max_date": max_date}
