@@ -10,6 +10,7 @@ has a coverage.
 Usage:
     ~/.venvs/bd-pipelines/bin/python -m models.us_census_bds.code.metadata --env staging
     ~/.venvs/bd-pipelines/bin/python -m models.us_census_bds.code.metadata --env staging --publish
+    ~/.venvs/bd-pipelines/bin/python -m models.us_census_bds.code.metadata --env prod --gcp-project basedosdados
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ import json
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write
+import requests
 
 from models.us_census_bds.code.build_dbt import DESCRIPTIONS
 from pipelines.datasets.us_census_bds.constants import constants
@@ -191,6 +193,14 @@ def read_state(table_id: str, env: str) -> dict:
     }
 
 
+def aux_url(table: str) -> str:
+    """The table's bundle URL, or "" until an anonymous fetch serves it."""
+    if table == "dictionary":
+        return ""
+    url = AUX_URL.format(table=table)
+    return url if requests.head(url, timeout=60).status_code == 200 else ""
+
+
 def tag_ids(env: str) -> list[str]:
     return [
         bd_mcp_metadata.lookup_id("tag", slug, env=env)["id"]
@@ -232,6 +242,10 @@ def main() -> int:
     )
     args = parser.parse_args()
     env = args.env
+    if env == "prod" and args.gcp_project != "basedosdados":
+        raise SystemExit(
+            "prod cloud tables must point at --gcp-project basedosdados"
+        )
     ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "theme", "entity", "license", "availability"]
     )
@@ -298,9 +312,7 @@ def main() -> int:
             description_en=d_en,
             description_es=d_es,
             raw_data_source_ids=[source_id],
-            auxiliary_files_url=(
-                "" if table == "dictionary" else AUX_URL.format(table=table)
-            ),
+            auxiliary_files_url=aux_url(table),
             id=prior_table.get("id"),
             env=env,
         )
