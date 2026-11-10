@@ -20,6 +20,7 @@ from pipelines.datasets.br_stf_corte_aberta.utils import (
     replace_columns,
     web_scrapping,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 from pipelines.utils.utils import log
 
@@ -101,6 +102,9 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     web_scrapping()
     df = download_and_transform()
     output_path = make_partitions(df=df)
+
+    # pyrefly: ignore [bad-argument-type]
+    check_rows_written(rows_read=len(df), output_dir=output_path)
 
     return ExtractAndLoad(
         data_path=output_path,
