@@ -113,7 +113,6 @@ def _run(
                 table_id=table,
                 bucket_name=bucket,
                 dump_mode="append" if since is not None else "overwrite",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,

@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+jurisdiction_id,STRING,"Identifier of the jurisdiction, in the form state_place, e.g. ca_san_diego or tx_statewide",,no,,,no,Taken from the source file name,
+state_abbreviation,STRING,Two-letter postal abbreviation of the state,,no,,,no,,
+state_id,STRING,Two-digit FIPS code of the state,,no,br_bd_diretorios_us.state:id_state,,no,Added by Data Basis from state_abbreviation,
+jurisdiction_name,STRING,"Name of the place, or Statewide for a state patrol",,no,,,no,As named in the project's README,
+jurisdiction_type,STRING,Type of agency: city (municipal police department) or statewide (state patrol),,no,,,no,,
+release_date,DATE,Date of the project's data release the file comes from,,no,,,no,2020-04-01 for most jurisdictions; 2023-01-26 for the 12 refreshed in the 2023 update,
+start_date,DATE,Date of the earliest stop in the jurisdiction's file,,no,,,no,Computed by Data Basis. A few jurisdictions have isolated records decades before their main coverage,
+end_date,DATE,Date of the latest stop in the jurisdiction's file,,no,,,no,Computed by Data Basis,
+number_stops,INT64,Number of stops in the jurisdiction's file,,no,,unit,no,Computed by Data Basis,
+source_url,STRING,URL of the source CSV file,,no,,,no,,

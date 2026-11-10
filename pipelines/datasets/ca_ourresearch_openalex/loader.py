@@ -164,7 +164,6 @@ def create_staging_tables(bucket_name: str, tables: Iterable[str]) -> None:
                 path=str(path.parent),
                 if_storage_data_exists="replace",
                 if_table_exists="replace",
-                source_format="parquet",
             )
             bd.Storage(**kw, billing_project_id=bucket_name).delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
