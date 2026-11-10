@@ -43,7 +43,4 @@ def iptu_extract_load_data(download_params: dict) -> ExtractAndLoad:
     csv_path = baixar_ano(ano, PATH_INPUT)
     tratar_ano(csv_path, PATH_OUTPUT, ano)
     csv_path.unlink()
-    return ExtractAndLoad(
-        data_path=str(PATH_OUTPUT),
-        source_format="parquet",
-    )
+    return ExtractAndLoad(data_path=str(PATH_OUTPUT))
