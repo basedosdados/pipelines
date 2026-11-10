@@ -11,15 +11,6 @@ from pipelines.datasets.br_bcb_sicor.tasks import (
     search_sicor_links,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllBdpro,
-    AllFree,
-    CoverageSpec,
-    DateFormat,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_size_update_task,
     poll_source_size_for_update_task,
@@ -32,32 +23,6 @@ from pipelines.utils.tasks import (
 )
 
 
-def _sicor_coverage(
-    coverage_type: str, historical_database: bool
-) -> CoverageSpec:
-    """Mapeia (coverage_type, historical_database) runtime → CoverageSpec.
-
-    Os callers usam apenas: part_bdpro+historical (default, colunas
-    ano_emissao/mes_emissao mensal) e all_free+não-historical (empreendimento,
-    cobertura única via metadata do BQ ⇒ NonHistorical)."""
-    if not historical_database:
-        return NonHistorical()
-    date_column = YearMonth(year="ano_emissao", month="mes_emissao")
-    if coverage_type == "part_bdpro":
-        return PartBdpro(
-            date_column=date_column, date_format=DateFormat.YEAR_MONTH
-        )
-    if coverage_type == "all_bdpro":
-        return AllBdpro(
-            date_column=date_column, date_format=DateFormat.YEAR_MONTH
-        )
-    if coverage_type == "all_free":
-        return AllFree(
-            date_column=date_column, date_format=DateFormat.YEAR_MONTH
-        )
-    raise ValueError(f"coverage_type não suportado: {coverage_type}")
-
-
 def _run_bcb_sicor(
     dataset_id: str,
     table_id: str,
@@ -66,9 +31,6 @@ def _run_bcb_sicor(
     target: str,
     force_run: bool,
     dump_mode: str,
-    source_format: str,
-    coverage_type: str,
-    historical_database: bool,
     download_all_files: bool = False,
     local_redis_execution: bool = False,
 ) -> None:
@@ -109,7 +71,6 @@ def _run_bcb_sicor(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     run_dbt(
@@ -128,7 +89,6 @@ def _run_bcb_sicor(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     run_dbt(
@@ -142,7 +102,6 @@ def _run_bcb_sicor(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=_sicor_coverage(coverage_type, historical_database),
             env="prod",
             bq_project="basedosdados",
         )
@@ -160,9 +119,6 @@ def _sicor_flow(
     table_id: str,
     cron: str,
     dump_mode: str = "overwrite",
-    source_format: str = "parquet",
-    coverage_type: str = "part_bdpro",
-    historical_database: bool = True,
 ):
     @flow(
         name=f"br_bcb_sicor__{table_id}",
@@ -186,9 +142,6 @@ def _sicor_flow(
             target=target,
             force_run=force_run,
             dump_mode=dump_mode,
-            source_format=source_format,
-            coverage_type=coverage_type,
-            historical_database=historical_database,
             download_all_files=download_all_files,
             local_redis_execution=local_redis_execution,
         )
@@ -258,9 +211,6 @@ br_bcb_sicor__operacoes_desclassificadas = _sicor_flow(
 br_bcb_sicor__empreendimento = _sicor_flow(
     table_id="empreendimento",
     cron="35 5 * * 1-5",
-    source_format="csv",
-    coverage_type="all_free",
-    historical_database=False,
 )
 
 # Tabelas de domínio: não têm `ano_emissao`/`mes_emissao`, então a cobertura é
@@ -268,16 +218,11 @@ br_bcb_sicor__empreendimento = _sicor_flow(
 br_bcb_sicor__instituicao_financeira = _sicor_flow(
     table_id="instituicao_financeira",
     cron="45 5 * * 1-5",
-    coverage_type="all_free",
-    historical_database=False,
 )
 
 br_bcb_sicor__fonte_recurso = _sicor_flow(
     table_id="fonte_recurso",
     cron="55 5 * * 1-5",
-    source_format="csv",
-    coverage_type="all_free",
-    historical_database=False,
 )
 
 # ── Proagro ──────────────────────────────────────────────────────────────────
@@ -333,7 +278,6 @@ def br_bcb_sicor__dicionario(
     dataset_id: str = "br_bcb_sicor",
     table_id: str = "dicionario",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = False,
     target: str = "prod",
     force_run: bool = False,
@@ -350,14 +294,12 @@ def br_bcb_sicor__dicionario(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        source_format="csv",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -370,24 +312,23 @@ def br_bcb_sicor__dicionario(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="overwrite",
-        source_format="csv",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
 
-# Sem `deploy_schedules` o flow nunca executava por agendamento, e o
-# `dbt_alias=False` acima fazia o seletor virar `models/br_bcb_sicor/
+# Sem `deploy_schedules` o flow nunca executava por agendamento, e um
+# `dbt_alias` passado errado fazia o seletor virar `models/br_bcb_sicor/
 # dicionario.sql`, arquivo que não existe — `run_dbt` levantava
 # FileNotFoundError depois de já ter subido o staging. Os dois defeitos juntos
-# deixavam a tabela `dicionario` congelada. Roda às 01:45, antes de `operacao`
-# (02:05) e das demais.
+# deixavam a tabela `dicionario` congelada. `run_dbt` agora detecta o modelo
+# real sozinho (`_resolve_dbt_model_path`), então esse vetor específico não
+# existe mais. Roda às 01:45, antes de `operacao` (02:05) e das demais.
 br_bcb_sicor__dicionario.deploy_schedules = [
     Cron("45 1 * * 1-5", timezone="America/Sao_Paulo")
 ]

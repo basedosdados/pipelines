@@ -6,11 +6,6 @@ from prefect.schedules import Cron
 
 from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -29,7 +24,6 @@ def br_poder360_pesquisas__microdados(
     dataset_id: str = "br_poder360_pesquisas",
     table_id: str = "microdados",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = False,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -52,7 +46,6 @@ def br_poder360_pesquisas__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -71,7 +64,6 @@ def br_poder360_pesquisas__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -79,10 +71,6 @@ def br_poder360_pesquisas__microdados(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

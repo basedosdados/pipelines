@@ -4,8 +4,6 @@ Constant values for br_me_comex_stat.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_me_comex_stat"
 
 MUNICIPIO_EXPORTACAO_TABLE_ID = "municipio_exportacao"
@@ -36,12 +34,6 @@ TABLE_SPECS = {
     },
 }
 
-# Mesma coverage pras 4 tabelas.
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)
-
 
 class constants(Enum):
     """
@@ -52,6 +44,8 @@ class constants(Enum):
     VALIDATION_LINK = "https://balanca.economia.gov.br/balanca/bd/comexstat-bd"
 
     PATH = "/tmp/br_me_comex_stat/"
+
+    CSV_CHUNK_ROWS = 1_000_000
 
     TABLE_TYPE = ["mun", "ncm"]
 

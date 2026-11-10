@@ -25,12 +25,6 @@ from pipelines.datasets.ca_ourresearch_openalex.tasks import (
     reload_tables_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    NonHistorical,
-    YearOnly,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -42,25 +36,6 @@ DATASET_ID = constants.DATASET_ID.value
 TABLES = [t for ts in constants.ENTITY_TABLES.value.values() for t in ts] + [
     "dicionario"
 ]
-
-# Every table is fully free: the source refreshes quarterly, below the monthly
-# threshold for a BD Pro window. Works tables cover their publication years,
-# the two author-by-year tables their year column; entity tables carry no
-# time dimension and get a single last-modified coverage.
-_COVERAGE: dict[str, AllFree | NonHistorical] = {
-    t: AllFree(
-        date_column=YearOnly(col="publication_year"),
-        date_format=DateFormat.YEAR,
-    )
-    for t in constants.ENTITY_TABLES.value["works"]
-}
-for _t in ("author_affiliation", "author_counts_by_year"):
-    _COVERAGE[_t] = AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-for _t in TABLES:
-    _COVERAGE.setdefault(_t, NonHistorical())
-del _COVERAGE["dicionario"]
 
 
 @flow(name="ca_ourresearch_openalex", log_prints=True)
@@ -165,11 +140,12 @@ def ca_ourresearch_openalex_flow(
         )
 
     if materialize_to_prod and update_metadata:
-        for table, coverage in _COVERAGE.items():
+        for table in TABLES:
+            if table == "dicionario":
+                continue
             register_table_materialization_task(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                coverage=coverage,
                 env="prod",
                 bq_project="basedosdados",
             )

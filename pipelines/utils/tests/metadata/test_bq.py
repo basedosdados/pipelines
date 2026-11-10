@@ -1,32 +1,33 @@
 """
 Testes do adapter `BigQueryReader` (`pipelines/utils/metadata/bq.py`).
 
-Mocka as funções de `utils.py` e asserta a tradução domain→legacy-dict e a
-delegação correta. Sem BigQuery real.
+Mocka as funções de `utils.py` e asserta a tradução CoverageSpec→legacy-dict e
+a delegação correta. Sem BigQuery real.
 """
 
 import datetime
 from unittest.mock import patch
 
 from pipelines.utils.metadata.bq import BigQueryReader
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-    YearMonth,
-)
+from pipelines.utils.metadata.coverage import CoverageColumn, CoverageSpec
 
 
 def _monthly():
-    return PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
+    return CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="year_month",
+        coverage_columns=[
+            CoverageColumn(name="ano", entity="year"),
+            CoverageColumn(name="mes", entity="month"),
+        ],
     )
 
 
 def _daily():
-    return PartBdpro(
-        date_column=DateOnly(col="data"), date_format=DateFormat.YEAR_MD
+    return CoverageSpec(
+        tier="part_bdpro",
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name="data", entity="date")],
     )
 
 

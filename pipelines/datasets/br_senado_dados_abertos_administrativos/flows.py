@@ -1,293 +1,1679 @@
-"""Flows for br_senado_dados_abertos_administrativos — Prefect 3.
-
-Senado Federal administrative open data (``adm.senado.gov.br``). The dataset has
-two table shapes, both refreshed by one mechanism (see
-``models/br_senado_dados_abertos_administrativos/PIPELINE_PLAN.md``):
-
-- 28 **snapshot** tables (``data_extracao``): each run stacks a new dated
-  snapshot — the source exposes only current state, so the time dimension is
-  ours (CNPJ model, as ``au_ato_abr``).
-- 10 **time-series** tables (``ano``): each run refreshes the last two years in
-  place (current + prior, to catch late-arriving data); older years are stable.
-  (``senador`` and ``dicionario`` are the remaining two of the 40 tables.)
-
-Both are served by overwriting the **staging** external table with the current
-window and letting the **incremental** dbt models (``insert_overwrite`` on the
-partition column) replace exactly that partition in prod, so history accumulates
-in prod, not staging. ``dicionario`` (a full-refresh table) and any table empty
-for the window are skipped per run — see ``_run``.
-
-Two module-level flows on mutually-exclusive days share one runner: the daily
-flow skips the contratação fan-out (``sub_resources=False``); the weekly Monday
-flow includes it. deploy discovers both flow objects.
-"""
-
-import datetime as dt
-import shutil
-import tempfile
+"""Flows de br_senado_dados_abertos_administrativos — Prefect 3, modelo em estágios."""
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_senado_dados_abertos_administrativos import utils
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
     constants,
+    constants_ata_acionamento,
+    constants_contratacao,
+    constants_contratacao_documento_fiscal,
+    constants_contratacao_garantia,
+    constants_contratacao_item,
+    constants_contratacao_orgao_gestor,
+    constants_contratacao_pagamento,
+    constants_contratacao_pagamento_empenho,
+    constants_contrato_aditivo,
+    constants_despesa_ceaps,
+    constants_diretor_coordenador,
+    constants_empresa,
+    constants_estagiario,
+    constants_licitacao,
+    constants_licitacao_detalhamento,
+    constants_menor_aprendiz,
+    constants_pensionista,
+    constants_previsao_aposentadoria,
+    constants_quadro_pessoal,
+    constants_senador,
+    constants_senador_aposentado_pensionista,
+    constants_senador_auxilio_moradia,
+    constants_senador_escritorio_apoio,
+    constants_senador_gabinete,
+    constants_servidor,
+    constants_servidor_aposentado,
+    constants_servidor_ativo,
+    constants_servidor_cedido,
+    constants_servidor_exonerado,
+    constants_servidor_hora_extra,
+    constants_servidor_hora_extra_dia,
+    constants_servidor_remuneracao,
+    constants_suprido_ato_concessao,
+    constants_suprido_empenho,
+    constants_suprido_movimentacao,
+    constants_suprido_movimentacao_subtipo,
+    constants_suprido_transacao,
+    constants_suprido_transacao_objeto,
+    constants_terceirizado,
 )
 from pipelines.datasets.br_senado_dados_abertos_administrativos.tasks import (
-    extract_and_clean,
+    make_pipeline,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
-DATASET_ID = constants.DATASET_ID.value
-
-# Coverage per table (see PIPELINE_PLAN.md). Tables with a month-or-finer time
-# column carry the 6-month BD Pro rolling window, on their finest date column; the
-# window rolls itself on every run. The two year-only series stay AllFree (a
-# sub-year rolling window is not expressible on a year column), and senador and
-# dicionario have no record time dimension and take no coverage (they keep their
-# onboarding free coverage).
-#
-#   snapshots (data_extracao)          -> PartBdpro day  (YEAR_MD), 6-month lag
-#   series with a `data` column        -> PartBdpro day  (YEAR_MD), 6-month lag
-#   monthly series (ano + mes)         -> PartBdpro month (YEAR_MONTH), 6-month lag
-#   year-only series (ano)             -> AllFree (no paywall)
-_FREE_LAG = FreeLag(unit="months", value=constants.FREE_LAG_MONTHS.value)
+_senador_pipeline = make_pipeline(constants_senador.TABLE_ID.value)
 
 
-def _part_bdpro(date_column, date_format) -> PartBdpro:
-    return PartBdpro(
-        date_column=date_column, date_format=date_format, free_lag=_FREE_LAG
+@flow(name=_senador_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_senador_check_update() -> None:
+    _senador_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_senador_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_senador.TABLE_ID.value,
     )
-
-
-# The 10 ano-series, grouped by their finest time column.
-_SERIES_DAILY = (
-    "despesa_ceaps",
-    "servidor_hora_extra_dia",
-    "suprido_ato_concessao",
-    "suprido_empenho",
-    "suprido_transacao",
-    "suprido_movimentacao",
 )
-_SERIES_MONTHLY = ("servidor_remuneracao", "servidor_hora_extra")
-_SERIES_YEARLY = ("suprido_transacao_objeto", "suprido_movimentacao_subtipo")
-
-_COVERAGE = {
-    # snapshots stack by data_extracao (day granularity)
-    **{
-        t: _part_bdpro(DateOnly(col="data_extracao"), DateFormat.YEAR_MD)
-        for t in utils.SNAPSHOTS
-    },
-    **{
-        t: _part_bdpro(DateOnly(col="data"), DateFormat.YEAR_MD)
-        for t in _SERIES_DAILY
-    },
-    **{
-        t: _part_bdpro(
-            YearMonth(year="ano", month="mes"), DateFormat.YEAR_MONTH
-        )
-        for t in _SERIES_MONTHLY
-    },
-    # year-only series: no paywall (year granularity has no sub-year window)
-    **{
-        t: AllFree(
-            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-        )
-        for t in _SERIES_YEARLY
-    },
-}
-# Every partitioned table is covered; senador and dicionario are not.
-assert set(_COVERAGE) == set(utils.SNAPSHOTS) | set(utils.PARTITIONED)
-# The table whose source Update anchors the dataset — any stable snapshot table.
-_ANCHOR_TABLE = "senador"
-
-
-def _run(
-    sub_resources: bool,
-    materialize_to_prod: bool,
-    update_metadata: bool,
-) -> None:
-    """Extract the current window, upload staging, materialize, test, and
-    (on prod) refresh coverage + the source update.
-
-    Snapshot-stacking has no "did the source update?" question — we snapshot on
-    schedule — so there is no poll gate: every scheduled run produces a snapshot.
-    A prod run goes straight to prod (no redundant dev materialization, whose
-    bytes buy no signal — prod runs the same models and tests seconds later).
-    """
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
-    )
-
-    bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
-    target = "prod" if materialize_to_prod else "dev"
-
-    work_dir = tempfile.mkdtemp(prefix="br_senado_adm_")
-    try:
-        output_dir = f"{work_dir}/output"
-        this_year = dt.date.today().year
-        result = extract_and_clean(
-            output_dir=output_dir,
-            sub_resources=sub_resources,
-            # Last two years: refresh the current year and also catch late-arriving
-            # prior-year data (e.g. CEAPS reimbursements filed after year end).
-            years=[this_year - 1, this_year],
-        )
-        counts = result["counts"]
-        max_date = result["extracted_at"]
-
-        # Upload only tables that actually produced rows for this window. A table
-        # empty for the window writes no parquet (e.g. suprido_movimentacao has no
-        # rows in some years), so uploading it would raise FileNotFoundError; with
-        # insert_overwrite, skipping simply leaves its existing partitions in prod.
-        # dicionario is excluded too: it is rebuilt from the supridos in this run,
-        # so a windowed extract would shrink it — it is static reference data,
-        # fully populated at onboarding, and no test depends on it (a full-history
-        # refresh, if ever needed, is a separate manual run).
-        static_skip = {"dicionario"}
-        tables = [
-            t
-            for t in result["tables"]
-            if counts.get(t, 0) > 0 and t not in static_skip
-        ]
-        empty = [t for t in result["tables"] if counts.get(t, 0) == 0]
-        if empty:
-            print(
-                f"Skipping {len(empty)} table(s) empty for this window: {empty}"
-            )
-        print("Skipping dicionario (static reference; not refreshed per run)")
-
-        # Upload staging (overwrite = the current window) + run every table, THEN
-        # test every table. Cross-table tests (relationships, dictionary
-        # coverage) read sibling models, so all siblings must exist before any
-        # test runs — never interleave run/test per table.
-        for table in tables:
-            upload_to_gcs(
-                data_path=f"{output_dir}/{table}",
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name=bucket,
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target=target,
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target=target,
-            )
-
-        if not materialize_to_prod:
-            return
-
-        if update_metadata:
-            for table in tables:
-                coverage = _COVERAGE.get(table)
-                if (
-                    coverage is None
-                ):  # senador / dicionario — no time dimension
-                    continue
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-            # Source Update: its max coverage date is today's snapshot date.
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=_ANCHOR_TABLE,
-                source_max_date=max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-                update_metadata=update_metadata,
-                materialize_after_dump=materialize_to_prod,
-            )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
-
-
-@flow(name="br_senado_dados_abertos_administrativos_daily", log_prints=True)
-def br_senado_dados_abertos_administrativos_daily_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Daily refresh — parents, snapshots and last-two-years series, no fan-out.
-
-    Args:
-        materialize_to_prod: Continue past dev to write the prod staging bucket
-            and run dbt ``target="prod"``. False exercises only the dev half —
-            required for a safe test run, since the default writes production.
-        update_metadata: After a prod materialization, refresh table coverage
-            (BD Pro rolling window on every time-tracked table) and commit the
-            source update.
-            No effect when ``materialize_to_prod`` is False.
-        force_run: Accepted for parity with the repo's flow signature; this
-            snapshot pipeline has no poll gate, so it does not change behaviour.
-    """
-    _run(
-        sub_resources=False,
-        materialize_to_prod=materialize_to_prod,
-        update_metadata=update_metadata,
-    )
-
-
-@flow(name="br_senado_dados_abertos_administrativos_weekly", log_prints=True)
-def br_senado_dados_abertos_administrativos_weekly_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Weekly (Monday) refresh — the full extract, including the contratação
-    children fan-out (item, garantia, pagamento(+documento_fiscal,+empenho),
-    aditivo, ata_acionamento).
-
-    Args as in the daily flow.
-    """
-    _run(
-        sub_resources=True,
-        materialize_to_prod=materialize_to_prod,
-        update_metadata=update_metadata,
-    )
-
-
-# Mutually-exclusive days: daily every day except Monday, weekly on Monday. The
-# clean step holds the current payroll year in memory (~0.5-1 GB); give headroom.
-br_senado_dados_abertos_administrativos_daily_flow.deploy_schedules = [
-    Cron(constants.DAILY_CRON.value, timezone="America/Sao_Paulo")
+br_senado_dados_abertos_administrativos_senador_check_update.deploy_schedules = [
+    Cron("27 10 * * *", timezone="America/Sao_Paulo")
 ]
-br_senado_dados_abertos_administrativos_daily_flow.job_variables = {
-    "memory": "8Gi"
-}
-br_senado_dados_abertos_administrativos_weekly_flow.deploy_schedules = [
-    Cron(constants.WEEKLY_CRON.value, timezone="America/Sao_Paulo")
+
+
+@flow(name=_senador_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_senador_download(
+    download_params: dict,
+) -> None:
+    _senador_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_senador_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_senador.TABLE_ID.value,
+    )
+)
+_senador_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_senador_download.fn.__name__
+)
+
+
+_senador_gabinete_pipeline = make_pipeline(
+    constants_senador_gabinete.TABLE_ID.value
+)
+
+
+@flow(name=_senador_gabinete_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_senador_gabinete_check_update() -> (
+    None
+):
+    _senador_gabinete_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_senador_gabinete_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador_gabinete.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_senador_gabinete_check_update.deploy_schedules = [
+    Cron("48 10 * * *", timezone="America/Sao_Paulo")
 ]
-br_senado_dados_abertos_administrativos_weekly_flow.job_variables = {
-    "memory": "8Gi"
+
+
+@flow(
+    name=_senador_gabinete_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_gabinete_download(
+    download_params: dict,
+) -> None:
+    _senador_gabinete_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_senador_gabinete_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_gabinete.TABLE_ID.value,
+)
+_senador_gabinete_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_senador_gabinete_download.fn.__name__
+
+
+_senador_escritorio_apoio_pipeline = make_pipeline(
+    constants_senador_escritorio_apoio.TABLE_ID.value
+)
+
+
+@flow(
+    name=_senador_escritorio_apoio_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_escritorio_apoio_check_update() -> (
+    None
+):
+    _senador_escritorio_apoio_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_senador_escritorio_apoio_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador_escritorio_apoio.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_senador_escritorio_apoio_check_update.deploy_schedules = [
+    Cron("53 10 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_senador_escritorio_apoio_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_escritorio_apoio_download(
+    download_params: dict,
+) -> None:
+    _senador_escritorio_apoio_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_senador_escritorio_apoio_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_escritorio_apoio.TABLE_ID.value,
+)
+_senador_escritorio_apoio_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_senador_escritorio_apoio_download.fn.__name__
+
+
+_senador_auxilio_moradia_pipeline = make_pipeline(
+    constants_senador_auxilio_moradia.TABLE_ID.value
+)
+
+
+@flow(
+    name=_senador_auxilio_moradia_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_auxilio_moradia_check_update() -> (
+    None
+):
+    _senador_auxilio_moradia_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_senador_auxilio_moradia_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador_auxilio_moradia.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_senador_auxilio_moradia_check_update.deploy_schedules = [
+    Cron("58 10 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_senador_auxilio_moradia_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_auxilio_moradia_download(
+    download_params: dict,
+) -> None:
+    _senador_auxilio_moradia_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_senador_auxilio_moradia_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_auxilio_moradia.TABLE_ID.value,
+)
+_senador_auxilio_moradia_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_senador_auxilio_moradia_download.fn.__name__
+
+
+_senador_aposentado_pensionista_pipeline = make_pipeline(
+    constants_senador_aposentado_pensionista.TABLE_ID.value
+)
+
+
+@flow(
+    name=_senador_aposentado_pensionista_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_aposentado_pensionista_check_update() -> (
+    None
+):
+    _senador_aposentado_pensionista_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_senador_aposentado_pensionista_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_senador_aposentado_pensionista.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_senador_aposentado_pensionista_check_update.deploy_schedules = [
+    Cron("3 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_senador_aposentado_pensionista_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_senador_aposentado_pensionista_download(
+    download_params: dict,
+) -> None:
+    _senador_aposentado_pensionista_pipeline.run_extract_and_load(
+        download_params
+    )
+
+
+br_senado_dados_abertos_administrativos_senador_aposentado_pensionista_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_senador_aposentado_pensionista.TABLE_ID.value,
+)
+_senador_aposentado_pensionista_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_senador_aposentado_pensionista_download.fn.__name__
+
+
+_despesa_ceaps_pipeline = make_pipeline(constants_despesa_ceaps.TABLE_ID.value)
+
+
+@flow(name=_despesa_ceaps_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_despesa_ceaps_check_update() -> (
+    None
+):
+    _despesa_ceaps_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_despesa_ceaps_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_despesa_ceaps.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_despesa_ceaps_check_update.deploy_schedules = [
+    Cron("8 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_despesa_ceaps_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_despesa_ceaps_download(
+    download_params: dict,
+) -> None:
+    _despesa_ceaps_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_despesa_ceaps_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_despesa_ceaps.TABLE_ID.value,
+    )
+)
+_despesa_ceaps_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_despesa_ceaps_download.fn.__name__
+)
+
+
+_servidor_pipeline = make_pipeline(constants_servidor.TABLE_ID.value)
+
+
+@flow(name=_servidor_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_servidor_check_update() -> None:
+    _servidor_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_servidor.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_administrativos_servidor_check_update.deploy_schedules = [
+    Cron("13 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_servidor_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_servidor_download(
+    download_params: dict,
+) -> None:
+    _servidor_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_servidor.TABLE_ID.value,
+    )
+)
+_servidor_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_servidor_download.fn.__name__
+)
+
+
+_servidor_ativo_pipeline = make_pipeline(
+    constants_servidor_ativo.TABLE_ID.value
+)
+
+
+@flow(name=_servidor_ativo_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_servidor_ativo_check_update() -> (
+    None
+):
+    _servidor_ativo_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_ativo_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_ativo.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_ativo_check_update.deploy_schedules = [
+    Cron("18 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_servidor_ativo_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_ativo_download(
+    download_params: dict,
+) -> None:
+    _servidor_ativo_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_ativo_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_servidor_ativo.TABLE_ID.value,
+    )
+)
+_servidor_ativo_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_servidor_ativo_download.fn.__name__
+)
+
+
+_servidor_aposentado_pipeline = make_pipeline(
+    constants_servidor_aposentado.TABLE_ID.value
+)
+
+
+@flow(
+    name=_servidor_aposentado_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_aposentado_check_update() -> (
+    None
+):
+    _servidor_aposentado_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_aposentado_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_aposentado.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_aposentado_check_update.deploy_schedules = [
+    Cron("23 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_servidor_aposentado_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_aposentado_download(
+    download_params: dict,
+) -> None:
+    _servidor_aposentado_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_aposentado_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_servidor_aposentado.TABLE_ID.value,
+)
+_servidor_aposentado_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_aposentado_download.fn.__name__
+
+
+_servidor_exonerado_pipeline = make_pipeline(
+    constants_servidor_exonerado.TABLE_ID.value
+)
+
+
+@flow(
+    name=_servidor_exonerado_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_exonerado_check_update() -> (
+    None
+):
+    _servidor_exonerado_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_exonerado_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_exonerado.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_exonerado_check_update.deploy_schedules = [
+    Cron("28 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_servidor_exonerado_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_exonerado_download(
+    download_params: dict,
+) -> None:
+    _servidor_exonerado_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_exonerado_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_servidor_exonerado.TABLE_ID.value,
+)
+_servidor_exonerado_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_exonerado_download.fn.__name__
+
+
+_servidor_cedido_pipeline = make_pipeline(
+    constants_servidor_cedido.TABLE_ID.value
+)
+
+
+@flow(name=_servidor_cedido_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_servidor_cedido_check_update() -> (
+    None
+):
+    _servidor_cedido_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_cedido_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_cedido.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_cedido_check_update.deploy_schedules = [
+    Cron("33 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_servidor_cedido_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_cedido_download(
+    download_params: dict,
+) -> None:
+    _servidor_cedido_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_cedido_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_servidor_cedido.TABLE_ID.value,
+)
+_servidor_cedido_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_cedido_download.fn.__name__
+
+
+_pensionista_pipeline = make_pipeline(constants_pensionista.TABLE_ID.value)
+
+
+@flow(name=_pensionista_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_pensionista_check_update() -> None:
+    _pensionista_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_pensionista_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_pensionista.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_pensionista_check_update.deploy_schedules = [
+    Cron("43 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_pensionista_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_pensionista_download(
+    download_params: dict,
+) -> None:
+    _pensionista_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_pensionista_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_pensionista.TABLE_ID.value,
+    )
+)
+_pensionista_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_pensionista_download.fn.__name__
+)
+
+
+_servidor_remuneracao_pipeline = make_pipeline(
+    constants_servidor_remuneracao.TABLE_ID.value
+)
+
+
+@flow(
+    name=_servidor_remuneracao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update() -> (
+    None
+):
+    _servidor_remuneracao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_remuneracao.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update.deploy_schedules = [
+    Cron("48 11 * * *", timezone="America/Sao_Paulo")
+]
+br_senado_dados_abertos_administrativos_servidor_remuneracao_check_update.job_variables = {
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
 }
+
+
+@flow(
+    name=_servidor_remuneracao_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_remuneracao_download(
+    download_params: dict,
+) -> None:
+    _servidor_remuneracao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_remuneracao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_servidor_remuneracao.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_remuneracao_download.job_variables = {
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
+_servidor_remuneracao_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_remuneracao_download.fn.__name__
+
+
+_servidor_hora_extra_pipeline = make_pipeline(
+    constants_servidor_hora_extra.TABLE_ID.value
+)
+
+
+@flow(
+    name=_servidor_hora_extra_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_hora_extra_check_update() -> (
+    None
+):
+    _servidor_hora_extra_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_hora_extra_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_hora_extra.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_hora_extra_check_update.deploy_schedules = [
+    Cron("53 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_servidor_hora_extra_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_hora_extra_download(
+    download_params: dict,
+) -> None:
+    _servidor_hora_extra_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_hora_extra_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_servidor_hora_extra.TABLE_ID.value,
+)
+_servidor_hora_extra_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_hora_extra_download.fn.__name__
+
+
+_servidor_hora_extra_dia_pipeline = make_pipeline(
+    constants_servidor_hora_extra_dia.TABLE_ID.value
+)
+
+
+@flow(
+    name=_servidor_hora_extra_dia_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_hora_extra_dia_check_update() -> (
+    None
+):
+    _servidor_hora_extra_dia_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_servidor_hora_extra_dia_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_servidor_hora_extra_dia.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_servidor_hora_extra_dia_check_update.deploy_schedules = [
+    Cron("58 11 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_servidor_hora_extra_dia_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_servidor_hora_extra_dia_download(
+    download_params: dict,
+) -> None:
+    _servidor_hora_extra_dia_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_servidor_hora_extra_dia_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_servidor_hora_extra_dia.TABLE_ID.value,
+)
+_servidor_hora_extra_dia_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_servidor_hora_extra_dia_download.fn.__name__
+
+
+_contratacao_pipeline = make_pipeline(constants_contratacao.TABLE_ID.value)
+
+
+@flow(name=_contratacao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_contratacao_check_update() -> None:
+    _contratacao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_check_update.deploy_schedules = [
+    Cron("3 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_contratacao_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_contratacao_download(
+    download_params: dict,
+) -> None:
+    _contratacao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_contratacao_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_contratacao.TABLE_ID.value,
+    )
+)
+_contratacao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_contratacao_download.fn.__name__
+)
+
+
+_contratacao_orgao_gestor_pipeline = make_pipeline(
+    constants_contratacao_orgao_gestor.TABLE_ID.value
+)
+
+
+@flow(
+    name=_contratacao_orgao_gestor_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_orgao_gestor_check_update() -> (
+    None
+):
+    _contratacao_orgao_gestor_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_orgao_gestor_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao_orgao_gestor.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_orgao_gestor_check_update.deploy_schedules = [
+    Cron("8 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contratacao_orgao_gestor_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_orgao_gestor_download(
+    download_params: dict,
+) -> None:
+    _contratacao_orgao_gestor_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_contratacao_orgao_gestor_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contratacao_orgao_gestor.TABLE_ID.value,
+)
+_contratacao_orgao_gestor_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contratacao_orgao_gestor_download.fn.__name__
+
+
+_licitacao_pipeline = make_pipeline(constants_licitacao.TABLE_ID.value)
+
+
+@flow(name=_licitacao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_licitacao_check_update() -> None:
+    _licitacao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_licitacao_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_licitacao.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_administrativos_licitacao_check_update.deploy_schedules = [
+    Cron("13 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_licitacao_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_licitacao_download(
+    download_params: dict,
+) -> None:
+    _licitacao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_licitacao_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_licitacao.TABLE_ID.value,
+    )
+)
+_licitacao_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_licitacao_download.fn.__name__
+)
+
+
+_licitacao_detalhamento_pipeline = make_pipeline(
+    constants_licitacao_detalhamento.TABLE_ID.value
+)
+
+
+@flow(
+    name=_licitacao_detalhamento_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_licitacao_detalhamento_check_update() -> (
+    None
+):
+    _licitacao_detalhamento_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_licitacao_detalhamento_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_licitacao_detalhamento.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_licitacao_detalhamento_check_update.deploy_schedules = [
+    Cron("18 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_licitacao_detalhamento_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_licitacao_detalhamento_download(
+    download_params: dict,
+) -> None:
+    _licitacao_detalhamento_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_licitacao_detalhamento_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_licitacao_detalhamento.TABLE_ID.value,
+)
+_licitacao_detalhamento_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_licitacao_detalhamento_download.fn.__name__
+
+
+_empresa_pipeline = make_pipeline(constants_empresa.TABLE_ID.value)
+
+
+@flow(name=_empresa_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_empresa_check_update() -> None:
+    _empresa_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_empresa_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_empresa.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_administrativos_empresa_check_update.deploy_schedules = [
+    Cron("23 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_empresa_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_empresa_download(
+    download_params: dict,
+) -> None:
+    _empresa_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_empresa_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_empresa.TABLE_ID.value,
+    )
+)
+_empresa_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_empresa_download.fn.__name__
+)
+
+
+_terceirizado_pipeline = make_pipeline(constants_terceirizado.TABLE_ID.value)
+
+
+@flow(name=_terceirizado_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_terceirizado_check_update() -> (
+    None
+):
+    _terceirizado_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_terceirizado_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_terceirizado.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_terceirizado_check_update.deploy_schedules = [
+    Cron("28 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_terceirizado_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_terceirizado_download(
+    download_params: dict,
+) -> None:
+    _terceirizado_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_terceirizado_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_terceirizado.TABLE_ID.value,
+    )
+)
+_terceirizado_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_terceirizado_download.fn.__name__
+)
+
+
+_menor_aprendiz_pipeline = make_pipeline(
+    constants_menor_aprendiz.TABLE_ID.value
+)
+
+
+@flow(name=_menor_aprendiz_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_menor_aprendiz_check_update() -> (
+    None
+):
+    _menor_aprendiz_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_menor_aprendiz_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_menor_aprendiz.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_menor_aprendiz_check_update.deploy_schedules = [
+    Cron("33 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_menor_aprendiz_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_menor_aprendiz_download(
+    download_params: dict,
+) -> None:
+    _menor_aprendiz_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_menor_aprendiz_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_menor_aprendiz.TABLE_ID.value,
+    )
+)
+_menor_aprendiz_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_menor_aprendiz_download.fn.__name__
+)
+
+
+_estagiario_pipeline = make_pipeline(constants_estagiario.TABLE_ID.value)
+
+
+@flow(name=_estagiario_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_estagiario_check_update() -> None:
+    _estagiario_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_estagiario_check_update.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.CHECK_UPDATE,
+        constants_estagiario.TABLE_ID.value,
+    )
+)
+br_senado_dados_abertos_administrativos_estagiario_check_update.deploy_schedules = [
+    Cron("38 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_estagiario_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_estagiario_download(
+    download_params: dict,
+) -> None:
+    _estagiario_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_estagiario_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_estagiario.TABLE_ID.value,
+    )
+)
+_estagiario_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_estagiario_download.fn.__name__
+)
+
+
+_suprido_ato_concessao_pipeline = make_pipeline(
+    constants_suprido_ato_concessao.TABLE_ID.value
+)
+
+
+@flow(
+    name=_suprido_ato_concessao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_ato_concessao_check_update() -> (
+    None
+):
+    _suprido_ato_concessao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_suprido_ato_concessao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_suprido_ato_concessao.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_suprido_ato_concessao_check_update.deploy_schedules = [
+    Cron("43 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_suprido_ato_concessao_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_ato_concessao_download(
+    download_params: dict,
+) -> None:
+    _suprido_ato_concessao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_suprido_ato_concessao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_suprido_ato_concessao.TABLE_ID.value,
+)
+_suprido_ato_concessao_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_suprido_ato_concessao_download.fn.__name__
+
+
+_suprido_empenho_pipeline = make_pipeline(
+    constants_suprido_empenho.TABLE_ID.value
+)
+
+
+@flow(name=_suprido_empenho_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_suprido_empenho_check_update() -> (
+    None
+):
+    _suprido_empenho_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_suprido_empenho_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_suprido_empenho.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_suprido_empenho_check_update.deploy_schedules = [
+    Cron("48 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_suprido_empenho_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_empenho_download(
+    download_params: dict,
+) -> None:
+    _suprido_empenho_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_suprido_empenho_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_suprido_empenho.TABLE_ID.value,
+)
+_suprido_empenho_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_suprido_empenho_download.fn.__name__
+
+
+_suprido_transacao_pipeline = make_pipeline(
+    constants_suprido_transacao.TABLE_ID.value
+)
+
+
+@flow(name=_suprido_transacao_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_suprido_transacao_check_update() -> (
+    None
+):
+    _suprido_transacao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_suprido_transacao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_suprido_transacao.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_suprido_transacao_check_update.deploy_schedules = [
+    Cron("53 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_suprido_transacao_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_transacao_download(
+    download_params: dict,
+) -> None:
+    _suprido_transacao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_suprido_transacao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_suprido_transacao.TABLE_ID.value,
+)
+_suprido_transacao_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_suprido_transacao_download.fn.__name__
+
+
+_suprido_transacao_objeto_pipeline = make_pipeline(
+    constants_suprido_transacao_objeto.TABLE_ID.value
+)
+
+
+@flow(
+    name=_suprido_transacao_objeto_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_transacao_objeto_check_update() -> (
+    None
+):
+    _suprido_transacao_objeto_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_suprido_transacao_objeto_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_suprido_transacao_objeto.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_suprido_transacao_objeto_check_update.deploy_schedules = [
+    Cron("58 12 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_suprido_transacao_objeto_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_transacao_objeto_download(
+    download_params: dict,
+) -> None:
+    _suprido_transacao_objeto_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_suprido_transacao_objeto_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_suprido_transacao_objeto.TABLE_ID.value,
+)
+_suprido_transacao_objeto_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_suprido_transacao_objeto_download.fn.__name__
+
+
+_quadro_pessoal_pipeline = make_pipeline(
+    constants_quadro_pessoal.TABLE_ID.value
+)
+
+
+@flow(name=_quadro_pessoal_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_quadro_pessoal_check_update() -> (
+    None
+):
+    _quadro_pessoal_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_quadro_pessoal_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_quadro_pessoal.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_quadro_pessoal_check_update.deploy_schedules = [
+    Cron("3 13 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_quadro_pessoal_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_quadro_pessoal_download(
+    download_params: dict,
+) -> None:
+    _quadro_pessoal_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_quadro_pessoal_download.deploy_tags = (
+    deploy_tags(
+        constants.DATASET_ID.value,
+        Etapa.EXTRACT_AND_LOAD,
+        constants_quadro_pessoal.TABLE_ID.value,
+    )
+)
+_quadro_pessoal_pipeline.extract_load_deployment = (
+    br_senado_dados_abertos_administrativos_quadro_pessoal_download.fn.__name__
+)
+
+
+_diretor_coordenador_pipeline = make_pipeline(
+    constants_diretor_coordenador.TABLE_ID.value
+)
+
+
+@flow(
+    name=_diretor_coordenador_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_diretor_coordenador_check_update() -> (
+    None
+):
+    _diretor_coordenador_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_diretor_coordenador_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_diretor_coordenador.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_diretor_coordenador_check_update.deploy_schedules = [
+    Cron("8 13 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_diretor_coordenador_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_diretor_coordenador_download(
+    download_params: dict,
+) -> None:
+    _diretor_coordenador_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_diretor_coordenador_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_diretor_coordenador.TABLE_ID.value,
+)
+_diretor_coordenador_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_diretor_coordenador_download.fn.__name__
+
+
+_previsao_aposentadoria_pipeline = make_pipeline(
+    constants_previsao_aposentadoria.TABLE_ID.value
+)
+
+
+@flow(
+    name=_previsao_aposentadoria_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_previsao_aposentadoria_check_update() -> (
+    None
+):
+    _previsao_aposentadoria_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_previsao_aposentadoria_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_previsao_aposentadoria.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_previsao_aposentadoria_check_update.deploy_schedules = [
+    Cron("13 13 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_previsao_aposentadoria_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_previsao_aposentadoria_download(
+    download_params: dict,
+) -> None:
+    _previsao_aposentadoria_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_previsao_aposentadoria_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_previsao_aposentadoria.TABLE_ID.value,
+)
+_previsao_aposentadoria_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_previsao_aposentadoria_download.fn.__name__
+
+
+_contratacao_item_pipeline = make_pipeline(
+    constants_contratacao_item.TABLE_ID.value
+)
+
+
+@flow(name=_contratacao_item_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_contratacao_item_check_update() -> (
+    None
+):
+    _contratacao_item_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_item_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao_item.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_item_check_update.deploy_schedules = [
+    Cron("18 13 * * 1", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contratacao_item_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_item_download(
+    download_params: dict,
+) -> None:
+    _contratacao_item_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_contratacao_item_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contratacao_item.TABLE_ID.value,
+)
+_contratacao_item_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contratacao_item_download.fn.__name__
+
+
+_contratacao_garantia_pipeline = make_pipeline(
+    constants_contratacao_garantia.TABLE_ID.value
+)
+
+
+@flow(
+    name=_contratacao_garantia_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_garantia_check_update() -> (
+    None
+):
+    _contratacao_garantia_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_garantia_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao_garantia.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_garantia_check_update.deploy_schedules = [
+    Cron("18 13 * * 2", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contratacao_garantia_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_garantia_download(
+    download_params: dict,
+) -> None:
+    _contratacao_garantia_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_contratacao_garantia_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contratacao_garantia.TABLE_ID.value,
+)
+_contratacao_garantia_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contratacao_garantia_download.fn.__name__
+
+
+_contratacao_pagamento_pipeline = make_pipeline(
+    constants_contratacao_pagamento.TABLE_ID.value
+)
+
+
+@flow(
+    name=_contratacao_pagamento_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_pagamento_check_update() -> (
+    None
+):
+    _contratacao_pagamento_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_pagamento_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao_pagamento.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_pagamento_check_update.deploy_schedules = [
+    Cron("18 13 * * 3", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contratacao_pagamento_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_pagamento_download(
+    download_params: dict,
+) -> None:
+    _contratacao_pagamento_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_contratacao_pagamento_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contratacao_pagamento.TABLE_ID.value,
+)
+_contratacao_pagamento_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contratacao_pagamento_download.fn.__name__
+
+
+_contratacao_documento_fiscal_pipeline = make_pipeline(
+    constants_contratacao_documento_fiscal.TABLE_ID.value
+)
+
+
+@flow(
+    name=_contratacao_documento_fiscal_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_documento_fiscal_check_update() -> (
+    None
+):
+    _contratacao_documento_fiscal_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_documento_fiscal_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao_documento_fiscal.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_documento_fiscal_check_update.deploy_schedules = [
+    Cron("18 13 * * 4", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contratacao_documento_fiscal_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_documento_fiscal_download(
+    download_params: dict,
+) -> None:
+    _contratacao_documento_fiscal_pipeline.run_extract_and_load(
+        download_params
+    )
+
+
+br_senado_dados_abertos_administrativos_contratacao_documento_fiscal_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contratacao_documento_fiscal.TABLE_ID.value,
+)
+_contratacao_documento_fiscal_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contratacao_documento_fiscal_download.fn.__name__
+
+
+_contratacao_pagamento_empenho_pipeline = make_pipeline(
+    constants_contratacao_pagamento_empenho.TABLE_ID.value
+)
+
+
+@flow(
+    name=_contratacao_pagamento_empenho_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_pagamento_empenho_check_update() -> (
+    None
+):
+    _contratacao_pagamento_empenho_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contratacao_pagamento_empenho_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contratacao_pagamento_empenho.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contratacao_pagamento_empenho_check_update.deploy_schedules = [
+    Cron("18 13 * * 5", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contratacao_pagamento_empenho_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contratacao_pagamento_empenho_download(
+    download_params: dict,
+) -> None:
+    _contratacao_pagamento_empenho_pipeline.run_extract_and_load(
+        download_params
+    )
+
+
+br_senado_dados_abertos_administrativos_contratacao_pagamento_empenho_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contratacao_pagamento_empenho.TABLE_ID.value,
+)
+_contratacao_pagamento_empenho_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contratacao_pagamento_empenho_download.fn.__name__
+
+
+_contrato_aditivo_pipeline = make_pipeline(
+    constants_contrato_aditivo.TABLE_ID.value
+)
+
+
+@flow(name=_contrato_aditivo_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_contrato_aditivo_check_update() -> (
+    None
+):
+    _contrato_aditivo_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_contrato_aditivo_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_contrato_aditivo.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_contrato_aditivo_check_update.deploy_schedules = [
+    Cron("18 13 * * 6", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_contrato_aditivo_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_contrato_aditivo_download(
+    download_params: dict,
+) -> None:
+    _contrato_aditivo_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_contrato_aditivo_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_contrato_aditivo.TABLE_ID.value,
+)
+_contrato_aditivo_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_contrato_aditivo_download.fn.__name__
+
+
+_ata_acionamento_pipeline = make_pipeline(
+    constants_ata_acionamento.TABLE_ID.value
+)
+
+
+@flow(name=_ata_acionamento_pipeline.check_update_flow_name, log_prints=True)
+def br_senado_dados_abertos_administrativos_ata_acionamento_check_update() -> (
+    None
+):
+    _ata_acionamento_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_ata_acionamento_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_ata_acionamento.TABLE_ID.value,
+)
+br_senado_dados_abertos_administrativos_ata_acionamento_check_update.deploy_schedules = [
+    Cron("18 13 * * 0", timezone="America/Sao_Paulo")
+]
+
+
+@flow(
+    name=_ata_acionamento_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_ata_acionamento_download(
+    download_params: dict,
+) -> None:
+    _ata_acionamento_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_ata_acionamento_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_ata_acionamento.TABLE_ID.value,
+)
+_ata_acionamento_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_ata_acionamento_download.fn.__name__
+
+
+_suprido_movimentacao_pipeline = make_pipeline(
+    constants_suprido_movimentacao.TABLE_ID.value
+)
+
+
+@flow(
+    name=_suprido_movimentacao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_movimentacao_check_update() -> (
+    None
+):
+    _suprido_movimentacao_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_suprido_movimentacao_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_suprido_movimentacao.TABLE_ID.value,
+)
+
+
+@flow(
+    name=_suprido_movimentacao_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_movimentacao_download(
+    download_params: dict,
+) -> None:
+    _suprido_movimentacao_pipeline.run_extract_and_load(download_params)
+
+
+br_senado_dados_abertos_administrativos_suprido_movimentacao_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_suprido_movimentacao.TABLE_ID.value,
+)
+_suprido_movimentacao_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_suprido_movimentacao_download.fn.__name__
+
+
+_suprido_movimentacao_subtipo_pipeline = make_pipeline(
+    constants_suprido_movimentacao_subtipo.TABLE_ID.value
+)
+
+
+@flow(
+    name=_suprido_movimentacao_subtipo_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_movimentacao_subtipo_check_update() -> (
+    None
+):
+    _suprido_movimentacao_subtipo_pipeline.run_check_update()
+
+
+br_senado_dados_abertos_administrativos_suprido_movimentacao_subtipo_check_update.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.CHECK_UPDATE,
+    constants_suprido_movimentacao_subtipo.TABLE_ID.value,
+)
+
+
+@flow(
+    name=_suprido_movimentacao_subtipo_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_senado_dados_abertos_administrativos_suprido_movimentacao_subtipo_download(
+    download_params: dict,
+) -> None:
+    _suprido_movimentacao_subtipo_pipeline.run_extract_and_load(
+        download_params
+    )
+
+
+br_senado_dados_abertos_administrativos_suprido_movimentacao_subtipo_download.deploy_tags = deploy_tags(
+    constants.DATASET_ID.value,
+    Etapa.EXTRACT_AND_LOAD,
+    constants_suprido_movimentacao_subtipo.TABLE_ID.value,
+)
+_suprido_movimentacao_subtipo_pipeline.extract_load_deployment = br_senado_dados_abertos_administrativos_suprido_movimentacao_subtipo_download.fn.__name__

@@ -22,10 +22,8 @@ par check_update/extract_and_load, sem materialização em lote.
 from collections.abc import Callable
 
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import (
-    COVERAGE,
     DATASET_ID,
     RELATIVE_MONTH,
-    SOURCE_FORMAT,
 )
 from pipelines.shared.cgu.tasks import (
     get_current_date_and_download_file,
@@ -64,9 +62,7 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         filepath = read_and_partition_beneficios_cidadao(table_id=table_id)
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=filepath,
-            source_format=SOURCE_FORMAT[table_id],
         )
 
     return extract_load_data

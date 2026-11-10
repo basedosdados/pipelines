@@ -11,7 +11,6 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.us_bls_cpi.constants import COVERAGE
 from pipelines.datasets.us_bls_cpi.utils import clean_all, download_flatfiles
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
@@ -201,10 +200,8 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         result = clean_cpi(work_dir=work_dir, input_dir=input_dir)
 
         return ExtractAndLoad(
-            coverage=COVERAGE[table_id].model_dump(),
             data_path=result[table_id],
             dump_mode="overwrite",
-            source_format="parquet",
         )
 
     return extract_load_data

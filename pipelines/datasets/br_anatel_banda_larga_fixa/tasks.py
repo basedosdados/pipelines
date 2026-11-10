@@ -9,7 +9,6 @@ import pandas as pd
 from prefect import task
 
 from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
-    COVERAGE,
     DATASET_ID,
 )
 from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
@@ -135,7 +134,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         filepath = join_tables_in_function(table_id=table_id, ano=ano)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=filepath,
             dump_mode="append",
         )

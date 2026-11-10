@@ -20,11 +20,6 @@ from pipelines.datasets.br_senatran_estatisticas.tasks import (
     treat_uf_tipo_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    PartBdpro,
-    YearMonth,
-)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -122,7 +117,6 @@ def _run_senatran(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -141,7 +135,6 @@ def _run_senatran(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -155,10 +148,6 @@ def _run_senatran(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
@@ -303,7 +292,6 @@ def _run_breakdown(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -321,7 +309,6 @@ def _run_breakdown(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -334,10 +321,6 @@ def _run_breakdown(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
