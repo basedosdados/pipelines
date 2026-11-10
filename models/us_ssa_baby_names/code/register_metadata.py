@@ -47,7 +47,9 @@ TAG_IDS = [
     "ac93baac-2449-47fc-9b92-80cb3c525a9d",  # identity / identidade
 ]
 THEME_SLUGS = ["population", "culture-art"]
-ORG_SLUG = "social_security_administration"
+# Prod renamed the organization to ``ssa``; staging still carries the old slug.
+ORG_SLUGS = {"prod": "ssa"}
+ORG_SLUG_DEFAULT = "social_security_administration"
 LICENSE_SLUG = "cc0"
 NAME_ENTITY = "name"
 
@@ -322,7 +324,9 @@ def main() -> int:
         current_status = bare(status["id"]) if status else None
     dataset = tool("create_update_dataset")(
         **DATASET,
-        organization_ids=[uid("organization", ORG_SLUG)],
+        organization_ids=[
+            uid("organization", ORG_SLUGS.get(env, ORG_SLUG_DEFAULT))
+        ],
         theme_ids=[uid("theme", s) for s in THEME_SLUGS],
         tag_ids=existing_tags(TAG_IDS, env),
         # A re-run must not unpublish: keep the current status if there is one.
