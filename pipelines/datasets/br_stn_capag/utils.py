@@ -47,6 +47,15 @@ from pipelines.datasets.br_stn_capag.constants import (
 )
 from pipelines.utils.utils import log
 
+# TEMP-SCHEMA-TEST (reverter antes do PR). `schema_test_mode` vem de
+# `download_params["schema_test_mode"]`. Valores:
+#   None:   sem alteração (1º run: cria a staging de `estados` em dev)
+#   "a1_1": coluna a mais no fim        -> warning
+#   "a1_2": coluna a mais no meio       -> erro
+#   "a2_1": coluna faltando no fim      -> erro
+#   "a2_2": coluna faltando no meio     -> erro
+#   "a3":   ordem das colunas diferente -> erro (CSV é posicional)
+#   "a5":   layout de partição diferente (ano/mes) -> erro no append
 _NAME_DATE_RE = re.compile(r"(\d{2})/(\d{2})/(\d{4})\s*$")
 _NAME_YEAR_RE = re.compile(r"\b(20\d{2})\b")
 # Cabeçalho da DCA: `<ano><DO|RI|RO><código><conta><código> - <detalhe>`, com
@@ -413,7 +422,10 @@ def _read_records(path: Path, table_id: str) -> list[dict[str, Any]]:
 
 
 def process_records(
-    path: Path, resource: dict[str, Any], table_id: str
+    path: Path,
+    resource: dict[str, Any],
+    table_id: str,
+    schema_test_mode: str | None = None,
 ) -> pd.DataFrame:
     """Lê um arquivo da fonte e devolve só as colunas de `COLUNAS_SAIDA`.
 
@@ -473,6 +485,32 @@ def process_records(
     if df.duplicated(key).any():
         raise ValueError(f"{path.name}: chaves {key} repetidas.")
     log(f"{path.name}: {len(df)} linhas tratadas")
+
+    # TEMP-SCHEMA-TEST (reverter antes do PR): provoca divergência de schema
+    # só em `estados`, para validar a checagem no Prefect.
+    if table_id != MUNICIPIOS_TABLE_ID:
+        df = _apply_schema_test(df, schema_test_mode)
+    return df
+
+
+def _apply_schema_test(df: pd.DataFrame, mode: str | None) -> pd.DataFrame:
+    """TEMP-SCHEMA-TEST: aplica `mode` ao DataFrame de `estados`.
+
+    `ano` (partição) é descartado na escrita, então uma coluna acrescentada
+    depois dele fica no fim do CSV.
+    """
+    if mode == "a1_1":  # coluna a mais no fim
+        df["coluna_teste_schema"] = "x"
+    elif mode == "a1_2":  # coluna a mais no meio
+        df.insert(3, "coluna_teste_schema", "x")
+    elif mode == "a2_1":  # coluna faltando no fim
+        df = df.drop(columns="data_referencia")
+    elif mode == "a2_2":  # coluna faltando no meio
+        df = df.drop(columns="nota_liquidez")
+    elif mode == "a3":  # mesma colunas, ordem diferente
+        cols = list(df.columns)
+        cols[1], cols[2] = cols[2], cols[1]
+        df = df[cols]
     return df
 
 
@@ -612,7 +650,10 @@ def process_base_calculo(path: Path, resource: dict[str, Any]) -> pd.DataFrame:
 
 
 def write_partitioned(
-    df: pd.DataFrame, path: Path, resource: dict[str, Any]
+    df: pd.DataFrame,
+    path: Path,
+    resource: dict[str, Any],
+    schema_test_mode: str | None = None,
 ) -> Path:
     """Escreve `df` em `<path>/ano=<ano>/<recurso>.csv`
 
@@ -620,6 +661,9 @@ def write_partitioned(
         O caminho do CSV escrito.
     """
     year_dir = path / f"ano={resource['year']}"
+    if schema_test_mode == "a5" and "estados" in path.parts:
+        # TEMP-SCHEMA-TEST: layout ano/mes em vez de só ano
+        year_dir = year_dir / "mes=01"
     year_dir.mkdir(parents=True, exist_ok=True)
     file = year_dir / f"{_slugify(resource['name'])}.csv"
     df.drop(columns="ano").to_csv(file, index=False)
