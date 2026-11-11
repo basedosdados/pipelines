@@ -24,8 +24,6 @@ from pipelines.shared.datasus.utils import (
     download_chunks,
     just_the_year_parser,
     list_datasus_dbc_files,
-    list_datasus_dbc_files_with_mtime,
-    months_window,
     post_process_dados_complementares,
     post_process_equipamento,
     post_process_equipe,
@@ -40,7 +38,6 @@ from pipelines.shared.datasus.utils import (
     post_process_profissional,
     post_process_regra_contratual,
     post_process_servico_especializado,
-    select_partitions_to_reprocess,
     year_month_sigla_uf_parser,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
@@ -141,70 +138,6 @@ def _staging_bucket(dataset_id: str, table_id: str, bucket_name: str):
         bucket_name=bucket_name,
         billing_project_id=bucket_name,
     ).bucket
-
-
-@task(retries=2, retry_delay_seconds=60)
-def select_files_to_reprocess(
-    dataset_id: str,
-    table_id: str,
-    bucket_name: str,
-    reprocess_months: int,
-    max_months_per_run: int,
-) -> tuple[list[str], date | None]:
-    """Files of every UF-month whose staging copy is missing or older than the FTP.
-
-    DATASUS publishes a preliminary file for each UF and competence, publishes
-    late UFs after the rest, and rewrites the files for up to a year. Taking
-    only the month after the table's coverage, once, misses all three. This
-    looks back `reprocess_months` competences and compares each FTP file's
-    modification time with its partition in staging.
-
-    Returns:
-        The files to download, and the latest competence published on the FTP
-        (the source max date, which revisions do not move).
-    """
-    backend = bd.Backend(graphql_url=get_url("prod"))
-    latest = get_api_most_recent_date(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_format="%Y-%m",
-        backend=backend,
-    )
-    months = months_window(latest, reprocess_months)
-    log(f"------- Janela de reprocessamento: {months[0]}..{months[-1]} (YYMM)")
-
-    ftp_files = list_datasus_dbc_files_with_mtime(
-        datasus_database=datasus_constants.DATASUS_DATABASE.value[dataset_id],
-        datasus_database_table=datasus_constants.DATASUS_DATABASE_TABLE.value[
-            table_id
-        ],
-    )
-    published = [f for f in ftp_files if f.split("/")[-1][4:8] in months]
-    source_max_date = get_datasus_source_max_date.fn(published)
-
-    prefix = f"staging/{dataset_id}/{table_id}/"
-    staging_updated: dict[str, datetime] = {}
-    for blob in _staging_bucket(dataset_id, table_id, bucket_name).list_blobs(
-        prefix=prefix
-    ):
-        partition = "/".join(blob.name[len(prefix) :].split("/")[:-1])
-        if (
-            partition not in staging_updated
-            or blob.updated < staging_updated[partition]
-        ):
-            staging_updated[partition] = blob.updated
-
-    files = select_partitions_to_reprocess(
-        ftp_files=ftp_files,
-        staging_updated=staging_updated,
-        months=months,
-        max_months=max_months_per_run,
-    )
-    log(
-        f"------- {len(files)} arquivo(s) novos ou reescritos no FTP desde a "
-        f"última carga em gs://{bucket_name}/{prefix}: {files}"
-    )
-    return files, source_max_date
 
 
 @task(retries=2, retry_delay_seconds=30)

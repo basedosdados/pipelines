@@ -3,11 +3,18 @@ Tasks for br_ms_sih.
 """
 
 from collections.abc import Callable
+from datetime import date
 
-from pipelines.datasets.br_ms_sih.constants import DATASET_ID
+import pandas as pd
+
+from pipelines.datasets.br_ms_sih.constants import (
+    DATASET_ID,
+    RELOAD_WINDOW_MONTHS,
+)
 from pipelines.shared.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
+    clear_staging_partitions,
     decompress_dbc,
     get_datasus_source_max_date,
     read_dbf_save_parquet_chunks,
@@ -28,12 +35,26 @@ from pipelines.utils.stage_dispatch import (
 # `read_dbf_save_parquet_chunks` (DBF -> parquet em chunks, sem
 # pós-processamento por tabela), enquanto CNES usa `decompress_dbf` +
 # `pre_process_files` (DBF -> CSV -> parquet com pós-processamento
-# específico por tabela). Mesmo raciocínio de `extra_download_params`
-# (`ftp_files`) e de fallback pra `task_get_api_most_recent_date` quando o
-# FTP não acusa arquivo novo pro próximo período (`get_datasus_source_max_date`
-# devolve `None`) — ver comentário equivalente em
-# `pipelines/datasets/br_ms_cnes/tasks.py`.
+# específico por tabela). Mesmo fallback pra `task_get_api_most_recent_date`
+# quando o FTP não acusa arquivo novo pro próximo período
+# (`get_datasus_source_max_date` devolve `None`) — ver comentário equivalente
+# em `pipelines/datasets/br_ms_cnes/tasks.py`.
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+def reload_window(reference_date: date, months: int) -> str:
+    """Competências da janela de recarga que termina em `reference_date`.
+
+    Args:
+        reference_date: Competência mais recente da janela.
+        months: Número de competências da janela, contando a mais recente.
+
+    Returns:
+        As competências no formato `AAMM`, separadas por espaço, da mais
+        antiga para a mais recente (formato aceito por `parse_year_months`).
+    """
+    periods = pd.period_range(end=reference_date, periods=months, freq="M")
+    return " ".join(period.strftime("%y%m") for period in periods)
 
 
 def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
@@ -51,17 +72,42 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
                 date_format="%Y-%m",
             )
 
-        return SourceInspection(
-            reference_date=source_max_date,
-            extra_download_params={"ftp_files": ftp_files},
-        )
+        return SourceInspection(reference_date=source_max_date)
 
     return get_latest_update
 
 
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        ftp_files = download_params["ftp_files"]
+        """Baixa as competências da carga no FTP do DATASUS e converte para parquet.
+
+        Disparado pelo `check_update`, carrega as `RELOAD_WINDOW_MONTHS`
+        competências que terminam em `reference_date`: a nova e as
+        anteriores, que o DATASUS ainda pode ter completado. Num backfill,
+        disparado à mão, carrega as competências de `year_months`. Nos dois
+        casos, a partição de cada arquivo é apagada no staging de dev antes
+        do upload.
+
+        Args:
+            download_params: `reference_date` (ISO), vindo do
+                `check_update`, ou `year_months` (`"2403 2404"` ou
+                `"2024-03,2024-04"`), num backfill.
+
+        Returns:
+            O diretório com os parquets particionados.
+        """
+        year_months = download_params.get("year_months")
+        if not year_months:
+            reference_date = date.fromisoformat(
+                download_params["reference_date"]
+            )
+            year_months = reload_window(reference_date, RELOAD_WINDOW_MONTHS)
+
+        ftp_files = check_files_to_parse(
+            dataset_id=DATASET_ID,
+            table_id=table_id,
+            year_month_to_extract=year_months,
+        )
 
         dbc_files = access_ftp_download_files_async(
             file_list=ftp_files, dataset_id=DATASET_ID, table_id=table_id
@@ -72,6 +118,13 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             table_id=table_id,
             dataset_id=DATASET_ID,
             name_by_source_file=True,
+        )
+
+        clear_staging_partitions(
+            file_list=ftp_files,
+            dataset_id=DATASET_ID,
+            table_id=table_id,
+            bucket_name="basedosdados-dev",
         )
 
         return ExtractAndLoad(
