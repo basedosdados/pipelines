@@ -132,7 +132,7 @@ de `valor_fob_dolar`, que tem `severity: warn`: ele só registra um aviso no log
 | `relationships` | `id_unidade` | Diretório de NCM |
 | `custom_relationships` | `sigla_uf`, `sigla_uf_ncm` | Diretório de UF, campo `sigla`; ignora `EX` |
 | `custom_relationships` | `sigla_pais_iso3` | Diretório de países; ignora `ANT`, `CSK`, `SCG` e `PCZ` |
-| `custom_relationships` | `id_ncm` | Diretório de NCM; ignora `85492100`, `90189097`, `26011220`, `29159070`, `85181020` e `29333700` |
+| `custom_relationships` | `id_ncm` | Diretório de NCM |
 | `custom_dictionary_coverage` | `id_pais` nas quatro tabelas; `id_via` e `id_urf` nas duas de NCM | `dicionario` |
 | `dbt_utils.accepted_range` | `peso_liquido_kg`, `valor_fob_dolar`, `quantidade_estatistica`, `valor_frete`, `valor_seguro`, onde existirem | Mínimo 0; em `valor_fob_dolar`, só aviso |
 
@@ -186,13 +186,12 @@ Formato das entradas:
 
 ### Diretório de NCM
 
-Os códigos em `ignore_values` do `id_ncm` são NCMs que a fonte usou quando o
-diretório de NCM (`br_bd_diretorios_mundo.nomenclatura_comum_mercosul`) ainda não
-os tinha. Nenhum flow atualiza esse diretório: ele é carregado à mão por
+Nenhum flow atualiza o diretório de NCM
+(`br_bd_diretorios_mundo.nomenclatura_comum_mercosul`): ele é carregado à mão por
 `models/br_bd_diretorios_mundo/code/download_sh4_ncm.py`, a partir do
 [`NCM.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv) do MDIC.
 NCM novo do MDIC reprova o `custom_relationships` do `id_ncm` até o diretório ser
-recarregado ou o código entrar no `ignore_values`.
+recarregado.
 
 O mesmo script recarrega o diretório do SH
 (`br_bd_diretorios_comercio_internacional.sistema_harmonizado`), a partir do
@@ -201,9 +200,16 @@ O mesmo script recarrega o diretório do SH
 o outro, e o `NCM.csv` usa SH6 que o `NCM_SH.csv` não tem. Esses SH6 ficam no
 `ignore_values` do teste, em `models/br_bd_diretorios_mundo/schema.yml`.
 
-A carga feita em dev chega a prod pelo `table-approve`, que só sincroniza a
-staging de modelo cujo `.sql` mudou na PR. Enquanto o diretório de prod não
-recebe a carga nova, o teste de `id_ncm` em prod compara com o diretório antigo.
+O script só regrava a staging de dev. Os testes leem as tabelas do dbt, então
+depois dele é preciso materializar os dois diretórios em dev:
+
+```bash
+uv run dbt run --select br_bd_diretorios_mundo__nomenclatura_comum_mercosul br_bd_diretorios_comercio_internacional__sistema_harmonizado
+```
+
+A carga do diretório de NCM feita em dev chega a prod pelo `table-approve`, que
+só sincroniza a staging de modelo cujo `.sql` mudou na PR. Até lá, o teste de
+`id_ncm` passa em dev e reprova em prod.
 
 ---
 
