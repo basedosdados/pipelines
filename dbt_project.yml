@@ -702,6 +702,9 @@ models:
       +post-hook:
         - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
         - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+        - CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON {{ this }} GRANT TO
+          ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER
+          USING (TRUE)
     br_stf_corte_aberta:
       +materialized: table
       +schema: br_stf_corte_aberta
