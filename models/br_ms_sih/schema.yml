@@ -188,6 +188,8 @@ models:
             - id_aih
             - tipo_aih
             - sequencial_aih
+          config:
+            where: ano >= extract(year from current_date()) - 2
       - custom_uf_month_completeness:
           year_column: ano
           month_column: mes

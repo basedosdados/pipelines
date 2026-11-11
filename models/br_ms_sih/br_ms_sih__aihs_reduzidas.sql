@@ -350,8 +350,6 @@ select
 from {{ set_datalake_project("br_ms_sih_staging.aihs_reduzidas") }}
 
 {% if is_incremental() %}
-        {#- Lido dos metadados de partição: `max(ano)` varre a coluna inteira
-            (~20 GB em servicos_profissionais). -#}
         {%- set max_year_result = run_query(
             "select max(safe_cast(partition_id as int64)) from `"
             ~ this.database
@@ -365,9 +363,5 @@ from {{ set_datalake_project("br_ms_sih_staging.aihs_reduzidas") }}
         {%- if execute and max_year_result.rows[0][0] -%}
             {%- set max_year = max_year_result.rows[0][0] -%}
         {%- endif -%}
-    -- DATASUS reescreve cada competência por até 12 meses depois da primeira
-    -- publicação. Cada partição de ano tocada é refeita inteira a partir da
-    -- staging, então reprocessar é idempotente. `br_ms_sih_min_ano` amplia a
-    -- janela numa recarga.
     where ano >= '{{ var("br_ms_sih_min_ano", max_year - 1) }}'
 {% endif %}

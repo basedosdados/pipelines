@@ -76,9 +76,22 @@ novos.
 
 Os modelos `br_ms_sih__aihs_reduzidas` e `br_ms_sih__servicos_profissionais` são
 `incremental`, com `incremental_strategy="insert_overwrite"` e partição por `ano`. Cada
-`dbt run` reescreve, a partir da staging, os anos `>= max(ano) - 1` (o `max(ano)` vem de
-`INFORMATION_SCHEMA.PARTITIONS`), então refazer não faz o mesmo mês entrar duas vezes.
-Com `--vars '{br_ms_sih_min_ano: 2024}'`, o run reescreve os anos `>= 2024`.
+`dbt run` refaz por inteiro, a partir da staging, as partições dos anos `>= max(ano) - 1`
+e deixa as anteriores como estão. Por isso rodar de novo não faz o mesmo mês entrar duas
+vezes. Com `--vars '{br_ms_sih_min_ano: 2024}'`, o run refaz os anos `>= 2024`.
+
+São dois anos porque há competências reescritas no FTP até cerca de um ano depois de
+publicadas: em janeiro, o ano anterior ainda precisa ser refeito. A janela de recarga de 3
+competências sempre cai dentro desses dois anos.
+
+Dois detalhes do filtro reduzem o custo de cada run:
+
+- O `max(ano)` vem dos metadados de partição (`INFORMATION_SCHEMA.PARTITIONS`), que não
+  custam quase nada. Um `select max(ano)` leria a coluna inteira, cerca de 20 GB em
+  `servicos_profissionais`.
+- O filtro compara `ano` com um valor fixo (`ano >= '2025'`), e não com uma subconsulta.
+  Assim o BigQuery lê na staging só as pastas `ano=…` desses anos. Com subconsulta, ele lê
+  a staging inteira.
 
 O teste `custom_uf_month_completeness` (`tests-dbt/generic/`), aplicado às duas tabelas,
 falha quando uma UF tem zero linhas num mês, ou menos de 50% da mediana dos 12 meses
@@ -87,6 +100,11 @@ recentes da tabela. Com a janela de 3, cada competência é baixada três vezes 
 e nos dois runs seguintes) antes de o teste olhar para ela. Se a UF continuar incompleta,
 o `dbt test` de dev do `build_and_promote` falha, nada é promovido para prod, e o run se
 repete a cada dia com a mesma falha até alguém rodar o backfill.
+
+O teste de unicidade da `aihs_reduzidas` (`dbt_utils.unique_combination_of_columns`) olha só
+`ano >= extract(year from current_date()) - 2`, para não ler a tabela inteira a cada run.
+Esse corte cobre os anos que o run reescreve, até em janeiro, quando o ano mais recente da
+tabela ainda é o anterior. Uma duplicata em ano mais antigo só aparece numa consulta à parte.
 
 ### Backfill
 
