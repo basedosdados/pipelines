@@ -15,6 +15,7 @@ import requests
 from pipelines.datasets.br_tse_eleicoes.constants import (
     constants as tse_constants,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 
 
 def conv_data(date: str, birth: bool = False) -> str:
@@ -183,7 +184,10 @@ class BrTseEleicoes:
         path_output = self.path_output / f"ano={self.year}"
         file_path = path_output / f"{self.table_id}.csv"
         path_output.mkdir(parents=True, exist_ok=True)
+        rows_read = len(base)
         base.to_csv(file_path, index=False)
+
+        check_rows_written(rows_read=rows_read, output_dir=self.path_output)
 
     def form_df_base(self) -> None:
         pass
