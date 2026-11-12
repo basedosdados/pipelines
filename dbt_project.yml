@@ -753,6 +753,9 @@ models:
     us_ssa_beneficiaries:
       +materialized: table
       +schema: us_ssa_beneficiaries
+    us_census_surnames:
+      +materialized: table
+      +schema: us_census_surnames
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance

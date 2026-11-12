@@ -1,0 +1,59 @@
+---
+version: 2
+models:
+  - name: us_census_surnames__surname
+    description: >-
+      Sobrenomes que ocorrem 100 ou mais vezes nos censos decenais de 2000 e 2010,
+      com contagem, posição, proporção por 100 mil pessoas e distribuição por raça
+      e origem hispânica.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, surname]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do censo decenal
+        tests: [not_null]
+      - name: surname
+        description: >-
+          Sobrenome, em maiúsculas, como tabulado pelo Census Bureau
+        tests: [not_null]
+      - name: rank
+        description: >-
+          Posição do sobrenome na lista, do mais ao menos frequente
+        tests: [not_null]
+      - name: count
+        description: >-
+          Número de pessoas com o sobrenome
+        tests: [not_null]
+      - name: proportion_per_100k
+        description: >-
+          Pessoas com o sobrenome por 100 mil pessoas recenseadas
+      - name: cumulative_proportion_per_100k
+        description: >-
+          Proporção acumulada por 100 mil pessoas, somando todos os sobrenomes até
+          esta posição
+      - name: percent_white
+        description: >-
+          Percentual das pessoas com o sobrenome que se declararam brancas não hispânicas
+      - name: percent_black
+        description: >-
+          Percentual das pessoas com o sobrenome que se declararam negras não hispânicas
+      - name: percent_asian_pacific_islander
+        description: >-
+          Percentual das pessoas com o sobrenome que se declararam asiáticas ou nativas
+          das ilhas do Pacífico não hispânicas
+      - name: percent_american_indian_alaska_native
+        description: >-
+          Percentual das pessoas com o sobrenome que se declararam indígenas americanas
+          ou nativas do Alasca não hispânicas
+      - name: percent_two_or_more_races
+        description: >-
+          Percentual das pessoas com o sobrenome que se declararam de duas ou mais
+          raças não hispânicas
+      - name: percent_hispanic
+        description: >-
+          Percentual das pessoas com o sobrenome que se declararam hispânicas ou latinas,
+          de qualquer raça
