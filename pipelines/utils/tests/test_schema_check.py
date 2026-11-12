@@ -237,6 +237,51 @@ def test_upload_sem_arquivo_levanta(tmp_path):
         UploadSchema.from_files(tmp_path, "csv")
 
 
+def test_upload_parquet_chave_de_particao_no_arquivo_e_warning(tmp_path):
+    folder = tmp_path / "ano=2024"
+    folder.mkdir()
+    pq.write_table(
+        pa.table({"ano": ["2024"], "a": ["x"]}), folder / "data.parquet"
+    )
+    s = UploadSchema.from_files(tmp_path, "parquet")
+    assert [c.name for c in s.columns] == ["a"]
+    assert len(s.findings) == 1
+    assert "ano" in s.findings[0].message
+    r = check(staging("a", keys=("ano",)), s, "parquet")
+    assert not r.errors
+    assert len(r.warnings) == 1
+    assert r.added_columns == ()
+
+
+def test_upload_csv_chave_de_particao_no_header_e_erro(tmp_path):
+    folder = tmp_path / "ano=2024"
+    folder.mkdir()
+    pd.DataFrame({"a": ["x"], "ano": ["2024"]}).to_csv(
+        folder / "data.csv", index=False
+    )
+    s = UploadSchema.from_files(tmp_path, "csv")
+    r = check(staging("a", keys=("ano",)), s, "csv")
+    assert any("chave de partição" in e for e in r.errors)
+
+
+def test_chave_de_particao_no_arquivo_vira_warning_no_overwrite(tmp_path):
+    folder = tmp_path / "ano=2024"
+    folder.mkdir()
+    pd.DataFrame({"a": ["x"], "ano": ["2024"]}).to_csv(
+        folder / "data.csv", index=False
+    )
+    s = UploadSchema.from_files(tmp_path, "csv")
+    r = check(staging("a", keys=("ano",)), s, "csv", overwrite=True)
+    assert not r.errors
+
+
+def test_upload_sem_chave_repetida_nao_tem_findings(tmp_path):
+    folder = tmp_path / "ano=2024"
+    folder.mkdir()
+    pd.DataFrame({"a": ["x"]}).to_csv(folder / "data.csv", index=False)
+    assert UploadSchema.from_files(tmp_path, "csv").findings == ()
+
+
 def _bq_table(fields, definition=None, hive=False):
     table = MagicMock()
     table._properties = (

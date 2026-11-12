@@ -223,7 +223,9 @@ Também cobre partição (chaves ignoradas na comparação; layout diferente é 
 
 ### 10.1 Chave de partição no header do arquivo
 
-- **Problema:** as chaves Hive existem só como nome de pasta. Se uma chave aparecer também no header, a tabela teria duas colunas com o mesmo nome, e o BigQuery recusa.
+- **Problema:** as chaves Hive existem só como nome de pasta. Se uma chave aparecer também no header, a tabela teria duas colunas com o mesmo nome, e o BigQuery recusa (não verificado para Parquet; o `br_fnde_fundeb` escreve `ano` dentro do Parquet e na pasta).
+- **Feito:** `UploadSchema.from_files` detecta a repetição e a registra em `UploadSchema.findings`, que `check` inclui no resultado. **Erro** em CSV (posicional: a coluna seria acrescentada à staging, em conflito com a chave); **warning** em Parquet (casa por nome). No `overwrite` o erro vira warning. Em Parquet a chave sai de `columns`, para não aparecer como coluna nova, já que a staging a exclui.
+- **Em aberto:** confirmar na staging real se o BigQuery aceita a duplicata em Parquet; se recusar, o warning vira erro.
 
 ### 10.2 Outros pontos
 

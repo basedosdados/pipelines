@@ -150,7 +150,14 @@ def _first_data_file(data_path: str | Path, fmt: SourceFormat) -> Path:
 
 @dataclass(frozen=True)
 class UploadSchema(TableSchema):
-    """Schema dos arquivos locais que serão carregados."""
+    """Schema dos arquivos locais que serão carregados.
+
+    Attributes:
+        findings: problemas achados já na leitura, independentes da staging
+            (hoje: chave de partição repetida dentro do arquivo).
+    """
+
+    findings: tuple[Finding, ...] = ()
 
     @classmethod
     def from_files(
@@ -161,6 +168,14 @@ class UploadSchema(TableSchema):
         As chaves vêm só das pastas `chave=valor` relativas a `data_path`
         (`to_partitions` as remove do arquivo). Em Parquet, o tipo é o do
         arquivo; em CSV não há tipo (a tabela é toda `STRING`).
+
+        Se uma chave de partição aparecer também dentro do arquivo, a tabela
+        teria duas colunas com o mesmo nome (a do arquivo e a da pasta). Isso
+        vira um finding: **erro** em CSV (posicional: a coluna seria
+        acrescentada à staging, em conflito com a chave) e **warning** em
+        Parquet (casa por nome; se o BigQuery recusa a duplicata não está
+        verificado). Em Parquet a chave sai de `columns`, para não aparecer
+        como coluna nova da staging, que já a exclui.
         """
         fmt = SourceFormat(source_format)
         file = _first_data_file(data_path, fmt)
@@ -177,7 +192,21 @@ class UploadSchema(TableSchema):
         else:
             names = pd.read_csv(file, nrows=0, dtype=str).columns
             columns = tuple(Column.of(name) for name in names)
-        return cls(columns, keys)
+        repeated = tuple(c.name for c in columns if c.name in keys)
+        findings: tuple[Finding, ...] = ()
+        if repeated:
+            make = _error if fmt is SourceFormat.CSV else _warning
+            findings = (
+                make(
+                    f"chave de partição também presente dentro do arquivo: "
+                    f"{_listed(repeated)}. A tabela teria duas colunas com o "
+                    "mesmo nome (a do arquivo e a da pasta); remover a "
+                    "coluna do arquivo."
+                ),
+            )
+            if fmt is SourceFormat.PARQUET:
+                columns = tuple(c for c in columns if c.name not in keys)
+        return cls(columns, keys, findings)
 
 
 @dataclass(frozen=True)
@@ -479,6 +508,8 @@ def check(
     - Parquet casa por nome: coluna nova e ordem trocada são avisos; coluna
       faltando e tipo diferente (quando informado dos dois lados) são erros.
     - Layout de partição diferente é erro.
+    - Chave de partição repetida dentro do arquivo (`upload.findings`): erro
+      em CSV, warning em Parquet.
     - `overwrite=True`: a staging é recriada a partir do arquivo, então nada
       bloqueia; os erros viram avisos.
 
@@ -496,7 +527,9 @@ def check(
     """
     fmt = SourceFormat(source_format)
     diff = SchemaDiff.between(staging, upload)
-    findings = _layout_findings(diff) + _RULES[fmt](diff)
+    findings = (
+        list(upload.findings) + _layout_findings(diff) + _RULES[fmt](diff)
+    )
     if overwrite:
         findings = _for_overwrite(findings)
     added = set(diff.added)
