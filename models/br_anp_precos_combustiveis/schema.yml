@@ -81,10 +81,6 @@ models:
           - not_null:
               config:
                 where: __most_recent_year__
-          - accepted_values:
-              values: [R$/litro, R$/m3, R$/13kg]
-              config:
-                where: __most_recent_year__
       - name: preco_compra
         description: Preço de venda da distribuidora para o posto revendedor de combustível
       - name: preco_venda
