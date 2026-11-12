@@ -473,6 +473,7 @@ def process_records(
     if df.duplicated(key).any():
         raise ValueError(f"{path.name}: chaves {key} repetidas.")
     log(f"{path.name}: {len(df)} linhas tratadas")
+
     return df
 
 
