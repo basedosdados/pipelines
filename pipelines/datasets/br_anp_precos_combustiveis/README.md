@@ -71,14 +71,40 @@ O crawler (`download_and_transform`) faz os tratamentos que dependem do arquivo:
 
 O modelo dbt converte os tipos, tira a pontuação do CNPJ e deixa os textos com a
 primeira letra maiúscula (`initcap`). Por isso os produtos aparecem como `Gasolina`,
-`Gasolina Aditivada`, `Etanol`, `Diesel`, `Diesel S10`, `Glp` e `Gnv`.
+`Gasolina Aditivada`, `Etanol`, `Diesel`, `Diesel S10`, `Glp` e `Gnv`. O modelo também
+descarta linhas idênticas (`select distinct`), porque a ANP às vezes repete o mesmo
+posto no próprio arquivo (jun/2024, fev/2026).
 
 A tabela é **incremental**: cada `dbt run` só acrescenta as datas de coleta posteriores
 à última que já está na tabela. Como cada execução reenvia as 4 semanas do arquivo,
-as datas que a tabela já tem são ignoradas e nada é duplicado.
+as datas que a tabela já tem são ignoradas e não são carregadas de novo.
 
 Na staging, há uma pasta por data de coleta (`data_coleta=aaaa-mm-dd/data.csv`). Na
 tabela final, a partição é por `ano`.
+
+### Testes
+
+Os testes ficam em `models/br_anp_precos_combustiveis/schema.yml` e rodam só no ano
+mais recente (`where: __most_recent_year__`). Uma falha, exceto a faixa de preço,
+interrompe o flow.
+
+| teste | o que verifica |
+|---|---|
+| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto)`, sem tolerância |
+| `not_null_proportion_multiple_columns` | pelo menos 5% de preenchimento em cada coluna, exceto `preco_compra` |
+| `dbt_utils.expression_is_true` (unidade) | `unidade_medida` coerente com o produto: `R$/13kg` para GLP, `R$/m3` para GNV, `R$/litro` para os demais |
+| `dbt_utils.expression_is_true` (preço, `warn`) | `preco_venda` entre R$ 50 e R$ 250 para GLP e entre R$ 1 e R$ 20 para os demais |
+| `relationships` | `sigla_uf` e `id_municipio` existem nos diretórios |
+| `not_null` | `id_municipio`, `unidade_medida` e `preco_venda` preenchidos |
+| `accepted_values` | `produto` e `unidade_medida` só com os valores listados acima |
+| `custom_weekly_continuity` | nenhuma semana sem coleta, e cada semana com pelo menos 1.000 linhas |
+
+O `custom_weekly_continuity` (`tests-dbt/generic/`) agrupa as datas por semana ISO e
+falha para cada semana, entre a primeira e a última, que não tenha dados ou tenha menos
+de `min_rows_per_week` linhas. Uma semana normal tem cerca de 20 mil linhas. A primeira
+e a última semana só precisam existir, porque podem estar cortadas na virada do ano. O
+mínimo de linhas evita que uma linha isolada, como a de domingo, 10/05/2026, esconda uma
+semana que não foi carregada.
 
 ## Como o flow funciona
 
