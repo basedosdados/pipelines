@@ -20,16 +20,16 @@ ainda não existe responde 404.
 | Tabela | Conteúdo | Carga |
 |---|---|---|
 | `microdados` | Uma linha por estação, data e hora (UTC), com precipitação, pressão, radiação, temperatura, umidade e vento | Pipeline recorrente |
-| `estacao` | Cadastro das estações: município, nome, data de fundação, localização e altitude | Lida de `br_inmet_bdmep_staging.estacao`, sem flow |
+| `estacao` | Cadastro das estações: município, nome, data de fundação, localização e altitude | Pipeline recorrente |
 
 ## Estrutura no repositório
 
 | Arquivo | Papel |
 |---|---|
-| `pipelines/datasets/br_inmet_bdmep/flows.py` | `check_update` e `extract_and_load` do `microdados` |
+| `pipelines/datasets/br_inmet_bdmep/flows.py` | `check_update` e `extract_and_load` do `microdados` e da `estacao` |
 | `pipelines/datasets/br_inmet_bdmep/tasks.py` | Tasks que chamam as funções do `utils.py` |
-| `pipelines/datasets/br_inmet_bdmep/utils.py` | Download do ZIP, leitura de cada estação e gravação do CSV do ano |
-| `pipelines/datasets/br_inmet_bdmep/constants.py` | URL, User-Agent, padrões de renomeação, ordem das colunas e regra BD Pro (`PartBdpro`) |
+| `pipelines/datasets/br_inmet_bdmep/utils.py` | Download do ZIP, leitura de cada estação e gravação dos CSVs do ano do `microdados` e da `estacao` |
+| `pipelines/datasets/br_inmet_bdmep/constants.py` | URL, User-Agent, padrões de renomeação, campos do cabeçalho e ordem das colunas |
 | `models/br_inmet_bdmep/` | Modelos dbt do `microdados` e do `estacao` |
 
 ## Acesso à fonte
@@ -125,10 +125,34 @@ relidos: depois que entra o primeiro dado de janeiro, as correções do ano ante
 O `merge` também não apaga linhas que sumiram da fonte. Para reprocessar tudo, rode o modelo com
 `--full-refresh`, porque a staging guarda um arquivo por ano desde 2000.
 
+## Cadastro das estações
+
+A `estacao` sai das 8 linhas de cabeçalho dos mesmos CSVs (`read_station_info`), com o arquivo
+mais recente de cada estação, como no `microdados`:
+
+- latitude, longitude e altitude trocam a vírgula decimal por ponto. Nos ZIPs de 2016 a 2018, as
+  estações `S101` a `S122` trazem a altitude como `F`, e no de 2026 a `A772` traz `NULL`; as duas
+  viram nulo no modelo;
+- a data de fundação vem como `2000-05-07` nos ZIPs até 2018 e como `07/05/00` a partir de 2019.
+  Com o ano em dois dígitos, a data que cairia no futuro volta um século (`parse_foundation_date`).
+
+O cadastro de uma estação muda de um ano para outro. Entre 2000 e 2026, 148 estações tiveram a
+coordenada deslocada em mais de 1 km, e nos casos maiores o ZIP mais novo corrige o erro do antigo:
+a `A232` (Óbidos) estava a 800 km da cidade até 2018, e a `A144` (Novo Aripuanã), a 330 km até
+2025.
+
+O cabeçalho não traz o município. O modelo procura, entre os municípios da UF do cabeçalho, o
+polígono de `basedosdados.br_geobr_mapas.municipio` que contém o ponto da estação. Quando nenhum
+contém, fica o município mais próximo.
+
+A staging guarda um CSV por ano, em `ano=<ano>/estacao_<ano>.csv`, sempre com o mesmo nome, pelo
+mesmo motivo do `microdados`. O modelo fica, para cada estação, com o cadastro do ano mais recente
+em que ela aparece: a estação que não está no ZIP do ano corrente continua na tabela com o último
+cadastro.
+
 ## BD Pro
 
-O `microdados` é `PartBdpro` (`COVERAGE`, no `constants.py`): os meses mais recentes ficam
-restritos a assinantes. O `pre_hook` do modelo apaga as row access policies a cada `dbt run`, e
+O `microdados` é `part_bdpro`: os meses mais recentes ficam restritos a assinantes. O `pre_hook` do modelo apaga as row access policies a cada `dbt run`, e
 elas só voltam quando o pipeline registra a materialização. Um `dbt run` feito à mão em prod deixa
 a tabela sem as políticas até o próximo run do pipeline.
 
