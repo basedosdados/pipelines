@@ -54,7 +54,7 @@ br_inmet_bdmep_estacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, ESTACAO_TABLE_ID
 )
 br_inmet_bdmep_estacao_check_update.deploy_schedules = [
-    Cron("30 21 * * 1-5", timezone="America/Sao_Paulo")
+    Cron("5 18 * * 1-5", timezone="America/Sao_Paulo")
 ]
 
 
