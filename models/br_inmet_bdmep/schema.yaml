@@ -33,7 +33,13 @@ models:
               field: mes.mes
       - name: id_estacao
         description: ID da estação meteorológica
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_inmet_bdmep__estacao')
+              field: id_estacao
+              config:
+                where: __most_recent_year_month__
       - name: precipitacao_total
         description: Precipitação total, horária
       - name: pressao_atm_hora
