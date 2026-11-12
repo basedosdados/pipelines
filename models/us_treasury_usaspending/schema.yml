@@ -1,0 +1,1598 @@
+---
+version: 2
+models:
+  - name: us_treasury_usaspending__contract_transaction
+    description: >
+      Transações de contratos federais norte-americanos registradas no FPDS e
+      publicadas pelo USAspending.gov, uma linha por ação contratual (assinatura
+      ou aditivo), com agência concedente e financiadora, contratado, valores
+      empenhados, objeto, local de execução e características da contratação
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [fiscal_year, contract_transaction_id]
+          config:
+            where: __most_recent_fiscal_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_fiscal_year__
+          ignore_values:
+            - dod_claimant_program_code
+            - dod_claimant_program_description
+            - idv_type
+            - idv_type_code
+            - multiple_or_single_award_idv
+            - multiple_or_single_award_idv_code
+            - national_interest_action
+            - national_interest_action_code
+            - obligated_amount_from_covid19_supplementals_for_overall_award
+            - obligated_amount_from_iija_supplemental_for_overall_award
+            - ordering_period_end_date
+            - other_statutory_authority
+            - outlayed_amount_from_covid19_supplementals_for_overall_award
+            - outlayed_amount_from_iija_supplemental_for_overall_award
+            - price_evaluation_adjustment_preference_percent_difference
+            - program_acronym
+            - recipient_address_line_2
+            - recipient_doing_business_as_name
+            - recipient_duns
+            - recipient_parent_duns
+            - research
+            - research_code
+            - sam_exception
+            - sam_exception_description
+            - sea_transportation
+            - sea_transportation_code
+            - type_of_idc
+            - type_of_idc_code
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - action_type
+            - airport_authority
+            - alaskan_native_corporation_owned_firm
+            - alaskan_native_servicing_institution
+            - american_indian_owned_business
+            - asian_pacific_american_owned_business
+            - award_type_code
+            - black_american_owned_business
+            - c8a_program_participant
+            - city_local_government
+            - community_developed_corporation_owned_firm
+            - community_development_corporation
+            - consolidated_contract
+            - construction_wage_rate_requirements_code
+            - contingency_humanitarian_or_peacekeeping_operation_code
+            - contracting_officers_determination_of_business_size_code
+            - corporate_entity_not_tax_exempt
+            - corporate_entity_tax_exempt
+            - cost_accounting_standards_clause_code
+            - cost_or_pricing_data
+            - council_of_governments
+            - county_local_government
+            - domestic_shelter
+            - dot_certified_disadvantage
+            - economically_disadvantaged_women_owned_small_business
+            - educational_institution
+            - emerging_small_business
+            - epa_designated_product
+            - extent_competed
+            - fed_biz_opps
+            - federal_agency
+            - federally_funded_research_and_development_corp
+            - for_profit_organization
+            - foreign_government
+            - foreign_owned
+            - foundation
+            - government_furnished_property_code
+            - hispanic_american_owned_business
+            - hispanic_servicing_institution
+            - historically_black_college
+            - historically_underutilized_business_zone_hubzone_firm
+            - hospital_flag
+            - housing_authorities_public_tribal
+            - idv_type
+            - indian_tribe_federally_recognized
+            - information_technology_commercial_item_category_code
+            - inter_municipal_local_government
+            - interagency_contracting_authority_code
+            - international_organization
+            - interstate_entity
+            - joint_venture_economic_disadvantaged_women_owned_small_bus
+            - joint_venture_women_owned_small_business
+            - labor_standards
+            - labor_surplus_area_firm
+            - land_grant_college_1862
+            - land_grant_college_1890
+            - land_grant_college_1994
+            - limited_liability_corporation
+            - local_government_owned
+            - manufacturer_of_goods
+            - materials_supplies_articles_equipment_code
+            - minority_institution
+            - minority_owned_business
+            - multi_year_contract
+            - municipality_local_government
+            - native_american_owned_business
+            - native_hawaiian_organization_owned_firm
+            - native_hawaiian_servicing_institution
+            - nonprofit_organization
+            - other_minority_owned_business
+            - other_not_for_profit_organization
+            - parent_award_type_code
+            - partnership_or_limited_liability_partnership
+            - performance_based_service_acquisition_code
+            - planning_commission
+            - port_authority
+            - private_university_or_college
+            - purchase_card_as_payment_method_code
+            - receives_contracts
+            - receives_contracts_and_financial_assistance
+            - receives_financial_assistance
+            - research
+            - sam_exception
+            - sba_certified_8a_joint_venture
+            - school_district_local_government
+            - school_of_forestry
+            - sea_transportation
+            - self_certified_small_disadvantaged_business
+            - service_disabled_veteran_owned_business
+            - simplified_procedures_for_certain_commercial_items_code
+            - small_agricultural_cooperative
+            - small_business_competitiveness_demonstration_program
+            - small_disadvantaged_business
+            - sole_proprietorship
+            - state_controlled_institution_of_higher_learning
+            - subchapter_scorporation
+            - subcontinent_asian_asian_indian_american_owned_business
+            - subcontracting_plan
+            - the_ability_one_program
+            - township_local_government
+            - transit_authority
+            - tribal_college
+            - tribally_owned_firm
+            - type_of_idc
+            - us_federal_government
+            - us_government_entity
+            - us_local_government
+            - us_state_government
+            - us_tribal_government
+            - veteran_owned_business
+            - veterinary_college
+            - veterinary_hospital
+            - woman_owned_business
+            - women_owned_small_business
+          dictionary_model: ref('us_treasury_usaspending__dicionario')
+    columns:
+      - name: fiscal_year
+        description: >
+          Ano fiscal federal norte-americano da data da ação, iniciado em 1º de
+          outubro do ano civil anterior
+        tests: [not_null]
+      - name: contract_transaction_id
+        description: >
+          Chave única da transação de contrato, gerada pelo USAspending
+        tests: [not_null]
+      - name: contract_award_id
+        description: >
+          Chave única do contrato ao qual a transação pertence
+      - name: award_id_piid
+        description: >
+          Identificador do instrumento de compra (PIID) atribuído pela agência
+      - name: modification_number
+        description: >
+          Número do aditivo que identifica esta modificação do contrato
+      - name: transaction_number
+        description: >
+          Número que distingue transações registradas com o mesmo PIID e aditivo
+      - name: parent_award_agency_id
+        description: >
+          Código da agência que firmou o contrato-mãe (IDV)
+      - name: parent_award_agency_name
+        description: >
+          Nome da agência que firmou o contrato-mãe (IDV)
+      - name: parent_award_id_piid
+        description: >
+          Identificador (PIID) do contrato-mãe ao qual a ação se vincula
+      - name: parent_award_modification_number
+        description: >
+          Número do aditivo do contrato-mãe
+      - name: federal_action_obligation
+        description: >
+          Valor empenhado ou desempenhado pelo governo federal nesta transação
+      - name: total_dollars_obligated
+        description: >
+          Valor total empenhado no contrato, somadas todas as transações
+      - name: total_outlayed_amount_for_overall_award
+        description: >
+          Valor total desembolsado no auxílio ou contrato até a data
+      - name: base_and_exercised_options_value
+        description: >
+          Valor do contrato considerando a base e as opções já exercidas nesta
+          transação
+      - name: current_total_value_of_award
+        description: >
+          Valor total corrente do contrato, incluindo as opções já exercidas
+      - name: base_and_all_options_value
+        description: >
+          Valor do contrato considerando a base e todas as opções previstas nesta
+          transação
+      - name: potential_total_value_of_award
+        description: >
+          Valor total potencial do contrato caso todas as opções sejam exercidas
+      - name: disaster_emergency_fund_codes_for_overall_award
+        description: >
+          Códigos de fundos de emergência e desastre que financiam o auxílio ou
+          contrato, separados por ponto e vírgula
+      - name: outlayed_amount_from_covid19_supplementals_for_overall_award
+        description: >
+          Valor desembolsado no auxílio ou contrato com recursos suplementares de
+          resposta à COVID-19
+      - name: obligated_amount_from_covid19_supplementals_for_overall_award
+        description: >
+          Valor empenhado no auxílio ou contrato com recursos suplementares de
+          resposta à COVID-19
+      - name: outlayed_amount_from_iija_supplemental_for_overall_award
+        description: >
+          Valor desembolsado no auxílio ou contrato com recursos suplementares da
+          lei
+          de infraestrutura (IIJA)
+      - name: obligated_amount_from_iija_supplemental_for_overall_award
+        description: >
+          Valor empenhado no auxílio ou contrato com recursos suplementares da lei
+          de
+          infraestrutura (IIJA)
+      - name: action_date
+        description: >
+          Data em que a ação foi assinada ou passou a vigorar
+      - name: period_of_performance_start_date
+        description: >
+          Data de início do período de execução
+      - name: period_of_performance_current_end_date
+        description: >
+          Data de término corrente do período de execução
+      - name: period_of_performance_potential_end_date
+        description: >
+          Data de término do período de execução caso todas as opções sejam exercidas
+      - name: ordering_period_end_date
+        description: >
+          Data-limite para emissão de novos pedidos sob o contrato-mãe
+      - name: solicitation_date
+        description: >
+          Data de publicação do edital
+      - name: awarding_agency_code
+        description: >
+          Código CGAC da agência que concedeu o auxílio ou contrato
+      - name: awarding_agency_name
+        description: >
+          Nome da agência que concedeu o auxílio ou contrato
+      - name: awarding_sub_agency_code
+        description: >
+          Código da subagência que concedeu o auxílio ou contrato
+      - name: awarding_sub_agency_name
+        description: >
+          Nome da subagência que concedeu o auxílio ou contrato
+      - name: awarding_office_code
+        description: >
+          Código do escritório que concedeu o auxílio ou contrato
+      - name: awarding_office_name
+        description: >
+          Nome do escritório que concedeu o auxílio ou contrato
+      - name: funding_agency_code
+        description: >
+          Código CGAC da agência que forneceu os recursos
+      - name: funding_agency_name
+        description: >
+          Nome da agência que forneceu os recursos
+      - name: funding_sub_agency_code
+        description: >
+          Código da subagência que forneceu os recursos
+      - name: funding_sub_agency_name
+        description: >
+          Nome da subagência que forneceu os recursos
+      - name: funding_office_code
+        description: >
+          Código do escritório que forneceu os recursos
+      - name: funding_office_name
+        description: >
+          Nome do escritório que forneceu os recursos
+      - name: treasury_accounts_funding_this_award
+        description: >
+          Contas do Tesouro (TAS) que financiam o auxílio ou contrato, separadas por
+          ponto e vírgula
+      - name: federal_accounts_funding_this_award
+        description: >
+          Contas federais que financiam o auxílio ou contrato, separadas por ponto
+          e
+          vírgula
+      - name: object_classes_funding_this_award
+        description: >
+          Classes de objeto de despesa que financiam o auxílio ou contrato, separadas
+          por ponto e vírgula
+      - name: program_activities_funding_this_award
+        description: >
+          Atividades programáticas que financiam o auxílio ou contrato, separadas
+          por
+          ponto e vírgula
+      - name: foreign_funding
+        description: >
+          Código de uso de recursos de origem estrangeira no contrato
+      - name: foreign_funding_description
+        description: >
+          Descrição de uso de recursos de origem estrangeira no contrato
+      - name: sam_exception
+        description: >
+          Código de exceção que dispensa o fornecedor de registro no SAM
+      - name: sam_exception_description
+        description: >
+          Descrição de exceção que dispensa o fornecedor de registro no SAM
+      - name: recipient_uei
+        description: >
+          Identificador único de entidade (UEI) do beneficiário
+      - name: recipient_duns
+        description: >
+          Número DUNS do beneficiário, identificador usado antes da adoção do UEI
+      - name: recipient_name
+        description: >
+          Nome do beneficiário, padronizado a partir do registro no SAM
+      - name: recipient_name_raw
+        description: >
+          Nome do beneficiário exatamente como informado pela agência
+      - name: recipient_doing_business_as_name
+        description: >
+          Nome fantasia do beneficiário
+      - name: cage_code
+        description: >
+          Código CAGE do beneficiário, atribuído pelo Departamento de Defesa
+      - name: recipient_parent_uei
+        description: >
+          Identificador único de entidade (UEI) da controladora do beneficiário
+      - name: recipient_parent_duns
+        description: >
+          Número DUNS da controladora do beneficiário
+      - name: recipient_parent_name
+        description: >
+          Nome da controladora do beneficiário, padronizado a partir do registro no
+          SAM
+      - name: recipient_parent_name_raw
+        description: >
+          Nome da controladora do beneficiário exatamente como informado pela agência
+      - name: recipient_country_code
+        description: >
+          Código do país do endereço do beneficiário
+      - name: recipient_country_name
+        description: >
+          Nome do país do endereço do beneficiário
+      - name: recipient_address_line_1
+        description: >
+          Primeira linha do endereço do beneficiário
+      - name: recipient_address_line_2
+        description: >
+          Segunda linha do endereço do beneficiário
+      - name: recipient_city_name
+        description: >
+          Nome da cidade do beneficiário
+      - name: prime_award_transaction_recipient_county_id
+        description: >
+          Código FIPS de cinco dígitos do condado do beneficiário
+      - name: recipient_county_name
+        description: >
+          Nome do condado do beneficiário
+      - name: prime_award_transaction_recipient_state_id
+        description: >
+          Código FIPS de dois dígitos do estado do beneficiário
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_fiscal_year__
+      - name: recipient_state_code
+        description: >
+          Sigla de duas letras do estado do beneficiário
+      - name: recipient_state_name
+        description: >
+          Nome do estado do beneficiário
+      - name: recipient_zip_4_code
+        description: >
+          CEP do beneficiário no formato ZIP+4, de nove dígitos
+      - name: prime_award_transaction_recipient_cd_original
+        description: >
+          Distrito eleitoral do beneficiário na delimitação vigente na data da ação
+      - name: prime_award_transaction_recipient_cd_current
+        description: >
+          Distrito eleitoral do beneficiário na delimitação vigente atualmente
+      - name: recipient_phone_number
+        description: >
+          Telefone do beneficiário
+      - name: recipient_fax_number
+        description: >
+          Fax do beneficiário
+      - name: primary_place_of_performance_country_code
+        description: >
+          Código do país onde a execução ocorre
+      - name: primary_place_of_performance_country_name
+        description: >
+          Nome do país onde a execução ocorre
+      - name: primary_place_of_performance_city_name
+        description: >
+          Nome da cidade onde a execução ocorre
+      - name: prime_award_transaction_place_of_performance_county_id
+        description: >
+          Código FIPS de cinco dígitos do condado onde a execução ocorre
+      - name: primary_place_of_performance_county_name
+        description: >
+          Nome do condado onde a execução ocorre
+      - name: prime_award_transaction_place_of_performance_state_id
+        description: >
+          Código FIPS de dois dígitos do estado onde a execução ocorre
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_fiscal_year__
+      - name: primary_place_of_performance_state_code
+        description: >
+          Sigla de duas letras do estado onde a execução ocorre
+      - name: primary_place_of_performance_state_name
+        description: >
+          Nome do estado onde a execução ocorre
+      - name: primary_place_of_performance_zip_4
+        description: >
+          CEP do local de execução no formato ZIP+4
+      - name: prime_award_transaction_place_of_performance_cd_original
+        description: >
+          Distrito eleitoral do local de execução na delimitação vigente na data da
+          ação
+      - name: prime_award_transaction_place_of_performance_cd_current
+        description: >
+          Distrito eleitoral do local de execução na delimitação vigente atualmente
+      - name: award_or_idv_flag
+        description: >
+          Indica se o registro é um contrato ou um veículo de entrega indefinida (IDV)
+      - name: award_type_code
+        description: >
+          Código de tipo de contrato firmado
+      - name: award_type
+        description: >
+          Descrição de tipo de contrato firmado
+      - name: idv_type_code
+        description: >
+          Descrição de tipo de veículo de entrega indefinida (IDV)
+      - name: idv_type
+        description: >
+          Código de tipo de veículo de entrega indefinida (IDV)
+      - name: multiple_or_single_award_idv_code
+        description: >
+          Código de indicação de que o IDV admite um ou múltiplos contratados
+      - name: multiple_or_single_award_idv
+        description: >
+          Descrição de indicação de que o IDV admite um ou múltiplos contratados
+      - name: type_of_idc_code
+        description: >
+          Descrição de tipo de contrato de entrega indefinida (IDC)
+      - name: type_of_idc
+        description: >
+          Código de tipo de contrato de entrega indefinida (IDC)
+      - name: type_of_contract_pricing_code
+        description: >
+          Descrição de regime de preços do contrato
+      - name: type_of_contract_pricing
+        description: >
+          Código de regime de preços do contrato
+      - name: transaction_description
+        description: >
+          Descrição do objeto desta transação
+      - name: prime_award_base_transaction_description
+        description: >
+          Descrição do objeto da transação inicial do auxílio ou contrato
+      - name: action_type_code
+        description: >
+          Descrição de tipo de ação registrada na transação
+      - name: action_type
+        description: >
+          Código de tipo de ação registrada na transação
+      - name: solicitation_identifier
+        description: >
+          Identificador do edital que originou a contratação
+      - name: number_of_actions
+        description: >
+          Número de ações agrupadas neste registro
+      - name: inherently_governmental_functions
+        description: >
+          Código de classificação do serviço quanto a funções inerentemente
+          governamentais
+      - name: inherently_governmental_functions_description
+        description: >
+          Descrição de classificação do serviço quanto a funções inerentemente
+          governamentais
+      - name: product_or_service_code
+        description: >
+          Código de produto ou serviço adquirido, segundo o PSC Manual
+      - name: product_or_service_code_description
+        description: >
+          Descrição de produto ou serviço adquirido, segundo o PSC Manual
+      - name: contract_bundling_code
+        description: >
+          Descrição de agrupamento (bundling) de requisitos no contrato
+      - name: contract_bundling
+        description: >
+          Código de agrupamento (bundling) de requisitos no contrato
+      - name: dod_claimant_program_code
+        description: >
+          Código de programa reivindicante do Departamento de Defesa
+      - name: dod_claimant_program_description
+        description: >
+          Descrição de programa reivindicante do Departamento de Defesa
+      - name: naics_code
+        description: >
+          Código de atividade econômica do contratado na classificação NAICS
+      - name: naics_description
+        description: >
+          Descrição de atividade econômica do contratado na classificação NAICS
+      - name: recovered_materials_sustainability_code
+        description: >
+          Código de cláusulas de materiais recuperados e sustentabilidade aplicadas
+      - name: recovered_materials_sustainability
+        description: >
+          Descrição de cláusulas de materiais recuperados e sustentabilidade aplicadas
+      - name: domestic_or_foreign_entity_code
+        description: >
+          Descrição de natureza doméstica ou estrangeira do contratado
+      - name: domestic_or_foreign_entity
+        description: >
+          Código de natureza doméstica ou estrangeira do contratado
+      - name: dod_acquisition_program_code
+        description: >
+          Código de programa de aquisição do Departamento de Defesa
+      - name: dod_acquisition_program_description
+        description: >
+          Descrição de programa de aquisição do Departamento de Defesa
+      - name: information_technology_commercial_item_category_code
+        description: >
+          Código de categoria comercial do item de tecnologia da informação adquirido
+      - name: information_technology_commercial_item_category
+        description: >
+          Descrição de categoria comercial do item de tecnologia da informação
+          adquirido
+      - name: epa_designated_product_code
+        description: >
+          Descrição de atendimento aos requisitos de produtos designados pela EPA
+      - name: epa_designated_product
+        description: >
+          Código de atendimento aos requisitos de produtos designados pela EPA
+      - name: country_of_product_or_service_origin_code
+        description: >
+          Código de país de origem do produto ou serviço adquirido
+      - name: country_of_product_or_service_origin
+        description: >
+          Descrição de país de origem do produto ou serviço adquirido
+      - name: place_of_manufacture_code
+        description: >
+          Descrição de local de fabricação do produto ou de prestação do serviço
+      - name: place_of_manufacture
+        description: >
+          Código de local de fabricação do produto ou de prestação do serviço
+      - name: subcontracting_plan_code
+        description: >
+          Descrição de exigência de plano de subcontratação
+      - name: subcontracting_plan
+        description: >
+          Código de exigência de plano de subcontratação
+      - name: extent_competed_code
+        description: >
+          Descrição de grau de competição na contratação
+      - name: extent_competed
+        description: >
+          Código de grau de competição na contratação
+      - name: solicitation_procedures_code
+        description: >
+          Descrição de procedimento de solicitação de propostas utilizado
+      - name: solicitation_procedures
+        description: >
+          Código de procedimento de solicitação de propostas utilizado
+      - name: type_of_set_aside_code
+        description: >
+          Código de tipo de reserva de mercado (set-aside) aplicada
+      - name: type_of_set_aside
+        description: >
+          Descrição de tipo de reserva de mercado (set-aside) aplicada
+      - name: evaluated_preference_code
+        description: >
+          Descrição de preferência avaliada na comparação de propostas
+      - name: evaluated_preference
+        description: >
+          Código de preferência avaliada na comparação de propostas
+      - name: research_code
+        description: >
+          Descrição de enquadramento da ação em programa de pesquisa para pequenas
+          empresas
+      - name: research
+        description: >
+          Código de enquadramento da ação em programa de pesquisa para pequenas
+          empresas
+      - name: fair_opportunity_limited_sources_code
+        description: >
+          Código de justificativa para limitar fontes sob a regra de oportunidade
+          justa
+      - name: fair_opportunity_limited_sources
+        description: >
+          Descrição de justificativa para limitar fontes sob a regra de oportunidade
+          justa
+      - name: other_than_full_and_open_competition_code
+        description: >
+          Código de fundamento legal para dispensa de competição ampla e aberta
+      - name: other_than_full_and_open_competition
+        description: >
+          Descrição de fundamento legal para dispensa de competição ampla e aberta
+      - name: number_of_offers_received
+        description: >
+          Número de propostas recebidas na licitação
+      - name: commercial_item_acquisition_procedures_code
+        description: >
+          Código de procedimento de aquisição de item comercial aplicado
+      - name: commercial_item_acquisition_procedures
+        description: >
+          Descrição de procedimento de aquisição de item comercial aplicado
+      - name: small_business_competitiveness_demonstration_program
+        description: >
+          Indica se a contratação integra o programa de demonstração de
+          competitividade de pequenas empresas
+      - name: simplified_procedures_for_certain_commercial_items_code
+        description: >
+          Código de uso de procedimentos simplificados para certos itens comerciais
+      - name: simplified_procedures_for_certain_commercial_items
+        description: >
+          Descrição de uso de procedimentos simplificados para certos itens comerciais
+      - name: a76_fair_act_action_code
+        description: >
+          Código de vínculo da ação a estudo de terceirização A-76 (FAIR Act)
+      - name: a76_fair_act_action
+        description: >
+          Descrição de vínculo da ação a estudo de terceirização A-76 (FAIR Act)
+      - name: fed_biz_opps_code
+        description: >
+          Descrição de publicação da oportunidade no FedBizOpps
+      - name: fed_biz_opps
+        description: >
+          Código de publicação da oportunidade no FedBizOpps
+      - name: local_area_set_aside_code
+        description: >
+          Descrição de reserva de mercado para empresas da área atingida por desastre
+      - name: local_area_set_aside
+        description: >
+          Código de reserva de mercado para empresas da área atingida por desastre
+      - name: price_evaluation_adjustment_preference_percent_difference
+        description: >
+          Percentual de ajuste de preço aplicado em favor de pequenas empresas
+          desfavorecidas
+      - name: clinger_cohen_act_planning_code
+        description: >
+          Descrição de conformidade da aquisição de TI com o Clinger-Cohen Act
+      - name: clinger_cohen_act_planning
+        description: >
+          Código de conformidade da aquisição de TI com o Clinger-Cohen Act
+      - name: materials_supplies_articles_equipment_code
+        description: >
+          Código de aplicação da cláusula Walsh-Healey de materiais e equipamentos
+      - name: materials_supplies_articles_equipment
+        description: >
+          Descrição de aplicação da cláusula Walsh-Healey de materiais e equipamentos
+      - name: labor_standards_code
+        description: >
+          Descrição de aplicação das normas trabalhistas do Service Contract Act
+      - name: labor_standards
+        description: >
+          Código de aplicação das normas trabalhistas do Service Contract Act
+      - name: construction_wage_rate_requirements_code
+        description: >
+          Código de aplicação dos pisos salariais de construção do Davis-Bacon Act
+      - name: construction_wage_rate_requirements
+        description: >
+          Descrição de aplicação dos pisos salariais de construção do Davis-Bacon
+          Act
+      - name: interagency_contracting_authority_code
+        description: >
+          Código de fundamento legal da contratação interagências
+      - name: interagency_contracting_authority
+        description: >
+          Descrição de fundamento legal da contratação interagências
+      - name: other_statutory_authority
+        description: >
+          Descrição de outra autoridade estatutária que fundamenta a contratação
+      - name: program_acronym
+        description: >
+          Sigla do programa ao qual a contratação se vincula
+      - name: parent_award_type_code
+        description: >
+          Código de tipo do contrato-mãe (IDV) ao qual a ação se vincula
+      - name: parent_award_type
+        description: >
+          Descrição de tipo do contrato-mãe (IDV) ao qual a ação se vincula
+      - name: parent_award_single_or_multiple_code
+        description: >
+          Código de indicação de contratado único ou múltiplo no contrato-mãe
+      - name: parent_award_single_or_multiple
+        description: >
+          Descrição de indicação de contratado único ou múltiplo no contrato-mãe
+      - name: major_program
+        description: >
+          Nome do programa principal ao qual a contratação se vincula
+      - name: national_interest_action_code
+        description: >
+          Descrição de evento de interesse nacional associado à ação
+      - name: national_interest_action
+        description: >
+          Código de evento de interesse nacional associado à ação
+      - name: cost_or_pricing_data_code
+        description: >
+          Descrição de obtenção de dados de custo ou preço do fornecedor
+      - name: cost_or_pricing_data
+        description: >
+          Código de obtenção de dados de custo ou preço do fornecedor
+      - name: cost_accounting_standards_clause_code
+        description: >
+          Código de inclusão da cláusula de normas de contabilidade de custos (CAS)
+      - name: cost_accounting_standards_clause
+        description: >
+          Descrição de inclusão da cláusula de normas de contabilidade de custos (CAS)
+      - name: government_furnished_property_code
+        description: >
+          Código de uso de bens ou equipamentos fornecidos pelo governo
+      - name: government_furnished_property
+        description: >
+          Descrição de uso de bens ou equipamentos fornecidos pelo governo
+      - name: sea_transportation_code
+        description: >
+          Descrição de previsão de transporte marítimo na execução do contrato
+      - name: sea_transportation
+        description: >
+          Código de previsão de transporte marítimo na execução do contrato
+      - name: undefinitized_action_code
+        description: >
+          Descrição de situação da ação quanto à definição de termos e preço
+      - name: undefinitized_action
+        description: >
+          Código de situação da ação quanto à definição de termos e preço
+      - name: consolidated_contract_code
+        description: >
+          Descrição de consolidação de requisitos anteriormente contratados em
+          separado
+      - name: consolidated_contract
+        description: >
+          Código de consolidação de requisitos anteriormente contratados em separado
+      - name: performance_based_service_acquisition_code
+        description: >
+          Código de uso de aquisição de serviços baseada em desempenho
+      - name: performance_based_service_acquisition
+        description: >
+          Descrição de uso de aquisição de serviços baseada em desempenho
+      - name: multi_year_contract_code
+        description: >
+          Descrição de enquadramento como contrato plurianual
+      - name: multi_year_contract
+        description: >
+          Código de enquadramento como contrato plurianual
+      - name: contract_financing_code
+        description: >
+          Descrição de modalidade de financiamento do contrato
+      - name: contract_financing
+        description: >
+          Código de modalidade de financiamento do contrato
+      - name: purchase_card_as_payment_method_code
+        description: >
+          Código de uso do cartão de compras governamental como meio de pagamento
+      - name: purchase_card_as_payment_method
+        description: >
+          Descrição de uso do cartão de compras governamental como meio de pagamento
+      - name: contingency_humanitarian_or_peacekeeping_operation_code
+        description: >
+          Código de vínculo da ação a operação de contingência, humanitária ou de
+          paz
+      - name: contingency_humanitarian_or_peacekeeping_operation
+        description: >
+          Descrição de vínculo da ação a operação de contingência, humanitária ou
+          de
+          paz
+      - name: alaskan_native_corporation_owned_firm
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de uma corporação
+          nativa do Alasca
+      - name: american_indian_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de indígenas
+          norte-americanos
+      - name: indian_tribe_federally_recognized
+        description: >
+          Indica se o beneficiário é uma tribo indígena reconhecida pelo governo
+          federal
+      - name: native_hawaiian_organization_owned_firm
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de organização nativa
+          havaiana
+      - name: tribally_owned_firm
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade tribal
+      - name: veteran_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de veterano de guerra
+      - name: service_disabled_veteran_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de veterano com
+          deficiência decorrente do serviço militar
+      - name: woman_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de mulher
+      - name: women_owned_small_business
+        description: >
+          Indica se o beneficiário é uma pequena empresa de propriedade de mulheres
+      - name: economically_disadvantaged_women_owned_small_business
+        description: >
+          Indica se o beneficiário é uma pequena empresa de propriedade de mulheres
+          economicamente desfavorecidas
+      - name: joint_venture_women_owned_small_business
+        description: >
+          Indica se o beneficiário é uma joint venture de pequenas empresas de
+          propriedade de mulheres
+      - name: joint_venture_economic_disadvantaged_women_owned_small_bus
+        description: >
+          Indica se o beneficiário é uma joint venture de pequenas empresas de
+          propriedade de mulheres economicamente desfavorecidas
+      - name: minority_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de minoria
+      - name: subcontinent_asian_asian_indian_american_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de norte-americanos
+          de
+          origem sul-asiática
+      - name: asian_pacific_american_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de norte-americanos
+          de
+          origem asiático-pacífica
+      - name: black_american_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de norte-americanos
+          negros
+      - name: hispanic_american_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de norte-americanos
+          hispânicos
+      - name: native_american_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de norte-americanos
+          nativos
+      - name: other_minority_owned_business
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de outra minoria
+      - name: contracting_officers_determination_of_business_size
+        description: >
+          Descrição de porte da empresa conforme determinação do agente de contratação
+      - name: contracting_officers_determination_of_business_size_code
+        description: >
+          Código de porte da empresa conforme determinação do agente de contratação
+      - name: emerging_small_business
+        description: >
+          Indica se o beneficiário é uma pequena empresa emergente
+      - name: community_developed_corporation_owned_firm
+        description: >
+          Indica se o beneficiário é uma empresa de propriedade de corporação de
+          desenvolvimento comunitário
+      - name: labor_surplus_area_firm
+        description: >
+          Indica se o beneficiário é uma empresa sediada em área de excedente de mão
+          de obra
+      - name: us_federal_government
+        description: >
+          Indica se o beneficiário é um órgão do governo federal dos Estados Unidos
+      - name: federally_funded_research_and_development_corp
+        description: >
+          Indica se o beneficiário é um centro de pesquisa e desenvolvimento
+          financiado pelo governo federal
+      - name: federal_agency
+        description: >
+          Indica se o beneficiário é uma agência federal
+      - name: us_state_government
+        description: >
+          Indica se o beneficiário é um governo estadual dos Estados Unidos
+      - name: us_local_government
+        description: >
+          Indica se o beneficiário é um governo local dos Estados Unidos
+      - name: city_local_government
+        description: >
+          Indica se o beneficiário é um governo municipal de cidade
+      - name: county_local_government
+        description: >
+          Indica se o beneficiário é um governo local de condado
+      - name: inter_municipal_local_government
+        description: >
+          Indica se o beneficiário é um governo local intermunicipal
+      - name: local_government_owned
+        description: >
+          Indica se o beneficiário é uma entidade de propriedade de governo local
+      - name: municipality_local_government
+        description: >
+          Indica se o beneficiário é um governo local de município
+      - name: school_district_local_government
+        description: >
+          Indica se o beneficiário é um governo local de distrito escolar
+      - name: township_local_government
+        description: >
+          Indica se o beneficiário é um governo local de township
+      - name: us_tribal_government
+        description: >
+          Indica se o beneficiário é um governo tribal dos Estados Unidos
+      - name: foreign_government
+        description: >
+          Indica se o beneficiário é um governo estrangeiro
+      - name: organizational_type
+        description: >
+          Tipo de organização do beneficiário conforme registro no SAM
+      - name: corporate_entity_not_tax_exempt
+        description: >
+          Indica se o beneficiário é uma pessoa jurídica não isenta de impostos
+      - name: corporate_entity_tax_exempt
+        description: >
+          Indica se o beneficiário é uma pessoa jurídica isenta de impostos
+      - name: partnership_or_limited_liability_partnership
+        description: >
+          Indica se o beneficiário é uma sociedade ou sociedade de responsabilidade
+          limitada
+      - name: sole_proprietorship
+        description: >
+          Indica se o beneficiário é uma empresa individual
+      - name: small_agricultural_cooperative
+        description: >
+          Indica se o beneficiário é uma pequena cooperativa agrícola
+      - name: international_organization
+        description: >
+          Indica se o beneficiário é uma organização internacional
+      - name: us_government_entity
+        description: >
+          Indica se o beneficiário é uma entidade do governo dos Estados Unidos
+      - name: community_development_corporation
+        description: >
+          Indica se o beneficiário é uma corporação de desenvolvimento comunitário
+      - name: domestic_shelter
+        description: >
+          Indica se o beneficiário é um abrigo para vítimas de violência doméstica
+      - name: educational_institution
+        description: >
+          Indica se o beneficiário é uma instituição de ensino
+      - name: foundation
+        description: >
+          Indica se o beneficiário é uma fundação
+      - name: hospital_flag
+        description: >
+          Indica se o beneficiário é um hospital
+      - name: manufacturer_of_goods
+        description: >
+          Indica se o beneficiário é um fabricante de bens
+      - name: veterinary_hospital
+        description: >
+          Indica se o beneficiário é um hospital veterinário
+      - name: hispanic_servicing_institution
+        description: >
+          Indica se o beneficiário é uma instituição de ensino voltada à população
+          hispânica
+      - name: receives_contracts
+        description: >
+          Indica se o beneficiário é uma entidade que recebe contratos
+      - name: receives_financial_assistance
+        description: >
+          Indica se o beneficiário é uma entidade que recebe assistência financeira
+      - name: receives_contracts_and_financial_assistance
+        description: >
+          Indica se o beneficiário é uma entidade que recebe contratos e assistência
+          financeira
+      - name: airport_authority
+        description: >
+          Indica se o beneficiário é uma autoridade aeroportuária
+      - name: council_of_governments
+        description: >
+          Indica se o beneficiário é um conselho de governos
+      - name: housing_authorities_public_tribal
+        description: >
+          Indica se o beneficiário é uma autoridade habitacional pública ou tribal
+      - name: interstate_entity
+        description: >
+          Indica se o beneficiário é uma entidade interestadual
+      - name: planning_commission
+        description: >
+          Indica se o beneficiário é uma comissão de planejamento
+      - name: port_authority
+        description: >
+          Indica se o beneficiário é uma autoridade portuária
+      - name: transit_authority
+        description: >
+          Indica se o beneficiário é uma autoridade de transporte público
+      - name: subchapter_scorporation
+        description: >
+          Indica se o beneficiário é uma sociedade do tipo S corporation
+      - name: limited_liability_corporation
+        description: >
+          Indica se o beneficiário é uma sociedade de responsabilidade limitada
+      - name: foreign_owned
+        description: >
+          Indica se o beneficiário é uma entidade de propriedade estrangeira
+      - name: for_profit_organization
+        description: >
+          Indica se o beneficiário é uma organização com fins lucrativos
+      - name: nonprofit_organization
+        description: >
+          Indica se o beneficiário é uma organização sem fins lucrativos
+      - name: other_not_for_profit_organization
+        description: >
+          Indica se o beneficiário é outra organização sem fins lucrativos
+      - name: the_ability_one_program
+        description: >
+          Indica se o beneficiário é uma entidade participante do programa AbilityOne
+      - name: private_university_or_college
+        description: >
+          Indica se o beneficiário é uma universidade ou faculdade privada
+      - name: state_controlled_institution_of_higher_learning
+        description: >
+          Indica se o beneficiário é uma instituição de ensino superior controlada
+          por
+          governo estadual
+      - name: land_grant_college_1862
+        description: >
+          Indica se o beneficiário é uma land-grant college criada pelo Morrill Act
+          de
+          1862
+      - name: land_grant_college_1890
+        description: >
+          Indica se o beneficiário é uma land-grant college criada pelo Morrill Act
+          de
+          1890
+      - name: land_grant_college_1994
+        description: >
+          Indica se o beneficiário é uma land-grant college tribal reconhecida em
+          1994
+      - name: minority_institution
+        description: >
+          Indica se o beneficiário é uma instituição de ensino voltada a minorias
+      - name: historically_black_college
+        description: >
+          Indica se o beneficiário é uma universidade historicamente negra
+      - name: tribal_college
+        description: >
+          Indica se o beneficiário é uma faculdade tribal
+      - name: alaskan_native_servicing_institution
+        description: >
+          Indica se o beneficiário é uma instituição de ensino voltada a nativos do
+          Alasca
+      - name: native_hawaiian_servicing_institution
+        description: >
+          Indica se o beneficiário é uma instituição de ensino voltada a nativos
+          havaianos
+      - name: school_of_forestry
+        description: >
+          Indica se o beneficiário é uma escola de engenharia florestal
+      - name: veterinary_college
+        description: >
+          Indica se o beneficiário é uma faculdade de medicina veterinária
+      - name: dot_certified_disadvantage
+        description: >
+          Indica se o beneficiário é uma empresa desfavorecida certificada pelo
+          Departamento de Transportes
+      - name: self_certified_small_disadvantaged_business
+        description: >
+          Indica se o beneficiário é uma pequena empresa desfavorecida autodeclarada
+      - name: small_disadvantaged_business
+        description: >
+          Indica se o beneficiário é uma pequena empresa desfavorecida certificada
+      - name: c8a_program_participant
+        description: >
+          Indica se o beneficiário é uma entidade participante do programa 8(a) da
+          SBA
+      - name: historically_underutilized_business_zone_hubzone_firm
+        description: >
+          Indica se o beneficiário é uma empresa sediada em zona historicamente
+          subutilizada (HUBZone)
+      - name: sba_certified_8a_joint_venture
+        description: >
+          Indica se o beneficiário é uma joint venture 8(a) certificada pela SBA
+      - name: highly_compensated_officer_1_name
+        description: >
+          Nome do 1º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_1_amount
+        description: >
+          Remuneração anual do 1º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_2_name
+        description: >
+          Nome do 2º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_2_amount
+        description: >
+          Remuneração anual do 2º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_3_name
+        description: >
+          Nome do 3º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_3_amount
+        description: >
+          Remuneração anual do 3º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_4_name
+        description: >
+          Nome do 4º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_4_amount
+        description: >
+          Remuneração anual do 4º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_5_name
+        description: >
+          Nome do 5º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_5_amount
+        description: >
+          Remuneração anual do 5º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: usaspending_permalink
+        description: >
+          Endereço permanente da página do auxílio ou contrato no USAspending.gov
+      - name: initial_report_date
+        description: >
+          Data e hora do primeiro envio do registro ao sistema de origem
+      - name: last_modified_date
+        description: >
+          Data e hora da última modificação do registro no sistema de origem
+  - name: us_treasury_usaspending__assistance_transaction
+    description: >
+      Transações de assistência financeira federal norte-americana — subvenções,
+      empréstimos, pagamentos diretos e seguros — publicadas pelo USAspending.gov,
+      uma linha por ação, com agência concedente e financiadora, beneficiário,
+      programa CFDA, valores empenhados e local de execução
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [fiscal_year, assistance_transaction_id]
+          config:
+            where: __most_recent_fiscal_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_fiscal_year__
+          ignore_values:
+            - correction_delete_indicator_code
+            - correction_delete_indicator_description
+            - highly_compensated_officer_1_amount
+            - highly_compensated_officer_1_name
+            - highly_compensated_officer_2_amount
+            - highly_compensated_officer_2_name
+            - highly_compensated_officer_3_amount
+            - highly_compensated_officer_3_name
+            - highly_compensated_officer_4_amount
+            - highly_compensated_officer_4_name
+            - highly_compensated_officer_5_amount
+            - highly_compensated_officer_5_name
+            - obligated_amount_from_covid19_supplementals_for_overall_award
+            - obligated_amount_from_iija_supplemental_for_overall_award
+            - outlayed_amount_from_covid19_supplementals_for_overall_award
+            - outlayed_amount_from_iija_supplemental_for_overall_award
+            - primary_place_of_performance_foreign_location
+            - recipient_address_line_2
+            - recipient_duns
+            - recipient_foreign_city_name
+            - recipient_foreign_postal_code
+            - recipient_foreign_province_name
+            - recipient_parent_duns
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - action_type_code
+            - business_funds_indicator_code
+            - record_type_code
+          dictionary_model: ref('us_treasury_usaspending__dicionario')
+    columns:
+      - name: fiscal_year
+        description: >
+          Ano fiscal federal norte-americano da data da ação, iniciado em 1º de
+          outubro do ano civil anterior
+        tests: [not_null]
+      - name: assistance_transaction_id
+        description: >
+          Chave única da transação de assistência financeira, gerada pelo USAspending
+        tests: [not_null]
+      - name: assistance_award_id
+        description: >
+          Chave única do auxílio ao qual a transação pertence
+      - name: award_id_fain
+        description: >
+          Número de identificação federal do auxílio (FAIN)
+      - name: modification_number
+        description: >
+          Número do aditivo que identifica esta modificação do contrato
+      - name: award_id_uri
+        description: >
+          Identificador único do registro (URI) para auxílios sem FAIN
+      - name: sai_number
+        description: >
+          Número atribuído pelo processo estadual de revisão prévia (SAI)
+      - name: federal_action_obligation
+        description: >
+          Valor empenhado ou desempenhado pelo governo federal nesta transação
+      - name: total_obligated_amount
+        description: >
+          Valor total empenhado no auxílio, somadas todas as transações
+      - name: total_outlayed_amount_for_overall_award
+        description: >
+          Valor total desembolsado no auxílio ou contrato até a data
+      - name: indirect_cost_federal_share_amount
+        description: >
+          Parcela federal dos custos indiretos do auxílio
+      - name: non_federal_funding_amount
+        description: >
+          Valor de contrapartida não federal aportado nesta transação
+      - name: total_non_federal_funding_amount
+        description: >
+          Valor total de contrapartida não federal do auxílio
+      - name: face_value_of_loan
+        description: >
+          Valor de face do empréstimo concedido nesta transação
+      - name: original_loan_subsidy_cost
+        description: >
+          Custo de subsídio do empréstimo estimado nesta transação
+      - name: total_face_value_of_loan
+        description: >
+          Valor de face total do empréstimo, somadas todas as transações
+      - name: total_loan_subsidy_cost
+        description: >
+          Custo de subsídio total do empréstimo, somadas todas as transações
+      - name: generated_pragmatic_obligations
+        description: >
+          Valor comparável entre modalidades, igual ao subsídio nos empréstimos e
+          ao
+          empenho nos demais auxílios
+      - name: disaster_emergency_fund_codes_for_overall_award
+        description: >
+          Códigos de fundos de emergência e desastre que financiam o auxílio ou
+          contrato, separados por ponto e vírgula
+      - name: outlayed_amount_from_covid19_supplementals_for_overall_award
+        description: >
+          Valor desembolsado no auxílio ou contrato com recursos suplementares de
+          resposta à COVID-19
+      - name: obligated_amount_from_covid19_supplementals_for_overall_award
+        description: >
+          Valor empenhado no auxílio ou contrato com recursos suplementares de
+          resposta à COVID-19
+      - name: outlayed_amount_from_iija_supplemental_for_overall_award
+        description: >
+          Valor desembolsado no auxílio ou contrato com recursos suplementares da
+          lei
+          de infraestrutura (IIJA)
+      - name: obligated_amount_from_iija_supplemental_for_overall_award
+        description: >
+          Valor empenhado no auxílio ou contrato com recursos suplementares da lei
+          de
+          infraestrutura (IIJA)
+      - name: action_date
+        description: >
+          Data em que a ação foi assinada ou passou a vigorar
+      - name: period_of_performance_start_date
+        description: >
+          Data de início do período de execução
+      - name: period_of_performance_current_end_date
+        description: >
+          Data de término corrente do período de execução
+      - name: awarding_agency_code
+        description: >
+          Código CGAC da agência que concedeu o auxílio ou contrato
+      - name: awarding_agency_name
+        description: >
+          Nome da agência que concedeu o auxílio ou contrato
+      - name: awarding_sub_agency_code
+        description: >
+          Código da subagência que concedeu o auxílio ou contrato
+      - name: awarding_sub_agency_name
+        description: >
+          Nome da subagência que concedeu o auxílio ou contrato
+      - name: awarding_office_code
+        description: >
+          Código do escritório que concedeu o auxílio ou contrato
+      - name: awarding_office_name
+        description: >
+          Nome do escritório que concedeu o auxílio ou contrato
+      - name: funding_agency_code
+        description: >
+          Código CGAC da agência que forneceu os recursos
+      - name: funding_agency_name
+        description: >
+          Nome da agência que forneceu os recursos
+      - name: funding_sub_agency_code
+        description: >
+          Código da subagência que forneceu os recursos
+      - name: funding_sub_agency_name
+        description: >
+          Nome da subagência que forneceu os recursos
+      - name: funding_office_code
+        description: >
+          Código do escritório que forneceu os recursos
+      - name: funding_office_name
+        description: >
+          Nome do escritório que forneceu os recursos
+      - name: treasury_accounts_funding_this_award
+        description: >
+          Contas do Tesouro (TAS) que financiam o auxílio ou contrato, separadas por
+          ponto e vírgula
+      - name: federal_accounts_funding_this_award
+        description: >
+          Contas federais que financiam o auxílio ou contrato, separadas por ponto
+          e
+          vírgula
+      - name: object_classes_funding_this_award
+        description: >
+          Classes de objeto de despesa que financiam o auxílio ou contrato, separadas
+          por ponto e vírgula
+      - name: program_activities_funding_this_award
+        description: >
+          Atividades programáticas que financiam o auxílio ou contrato, separadas
+          por
+          ponto e vírgula
+      - name: recipient_uei
+        description: >
+          Identificador único de entidade (UEI) do beneficiário
+      - name: recipient_duns
+        description: >
+          Número DUNS do beneficiário, identificador usado antes da adoção do UEI
+      - name: recipient_name
+        description: >
+          Nome do beneficiário, padronizado a partir do registro no SAM
+      - name: recipient_name_raw
+        description: >
+          Nome do beneficiário exatamente como informado pela agência
+      - name: recipient_parent_uei
+        description: >
+          Identificador único de entidade (UEI) da controladora do beneficiário
+      - name: recipient_parent_duns
+        description: >
+          Número DUNS da controladora do beneficiário
+      - name: recipient_parent_name
+        description: >
+          Nome da controladora do beneficiário, padronizado a partir do registro no
+          SAM
+      - name: recipient_parent_name_raw
+        description: >
+          Nome da controladora do beneficiário exatamente como informado pela agência
+      - name: recipient_country_code
+        description: >
+          Código do país do endereço do beneficiário
+      - name: recipient_country_name
+        description: >
+          Nome do país do endereço do beneficiário
+      - name: recipient_address_line_1
+        description: >
+          Primeira linha do endereço do beneficiário
+      - name: recipient_address_line_2
+        description: >
+          Segunda linha do endereço do beneficiário
+      - name: recipient_city_code
+        description: >
+          Código GNIS da cidade do beneficiário
+      - name: recipient_city_name
+        description: >
+          Nome da cidade do beneficiário
+      - name: prime_award_transaction_recipient_county_id
+        description: >
+          Código FIPS de cinco dígitos do condado do beneficiário
+      - name: recipient_county_name
+        description: >
+          Nome do condado do beneficiário
+      - name: prime_award_transaction_recipient_state_id
+        description: >
+          Código FIPS de dois dígitos do estado do beneficiário
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_fiscal_year__
+      - name: recipient_state_code
+        description: >
+          Sigla de duas letras do estado do beneficiário
+      - name: recipient_state_name
+        description: >
+          Nome do estado do beneficiário
+      - name: recipient_zip_code
+        description: >
+          CEP de cinco dígitos do beneficiário
+      - name: recipient_zip_last_4_code
+        description: >
+          Quatro dígitos finais do CEP do beneficiário
+      - name: prime_award_transaction_recipient_cd_original
+        description: >
+          Distrito eleitoral do beneficiário na delimitação vigente na data da ação
+      - name: prime_award_transaction_recipient_cd_current
+        description: >
+          Distrito eleitoral do beneficiário na delimitação vigente atualmente
+      - name: recipient_foreign_city_name
+        description: >
+          Nome da cidade estrangeira do beneficiário
+      - name: recipient_foreign_province_name
+        description: >
+          Nome da província estrangeira do beneficiário
+      - name: recipient_foreign_postal_code
+        description: >
+          Código postal estrangeiro do beneficiário
+      - name: primary_place_of_performance_scope
+        description: >
+          Abrangência geográfica do local de execução
+      - name: primary_place_of_performance_country_code
+        description: >
+          Código do país onde a execução ocorre
+      - name: primary_place_of_performance_country_name
+        description: >
+          Nome do país onde a execução ocorre
+      - name: primary_place_of_performance_code
+        description: >
+          Código composto que identifica o local de execução e sua abrangência
+      - name: primary_place_of_performance_city_name
+        description: >
+          Nome da cidade onde a execução ocorre
+      - name: prime_award_transaction_place_of_performance_county_id
+        description: >
+          Código FIPS de cinco dígitos do condado onde a execução ocorre
+      - name: primary_place_of_performance_county_name
+        description: >
+          Nome do condado onde a execução ocorre
+      - name: prime_award_transaction_place_of_performance_state_id
+        description: >
+          Código FIPS de dois dígitos do estado onde a execução ocorre
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_fiscal_year__
+      - name: primary_place_of_performance_state_name
+        description: >
+          Nome do estado onde a execução ocorre
+      - name: primary_place_of_performance_zip_4
+        description: >
+          CEP do local de execução no formato ZIP+4
+      - name: prime_award_transaction_place_of_performance_cd_original
+        description: >
+          Distrito eleitoral do local de execução na delimitação vigente na data da
+          ação
+      - name: prime_award_transaction_place_of_performance_cd_current
+        description: >
+          Distrito eleitoral do local de execução na delimitação vigente atualmente
+      - name: primary_place_of_performance_foreign_location
+        description: >
+          Descrição do local estrangeiro de execução
+      - name: cfda_number
+        description: >
+          Número do programa federal de assistência no catálogo CFDA (Assistance
+          Listings)
+      - name: cfda_title
+        description: >
+          Título do programa federal de assistência no catálogo CFDA (Assistance
+          Listings)
+      - name: funding_opportunity_number
+        description: >
+          Número do edital de chamamento que originou o auxílio
+      - name: funding_opportunity_goals_text
+        description: >
+          Texto descritivo dos objetivos do edital de chamamento
+      - name: assistance_type_code
+        description: >
+          Código de tipo de assistência financeira concedida
+      - name: assistance_type_description
+        description: >
+          Descrição de tipo de assistência financeira concedida
+      - name: transaction_description
+        description: >
+          Descrição do objeto desta transação
+      - name: prime_award_base_transaction_description
+        description: >
+          Descrição do objeto da transação inicial do auxílio ou contrato
+      - name: business_funds_indicator_code
+        description: >
+          Código de origem dos recursos quanto ao Recovery Act
+      - name: business_funds_indicator_description
+        description: >
+          Descrição de origem dos recursos quanto ao Recovery Act
+      - name: business_types_code
+        description: >
+          Código de tipo de organização do beneficiário da assistência
+      - name: business_types_description
+        description: >
+          Descrição de tipo de organização do beneficiário da assistência
+      - name: correction_delete_indicator_code
+        description: >
+          Código de situação do registro quanto a correção ou exclusão
+      - name: correction_delete_indicator_description
+        description: >
+          Descrição de situação do registro quanto a correção ou exclusão
+      - name: action_type_code
+        description: >
+          Código de tipo de ação registrada na transação
+      - name: action_type_description
+        description: >
+          Descrição de tipo de ação registrada na transação
+      - name: record_type_code
+        description: >
+          Código de natureza agregada ou individual do registro
+      - name: record_type_description
+        description: >
+          Descrição de natureza agregada ou individual do registro
+      - name: highly_compensated_officer_1_name
+        description: >
+          Nome do 1º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_1_amount
+        description: >
+          Remuneração anual do 1º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_2_name
+        description: >
+          Nome do 2º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_2_amount
+        description: >
+          Remuneração anual do 2º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_3_name
+        description: >
+          Nome do 3º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_3_amount
+        description: >
+          Remuneração anual do 3º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_4_name
+        description: >
+          Nome do 4º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_4_amount
+        description: >
+          Remuneração anual do 4º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: highly_compensated_officer_5_name
+        description: >
+          Nome do 5º dirigente mais bem remunerado do beneficiário, divulgado nos
+          termos da FFATA
+      - name: highly_compensated_officer_5_amount
+        description: >
+          Remuneração anual do 5º dirigente mais bem remunerado do beneficiário,
+          divulgada nos termos da FFATA
+      - name: usaspending_permalink
+        description: >
+          Endereço permanente da página do auxílio ou contrato no USAspending.gov
+      - name: initial_report_date
+        description: >
+          Data e hora do primeiro envio do registro ao sistema de origem
+      - name: last_modified_date
+        description: >
+          Data e hora da última modificação do registro no sistema de origem
+  - name: us_treasury_usaspending__dicionario
+    description: >
+      Dicionário dos valores codificados das tabelas do conjunto, com uma linha
+      por par de chave e valor, construído a partir dos domínios do dicionário de
+      elementos do DATA Act
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a chave se aplica
+      - name: nome_coluna
+        description: >
+          Nome da coluna à qual a chave se aplica
+      - name: chave
+        description: >
+          Valor codificado armazenado na coluna
+      - name: cobertura_temporal
+        description: >
+          Período em que a chave é válida
+      - name: valor
+        description: >-
+          Significado da chave
