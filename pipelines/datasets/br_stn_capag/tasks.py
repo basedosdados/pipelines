@@ -52,8 +52,6 @@ def make_extract_load_data(
 
         output_dir = Path("tmp") / "br_stn_capag" / table_id / "output"
         shutil.rmtree(output_dir, ignore_errors=True)
-        # TEMP-SCHEMA-TEST (reverter antes do PR)
-        schema_test_mode = download_params.get("schema_test_mode")
         for resource, path in download_table(
             table_id,
             None if historico else reference_date,
@@ -62,10 +60,8 @@ def make_extract_load_data(
             if table_id == BASE_CALCULO_TABLE_ID:
                 df = process_base_calculo(path, resource)
             else:
-                df = process_records(
-                    path, resource, table_id, schema_test_mode
-                )
-            write_partitioned(df, output_dir, resource, schema_test_mode)
+                df = process_records(path, resource, table_id)
+            write_partitioned(df, output_dir, resource)
 
         return ExtractAndLoad(
             data_path=str(output_dir),
