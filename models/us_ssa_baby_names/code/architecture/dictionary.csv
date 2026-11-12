@@ -1,0 +1,6 @@
+name,bigquery_type,description,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,observations_en,observations_es,original_name
+table_id,STRING,Identificador da tabela,Table identifier,Identificador de la tabla,,no,,,no,,,,
+column_name,STRING,Nome da coluna,Column name,Nombre de la columna,,no,,,no,,,,
+key,STRING,Código,Code,Código,,no,,,no,,,,
+temporal_coverage,STRING,Cobertura temporal do código,Temporal coverage of the code,Cobertura temporal del código,,no,,,no,,,,
+value,STRING,Significado do código,Meaning of the code,Significado del código,,no,,,no,,,,
