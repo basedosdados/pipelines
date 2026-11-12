@@ -4,6 +4,7 @@ Tasks for br_camara_dados_abertos — Prefect 3.
 
 import os
 
+import basedosdados as bd
 import requests
 from prefect import task
 
@@ -26,11 +27,14 @@ def save_data(table_id: str) -> str:
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
     df = download_and_read_data(table_id)
-    df = [df[0], df[1]]
-    output_path = [
-        constants_camara.TABLES_OUTPUT_PATH.value[table_id],
-        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
-    ]
+    if table_id == "licitacao_contrato":
+        output_path = [constants_camara.LICITACAO_CONTRATO_OUTPUT_PATH.value]
+    else:
+        df = [df[0], df[1]]
+        output_path = [
+            constants_camara.TABLES_OUTPUT_PATH.value[table_id],
+            constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
+        ]
     rows_read_by_file = {}
     for output_path_year, df_year in zip(output_path, df, strict=False):
         if table_id == "proposicao_microdados":
@@ -157,6 +161,13 @@ def save_data(table_id: str) -> str:
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def check_if_url_is_valid(table_id: str) -> bool:
+    if table_id == "licitacao_contrato":
+        requests.get(
+            constants_camara.LICITACAO_CONTRATO_URL.value,
+            headers=constants_camara.HEADERS.value,
+            timeout=60,
+        ).raise_for_status()
+        return True
     if (
         requests.get(
             constants_camara.TABLES_URL.value[table_id],
@@ -181,3 +192,27 @@ def check_if_url_is_valid(table_id: str) -> bool:
         return False
     else:
         raise ValueError("URL is not valid")
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def remove_stale_staging_files(
+    dataset_id: str, table_id: str, bucket_name: str
+) -> None:
+    """apaga da staging tudo que não é o arquivo de 1999, depois do upload."""
+    prefix = f"staging/{dataset_id}/{table_id}/"
+    keep = prefix + os.path.basename(
+        constants_camara.LICITACAO_CONTRATO_OUTPUT_PATH.value
+    )
+    storage = bd.Storage(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    )
+    blobs = list(storage.bucket.list_blobs(prefix=prefix))
+    if keep not in [blob.name for blob in blobs]:
+        raise FileNotFoundError(f"gs://{bucket_name}/{keep} não foi enviado")
+    for blob in blobs:
+        if blob.name != keep:
+            blob.delete()
+            log(f"Removido gs://{bucket_name}/{blob.name}")

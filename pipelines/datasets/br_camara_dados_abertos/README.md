@@ -26,7 +26,25 @@ O flow usa os arquivos em bloco do portal, e não a API. São arquivos CSV separ
 
 A Câmara continua alterando os arquivos de anos já encerrados. Por isso o flow baixa,
 a cada execução, o arquivo do ano atual **e** o do ano anterior (decisão registrada no
-PR #970).
+PR #970). A exceção é `licitacao_contrato` (ver abaixo).
+
+### `licitacao_contrato`: um arquivo com o histórico completo
+
+Os arquivos de contratos são cumulativos: `licitacoesContratos-<ano>.csv` traz os
+contratos daquele ano **em diante**, e `licitacoesContratos-1999.csv`, todos. Com
+vários desses arquivos na staging, o mesmo contrato aparecia em mais de um, e um
+contrato alterado pela Câmara ficava com a versão nova e a antiga (#2280).
+
+Por isso essa tabela baixa só o arquivo de 1999, sempre gravado como
+`licitacoesContratos_1999.csv`, e o envia com `dump_mode="append"`, que substitui o
+arquivo de mesmo nome. Só depois do upload, `remove_stale_staging_files` apaga os
+demais arquivos da pasta da staging; se o arquivo de 1999 não estiver lá, a execução
+para sem apagar nada. A tabela espelha a fonte: contratos alterados aparecem na versão
+atual, e contratos removidos pela Câmara saem da tabela.
+
+Antes do upload, `check_historico_cobre_ano_atual` confere se todas as linhas do
+arquivo do ano atual estão no de 1999 e interrompe a execução se faltar alguma. Se o
+arquivo do ano atual ainda não existe (início de janeiro), a checagem é pulada.
 
 ## As tabelas por tema
 
@@ -68,14 +86,15 @@ Há um flow por tabela (`br_camara_dados_abertos__<tabela>`), todos criados pela
 função, `_camara_flow`, em `flows.py`. Cada execução:
 
 1. **Verifica o arquivo do ano**: `check_if_url_is_valid` consulta o endereço do
-   arquivo do ano atual.
+   arquivo do ano atual (em `licitacao_contrato`, o do arquivo de 1999).
    - Se ele existe, o flow segue.
    - Se só o do ano anterior existe, o flow termina sem baixar nada. É o que acontece
      no começo de janeiro, antes de a Câmara publicar o arquivo do ano novo.
    - Se nenhum dos dois existe, a execução para com erro.
 2. **Baixa o ano atual e o anterior**: `save_data` chama `download_and_read_data`,
    que baixa os dois arquivos. Nas tabelas de arquivo único, o mesmo arquivo é
-   baixado duas vezes, e o resultado é um só.
+   baixado duas vezes, e o resultado é um só. Em `licitacao_contrato`, baixa só o
+   arquivo de 1999.
 3. **Trata e grava um CSV por ano**: `save_data` aplica os tratamentos da tabela e
    grava cada ano em um arquivo com nome fixo (por exemplo,
    `votacoes_2026.csv`). Os tratamentos removem `;` e quebras de linha dos campos de
@@ -85,13 +104,15 @@ função, `_camara_flow`, em `flows.py`. Cada execução:
    `check_rows_written` (`pipelines/utils/data_tests/rows.py`) compara as linhas dos
    CSVs da pasta da tabela com as gravadas e para a execução, antes do upload, se
    faltar ou sobrar linha. Nas tabelas de arquivo único, os dois anos são gravados no
-   mesmo arquivo, e a conta usa só a última gravação.
+   mesmo arquivo, e a conta usa só a última gravação. Em `licitacao_contrato`, a conta
+   é feita sobre o único arquivo, o de 1999.
 4. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
    `basedosdados-dev` e o dbt roda e testa em dev; só então vão para o bucket
    `basedosdados` e o dbt roda e testa em produção. Uma falha em dev impede a ida para
    produção. Como o nome do arquivo de cada ano é fixo, reenviar um ano substitui o
    arquivo anterior; os anos mais antigos, enviados em execuções passadas, continuam na
-   staging.
+   staging. Em `licitacao_contrato`, depois de cada upload, a staging
+   fica só com o arquivo de 1999.
 5. **Atualiza a cobertura**: `register_table_materialization_task` registra a
    cobertura da tabela no site.
 
@@ -174,7 +195,7 @@ e os anos anteriores vêm dos arquivos que já estão na staging.
 
 O flow só baixa os dois anos mais recentes. Os anos anteriores que estão na staging
 vieram de execuções passadas e da carga histórica inicial; recarregar um deles fica
-fora do flow.
+fora do flow. Em `licitacao_contrato`, cada execução já recarrega o histórico inteiro.
 
 ## Tabelas sem flow e itens legados
 

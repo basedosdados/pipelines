@@ -6,6 +6,7 @@ from prefect.schedules import Cron
 
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     check_if_url_is_valid,
+    remove_stale_staging_files,
     save_data,
 )
 from pipelines.utils.flow import flow
@@ -51,6 +52,13 @@ def _camara_flow(table_id: str, cron: str):
             bucket_name="basedosdados-dev",
             dump_mode="append",
         )
+        # licitacao_contrato mantém na staging só o arquivo de 1999
+        if table_id == "licitacao_contrato":
+            remove_stale_staging_files(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                bucket_name="basedosdados-dev",
+            )
         run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -68,6 +76,13 @@ def _camara_flow(table_id: str, cron: str):
             bucket_name="basedosdados",
             dump_mode="append",
         )
+        # licitacao_contrato mantém na staging só o arquivo de 1999
+        if table_id == "licitacao_contrato":
+            remove_stale_staging_files(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                bucket_name="basedosdados",
+            )
 
         run_dbt(
             dataset_id=dataset_id,
