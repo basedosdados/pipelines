@@ -75,10 +75,26 @@ models:
                 where: __most_recent_year__
       - name: produto
         description: Nome do combustível
+        tests:
+          - accepted_values:
+              values:
+                - Diesel
+                - Diesel S10
+                - Etanol
+                - Gasolina
+                - Gasolina Aditivada
+                - Glp
+                - Gnv
+              config:
+                where: __most_recent_year__
       - name: unidade_medida
         description: Unidade de medida
         tests:
           - not_null:
+              config:
+                where: __most_recent_year__
+          - accepted_values:
+              values: [R$/litro, R$/m3, R$/13kg]
               config:
                 where: __most_recent_year__
       - name: preco_compra
