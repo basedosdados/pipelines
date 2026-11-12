@@ -102,17 +102,23 @@ class BrTseEleicoes:
         self.df_main = self.df_complement = self.path_main = (
             self.path_complement
         ) = None
+        self.path_zips: list[Path] = []
 
     def download_urls(self) -> None:
-        """
-        Gets all csv files from a url and saves them to a directory.
-        """
+        """Baixa os ZIPs da fonte para `path_input`, sem extrair."""
         for url in self.urls:
-            self.download_extract_zip(url.format(year=self.year))
+            save_path = self.download_zip(url.format(year=self.year))
+            self.path_zips.append(save_path)
 
-    def download_extract_zip(self, url: str, chunk_size=128) -> None:
-        """
-        Gets all csv files from a url and saves them to a directory.
+    def download_zip(self, url: str, chunk_size: int = 1024 * 1024) -> Path:
+        """Baixa um ZIP para `path_input`, gravando em blocos.
+
+        Args:
+            url: endereço do ZIP.
+            chunk_size: bytes lidos da resposta e gravados por vez.
+
+        Returns:
+            Caminho do ZIP salvo.
         """
         self.path_input.mkdir(parents=True, exist_ok=True)
 
@@ -133,6 +139,21 @@ class BrTseEleicoes:
             for chunk in r.iter_content(chunk_size=chunk_size):
                 fd.write(chunk)
 
+        return save_path
+
+    def read_source_data(self) -> None:
+        """Extrai os CSVs nacionais dos ZIPs baixados e carrega `df_main`/`df_complement`."""
+        for save_path in self.path_zips:
+            self.extract_read_zip(save_path)
+
+    def extract_read_zip(self, save_path: Path) -> None:
+        """Extrai os `*BRASIL.csv` de um ZIP e carrega o CSV correspondente.
+
+        O primeiro ZIP lido vira `df_main`; o seguinte, `df_complement`.
+
+        Args:
+            save_path: caminho do ZIP baixado.
+        """
         with zipfile.ZipFile(save_path) as z:
             members = [
                 name
@@ -147,7 +168,11 @@ class BrTseEleicoes:
             self.path_main = self.path_input / self.source
             # pyrefly: ignore [no-matching-overload]
             self.df_main = pd.read_csv(
-                self.path_main, sep=";", encoding="ISO-8859-1", dtype=str
+                self.path_main,
+                sep=";",
+                encoding="ISO-8859-1",
+                dtype=str,
+                usecols=self.source_columns(),
             )
 
         else:
@@ -160,6 +185,33 @@ class BrTseEleicoes:
                 self.path_complement, sep=";", encoding="ISO-8859-1", dtype=str
             )
 
+    def count_source_rows(self, chunk_size: int = 1024 * 1024) -> int:
+        """Conta as linhas de dados do CSV principal lendo os bytes dentro do ZIP.
+
+        Não extrai o arquivo nem o carrega inteiro: lê `chunk_size` bytes por
+        vez e conta as quebras de linha, descontando o cabeçalho.
+
+        Args:
+            chunk_size: bytes descompactados lidos por vez.
+
+        Returns:
+            Número de linhas do CSV, sem o cabeçalho.
+        """
+        line_breaks = 0
+        last_byte = b"\n"
+        with (
+            zipfile.ZipFile(self.path_zips[0]) as z,
+            z.open(self.source) as f,
+        ):
+            while chunk := f.read(chunk_size):
+                line_breaks += chunk.count(b"\n")
+                last_byte = chunk[-1:]
+
+        if last_byte != b"\n":
+            line_breaks += 1
+
+        return line_breaks - 1
+
     def get_data_source_max_date(self) -> bool:
         df_prod = bd.read_sql(
             self.query,
@@ -168,14 +220,14 @@ class BrTseEleicoes:
         )
         prod_len, last_modified = df_prod.iloc[0].to_numpy()
 
-        # pyrefly: ignore [missing-attribute]
-        if self.df_main.shape[0] > prod_len:
+        if self.count_source_rows() > prod_len:
             # pyrefly: ignore [bad-return]
             return datetime.today()
 
         return last_modified
 
     def formatar(self) -> None:
+        self.read_source_data()
         base = self.form_df_base()
         # Etapa de salvar a base
 
@@ -191,6 +243,14 @@ class BrTseEleicoes:
 
     def form_df_base(self) -> None:
         pass
+
+    def source_columns(self) -> list[str] | None:
+        """Colunas do CSV principal que a tabela usa.
+
+        Returns:
+            Nomes das colunas a ler; `None` lê todas.
+        """
+        return None
 
 
 # Classes Dos Flows
@@ -293,44 +353,59 @@ class BensCandidato(BrTseEleicoes):
 
 
 class DespesasCandidato(BrTseEleicoes):
+    def source_columns(self) -> list[str]:
+        """Colunas do CSV de despesas que a tabela usa.
+
+        Returns:
+            Colunas de origem de `ORDER_DESPESAS`, sem as criadas vazias nem o
+            `id_municipio` do diretório, mais `SG_UE` e `CD_MUNICIPIO_FORNECEDOR`.
+        """
+        vazios = tse_constants.VAZIOS_DESPESA.value
+        columns = {
+            origin
+            for target, origin in tse_constants.ORDER_DESPESAS.value.items()
+            if target not in vazios and origin != "id_municipio"
+        }
+        columns.add("SG_UE")
+        columns.add("CD_MUNICIPIO_FORNECEDOR")
+        return sorted(columns)
+
     # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
+        """Monta a tabela de despesas a partir do CSV lido em `df_main`.
+
+        Busca o `id_municipio` num dicionário `id_municipio_tse` → `id_municipio`
+        e formata coluna a coluna, tirando cada coluna de origem de `df_main`
+        assim que ela é usada, sem copiar a tabela inteira.
+
+        Returns:
+            Tabela com as colunas de `ORDER_DESPESAS`, já formatadas.
+        """
         municipios = bd.read_sql(
             tse_constants.QUERY_MUNICIPIOS.value,
             from_file=True,
             billing_project_id=self.billing_project_id,
         )
-        # Precisamos limpas alguns zero a esquerda
-
-        for date_column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
-            # pyrefly: ignore [unsupported-operation]
-            self.df_main[date_column] = self.df_main[date_column].str.lstrip(
-                "0"
+        id_municipio_by_tse = dict(
+            zip(
+                municipios["id_municipio_tse"],
+                municipios["id_municipio"],
+                strict=True,
             )
-
-        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
-        # pyrefly: ignore [missing-attribute]
-        self.df_main.loc[
-            # pyrefly: ignore [unsupported-operation]
-            ~self.df_main["SG_UE"].astype(str).str.isdigit(), "SG_UE"
-        ] = None
-        # pyrefly: ignore [missing-attribute]
-        self.df_main = self.df_main.merge(
-            municipios,
-            left_on="SG_UE",
-            right_on="id_municipio_tse",
-            how="left",
         )
-        self.df_main[tse_constants.VAZIOS_DESPESA.value] = ""
 
-        base = self.df_main.loc[:, tse_constants.ORDER_DESPESAS.value.values()]
+        # pyrefly: ignore [bad-assignment]
+        source: pd.DataFrame = self.df_main
+        self.df_main = None
 
-        del self.df_main
-        base = base.fillna("")
-        base.columns = tse_constants.ORDER_DESPESAS.value.keys()
-        base = base.replace(self.remove, regex=False)
+        for column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
+            source[column] = source[column].str.lstrip("0")
+        source.loc[~source["SG_UE"].astype(str).str.isdigit(), "SG_UE"] = None
+        source["id_municipio"] = source["SG_UE"].map(id_municipio_by_tse)
 
-        slug_columns_format = [
+        order = tse_constants.ORDER_DESPESAS.value
+        vazios = tse_constants.VAZIOS_DESPESA.value
+        slug_columns = [
             "tipo_eleicao",
             "cargo",
             "origem_despesa",
@@ -339,16 +414,33 @@ class DespesasCandidato(BrTseEleicoes):
             "descricao_cnae_2_fornecedor",
             "tipo_fornecedor",
         ]
-        base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
-
-        # Formatar datas
         date_columns = [
             "data_eleicao",
             "data_despesa",
             "data_prestacao_contas",
         ]
-        base[date_columns] = base[date_columns].applymap(conv_data)
-        base.tipo_eleicao = base.tipo_eleicao.str.replace(
+
+        last_target_by_origin = {}
+        for target, origin in order.items():
+            last_target_by_origin[origin] = target
+
+        base = pd.DataFrame(index=source.index)
+        for target, origin in order.items():
+            if target in vazios:
+                column = pd.Series("", index=source.index)
+            elif last_target_by_origin[origin] == target:
+                column = source.pop(origin)
+            else:
+                column = source[origin]
+            column = column.fillna("").replace(self.remove, regex=False)
+            if target in slug_columns:
+                column = column.map(slugify)
+            if target in date_columns:
+                column = column.map(conv_data)
+            base[target] = column
+        del source
+
+        base["tipo_eleicao"] = base["tipo_eleicao"].str.replace(
             rf"eleicoes municipais {self.year}(?!\s-\s)",
             "eleicao ordinaria",
             regex=True,
