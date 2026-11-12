@@ -28,8 +28,7 @@ def get_latest_update() -> SourceInspection:
     """Etapa check_update da microdados.
 
     Returns:
-        O dia 1º do mês corrente, comparado com a última atualização da
-        tabela.
+        O dia da coleta, comparado com a última atualização da tabela.
     """
     return SourceInspection(
         reference_date=utils.get_source_max_date(),
@@ -41,15 +40,15 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     """Etapa extract_and_load da microdados.
 
     Args:
-        download_params: Parâmetros do check_update. A coleta não os usa: a
-            API só devolve a lista do momento da consulta.
+        download_params: Parâmetros do check_update. O `reference_date` é o
+            dia da coleta e vira a `data_extracao`.
 
     Returns:
         A pasta particionada por `data_extracao` e `sigla_uf`.
     """
-    output_dir = download_table(data_extracao=date.today())
+    data_extracao = date.fromisoformat(download_params["reference_date"])
+    output_dir = download_table(data_extracao=data_extracao)
     return ExtractAndLoad(
         data_path=str(output_dir),
         dump_mode="append",
-        source_format="csv",
     )

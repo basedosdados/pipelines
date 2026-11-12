@@ -19,10 +19,11 @@ from concurrent.futures import (
 )
 from contextlib import ExitStack
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from itertools import islice
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from curl_cffi import requests as cffi_requests
 from curl_cffi.requests.exceptions import RequestException
@@ -50,15 +51,15 @@ class Group:
 
 
 def get_source_max_date() -> date:
-    """Data de referência da fonte: o dia 1º do mês corrente.
+    """Data de referência da fonte: o dia da coleta, no fuso de São Paulo.
 
     A API devolve a lista de filiados do momento da consulta, sem data de
     publicação.
 
     Returns:
-        O dia 1º do mês corrente.
+        A data de hoje em São Paulo.
     """
-    return date.today().replace(day=1)
+    return datetime.now(ZoneInfo("America/Sao_Paulo")).date()
 
 
 def get_session() -> cffi_requests.Session:

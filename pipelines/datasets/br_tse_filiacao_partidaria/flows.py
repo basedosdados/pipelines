@@ -34,7 +34,7 @@ br_tse_filiacao_partidaria_microdados_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
 )
 br_tse_filiacao_partidaria_microdados_check_update.deploy_schedules = [
-    Cron("23 1 * * *", timezone="America/Sao_Paulo")
+    Cron("23 1 1 * *", timezone="America/Sao_Paulo")
 ]
 
 

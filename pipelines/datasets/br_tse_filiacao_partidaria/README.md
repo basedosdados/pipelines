@@ -44,31 +44,44 @@ indisponível durante o período das eleições. O acesso será restabelecido ap
 trabalhos eleitorais.", sem data de retorno. Em 2026, o sistema estava fechado em 1º/10, antes do
 1º turno, e aberto de novo em 6/11.
 
-Enquanto o sistema estiver fechado, o `extract_and_load` falha. Como o `check_update` roda todo
-dia, a carga do mês sai no primeiro dia em que o sistema voltar.
+Com o sistema fechado, o `extract_and_load` falha. Quando o fechamento inclui o dia 1º, a carga do
+mês é disparada à mão quando o sistema volta (ver "Carga manual" abaixo).
 
 ---
 
 ## Detecção de dado novo
 
-Como a fonte não tem data, o `check_update` devolve uma data inventada: **o dia 1º do mês
-corrente**. Ele roda todo dia à 1h23 e compara essa data com a "Última atualização na Base dos
-Dados" (`Table.Update.latest`, com `compare_against="table_update"`), que guarda o dia em que a
-tabela foi gravada pela última vez.
+A fonte não tem data, então o `check_update` não detecta atualização: só dispara a coleta. Ele
+roda no dia 1º de cada mês, à 1h23, e devolve **o dia da coleta, no fuso de São Paulo**.
 
-- A primeira execução do mês encontra a tabela com data do mês anterior e dispara a carga.
-- As execuções seguintes do mesmo mês encontram a tabela em dia e terminam sem baixar nada.
-- Se a carga falhar, a tabela continua com a data do mês anterior, e o dia seguinte tenta de novo.
+Essa data chega ao `extract_and_load` em `download_params["reference_date"]` e dá nome à partição
+`data_extracao=`. Assim, a partição e a "Última atualização na fonte original"
+(`RawDataSource.Update.latest`) ficam com a mesma data. No site, essa data é o dia em que a Base
+dos Dados consultou a API, e não uma data publicada pelo TSE.
 
-No site, a "Última atualização na fonte original" (`RawDataSource.Update.latest`) mostra o dia 1º
-do mês: é a data do flow, não uma data publicada pelo TSE.
+O `check_update` compara o dia da coleta com a "Última atualização na Base dos Dados"
+(`Table.Update.latest`, com `compare_against="table_update"`), que guarda o dia em que a tabela
+foi gravada pela última vez. No dia 1º, essa data ainda é do mês anterior, e a carga é disparada.
+Depois de uma carga bem-sucedida, uma nova execução no mesmo dia termina sem baixar nada.
 
 Duas alternativas e o efeito de cada uma:
 
-- **Ler a maior `data_filiacao` da fonte.** Exige baixar a lista inteira no `check_update` só
+- **Ler a maior `data_filiacao` da fonte.** O `check_update` teria de baixar a lista inteira só
   para descobrir a data, e o `extract_and_load` baixaria tudo de novo em seguida.
-- **Usar o dia 1º do mês seguinte.** A última atualização da tabela nunca alcança uma data no
-  futuro, então o flow carregaria todo dia.
+- **Rodar todo dia, para que uma coleta que falhou se repita sozinha.** A data da tabela seria
+  sempre anterior à do dia, e o flow baixaria a lista inteira todos os dias.
+
+### Carga manual
+
+O flow roda uma vez por mês, e uma coleta que falha no dia 1º não se repete sozinha. A carga é
+disparada à mão, pelo `check_update` de prod, quando no dia 1º:
+
+- o TSE está fora do ar ou a coleta é interrompida;
+- o sistema está fechado para as eleições (ver acima). Nesse caso, a carga é disparada no
+  primeiro dia em que o sistema volta.
+
+A carga manual grava o dia em que roda tanto na partição quanto na "Última atualização na fonte
+original".
 
 ---
 
@@ -165,7 +178,7 @@ quando o horário era exatamente 1h00.
 
 ## Testar em dev
 
-- Disparar o `dev-` do `check_update`. Ele faz o poll e, se a data da tabela for anterior ao dia
-  1º do mês, dispara o `extract_and_load`, que baixa a lista inteira.
+- Disparar o `dev-` do `check_update`. Ele faz o poll e, se a data da tabela for anterior à do
+  dia, dispara o `extract_and_load`, que baixa a lista inteira.
 - O `build_and_promote` roda o dbt da `main`. Mudança no `.sql` ou no `schema.yml` se valida
   localmente, com `uv run dbt run --select br_tse_filiacao_partidaria__microdados`.
