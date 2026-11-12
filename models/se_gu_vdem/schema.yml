@@ -1,0 +1,652 @@
+---
+version: 2
+models:
+  - name: se_gu_vdem__country_year
+    description: >-
+      V-Dem v16 Country-Year Full+Others data in long format, one row per
+      country, year and variable, 1789 to 2025. Each row carries every variant
+      V-Dem publishes for the variable: the point estimate or observed value,
+      its 68% highest posterior density interval and standard deviation, the
+      original-scale and ordinal versions, the coders' mean and the number of
+      coders. Variables are described in the indicator table.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_id, variable_id]
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >-
+          Reference year
+        tests: [not_null]
+      - name: country_id
+        description: >-
+          V-Dem numeric identifier of the country or political unit
+        tests:
+          - not_null
+          - relationships:
+              to: ref('se_gu_vdem__country')
+              field: country_id
+              config:
+                where: __most_recent_year_en__
+      - name: variable_id
+        description: >-
+          V-Dem variable identifier
+        tests:
+          - not_null
+          - relationships:
+              to: ref('se_gu_vdem__indicator')
+              field: variable_id
+              config:
+                where: __most_recent_year_en__
+      - name: value
+        description: >-
+          Value of the variable: the measurement model's point estimate for
+          expert-coded variables, or the observed value
+      - name: value_text
+        description: >-
+          Text value of the variable, for name variables (parties, heads of
+          state and government, institutions)
+      - name: code_low
+        description: >-
+          Lower bound of the 68% highest posterior density interval of the
+          estimate
+      - name: code_high
+        description: >-
+          Upper bound of the 68% highest posterior density interval of the
+          estimate
+      - name: sd
+        description: >-
+          Posterior standard deviation of the estimate
+      - name: osp
+        description: >-
+          Estimate on the original scale of the question (linearized)
+      - name: osp_code_low
+        description: >-
+          Lower bound of the 68% interval of the original-scale estimate
+      - name: osp_code_high
+        description: >-
+          Upper bound of the 68% interval of the original-scale estimate
+      - name: osp_sd
+        description: >-
+          Posterior standard deviation of the original-scale estimate
+      - name: ord
+        description: >-
+          Estimate on the ordinal scale of the question (most likely category)
+      - name: ord_code_low
+        description: >-
+          Lower bound of the 68% interval of the ordinal estimate
+      - name: ord_code_high
+        description: >-
+          Upper bound of the 68% interval of the ordinal estimate
+      - name: mean
+        description: >-
+          Simple mean of the experts' ratings, without the measurement model
+      - name: coder_count
+        description: >-
+          Number of experts who coded the variable in the country and year
+  - name: se_gu_vdem__country_year_index
+    description: >-
+      The 118 high-level V-Dem v16 indices (v2x*), one row per country and year,
+      1789 to 2025, in wide format, with the country-year's coding project,
+      historical name and Correlates of War code. Point estimates only;
+      intervals and other variants are in country_year.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('se_gu_vdem__dicionario')
+          columns_covered_by_dictionary:
+            - project
+            - v2x_regime
+            - v2x_regime_amb
+            - v2x_elecreg
+            - v2xex_elecreg
+            - v2xlg_elecreg
+            - v2xel_elecparl
+            - v2xlg_leginter
+            - v2xel_elecpres
+            - v2x_hosinter
+            - v2x_hosabort
+            - v2x_legabort
+    columns:
+      - name: year
+        description: >-
+          Reference year
+        tests: [not_null]
+      - name: country_id
+        description: >-
+          V-Dem numeric identifier of the country or political unit
+        tests:
+          - not_null
+          - relationships:
+              to: ref('se_gu_vdem__country')
+              field: country_id
+      - name: historical_date
+        description: >-
+          Reference date of the observation
+      - name: project
+        description: >-
+          V-Dem project that coded the country-year
+      - name: historical_name
+        description: >-
+          Historical name of the political unit in the year
+      - name: gap_index
+        description: >-
+          Identifier of the unit's continuous coding period
+      - name: cow_code
+        description: >-
+          Correlates of War (COW) country code
+      - name: v2x_polyarchy
+        description: >-
+          Electoral democracy index
+      - name: v2x_libdem
+        description: >-
+          Liberal democracy index
+      - name: v2x_partipdem
+        description: >-
+          Participatory democracy index
+      - name: v2x_delibdem
+        description: >-
+          Deliberative democracy index
+      - name: v2x_egaldem
+        description: >-
+          Egalitarian democracy index
+      - name: v2x_api
+        description: >-
+          Additive polyarchy index
+      - name: v2x_mpi
+        description: >-
+          Multiplicative polyarchy index
+      - name: v2x_freexp_altinf
+        description: >-
+          Freedom of Expression and Alternative Sources of Information index
+      - name: v2x_frassoc_thick
+        description: >-
+          Freedom of association thick index
+      - name: v2x_suffr
+        description: >-
+          Share of population with suffrage
+      - name: v2xel_frefair
+        description: >-
+          Clean elections index
+      - name: v2x_elecoff
+        description: >-
+          Elected officials index
+      - name: v2x_liberal
+        description: >-
+          Liberal component index
+      - name: v2xcl_rol
+        description: >-
+          Equality before the law and individual liberty index
+      - name: v2x_jucon
+        description: >-
+          Judicial constraints on the executive index
+      - name: v2xlg_legcon
+        description: >-
+          Legislative constraints on the executive index
+      - name: v2x_partip
+        description: >-
+          Participatory component index
+      - name: v2x_cspart
+        description: >-
+          Civil society participation index
+      - name: v2xdd_dd
+        description: >-
+          Direct popular vote index
+      - name: v2xel_locelec
+        description: >-
+          Local government index
+      - name: v2xel_regelec
+        description: >-
+          Regional government index
+      - name: v2xdl_delib
+        description: >-
+          Deliberative component index
+      - name: v2x_egal
+        description: >-
+          Egalitarian component index
+      - name: v2xeg_eqprotec
+        description: >-
+          Equal protection index
+      - name: v2xeg_eqaccess
+        description: >-
+          Equal access index
+      - name: v2xeg_eqdr
+        description: >-
+          Equal distribution of resources index
+      - name: v2x_regime
+        description: >-
+          Regimes of the world -- the RoW measure
+      - name: v2x_regime_amb
+        description: >-
+          Regimes of the world -- the RoW measure with categories for ambiguous
+          cases
+      - name: v2x_accountability
+        description: >-
+          Accountability index
+      - name: v2x_veracc
+        description: >-
+          Vertical accountability index
+      - name: v2x_diagacc
+        description: >-
+          Diagonal accountability index
+      - name: v2x_horacc
+        description: >-
+          Horizontal accountability index
+      - name: v2x_ex_hereditary
+        description: >-
+          Hereditary dimension index
+      - name: v2x_ex_military
+        description: >-
+          Military dimension index
+      - name: v2x_ex_party
+        description: >-
+          Ruling party dimension index
+      - name: v2x_ex_direlect
+        description: >-
+          Direct election dimension index
+      - name: v2x_ex_confidence
+        description: >-
+          Confidence dimension index
+      - name: v2xnp_regcorr
+        description: >-
+          Regime corruption
+      - name: v2x_neopat
+        description: >-
+          Neopatrimonial Rule Index
+      - name: v2xnp_pres
+        description: >-
+          Presidentialism Index
+      - name: v2xnp_client
+        description: >-
+          Clientelism Index
+      - name: v2x_civlib
+        description: >-
+          Civil liberties index
+      - name: v2x_clpriv
+        description: >-
+          Private civil liberties index
+      - name: v2x_clpol
+        description: >-
+          Political civil liberties index
+      - name: v2x_clphy
+        description: >-
+          Physical violence index
+      - name: v2xpe_exlsocgr
+        description: >-
+          Exclusion by Social Group index
+      - name: v2xpe_exlgender
+        description: >-
+          Exclusion by Gender index
+      - name: v2xpe_exlecon
+        description: >-
+          Exclusion by Socio-Economic Group
+      - name: v2xpe_exlpol
+        description: >-
+          Exclusion by Political Group index
+      - name: v2xpe_exlgeo
+        description: >-
+          Exclusion by Urban-Rural Location index
+      - name: v2x_corr
+        description: >-
+          Political corruption index
+      - name: v2x_pubcorr
+        description: >-
+          Public sector corruption index
+      - name: v2x_execorr
+        description: >-
+          Executive corruption index
+      - name: v2x_gender
+        description: >-
+          Women political empowerment index
+      - name: v2x_gencl
+        description: >-
+          Women civil liberties index
+      - name: v2x_gencs
+        description: >-
+          Women civil society participation index
+      - name: v2x_genpp
+        description: >-
+          Women political participation index
+      - name: v2x_rule
+        description: >-
+          Rule of law index
+      - name: v2xcl_acjst
+        description: >-
+          Access to justice
+      - name: v2xcl_prpty
+        description: >-
+          Property rights
+      - name: v2xdd_i_ci
+        description: >-
+          Popular initiative index
+      - name: v2xdd_i_rf
+        description: >-
+          Popular referendum index
+      - name: v2xdd_i_or
+        description: >-
+          Obligatory referendum index
+      - name: v2xdd_i_pl
+        description: >-
+          Plebiscite index
+      - name: v2xdd_cic
+        description: >-
+          Citizen-initiated component of direct popular vote index
+      - name: v2xdd_toc
+        description: >-
+          Top-Down component of direct popular vote index
+      - name: v2xcs_ccsi
+        description: >-
+          Core civil society index
+      - name: v2x_elecreg
+        description: >-
+          Electoral regime index
+      - name: v2xex_elecreg
+        description: >-
+          Executive electoral regime index
+      - name: v2xlg_elecreg
+        description: >-
+          Legislative electoral regime index
+      - name: v2x_EDcomp_thick
+        description: >-
+          Electoral component index
+      - name: v2x_freexp
+        description: >-
+          Freedom of expression index
+      - name: v2xme_altinf
+        description: >-
+          Alternative sources of information index
+      - name: v2xcl_dmove
+        description: >-
+          Freedom of domestic movement
+      - name: v2xcl_slave
+        description: >-
+          Freedom from forced labor
+      - name: v2xcl_disc
+        description: >-
+          Freedom of discussion
+      - name: v2xel_elecparl
+        description: >-
+          Legislative or constituent assembly election
+      - name: v2xlg_leginter
+        description: >-
+          Legislature closed down or aborted
+      - name: v2xel_elecpres
+        description: >-
+          Presidential election
+      - name: v2x_hosinter
+        description: >-
+          Chief executive no longer elected
+      - name: v2x_hosabort
+        description: >-
+          Presidential election aborted
+      - name: v2x_legabort
+        description: >-
+          Legislative or constituent assembly election aborted
+      - name: v2xex_elecleg
+        description: >-
+          Legislature directly elected
+      - name: v2xps_party
+        description: >-
+          Party institutionalization index
+      - name: v2x_divparctrl
+        description: >-
+          Divided party control index
+      - name: v2x_feduni
+        description: >-
+          Division of power index
+      - name: v2xca_academ
+        description: >-
+          Academic Freedom Index
+      - name: v2x_electoral_integrity
+        description: >-
+          Electoral Integrity Index
+      - name: v2x_polyarchy_stock
+        description: >-
+          Electoral Democracy Stock
+      - name: v2x_libdem_stock
+        description: >-
+          Liberal Democracy Stock
+      - name: v2x_partipdem_stock
+        description: >-
+          Participatory Democracy Stock
+      - name: v2x_delibdem_stock
+        description: >-
+          Deliberative Democracy Stock
+      - name: v2x_egaldem_stock
+        description: >-
+          Egalitarian Democracy Stock
+      - name: v2xpas_democracy
+        description: >-
+          Party-System Democracy Index
+      - name: v2xpas_democracy_government
+        description: >-
+          Government Coalition Democracy Index
+      - name: v2xpas_democracy_opposition
+        description: >-
+          Opposition Parties Democracy Index
+      - name: v2xpas_religion
+        description: >-
+          Party-System Religion Index
+      - name: v2xpas_religion_government
+        description: >-
+          Government Coalition Religion Index
+      - name: v2xpas_religion_opposition
+        description: >-
+          Opposition Parties Religion Index
+      - name: v2xpas_exclusion
+        description: >-
+          Party-System Exclusion Index
+      - name: v2xpas_exclusion_government
+        description: >-
+          Government Coalition Exclusion Index
+      - name: v2xpas_exclusion_opposition
+        description: >-
+          Opposition Parties Exclusion Index
+      - name: v2xpas_economic
+        description: >-
+          Party-System Left-Right Index
+      - name: v2xpas_economic_government
+        description: >-
+          Government Coalition Left-Right Index
+      - name: v2xpas_economic_opposition
+        description: >-
+          Opposition Parties Left-Right Index
+      - name: v2xed_ed_inpt
+        description: >-
+          Indoctrination potential in education
+      - name: v2xed_ed_poed
+        description: >-
+          Political education effort in education
+      - name: v2xed_ed_inco
+        description: >-
+          Indoctrination coherence in education
+      - name: v2xed_ed_cent
+        description: >-
+          Centralization of the education system
+      - name: v2xed_ed_ctag
+        description: >-
+          Control over educational agents
+      - name: v2xed_ed_con
+        description: >-
+          Indoctrination content in education
+      - name: v2xed_ed_dmcon
+        description: >-
+          Democratic indoctrination content in education
+      - name: v2xed_ed_ptcon
+        description: >-
+          Patriotic indoctrination content in education
+      - name: v2xed_ptcon
+        description: >-
+          Patriotic indoctrination content in education and the media
+      - name: v2xedvd_inpt
+        description: >-
+          Indoctrination potential in education and the media
+      - name: v2xedvd_me_inco
+        description: >-
+          Indoctrination coherence (potential) in the media
+      - name: v2xedvd_me_cent
+        description: >-
+          Centralization of media control
+      - name: v2xedvd_me_ctag
+        description: >-
+          Control over media agents
+  - name: se_gu_vdem__country
+    description: >-
+      One row per country or political unit coded by V-Dem v16, with its
+      alphabetic code, name and coding periods.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [country_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [gap_start_2, gap_start_3, gap_end_2, gap_end_3]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('se_gu_vdem__dicionario')
+          columns_covered_by_dictionary: [historical]
+    columns:
+      - name: country_id
+        description: >-
+          V-Dem numeric identifier of the country or political unit
+        tests: [not_null]
+      - name: country_text_id
+        description: >-
+          V-Dem three-letter alphabetic country code
+      - name: country_name
+        description: >-
+          Name of the country or political unit
+      - name: historical
+        description: >-
+          Whether the unit was coded by the Historical V-Dem project
+      - name: coding_start
+        description: >-
+          First coded year
+      - name: coding_end
+        description: >-
+          Last coded year
+      - name: coding_start_contemporary
+        description: >-
+          First year coded by contemporary V-Dem
+      - name: coding_end_contemporary
+        description: >-
+          Last year coded by contemporary V-Dem
+      - name: coding_start_historical
+        description: >-
+          First year coded by Historical V-Dem
+      - name: coding_end_historical
+        description: >-
+          Last year coded by Historical V-Dem
+      - name: gap_start_1
+        description: >-
+          First year of coding gap 1
+      - name: gap_end_1
+        description: >-
+          Last year of coding gap 1
+      - name: gap_start_2
+        description: >-
+          First year of coding gap 2
+      - name: gap_end_2
+        description: >-
+          Last year of coding gap 2
+      - name: gap_start_3
+        description: >-
+          First year of coding gap 3
+      - name: gap_end_3
+        description: >-
+          Last year of coding gap 3
+  - name: se_gu_vdem__indicator
+    description: >-
+      One row per V-Dem v16 variable, with its codebook entry: name, type,
+      question, response options, scale, aggregation methods and coverage.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [variable_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [category, clarification, notes, convergence]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('se_gu_vdem__dicionario')
+          columns_covered_by_dictionary: [variable_type]
+    columns:
+      - name: variable_id
+        description: >-
+          V-Dem variable identifier
+        tests: [not_null]
+      - name: codebook_tag
+        description: >-
+          Identifier of the matching entry in the V-Dem codebook
+      - name: category
+        description: >-
+          Response category the variable stands for, when it is a category of
+          another variable
+      - name: variants
+        description: >-
+          Columns of the country_year table filled for the variable, comma-
+          separated
+      - name: name
+        description: >-
+          Name of the variable
+      - name: variable_type
+        description: >-
+          Type of the variable by how it is coded
+      - name: question
+        description: >-
+          Question asked to the coders
+      - name: clarification
+        description: >-
+          Clarifications about the question
+      - name: responses
+        description: >-
+          Response options and their codes
+      - name: scale
+        description: >-
+          Scale of the variable
+      - name: notes
+        description: >-
+          Codebook notes
+      - name: cross_coder_aggregation
+        description: >-
+          Method of aggregation across coders
+      - name: country_year_aggregation
+        description: >-
+          Method of aggregation from dates to country-years
+      - name: data_release
+        description: >-
+          V-Dem versions in which the variable was released
+      - name: years
+        description: >-
+          Years covered by the variable
+      - name: convergence
+        description: >-
+          Notes on the convergence of the measurement model
+      - name: project_manager
+        description: >-
+          Project manager responsible for the variable
+  - name: se_gu_vdem__dicionario
+    description: >-
+      Mapping between the coded keys of the dataset's columns and their meaning.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >-
+          Table ID
+      - name: nome_coluna
+        description: >-
+          Column name
+      - name: chave
+        description: >-
+          Key
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage
+      - name: valor
+        description: >-
+          Value
