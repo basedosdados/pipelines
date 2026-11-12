@@ -4,7 +4,8 @@
     to,
     field,
     ignore_values=None,
-    proportion_allowed_failures=0.00
+    proportion_allowed_failures=0.00,
+    to_where=None
 ) %}
 
     {{ config(severity="error") }}
@@ -19,7 +20,11 @@
                     and {{ column_name }} is not null
             {% endif %}
         ),
-        parent as (select {{ field }} as parent_value from {{ to }}),
+        parent as (
+            select {{ field }} as parent_value
+            from {{ to }}
+            {% if to_where %} where {{ to_where }} {% endif %}
+        ),
         validation as (
             select child.child_value
             from child

@@ -141,7 +141,7 @@ O que mudou:
 - **Listagem WebDAV (`PROPFIND`):** timeout de `PROPFIND_TIMEOUT` (120 s) e até
   `PROPFIND_MAX_ATTEMPTS` (4) tentativas com backoff de 10, 20 e 40 s, tanto no
   check de atualização quanto em `get_table_files`.
-- **Retry sem refazer o que já ficou pronto:** a task `main` tem `retries=3` e
+- **Retry sem refazer o que já ficou pronto:** a task `download_and_process_files` tem `retries=3` e
   recomeça do início. Cada arquivo processado deixa um marcador em
   `tmp/br_rf_cnpj/done/<tabela>/<folder_date>_<i>` (fora de `input` e `output`), 
   e o retry pula os arquivos já feitos. O marcador guarda quantas linhas aquele
