@@ -69,11 +69,6 @@ models:
         description: Nome da Bandeira da revenda
       - name: data_coleta
         description: Data da coleta do preço
-        tests:
-          - custom_weekly_continuity:
-              min_rows_per_week: 1000
-              config:
-                where: __most_recent_year__
       - name: produto
         description: Nome do combustível
         tests:

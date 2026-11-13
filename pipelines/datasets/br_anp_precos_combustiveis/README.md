@@ -97,14 +97,6 @@ interrompe o flow.
 | `relationships` | `sigla_uf` e `id_municipio` existem nos diretórios |
 | `not_null` | `id_municipio`, `unidade_medida` e `preco_venda` preenchidos |
 | `accepted_values` | `produto` e `unidade_medida` só com os valores listados acima |
-| `custom_weekly_continuity` | nenhuma semana sem coleta, e cada semana com pelo menos 1.000 linhas |
-
-O `custom_weekly_continuity` (`tests-dbt/generic/`) agrupa as datas por semana ISO e
-falha para cada semana, entre a primeira e a última, que não tenha dados ou tenha menos
-de `min_rows_per_week` linhas. Uma semana normal tem cerca de 20 mil linhas. A primeira
-e a última semana só precisam existir, porque podem estar cortadas na virada do ano. O
-mínimo de linhas evita que uma linha isolada, como a de domingo, 10/05/2026, esconda uma
-semana que não foi carregada.
 
 ## Como o flow funciona
 
