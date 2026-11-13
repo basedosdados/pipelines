@@ -7,7 +7,9 @@ import gc
 import os
 import shutil
 import time
+import zipfile
 from functools import lru_cache
+from urllib.error import HTTPError, URLError
 
 import basedosdados as bd
 import pandas as pd
@@ -299,6 +301,20 @@ def next_available_date(
         candidate = candidate + relativedelta(months=relative_month)
         _step += 1
     return last_date_in_api
+
+
+def is_transient_download_error(exc: BaseException | None) -> bool:
+    """Diz se vale repetir o download depois desse erro.
+
+    Transitórios: 405/202/429 e 5xx do portal, falha de rede, timeout e ZIP
+    truncado/corrompido. Qualquer outro (ex.: 404, erro de código) falha na
+    hora, sem gastar as esperas do retry.
+    """
+    if isinstance(exc, HTTPError):
+        return exc.code in (*_TEMPORARY_STATUS_CODES, 429) or exc.code >= 500
+    return isinstance(
+        exc, URLError | TimeoutError | ConnectionError | zipfile.BadZipFile
+    )
 
 
 def _month_status(urls: str | list[str]) -> SourceStatus:

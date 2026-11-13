@@ -28,6 +28,12 @@ _TEMPORARY_STATUS_CODES = (202, 405)
 
 
 MAX_MONTH_RANGE = 6
+
+# Retry do download: o portal responde 405/202 de forma intermitente. Espera
+# `BASE * 2**n` s (15, 30, 60, 120, 240: ~8 min no total), com jitter.
+DOWNLOAD_RETRIES = 5
+DOWNLOAD_RETRY_BACKOFF_SECONDS = 15
+DOWNLOAD_RETRY_JITTER = 0.25
 TABELAS: dict[str, dict[str, dict[str, Any]]] = {
     # ! ================================ CGU - Cartão de Pagamento ===========================================
     CARTAO_PAGAMENTO_DATASET_ID: {

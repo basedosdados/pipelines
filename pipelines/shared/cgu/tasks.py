@@ -8,6 +8,7 @@ from datetime import date
 
 import pandas as pd
 from prefect import task
+from prefect.tasks import exponential_backoff
 from tqdm import tqdm
 
 from pipelines.constants import constants as global_constants
@@ -15,6 +16,9 @@ from pipelines.shared.cgu.constants import (
     BENEFICIOS_CIDADAO_DATASET_ID,
     BROWSERS_USER_AGENT,
     CARTAO_PAGAMENTO_DATASET_ID,
+    DOWNLOAD_RETRIES,
+    DOWNLOAD_RETRY_BACKOFF_SECONDS,
+    DOWNLOAD_RETRY_JITTER,
     DTYPES_BPC,
     DTYPES_GARANTIA_SAFRA,
     DTYPES_NOVO_BOLSA_FAMILIA,
@@ -28,6 +32,7 @@ from pipelines.shared.cgu.constants import (
 from pipelines.shared.cgu.utils import (
     build_input,
     build_urls,
+    is_transient_download_error,
     partition_data_beneficios_cidadao,
     read_and_clean_csv,
     read_csv,
@@ -77,7 +82,19 @@ def partition_data(table_id: str, dataset_id: str) -> str:
         return TABELAS[dataset_id][table_id]["OUTPUT"]
 
 
-@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def _retry_if_transient(task, task_run, state) -> bool:
+    """`retry_condition_fn` do download: só repete erro transitório."""
+    return is_transient_download_error(state.result(raise_on_failure=False))
+
+
+@task(
+    retries=DOWNLOAD_RETRIES,
+    retry_delay_seconds=exponential_backoff(
+        backoff_factor=DOWNLOAD_RETRY_BACKOFF_SECONDS
+    ),
+    retry_jitter_factor=DOWNLOAD_RETRY_JITTER,
+    retry_condition_fn=_retry_if_transient,
+)
 def download_file(
     dataset_id: str,
     table_id: str,
