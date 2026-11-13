@@ -26,8 +26,8 @@ class SourceStatus(StrEnum):
 # `SourceStatus.TEMPORARY`, nunca `NOT_PUBLISHED`.
 _TEMPORARY_STATUS_CODES = (202, 405)
 
-MAX_MONTH_RANGE = 6
 
+MAX_MONTH_RANGE = 6
 TABELAS: dict[str, dict[str, dict[str, Any]]] = {
     # ! ================================ CGU - Cartão de Pagamento ===========================================
     CARTAO_PAGAMENTO_DATASET_ID: {

@@ -244,29 +244,26 @@ def last_date_in_metadata(dataset_id: str, table_id: str) -> datetime.date:
     return last_date_in_api
 
 
-def most_recent_available_date(
+def next_available_date(
     dataset_id: str,
     table_id: str,
     relative_month: int,
     last_date_in_api: datetime.date,
 ) -> datetime.date:
-    """Encontra o mês mais recente já publicado na fonte.
+    """Encontra o primeiro mês após a última cobertura que existe na fonte.
 
     Parte de `last_date_in_api + relative_month` e avança de `relative_month`
-    em `relative_month` enquanto o mês estiver disponível (todas as URLs
-    em `SourceStatus.AVAILABLE`), até `MAX_MONTH_RANGE` passos ou a data de
-    hoje. O que encerra a busca depende do status do primeiro mês que não
-    está disponível:
+    em `relative_month` até achar um mês que não seja `NOT_PUBLISHED`, até
+    `MAX_MONTH_RANGE` passos ou a data de hoje. Devolve o primeiro, e não o
+    mais recente: carregar um mês por execução não deixa lacuna quando há
+    vários meses pendentes. A disponibilidade é "tudo ou nada": o mês só vale
+    se todas as URLs dele estiverem `SourceStatus.AVAILABLE`.
 
-    - `NOT_PUBLISHED`: o mês não existe na fonte. Para, e devolve o último mês
-      disponível (ou `last_date_in_api`, se nenhum).
+    - `AVAILABLE`: devolve o mês.
     - `TEMPORARY` (405, 202 esgotado, 5xx, erro de rede): a fonte pode ter o
-      mês, só não respondeu. Para sem avançar e devolve esse mês, para o
-      `extract_and_load` tentar baixá-lo e falhar com o erro real, em vez de
-      pular para um mês que não existe.
-
-    A disponibilidade é "tudo ou nada": basta uma URL do mês não estar
-    disponível para o mês não valer.
+      mês, só não respondeu. Devolve o mês, para o `extract_and_load` tentar
+      baixá-lo e falhar com o erro real, em vez de pular para outro mês.
+    - `NOT_PUBLISHED`: o mês não existe na fonte. Passa para o seguinte.
 
     Args:
         dataset_id: ID do dataset.
@@ -275,42 +272,33 @@ def most_recent_available_date(
         last_date_in_api: Última data já presente no backend.
 
     Returns:
-        O mês a carregar: o mais recente disponível, o mês com falha
-        temporária, ou `last_date_in_api` se nenhum mês novo estiver
-        publicado.
+        O primeiro mês a carregar, ou `last_date_in_api` se nenhum mês novo
+        estiver publicado.
     """
 
-    next_date_in_api = last_date_in_api + relativedelta(months=relative_month)
-    latest = last_date_in_api
-    value_constants = TABELAS[dataset_id][table_id]
+    candidate = last_date_in_api + relativedelta(months=relative_month)
+    url = TABELAS[dataset_id][table_id]["URL"]
     _step = 0
     while (
-        next_date_in_api <= datetime.datetime.now().date()
-        and _step < MAX_MONTH_RANGE
+        candidate <= datetime.datetime.now().date() and _step < MAX_MONTH_RANGE
     ):
         urls = build_urls(
             # pyrefly: ignore [bad-argument-type]
-            url=value_constants["URL"],
-            year=next_date_in_api.year,
-            month=next_date_in_api.month,
+            url=url,
+            year=candidate.year,
+            month=candidate.month,
             table_id=table_id,
             dataset_id=dataset_id,
         )
         log(f"Last date in API: {last_date_in_api}")
-        log(f"Checking date: {next_date_in_api}")
+        log(f"Checking date: {candidate}")
         status = _month_status(urls)
         log(f"Status: {status}")
-        if status is SourceStatus.AVAILABLE:
-            latest = next_date_in_api
-            next_date_in_api = next_date_in_api + relativedelta(
-                months=relative_month
-            )
-            _step += 1
-        elif status is SourceStatus.TEMPORARY:
-            return next_date_in_api
-        else:
-            break
-    return latest
+        if status is not SourceStatus.NOT_PUBLISHED:
+            return candidate
+        candidate = candidate + relativedelta(months=relative_month)
+        _step += 1
+    return last_date_in_api
 
 
 def _month_status(urls: str | list[str]) -> SourceStatus:

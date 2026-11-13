@@ -14,7 +14,7 @@ from pipelines.shared.cgu.tasks import (
 )
 from pipelines.shared.cgu.utils import (
     last_date_in_metadata,
-    most_recent_available_date,
+    next_available_date,
 )
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -45,7 +45,7 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
             dataset_id=DATASET_ID,
             table_id=table_id,
         )
-        reference_date = most_recent_available_date(
+        reference_date = next_available_date(
             dataset_id=DATASET_ID,
             table_id=table_id,
             relative_month=RELATIVE_MONTH,
