@@ -19,7 +19,6 @@ from collections.abc import Callable
 from pipelines.datasets.br_cgu_beneficios_cidadao.constants import (
     DATASET_ID,
     RELATIVE_MONTH,
-    SOURCE_FORMAT,
 )
 from pipelines.shared.cgu.tasks import (
     download_file,
@@ -69,7 +68,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
 
         return ExtractAndLoad(
             data_path=filepath,
-            source_format=SOURCE_FORMAT[table_id],
         )
 
     return extract_load_data

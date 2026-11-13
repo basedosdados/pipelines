@@ -31,7 +31,6 @@ def _run_bcb_sicor(
     target: str,
     force_run: bool,
     dump_mode: str,
-    source_format: str,
     download_all_files: bool = False,
     local_redis_execution: bool = False,
 ) -> None:
@@ -72,7 +71,6 @@ def _run_bcb_sicor(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     run_dbt(
@@ -91,7 +89,6 @@ def _run_bcb_sicor(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     run_dbt(
@@ -122,7 +119,6 @@ def _sicor_flow(
     table_id: str,
     cron: str,
     dump_mode: str = "overwrite",
-    source_format: str = "parquet",
 ):
     @flow(
         name=f"br_bcb_sicor__{table_id}",
@@ -146,7 +142,6 @@ def _sicor_flow(
             target=target,
             force_run=force_run,
             dump_mode=dump_mode,
-            source_format=source_format,
             download_all_files=download_all_files,
             local_redis_execution=local_redis_execution,
         )
@@ -216,7 +211,6 @@ br_bcb_sicor__operacoes_desclassificadas = _sicor_flow(
 br_bcb_sicor__empreendimento = _sicor_flow(
     table_id="empreendimento",
     cron="35 5 * * 1-5",
-    source_format="csv",
 )
 
 # Tabelas de domínio: não têm `ano_emissao`/`mes_emissao`, então a cobertura é
@@ -229,7 +223,6 @@ br_bcb_sicor__instituicao_financeira = _sicor_flow(
 br_bcb_sicor__fonte_recurso = _sicor_flow(
     table_id="fonte_recurso",
     cron="55 5 * * 1-5",
-    source_format="csv",
 )
 
 # ── Proagro ──────────────────────────────────────────────────────────────────
@@ -285,7 +278,6 @@ def br_bcb_sicor__dicionario(
     dataset_id: str = "br_bcb_sicor",
     table_id: str = "dicionario",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = False,
     target: str = "prod",
     force_run: bool = False,
@@ -302,14 +294,12 @@ def br_bcb_sicor__dicionario(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        source_format="csv",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -322,24 +312,23 @@ def br_bcb_sicor__dicionario(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="overwrite",
-        source_format="csv",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
 
-# Sem `deploy_schedules` o flow nunca executava por agendamento, e o
-# `dbt_alias=False` acima fazia o seletor virar `models/br_bcb_sicor/
+# Sem `deploy_schedules` o flow nunca executava por agendamento, e um
+# `dbt_alias` passado errado fazia o seletor virar `models/br_bcb_sicor/
 # dicionario.sql`, arquivo que não existe — `run_dbt` levantava
 # FileNotFoundError depois de já ter subido o staging. Os dois defeitos juntos
-# deixavam a tabela `dicionario` congelada. Roda às 01:45, antes de `operacao`
-# (02:05) e das demais.
+# deixavam a tabela `dicionario` congelada. `run_dbt` agora detecta o modelo
+# real sozinho (`_resolve_dbt_model_path`), então esse vetor específico não
+# existe mais. Roda às 01:45, antes de `operacao` (02:05) e das demais.
 br_bcb_sicor__dicionario.deploy_schedules = [
     Cron("45 1 * * 1-5", timezone="America/Sao_Paulo")
 ]
