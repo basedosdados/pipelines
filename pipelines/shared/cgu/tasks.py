@@ -11,7 +11,20 @@ from prefect import task
 from tqdm import tqdm
 
 from pipelines.constants import constants as global_constants
-from pipelines.shared.cgu.constants import constants
+from pipelines.shared.cgu.constants import (
+    BENEFICIOS_CIDADAO_DATASET_ID,
+    BROWSERS_USER_AGENT,
+    CARTAO_PAGAMENTO_DATASET_ID,
+    DTYPES_BPC,
+    DTYPES_GARANTIA_SAFRA,
+    DTYPES_NOVO_BOLSA_FAMILIA,
+    LICITACAO_CONTRATO_DATASET_ID,
+    RENAMER_BPC,
+    RENAMER_GARANTIA_SAFRA,
+    RENAMER_NOVO_BOLSA_FAMILIA,
+    SERVIDORES_DATASET_ID,
+    TABELAS,
+)
 from pipelines.shared.cgu.utils import (
     build_input,
     build_urls,
@@ -29,40 +42,39 @@ TASK_RETRY_DELAY_SECONDS = global_constants.TASK_RETRY_DELAY.value
 # pyrefly: ignore [bad-return]
 def partition_data(table_id: str, dataset_id: str) -> str:
     log("---------------------------- Read data ----------------------------")
-    if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
+    if dataset_id in [
+        CARTAO_PAGAMENTO_DATASET_ID,
+        LICITACAO_CONTRATO_DATASET_ID,
+    ]:
         df = read_csv(
             dataset_id=dataset_id, table_id=table_id, column_replace=None
         )
-        if dataset_id == "br_cgu_cartao_pagamento":
+        if dataset_id == CARTAO_PAGAMENTO_DATASET_ID:
             to_partitions(
                 data=df,
                 partition_columns=["ANO_EXTRATO", "MES_EXTRATO"],
-                savepath=constants.TABELAS.value[dataset_id][table_id][
-                    "OUTPUT"
-                ],
+                savepath=TABELAS[dataset_id][table_id]["OUTPUT"],
                 file_type="csv",
             )
-            return constants.TABELAS.value[dataset_id][table_id]["OUTPUT"]
+            return TABELAS[dataset_id][table_id]["OUTPUT"]
 
-        if dataset_id == "br_cgu_licitacao_contrato":
+        if dataset_id == LICITACAO_CONTRATO_DATASET_ID:
             to_partitions(
                 data=df,
                 partition_columns=["ano", "mes"],
-                savepath=constants.TABELAS.value[dataset_id][table_id][
-                    "OUTPUT"
-                ],
+                savepath=TABELAS[dataset_id][table_id]["OUTPUT"],
                 file_type="csv",
             )
-            return constants.TABELAS.value[dataset_id][table_id]["OUTPUT"]
+            return TABELAS[dataset_id][table_id]["OUTPUT"]
 
-    elif dataset_id == "br_cgu_servidores_executivo_federal":
+    elif dataset_id == SERVIDORES_DATASET_ID:
         df = read_and_clean_csv(table_id=table_id)
         to_partitions(
             data=df,
             partition_columns=["ano", "mes"],
-            savepath=constants.TABELAS.value[dataset_id][table_id]["OUTPUT"],
+            savepath=TABELAS[dataset_id][table_id]["OUTPUT"],
         )
-        return constants.TABELAS.value[dataset_id][table_id]["OUTPUT"]
+        return TABELAS[dataset_id][table_id]["OUTPUT"]
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
@@ -83,7 +95,7 @@ def download_file(
     if isinstance(reference_date, str):
         reference_date = date.fromisoformat(reference_date)
 
-    value_constants = constants.TABELAS.value[dataset_id][table_id]
+    value_constants = TABELAS[dataset_id][table_id]
     built_urls = build_urls(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -93,21 +105,19 @@ def download_file(
         month=reference_date.month,
     )
     if dataset_id in [
-        "br_cgu_cartao_pagamento",
-        "br_cgu_licitacao_contrato",
-        "br_cgu_beneficios_cidadao",
+        CARTAO_PAGAMENTO_DATASET_ID,
+        LICITACAO_CONTRATO_DATASET_ID,
+        BENEFICIOS_CIDADAO_DATASET_ID,
     ]:
         destino = value_constants["INPUT"]
         # pyrefly: ignore [bad-argument-type]
         os.makedirs(destino, exist_ok=True)
 
-        if dataset_id == "br_cgu_beneficios_cidadao" and isinstance(
+        if dataset_id == BENEFICIOS_CIDADAO_DATASET_ID and isinstance(
             built_urls, str
         ):
             built_urls = built_urls.rstrip("/")
-            headers = {
-                "User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]
-            }
+            headers = {"User-Agent": BROWSERS_USER_AGENT["chrome"]}
         else:
             headers = None
 
@@ -127,9 +137,9 @@ def download_file(
             )
             raise
 
-    elif dataset_id == "br_cgu_servidores_executivo_federal":
+    elif dataset_id == SERVIDORES_DATASET_ID:
         input_dirs = build_input(table_id)
-        headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
+        headers = {"User-Agent": BROWSERS_USER_AGENT["chrome"]}
         for url, input_dir in zip(built_urls, input_dirs, strict=True):
             destino = f"{value_constants['INPUT']}/{input_dir}"
             log(f"------------------ URL = {url} ------------------")
@@ -145,9 +155,9 @@ def download_file(
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 # pyrefly: ignore [bad-return]
 def read_and_partition_beneficios_cidadao(table_id: str) -> str:
-    constants_cgu_beneficios_cidadao = constants.TABELAS.value[
-        "br_cgu_beneficios_cidadao"
-    ][table_id]
+    constants_cgu_beneficios_cidadao = TABELAS[BENEFICIOS_CIDADAO_DATASET_ID][
+        table_id
+    ]
     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao["INPUT"]):
         for nome_arquivo in os.listdir(
             constants_cgu_beneficios_cidadao["INPUT"]
@@ -164,24 +174,24 @@ def read_and_partition_beneficios_cidadao(table_id: str) -> str:
                     decimal=",",
                     na_values="" if table_id != "bpc" else None,
                     dtype=(
-                        constants.DTYPES_NOVO_BOLSA_FAMILIA.value
+                        DTYPES_NOVO_BOLSA_FAMILIA
                         if table_id == "novo_bolsa_familia"
                         else (
-                            constants.DTYPES_GARANTIA_SAFRA.value
+                            DTYPES_GARANTIA_SAFRA
                             if table_id == "garantia_safra"
-                            else constants.DTYPES_BPC.value
+                            else DTYPES_BPC
                         )
                     ),
                 ) as reader:
                     for number, chunk in enumerate(tqdm(reader)):
                         chunk = chunk.rename(
                             columns=(
-                                constants.RENAMER_NOVO_BOLSA_FAMILIA.value
+                                RENAMER_NOVO_BOLSA_FAMILIA
                                 if table_id == "novo_bolsa_familia"
                                 else (
-                                    constants.RENAMER_GARANTIA_SAFRA.value
+                                    RENAMER_GARANTIA_SAFRA
                                     if table_id == "garantia_safra"
-                                    else constants.RENAMER_BPC.value
+                                    else RENAMER_BPC
                                 )
                             )
                         )
