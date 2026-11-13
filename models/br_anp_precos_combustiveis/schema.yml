@@ -6,13 +6,54 @@ models:
       diesel s10, gasolina aditivada, glp, diesel e gnv - com base na pesquisa de
       preços da Agência Nacional do Petróleo, Gás Natural e Biocombustíveis realizada
       a partir da primeira semana de 2004 até os dias de hoje.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [cnpj_revenda, data_coleta, produto]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [preco_compra]
+          config:
+            where: __most_recent_year__
+      - dbt_utils.expression_is_true:
+          expression: >-
+            unidade_medida = case produto
+              when 'Glp' then 'R$/13kg'
+              when 'Gnv' then 'R$/m3'
+              else 'R$/litro'
+            end
+          config:
+            where: __most_recent_year__
+      - dbt_utils.expression_is_true:
+          expression: >-
+            preco_venda between if(produto = 'Glp', 50, 1)
+              and if(produto = 'Glp', 250, 20)
+          config:
+            severity: warn
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
       - name: sigla_uf
         description: Sigla da Unidade Federativa da revenda pesquisada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município IBGE - 7 Dígitos
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: bairro_revenda
         description: Nome do bairro da revenda pesquisada
       - name: cep_revenda
@@ -30,10 +71,34 @@ models:
         description: Data da coleta do preço
       - name: produto
         description: Nome do combustível
+        tests:
+          - accepted_values:
+              values:
+                - Diesel
+                - Diesel S10
+                - Etanol
+                - Gasolina
+                - Gasolina Aditivada
+                - Glp
+                - Gnv
+              config:
+                where: __most_recent_year__
       - name: unidade_medida
         description: Unidade de medida
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
+          - accepted_values:
+              values: [R$/litro, R$/m3, R$/13kg]
+              config:
+                where: __most_recent_year__
       - name: preco_compra
         description: Preço de venda da distribuidora para o posto revendedor de combustível
       - name: preco_venda
         description: Preço de venda ao consumidor final praticado pelo revendedor
           na data da coleta
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
