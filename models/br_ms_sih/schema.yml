@@ -3,6 +3,11 @@ version: 2
 models:
   - name: br_ms_sih__servicos_profissionais
     description: Sistema de Informações Hospitalares do SUS (SIH/SUS)
+    tests:
+      - custom_uf_month_completeness:
+          year_column: ano
+          month_column: mes
+          uf_column: sigla_uf
     columns:
       - name: ano
         description: Ano
@@ -21,7 +26,7 @@ models:
       - name: data_saida_iternacao
         description: Data do final da internação
       - name: sigla_uf
-        description: Sigla unidade da fedaração
+        description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
@@ -175,6 +180,20 @@ models:
         description: Valor
   - name: br_ms_sih__aihs_reduzidas
     description: Movimento de AIH - Arquivos Reduzidos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_aih
+            - tipo_aih
+            - sequencial_aih
+          config:
+            where: ano >= extract(year from current_date()) - 2
+      - custom_uf_month_completeness:
+          year_column: ano
+          month_column: mes
+          uf_column: sigla_uf
     columns:
       - name: ano
         description: Ano de processamento da AIH, no formato aaaa
@@ -188,8 +207,19 @@ models:
           - not_null:
               config:
                 where: __most_recent_year_month__
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
       - name: id_aih
-        description: Número da AIH.
+        description: Número da AIH
         tests:
           - not_null:
               config:
@@ -374,39 +404,39 @@ models:
       - name: cid_diagnostico_secundario_1_categoria
         description: Categoria do CID do Diagnóstico secundário 1.
       - name: cid_diagnostico_secundario_1_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 1.
+        description: Subcategoria do CID do Diagnóstico secundário 1.
       - name: cid_diagnostico_secundario_2_categoria
         description: Categoria do CID do Diagnóstico secundário 2.
       - name: cid_diagnostico_secundario_2_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 2.
+        description: Subcategoria do CID do Diagnóstico secundário 2.
       - name: cid_diagnostico_secundario_3_categoria
         description: Categoria do CID do Diagnóstico secundário 3.
       - name: cid_diagnostico_secundario_3_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 3.
+        description: Subcategoria do CID do Diagnóstico secundário 3.
       - name: cid_diagnostico_secundario_4_categoria
         description: Categoria do CID do Diagnóstico secundário 4.
       - name: cid_diagnostico_secundario_4_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 4.
+        description: Subcategoria do CID do Diagnóstico secundário 4.
       - name: cid_diagnostico_secundario_5_categoria
         description: Categoria do CID do Diagnóstico secundário 5.
       - name: cid_diagnostico_secundario_5_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 5.
+        description: Subcategoria do CID do Diagnóstico secundário 5.
       - name: cid_diagnostico_secundario_6_categoria
         description: Categoria do CID do Diagnóstico secundário 6.
       - name: cid_diagnostico_secundario_6_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 6.
+        description: Subcategoria do CID do Diagnóstico secundário 6.
       - name: cid_diagnostico_secundario_7_categoria
         description: Categoria do CID do Diagnóstico secundário 7.
       - name: cid_diagnostico_secundario_7_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 7.
+        description: Subcategoria do CID do Diagnóstico secundário 7.
       - name: cid_diagnostico_secundario_8_categoria
         description: Categoria do CID do Diagnóstico secundário 8.
       - name: cid_diagnostico_secundario_8_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 8.
+        description: Subcategoria do CID do Diagnóstico secundário 8.
       - name: cid_diagnostico_secundario_9_categoria
         description: Categoria do CID do Diagnóstico secundário 9.
       - name: cid_diagnostico_secundario_9_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 9.
+        description: Subcategoria do CID do Diagnóstico secundário 9.
       - name: tipo_diagnostico_secundario_1
         description: Tipo de diagnóstico secundário 1.
       - name: tipo_diagnostico_secundario_2

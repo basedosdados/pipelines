@@ -1,5 +1,6 @@
 {{ config(alias="dicionario", schema="br_ms_sih") }}
 
+-- comentário para fazer a action disparar. pode ser apagado no futuro.
 select
     safe_cast(id_tabela as string) id_tabela,
     safe_cast(nome_coluna as string) nome_coluna,
