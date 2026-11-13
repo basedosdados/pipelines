@@ -60,6 +60,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 8. `reorder_observation_levels(...)` — if human specifies order
 9. `upload_columns_from_sheet(...)` — bulk upload columns from architecture Google Sheet (or `bulk_upsert_columns` with `columns_json`, which needs no Google Sheet)
 10. `update_column(...)` — per-column follow-up for `is_partition`, `is_primary_key`, EN/ES descriptions, **and linking each identifying column to its observation level** (see "Observation-level column linking" below)
+10b. **Mark `coverage_entity` on the temporal columns** — `year` first, then `month`/`quarter`/`bimester` (or `date` alone). Required for every table with a time dimension; see "`coverage_entity`" below
 11. `create_update_cloud_table(...)` — link to BigQuery table
 12. `create_update_coverage(...)` — coverage for area "br" (see `is_closed` below)
 13. `create_update_datetime_range(...)` — temporal range
@@ -162,6 +163,101 @@ Link exactly the grain columns — the geographic id column to its geographic OL
 
 **Caveat:** `update_column`'s boolean args default to `False`, so a bare call **clobbers** `is_partition` / `is_primary_key`. When linking an OL on a column that is also a partition or primary key, re-pass those flags in the same call (e.g. `is_partition=True` on `year`, `is_primary_key=True` on a directory key column).
 
+## `coverage_entity` — mark the temporal columns (do not skip)
+
+The backend is the single source of truth for a table's coverage spec. Nothing in
+`pipelines` declares it any more: `register_table_materialization_task` calls
+`coverage_from_backend(dataset_id, table_id)`, which reads the `coverageSpec` GraphQL
+query. That query derives everything from records registered in this step sequence:
+
+| Field | Derived from |
+|---|---|
+| `coverageColumns` | the table's columns with `Column.coverage_entity` set |
+| `dateColumnKind` | the set of entities marked: `date`, `year`, `year_month`, `year_quarter`, `year_bimester` |
+| `tier` | the table's `Coverage` records (`is_closed`): `all_free` (free only), `part_bdpro` (free + pro), `all_bdpro` (pro only) |
+
+Both paths that register a materialization go through it: the recurring pipeline's
+`build_and_promote` **and** the `table-approve` action on merge (via
+`transfer_files_to_prod_flow`). So this applies to every new table with a time
+dimension, with or without a pipeline.
+
+### What to mark
+
+`Column.coverage_entity` is an FK to `Entity`, limited to the `datetime` category. Mark
+the column(s) that carry the table's temporal grain, and nothing else:
+
+| Table grain | Columns to mark (Portuguese / English names) |
+|---|---|
+| annual | `ano` / `year` → `year` |
+| monthly | `ano` → `year`, `mes` → `month` |
+| quarterly | `ano` → `year`, `trimestre` → `quarter` |
+| bimonthly | `ano` → `year`, `bimestre` → `bimester` |
+| daily | `data` / `date` → `date` |
+
+Only these combinations are valid: `date` alone, `year` alone, or `year` plus one of
+`month`/`quarter`/`bimester`. Each entity can be used once per table. A table with no
+time dimension (a `dicionario`, a snapshot directory) gets no mark.
+
+### What happens if you skip it
+
+| State | `tier` | Effect |
+|---|---|---|
+| temporal columns not marked | `non_historical` | the materialization only updates `Table.Update.latest` from the BigQuery last-modified time. The `DateTimeRange`s never move, and a table that should be `part_bdpro` never gets its Row Access Policies — **silently** |
+| marked, but no `Coverage` yet | `""` | `coverage_from_backend` raises (`tem coverage_entity marcado no backend, mas nenhuma Coverage cadastrada ainda`) |
+| no `CloudTable` with that `gcp_dataset_id`/`gcp_table_id` | — | `coverage_from_backend` raises (`Backend não tem coverageSpec`) |
+
+`register_table_materialization_task` no longer needs `coverage=`. The argument remains
+only as a manual override; do not pass a hand-built `CoverageSpec` from a flow.
+
+### How to mark it
+
+The databasis MCP `update_column` does not expose `coverage_entity` yet. Use one of:
+
+- **Django admin**: set **Coverage entity** on the column. The table's admin page then
+  lists the marked columns under its coverage columns field. Say in the report that you
+  did it through the admin.
+- **GraphQL**: the generic `CreateUpdateColumn` mutation already accepts `coverageEntity`,
+  an `Entity` id. Resolve it with `discover_ids(env=<env>, keys=["entity"])` (slugs
+  `year`, `month`, `quarter`, `bimester`, `date`); ids differ between dev and prod.
+
+  ```graphql
+  mutation($input: CreateUpdateColumnInput!) {
+    CreateUpdateColumn(input: $input) {
+      errors { field messages }
+      column { id name coverageEntity { slug } }
+    }
+  }
+  ```
+
+  with `input: {id: <column_id>, name: <column_name>, table: <table_id>, coverageEntity: <entity_id>}`.
+
+**Order matters for two-column tables.** The mutation saves one column at a time and
+`Column.clean()` validates the combination on every save. Mark **`year` first**, then
+`month`/`quarter`/`bimester`: `{year}` and `{year, month}` are valid, `{month}` alone is
+not, so marking `mes` before `ano` is rejected.
+
+Do it on **every backend the table is registered in** — dev in step 9, prod in step 10.
+The `table-approve` run on merge reads the **prod** backend.
+
+### Verify
+
+Query `coverageSpec` and check the result matches the table:
+
+```graphql
+query($datasetId: String!, $tableId: String!) {
+  coverageSpec(datasetId: $datasetId, tableId: $tableId) {
+    tier
+    dateColumnKind
+    coverageColumns { name entity }
+  }
+}
+```
+
+`datasetId`/`tableId` are the GCP ids (`br_ibge_ipca`, `mes_brasil`). Expected for a
+monthly paywalled table: `tier="part_bdpro"`, `dateColumnKind="year_month"`,
+`coverageColumns=[{ano, year}, {mes, month}]`. A temporal table returning
+`non_historical` has not been marked.
+
 ## `create_update_cloud_table` fields
 
 | Field | Notes |
@@ -195,10 +291,11 @@ Two things that are easy to miss:
   so pro starts the **next** period — free `1913-01..2025-12`, pro `2026-01..2026-06`,
   never `2025-12..2026-06`.
 
-For the pipeline side (`PartBdpro`, rolling windows, Row Access Policies), see the
-"BD Pro rolling window" section of `prefect-pipeline-conventions`. Both coverages
-must exist **before** a `part_bdpro` pipeline runs, or it hard-fails at
-`assert_coverage_topology`.
+**The Coverage records are the tier.** `coverageSpec.tier` is derived from which
+coverages exist — free only is `all_free`, free + pro is `part_bdpro`, pro only is
+`all_bdpro`. There is no tier to set anywhere else; to paywall a table, create the pro
+Coverage. For the pipeline side (rolling window, Row Access Policies), see the
+"BD Pro rolling window" section of `prefect-pipeline-conventions`.
 
 ## `create_update_datetime_range` fields
 
@@ -325,6 +422,6 @@ After completing all dev steps, output:
 ```text
 === METADATA REGISTRATION COMPLETE (env=dev) ===
 Dataset: <slug> (id=<id>)
-Tables: ✓ <table_slug> — N OLs, N columns, cloud table, coverage, update
+Tables: ✓ <table_slug> — N OLs, N columns, coverage_entity (<dateColumnKind> / <tier> from coverageSpec), cloud table, coverage, update
 Next: verify at https://development.basedosdados.org/dataset/<slug>
 ```

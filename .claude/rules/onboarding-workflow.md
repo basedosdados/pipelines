@@ -16,10 +16,12 @@ Work through steps in order. Do not skip steps.
 6b. auxiliary            bundle the source's documentation per table -> GCS
 7.  validate             run DBT tests and data quality checks; fix or flag errors
 8.  discover             resolve all reference IDs from backend (dev)
-9.  metadata             register metadata in dev backend (dataset status = under_review)
+9.  metadata             register metadata in dev backend (dataset status = under_review),
+                         including coverage_entity on every table's temporal columns
 9b. publish dev/staging  flip the dev/staging dataset under_review → published (NOT the public prod frontend) so the reviewer sees it as it will appear
 [PAUSE — verification checkpoint]
-10. metadata --env prod  promote to prod (dataset status = under_review; only after human approval)
+10. metadata --env prod  promote to prod (dataset status = under_review; only after human approval),
+                         coverage_entity included — table-approve reads it on merge
 11. pr                   open PR with changelog
 12. pipeline             recurring sources only — add a Prefect refresh pipeline
 [PR MERGES + GH table-approve action runs + prod tables verified]
@@ -83,7 +85,7 @@ the logs via `mcp__databasis__get_flow_run_logs`, or check whether coverage move
 registers an unknown deployment with `is_schedule_active=False`. Arming is a manual tick
 in Django admin (`/admin/admin_data_tools/disabledflowschedule/`), and the first armed run
 is the first-ever execution of the prod upload — and, **only for a `part_bdpro` table**, of
-the Row Access Policies (`needs_row_access_policy` is `isinstance(spec, PartBdpro)`, so an
+the Row Access Policies (`needs_row_access_policy` is `spec.tier == "part_bdpro"`, so an
 all-free pipeline never issues them). Do it deliberately, watching.
 
 **Update and Poll records.** A recurring dataset must carry all three: the table `Update`
@@ -94,13 +96,14 @@ verify — a dataset tested with metadata off ends up with a Poll and no source 
 
 **BD Pro rolling window.** Data Basis paywalls the most recent window of any table
 that refreshes **monthly or more often**; older data stays free, and lower-frequency
-tables in the same dataset stay free entirely. Decide the tier **per table**: the
-high-frequency one gets `PartBdpro(free_lag=…)` (default 6 months), the rest
-`AllFree`. This is not extra machinery — `register_table_materialization_task`
+tables in the same dataset stay free entirely. Decide the tier **per table**, through
+the Coverages registered in the backend: the high-frequency one gets a free **and** a
+pro Coverage (`is_closed=True`) and is read as `part_bdpro` (6-month free lag); the rest
+get only the free one (`all_free`). Nothing about the tier goes in the pipeline code.
+This is not extra machinery — `register_table_materialization_task`
 already rewrites both coverage ranges and re-issues the BigQuery Row Access Policies
-every run, so the window rolls by itself and the dbt model is untouched. It does
-require a **pro Coverage (`is_closed=True`) to exist on the table before the spec
-changes**, or the run hard-fails at `assert_coverage_topology`. See the "BD Pro
+every run, so the window rolls by itself and the dbt model is untouched. It only
+works if the temporal columns carry `coverage_entity` (step 9). See the "BD Pro
 rolling window" section of `prefect-pipeline-conventions` for the full mechanism,
 the free/pro `is_closed` polarity, and what is verifiable locally.
 The upload/dbt/metadata halves run on the deployed worker (prod is not exercisable
@@ -127,6 +130,29 @@ Two things to know before reporting success:
 
 Skip this step entirely for a source that publishes data and nothing else.
 
+## Steps 9 and 10 - mark `coverage_entity` on temporal columns (every table with a time dimension)
+
+The coverage spec of a table (`tier`, date columns, date kind) is no longer written in
+any pipeline code — the backend derives it from `Column.coverage_entity` and the
+table's `Coverage` records, and `register_table_materialization_task` reads it from
+there. That task runs on **every** materialization, including the `table-approve`
+action on merge, so this is part of onboarding every new table, not only the ones that
+get a pipeline.
+
+As part of registering the columns, in dev (step 9) and again in prod (step 10):
+
+1. Mark the temporal columns: `ano`→`year`, plus `mes`→`month` /
+   `trimestre`→`quarter` / `bimestre`→`bimester` when the table has one; or `data`→`date`.
+   **Mark `year` first** — the backend validates each save, and `month` alone is rejected.
+2. Create the Coverage(s): free only for public data, free + pro (`is_closed=True`) for a
+   table paywalling a rolling window.
+3. Query `coverageSpec` and confirm `tier` and `dateColumnKind`.
+
+Skipping step 1 does not fail anything: the table is read as `non_historical`, its
+coverage never moves and no paywall is applied. The MCP does not expose
+`coverage_entity` yet; see the "`coverage_entity`" section of `metadata-schema` for the
+admin and GraphQL routes.
+
 ## Verification checkpoint (between steps 9 and 10)
 
 After step 9 succeeds, output the following checklist and **wait for explicit approval** before proceeding to step 10:
@@ -137,6 +163,7 @@ After step 9 succeeds, output the following checklist and **wait for explicit ap
 ✓ Tables: <list>
 ✓ Columns: <counts per table>
 ✓ Coverage: <start>–<end>
+✓ coverage_entity: <per table: dateColumnKind / tier from coverageSpec, or "non_historical — no time dimension">
 ✓ Cloud tables: OK
 ✓ Auxiliary files: <per-table bundles, and the real anonymous HTTP status of each URL>
 ✓ Verify at: https://development.basedosdados.org/dataset/<id>
