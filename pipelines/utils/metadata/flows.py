@@ -8,7 +8,7 @@ datasets/tabelas que o disparam.
 from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.flows import transfer_files_to_prod_flow
 from pipelines.utils.metadata.constants import BUILD_AND_PROMOTE_JOB_VARIABLES
-from pipelines.utils.metadata.domain import CoverageSpec
+from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -23,7 +23,7 @@ from pipelines.utils.utils import log
 def update_temporal_coverage(
     dataset_id: str,
     table_id: str,
-    coverage: CoverageSpec,
+    coverage: CoverageSpec | None = None,
     env: str = "prod",
     bq_project: str = "basedosdados",
     prefect_mode: str = "prod",
@@ -34,9 +34,10 @@ def update_temporal_coverage(
     Args:
         dataset_id: ID do dataset no backend/BigQuery.
         table_id: ID da tabela no backend/BigQuery.
-        coverage: especificação de cobertura (`CoverageSpec` — união
-            discriminada `PartBdpro`/`AllBdpro`/`AllFree`/`NonHistorical`),
-            validada pelo Pydantic no parsing do parâmetro do flow.
+        coverage: `CoverageSpec` já validado, se disponível — útil pra
+            disparo manual sobrescrevendo o que está no backend. Quando
+            `None` (padrão), busca do próprio backend (`coverageSpec`,
+            ver `pipelines.utils.metadata.coverage`).
         env: backend de destino.
         bq_project: projeto BigQuery onde a tabela vive.
         prefect_mode: resolve o projeto de billing (`MODE_PROJECT`).
@@ -58,7 +59,6 @@ update_temporal_coverage.deploy_schedules = []
 def build_and_promote(
     dataset_id: str,
     table_id: str,
-    coverage: CoverageSpec,
     env: str = "prod",
     bq_project: str = "basedosdados",
     prefect_mode: str = "prod",
@@ -67,7 +67,6 @@ def build_and_promote(
     download_billing_project: str = "basedosdados",
     update_metadata: bool = False,
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     """Materializa, testa e promove uma tabela pra prod, registrando a
     materialização ao final.
@@ -75,8 +74,6 @@ def build_and_promote(
     Args:
         dataset_id: ID do dataset no backend/BigQuery.
         table_id: ID da tabela no backend/BigQuery.
-        coverage: especificação de cobertura (`CoverageSpec`), validada
-            pelo Pydantic no parsing do parâmetro do flow.
         env: backend de destino.
         bq_project: projeto BigQuery onde a tabela vive.
         prefect_mode: resolve o projeto de billing (`MODE_PROJECT`),
@@ -112,13 +109,6 @@ def build_and_promote(
             `ExtractAndLoad.dump_mode`, o mesmo usado no upload pro
             staging de dev em `extract_and_load`. Default `"append"`
             cobre invocação manual sem esse valor.
-        source_format: formato do arquivo em staging (`"csv"` ou
-            `"parquet"`) usado no upload pra prod dentro de
-            `transfer_files_to_prod_flow` — vem de
-            `ExtractAndLoad.source_format`. Default `"csv"` cobre
-            invocação manual sem esse valor; um dataset em `"parquet"`
-            que não passar isso corretamente falha com
-            `FileNotFoundError` ao promover (procuraria `.csv`).
     """
     rename_flow_run_dataset_table(
         prefix="Build and Promote: ",
@@ -139,6 +129,9 @@ def build_and_promote(
     )
 
     if promote_to_prod:
+        # coverage não é passada: `transfer_files_to_prod_flow` busca do
+        # backend sozinha (`dataset_id`/`table_id` já bastam) — ver
+        # `pipelines.utils.metadata.coverage`.
         transfer_files_to_prod_flow(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -146,19 +139,16 @@ def build_and_promote(
             source_bucket="basedosdados-dev",
             download_billing_project=download_billing_project,
             materialize_after_dump=True,
-            coverage=coverage,
             dbt_command="run/test",
             env=env,
             bq_project=bq_project,
             prefect_mode=prefect_mode,
             dump_mode=dump_mode,
-            source_format=source_format,
         )
     elif update_metadata:
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=coverage,
             env=env,
             bq_project=bq_project,
             prefect_mode=prefect_mode,

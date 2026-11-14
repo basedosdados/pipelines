@@ -35,11 +35,8 @@ from unidecode import unidecode
 
 from pipelines.datasets.br_cvm_administradores_carteira.constants import (
     DATASET_ID,
-    PESSOA_FISICA_COVERAGE,
     PESSOA_FISICA_TABLE_ID,
-    PESSOA_JURIDICA_COVERAGE,
     PESSOA_JURIDICA_TABLE_ID,
-    RESPONSAVEL_COVERAGE,
     RESPONSAVEL_TABLE_ID,
 )
 from pipelines.utils.stage_dispatch import (
@@ -205,12 +202,6 @@ _CLEANERS = {
     PESSOA_JURIDICA_TABLE_ID: clean_table_pessoa_juridica,
 }
 
-_COVERAGE = {
-    RESPONSAVEL_TABLE_ID: RESPONSAVEL_COVERAGE,
-    PESSOA_FISICA_TABLE_ID: PESSOA_FISICA_COVERAGE,
-    PESSOA_JURIDICA_TABLE_ID: PESSOA_JURIDICA_COVERAGE,
-}
-
 
 def _count_csv_rows(filepath: str) -> int:
     """Conta linhas de dado (exclui o cabeçalho) num CSV já limpo."""
@@ -254,7 +245,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         filepath = _CLEANERS[table_id]()
 
         return ExtractAndLoad(
-            coverage=_COVERAGE[table_id].model_dump(),
             data_path=filepath,
         )
 

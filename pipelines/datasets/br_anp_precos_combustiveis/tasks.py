@@ -14,7 +14,6 @@ from datetime import date
 import pandas as pd
 from prefect import task
 
-from pipelines.datasets.br_anp_precos_combustiveis.constants import COVERAGE
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
 )
@@ -31,6 +30,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     rename_and_to_create_endereco,
     rename_columns,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
@@ -97,7 +97,8 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     df = download_and_transform()
     output_path = make_partitions(df=df)
 
+    check_rows_written(rows_read=len(df), output_dir=output_path)
+
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=output_path,
     )

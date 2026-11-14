@@ -1,23 +1,8 @@
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    FreeLag,
-    PartBdpro,
-    YearOnly,
-)
-
 DATASET_ID = "br_cgu_emendas_parlamentares"
 
 MICRODADOS_TABLE_ID = "microdados"
-
-# Mesma coverage do flow monolítico antigo (`register_table_materialization_task`
-# em `flows.py`): anual, com a parte recente BD pro.
-COVERAGE = PartBdpro(
-    date_column=YearOnly(col="ano_emenda"),
-    date_format=DateFormat.YEAR,
-    free_lag=FreeLag(unit="years", value=1),
-)
 
 
 class constants(Enum):

@@ -81,7 +81,11 @@ função, `_camara_flow`, em `flows.py`. Cada execução:
    `votacoes_2026.csv`). Os tratamentos removem `;` e quebras de linha dos campos de
    texto livre (ementas, descrições, observações), renomeiam colunas aninhadas de
    `evento` e `frente_deputado` e, em `proposicao_microdados`, preenchem o `ano` a
-   partir da data de apresentação quando a fonte traz `0`.
+   partir da data de apresentação quando a fonte traz `0`. Depois dos dois anos,
+   `check_rows_written` (`pipelines/utils/data_tests/rows.py`) compara as linhas dos
+   CSVs da pasta da tabela com as gravadas e para a execução, antes do upload, se
+   faltar ou sobrar linha. Nas tabelas de arquivo único, os dois anos são gravados no
+   mesmo arquivo, e a conta usa só a última gravação.
 4. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
    `basedosdados-dev` e o dbt roda e testa em dev; só então vão para o bucket
    `basedosdados` e o dbt roda e testa em produção. Uma falha em dev impede a ida para

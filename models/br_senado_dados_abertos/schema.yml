@@ -9,8 +9,14 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [url_pagina_particular]
+          at_least: 0.95
+          ignore_values:
+            - sigla_partido
+            - email
+            - url_foto
+            - url_pagina
+            - url_pagina_particular
+            - id_publico_legislatura_atual
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -53,7 +59,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -129,7 +135,8 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [descricao_voto]
           config:
             where: __most_recent_year__
     columns:
@@ -174,7 +181,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -211,8 +218,10 @@ models:
     description: >
       Processos legislativos (projetos, requerimentos, medidas e demais matérias)
       apresentados no Senado Federal e no Congresso Nacional, com uma linha por processo.
-      `norma_gerada` e `apelido` ficam fora do piso de 5% de não-nulos
-      (`ignore_values`) porque são esparsas por natureza, não por falha de coleta.
+      `objetivo`, `situacao_atual`, `sigla_tipo_deliberacao`, `norma_gerada`,
+      `apelido`, `data_deliberacao` e `data_situacao_atual` ficam fora do piso de
+      95% de não-nulos (`ignore_values`). `norma_gerada` e `apelido` são
+      esparsas por natureza, não por falha de coleta.
       Só uma minoria dos processos chega a virar norma jurídica, e a conversão
       leva anos: a proporção de `norma_gerada` preenchida cai de 42% em 1988 para
       3,9% em 2026 de forma contínua, já que o teste é escopado em
@@ -225,8 +234,15 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [apelido, norma_gerada]
+          at_least: 0.95
+          ignore_values:
+            - objetivo
+            - situacao_atual
+            - sigla_tipo_deliberacao
+            - norma_gerada
+            - apelido
+            - data_deliberacao
+            - data_situacao_atual
           config:
             where: __most_recent_year__
     columns:
@@ -294,7 +310,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_partido]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_extincao]
     columns:
       - name: id_partido
         description: Código identificador do partido político
@@ -315,7 +332,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_bloco]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [data_extincao]
     columns:
       - name: id_bloco
@@ -337,7 +354,12 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_lideranca]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - id_bloco
+            - sigla_bloco
+            - nome_bloco
+            - numero_ordem_vice_lider
     columns:
       - name: id_lideranca
         description: Código identificador da liderança
@@ -380,7 +402,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_comissao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_comissao
         description: Código identificador do colegiado
@@ -409,7 +431,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_colegiado, cargo]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_colegiado
         description: Código identificador do colegiado da Mesa
@@ -440,7 +462,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_mandato]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [id_mandato, participacao]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -477,7 +500,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_partido, data_filiacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [id_partido, data_filiacao, data_desfiliacao]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -499,7 +523,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_comissao, data_inicio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_fim]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -529,7 +554,8 @@ models:
             - id_cargo
             - data_inicio
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_fim]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -557,7 +583,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [tipo_encerramento, data_destituicao]
           config:
             where: __most_recent_year__
@@ -618,7 +644,12 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - identificacao_materia
+            - sigla_materia
+            - numero_materia
+            - ano_materia
           config:
             where: __most_recent_year__
     columns:
@@ -678,7 +709,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           config:
             where: __most_recent_year__
     columns:
@@ -718,7 +749,8 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [id_senador, sigla_partido, sigla_uf]
           config:
             where: __most_recent_year__
     columns:

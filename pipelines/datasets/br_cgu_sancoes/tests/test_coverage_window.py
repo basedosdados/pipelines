@@ -3,22 +3,29 @@
 The paywall for ceis/cnep/acordos_leniencia is keyed on the *sanction start*
 date (a content column, ``data_inicio_sancao`` / ``data_inicio_acordo``), not on
 the snapshot/release date. These tests confirm the pure metadata policy accepts
-that arbitrary DateOnly column and that the window rolls as the source advances.
+that arbitrary date column and that the window rolls as the source advances.
 No network, no BigQuery — ``apply_row_access_policies`` (the actual DDL) needs
 the worker and is not exercised here.
+
+The specs here are built by hand (`CoverageSpec`/`CoverageColumn`, see
+`pipelines.utils.metadata.coverage`) instead of imported from
+`constants.py` — there is no local `COVERAGE` constant anymore, it comes from
+the backend (`coverage_from_backend`) at run time. `free_lag` is no longer a
+per-spec field either — `policy.PART_BDPRO_FREE_LAG` is a fixed 6-month
+constant shared by every dataset.
 """
 
 from datetime import date
 
 import pytest
 
-from pipelines.datasets.br_cgu_sancoes.constants import COVERAGE as _COVERAGE
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    PartBdpro,
+from pipelines.utils.metadata.coverage import (
+    CoverageColumn,
+    CoverageSpec,
+    Tier,
+    date_format_for,
 )
+from pipelines.utils.metadata.domain import DateFormat
 from pipelines.utils.metadata.policy import (
     CoverageIds,
     assert_coverage_topology,
@@ -31,47 +38,46 @@ PRO_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
 IDS_BOTH = CoverageIds(free=FREE_ID, pro=PRO_ID)
 IDS_FREE_ONLY = CoverageIds(free=FREE_ID, pro=None)
 
-PART_BDPRO_TABLES = ["ceis", "cnep", "acordos_leniencia"]
-ALL_FREE_TABLES = ["cepim", "acordos_leniencia_efeitos"]
-
 # The content date column each part_bdpro table paywalls on.
 PART_BDPRO_DATE_COL = {
     "ceis": "data_inicio_sancao",
     "cnep": "data_inicio_sancao",
     "acordos_leniencia": "data_inicio_acordo",
 }
+ALL_FREE_TABLES = ["cepim", "acordos_leniencia_efeitos"]
 
 
-def _col(spec) -> str:
-    dc = spec.date_column
-    assert isinstance(dc, DateOnly)
-    return dc.col
+def _spec(tier: Tier, column: str) -> CoverageSpec:
+    return CoverageSpec(
+        tier=tier,
+        date_column_kind="date",
+        coverage_columns=[CoverageColumn(name=column, entity="date")],
+    )
 
 
-def test_flow_coverage_specs_are_wellformed():
-    """The three compliance tables are part_bdpro on a content date, 6-month lag;
-    the other two are all_free on the snapshot date."""
-    for t in PART_BDPRO_TABLES:
-        spec = _COVERAGE[t]
-        assert isinstance(spec, PartBdpro)
-        assert spec.date_format == DateFormat.YEAR_MD
-        assert spec.free_lag.unit == "months" and spec.free_lag.value == 6
-        assert _col(spec) == PART_BDPRO_DATE_COL[t]
-    for t in ALL_FREE_TABLES:
-        spec = _COVERAGE[t]
-        assert isinstance(spec, AllFree)
-        assert _col(spec) == "data_extracao"
+PART_BDPRO_SPECS = {
+    t: _spec("part_bdpro", col) for t, col in PART_BDPRO_DATE_COL.items()
+}
+ALL_FREE_SPECS = {
+    t: _spec("all_free", "data_extracao") for t in ALL_FREE_TABLES
+}
+
+
+def test_date_format_is_year_md():
+    """Every spec here is a full date (not year/year_month) — `DateFormat.YEAR_MD`."""
+    for spec in [*PART_BDPRO_SPECS.values(), *ALL_FREE_SPECS.values()]:
+        assert date_format_for(spec.date_column_kind) == DateFormat.YEAR_MD
 
 
 def test_needs_row_access_policy_only_part_bdpro():
-    for t in PART_BDPRO_TABLES:
-        assert needs_row_access_policy(_COVERAGE[t]) is True
-    for t in ALL_FREE_TABLES:
-        assert needs_row_access_policy(_COVERAGE[t]) is False
+    for spec in PART_BDPRO_SPECS.values():
+        assert needs_row_access_policy(spec) is True
+    for spec in ALL_FREE_SPECS.values():
+        assert needs_row_access_policy(spec) is False
 
 
 def test_topology_part_bdpro_requires_free_and_pro():
-    spec = _COVERAGE["ceis"]
+    spec = PART_BDPRO_SPECS["ceis"]
     # both coverages present -> ok
     assert_coverage_topology(spec, IDS_BOTH)
     # onboarded AllFree (pro missing) -> hard fail before any write
@@ -80,7 +86,7 @@ def test_topology_part_bdpro_requires_free_and_pro():
 
 
 def test_topology_all_free_forbids_pro():
-    spec = _COVERAGE["cepim"]
+    spec = ALL_FREE_SPECS["cepim"]
     assert_coverage_topology(spec, IDS_FREE_ONLY)
     with pytest.raises(ValueError, match="all_free"):
         assert_coverage_topology(spec, IDS_BOTH)
@@ -89,7 +95,7 @@ def test_topology_all_free_forbids_pro():
 def test_window_split_at_real_source_end():
     """free ends 6 months before the sanction-start max; pro spans the day after
     free_end through source_end, on the content date column."""
-    spec = _COVERAGE["ceis"]
+    spec = PART_BDPRO_SPECS["ceis"]
     source_end = date(2026, 8, 13)
     ranges = compute_coverage_ranges(spec, source_end, IDS_BOTH)
     free, pro = ranges.free, ranges.pro
@@ -107,7 +113,7 @@ def test_window_split_at_real_source_end():
 def test_window_rolls_when_source_advances():
     """As the sanction-start max advances, free_end and the pro window advance
     with it — the window is recomputed every run, nothing static."""
-    spec = _COVERAGE["ceis"]
+    spec = PART_BDPRO_SPECS["ceis"]
     r1 = compute_coverage_ranges(spec, date(2026, 8, 13), IDS_BOTH)
     r2 = compute_coverage_ranges(spec, date(2026, 9, 30), IDS_BOTH)
     pro2 = r2.pro
@@ -119,7 +125,7 @@ def test_window_rolls_when_source_advances():
 
 
 def test_all_free_range_ends_at_source_end():
-    spec = _COVERAGE["cepim"]
+    spec = ALL_FREE_SPECS["cepim"]
     source_end = date(2026, 8, 12)
     ranges = compute_coverage_ranges(spec, source_end, IDS_FREE_ONLY)
     free = ranges.free

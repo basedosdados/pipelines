@@ -39,15 +39,6 @@ So the repo-wide "1 flow per table" default applies cleanly here, with no
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    NonHistorical,
-    PartBdpro,
-)
-
 
 class constants(Enum):
     """Constants for the br_cgu_sancoes pipeline.
@@ -144,54 +135,3 @@ REGISTRY_FOR_TABLE = {
 # (no registry/date of its own — see the module banner). Picked over cnep
 # arbitrarily; either would do since both carry `tipo_pessoa`.
 DICIONARIO_CHECK_REGISTRY = "ceis"
-
-# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
-# through it, by `register_table_materialization_task`/`build_and_promote`.
-#
-# ceis / cnep / acordos_leniencia are the high-frequency compliance tables and
-# carry the BD Pro rolling window, keyed on the SANCTION START date — a sanction
-# that started in the last 6 months is pro-only, everything older is free. Each
-# run recomputes free_end = max(<start_date>) - 6 months, rewrites both
-# DateTimeRanges and re-issues the BigQuery Row Access Policies, so the window
-# slides on its own. The paywall columns are 0% null, so the standard RAP
-# (<date_col> <= free_end) hides nothing unintentionally.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written — these three are onboarded AllFree, so the pro
-# Coverage must be created by hand before the first armed run.
-#
-# cepim / acordos_leniencia_efeitos have no content date; their only date column
-# is the snapshot stamp, so they stay fully free keyed on data_extracao.
-#
-# `dicionario` has no date column, so it takes `NonHistorical` instead — same
-# pattern as `au_ato_abr`/`au_geoscape_gnaf`. The old monolithic flow never
-# registered any coverage for `dicionario` at all; this is its first baseline,
-# not a change to a previously decided value.
-_PART_BDPRO_6M = FreeLag(unit="months", value=6)
-COVERAGE = {
-    CEIS_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data_inicio_sancao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    CNEP_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data_inicio_sancao"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    ACORDOS_LENIENCIA_TABLE_ID: PartBdpro(
-        date_column=DateOnly(col="data_inicio_acordo"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=_PART_BDPRO_6M,
-    ),
-    CEPIM_TABLE_ID: AllFree(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    ACORDOS_LENIENCIA_EFEITOS_TABLE_ID: AllFree(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-    DICIONARIO_TABLE_ID: NonHistorical(),
-}

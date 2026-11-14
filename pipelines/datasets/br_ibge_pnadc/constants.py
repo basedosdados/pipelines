@@ -5,19 +5,10 @@ Constantes do dataset br_ibge_pnadc.
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearQuarter
-
 DATASET_ID = "br_ibge_pnadc"
 
 # Tabela microdados — migrada pro pipeline em estágios (staged pipeline).
 MICRODADOS_TABLE_ID = "microdados"
-
-# Mesma coverage usada por `register_table_materialization_task` no antigo
-# flow monolítico.
-MICRODADOS_COVERAGE = PartBdpro(
-    date_column=YearQuarter(year="ano", quarter="trimestre"),
-    date_format=DateFormat.YEAR_MONTH,
-)
 
 # Constantes do dicionário (tabela `dicionario`, ainda não migrada — ver
 # docstring de `flows.py`).

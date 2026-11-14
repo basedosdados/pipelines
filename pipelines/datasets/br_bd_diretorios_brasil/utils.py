@@ -45,6 +45,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from pipelines.datasets.br_bd_diretorios_brasil.constants import constants
+from pipelines.utils.data_tests.rows import check_rows_written
 
 log = logging.getLogger("br_bd_diretorios_brasil")
 
@@ -702,6 +703,8 @@ def clean_catalogo(
     out_path = output_dir / "escola" / "data.parquet"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, out_path, compression="snappy")
+
+    check_rows_written(rows_read=len(table), output_dir=out_path.parent)
 
     log.info(
         "Wrote %d rows → %s (%.1f MB)",

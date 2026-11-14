@@ -3,17 +3,10 @@ Lógica compartilhada para os datasets br_cgu_* — Prefect 3.
 """
 
 from pipelines.shared.cgu.tasks import (
-    dict_for_table,
     get_current_date_and_download_file,
     partition_data,
     read_and_partition_beneficios_cidadao,
     verify_all_url_exists_to_download,
-)
-from pipelines.utils.metadata.domain import (
-    CoverageSpec,
-    DateFormat,
-    PartBdpro,
-    YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -26,33 +19,6 @@ from pipelines.utils.tasks import (
     upload_to_gcs,
 )
 
-# Formato em que cada tabela do br_cgu_beneficios_cidadao é gravada em disco por
-# `read_and_partition_beneficios_cidadao`. Precisa casar com o que o
-# `upload_to_gcs` procura: quando a staging já existe, ele chama `dump_header`,
-# que estoura FileNotFoundError se não achar arquivo no formato declarado.
-_SOURCE_FORMAT_BENEFICIOS_CIDADAO = {
-    "novo_bolsa_familia": "parquet",
-    "garantia_safra": "parquet",
-    "bpc": "csv",
-}
-
-
-def _part_bdpro_year_month(year: str, month: str) -> PartBdpro:
-    """Monta a cobertura padrão dos flows CGU: part_bdpro mensal.
-
-    Args:
-        year: nome da coluna de ano na tabela (ex. `ano`, `ano_extrato`).
-        month: nome da coluna de mês na tabela (ex. `mes`, `mes_extrato`).
-
-    Returns:
-        Cobertura part_bdpro em granularidade ano/mês, com o free_lag
-        padrão de 6 meses definido em `PartBdpro`.
-    """
-    return PartBdpro(
-        date_column=YearMonth(year=year, month=month),
-        date_format=DateFormat.YEAR_MONTH,
-    )
-
 
 def _materialize_and_metadata(
     *,
@@ -62,8 +28,6 @@ def _materialize_and_metadata(
     target: str,
     materialize_after_dump: bool,
     update_metadata: bool,
-    coverage: CoverageSpec,
-    source_format: str = "csv",
 ) -> None:
     """Sobe os dados particionados, materializa no dbt e atualiza metadados.
 
@@ -86,11 +50,6 @@ def _materialize_and_metadata(
             toca em prod nem em metadados.
         update_metadata: se verdadeiro, registra a materialização da
             tabela — sempre em `env="prod"`.
-        coverage: cobertura da tabela, usada no registro da materialização.
-        source_format: formato em que o passo de particionamento gravou os
-            arquivos em disco (`csv` ou `parquet`). Vale para os dois
-            uploads; se não casar com o que está no disco, o `dump_header`
-            chamado pelo `upload_to_gcs` estoura `FileNotFoundError`.
     """
     upload_to_gcs(
         data_path=filepath,
@@ -98,7 +57,6 @@ def _materialize_and_metadata(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format=source_format,
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -116,7 +74,6 @@ def _materialize_and_metadata(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format=source_format,
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -129,7 +86,6 @@ def _materialize_and_metadata(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=coverage,
             env="prod",
             bq_project="basedosdados",
         )
@@ -201,7 +157,6 @@ def _run_cgu_cartao_pagamento(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        coverage=_part_bdpro_year_month("ano_extrato", "mes_extrato"),
     )
 
 
@@ -280,7 +235,6 @@ def _run_cgu_servidores_publicos(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        coverage=_part_bdpro_year_month("ano", "mes"),
     )
 
 
@@ -347,7 +301,6 @@ def _run_cgu_licitacao_contrato(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        coverage=_part_bdpro_year_month("ano", "mes"),
     )
 
 
@@ -362,14 +315,9 @@ def _run_cgu_beneficios_cidadao(
 ) -> None:
     """Roda uma tabela do br_cgu_beneficios_cidadao de ponta a ponta.
 
-    Único flow CGU que declara `source_format` por tabela: o
-    `novo_bolsa_familia` e a `garantia_safra` são gravados em parquet, o
-    `bpc` em csv (ver `_SOURCE_FORMAT_BENEFICIOS_CIDADAO`).
-
     Args:
         dataset_id: id do dataset no BigQuery.
-        table_id: id da tabela dentro do dataset. Precisa estar em
-            `_SOURCE_FORMAT_BENEFICIOS_CIDADAO`.
+        table_id: id da tabela dentro do dataset.
         relative_month: quantos meses somar à última data registrada nos
             metadados para chegar no período a baixar.
         materialize_after_dump: se verdadeiro, materializa também em prod.
@@ -419,6 +367,4 @@ def _run_cgu_beneficios_cidadao(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        coverage=_part_bdpro_year_month(**dict_for_table(table_id)),
-        source_format=_SOURCE_FORMAT_BENEFICIOS_CIDADAO[table_id],
     )

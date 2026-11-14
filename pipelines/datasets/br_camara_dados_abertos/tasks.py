@@ -14,6 +14,7 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
 from pipelines.datasets.br_camara_dados_abertos.utils import (
     download_and_read_data,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.utils import log
 
 TASK_RETRIES = constants.TASK_MAX_RETRIES.value
@@ -30,6 +31,7 @@ def save_data(table_id: str) -> str:
         constants_camara.TABLES_OUTPUT_PATH.value[table_id],
         constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
     ]
+    rows_read_by_file = {}
     for output_path_year, df_year in zip(output_path, df, strict=False):
         if table_id == "proposicao_microdados":
             df_year["ultimoStatus_despacho"] = df_year[
@@ -140,9 +142,15 @@ def save_data(table_id: str) -> str:
 
         log(f"Saving {table_id} to {output_path_year}")
 
+        rows_read_by_file[output_path_year] = len(df_year)
         df_year.to_csv(
             output_path_year, sep=",", index=False, encoding="utf-8"
         )
+
+    check_rows_written(
+        rows_read=sum(rows_read_by_file.values()),
+        output_dir=f"{constants_camara.OUTPUT_PATH.value}{table_id}",
+    )
 
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
 

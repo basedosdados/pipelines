@@ -47,7 +47,6 @@ from pipelines.datasets.au_doe_higher_education.tasks import (
     source_max_year_task,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -67,19 +66,6 @@ DIRECTORY_TABLE_ID = constants.DIRECTORY_TABLE_ID.value
 #: The table the source poll is anchored on. Student enrolments is the
 #: headline release and the one whose year moves first.
 POLL_TABLE = "student_enrolment"
-
-#: Every table is annual, far below the monthly threshold that would put a
-#: window behind BD Pro, so all of them stay fully free. `student_completion_rate`
-#: is keyed on the cohort's start year rather than a reference year.
-COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(
-            col=constants.PARTITION_OVERRIDE.value.get(table, "year")
-        ),
-        date_format=DateFormat.YEAR,
-    )
-    for table in TABLES
-}
 
 
 @flow(name="au_doe_higher_education")
@@ -126,7 +112,6 @@ def au_doe_higher_education_flow(
                 table_id=DIRECTORY_TABLE_ID,
                 bucket_name=bucket_name,
                 dump_mode="overwrite",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DIRECTORY_DATASET_ID,
@@ -143,7 +128,6 @@ def au_doe_higher_education_flow(
                     table_id=table,
                     bucket_name=bucket_name,
                     dump_mode="append",
-                    source_format="parquet",
                 )
                 run_dbt(
                     dataset_id=DATASET_ID,
@@ -172,7 +156,6 @@ def au_doe_higher_education_flow(
         register_table_materialization_task(
             dataset_id=DATASET_ID,
             table_id=table,
-            coverage=COVERAGE[table],
             env="prod",
             bq_project="basedosdados",
         )

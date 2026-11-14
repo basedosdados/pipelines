@@ -176,6 +176,42 @@ class MetadataClient:
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
 
+    def get_coverage_spec_raw(
+        self, dataset_id: str, table_id: str
+    ) -> dict | None:
+        """Busca `coverageSpec(datasetId, tableId)` no backend — ver
+        `pipelines.utils.metadata.coverage.coverage_from_backend` pra
+        receber isso já validado num `CoverageSpec`.
+
+        Resolve por `gcp_dataset_id`/`gcp_table_id` (não pelo PK da `Table`),
+        então usa os mesmos identificadores que `get_table_id` recebe.
+
+        Returns:
+            Dict no shape `{"tier": ..., "dateColumnKind": ..., "coverageColumns":
+            [{"name": ..., "entity": ...}, ...]}`, ou `None` se o backend não
+            achar nenhum `CloudTable` com esse `dataset_id`/`table_id`.
+        """
+        query = """
+            query($datasetId: String!, $tableId: String!) {
+                coverageSpec(datasetId: $datasetId, tableId: $tableId) {
+                    tier
+                    dateColumnKind
+                    coverageColumns { name entity }
+                }
+            }
+        """
+        response = self._execute(
+            query, {"datasetId": dataset_id, "tableId": table_id}
+        )
+        spec = response["coverageSpec"]
+        if spec is None:
+            return None
+        return {
+            "tier": spec["tier"],
+            "date_column_kind": spec["dateColumnKind"],
+            "coverage_columns": spec["coverageColumns"],
+        }
+
     def _raw_source_id(
         self, dataset_id: str, table_id: str, url: str | None = None
     ) -> str | None:

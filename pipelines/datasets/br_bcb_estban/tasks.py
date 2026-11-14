@@ -13,7 +13,7 @@ import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_estban.constants import COVERAGE, DATASET_ID
+from pipelines.datasets.br_bcb_estban.constants import DATASET_ID
 from pipelines.datasets.br_bcb_estban.constants import (
     constants as br_bcb_estban_constants,
 )
@@ -332,7 +332,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         filepath = cleaning_data(table_id, df_diretorios)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=filepath,
         )
 

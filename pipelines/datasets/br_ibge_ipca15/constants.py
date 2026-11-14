@@ -2,8 +2,6 @@
 Constant values for br_ibge_ipca15.
 """
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_ibge_ipca15"
 
 # As 4 tabelas do dataset — migradas pro pipeline em estágios (staged pipeline),
@@ -13,9 +11,3 @@ MES_BRASIL_TABLE_ID = "mes_brasil"
 MES_CATEGORIA_BRASIL_TABLE_ID = "mes_categoria_brasil"
 MES_CATEGORIA_RM_TABLE_ID = "mes_categoria_rm"
 MES_CATEGORIA_MUNICIPIO_TABLE_ID = "mes_categoria_municipio"
-
-# Mesma coverage pras 4 tabelas — todas mensais, sem diferença de tier.
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)

@@ -15,7 +15,6 @@ from typing import TypeVar
 from prefect import task
 
 from pipelines.datasets.br_tse_eleicoes.constants import (
-    COVERAGE,
     DATASET_ID,
     YEAR,
 )
@@ -54,7 +53,11 @@ def flows_control(table_id: str, mode: str, year: str | int) -> type[T]:
     retry_delay_seconds=60,
 )
 def download_source_data(flow_class) -> None:
-    """Baixa e extrai o(s) ZIP(s) da fonte, populando `df_main`/`df_complement`.
+    """Baixa o(s) ZIP(s) da fonte, sem extrair.
+
+    A extração e a leitura de `df_main`/`df_complement` ficam no `formatar`,
+    que só o extract_and_load chama; o check_update conta as linhas direto do
+    ZIP.
 
     Chamada de forma independente por `get_latest_update` e por
     `extract_load_data` — cada estágio refaz o download do zero (custo
@@ -120,7 +123,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         data_path = preparing_data(flow_class=flow_class)
 
         return ExtractAndLoad(
-            coverage=COVERAGE.model_dump(),
             data_path=data_path,
         )
 

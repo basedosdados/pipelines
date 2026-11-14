@@ -36,7 +36,6 @@ def replace_staging(table_dir: Path, table: str, bucket_name: str) -> None:
         table_id=table,
         bucket_name=bucket_name,
         dump_mode="append",
-        source_format="parquet",
     )
 
 

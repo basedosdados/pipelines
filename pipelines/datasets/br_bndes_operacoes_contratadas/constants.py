@@ -19,13 +19,6 @@ from enum import Enum
 
 import pyarrow as pa
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    YearOnly,
-)
-
 
 class constants_indiretas_automaticas(Enum):
     """Config da tabela operacoes_indiretas_automaticas."""
@@ -34,11 +27,6 @@ class constants_indiretas_automaticas(Enum):
     LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
     TABLE_ID = "operacoes_indiretas_automaticas"
     CKAN_RESOURCE_ID = "612faa0b-b6be-4b2c-9317-da5dc2c0b901"
-
-    COVERAGE = AllFree(
-        date_column=DateOnly(col="data_contratacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
 
     RESOURCE_SHOW_URL = (
         "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
@@ -172,11 +160,6 @@ class constants_nao_automaticas(Enum):
     LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
     TABLE_ID = "operacoes_nao_automaticas"
     CKAN_RESOURCE_ID = "6f56b78c-510f-44b6-8274-78a5b7e931f4"
-
-    COVERAGE = AllFree(
-        date_column=DateOnly(col="data_contratacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
 
     RESOURCE_SHOW_URL = (
         "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
@@ -342,11 +325,6 @@ class constants_administracao_publica(Enum):
     TABLE_ID = "operacoes_administracao_publica"
     CKAN_RESOURCE_ID = "ea4e5da3-e586-4225-a460-c5aa09e36100"
 
-    COVERAGE = AllFree(
-        date_column=DateOnly(col="data_nivel_atual"),
-        date_format=DateFormat.YEAR_MD,
-    )
-
     RESOURCE_SHOW_URL = (
         "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
         "?id=ea4e5da3-e586-4225-a460-c5aa09e36100"
@@ -437,11 +415,6 @@ class constants_exportacao_bens(Enum):
     LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
     TABLE_ID = "operacoes_exportacao_bens"
     CKAN_RESOURCE_ID = "0cfe4594-44bf-48a8-a79a-686fc2d0db95"
-
-    COVERAGE = AllFree(
-        date_column=DateOnly(col="data_contratacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
 
     RESOURCE_SHOW_URL = (
         "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
@@ -570,11 +543,6 @@ class constants_exportacao_servicos(Enum):
     LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
     TABLE_ID = "operacoes_exportacao_servicos"
     CKAN_RESOURCE_ID = "d158033b-f6cb-4609-9717-a9cb2ff7ffc5"
-
-    COVERAGE = AllFree(
-        date_column=YearOnly(col="ano"),
-        date_format=DateFormat.YEAR,
-    )
 
     RESOURCE_SHOW_URL = (
         "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
@@ -724,11 +692,6 @@ class constants_pre_embarque(Enum):
     LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
     TABLE_ID = "operacoes_pre_embarque"
     CKAN_RESOURCE_ID = "81f5d4d7-b5d0-460d-8639-423df942045b"
-
-    COVERAGE = AllFree(
-        date_column=DateOnly(col="data_contratacao"),
-        date_format=DateFormat.YEAR_MD,
-    )
 
     RESOURCE_SHOW_URL = (
         "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"

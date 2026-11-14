@@ -5,13 +5,12 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2009, "end": 2025, "interval": 1},
+            "range": {"start": 2009, "end": 2029, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
 }}
 
--- atualizado em 2025-11
 select
     safe_cast(ano as int64) ano,
     safe_cast(sigla_uf as string) sigla_uf,
@@ -184,4 +183,6 @@ select
     safe_cast(
         quantidade_docentes_exercicio_deficiencia as int64
     ) quantidade_docentes_exercicio_deficiencia,
+    safe_cast(indicador_comunitaria as boolean) indicador_comunitaria,
+    safe_cast(indicador_confessional as boolean) indicador_confessional,
 from {{ set_datalake_project("br_inep_censo_educacao_superior_staging.ies") }} as t

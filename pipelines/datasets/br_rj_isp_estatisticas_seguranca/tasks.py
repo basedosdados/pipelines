@@ -16,7 +16,6 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.utils import (
     create_columns_order,
     download_files,
 )
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearMonth
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -185,10 +184,6 @@ def _run_isp(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllFree(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
             env="prod",
             bq_project="basedosdados",
         )

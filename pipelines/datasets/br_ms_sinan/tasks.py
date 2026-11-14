@@ -5,7 +5,6 @@ Tasks for br_ms_sinan.
 import datetime
 
 from pipelines.datasets.br_ms_sinan.constants import (
-    COVERAGE,
     DATASET_ID,
     MICRODADOS_DENGUE_TABLE_ID,
 )
@@ -76,4 +75,4 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     # (`_run_sinan`) chamava `upload_to_gcs` sem declarar `source_format`
     # (default "csv") — mesmo bug de tipo pré-existente, preservado aqui
     # (default de `ExtractAndLoad.source_format` também é "csv").
-    return ExtractAndLoad(coverage=COVERAGE.model_dump(), data_path=files_path)
+    return ExtractAndLoad(data_path=files_path)

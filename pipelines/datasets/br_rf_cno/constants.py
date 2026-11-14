@@ -25,8 +25,6 @@ crawler's only consumer.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import DateFormat, DateOnly, PartBdpro
-
 DATASET_ID = "br_rf_cno"
 
 # As 4 tabelas publicadas (ver README's arquivo->tabela map). Exclui
@@ -47,19 +45,6 @@ ALL_TABLES = [
 # Mesmo chunksize que os flows antigos por tabela passavam pro
 # `process_file`.
 CHUNKSIZE = 100000
-
-# Mesma coverage pras 4 tabelas: incremental, particionada por
-# `data_extracao` (DATE) — idêntica ao
-# `PartBdpro(date_column=DateOnly(col="data_extracao"),
-# date_format=DateFormat.YEAR_MD)` que o `_run_rf` antigo (removido; era o
-# flow monolítico em `pipelines/shared/rf/flows.py`, substituído pelo
-# `pipeline_factory` em `tasks.py`) passava pra toda table_id — mesma
-# coluna de data, mesmo `free_lag` default (6 meses), não é uma decisão
-# nova.
-COVERAGE = PartBdpro(
-    date_column=DateOnly(col="data_extracao"),
-    date_format=DateFormat.YEAR_MD,
-)
 
 
 class constants(Enum):
