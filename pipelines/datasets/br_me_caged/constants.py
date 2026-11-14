@@ -5,12 +5,6 @@ Constants for br_me_caged
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    PartBdpro,
-    YearMonth,
-)
-
 
 class constants(Enum):  # pylint: disable=c0103
     DATASET_ID = "br_me_caged"
@@ -148,10 +142,6 @@ class constants(Enum):  # pylint: disable=c0103
         ],
     }
 
-    COVERAGE = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-    )
     TMP_DIR = Path("tmp")
     DATASET_DIR = TMP_DIR / "br_me_caged"
 

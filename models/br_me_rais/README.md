@@ -429,6 +429,9 @@ O `custom_relationships` de `cbo_2002` não acusava o problema porque calcula
 abaixo de 0,5% e arredondavam para zero. O teste passou a acusar depois de limitado
 ao ano mais recente.
 
+O teste também acusou 20 ocupações novas da CBO, usadas em 2024 e 2025, que não
+estavam em `br_bd_diretorios_brasil.cbo_2002`. O diretório foi atualizado na #2248.
+
 ---
 
 ## 7. Observações sobre a divulgação dos dados
@@ -568,3 +571,55 @@ O macro aplica as mesmas normalizações de CNAE descritas nas seções 6.1 e 6.
 - **`cnae_1`**: LEFT JOIN contra `basedosdados.br_bd_diretorios_brasil.cnae_1` para corrigir códigos de 4 dígitos introduzidos em 2023/2024. O `coalesce` garante que anos anteriores (onde o código já tem 5 dígitos e não cruza com o JOIN) mantenham o valor original.
 - **`cnae_2`**: derivado diretamente de `cnae_2_subclasse` após padding — `left(lpad(cnae_2_subclasse, 7, '0'), 5)`.
 - **`cnae_2_subclasse`**: normalizado para 7 dígitos via `lpad(cnae_2_subclasse, 7, '0')`.
+
+## 11. Testes de qualidade
+
+### 11.1 Escopo
+
+Os testes usam `where: __most_recent_year__`. Cada carga acrescenta um ano, e um
+erro restrito a um ano se dilui quando o teste roda sobre a série inteira.
+
+A carga incremental de estabelecimentos reescreve só o ano mais recente do
+staging, o mesmo que os testes verificam. Para recarregar um ano anterior, como
+na republicação de 2023, é preciso rodar com `--full-refresh`.
+
+### 11.2 Consistência entre estabelecimentos e vínculos
+
+`custom_cross_table_aggregate_match` compara, por `sigla_uf`, a soma de
+`quantidade_vinculos_ativos` (estabelecimentos) com a contagem de
+`vinculo_ativo_3112 = '1'` (vínculos). As duas colunas medem o estoque de 31/12.
+O teste detecta carga incompleta ou duplicada, já que vínculos chega em arquivos
+regionais.
+
+Os vínculos com `indicador_vinculo_abandonado = '1'` ficam de fora porque o total
+de estabelecimentos não os conta. O teste não tem tolerância: qualquer diferença
+falha. A única divergência conhecida é a de 2023 (§11.5).
+
+### 11.3 Variação de volume
+
+`custom_row_count_variation` falha quando o número de linhas do ano mais recente
+varia fora de −10% a +15% em relação ao ano anterior, faixa observada na série
+desde 2000. Uma variação real, como a de 2023 em estabelecimentos (+39%), também
+falha e precisa ser verificada antes da carga seguir.
+
+### 11.4 Sem teste de unicidade
+
+Os microdados não têm identificador (CNPJ, CPF), então não há chave para testar.
+O teste da §11.2 compara somas por UF: detecta um arquivo inteiro faltando ou
+duplicado, mas não erros que se compensam dentro da mesma UF nem estabelecimentos
+duplicados com 0 vínculos ativos.
+
+### 11.5 Divergência de 2023
+
+Em 2023 o total nacional bate (55.316.614 nas duas tabelas), mas 13 UFs diferem
+em 1 ou 2 vínculos, com saldo zero. Por município, natureza jurídica, tamanho,
+tipo de estabelecimento e CNAE, são 290 combinações que diferem, somando 352
+vínculos em pares que se compensam, quase todos em estabelecimentos de até 4
+empregados.
+
+A diferença já existe nos arquivos brutos do MTE (`RAIS_ESTAB_PUB` e
+`RAIS_VINC_PUB_*` de 2023, versão republicada): comparando os brutos entre si,
+as 290 combinações e os valores são os mesmos da BD. O tratamento da BD não a
+causa. A nota técnica da RAIS 2023 indica a origem provável: é o primeiro ano
+inteiro via eSocial, em que o estabelecimento do vínculo vem do local de
+trabalho declarado pela matriz. 2024 e 2025 batem exatamente.

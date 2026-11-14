@@ -4,9 +4,6 @@ Flows para br_camara_dados_abertos — Prefect 3.
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_camara_dados_abertos.constants import (
-    update_metadata_variable_dictionary,
-)
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     check_if_url_is_valid,
     save_data,
@@ -53,7 +50,6 @@ def _camara_flow(table_id: str, cron: str):
             table_id=table_id,
             bucket_name="basedosdados-dev",
             dump_mode="append",
-            source_format="csv",
         )
         run_dbt(
             dataset_id=dataset_id,
@@ -71,7 +67,6 @@ def _camara_flow(table_id: str, cron: str):
             table_id=table_id,
             bucket_name="basedosdados",
             dump_mode="append",
-            source_format="csv",
         )
 
         run_dbt(
@@ -82,17 +77,12 @@ def _camara_flow(table_id: str, cron: str):
         )
 
         if update_metadata:
-            coverage = update_metadata_variable_dictionary(
-                table_id=table_id, dataset_id=dataset_id
+            register_table_materialization_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                env="prod",
+                bq_project="basedosdados",
             )
-            if coverage is not None:
-                register_table_materialization_task(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
 
     _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow

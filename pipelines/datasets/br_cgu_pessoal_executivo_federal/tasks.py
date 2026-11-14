@@ -18,7 +18,6 @@ from bs4 import BeautifulSoup
 from prefect import task
 
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.constants import (
-    COVERAGE,
     ROOT,
     URL,
 )
@@ -178,7 +177,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     filepath = clean_save_table(ROOT, urls)
 
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=filepath,
         dump_mode="overwrite",
     )

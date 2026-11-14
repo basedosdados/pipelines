@@ -98,7 +98,10 @@ Há um único flow, `br_anp_precos_combustiveis__microdados`. Cada execução:
 4. **Baixa e trata os três arquivos**: `download_and_transform` baixa as 4 semanas dos
    três produtos e aplica os tratamentos descritos acima. Se algum download não
    responder com sucesso, a execução para com erro.
-5. **Gera as partições**: `make_partitions` grava um CSV por data de coleta.
+5. **Gera as partições**: `make_partitions` grava um CSV por data de coleta. Em
+   seguida, `check_rows_written` (`pipelines/utils/data_tests/rows.py`) compara as
+   linhas dos CSVs gravados com as da tabela tratada e para a execução, antes do
+   upload, se faltar ou sobrar linha.
 6. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
    `basedosdados-dev` e o dbt roda e testa em dev; só então vão para o bucket
    `basedosdados` e o dbt roda e testa em produção. Uma falha em dev impede a ida para

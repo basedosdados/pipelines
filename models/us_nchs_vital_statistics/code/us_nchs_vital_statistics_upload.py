@@ -65,7 +65,6 @@ def main():
             table_id=table,
             bucket_name=BUCKET,
             dump_mode="append",
-            source_format="parquet",
         )
         kind = staging_table_type(table)
         print(f"{table}: staging table_type = {kind}")

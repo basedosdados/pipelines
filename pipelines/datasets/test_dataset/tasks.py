@@ -9,7 +9,6 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.test_dataset.constants import EVENT_PIPELINE_COVERAGE
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -51,7 +50,6 @@ def event_pipeline_download(download_params: dict) -> ExtractAndLoad:
     )
 
     return ExtractAndLoad(
-        coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=csv_path,
         prefect_mode="dev",
     )
@@ -125,7 +123,6 @@ def event_pipeline_partitioned_download(
     )
 
     return ExtractAndLoad(
-        coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=base_dir,
         prefect_mode="dev",
     )

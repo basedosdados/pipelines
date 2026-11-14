@@ -12,15 +12,6 @@ see ``pipelines.datasets.us_bea.utils._key``.
 from enum import Enum
 from pathlib import Path
 
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    NonHistorical,
-    YearMonth,
-    YearOnly,
-    YearQuarter,
-)
-
 # Repo root, then the committed architecture CSVs. These describe the FINAL
 # (post-dbt) schema; the raw STAGING schema this pipeline writes differs
 # (table_name/series_code, quarter/month as STRING) and lives in utils.py as
@@ -98,39 +89,3 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "us_bea" / "code" / "architecture"
     )
-
-
-# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
-# through it, by `register_table_materialization_task`/`build_and_promote`.
-#
-# All six tables are AllFree (see flows.py for why `nipa`, mixed-frequency,
-# is not paywalled). `gdp_by_industry` and `regional_state` mix annual +
-# quarterly rows (no monthly); the finest grain present is quarterly, so their
-# coverage is quarter-level (YearQuarter -> YEAR_MONTH, quarter mapped to
-# month = quarter*3). `regional_county`/`regional_metro` are genuinely annual
-# and stay year-level. `dicionario` has no date column at all -- it takes
-# `NonHistorical` (modeled on `__TABLES__.last_modified_time`, not a
-# `DateColumn`/`DateFormat` pair). The old monolithic flow never registered
-# any coverage for `dicionario`; this is its first baseline, not a change to a
-# previously decided value (same situation as au_geoscape_gnaf's dicionario).
-COVERAGE = {
-    "nipa": AllFree(
-        date_column=YearMonth(year="year", month="month"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "gdp_by_industry": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "regional_state": AllFree(
-        date_column=YearQuarter(year="year", quarter="quarter"),
-        date_format=DateFormat.YEAR_MONTH,
-    ),
-    "regional_county": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "regional_metro": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    ),
-    "dicionario": NonHistorical(),
-}

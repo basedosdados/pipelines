@@ -123,7 +123,6 @@ def main() -> int:
             table_id=table,
             bucket_name=BUCKET,
             dump_mode=args.dump_mode,
-            source_format="parquet",
         )
         print(f"{table}: done")
     return 0

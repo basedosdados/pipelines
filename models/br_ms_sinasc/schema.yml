@@ -77,9 +77,13 @@ models:
       - name: quantidade_filhos_mortos
         description: Número de perdas fetais e abortos
       - name: id_pais_mae
-        description: Se a mãe for estrangeira, constará o código do país de nascimento
+        description: >-
+          Se a mãe for estrangeira, constará o código do país. Se brasileira,
+          código do Brasil
       - name: id_uf_mae
-        description: Código da UF de naturalidade da mãe
+        description: >-
+          Código IBGE da UF de naturalidade da mãe. Quando ausente ou inválido
+          na fonte, é obtido da naturalidade da mãe (NATURALMAE)
       - name: id_municipio_mae
         description: Código do município de naturalidade da mãe
         tests:

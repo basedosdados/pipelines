@@ -187,6 +187,52 @@ Cada ano reprocessado pelo flow passa a incluir as linhas ausentes daquele ano; 
 
 ---
 
+## Naturalidade da mãe: `id_pais_mae` e `id_uf_mae`
+
+Issue [#2267](https://github.com/basedosdados/pipelines/issues/2267).
+
+`id_pais_mae` vem de `NATURALMAE`, a **naturalidade da mãe** (estrutura do SINASC no FTP do DATASUS; manual de preenchimento da DN, campo 20). O campo traz:
+
+- mãe brasileira: `8` + código IBGE da UF (`835` = São Paulo; `800` = Brasil sem UF), conforme `NATURAL.CNV`;
+- mãe estrangeira: código do país, conforme `PAISES.CNV`.
+
+O modelo separa as duas informações:
+
+| Coluna | Regra |
+|---|---|
+| `id_pais_mae` | País de nascimento: `8` + UF válida ou `800` viram `800` (Brasil); código estrangeiro é mantido; `8xx` sem UF válida (`830`, `899`) vira `null` |
+| `id_uf_mae` | Mantém `CODUFNATU` quando é UF válida; senão usa os dígitos 2–3 de `NATURALMAE`; senão `null` |
+
+### Por que `800` e não `null` para mãe brasileira
+
+Consistência no conceito da coluna: `id_pais_mae` passa a ser o país de nascimento para toda mãe, e não só para a estrangeira. Fica `null` apenas o que a fonte de fato não preencheu. Não é imputação: o código `8xx` já indica, na fonte, que a mãe é brasileira.
+
+`800` é o código de Brasil em `NATURAL.CNV` e já constava no `dicionario`. O `1` não serve: em `PAISES.CNV`, a tabela dos países estrangeiros desta coluna, `1` = Abu Dabi.
+
+`id_pais_residencia` segue outra tabela do DATASUS (`PAIS.CNV`), em que `1` = Brasil. As duas colunas não usam a mesma codificação de país.
+
+### `id_uf_mae`
+
+`id_uf_mae` válido nunca é sobrescrito: em 80 linhas (2015–2019) ele diverge de `NATURALMAE`, mas concorda com `id_municipio_mae`. O preenchimento não é imputação: usa outro campo da própria fonte.
+
+### Efeito sobre a série
+
+Simulado sobre a produção em 2026-11:
+
+| Caso | Linhas | Anos |
+|---|---|---|
+| `id_pais_mae` `8xx` → `800` | 40.293.582 | 2011–2026 |
+| `id_pais_mae` `830`/`899` → `null` | 5 | 2020–2023 |
+| `id_uf_mae` nulo, preenchido pela naturalidade | 4.283.929 | 2011–2012 (fonte sem `CODUFNATU`) |
+| `id_uf_mae` inválido (`nu`, `85`, `81`…), preenchido pela naturalidade | 1.470 | 2019–2026 |
+| `id_uf_mae` inválido, sem naturalidade → `null` | 334 | 2018–2025 |
+
+O país estrangeiro é raro na fonte: 25 linhas em toda a série. Nos 13 `.dbc` em que ele aparece, a tabela reproduz a fonte (códigos e vazios).
+
+No `dicionario`, das chaves `8xx` de `id_pais_mae` só fica `800` = BRASIL.
+
+---
+
 ## Política geral de qualidade
 
 - **Sem imputação sintética**: nenhum valor é gerado ou estimado para substituir ausências. Dados faltantes são representados como `null`.

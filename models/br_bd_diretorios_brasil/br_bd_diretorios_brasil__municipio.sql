@@ -5,6 +5,7 @@
         materialized="table",
     )
 }}
+-- Atualizado em 2026-11-03
 select
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_municipio_6 as string) id_municipio_6,

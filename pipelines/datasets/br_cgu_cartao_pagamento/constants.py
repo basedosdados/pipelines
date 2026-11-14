@@ -2,8 +2,6 @@
 Constant values for br_cgu_cartao_pagamento.
 """
 
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-
 DATASET_ID = "br_cgu_cartao_pagamento"
 
 # As 3 tabelas do dataset — migradas pro pipeline em estágios (staged
@@ -23,12 +21,3 @@ DATASET_ID = "br_cgu_cartao_pagamento"
 MICRODADOS_GOVERNO_FEDERAL_TABLE_ID = "microdados_governo_federal"
 MICRODADOS_COMPRAS_CENTRALIZADAS_TABLE_ID = "microdados_compras_centralizadas"
 MICRODADOS_DEFESA_CIVIL_TABLE_ID = "microdados_defesa_civil"
-
-# Mesma coverage pras 3 tabelas — todas mensais (ano_extrato/mes_extrato), sem
-# diferença de tier. Mesma granularidade do antigo
-# `_part_bdpro_year_month("ano_extrato", "mes_extrato")` em
-# `pipelines/shared/cgu/flows.py`.
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano_extrato", month="mes_extrato"),
-    date_format=DateFormat.YEAR_MONTH,
-)

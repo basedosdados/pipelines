@@ -14,9 +14,7 @@ de propósito — tem ciclo de materialização próprio, não depende do
 """
 
 from pipelines.datasets.br_ms_sim.constants import (
-    AGGREGATE_COVERAGE,
     AGGREGATE_TABLES,
-    COVERAGE,
     DATASET_ID,
     MICRODADOS_TABLE_ID,
 )
@@ -68,9 +66,7 @@ def br_ms_sim_extract_and_load(download_params: dict) -> None:
     """
     _pipeline.run_extract_and_load_with_derived_tables(
         download_params,
-        coverage=COVERAGE,
         derived_table_ids=AGGREGATE_TABLES,
-        derived_coverage=AGGREGATE_COVERAGE,
     )
 
 

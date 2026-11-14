@@ -4,8 +4,6 @@ Constants for br_tse_eleicoes pipeline.
 
 from enum import Enum
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-
 # Migrado pro pipeline em estágios (staged pipeline): 4 pares independentes de
 # check_update/extract_and_load, um por tabela (candidatos, bens_candidato,
 # despesas_candidato, receitas_candidato) — ver tasks.py/flows.py. Sem
@@ -18,13 +16,6 @@ DATASET_ID = "br_tse_eleicoes"
 # check_update não recebe parâmetros, então vira constante, a ser atualizada
 # manualmente a cada novo ciclo (próximo: eleições municipais de 2028).
 YEAR = 2026
-
-# Mesma coverage pras 4 tabelas — toda a série é pública (free), sem tier BD
-# Pro. Granularidade ano-only: a coluna `ano` é a partição canônica das
-# tabelas TSE (ver banner em flows.py sobre o R4/DateOnly+YEAR).
-COVERAGE = AllFree(
-    date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-)
 
 
 class constants(Enum):

@@ -7,7 +7,6 @@ from datetime import datetime
 from prefect import task
 
 from pipelines.constants import constants as repo_constants
-from pipelines.datasets.br_stf_corte_aberta.constants import COVERAGE
 from pipelines.datasets.br_stf_corte_aberta.constants import (
     constants as stf_constants,
 )
@@ -21,6 +20,7 @@ from pipelines.datasets.br_stf_corte_aberta.utils import (
     replace_columns,
     web_scrapping,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 from pipelines.utils.utils import log
 
@@ -103,7 +103,9 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     df = download_and_transform()
     output_path = make_partitions(df=df)
 
+    # pyrefly: ignore [bad-argument-type]
+    check_rows_written(rows_read=len(df), output_dir=output_path)
+
     return ExtractAndLoad(
-        coverage=COVERAGE.model_dump(),
         data_path=output_path,
     )
