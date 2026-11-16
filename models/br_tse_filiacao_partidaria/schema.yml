@@ -70,7 +70,13 @@ models:
       - name: motivo_cancelamento
         description: Motivo de cancelamento
   - name: br_tse_filiacao_partidaria__microdados
-    description: Microdados de filiação partidária do TSE.
+    description: >-
+      Filiações partidárias registradas no Sistema de Filiação Partidária do
+      TSE, que os partidos políticos usam para cadastrar e gerenciar seus
+      filiados. A tabela guarda a lista completa de cada extração feita na
+      consulta pública de filiação do TSE, identificada pela coluna
+      data_extracao. Cada linha é uma filiação em uma extração: a mesma
+      filiação aparece uma vez em cada extração em que constava.
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.55
