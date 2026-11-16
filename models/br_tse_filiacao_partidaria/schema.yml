@@ -83,7 +83,7 @@ models:
             - data_cancelamento
             - nome_social
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [registro_filiacao]
+          combination_of_columns: [data_extracao, registro_filiacao]
     columns:
       - name: registro_filiacao
         description: Sequecia do registro filiação

@@ -121,15 +121,49 @@ Cada registro vira uma linha com as colunas na ordem da staging:
 
 A staging é CSV separado por vírgula, com cabeçalho, em pastas Hive
 `data_extracao=AAAA-MM-DD/sigla_uf=XX/data.csv`. Cada carga acrescenta uma pasta
-`data_extracao=`, e o `.sql` fica com a versão mais recente de cada `registro_filiacao`.
+`data_extracao=`, e a tabela guarda todas: cada `data_extracao` é o retrato da lista que a API
+devolvia naquele dia, e cada linha é uma filiação num retrato. O mesmo `registro_filiacao` aparece
+uma vez em cada coleta em que a API o devolveu.
 
-**O `append` mantém na tabela as filiações que saem da API.** Antes da primeira carga do flow, a
-tabela de prod tinha 554.360 filiações que só existiam na extração de 2024-10-21 e 98.842 que só
-existiam na de 2026-04-01: nenhuma voltou nas extrações seguintes. O motivo da saída é
-desconhecido. Com `overwrite`, elas sumiriam na primeira carga.
+**O `append` mantém os retratos anteriores.** Com `overwrite`, cada carga apagaria as coletas
+anteriores. Algumas filiações só existem num retrato antigo: 554.360 só aparecem na extração de
+2024-10-21 e 98.842 só na de 2026-04-01, e nenhuma voltou nas extrações seguintes. O motivo da
+saída é desconhecido.
 
-**Custo.** A staging cresce cerca de 17 milhões de linhas por mês, e o `.sql` relê tudo a cada
-execução.
+**Tamanho.** Cada coleta tem cerca de 17 milhões de linhas, e a staging e a tabela crescem esse
+tanto por mês.
+
+| `data_extracao` | Linhas |
+|---|---|
+| 2024-10-21 | 17.173.764 |
+| 2026-04-01 | 16.881.690 |
+| 2026-08-04 | 16.881.616 |
+| 2026-11-06 | 16.847.207 |
+| 2026-11-09 | 16.848.155 |
+| 2026-11-12 | 16.845.808 |
+
+As três coletas de novembro de 2026 vêm dos runs de teste do flow em dev.
+
+## Modelo incremental
+
+O modelo é incremental, com `insert_overwrite` por `data_extracao`: cada run lê da staging só as
+coletas posteriores à mais recente da tabela e grava as partições delas. As coletas anteriores não
+são relidas.
+
+- **O filtro usa um valor fixo.** A data da coleta mais recente sai do `INFORMATION_SCHEMA.PARTITIONS`
+  da tabela e entra no filtro como texto, comparada com a `data_extracao` da staging sem conversão.
+  Assim o BigQuery lê só as pastas `data_extracao=` novas. Com uma subconsulta no filtro, leria a
+  staging inteira.
+- **O `pre_hook` apaga as regras de acesso.** O `insert_overwrite` é DML, e o BigQuery bloqueia DML
+  em tabela com regra de acesso. As regras voltam no `register_table_materialization_task`, que
+  roda depois do dbt no `build_and_promote` e no `table-approve`. Um `dbt run` pelo deployment
+  "Executa DBT model" não as reaplica, e a faixa paga fica aberta até o próximo run que passe por
+  essa task.
+- **Uma coleta que já está na tabela não é refeita.** Se a pasta de uma coleta mudar na staging, ou
+  se o `.sql` mudar, só um `--full-refresh` refaz as partições que já existem, e depois dele é
+  preciso reaplicar as regras de acesso. Uma coleta refeita em outro dia vira outra partição, e a
+  anterior continua na tabela até sair da staging e a tabela passar por um `--full-refresh`.
+- **Os testes leem a tabela inteira**, com todas as coletas.
 
 ## Município: cruzamento no `.sql`
 
@@ -143,8 +177,9 @@ O cruzamento fica no `.sql`, e não no `utils.py`. Com isso:
 - o `utils.py` roda na máquina local, onde `bd.read_sql` falha, e a contagem de linhas pode ser
   conferida fora do Prefect;
 - a limpeza não gasta a cota de consulta do projeto;
-- o cruzamento acompanha o diretório: se ele ganhar um código que ainda não tem par, basta um
-  `dbt run`, sem recarregar nada.
+- o cruzamento acompanha o diretório: se ele ganhar um código que ainda não tem par, as coletas
+  novas já saem com o município, e as que já estão na tabela mudam com um `dbt run --full-refresh`,
+  sem recarregar nada da fonte.
 
 Em outubro de 2026, 26.963 linhas não tinham par no diretório.
 
@@ -152,15 +187,15 @@ Em outubro de 2026, 26.963 linhas não tinham par no diretório.
 
 ## Faixa paga (BD Pro)
 
-A tabela é `part_bdpro`, com a faixa paga definida pela `data_filiacao`: as filiações dos últimos
-6 meses ficam no BD Pro. A configuração fica no backend, não no código: a coluna `data_filiacao`
-marcada com `coverage_entity = date` e as duas Coverages, livre e paga.
+A tabela é `part_bdpro`, com a faixa paga definida pela `data_extracao`: os retratos dos últimos 6
+meses ficam no BD Pro, e os anteriores ficam livres. A configuração fica no backend, não no código:
+a coluna `data_extracao` marcada com `coverage_entity = date` e as duas Coverages, livre e paga.
 
-- **Linhas sem `data_filiacao` ficam só no BD Pro.** A regra de acesso do público é
-  `data_filiacao <= <fim da faixa livre>`, e uma data nula não passa nessa comparação. Na carga de
-  agosto de 2026, eram 8.582 linhas.
-- **Pela `data_extracao`, quase a tabela inteira cairia na faixa paga**, porque cada filiação fica
-  só com a extração mais recente.
+A cada carga em prod, o `build_and_promote` calcula o fim da faixa livre, que é a `data_extracao`
+mais recente menos 6 meses, e regrava a regra de acesso do público:
+`data_extracao <= <fim da faixa livre>`. Por exemplo, com as coletas da tabela acima e uma nova em
+2026-12-01, a faixa livre termina em 2026-06-01: as coletas de 2024-10-21 e 2026-04-01 ficam
+livres, e as outras cinco, no BD Pro.
 
 ---
 
@@ -181,4 +216,5 @@ quando o horário era exatamente 1h00.
 - Disparar o `dev-` do `check_update`. Ele faz o poll e, se a data da tabela for anterior à do
   dia, dispara o `extract_and_load`, que baixa a lista inteira.
 - O `build_and_promote` roda o dbt da `main`. Mudança no `.sql` ou no `schema.yml` se valida
-  localmente, com `uv run dbt run --select br_tse_filiacao_partidaria__microdados`.
+  localmente, com `uv run dbt run --select br_tse_filiacao_partidaria__microdados`. Para refazer
+  as coletas que já estão na tabela de dev, acrescentar `--full-refresh`.
