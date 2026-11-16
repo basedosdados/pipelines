@@ -19,8 +19,12 @@ domicílios) nos níveis Brasil, UF e município.
 - Arquivo ZIP dos dados (~1 GB): <https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip>
 - Área técnica responsável na Anatel: PRUV (`pruv@anatel.gov.br`)
 
-> O download real vem do ZIP da Anatel, resolvido via API de catálogo em
-> `banda_larga_fixa/utils.py:download_zip_file`. A landing page antiga
+> O download vem do ZIP da Anatel, resolvido via API de catálogo em
+> `utils.py:get_zip_url`. O flow não baixa o ZIP inteiro: o servidor da Anatel aceita o
+> cabeçalho HTTP `Range`, e `download_csv_from_zip` lê o ZIP remoto pela `HttpRangeFile`
+> (`pipelines/shared/anatel/utils.py`) e extrai para `/tmp/data/input/` só o CSV da
+> tabela: o `Acessos_Banda_Larga_Fixa_<ano>.csv` do ano mais recente no microdados e o
+> `Densidade_Banda_Larga_Fixa.csv` nas densidades. A landing page antiga
 > (`gov.br/anatel/.../banda-larga-fixa`) está **404** e não é usada pela pipeline.
 
 ---

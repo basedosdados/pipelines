@@ -1,62 +1,133 @@
-import gc  # noqa: I001
-import os
+import re
+from io import BufferedReader
 from zipfile import ZipFile
+
 import numpy as np
 import pandas as pd
-import requests
+from httpx import Client
 
 from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
+from pipelines.shared.anatel.utils import HttpRangeFile
 from pipelines.utils.utils import log, to_partitions
 
 
-def download_zip_file():
-    response = requests.get(
-        "https://dados.gov.br/api/publico/conjuntos-dados/acessos---banda-larga-fixa",
+def get_zip_url() -> str:
+    """Busca na API do dados.gov.br a URL do ZIP com os dados de acessos.
+
+    Returns:
+        A URL do primeiro recurso em formato ZIP do conjunto.
+
+    Raises:
+        httpx.HTTPStatusError: Se a API responder com erro.
+        ValueError: Se a API não listar nenhum recurso em formato ZIP.
+    """
+
+    with Client(
         cookies=anatel_constants.COOKIES.value,
         headers=anatel_constants.HEADERS.value,
-    )
+        timeout=10,
+        follow_redirects=True,
+    ) as client:
+        response = (
+            client.get(
+                "https://dados.gov.br/api/publico/conjuntos-dados/acessos---banda-larga-fixa"
+            )
+            .raise_for_status()
+            .json()
+        )
 
-    r = response.json()
-    for recurso in r["resources"]:
-        if recurso["format"] == "ZIP":
-            download_url = recurso["url"]
+        for resource in response["resources"]:
+            if resource["format"] == "ZIP":
+                return resource["url"]
+
+        raise ValueError("A API não trouxe um ZIP.")
+
+
+def get_csv_file_from_zip(names: list[str], table_id: str) -> str:
+    """Escolhe, entre os arquivos do ZIP, o CSV que a tabela lê.
+
+    As tabelas de densidade leem o `Densidade_Banda_Larga_Fixa.csv`. O
+    microdados lê o ano mais recente, no formato
+    `Acessos_Banda_Larga_Fixa_2026.csv`. Como o formato do nome é fixo, a
+    ordem alfabética coincide com a do tempo.
+
+    Args:
+        names: Nomes dos arquivos do ZIP, como devolve `ZipFile.namelist()`.
+        table_id: Tabela que vai ler o arquivo.
+
+    Returns:
+        O nome do arquivo dentro do ZIP.
+
+    Raises:
+        ValueError: Se o ZIP não tiver o arquivo que a tabela lê.
+    """
+
+    if table_id != "microdados":
+        if "Densidade_Banda_Larga_Fixa.csv" in names:
+            return "Densidade_Banda_Larga_Fixa.csv"
+
+        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
+
+    microdados_names = [
+        name
+        for name in names
+        if re.fullmatch(r"Acessos_Banda_Larga_Fixa_\d{4}\.csv", name)
+    ]
+
+    if microdados_names == []:
+        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
+
+    return max(microdados_names)
+
+
+def download_csv_from_zip(table_id: str) -> str:
+    """Baixa do ZIP da Anatel só o CSV que a tabela lê.
+
+    O ZIP é lido direto no servidor, por faixas de bytes, sem ser baixado
+    inteiro. Cada requisição traz até 8 MiB, e o arquivo escolhido é gravado em
+    `INPUT_PATH` com o mesmo nome que tem dentro do ZIP.
+
+    Args:
+        table_id: Tabela que vai ler o arquivo.
+
+    Returns:
+        O caminho do CSV gravado.
+
+    Raises:
+        httpx.HTTPStatusError: Se a API ou o servidor da Anatel responderem com
+            erro.
+        OSError: Se o servidor da Anatel não informar o tamanho do ZIP ou
+            ignorar o cabeçalho `Range`.
+        ValueError: Se a API não listar o ZIP ou se o ZIP não tiver o arquivo
+            que a tabela lê.
+    """
+
+    url = get_zip_url()
+
+    with Client(
+        cookies=anatel_constants.COOKIES.value,
+        headers=anatel_constants.HEADERS.value,
+        timeout=10,
+        follow_redirects=True,
+    ) as client:
+        buffer_size = 8 * 2**20
+
+        anatel_file = BufferedReader(HttpRangeFile(client, url), buffer_size)
+
+        with ZipFile(anatel_file) as zip_file:
+            csv_file = get_csv_file_from_zip(zip_file.namelist(), table_id)
+
             log(
-                f"Baixando {download_url} em {anatel_constants.INPUT_PATH.value}"
+                f"Baixando {csv_file} de {url} em {anatel_constants.INPUT_PATH.value}"
             )
 
-    with open(
-        os.path.join(
-            anatel_constants.INPUT_PATH.value, "acessos_banda_larga_fixa.zip"
-        ),
-        "wb",
-    ) as file:
-        response = requests.get(
-            # pyrefly: ignore [unbound-name]
-            download_url,
-            cookies=anatel_constants.COOKIES.value,
-            headers=anatel_constants.HEADERS.value,
-        )
-        file.write(response.content)
+            csv_path = zip_file.extract(
+                csv_file, path=anatel_constants.INPUT_PATH.value
+            )
 
-    log("Download concluído com sucesso!")
-
-
-def unzip_file():
-    os.makedirs(anatel_constants.INPUT_PATH.value, exist_ok=True)
-    download_zip_file()
-    zip_file_path = os.path.join(
-        anatel_constants.INPUT_PATH.value, "acessos_banda_larga_fixa.zip"
-    )
-    try:
-        with ZipFile(zip_file_path, "r") as zip_ref:
-            zip_ref.extractall(anatel_constants.INPUT_PATH.value)
-    except Exception as e:
-        print(f"Erro ao baixar ou extrair o arquivo ZIP: {e!s}")
-
-    os.remove(zip_file_path)
-    gc.collect()
+            return csv_path
 
 
 def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
@@ -77,10 +148,10 @@ def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     return df
 
 
-def treatment(table_id: str, ano: int):
+def treatment(csv_path: str, table_id: str):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Acessos_Banda_Larga_Fixa_{ano}.csv",
+        csv_path,
         sep=";",
         encoding="utf-8",
     )
@@ -113,10 +184,10 @@ def treatment(table_id: str, ano: int):
     )
 
 
-def treatment_br(table_id: str):
+def treatment_br(csv_path: str, table_id: str):
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        csv_path,
         sep=";",
         encoding="utf-8",
     )
@@ -141,10 +212,10 @@ def treatment_br(table_id: str):
     )
 
 
-def treatment_uf(table_id: str):
+def treatment_uf(csv_path: str, table_id: str):
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        csv_path,
         sep=";",
         encoding="utf-8",
     )
@@ -167,10 +238,10 @@ def treatment_uf(table_id: str):
     )
 
 
-def treatment_municipio(table_id: str):
+def treatment_municipio(csv_path: str, table_id: str):
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     df = pd.read_csv(
-        f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
+        csv_path,
         sep=";",
         encoding="utf-8",
     )
@@ -189,17 +260,3 @@ def treatment_municipio(table_id: str):
         partition_columns=["ano"],
         savepath=anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
     )
-
-
-def get_year():
-    lista = []
-    for x in os.listdir(anatel_constants.INPUT_PATH.value):
-        parts = x.split("_")
-        if len(parts) > 4:
-            x = parts[4]
-            if len(x) == 4:
-                lista.append(x)
-
-    max_year = max(lista)
-    log(f"Ano máximo: {max_year}")
-    return max_year
