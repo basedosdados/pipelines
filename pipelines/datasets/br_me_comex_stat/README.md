@@ -120,7 +120,8 @@ interrompe a run antes de subir arquivo.
 
 Ficam em `models/br_me_comex_stat/schema.yml`. Nas quatro tabelas de dado, todos
 rodam só no mês mais recente (`where: __most_recent_year_month__`). Uma falha
-interrompe o `build_and_promote`, e o mês não chega a prod.
+interrompe o `build_and_promote`, e o mês não chega a prod. A exceção é o teste
+de `valor_fob_dolar`, que tem `severity: warn`: ele só registra um aviso no log.
 
 | Teste | Colunas | Detalhe |
 |---|---|---|
@@ -131,16 +132,21 @@ interrompe o `build_and_promote`, e o mês não chega a prod.
 | `relationships` | `id_unidade` | Diretório de NCM |
 | `custom_relationships` | `sigla_uf`, `sigla_uf_ncm` | Diretório de UF, campo `sigla`; ignora `EX` |
 | `custom_relationships` | `sigla_pais_iso3` | Diretório de países; ignora `ANT`, `CSK`, `SCG` e `PCZ` |
-| `custom_relationships` | `id_ncm` | Diretório de NCM; ignora `85492100`, `90189097`, `26011220` e `29159070` |
+| `custom_relationships` | `id_ncm` | Diretório de NCM |
 | `custom_dictionary_coverage` | `id_pais` nas quatro tabelas; `id_via` e `id_urf` nas duas de NCM | `dicionario` |
-| `dbt_utils.accepted_range` | `peso_liquido_kg`, `valor_fob_dolar`, `quantidade_estatistica`, `valor_frete`, `valor_seguro`, onde existirem | Mínimo 0 |
+| `dbt_utils.accepted_range` | `peso_liquido_kg`, `valor_fob_dolar`, `quantidade_estatistica`, `valor_frete`, `valor_seguro`, onde existirem | Mínimo 0; em `valor_fob_dolar`, só aviso |
 
 - Em 2026 o maior percentual de nulos foi 0,52%, em `sigla_uf_ncm` da
   `ncm_exportacao`, onde o modelo transforma o código `ND` em nulo.
 - Os testes de UF ignoram o código `EX`, que a fonte usa e o diretório de UF não
   tem.
 - O `custom_relationships` reprova com um único valor fora do diretório.
-- O teste aceita zero e reprova valores negativos.
+- O `accepted_range` aceita zero e reprova valores negativos, menos em
+  `valor_fob_dolar`. Na importação, o FOB é calculado pelo sistema a partir do
+  valor declarado, do frete e do seguro
+  ([Nota Técnica SITEC nº 01/2021](https://balanca.mdic.gov.br/balanca/metodologia/NotaTecnicaRevisaoMetodologia.pdf),
+  cap. 8), e a fonte já publicou FOB de −1 dólar com frete de 2 dólares. Por isso
+  o negativo em `valor_fob_dolar` gera só um aviso, e o mês segue para prod.
 
 No `dicionario` os testes rodam sem filtro de mês: unicidade,
 `not_null_proportion_multiple_columns` (`at_least: 0.90`) e `accepted_values`:
@@ -180,13 +186,30 @@ Formato das entradas:
 
 ### Diretório de NCM
 
-Os quatro códigos em `ignore_values` do `id_ncm` são códigos que a fonte usa e o
-diretório de NCM (`br_bd_diretorios_mundo.nomenclatura_comum_mercosul`) não tem.
-Nenhum flow atualiza esse diretório: ele é carregado à mão por
+Nenhum flow atualiza o diretório de NCM
+(`br_bd_diretorios_mundo.nomenclatura_comum_mercosul`): ele é carregado à mão por
 `models/br_bd_diretorios_mundo/code/download_sh4_ncm.py`, a partir do
 [`NCM.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv) do MDIC.
 NCM novo do MDIC reprova o `custom_relationships` do `id_ncm` até o diretório ser
-recarregado ou o código entrar no `ignore_values`.
+recarregado.
+
+O mesmo script recarrega o diretório do SH
+(`br_bd_diretorios_comercio_internacional.sistema_harmonizado`), a partir do
+[`NCM_SH.csv`](https://balanca.economia.gov.br/balanca/bd/tabelas/NCM_SH.csv). O
+`custom_relationships` de `id_sh6` do diretório de NCM confere um arquivo contra
+o outro, e o `NCM.csv` usa SH6 que o `NCM_SH.csv` não tem. Esses SH6 ficam no
+`ignore_values` do teste, em `models/br_bd_diretorios_mundo/schema.yml`.
+
+O script só regrava a staging de dev. Os testes leem as tabelas do dbt, então
+depois dele é preciso materializar os dois diretórios em dev:
+
+```bash
+uv run dbt run --select br_bd_diretorios_mundo__nomenclatura_comum_mercosul br_bd_diretorios_comercio_internacional__sistema_harmonizado
+```
+
+A carga do diretório de NCM feita em dev chega a prod pelo `table-approve`, que
+só sincroniza a staging de modelo cujo `.sql` mudou na PR. Até lá, o teste de
+`id_ncm` passa em dev e reprova em prod.
 
 ---
 
