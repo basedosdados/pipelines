@@ -39,6 +39,7 @@ models:
     columns:
       - name: ano
         description: Ano
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade Federativa da revenda pesquisada
         tests:
@@ -67,15 +68,26 @@ models:
         description: Endereço de revenda
       - name: cnpj_revenda
         description: Número do Cadastro Nacional de Pessoa Jurídica da revenda
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: nome_estabelecimento
         description: Nome do estabelecimento
       - name: bandeira_revenda
         description: Nome da Bandeira da revenda
       - name: data_coleta
         description: Data da coleta do preço
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: produto
         description: Nome do combustível
         tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
           - accepted_values:
               values:
                 - Diesel

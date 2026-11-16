@@ -85,7 +85,8 @@ tabela final, a partição é por `ano`.
 ### Testes
 
 Os testes ficam em `models/br_anp_precos_combustiveis/schema.yml` e rodam só no ano
-mais recente (`where: __most_recent_year__`). Uma falha, exceto a faixa de preço,
+mais recente (`where: __most_recent_year__`), exceto o `not_null` de `ano`, que roda na
+tabela inteira (o filtro descartaria as linhas sem ano). Uma falha, exceto a faixa de preço,
 interrompe o flow.
 
 | teste | o que verifica |
@@ -95,7 +96,7 @@ interrompe o flow.
 | `dbt_utils.expression_is_true` (unidade) | `unidade_medida` coerente com o produto: `R$/13kg` para GLP, `R$/m3` para GNV, `R$/litro` para os demais |
 | `dbt_utils.expression_is_true` (preço, `warn`) | `preco_venda` entre R$ 50 e R$ 250 para GLP e entre R$ 1 e R$ 20 para os demais |
 | `relationships` | `sigla_uf` e `id_municipio` existem nos diretórios |
-| `not_null` | `id_municipio`, `unidade_medida` e `preco_venda` preenchidos |
+| `not_null` | `ano`, `cnpj_revenda`, `data_coleta`, `produto`, `id_municipio`, `unidade_medida` e `preco_venda` preenchidos |
 | `accepted_values` | `produto` e `unidade_medida` só com os valores listados acima |
 
 ## Como o flow funciona
