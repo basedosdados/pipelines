@@ -90,7 +90,7 @@ interrompe o flow.
 
 | teste | o que verifica |
 |---|---|
-| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto)`, sem tolerância |
+| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto, preco_venda)`, sem tolerância. O preço entra na chave porque a ANP às vezes publica dois preços para o mesmo posto, dia e produto (ex.: Taubaté, jun/2024); essas linhas são mantidas como publicadas |
 | `not_null_proportion_multiple_columns` | pelo menos 5% de preenchimento em cada coluna, exceto `preco_compra` |
 | `dbt_utils.expression_is_true` (unidade) | `unidade_medida` coerente com o produto: `R$/13kg` para GLP, `R$/m3` para GNV, `R$/litro` para os demais |
 | `dbt_utils.expression_is_true` (preço, `warn`) | `preco_venda` entre R$ 50 e R$ 250 para GLP e entre R$ 1 e R$ 20 para os demais |

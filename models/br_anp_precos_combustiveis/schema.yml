@@ -8,7 +8,11 @@ models:
       a partir da primeira semana de 2004 até os dias de hoje.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cnpj_revenda, data_coleta, produto]
+          combination_of_columns:
+            - cnpj_revenda
+            - data_coleta
+            - produto
+            - preco_venda
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
