@@ -184,21 +184,37 @@ def treatment(csv_path: str, table_id: str):
     )
 
 
+def _parse_densidade(x: str | float | None) -> float | None:
+    """Converte a densidade da fonte, com vírgula decimal, para float.
+
+    Args:
+        x: Valor da célula: texto como `"12,34"`, ou NaN/None quando a
+            densidade está vazia.
+
+    Returns:
+        A densidade como float, ou o próprio valor quando a célula está vazia.
+    """
+
+    if isinstance(x, str):
+        return float(x.replace(",", "."))
+
+    return x
+
+
 def treatment_br(csv_path: str, table_id: str):
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
         csv_path,
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_brasil = df[df["Geografia"] == "Brasil"]
     df_brasil = df_brasil.drop(
         anatel_constants.DROP_COLUMNS_BRASIL.value, axis=1
     )
-    df_brasil["Densidade"] = df_brasil["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
-    )
+    df_brasil["Densidade"] = df_brasil["Densidade"].apply(_parse_densidade)
     df_brasil = df_brasil.rename(
         columns=anatel_constants.RENAME_COLUMNS_BRASIL.value,
     )
@@ -218,13 +234,12 @@ def treatment_uf(csv_path: str, table_id: str):
         csv_path,
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_uf = df[df["Geografia"] == "UF"]
     df_uf = df_uf.drop(anatel_constants.DROP_COLUMNS_UF.value, axis=1)
-    df_uf["Densidade"] = df_uf["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
-    )
+    df_uf["Densidade"] = df_uf["Densidade"].apply(_parse_densidade)
     df_uf = df_uf.rename(
         columns=anatel_constants.RENAME_COLUMNS_UF.value,
     )
@@ -244,12 +259,14 @@ def treatment_municipio(csv_path: str, table_id: str):
         csv_path,
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_municipio = df[df["Geografia"] == "Municipio"]
     df_municipio = df_municipio.drop(["Município", "Geografia"], axis=1)
+    df_municipio = df_municipio.dropna(subset=["Código IBGE"])
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
+        _parse_densidade
     )
     df_municipio = df_municipio.rename(
         columns=anatel_constants.RENAME_COLUMNS_MUNICIPIO.value,

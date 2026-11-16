@@ -203,11 +203,6 @@ vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
   partição do `microdados` (`end` 2023 → 2031) e **desativação do schedule das 3
   densidades** (`cron=None`) para evitar regressão (ver seção Densidades). Recuperação do
   backlog do microdados (maio/2026 + revisões) via `force_run`.
-- **Pendente — tratamento das densidades (PR de follow-up):** fixes de `_parse_densidade`
-  (NaN→NULL), `dtype=str` (corrige `id_municipio` `"…0"` que reprovava o `relationships`)
-  e `dropna(["Código IBGE"])` (remove linhas sem código que reprovavam o
-  `unique_combination`). Em espera junto da decisão sobre o apagão da fonte (PRUV).
-  Rastreado na issue #1608.
 
 > O `telefonia_movel` (`pipelines/shared/anatel/telefonia_movel/flows.py`) tem o
 > **mesmo** poll eager — o mesmo fix se aplica lá, em correção à parte.
