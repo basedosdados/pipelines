@@ -192,8 +192,12 @@ def clean_csv_densidade(csv_path: str, table_id: str) -> None:
 
     level = anatel_constants.DENSITY_GEOGRAPHIC_LEVEL.value[table_id]
 
-    filtered_df = df.filter(
-        normalize_label("Nível Geográfico Densidade") == level
+    filtered_df = (
+        df.with_columns(
+            normalize_label("Nível Geográfico Densidade").alias("nivel")
+        )
+        .filter(pl.col("nivel") == level)
+        .drop("nivel")
     )
 
     renamed_df = filtered_df.rename(
