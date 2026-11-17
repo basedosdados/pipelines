@@ -102,7 +102,16 @@ def _parse_densidade(x: str | float | None) -> float | None:
     return x
 
 
-def treatment_br(csv_path: str, table_id: str):
+def treatment_br(csv_path: str, table_id: str) -> None:
+    """Trata o CSV de densidade e grava as linhas do nível Brasil.
+
+    Grava `densidade_brasil.csv` na pasta de saída da tabela.
+
+    Args:
+        csv_path: Caminho do `Densidade_Banda_Larga_Fixa.csv`.
+        table_id: Tabela que recebe o arquivo.
+    """
+
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
         csv_path,
@@ -129,7 +138,16 @@ def treatment_br(csv_path: str, table_id: str):
     )
 
 
-def treatment_uf(csv_path: str, table_id: str):
+def treatment_uf(csv_path: str, table_id: str) -> None:
+    """Trata o CSV de densidade e grava as linhas do nível UF.
+
+    Grava `densidade_uf.csv` na pasta de saída da tabela.
+
+    Args:
+        csv_path: Caminho do `Densidade_Banda_Larga_Fixa.csv`.
+        table_id: Tabela que recebe o arquivo.
+    """
+
     log("Iniciando o tratamento do arquivo densidade uf da Anatel")
     df = pd.read_csv(
         csv_path,
@@ -154,7 +172,17 @@ def treatment_uf(csv_path: str, table_id: str):
     )
 
 
-def treatment_municipio(csv_path: str, table_id: str):
+def treatment_municipio(csv_path: str, table_id: str) -> None:
+    """Trata o CSV de densidade e grava as linhas do nível município.
+
+    Descarta as linhas sem `Código IBGE` e grava uma partição por ano, em
+    `ano=<ano>/data.csv`, sem a coluna de partição.
+
+    Args:
+        csv_path: Caminho do `Densidade_Banda_Larga_Fixa.csv`.
+        table_id: Tabela que recebe as partições.
+    """
+
     log("Iniciando o tratamento do arquivo densidade municipio da Anatel")
     df = pd.read_csv(
         csv_path,
