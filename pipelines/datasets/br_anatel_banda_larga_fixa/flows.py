@@ -71,6 +71,10 @@ def br_anatel_banda_larga_fixa_microdados_download(
 br_anatel_banda_larga_fixa_microdados_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
 )
+br_anatel_banda_larga_fixa_microdados_download.job_variables = {
+    "memory_limit": "6Gi",
+    "memory_request": "2Gi",
+}
 _microdados_pipeline.extract_load_deployment = (
     br_anatel_banda_larga_fixa_microdados_download.fn.__name__
 )

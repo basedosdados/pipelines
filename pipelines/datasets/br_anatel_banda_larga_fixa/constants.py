@@ -51,6 +51,14 @@ class constants(Enum):
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0",
     }
 
+    API_URL = "https://dados.gov.br/api/publico/conjuntos-dados/acessos---banda-larga-fixa"
+
+    RESOURCE_FORMAT = "ZIP"
+
+    MICRODADOS_FILE_PATTERN = r"Acessos_Banda_Larga_Fixa_\d{4}\.csv"
+
+    DENSIDADE_FILE = "Densidade_Banda_Larga_Fixa.csv"
+
     INPUT_PATH = "/tmp/data/input/"
 
     TABLES_OUTPUT_PATH = {
@@ -93,21 +101,6 @@ class constants(Enum):
         "produto",
         "acessos",
     ]
-
-    SORT_VALUES_MICRODADOS = [
-        "ano",
-        "mes",
-        "sigla_uf",
-        "id_municipio",
-        "cnpj",
-        "empresa",
-        "porte_empresa",
-        "tecnologia",
-        "transmissao",
-        "velocidade",
-    ]
-
-    DROP_COLUMNS_MICRODADOS = ["grupo_economico", "municipio"]
 
     # ! ------------ > Densidade Brasil
 

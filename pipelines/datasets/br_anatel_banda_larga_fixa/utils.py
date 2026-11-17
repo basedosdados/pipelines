@@ -1,187 +1,88 @@
-import re
-from io import BufferedReader
-from zipfile import ZipFile
+from os import makedirs
+from os.path import join
 
-import numpy as np
 import pandas as pd
-from httpx import Client
+import polars as pl
 
 from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
-from pipelines.shared.anatel.utils import HttpRangeFile
 from pipelines.utils.utils import log, to_partitions
 
 
-def get_zip_url() -> str:
-    """Busca na API do dados.gov.br a URL do ZIP com os dados de acessos.
+def treatment(csv_path: str, table_id: str) -> None:
+    """Trata o CSV do microdados e grava uma partição por ano, mês e UF.
 
-    Returns:
-        A URL do primeiro recurso em formato ZIP do conjunto.
-
-    Raises:
-        httpx.HTTPStatusError: Se a API responder com erro.
-        ValueError: Se a API não listar nenhum recurso em formato ZIP.
-    """
-
-    with Client(
-        cookies=anatel_constants.COOKIES.value,
-        headers=anatel_constants.HEADERS.value,
-        timeout=10,
-        follow_redirects=True,
-    ) as client:
-        response = (
-            client.get(
-                "https://dados.gov.br/api/publico/conjuntos-dados/acessos---banda-larga-fixa"
-            )
-            .raise_for_status()
-            .json()
-        )
-
-        for resource in response["resources"]:
-            if resource["format"] == "ZIP":
-                return resource["url"]
-
-        raise ValueError("A API não trouxe um ZIP.")
-
-
-def get_csv_file_from_zip(names: list[str], table_id: str) -> str:
-    """Escolhe, entre os arquivos do ZIP, o CSV que a tabela lê.
-
-    As tabelas de densidade leem o `Densidade_Banda_Larga_Fixa.csv`. O
-    microdados lê o ano mais recente, no formato
-    `Acessos_Banda_Larga_Fixa_2026.csv`. Como o formato do nome é fixo, a
-    ordem alfabética coincide com a do tempo.
+    Cada partição vai para `ano=<ano>/mes=<mes>/sigla_uf=<uf>/data.csv`, sem as
+    colunas de partição. O CSV é lido como texto e tratado um mês por vez.
 
     Args:
-        names: Nomes dos arquivos do ZIP, como devolve `ZipFile.namelist()`.
-        table_id: Tabela que vai ler o arquivo.
-
-    Returns:
-        O nome do arquivo dentro do ZIP.
-
-    Raises:
-        ValueError: Se o ZIP não tiver o arquivo que a tabela lê.
+        csv_path: Caminho do `Acessos_Banda_Larga_Fixa_<ano>.csv`.
+        table_id: Tabela que recebe as partições.
     """
 
-    if table_id != "microdados":
-        if "Densidade_Banda_Larga_Fixa.csv" in names:
-            return "Densidade_Banda_Larga_Fixa.csv"
-
-        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
-
-    microdados_names = [
-        name
-        for name in names
-        if re.fullmatch(r"Acessos_Banda_Larga_Fixa_\d{4}\.csv", name)
-    ]
-
-    if microdados_names == []:
-        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
-
-    return max(microdados_names)
-
-
-def download_csv_from_zip(table_id: str) -> str:
-    """Baixa do ZIP da Anatel só o CSV que a tabela lê.
-
-    O ZIP é lido direto no servidor, por faixas de bytes, sem ser baixado
-    inteiro. Cada requisição traz até 8 MiB, e o arquivo escolhido é gravado em
-    `INPUT_PATH` com o mesmo nome que tem dentro do ZIP.
-
-    Args:
-        table_id: Tabela que vai ler o arquivo.
-
-    Returns:
-        O caminho do CSV gravado.
-
-    Raises:
-        httpx.HTTPStatusError: Se a API ou o servidor da Anatel responderem com
-            erro.
-        OSError: Se o servidor da Anatel não informar o tamanho do ZIP ou
-            ignorar o cabeçalho `Range`.
-        ValueError: Se a API não listar o ZIP ou se o ZIP não tiver o arquivo
-            que a tabela lê.
-    """
-
-    url = get_zip_url()
-
-    with Client(
-        cookies=anatel_constants.COOKIES.value,
-        headers=anatel_constants.HEADERS.value,
-        timeout=10,
-        follow_redirects=True,
-    ) as client:
-        buffer_size = 8 * 2**20
-
-        anatel_file = BufferedReader(HttpRangeFile(client, url), buffer_size)
-
-        with ZipFile(anatel_file) as zip_file:
-            csv_file = get_csv_file_from_zip(zip_file.namelist(), table_id)
-
-            log(
-                f"Baixando {csv_file} de {url} em {anatel_constants.INPUT_PATH.value}"
-            )
-
-            csv_path = zip_file.extract(
-                csv_file, path=anatel_constants.INPUT_PATH.value
-            )
-
-            return csv_path
-
-
-def check_and_create_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
-    """
-    # ! Verifique se existe uma coluna em um Pandas DataFrame. Caso contrário, crie uma nova coluna com o nome fornecido
-    # ! e preenchê-lo com valores NaN. Se existir, não faça nada.
-
-    # * Parâmetros:
-    # ! df (Pandas DataFrame): O DataFrame a ser verificado.
-    # ! col_name (str): O nome da coluna a ser verificada ou criada.
-
-    # * Retorna:
-    # ! Pandas DataFrame: O DataFrame modificado.
-    """
-
-    if col_name not in df.columns:
-        df[col_name] = ""
-    return df
-
-
-def treatment(csv_path: str, table_id: str):
     log("Iniciando o tratamento do arquivo microdados da Anatel")
-    df = pd.read_csv(
-        csv_path,
-        sep=";",
-        encoding="utf-8",
-    )
-    df = check_and_create_column(df, "Tipo de Produto")
-    df = df.rename(columns=anatel_constants.RENAME_MICRODADOS.value)
-    df = df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1)
-    df = df[anatel_constants.ORDER_COLUMNS_MICRODADOS.value]
-    df = df.sort_values(
-        anatel_constants.SORT_VALUES_MICRODADOS.value,
-    )
-    df = df.replace(np.nan, "")
-    df["transmissao"] = df["transmissao"].apply(
-        lambda x: (
-            x.replace("Cabo Metálico", "Cabo Metalico")
-            .replace("Satélite", "Satelite")
-            .replace("Híbrido", "Hibrido")
-            .replace("Fibra Óptica", "Fibra Optica")
-            .replace("Rádio", "Radio")
+
+    df = pl.scan_csv(csv_path, separator=";", infer_schema_length=0)
+
+    if "Tipo de Produto" not in df.columns:
+        df = df.with_columns(
+            pl.lit(None, dtype=pl.Utf8).alias("Tipo de Produto")
+        )
+
+    cleaned_df = (
+        df.rename(anatel_constants.RENAME_MICRODADOS.value)
+        .select(anatel_constants.ORDER_COLUMNS_MICRODADOS.value)
+        .with_columns(
+            pl.col("transmissao").str.replace_many(
+                [
+                    "Cabo Metálico",
+                    "Satélite",
+                    "Híbrido",
+                    "Fibra Óptica",
+                    "Rádio",
+                ],
+                [
+                    "Cabo Metalico",
+                    "Satelite",
+                    "Hibrido",
+                    "Fibra Optica",
+                    "Radio",
+                ],
+            ),
+            pl.col("produto")
+            .str.replace("LINHA_DEDICADA", "linha dedicada", literal=True)
+            .str.to_lowercase(),
+            pl.col("ano", "mes", "sigla_uf").fill_null(""),
         )
     )
-    df["acessos"] = df["acessos"].apply(lambda x: str(x).replace(".0", ""))
-    df["produto"] = df["produto"].apply(
-        lambda x: x.replace("LINHA_DEDICADA", "linha dedicada").lower()
+
+    one_month_per_row_table = (
+        cleaned_df.select("ano", "mes").unique().collect()
     )
+
     log("Salvando o arquivo microdados da Anatel")
-    to_partitions(
-        df,
-        partition_columns=["ano", "mes", "sigla_uf"],
-        savepath=anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
-    )
+
+    for year, month in one_month_per_row_table.iter_rows():
+        month_df = cleaned_df.filter(
+            (pl.col("ano") == year) & (pl.col("mes") == month)
+        ).collect()
+
+        for uf_df in month_df.partition_by("sigla_uf"):
+            uf = uf_df["sigla_uf"][0]
+
+            path = join(
+                anatel_constants.TABLES_OUTPUT_PATH.value[table_id],
+                f"ano={year}",
+                f"mes={month}",
+                f"sigla_uf={uf}",
+            )
+
+            makedirs(path, exist_ok=True)
+
+            uf_df.drop("ano", "mes", "sigla_uf").write_csv(
+                join(path, "data.csv")
+            )
 
 
 def _parse_densidade(x: str | float | None) -> float | None:

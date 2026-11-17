@@ -5,10 +5,15 @@ Funções compartilhadas pelos conjuntos da Anatel
 
 from __future__ import annotations
 
-from io import SEEK_SET, RawIOBase
+import re
+from io import SEEK_SET, BufferedReader, RawIOBase
 from typing import TYPE_CHECKING
+from zipfile import ZipFile
 
+import polars as pl
 from httpx import Client
+
+from pipelines.utils.utils import log
 
 if TYPE_CHECKING:
     from collections.abc import Buffer
@@ -132,3 +137,179 @@ class HttpRangeFile(RawIOBase):
         self.position += n
 
         return n
+
+
+def normalize_label(column: str) -> pl.Expr:
+    """Normaliza os rótulos de uma coluna para comparação robusta.
+
+    Retira os espaços nas pontas, converte para minúsculas e tira os acentos,
+    de modo que variações como ``"Município"``, ``"MUNICIPIO"`` ou
+    ``" municipio "`` comparem como iguais.
+
+    Args:
+        column: Nome da coluna com os rótulos vindos da fonte.
+
+    Returns:
+        A expressão do polars com os rótulos normalizados.
+    """
+
+    return (
+        pl.col(column)
+        .str.strip_chars()
+        .str.to_lowercase()
+        .str.replace_many(
+            ["á", "à", "â", "ã", "é", "ê", "í", "ó", "ô", "õ", "ú", "ü", "ç"],
+            ["a", "a", "a", "a", "e", "e", "i", "o", "o", "o", "u", "u", "c"],
+        )
+    )
+
+
+def get_zip_url(
+    api_url: str,
+    resource_format: str,
+    cookies: dict[str, str],
+    headers: dict[str, str],
+) -> str:
+    """Busca na API do dados.gov.br a URL do ZIP com os dados de acessos.
+
+    Args:
+        api_url: Endereço do conjunto na API do dados.gov.br.
+        resource_format: Formato do recurso que aponta para o ZIP, como a API
+            o descreve (`"CSV"` ou `"ZIP"`).
+        cookies: Cookies enviados à API.
+        headers: Cabeçalhos enviados à API.
+
+    Returns:
+        A URL do primeiro recurso no formato pedido.
+
+    Raises:
+        httpx.HTTPStatusError: Se a API responder com erro.
+        ValueError: Se a API não listar nenhum recurso no formato pedido.
+    """
+
+    with Client(
+        cookies=cookies,
+        headers=headers,
+        timeout=10,
+        follow_redirects=True,
+    ) as client:
+        response = client.get(api_url).raise_for_status().json()
+
+        for resource in response["resources"]:
+            if resource["format"] == resource_format:
+                return resource["url"]
+
+        raise ValueError(f"A API não trouxe um recurso {resource_format}.")
+
+
+def get_csv_file_from_zip(
+    names: list[str],
+    table_id: str,
+    microdados_pattern: str,
+    densidade_file: str,
+) -> str:
+    """Escolhe, entre os arquivos do ZIP, o CSV que a tabela lê.
+
+    As tabelas de densidade leem `densidade_file`. O microdados lê o arquivo
+    mais recente entre os que casam com `microdados_pattern`. Como o formato do
+    nome é fixo, a ordem alfabética coincide com a do tempo.
+
+    Args:
+        names: Nomes dos arquivos do ZIP, como devolve `ZipFile.namelist()`.
+        table_id: Tabela que vai ler o arquivo.
+        microdados_pattern: Expressão regular do nome dos CSVs do microdados,
+            como `r"Acessos_Banda_Larga_Fixa_\\d{4}\\.csv"`.
+        densidade_file: Nome do CSV das tabelas de densidade.
+
+    Returns:
+        O nome do arquivo dentro do ZIP.
+
+    Raises:
+        ValueError: Se o ZIP não tiver o arquivo que a tabela lê.
+    """
+
+    if table_id != "microdados":
+        if densidade_file in names:
+            return densidade_file
+
+        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
+
+    microdados_names = [
+        name for name in names if re.fullmatch(microdados_pattern, name)
+    ]
+
+    if microdados_names == []:
+        raise ValueError(f"Não há CSVs para a tabela: {table_id}")
+
+    return max(microdados_names)
+
+
+def download_csv_from_zip(
+    table_id: str,
+    api_url: str,
+    resource_format: str,
+    microdados_pattern: str,
+    densidade_file: str,
+    cookies: dict[str, str],
+    headers: dict[str, str],
+    input_path: str,
+) -> str:
+    """Baixa do ZIP da Anatel só o CSV que a tabela lê.
+
+    O ZIP é lido direto no servidor, por faixas de bytes, sem ser baixado
+    inteiro. Cada requisição traz até 8 MiB, e o arquivo escolhido é gravado em
+    `input_path` com o mesmo nome que tem dentro do ZIP.
+
+    Args:
+        table_id: Tabela que vai ler o arquivo.
+        api_url: Endereço do conjunto na API do dados.gov.br.
+        resource_format: Formato do recurso que aponta para o ZIP, como a API
+            o descreve (`"CSV"` ou `"ZIP"`).
+        microdados_pattern: Expressão regular do nome dos CSVs do microdados.
+        densidade_file: Nome do CSV das tabelas de densidade.
+        cookies: Cookies enviados à API e ao servidor da Anatel.
+        headers: Cabeçalhos enviados à API e ao servidor da Anatel.
+        input_path: Pasta onde o CSV é gravado.
+
+    Returns:
+        O caminho do CSV gravado.
+
+    Raises:
+        httpx.HTTPStatusError: Se a API ou o servidor da Anatel responderem com
+            erro.
+        OSError: Se o servidor da Anatel não informar o tamanho do ZIP ou
+            ignorar o cabeçalho `Range`.
+        ValueError: Se a API não listar o ZIP ou se o ZIP não tiver o arquivo
+            que a tabela lê.
+    """
+
+    url = get_zip_url(
+        api_url=api_url,
+        resource_format=resource_format,
+        cookies=cookies,
+        headers=headers,
+    )
+
+    with Client(
+        cookies=cookies,
+        headers=headers,
+        timeout=10,
+        follow_redirects=True,
+    ) as client:
+        buffer_size = 8 * 2**20
+
+        anatel_file = BufferedReader(HttpRangeFile(client, url), buffer_size)
+
+        with ZipFile(anatel_file) as zip_file:
+            csv_file = get_csv_file_from_zip(
+                names=zip_file.namelist(),
+                table_id=table_id,
+                microdados_pattern=microdados_pattern,
+                densidade_file=densidade_file,
+            )
+
+            log(f"Baixando {csv_file} de {url} em {input_path}")
+
+            csv_path = zip_file.extract(csv_file, path=input_path)
+
+            return csv_path
