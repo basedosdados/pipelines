@@ -3,6 +3,12 @@ import logging as stdlib_logging
 from argparse import ArgumentParser
 from pathlib import Path
 
+from prefect.client.orchestration import get_client
+from prefect.client.schemas.filters import (
+    LogFilter,
+    LogFilterFlowRunId,
+    LogFilterLevel,
+)
 from prefect.deployments import run_deployment
 
 # Same deployment `pipelines` dispatches via `dispatch_build_and_promote`.
@@ -22,13 +28,6 @@ async def _read_flow_run_error_logs(flow_run_id: str) -> list:
     Returns:
         List of log objects returned by the Prefect API.
     """
-    from prefect.client.orchestration import get_client
-    from prefect.client.schemas.filters import (
-        LogFilter,
-        LogFilterFlowRunId,
-        LogFilterLevel,
-    )
-
     async with get_client() as client:
         return await client.read_logs(
             log_filter=LogFilter(
@@ -56,6 +55,31 @@ def print_flow_run_error_logs(flow_run_id: str) -> None:
         level_name = stdlib_logging.getLevelName(log.level)
         print(f"[{level_name}] {log.timestamp}: {log.message}")
     print("--- End of Prefect error logs ---")
+
+
+async def _poll_flow_run_until_final(
+    flow_run_id: str, poll_interval: float = 10
+):
+    """Espera um flow run terminar, via polling HTTP simples.
+
+    `prefect.flow_runs.wait_for_flow_run` usa o subsistema de eventos
+    (WebSocket) do Prefect, que não funciona neste self-hosted (redireciona
+    pra login, HTTP 302) — por isso o polling manual aqui, igual ao que
+    `run_deployment`/`arun_deployment` já fazem por baixo dos panos.
+
+    Args:
+        flow_run_id: UUID string do flow run.
+        poll_interval: segundos entre cada checagem de estado.
+
+    Returns:
+        O `FlowRun` já em estado final.
+    """
+    async with get_client() as client:
+        while True:
+            flow_run = await client.read_flow_run(flow_run_id)
+            if flow_run.state and flow_run.state.is_final():
+                return flow_run
+            await asyncio.sleep(poll_interval)
 
 
 def get_datasets_tables_from_modified_files(
@@ -156,14 +180,19 @@ def _launch_and_wait(
     Raises:
         Exception: se o flow run não terminar em estado completo.
     """
+    # timeout=0: devolve assim que o flow run é criado, sem esperar — com
+    # timeout=None, run_deployment só retornaria (e só então imprimiria a
+    # URL) depois do flow run já ter terminado.
     flow_run = run_deployment(
         name=deployment_name,
         parameters=parameters,
-        timeout=None,
+        timeout=0,
         as_subflow=False,
     )
     flow_run_url = f"{PREFECT_UI_URL}/runs/flow-run/{flow_run.id}"
     print(f" - Flow run launched: {flow_run_url}")
+
+    flow_run = asyncio.run(_poll_flow_run_until_final(str(flow_run.id)))
 
     state = flow_run.state
     if state is None or not state.is_completed():
