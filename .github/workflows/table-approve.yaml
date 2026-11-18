@@ -91,8 +91,12 @@ jobs:
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
             --sync-bucket \
-            --modified-files "models/br_tse_eleicoes/br_tse_eleicoes__bens_candidato.sql"
+            --modified-files "models/test_dataset/test_dataset__test_event_pipeline.sql"
         env:
+          # Sem isso, o stdout do Python fica bufferizado por bloco (não é
+          # um terminal) e os prints de progresso só aparecem no log do
+          # Actions quando o processo termina, não em tempo real.
+          PYTHONUNBUFFERED: '1'
           PREFECT_API_URL: https://prefect3.basedosdados.org/api
           PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
           BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
