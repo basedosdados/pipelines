@@ -5,25 +5,10 @@ from pathlib import Path
 
 from prefect.deployments import run_deployment
 
-# Prefect 3 deployment triggered for each modified table.
-# Slug = "<flow name>/<deployment name>": the flow's @flow(name=...) is
-# "BD template: Executa DBT model" and deploy_flows.py registers it under the
-# python identifier "run_dbt_model_flow".
-DBT_MODEL_DEPLOYMENT = "BD template: Executa DBT model/run_dbt_model_flow"
-
-# Same deployment `pipelines` uses from `build_and_promote` (as a subflow) —
-# here triggered as a real, remote flow run instead, since this script runs
-# outside any Prefect flow. Slug = "<flow name>/<deployment name>": the
-# flow's @flow(name=...) is "BD Utils: Transfere arquivos do bucket
-# basedosdados-dev para basedosdados" and deploy_flows.py registers it under
-# the python identifier "transfer_files_to_prod_flow". Does copy+schema
-# sync+dbt run/test+export+register_table_materialization_task in one flow
-# run — see ftwca/investigacoes/pipelines/
-# promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md.
-TRANSFER_FILES_DEPLOYMENT = (
-    "BD Utils: Transfere arquivos do bucket basedosdados-dev para "
-    "basedosdados/transfer_files_to_prod_flow"
-)
+# Same deployment `pipelines` dispatches via `dispatch_build_and_promote`.
+# No "dev-" prefix: `build_and_promote` is always deployed to the prod pool
+# (see `deployment_name()` in `pipelines/utils/stage_dispatch.py`).
+BUILD_AND_PROMOTE_DEPLOYMENT = "build_and_promote/build_and_promote"
 
 PREFECT_UI_URL = "https://prefect3.basedosdados.org"
 
@@ -201,45 +186,11 @@ def run_table_approve() -> None:
     GitHub Actions job) if any flow run does not complete successfully.
     """
     arg_parser = ArgumentParser()
-    arg_parser.add_argument("--dbt-command", type=str, required=True)
     arg_parser.add_argument("--modified-files", type=str, required=False)
     arg_parser.add_argument("--sync-bucket", action="store_true")
     arg_parser.add_argument(
-        "--source-bucket-name",
-        type=str,
-        required=False,
-        default="basedosdados-dev",
-    )
-    # Deprecated: transfer_files_to_prod_flow usa os defaults de
-    # copy_staging_to_prod ("basedosdados"/"basedosdados-backup") e não expõe
-    # esses buckets como parâmetro — mantidos só pra quem ainda passa isso não
-    # falhar no parsing.
-    arg_parser.add_argument(
-        "--destination-bucket-name",
-        type=str,
-        required=False,
-        default="basedosdados",
-    )
-    arg_parser.add_argument(
-        "--backup-bucket-name",
-        type=str,
-        required=False,
-        default="basedosdados-backup",
-    )
-    # Deprecated: kept so callers that still pass it do not fail at argument parsing.
-    arg_parser.add_argument(
-        "--prefect-backend-token", type=str, required=False
-    )
-    arg_parser.add_argument(
         "--materialization-target", type=str, required=False, default="prod"
     )
-    arg_parser.add_argument(
-        "--materialization-label",
-        type=str,
-        required=False,
-        default="basedosdados",
-    )
-    arg_parser.add_argument("--dataset-id", type=str, required=False)
     args = arg_parser.parse_args()
 
     existing_datasets_tables = (
@@ -250,48 +201,25 @@ def run_table_approve() -> None:
         )
     )
 
-    # Com --sync-bucket: cada tabela de PR dispara transfer_files_to_prod_flow
-    # (copy+sync schema+dbt run/test+export+register, tudo num flow run remoto
-    # — a mesma função que o pipelines usa via build_and_promote). Sem
-    # --sync-bucket, ou a entrada manual de --dataset-id: não há dado novo a
-    # copiar, só dispara run_dbt_model_flow (dbt run/test + export) como
-    # sempre.
-    if args.sync_bucket:
-        for dataset_id, table_id in existing_datasets_tables:
-            print(
-                f"\n\n\n\n************   START PROMOTING TABLE {dataset_id}.{table_id}...   ************"
-            )
-            _launch_and_wait(
-                TRANSFER_FILES_DEPLOYMENT,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "source_bucket": args.source_bucket_name,
-                    "dbt_command": args.dbt_command,
-                    "env": args.materialization_target,
-                },
-                label=f"{dataset_id}.{table_id}",
-            )
-        remaining_datasets_tables: list[tuple[str, str]] = []
-    else:
-        print("Skipping sync bucket because --sync-bucket was not set")
-        remaining_datasets_tables = list(existing_datasets_tables)
+    if not args.sync_bucket:
+        print("Skipping promotion because --sync-bucket was not set")
+        return
 
-    if args.dataset_id is not None:
-        remaining_datasets_tables.append((args.dataset_id, ""))
-
-    for dataset_id, table_id in remaining_datasets_tables:
-        print(f"Launching materialization flow for {dataset_id}.{table_id}...")
+    # Cada tabela de PR dispara build_and_promote — o MESMO deployment que o
+    # pipelines despacha via dispatch_build_and_promote, não só a mesma
+    # função interna. Roda dbt run/test em dev e, promovendo pra prod
+    # (promote_to_prod=True, o default), copy+sync schema+dbt run/test em
+    # prod+export+register, tudo num único flow run remoto.
+    for dataset_id, table_id in existing_datasets_tables:
+        print(
+            f"\n\n\n\n************   START PROMOTING TABLE {dataset_id}.{table_id}...   ************"
+        )
         _launch_and_wait(
-            DBT_MODEL_DEPLOYMENT,
+            BUILD_AND_PROMOTE_DEPLOYMENT,
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "dbt_command": args.dbt_command,
-                "target": args.materialization_target,
-                # Download csv file is true by default.
-                # We disable when materialization target is not prod.
-                "download_csv_file": args.materialization_target == "prod",
+                "env": args.materialization_target,
             },
             label=f"{dataset_id}.{table_id}",
         )
