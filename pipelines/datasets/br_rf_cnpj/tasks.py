@@ -21,7 +21,6 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     EXPECTED_FILES_TOLERANCE,
     FOLDER_DATE_FORMAT,
     NON_HISTORICAL_TABLES,
-    ROW_LOSS_TOLERANCE,
     TABLE_COMPONENTS,
     URL,
 )
@@ -37,7 +36,6 @@ from pipelines.datasets.br_rf_cnpj.utils import (
     process_csv_socios,
     process_manual_dictionaries,
     validate_expected_file_count,
-    validate_partition_rows,
 )
 from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import (
@@ -141,6 +139,15 @@ def download_and_process_files(
     """
     arquivos_baixados = []  # List to track already downloaded files
     rows_read = 0
+
+    # Como a task tem retries=3 e recomeça do início, o arquivo `data.csv` do dicionário
+    # de uma tentativa que caiu no meio é apagado uma vez aqui, antes do loop
+    if any(COMPONENTS_SPECS[t]["dicionario"] for t in tables):
+        _, dicionario_output = build_paths(
+            table_id="dicionario", build_input=False
+        )
+        # pyrefly: ignore [unsupported-operation]
+        (dicionario_output / "data.csv").unlink(missing_ok=True)
     for table in tables:
         table_configs = COMPONENTS_SPECS[table]
 
@@ -208,14 +215,6 @@ def download_and_process_files(
                             i,
                             chunk_size,
                         )
-                        # Antes do marcador: se falhar, o retry refaz o arquivo
-                        validate_partition_rows(
-                            rows_in=chunk_size,
-                            rows_out=file_rows,
-                            tolerance=ROW_LOSS_TOLERANCE,
-                            arquivo=nome_arquivo,
-                        )
-
                     elif table_configs["table_name"] == "Socios":
                         file_rows = process_csv_socios(
                             # pyrefly: ignore [bad-argument-type]

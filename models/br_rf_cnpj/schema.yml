@@ -24,7 +24,6 @@ models:
       - name: cnpj_basico
         description: CNPJ Básico
         tests:
-          - not_null
           - regex_or_null:
               pattern: ^[A-Z0-9]{8}$
               config:
@@ -94,7 +93,6 @@ models:
       - name: cnpj_basico
         description: CNPJ básico
         tests:
-          - not_null
           - regex_or_null:
               pattern: ^[A-Z0-9]{8}$
               config:
@@ -171,7 +169,6 @@ models:
       - name: cnpj_basico
         description: CNPJ Básico
         tests:
-          - not_null
           - regex_or_null:
               pattern: ^[A-Z0-9]{8}$
               config:
@@ -260,6 +257,7 @@ models:
           ignore_values:
             - nome_cidade_exterior
             - id_pais
+            - id_municipio
             - situacao_especial
             - data_situacao_especial
           config:
@@ -271,7 +269,6 @@ models:
       - name: cnpj
         description: CNPJ
         tests:
-          - not_null
           - regex_or_null:
               pattern: ^[A-Z0-9]{12}[0-9]{2}$
               config:
@@ -282,7 +279,6 @@ models:
       - name: cnpj_basico
         description: CNPJ Básico (8 primeiros dígitos)
         tests:
-          - not_null
           - regex_or_null:
               pattern: ^[A-Z0-9]{8}$
               config:

@@ -2,7 +2,7 @@
     model, column_name, min_date="1900-01-01", max_date="current_date()"
 ) %}
 
-    {#- Reporta as linhas fora do intervalo min_date <= valor < max_date (max_date é exclusivo),
+    {#- Reporta as linhas fora do intervalo min_date-max_date,
         ao invés de anular linhas incompatíveis como validate_date_range.
         `max_date` é uma expressão SQL (padrão: current_date()), por exemplo
         `date('2027-01-01')` para aceitar datas até o último dia de 2026. -#}

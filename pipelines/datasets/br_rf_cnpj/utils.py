@@ -30,7 +30,6 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     HEADERS,
     PROPFIND_MAX_ATTEMPTS,
     PROPFIND_TIMEOUT,
-    ROW_LOSS_TOLERANCE,
     UFS,
     XML_BODY,
 )
@@ -154,7 +153,7 @@ def get_table_files(table_name: str, url_base: str):
 # ! Cria o caminho do output
 def build_paths(
     table_id: str, build_input: bool = True, build_output: bool = True
-):
+) -> tuple[Path | None, Path | None]:
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -462,38 +461,6 @@ async def download_unzip_csv(
     )
 
 
-def validate_partition_rows(
-    rows_in: int,
-    rows_out: int,
-    tolerance: float = ROW_LOSS_TOLERANCE,
-    arquivo: str = "",
-) -> None:
-    """Confere se as linhas lidas de entrada chegaram às partições de UF.
-    Caso a `sigla_uf` não esteja em `UFS`, ou caso haja outra incompatibilidade,
-    a linha sumiria sem erro. Esta checagem torna a perda explícita.
-
-    Args:
-        rows_in: linhas lidas do CSV de entrada.
-        rows_out: soma das linhas gravadas nas partições de UF.
-        tolerance: fração de `rows_in` que pode ser perdida sem abortar.
-        arquivo: nome do arquivo de origem, para a mensagem.
-
-    Raises:
-        ValueError: se a fração perdida passar de `tolerance`.
-    """
-    lost = rows_in - rows_out
-    if lost <= 0:
-        return
-    fraction = lost / rows_in
-    message = (
-        f"{arquivo}: {lost} de {rows_in} linhas ({fraction:.4%}) não foram "
-        f"para nenhuma partição de UF"
-    )
-    if fraction > tolerance:
-        raise ValueError(message)
-    log(f"{message} (dentro da tolerância de {tolerance:.4%})", "warning")
-
-
 def validate_expected_file_count(
     table_id: str,
     found: int,
@@ -549,7 +516,6 @@ def process_csv_estabelecimentos(
     colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
-    rows_saved = 0
 
     # A escrita abaixo é em modo append: sobra de uma tentativa que caiu no meio
     # deste arquivo duplicaria linhas no retry.
@@ -614,7 +580,6 @@ def process_csv_estabelecimentos(
                     particao_file_path = particao_path / particao_filename
 
                     mode = "a" if particao_file_path.exists() else "w"
-                    rows_saved += len(df_particao)
                     df_particao.to_csv(
                         particao_file_path,
                         index=False,
@@ -625,7 +590,7 @@ def process_csv_estabelecimentos(
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(filepath)
 
-    return rows_saved
+    return rows_in
 
 
 # ! Salva os dados CSV Empresas

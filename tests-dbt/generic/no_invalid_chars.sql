@@ -1,8 +1,7 @@
 {% test no_invalid_chars(model, column_name) %}
 
     {#- Marca como falha linhas com caracteres de encoding inválido (issue 1533):
-        o bloco U+FFF0–U+FFFF (inclui o caractere de substituição "�") e caracteres
-        de controle U+0000–U+001F. -#}
+        o bloco U+FFF0–U+FFFF (inclui o caractere de substituição "�"). -#}
     select {{ column_name }} as invalid_value
     from {{ model }}
     where

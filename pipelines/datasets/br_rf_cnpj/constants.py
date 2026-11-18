@@ -369,8 +369,6 @@ COLUNAS_DICIONARIO = ["chave", "valor"]
 
 ## Constantes de controle de integridade dos dados
 
-# Fração tolerada de linhas de entrada que não chegam a nenhuma partição de UF
-ROW_LOSS_TOLERANCE = 0.0
 # Arquivos fragmentados esperados, por tabela segmentada
 EXPECTED_FILES_PER_TABLE = {
     "empresas": 10,
