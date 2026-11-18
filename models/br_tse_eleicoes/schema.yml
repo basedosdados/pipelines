@@ -881,6 +881,18 @@ models:
   - name: br_tse_eleicoes__perfil_eleitorado_secao
     description: Perfil eleitorado a nível de seção eleitoral.
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio_tse
+            - zona
+            - secao
+            - genero
+            - estado_civil
+            - grupo_idade
+            - instrucao
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.60
       - custom_dictionary_coverage:
@@ -1617,6 +1629,18 @@ models:
   - name: br_tse_eleicoes__resultados_candidato_secao
     description: Dados de resultados eleitorais a nível de candidato-seção.
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - zona
+            - secao
+            - cargo
+            - numero_candidato
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.95
           config:
