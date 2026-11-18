@@ -3,6 +3,7 @@ Tasks for br_ms_cnes.
 """
 
 from collections.abc import Callable
+from datetime import datetime
 
 import pandas as pd
 
@@ -67,9 +68,53 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
     return get_latest_update
 
 
+def select_ftp_files(table_id: str, download_params: dict) -> list[str]:
+    """Escolhe os arquivos do FTP do DATASUS que a carga vai baixar.
+
+    Sem `year_months`, são os arquivos que o `check_update` encontrou. Com
+    `year_months`, são os arquivos dessas competências.
+
+    Args:
+        table_id: Tabela do conjunto.
+        download_params: Parâmetros do `extract_and_load`. Traz `ftp_files`,
+            vindo do `check_update`, ou `year_months`, com as competências no
+            formato `AAAAMM`.
+
+    Returns:
+        Caminhos dos arquivos `.dbc` no FTP do DATASUS.
+
+    Raises:
+        ValueError: Se uma competência pedida não estiver no formato `AAAAMM`
+            ou não tiver arquivo no FTP.
+    """
+    year_months = download_params.get("year_months")
+    if not year_months:
+        return download_params["ftp_files"]
+
+    for year_month in year_months:
+        datetime.strptime(year_month, "%Y%m")
+
+    ftp_files = check_files_to_parse(
+        dataset_id=DATASET_ID,
+        table_id=table_id,
+        year_month_to_extract=",".join(
+            year_month[2:] for year_month in year_months
+        ),
+    )
+    found = {file.split("/")[-1][4:8] for file in ftp_files}
+    missing = [
+        year_month for year_month in year_months if year_month[2:] not in found
+    ]
+    if missing:
+        raise ValueError(f"Sem arquivo no FTP do DATASUS para: {missing}")
+    return ftp_files
+
+
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
-        ftp_files = download_params["ftp_files"]
+        ftp_files = select_ftp_files(
+            table_id=table_id, download_params=download_params
+        )
 
         dbc_files = access_ftp_download_files_async(
             file_list=ftp_files, dataset_id=DATASET_ID, table_id=table_id
