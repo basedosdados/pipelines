@@ -365,3 +365,14 @@ COLUNAS_ESTABELECIMENTO_ORDEM = [
 ]
 
 COLUNAS_DICIONARIO = ["chave", "valor"]
+
+
+## Constantes de controle de integridade dos dados
+
+# Arquivos fragmentados esperados, por tabela segmentada
+EXPECTED_FILES_PER_TABLE = {
+    "empresas": 10,
+    "estabelecimentos": 10,
+    "socios": 10,
+}
+EXPECTED_FILES_TOLERANCE = 0
