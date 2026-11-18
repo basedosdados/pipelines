@@ -437,6 +437,39 @@ Digital", não ar-condicionado.
 O PDF oficial está no DOU de 18/05/2026, Edição 91, Seção 1, Página 174. O `WebFetch` não
 lê o PDF (devolve binário); `pdftotext -layout` resolve.
 
+### `tipo_unidade` 16 do `estabelecimento`
+
+A chave `16` de `tipo_unidade` aparece nos dados a partir de 2025-09, e nenhuma fonte do
+CNES diz o que ela significa. O dicionário a registra com o valor `Significado não
+encontrado nas fontes relacionadas ao CNES`, que não vem da fonte.
+
+| Fonte consultada | O que traz |
+|---|---|
+| `CNV/TP_ESTAB.CNV` do `TAB_CNES.zip`, versão de 15/10/2026 (`ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar`) | Lista oficial dos tipos de estabelecimento. Pula do `15` (`UNIDADE MISTA`) para o `20` (`PRONTO SOCORRO GERAL`). O código é o número no fim da linha; o do início é só a posição |
+| [CnesWeb, tipos de estabelecimento](https://cnes2.datasus.gov.br/Mod_Ind_Unidade.asp?VEstado=00) | A mesma lista, com a contagem por tipo, também sem o `16` |
+| Ficha do estabelecimento no CnesWeb: `https://cnes2.datasus.gov.br/Exibe_Ficha_Estabelecimento.asp?VCo_Unidade=<6 primeiros dígitos do id_municipio><id_estabelecimento_cnes>` | Em seis estabelecimentos com `16` em 2026-10, os campos "Tipo Estabelecimento" e "Sub Tipo Estabelecimento" estão vazios. Na ficha de um estabelecimento de outro tipo (`3301700777994`, oficina ortopédica), o mesmo campo traz o nome do tipo |
+| [Portaria GM/MS nº 2.022/2017](https://bvsms.saude.gov.br/bvs/saudelegis/gm/2017/prt2022_15_08_2017_rep.html) | Cria a nova classificação de tipos de estabelecimento, sem código numérico para os tipos |
+| [Wiki do CNES, nova classificação de tipos](https://wiki.saude.gov.br/cnes/index.php/Categoria:Nova_Classifica%C3%A7%C3%A3o_de_Tipos_de_Estabelecimento) | O tipo é atribuído a partir das atividades informadas no cadastro. A tabela de códigos só aparece como imagem |
+| [Ofício Circular nº 14/2026/CGSI/DRAC/SAES/MS](https://www.conass.org.br/wp-content/uploads/2026/09/9.1-Oficio-Circular-no-14.2026-CGSI-DRAC-SAES-MS-1.pdf) | A partir da competência 10/2026, o campo "Tipo de Estabelecimento" é substituído pela "Classificação de Tipo de Estabelecimento" |
+| [Portaria SAES/MS nº 3.200/2025](https://ses.sp.bvs.br/wp-content/uploads/2025/09/U_PT-MS-SAES-3200_020925.pdf) | Exige a classificação "Ambulatório" com estrutura móvel para a habilitação 38.04, sem código numérico |
+
+Competências em que o código aparece:
+
+```sql
+select date(ano, mes, 1) competencia, count(*) estabelecimentos
+from `basedosdados.br_ms_cnes.estabelecimento`
+where tipo_unidade = '16'
+group by 1 order by 1
+```
+
+### `tipo_especialidade_leito` 96 do `leito`
+
+A chave `96` corresponde ao leito "Suporte Ventilatório Pulmonar". Ele foi criado pela Portaria
+SAES/MS nº 510/2020 e reativado pela Portaria SAES/MS nº 550, de 03/07/2023. A chave não está
+no `CNV/Esp_leit.CNV` do `TAB_CNES.zip` (versão de 15/10/2026), que termina no `95`.
+
+Fonte: [Conass Informa nº 94/2023](https://www.conass.org.br/conass-informa-n-94-2023-republicada-a-portaria-saes-n-550-que-reativa-o-leito-96-suporte-ventilatorio-pulmonar-no-cadastro-nacional-de-estabelecimentos-de-saude-cnes-e-inclui-pro/), que reproduz a republicação da Portaria SAES/MS nº 550.
+
 ### Pendências conhecidas do dicionário
 
 - **66 códigos de 4 dígitos seguem sem rótulo**, 1.681 linhas em 2026-06. São os tipos
@@ -583,7 +616,7 @@ modelo faz `DROP ALL ROW ACCESS POLICIES`. O `run_dbt_model_flow`, que aceita
 `register_table_materialization_task`, dentro de um run do flow da tabela. Por isso a
 reconstrução usa dois runs seguidos, e entre eles a janela BD Pro fica aberta ao público.
 
-Rode fora da janela dos crons (6h30–12h30, ver "Agendamento") e reconstrua `estabelecimento`
+Rode fora da janela dos crons (9h–12h30, ver "Agendamento") e reconstrua `estabelecimento`
 antes de `leito` e `profissional` — os dois modelos fazem join com
 `basedosdados.br_ms_cnes.estabelecimento`. Antes do passo 1, rode a consulta de conferência
 e anote as `linhas` da tabela.
@@ -681,6 +714,9 @@ lista não estava vazia (os `SR*2606.dbc` foram baixados). **Pendência aberta d
 se a task não roda para essa tabela, o `RawDataSource.Update` dela não avança e ela não
 dispara sozinha nem depois do fix.
 
+O campo `SRVUNICO` chega à staging com o texto `nan` onde não há valor. O modelo converte esse
+texto em nulo no `tipo_servico_especializado_unico`.
+
 ### br_ms_cnes__estabelecimento_ensino
 
 Parada em 2019-12 porque o DATASUS **descontinuou o grupo EE**. O flow existe sem
@@ -707,11 +743,11 @@ declarados em `flows.py`:
 
 | Tabela | Cron |
 |---|---|
-| profissional | `30 6 * * *` |
 | estabelecimento | `0 9 * * *` |
 | equipe | `30 9 * * *` |
 | leito | `0 10 * * *` |
 | equipamento | `30 10 * * *` |
+| profissional | `40 10 * * *` |
 | dados_complementares | `0 11 * * *` |
 | estabelecimento_filantropico | `15 11 * * *` |
 | gestao_metas | `30 11 * * *` |
@@ -721,8 +757,8 @@ declarados em `flows.py`:
 | estabelecimento_ensino | sem cron |
 | regra_contratual | sem cron |
 
-A ordem não é decorativa: `estabelecimento` precisa rodar antes de `leito`, pelo
-join descrito acima.
+`estabelecimento` roda antes de `leito` e `profissional` porque os dois buscam nele o
+`id_municipio` da mesma competência.
 
 **Merge não arma nada.** O deploy em prod cai `paused=True`, e o sync do backend
 registra um deployment desconhecido com `is_schedule_active=False`. Armar é um

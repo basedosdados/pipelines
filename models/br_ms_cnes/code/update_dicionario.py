@@ -127,6 +127,18 @@ NEW_ROWS: list[dict[str, str]] = [
         "chave": "1",
         "valor": "Sim",
     },
+    {
+        "id_tabela": "estabelecimento",
+        "nome_coluna": "tipo_unidade",
+        "chave": "16",
+        "valor": "Significado não encontrado nas fontes relacionadas ao CNES",
+    },
+    {
+        "id_tabela": "leito",
+        "nome_coluna": "tipo_especialidade_leito",
+        "chave": "96",
+        "valor": "Suporte Ventilatório Pulmonar",
+    },
 ]
 
 # Rótulos do código de 4 dígitos do equipamento (2 do tipo + 2 do equipamento).
