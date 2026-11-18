@@ -24,7 +24,7 @@ class SourceStatus(StrEnum):
 # Respostas que não dizem se o arquivo existe: 202 (ZIP em preparo) e 405
 # (bloqueio do portal). São repetidas e, esgotadas as tentativas, viram
 # `SourceStatus.TEMPORARY`, nunca `NOT_PUBLISHED`.
-_TEMPORARY_STATUS_CODES = (202, 405)
+_TEMPORARY_STATUS_CODES = (202, 405, 429)
 
 
 MAX_MONTH_RANGE = 6

@@ -311,7 +311,7 @@ def is_transient_download_error(exc: BaseException | None) -> bool:
     hora, sem gastar as esperas do retry.
     """
     if isinstance(exc, HTTPError):
-        return exc.code in (*_TEMPORARY_STATUS_CODES, 429) or exc.code >= 500
+        return exc.code >= 500
     return isinstance(
         exc, URLError | TimeoutError | ConnectionError | zipfile.BadZipFile
     )
