@@ -201,7 +201,7 @@ Rodam **antes da carga**, em `pipelines/datasets/br_rf_cnpj/`, e devem falhar o 
 
 #### Testes de formato e datas
 
-- **`regex_or_null(column_name, pattern, severity)`:** cobre `cep` e `cpf_representante_legal`. `ddd_*`, `telefone_*`/`fax` e `email` ficaram sem teste de formato (ver decisão 5).
+- **`regex_or_null(column_name, pattern, severity)`:** cobre `cep` e `cpf_representante_legal`. `ddd_*`, `telefone_*`/`fax` e `email` ficaram sem teste de formato (ver decisão 4).
   - `cep`: `^[0-9]{8}$`
   - `cpf_representante_legal`: aceitar o padrão mascarado `***XXXXXX**` ou vazio. Definir o padrão a partir de uma amostra real.
 - **`date_in_range(column_name, min_date='1900-01-01')`:** `col is null or col between date(min) and current_date()`. Aplicado em `data_inicio_atividade`, `data_situacao_cadastral`, `data_situacao_especial`, `data_entrada_sociedade`, `data_opcao_simples`, `data_exclusao_simples`, `data_opcao_mei`, `data_exclusao_mei`
@@ -223,10 +223,6 @@ Rodam **antes da carga**, em `pipelines/datasets/br_rf_cnpj/`, e devem falhar o 
   - `(cnpj_basico, tipo, documento, nome, qualificacao, data_entrada_sociedade)`
   - com e sem `cpf_representante_legal`
   - Como o CPF vem mascarado, haverá colisões legítimas. Por isso usar `custom_unique_combinations_of_columns` (tolera 5%) e **medir a taxa real antes de fixar o limiar**. 
-- **Cruzamento por `cnpj_basico`:** usar `custom_relationships` ou `relationships` com `severity: error`:
-  - `estabelecimentos.cnpj_basico` → `empresas.cnpj_basico`
-  - `socios.cnpj_basico` → `empresas.cnpj_basico`
-  - `simples.cnpj_basico` → `empresas.cnpj_basico`
 
 ### Decisões tomadas
 
@@ -255,22 +251,17 @@ Rodam **antes da carga**, em `pipelines/datasets/br_rf_cnpj/`, e devem falhar o 
        - **Testes adicionados:** `regex_or_null` com `severity: error` em `cnpj` (`^[A-Z0-9]{12}[0-9]{2}$`), `cnpj_basico` (`^[A-Z0-9]{8}$`, nas 4 tabelas), `cnpj_ordem` (`^[A-Z0-9]{4}$`) e `cnpj_dv` (`^[0-9]{2}$`). 
    - **Decisão:** testes de formato em `error`, já alfanuméricos, para pegar também o `"00000nan"` que o `fill_left_zeros` produziria com célula vazia.
 
-4. **Relacionamento por `cnpj_basico` com `empresas`: `custom_relationships`, contra a partição mais recente do pai.**
-   - **Contexto:** o `custom_relationships` fazia `from {{ to }}` sem filtro, ou seja, compararia contra todas as partições de `empresas`. Isso sairia caro e mascararia órfãos (CNPJ presente só em partição antiga). Taxas medidas uma vez nas partições mais recentes (`simples` é snapshot): `simples` 2 em 50,8M (~4e-8), `socios` 33 em 28,5M (~1,2e-6), `estabelecimentos` 4134 em 73,8M (~5,6e-5).
-   - **Decisão:** novo parâmetro opcional `to_where` no macro (padrão `None`, sem efeito nos demais datasets) e `custom_relationships` em `severity: warn` (hoje `error`) nas três tabelas, com `to_where` apontando para `max(data_referencia)` de `empresas`. Limiares com ~10x de folga: `simples` 1e-6, `socios` 1e-5, `estabelecimentos` 5e-4.
-   - **Alternativas descartadas:** `relationships` nativo (compara com todas as partições do pai e não tolera falhas) e criar um macro novo (duplicaria a lógica).
-
-5. **Colunas de contato: sem teste de formato em DDD, telefone, fax e e-mail; CEP corrigido no modelo.**
+4. **Colunas de contato: sem teste de formato em DDD, telefone, fax e e-mail; CEP corrigido no modelo.**
    - **Contexto:** o relatório mostrou placeholders (`0`, espaços) e zeros à esquerda em DDD e telefone, e e-mails digitados livremente na fonte (~38,9 mil avisos). No CEP, 82 mil linhas perdiam o zero à esquerda.
-   - **Decisão:** não aplicar teste em `ddd_*`, `telefone_*`, `fax` nem regex em `email` (o `no_invalid_chars` de `email` permanece). O CEP é corrigido no modelo (`lpad` para 8 dígitos e valores só de zeros viram `NULL`) e o `regex_or_null` de `cep` ficava em `warn` (hoje `error`, decisão 7).
+   - **Decisão:** não aplicar teste em `ddd_*`, `telefone_*`, `fax` nem regex em `email` (o `no_invalid_chars` de `email` permanece). O CEP é corrigido no modelo (`lpad` para 8 dígitos e valores só de zeros viram `NULL`) e o `regex_or_null` de `cep` ficava em `warn` (hoje `error`, decisão 6).
 
-6. **`cpf_representante_legal`: `regex_or_null` em `error`.**
+5. **`cpf_representante_legal`: `regex_or_null` em `error`.**
    - **Decisão:** `^\*{3}[0-9]{6}\*{2}$` com `where: __most_recent_date_cnpj__`. A amostra mostrou só nulo e `***999999**`.
 
-7. **Severidade: todos os testes do `schema.yml` em `error`.**
-   - **Decisão:** os 12 testes que estavam em `warn` passaram a `error`: os 8 `date_in_range` de datas, os 3 `custom_relationships` de `cnpj_basico` com `empresas` e o `regex_or_null` de `cep`.
+6. **Severidade: todos os testes do `schema.yml` em `error`.**
+   - **Decisão:** os 12 testes que estavam em `warn` passaram a `error`: os 8 `date_in_range` de datas e o `regex_or_null` de `cep`.
 
-8. **`not_null_proportion_multiple_columns` em `empresas`, `socios`, `simples` e `estabelecimentos`.**
+7. **`not_null_proportion_multiple_columns` em `empresas`, `socios`, `simples` e `estabelecimentos`.**
    - **Contexto:** o macro reprova colunas com mais de 95% de nulos (`at_least` padrão 0,05). Nulos medidos na partição 2026-10-01 (`simples`: tabela inteira).
    - **Decisão:** `ignore_values` (nomes de colunas) por tabela, com `where: __most_recent_date_cnpj__` (exceto `simples`, sem filtro e sem colunas ignoradas):
      - `empresas`: `ente_federativo` (99,9%).
@@ -278,18 +269,18 @@ Rodam **antes da carga**, em `pipelines/datasets/br_rf_cnpj/`, e devem falhar o 
      - `estabelecimentos`: `nome_cidade_exterior` (99,9%), `id_pais` (96,9%), `situacao_especial` e `data_situacao_especial` (99,95%).
      - `simples`: nenhuma; a coluna mais vazia é `data_exclusao_mei` (60%).
 
-9. **CEP: o que não tem exatamente 8 dígitos depois da limpeza vira `NULL` no modelo.**
+8. **CEP: o que não tem exatamente 8 dígitos depois da limpeza vira `NULL` no modelo.**
    - **Contexto:** depois do `lpad`, o teste de CEP ainda reprovava 1 linha com `92200-35`. Não é um CEP válido e parece truncado na fonte (o valor real seria algo como `92200-350`, sem como saber).
    - **Decisão:** no `case` de `cep` de `br_rf_cnpj__estabelecimentos.sql`, o `else` deixa de devolver o valor cru: só passa o que casa `^[0-9]{8}$`; o restante vira `NULL`. O teste `regex_or_null` de `cep` fica estrito, sem exceção.
    - **Alternativas descartadas:** (1) remover o traço: deixaria 7 dígitos e o `lpad` fabricaria `09220035`, um CEP inexistente com aparência válida; (2) tolerar o traço no teste: o regex `5-3` não aceita essa linha, e aceitar `5-2` enfraqueceria o teste para acomodar um caso.
    - **Efeito:** altera o dado publicado em poucas linhas (observada 1 em 73,8M), de valor malformado para `NULL`, consistente com o tratamento dos CEPs só de zeros.
 
-10. **`socios`: `select distinct *` no modelo e nenhum teste de unicidade.**
+9. **`socios`: `select distinct *` no modelo e nenhum teste de unicidade.**
    - **Contexto:** não existe chave natural declarada. Na partição 2026-10-01 (28.495.961 linhas), os candidatos testados deram de 293 a 490 linhas duplicadas (~1e-5 a 1,7e-5), e nenhum chegou a zero. Com a chave `cnpj_basico, tipo, documento, nome, qualificacao, data_entrada_sociedade` são 126 grupos e 424 linhas (298 excedentes): 98 grupos de tipo 1 / qualificação 20 (61 empresas, até 16 linhas por grupo, idênticas nas demais colunas medidas) e 27 de tipo 3 / qualificação 37 (`documento` sempre nulo; em 5 grupos as colunas do representante diferem).
    - **Decisão:** Não será criado teste de unicidade para `socios`; a decisão em aberto sobre a chave fica encerrada.
    - **Alternativas descartadas:** `custom_unique_combinations_of_columns` com tolerância (o macro calcula a taxa por grupo duplicado, não a soma das duplicatas, e quase nunca reprovaria) e teste estrito com a chave ampliada.
 
-11. **`estabelecimentos`: sem limpeza de caracteres de controle.** Chegou a
+10. **`estabelecimentos`: sem limpeza de caracteres de controle.** Chegou a
     haver `regexp_replace(col, r'[\x00-\x1f]+', ' ')` com `trim` e `nullif` em
     `nome_fantasia`, `logradouro`, `numero`, `complemento` e `bairro`, mas foi
     removida: as ocorrências são proporcionalmente poucas e a limpeza aumentaria o

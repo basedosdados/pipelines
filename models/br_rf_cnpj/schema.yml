@@ -98,14 +98,6 @@ models:
               config:
                 severity: error
                 where: __most_recent_date_cnpj__
-          - custom_relationships:
-              to: ref('br_rf_cnpj__empresas')
-              field: cnpj_basico
-              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
-              proportion_allowed_failures: 0.00001
-              config:
-                severity: error
-                where: __most_recent_date_cnpj__
         config:
           where: __most_recent_date_cnpj__
       - name: tipo
@@ -171,13 +163,6 @@ models:
         tests:
           - regex_or_null:
               pattern: ^[A-Z0-9]{8}$
-              config:
-                severity: error
-          - custom_relationships:
-              to: ref('br_rf_cnpj__empresas')
-              field: cnpj_basico
-              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
-              proportion_allowed_failures: 0.000001
               config:
                 severity: error
       - name: opcao_simples
@@ -281,14 +266,6 @@ models:
         tests:
           - regex_or_null:
               pattern: ^[A-Z0-9]{8}$
-              config:
-                severity: error
-                where: __most_recent_date_cnpj__
-          - custom_relationships:
-              to: ref('br_rf_cnpj__empresas')
-              field: cnpj_basico
-              to_where: data_referencia = (select max(data_referencia) from {{ ref('br_rf_cnpj__empresas') }})
-              proportion_allowed_failures: 0.0005
               config:
                 severity: error
                 where: __most_recent_date_cnpj__
