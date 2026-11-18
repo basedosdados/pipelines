@@ -35,16 +35,17 @@ contratos daquele ano **em diante**, e `licitacoesContratos-1999.csv`, todos. Co
 vários desses arquivos na staging, o mesmo contrato aparecia em mais de um, e um
 contrato alterado pela Câmara ficava com a versão nova e a antiga (#2280).
 
-Por isso essa tabela baixa só o arquivo de 1999, sempre gravado como
-`licitacoesContratos_1999.csv`, e o envia com `dump_mode="append"`, que substitui o
-arquivo de mesmo nome. Só depois do upload, `remove_stale_staging_files` apaga os
-demais arquivos da pasta da staging; se o arquivo de 1999 não estiver lá, a execução
-para sem apagar nada. A tabela espelha a fonte: contratos alterados aparecem na versão
-atual, e contratos removidos pela Câmara saem da tabela.
+Por isso essa tabela funciona como as de arquivo único (`orgao`, `frente`): nos
+dicionários de `constants.py`, ela aponta para o arquivo de 1999, sempre gravado como
+`licitacoesContratos_1999.csv`. Como o nome não muda, o `append` substitui o arquivo
+na staging a cada execução. A tabela espelha a fonte: contratos alterados aparecem na
+versão atual, e contratos removidos pela Câmara saem da tabela.
 
-Antes do upload, `check_historico_cobre_ano_atual` confere se todas as linhas do
-arquivo do ano atual estão no de 1999 e interrompe a execução se faltar alguma. Se o
-arquivo do ano atual ainda não existe (início de janeiro), a checagem é pulada.
+Antes do upload, a task `check_historico_cobre_ano_atual` confere, com
+`check_rows_contained` (`pipelines/utils/data_tests/contained.py`), se todas as linhas
+do arquivo do ano atual estão no de 1999, e interrompe a execução se faltar alguma.
+Se o arquivo do ano atual não existe (404, no início de janeiro), a checagem é pulada;
+qualquer outro erro da Câmara interrompe a execução.
 
 ## As tabelas por tema
 
@@ -86,15 +87,15 @@ Há um flow por tabela (`br_camara_dados_abertos__<tabela>`), todos criados pela
 função, `_camara_flow`, em `flows.py`. Cada execução:
 
 1. **Verifica o arquivo do ano**: `check_if_url_is_valid` consulta o endereço do
-   arquivo do ano atual (em `licitacao_contrato`, o do arquivo de 1999).
+   arquivo do ano atual (em `licitacao_contrato`, o de 1999).
    - Se ele existe, o flow segue.
    - Se só o do ano anterior existe, o flow termina sem baixar nada. É o que acontece
      no começo de janeiro, antes de a Câmara publicar o arquivo do ano novo.
    - Se nenhum dos dois existe, a execução para com erro.
 2. **Baixa o ano atual e o anterior**: `save_data` chama `download_and_read_data`,
    que baixa os dois arquivos. Nas tabelas de arquivo único, o mesmo arquivo é
-   baixado duas vezes, e o resultado é um só. Em `licitacao_contrato`, baixa só o
-   arquivo de 1999.
+   baixado duas vezes, e o resultado é um só. `licitacao_contrato` é tratada como
+   uma delas, com o arquivo de 1999.
 3. **Trata e grava um CSV por ano**: `save_data` aplica os tratamentos da tabela e
    grava cada ano em um arquivo com nome fixo (por exemplo,
    `votacoes_2026.csv`). Os tratamentos removem `;` e quebras de linha dos campos de
@@ -104,15 +105,14 @@ função, `_camara_flow`, em `flows.py`. Cada execução:
    `check_rows_written` (`pipelines/utils/data_tests/rows.py`) compara as linhas dos
    CSVs da pasta da tabela com as gravadas e para a execução, antes do upload, se
    faltar ou sobrar linha. Nas tabelas de arquivo único, os dois anos são gravados no
-   mesmo arquivo, e a conta usa só a última gravação. Em `licitacao_contrato`, a conta
-   é feita sobre o único arquivo, o de 1999.
+   mesmo arquivo, e a conta usa só a última gravação. Em `licitacao_contrato`,
+   `check_historico_cobre_ano_atual` roda em seguida, ainda antes do upload.
 4. **Carrega em dev e depois em produção**: os CSVs vão para o bucket
    `basedosdados-dev` e o dbt roda e testa em dev; só então vão para o bucket
    `basedosdados` e o dbt roda e testa em produção. Uma falha em dev impede a ida para
    produção. Como o nome do arquivo de cada ano é fixo, reenviar um ano substitui o
    arquivo anterior; os anos mais antigos, enviados em execuções passadas, continuam na
-   staging. Em `licitacao_contrato`, depois de cada upload, a staging
-   fica só com o arquivo de 1999.
+   staging.
 5. **Atualiza a cobertura**: `register_table_materialization_task` registra a
    cobertura da tabela no site.
 
