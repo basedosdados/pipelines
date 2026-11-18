@@ -1,4 +1,10 @@
-{{ config(alias="licitacao_contrato", schema="br_camara_dados_abertos") }}
+{{
+    config(
+        alias="licitacao_contrato",
+        schema="br_camara_dados_abertos",
+        materialized="table",
+    )
+}}
 select distinct
     safe_cast(ano as int64) ano_licitacao,
     safe_cast(idlicitacao as string) id_licitacao,
