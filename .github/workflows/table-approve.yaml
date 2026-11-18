@@ -90,7 +90,7 @@ jobs:
           != ''
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
-            --dbt-command run \
+            --dbt-command run/test \
             --sync-bucket \
             --modified-files "${{ steps.changed_files.outputs.files }}"
         env:
