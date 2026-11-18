@@ -3,9 +3,6 @@ name: table-approve
 on:
   push:
     branches: [main]
-  # TEMPORÁRIO — teste manual sem precisar mergear em main, reverter junto
-  # com o hardcode em "Run build_and_promote to promote tables to prod".
-  workflow_dispatch:
 jobs:
   table-approve:
     name: table approve
@@ -73,25 +70,28 @@ jobs:
             console.log("Changed files:", fileNames);
             core.setOutput("files", fileNames);
       - name: Checkout
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         uses: actions/checkout@v6
       - name: Install uv
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         uses: astral-sh/setup-uv@v7
       - name: Set up python
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: uv python install
       - name: Install requirements
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: uv sync --locked --no-dev
-      # TEMPORÁRIO — teste do caminho build_and_promote unificado, reverter
-      # depois: tabela hardcoded em vez de steps.changed_files.outputs.files.
       - name: Run build_and_promote to promote tables to prod
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
             --sync-bucket \
-            --modified-files "models/test_dataset/test_dataset__test_event_pipeline.sql"
+            --modified-files "${{ steps.changed_files.outputs.files }}"
         env:
           # Sem isso, o stdout do Python fica bufferizado por bloco (não é
           # um terminal) e os prints de progresso só aparecem no log do
