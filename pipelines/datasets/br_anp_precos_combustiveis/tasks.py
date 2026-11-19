@@ -21,18 +21,11 @@ from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
-    creating_column_ano,
     datas_coleta,
     download_files,
-    get_id_municipio,
-    lower_colunm_produto,
-    merge_table_id_municipio,
     open_csvs,
-    orderning_data_coleta,
     partition_data,
-    rename_and_reordening,
-    rename_and_to_create_endereco,
-    rename_columns,
+    tratar_precos,
 )
 from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.metadata.client import MetadataClient
@@ -72,18 +65,7 @@ def download_and_transform():
         anp_constants.URL_GLP.value,
     )
 
-    df = get_id_municipio(id_municipio=precos_combustiveis)
-    df = merge_table_id_municipio(
-        id_municipio=df, pd_precos_combustiveis=precos_combustiveis
-    )
-    df = rename_and_to_create_endereco(precos_combustiveis=df)
-    df = orderning_data_coleta(precos_combustiveis=df)
-    df = lower_colunm_produto(precos_combustiveis=df)
-    df = creating_column_ano(precos_combustiveis=df)
-    df = rename_and_reordening(precos_combustiveis=df)
-    df = rename_columns(precos_combustiveis=df)
-
-    return df
+    return tratar_precos(precos_combustiveis)
 
 
 @task(retries=5, retry_delay_seconds=10)

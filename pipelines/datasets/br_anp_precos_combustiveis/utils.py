@@ -4,6 +4,7 @@ General purpose functions for the br_anp_precos_combustiveis project
 
 import io
 import os
+from collections.abc import Hashable, Mapping
 from datetime import date, datetime
 
 import basedosdados as bd
@@ -78,12 +79,16 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     return id_municipio
 
 
+# cnpj só com dígitos viraria número e perderia o zero à esquerda
+TEXTO: Mapping[Hashable, str] = {"CNPJ da Revenda": "str"}
+
+
 def read_anp_file(path: str) -> pd.DataFrame:
     """lê o arquivo da anp, que pode vir como csv ou como xlsx na mesma url."""
     with open(path, "rb") as f:
         is_xlsx = f.read(4) == b"PK\x03\x04"
     if not is_xlsx:
-        return pd.read_csv(path, sep=";", encoding="utf-8-sig")
+        return pd.read_csv(path, sep=";", encoding="utf-8-sig", dtype=TEXTO)
 
     # no xlsx, cada célula guarda um pedaço da linha csv, cortada em cada vírgula
     raw = pd.read_excel(path, header=None, dtype=str)
@@ -95,7 +100,7 @@ def read_anp_file(path: str) -> pd.DataFrame:
         return ",".join(row.loc[:last].fillna("").astype(str))
 
     text = "\n".join(raw.apply(_row_to_line, axis=1).tolist())
-    return pd.read_csv(io.StringIO(text), sep=";")
+    return pd.read_csv(io.StringIO(text), sep=";", dtype=TEXTO)
 
 
 def datas_coleta(path: str) -> tuple[date, date]:
@@ -266,3 +271,17 @@ def rename_columns(precos_combustiveis: pd.DataFrame):
     precos_combustiveis = precos_combustiveis.replace(np.nan, "")
 
     return precos_combustiveis
+
+
+def tratar_precos(precos_combustiveis: pd.DataFrame) -> pd.DataFrame:
+    """aplica o tratamento do flow aos dados lidos dos arquivos da anp."""
+    df = get_id_municipio(id_municipio=precos_combustiveis)
+    df = merge_table_id_municipio(
+        id_municipio=df, pd_precos_combustiveis=precos_combustiveis
+    )
+    df = rename_and_to_create_endereco(precos_combustiveis=df)
+    df = orderning_data_coleta(precos_combustiveis=df)
+    df = lower_colunm_produto(precos_combustiveis=df)
+    df = creating_column_ano(precos_combustiveis=df)
+    df = rename_and_reordening(precos_combustiveis=df)
+    return rename_columns(precos_combustiveis=df)

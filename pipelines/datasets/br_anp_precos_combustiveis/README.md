@@ -171,16 +171,33 @@ Uma semana que já saiu dos arquivos de 4 semanas só está nos arquivos semestr
 série histórica (`dsas/ca/ca-AAAA-SS` para combustíveis automotivos e
 `dsas/glp/glp-AAAA-SS` para GLP). Para recuperá-la:
 
-1. gere as pastas `data_coleta=aaaa-mm-dd/data.csv` das datas que faltam a partir dos
-   arquivos semestrais, com o mesmo tratamento do flow, e confira o resultado contra o
-   arquivo da ANP antes de gravar;
-2. grave as pastas na staging de dev e rode `dbt run --select
-   br_anp_precos_combustiveis__microdados --full-refresh` e os testes em dev;
+1. gere as pastas das datas que faltam com
+   `models/br_anp_precos_combustiveis/code/recuperar_semanas.py`, primeiro sem gravar:
+
+   ```bash
+   uv run python models/br_anp_precos_combustiveis/code/recuperar_semanas.py \
+       --inicio 2023-08-05 --fim 2023-08-20
+   ```
+
+   O script baixa os semestrais do intervalo, aplica o mesmo tratamento do flow
+   (`tratar_precos`), ignora as datas que já têm pasta na staging de dev e confere se
+   cada data gerada tem as mesmas linhas do arquivo da ANP. Confira o resumo (linhas,
+   municípios sem `id_municipio`, linhas idênticas) e rode de novo com `--gravar`. O
+   script só cria pastas novas: uma pasta que já existe nunca é sobrescrita;
+2. rode `dbt run --select br_anp_precos_combustiveis__microdados --full-refresh` e os
+   testes em dev;
 3. leve só essas pastas para a staging de produção com `transfer_files_to_prod_flow`
    (`folders` = as pastas novas) e reconstrua a tabela de produção com o deployment
    "BD template: Executa DBT model" (`target="prod"`, `flags="--full-refresh"`). O
    `table-approve` não serve aqui: ele substitui a staging de produção inteira pela de
    dev.
+
+Os semestrais trazem os mesmos postos, produtos e preços dos arquivos de 4 semanas,
+mas o cadastro do posto (nome, endereço, bairro e CEP) pode vir atualizado: em
+mar/2026, cerca de 1% das linhas difere nesses campos. Também mudam formatos que o
+tratamento absorve: CNPJ sem pontuação (`ca-2025-02`), unidade `R$ / m3` em vez de
+`R$ / m³` (`ca-2025-02`), arquivos zipados, `ca-2021-02` em latin-1 e linhas em branco
+(`ca-2025-01`).
 
 O `--full-refresh` é necessário porque a janela do `insert_overwrite` não alcança datas
 antigas. Ele remove as regras de acesso do BD Pro, que são recriadas na próxima carga
