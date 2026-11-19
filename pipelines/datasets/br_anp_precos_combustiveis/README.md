@@ -183,7 +183,10 @@ série histórica (`dsas/ca/ca-AAAA-SS` para combustíveis automotivos e
    (`tratar_precos`), ignora as datas que já têm pasta na staging de dev e confere se
    cada data gerada tem as mesmas linhas do arquivo da ANP. Confira o resumo (linhas,
    municípios sem `id_municipio`, linhas idênticas) e rode de novo com `--gravar`. O
-   script só cria pastas novas: uma pasta que já existe nunca é sobrescrita;
+   script só cria pastas novas: uma pasta que já existe nunca é sobrescrita. Para
+   reconstruir datas que já existem (ex.: datas parciais), copie antes a staging para
+   um prefixo de backup no mesmo bucket e passe `--substituir <prefixo>`; o script
+   confere que o backup é idêntico à staging atual antes de gerar;
 2. rode `dbt run --select br_anp_precos_combustiveis__microdados --full-refresh` e os
    testes em dev;
 3. leve só essas pastas para a staging de produção com `transfer_files_to_prod_flow`
