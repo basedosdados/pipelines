@@ -278,6 +278,36 @@ do voto:
 como ` - CCJ` são ignorados. A partição `ano` é o ano da identificação ou, quando a identificação
 não segue esse formato, o ano consultado na API.
 
+#### `data_ultima_atualizacao` e `ultima_informacao_atualizada`: janela de ~8 meses
+
+A listagem `/processo?ano=<ano>` só preenche `dataUltimaAtualizacao` e
+`ultimaInformacaoAtualizada` quando a última atualização do processo ocorreu nos últimos 8 meses,
+aproximadamente. Fora dessa janela, os dois campos vêm nulos. O endpoint de detalhe
+`/processo/{id}` não traz esses campos.
+
+Consulta de 19/11/2026: em todos os anos, a data preenchida mais antiga estava entre 19 e
+25/03/2026.
+
+| Ano consultado | Processos | Com `dataUltimaAtualizacao` | Data preenchida mais antiga |
+|---|---|---|---|
+| 2020 | 5.808 | 256 (4%) | 2026-03-23 |
+| 2023 | 5.450 | 1.338 (25%) | 2026-03-25 |
+| 2025 | 5.002 | 1.536 (31%) | 2026-03-19 |
+| 2026 | 3.368 | 3.159 (94%) | 2026-03-19 |
+
+Como a janela anda junto com a data da consulta, um processo perde os dois valores quando passa
+oito meses sem atualização, sem que nada tenha mudado nele. Foi o que derrubou o teste em
+17/11/2026: 39 processos apresentados entre dez/2025 e mar/2026, com última atualização entre
+13 e 16/03/2026, tinham os campos preenchidos em prod (extração de 15/11) e vieram nulos na
+extração seguinte. A proporção de não-nulos de 2026 caiu de 95,41% para 94,24%, abaixo do piso de
+95% do `not_null_proportion_multiple_columns` (escopado em `__most_recent_year__`).
+
+**Decisão:** as duas colunas ficam no `ignore_values` desse teste em `schema.yml`, e a descrição
+das duas explica a janela. Baixar o piso não resolveria: no ano mais recente, a proporção de nulos
+só cresce ao longo do ano, conforme os processos de janeiro a março saem da janela. As colunas
+continuam na tabela; um nulo nelas quer dizer "sem atualização nos últimos ~8 meses na data da
+extração", não "nunca atualizado".
+
 ### relatoria
 
 O parâmetro `ano` da API filtra pelo ano de apresentação do processo, e a partição `ano` usa esse
