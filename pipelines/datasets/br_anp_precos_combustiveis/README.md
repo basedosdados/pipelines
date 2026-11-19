@@ -71,11 +71,14 @@ O crawler (`download_and_transform`) faz os tratamentos que dependem do arquivo:
 
 O modelo dbt converte os tipos, tira a pontuação do CNPJ e deixa os textos com a
 primeira letra maiúscula (`initcap`). Por isso os produtos aparecem como `Gasolina`,
-`Gasolina Aditivada`, `Etanol`, `Diesel`, `Diesel S10`, `Glp` e `Gnv`.
+`Gasolina Aditivada`, `Etanol`, `Diesel`, `Diesel S10`, `Glp` e `Gnv`. As linhas que a
+ANP repete no próprio arquivo (jun/2024, fev/2026) são mantidas como publicadas.
 
-A tabela é **incremental**: cada `dbt run` só acrescenta as datas de coleta posteriores
-à última que já está na tabela. Como cada execução reenvia as 4 semanas do arquivo,
-as datas que a tabela já tem são ignoradas e nada é duplicado.
+A tabela é **incremental** com `insert_overwrite`: cada `dbt run` regrava, a partir da
+staging, os anos que caem na janela de 4 semanas do arquivo (da última data da tabela
+menos 35 dias em diante). Assim, uma semana que a ANP republicar com correção entra
+na tabela no run seguinte. Uma semana fora da janela, como a recuperada pelos arquivos
+semestrais, só entra com `--full-refresh`.
 
 Na staging, há uma pasta por data de coleta (`data_coleta=aaaa-mm-dd/data.csv`). Na
 tabela final, a partição é por `ano`.
