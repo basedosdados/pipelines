@@ -15,6 +15,9 @@ models:
             - preco_venda
           config:
             where: __most_recent_year__
+            # a anp repete chaves no próprio arquivo (2005: 36, 2024: 10, 2026: 6); limite = média
+            warn_if: '>0'
+            error_if: '>17'
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [preco_compra]

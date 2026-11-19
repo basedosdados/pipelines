@@ -86,12 +86,12 @@ tabela final, a partição é por `ano`.
 
 Os testes ficam em `models/br_anp_precos_combustiveis/schema.yml` e rodam só no ano
 mais recente (`where: __most_recent_year__`), exceto o `not_null` de `ano`, que roda na
-tabela inteira (o filtro descartaria as linhas sem ano). Uma falha, exceto a faixa de preço,
+tabela inteira (o filtro descartaria as linhas sem ano). Uma falha, exceto a faixa de preço e até 17 chaves repetidas,
 interrompe o flow.
 
 | teste | o que verifica |
 |---|---|
-| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto, preco_venda)`, sem tolerância. O preço entra na chave porque a ANP às vezes publica dois preços para o mesmo posto, dia e produto (ex.: Taubaté, jun/2024); essas linhas são mantidas como publicadas |
+| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto, preco_venda)`. Avisa a partir de 1 chave repetida e falha acima de 17, a média dos anos em que a ANP repetiu chaves no próprio arquivo (36 em 2005, 10 em 2024 e 6 em 2026). O preço entra na chave porque a ANP às vezes publica dois preços para o mesmo posto, dia e produto (ex.: Taubaté, jun/2024); essas linhas são mantidas como publicadas |
 | `not_null_proportion_multiple_columns` | pelo menos 5% de preenchimento em cada coluna, exceto `preco_compra` |
 | `dbt_utils.expression_is_true` (unidade) | `unidade_medida` coerente com o produto: `R$/13kg` para GLP, `R$/m3` para GNV, `R$/litro` para os demais |
 | `dbt_utils.expression_is_true` (preço, `warn`) | `preco_venda` entre R$ 50 e R$ 250 para GLP e entre R$ 1 e R$ 20 para os demais |
