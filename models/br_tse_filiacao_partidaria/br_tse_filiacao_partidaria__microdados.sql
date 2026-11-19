@@ -9,7 +9,6 @@
             "data_type": "date",
         },
         cluster_by=["sigla_uf"],
-        pre_hook="{% if adapter.get_relation(this.database, this.schema, this.identifier) %}DROP ALL ROW ACCESS POLICIES ON {{ this }}{% else %}SELECT 1{% endif %}",
     )
 }}
 
@@ -41,18 +40,5 @@ left join
     basedosdados.br_bd_diretorios_brasil.municipio as m
     on t.codlocalidadetse = m.id_municipio_tse
 {% if is_incremental() %}
-        {%- set max_date_result = run_query(
-            "select format_date('%Y-%m-%d', max(safe.parse_date('%Y%m%d', partition_id))) from `"
-            ~ this.database
-            ~ "`.`"
-            ~ this.schema
-            ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
-            ~ this.identifier
-            ~ "' and total_rows > 0"
-        ) -%}
-        {%- set max_date = "" -%}
-        {%- if execute and max_date_result.rows[0][0] -%}
-            {%- set max_date = max_date_result.rows[0][0] -%}
-        {%- endif -%}
-    where t.data_extracao > '{{ max_date }}'
+    where t.data_extracao > (select cast(max(data_extracao) as string) from {{ this }})
 {% endif %}

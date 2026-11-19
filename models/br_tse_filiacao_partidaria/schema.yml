@@ -88,8 +88,12 @@ models:
             - motivo_cancelamento
             - data_cancelamento
             - nome_social
+          config:
+            where: __most_recent__(data_extracao)
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, registro_filiacao]
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: registro_filiacao
         description: Sequecia do registro filiação
@@ -102,12 +106,16 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               ignore_values: [ZZ]
+              config:
+                where: __most_recent__(data_extracao)
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent__(data_extracao)
       - name: id_municipio_tse
         description: ID Município - TSE
       - name: zona
@@ -140,33 +148,45 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_desfiliacao
         description: Data de desfiliação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_cadastro_desfiliacao
         description: Data do cadastro da desfiliação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_cancelamento
         description: Data de cancelamento
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_exclusao
         description: Data de exclusão
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_extracao
         description: Data de extração
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)

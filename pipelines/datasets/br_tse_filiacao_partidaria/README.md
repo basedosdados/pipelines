@@ -4,7 +4,7 @@ Filiações partidárias registradas no Sistema de Filiação Partidária (Filia
 
 | Tabela | Atualização |
 |---|---|
-| `microdados` | flow mensal deste diretório |
+| `microdados` | flow semanal deste diretório |
 | `microdados_antigos` | estática (1990–2021), fora do flow |
 
 ---
@@ -44,15 +44,15 @@ indisponível durante o período das eleições. O acesso será restabelecido ap
 trabalhos eleitorais.", sem data de retorno. Em 2026, o sistema estava fechado em 1º/10, antes do
 1º turno, e aberto de novo em 6/11.
 
-Com o sistema fechado, o `extract_and_load` falha. Quando o fechamento inclui o dia 1º, a carga do
-mês é disparada à mão quando o sistema volta (ver "Carga manual" abaixo).
+Com o sistema fechado, o `extract_and_load` falha toda semana, e a coleta volta no primeiro sábado
+depois da reabertura (ver "Coleta que falha" abaixo).
 
 ---
 
 ## Detecção de dado novo
 
 A fonte não tem data, então o `check_update` não detecta atualização: só dispara a coleta. Ele
-roda no dia 1º de cada mês, à 1h23, e devolve **o dia da coleta, no fuso de São Paulo**.
+roda todo sábado, à 1h23, e devolve **o dia da coleta, no fuso de São Paulo**.
 
 Essa data chega ao `extract_and_load` em `download_params["reference_date"]` e dá nome à partição
 `data_extracao=`. Assim, a partição e a "Última atualização na fonte original"
@@ -61,7 +61,7 @@ dos Dados consultou a API, e não uma data publicada pelo TSE.
 
 O `check_update` compara o dia da coleta com a "Última atualização na Base dos Dados"
 (`Table.Update.latest`, com `compare_against="table_update"`), que guarda o dia em que a tabela
-foi gravada pela última vez. No dia 1º, essa data ainda é do mês anterior, e a carga é disparada.
+foi gravada pela última vez. No sábado, essa data ainda é da semana anterior, e a carga é disparada.
 Depois de uma carga bem-sucedida, uma nova execução no mesmo dia termina sem baixar nada.
 
 Duas alternativas e o efeito de cada uma:
@@ -71,17 +71,14 @@ Duas alternativas e o efeito de cada uma:
 - **Rodar todo dia, para que uma coleta que falhou se repita sozinha.** A data da tabela seria
   sempre anterior à do dia, e o flow baixaria a lista inteira todos os dias.
 
-### Carga manual
+### Coleta que falha
 
-O flow roda uma vez por mês, e uma coleta que falha no dia 1º não se repete sozinha. A carga é
-disparada à mão, pelo `check_update` de prod, quando no dia 1º:
+Uma coleta que falha, porque o TSE está fora do ar, a coleta foi interrompida ou o sistema está
+fechado para as eleições, não se repete no mesmo dia. A próxima é no sábado seguinte, e a tabela
+fica uma semana sem retrato novo.
 
-- o TSE está fora do ar ou a coleta é interrompida;
-- o sistema está fechado para as eleições (ver acima). Nesse caso, a carga é disparada no
-  primeiro dia em que o sistema volta.
-
-A carga manual grava o dia em que roda tanto na partição quanto na "Última atualização na fonte
-original".
+Se for preciso o retrato antes disso, a carga pode ser disparada à mão pelo `check_update` de prod.
+Ela grava o dia em que roda tanto na partição quanto na "Última atualização na fonte original".
 
 ---
 
@@ -131,7 +128,7 @@ anteriores. Algumas filiações só existem num retrato antigo: 554.360 só apar
 saída é desconhecido.
 
 **Tamanho.** Cada coleta tem cerca de 17 milhões de linhas, e a staging e a tabela crescem esse
-tanto por mês.
+tanto por semana.
 
 | `data_extracao` | Linhas |
 |---|---|
@@ -150,20 +147,15 @@ O modelo é incremental, com `insert_overwrite` por `data_extracao`: cada run l�
 coletas posteriores à mais recente da tabela e grava as partições delas. As coletas anteriores não
 são relidas.
 
-- **O filtro usa um valor fixo.** A data da coleta mais recente sai do `INFORMATION_SCHEMA.PARTITIONS`
-  da tabela e entra no filtro como texto, comparada com a `data_extracao` da staging sem conversão.
-  Assim o BigQuery lê só as pastas `data_extracao=` novas. Com uma subconsulta no filtro, leria a
-  staging inteira.
-- **O `pre_hook` apaga as regras de acesso.** O `insert_overwrite` é DML, e o BigQuery bloqueia DML
-  em tabela com regra de acesso. As regras voltam no `register_table_materialization_task`, que
-  roda depois do dbt no `build_and_promote` e no `table-approve`. Um `dbt run` pelo deployment
-  "Executa DBT model" não as reaplica, e a faixa paga fica aberta até o próximo run que passe por
-  essa task.
+- **O filtro compara texto com texto.** A `data_extracao` da staging é texto, porque vem do nome da
+  pasta. O filtro a compara com a maior data da tabela convertida para texto. Com isso, o BigQuery
+  lê só as pastas `data_extracao=` novas.
 - **Uma coleta que já está na tabela não é refeita.** Se a pasta de uma coleta mudar na staging, ou
   se o `.sql` mudar, só um `--full-refresh` refaz as partições que já existem, e depois dele é
   preciso reaplicar as regras de acesso. Uma coleta refeita em outro dia vira outra partição, e a
   anterior continua na tabela até sair da staging e a tabela passar por um `--full-refresh`.
-- **Os testes leem a tabela inteira**, com todas as coletas.
+- **Os testes rodam só na coleta mais recente** (`__most_recent__(data_extracao)`), a única que
+  cada run grava.
 
 ## Município: cruzamento no `.sql`
 
@@ -194,7 +186,7 @@ a coluna `data_extracao` marcada com `coverage_entity = date` e as duas Coverage
 A cada carga em prod, o `build_and_promote` calcula o fim da faixa livre, que é a `data_extracao`
 mais recente menos 6 meses, e regrava a regra de acesso do público:
 `data_extracao <= <fim da faixa livre>`. Por exemplo, com as coletas da tabela acima e uma nova em
-2026-12-01, a faixa livre termina em 2026-06-01: as coletas de 2024-10-21 e 2026-04-01 ficam
+2026-11-21, a faixa livre termina em 2026-05-21: as coletas de 2024-10-21 e 2026-04-01 ficam
 livres, e as outras cinco, no BD Pro.
 
 ---
