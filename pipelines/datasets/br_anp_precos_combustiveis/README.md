@@ -86,7 +86,8 @@ depende do arquivo:
 
 O modelo dbt converte os tipos, tira a pontuação do CNPJ e deixa os textos com a
 primeira letra maiúscula (`initcap`). Por isso os produtos aparecem como `Gasolina`,
-`Gasolina Aditivada`, `Etanol`, `Diesel`, `Diesel S10`, `Glp` e `Gnv`. As linhas que a
+`Gasolina Aditivada`, `Etanol`, `Diesel`, `Diesel S10`, `Glp` e `Gnv`. `Diesel S50`
+aparece só em 2012. As linhas que a
 ANP repete no próprio arquivo (jun/2024, fev/2026) são mantidas como publicadas.
 
 A tabela é **incremental** com `insert_overwrite`: cada `dbt run` regrava, a partir da
