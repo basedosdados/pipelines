@@ -64,12 +64,14 @@ O `check_update` compara o dia da coleta com a "Última atualização na Base do
 foi gravada pela última vez. No sábado, essa data ainda é da semana anterior, e a carga é disparada.
 Depois de uma carga bem-sucedida, uma nova execução no mesmo dia termina sem baixar nada.
 
-Duas alternativas e o efeito de cada uma:
+Duas alternativas ficaram de fora:
 
-- **Ler a maior `data_filiacao` da fonte.** O `check_update` teria de baixar a lista inteira só
-  para descobrir a data, e o `extract_and_load` baixaria tudo de novo em seguida.
-- **Rodar todo dia, para que uma coleta que falhou se repita sozinha.** A data da tabela seria
-  sempre anterior à do dia, e o flow baixaria a lista inteira todos os dias.
+- **Por que não ler a maior `data_filiacao` da fonte?** Para descobrir a filiação mais recente, o
+  `check_update` teria de baixar a lista inteira, e o `extract_and_load` baixaria tudo de novo em
+  seguida: seriam duas coletas completas a cada run.
+- **Por que não rodar todo dia, para que uma coleta que falhou se repita sozinha?** Como a data é o
+  dia da coleta, todo dia seria mais novo que a tabela, e o flow baixaria a lista inteira todos os
+  dias. Com a coleta semanal, uma semana que falha é coberta pela seguinte.
 
 ### Coleta que falha
 
