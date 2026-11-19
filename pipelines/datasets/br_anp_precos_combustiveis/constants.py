@@ -29,6 +29,12 @@ class constants(Enum):
         "Complemento": "complemento",
     }
 
+    UNIDADES = {
+        "R$ / litro": "R$/litro",
+        "R$ / m³": "R$/m3",
+        "R$ / 13 kg": "R$/13kg",
+    }
+
     ORDEM = [
         "ano",
         "sigla_uf",

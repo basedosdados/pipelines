@@ -2,8 +2,9 @@
 General purpose functions for the br_anp_precos_combustiveis project
 """
 
+import io
 import os
-from datetime import datetime
+from datetime import date, datetime
 
 import basedosdados as bd
 import numpy as np
@@ -77,18 +78,41 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     return id_municipio
 
 
+def read_anp_file(path: str) -> pd.DataFrame:
+    """lê o arquivo da anp, que pode vir como csv ou como xlsx na mesma url."""
+    with open(path, "rb") as f:
+        is_xlsx = f.read(4) == b"PK\x03\x04"
+    if not is_xlsx:
+        return pd.read_csv(path, sep=";", encoding="utf-8-sig")
+
+    # no xlsx, cada célula guarda um pedaço da linha csv, cortada em cada vírgula
+    raw = pd.read_excel(path, header=None, dtype=str)
+
+    def _row_to_line(row: pd.Series) -> str:
+        last = row.last_valid_index()
+        if last is None:
+            return ""
+        return ",".join(row.loc[:last].fillna("").astype(str))
+
+    text = "\n".join(raw.apply(_row_to_line, axis=1).tolist())
+    return pd.read_csv(io.StringIO(text), sep=";")
+
+
+def datas_coleta(path: str) -> tuple[date, date]:
+    """devolve a primeira e a última data de coleta do arquivo da anp."""
+    datas = pd.to_datetime(
+        read_anp_file(path)["Data da Coleta"], format="%d/%m/%Y"
+    ).dt.date
+    return datas.min(), datas.max()
+
+
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
     data_frames = []
-    log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
-
+    log("Abrindo os arquivos da anp")
+    diesel = read_anp_file(url_diesel_gnv)
     log(diesel["Data da Coleta"].unique())
-    gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
-
-    log("Abrindo os arquivos csvs gasolina")
-
-    glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
-    log("Abrindo os arquivos csvs glp")
+    gasolina = read_anp_file(url_gasolina_etanol)
+    glp = read_anp_file(url_glp)
 
     # log(glp["Data da Coleta"].unique())
     data_frames.extend([diesel, gasolina, glp])
@@ -141,6 +165,16 @@ def merge_table_id_municipio(
         left_on=["nome", "sigla_uf"],
         right_on=["Municipio", "Estado - Sigla"],
     )
+
+    sem_id = precos_combustiveis.loc[
+        precos_combustiveis["id_municipio"].isna(),
+        ["Municipio", "Estado - Sigla"],
+    ].drop_duplicates()
+    if len(sem_id):
+        log(
+            f"Municípios sem id_municipio: {sem_id.to_numpy().tolist()}",
+            "warning",
+        )
 
     log("Dados mergeados")
 
@@ -205,11 +239,15 @@ def rename_columns(precos_combustiveis: pd.DataFrame):
     precos_combustiveis["cep_revenda"] = precos_combustiveis[
         "cep_revenda"
     ].apply(lambda x: str(x).replace("-", ""))
+    unidades = anp_constants.UNIDADES.value
+    desconhecidas = set(precos_combustiveis["unidade_medida"].dropna()) - set(
+        unidades
+    )
+    if desconhecidas:
+        raise ValueError(f"Unidade de medida desconhecida: {desconhecidas}")
     precos_combustiveis["unidade_medida"] = precos_combustiveis[
         "unidade_medida"
-    ].map(
-        {"R$ / litro": "R$/litro", "R$ / m³": "R$/m3", "R$ / 13 kg": "R$/13kg"}
-    )
+    ].map(unidades)
     precos_combustiveis["nome_estabelecimento"] = precos_combustiveis[
         "nome_estabelecimento"
     ].apply(lambda x: str(x).replace(",", ""))

@@ -9,16 +9,20 @@ novo, de forma independente (`download_and_transform`) — a variante
 "check_and_download" que evitaria essa segunda chamada foi cancelada.
 """
 
-from datetime import date
+from datetime import date, timedelta
 
-import pandas as pd
 from prefect import task
 
+from pipelines.datasets.br_anp_precos_combustiveis.constants import (
+    DATASET_ID,
+    MICRODADOS_TABLE_ID,
+)
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     creating_column_ano,
+    datas_coleta,
     download_files,
     get_id_municipio,
     lower_colunm_produto,
@@ -31,6 +35,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     rename_columns,
 )
 from pipelines.utils.data_tests.rows import check_rows_written
+from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
@@ -39,18 +44,22 @@ def get_data_source_anp_max_date() -> date:
     download_files(
         anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value
     )
-    df = pd.read_csv(anp_constants.URL_GLP.value, sep=";", encoding="utf-8")
-    data_obj = (
-        df["Data da Coleta"].str[6:10]
-        + "-"
-        + df["Data da Coleta"].str[3:5]
-        + "-"
-        + df["Data da Coleta"].str[0:2]
+    return datas_coleta(anp_constants.URL_GLP.value)[1]
+
+
+@task
+def verificar_lacuna() -> None:
+    """falha se a tabela parou antes da primeira semana do arquivo da anp."""
+    primeira = datas_coleta(anp_constants.URL_GLP.value)[0]
+    ultima_tabela = MetadataClient(env="prod").get_coverage_max_date(
+        DATASET_ID, MICRODADOS_TABLE_ID
     )
-    data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
-    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
-    data_obj = data_obj.max()
-    return data_obj
+    if ultima_tabela and primeira - ultima_tabela > timedelta(days=7):
+        raise ValueError(
+            f"Lacuna entre {ultima_tabela} (última data da tabela) e {primeira} "
+            "(primeira data do arquivo da ANP): recuperar pelos arquivos "
+            "semestrais (ver README)."
+        )
 
 
 @task(retries=5, retry_delay_seconds=10)
