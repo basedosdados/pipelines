@@ -1,25 +1,10 @@
 """
-Recupera semanas de br_anp_precos_combustiveis que já saíram dos arquivos de 4 semanas.
+Recupera datas de br_anp_precos_combustiveis pelos arquivos semestrais da ANP.
 
-Lê os arquivos semestrais da série histórica da ANP (combustíveis automotivos e GLP),
-aplica o mesmo tratamento do flow (`tratar_precos`) e gera as pastas
-`data_coleta=aaaa-mm-dd/data.csv` das datas do intervalo que faltam na staging de dev.
-Sem `--substituir`, nunca sobrescreve uma pasta que já existe. Ver "Recuperar semanas perdidas" no README
-do pipeline.
-
-Uso (na raiz do repositório):
+Uso, na raiz do repositório (ver "Recuperar semanas perdidas" no README do pipeline):
 
     uv run python models/br_anp_precos_combustiveis/code/recuperar_semanas.py \\
-        --inicio 2023-08-05 --fim 2023-08-20            # gera e confere, sem gravar
-    uv run python models/br_anp_precos_combustiveis/code/recuperar_semanas.py \\
-        --inicio 2023-08-05 --fim 2023-08-20 --gravar   # grava na staging de dev
-
-Com `--substituir <prefixo do backup>`, regera também as datas que já existem (para
-reconstruir a staging). O script confere antes que o backup tem os mesmos arquivos da
-staging atual.
-
-Os arquivos baixados e as pastas geradas ficam em `$ANP_DATA_DIR`
-(padrão: `~/Downloads/br_anp_precos_combustiveis_data`).
+        --inicio 2023-08-05 --fim 2023-08-20 [--gravar] [--substituir PREFIXO_BACKUP]
 """
 
 import argparse
@@ -209,8 +194,7 @@ def main() -> None:
     parser.add_argument(
         "--substituir",
         metavar="PREFIXO_BACKUP",
-        help="regera também as datas que já existem; exige o prefixo de um backup "
-        "da staging no mesmo bucket, idêntico ao estado atual",
+        help="regera datas que já existem; exige backup idêntico da staging",
     )
     args = parser.parse_args()
     if args.fim < args.inicio:
@@ -252,7 +236,7 @@ def main() -> None:
         f"data_coleta={d}/data.csv" in atuais for d in resumo.data_coleta
     ]
 
-    # 2. só as datas novas, salvo com --substituir
+    # 2. sem --substituir, só datas novas
     if not args.substituir:
         for d in resumo[resumo.existia].data_coleta:
             shutil.rmtree(saida / f"data_coleta={d}")
@@ -268,7 +252,7 @@ def main() -> None:
         print("nada gravado (use --gravar)")
         return
 
-    # 3. grava; a geração impede sobrescrever um arquivo que mudou desde a listagem
+    # 3. grava sem sobrescrever arquivo alterado desde a listagem
     def gravar(d: str) -> str:
         nome = f"data_coleta={d}/data.csv"
         local = saida / nome
