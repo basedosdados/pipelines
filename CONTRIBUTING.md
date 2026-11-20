@@ -364,6 +364,22 @@ arch.update_dbt_project()
 arch.upload_columns()
 ```
 
+#### Marcar as colunas temporais (`coverage_entity`)
+
+`arch.upload_columns()` não preenche o campo `coverage_entity` das colunas. Em toda tabela com dimensão temporal, marque-o no Django admin depois do upload, nos backends de dev e de prod:
+
+| Granularidade da tabela | Colunas a marcar |
+|---|---|
+| anual | `ano` → `year` |
+| mensal | `ano` → `year`, `mes` → `month` |
+| trimestral | `ano` → `year`, `trimestre` → `quarter` |
+| bimestral | `ano` → `year`, `bimestre` → `bimester` |
+| diária | `data` → `date` |
+
+Marque `ano` antes de `mes`/`trimestre`/`bimestre`: o backend valida a combinação a cada coluna salva e rejeita `month` sem `year`.
+
+A cobertura temporal e o nível de acesso (aberto, BD Pro ou parcialmente BD Pro) que o pipeline e o `table-approve` usam vêm desse campo e das `Coverage` da tabela. Sem a marcação, a tabela é tratada como `non_historical`: a cobertura temporal não é atualizada e o filtro de BD Pro não é aplicado, sem erro. Detalhes em [`.claude/rules/metadata-schema.md`](./.claude/rules/metadata-schema.md).
+
 #### Macro `set_datalake_project`
 
 Os arquivos sql do dbt usam a macro [`set_datalake_project`](./macros/set_datalake_project.sql) que indica de qual projeto (basedosdados-staging ou basedosdados-dev) serão consumidos os dados. Ao criar os arquivos usando a função `create_sql_files` a macro será inserida.
