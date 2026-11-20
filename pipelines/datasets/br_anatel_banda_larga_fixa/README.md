@@ -19,8 +19,14 @@ domicílios) nos níveis Brasil, UF e município.
 - Arquivo ZIP dos dados (~1 GB): <https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip>
 - Área técnica responsável na Anatel: PRUV (`pruv@anatel.gov.br`)
 
-> O download real vem do ZIP da Anatel, resolvido via API de catálogo em
-> `banda_larga_fixa/utils.py:download_zip_file`. A landing page antiga
+> O download vem do ZIP da Anatel, resolvido via API de catálogo em `get_zip_url`. O flow
+> não baixa o ZIP inteiro: o servidor da Anatel aceita o cabeçalho HTTP `Range`, e
+> `download_csv_from_zip` lê o ZIP remoto pela `HttpRangeFile` e extrai para
+> `/tmp/data/input/` só o CSV da tabela: o `Acessos_Banda_Larga_Fixa_<ano>.csv` do ano mais
+> recente no microdados e o `Densidade_Banda_Larga_Fixa.csv` nas densidades. As três
+> funções ficam em `pipelines/shared/anatel/utils.py`, compartilhadas com a telefonia; o
+> que muda entre os conjuntos (`API_URL`, `RESOURCE_FORMAT`, `MICRODADOS_FILE_PATTERN` e
+> `DENSIDADE_FILE`) fica no `constants.py`. A landing page antiga
 > (`gov.br/anatel/.../banda-larga-fixa`) está **404** e não é usada pela pipeline.
 
 ---
@@ -107,6 +113,17 @@ o mês-teto do BQ alcançou o da fonte e os meses recentes subiram para os valor
 
 Granularidade: uma linha por empresa × tecnologia × velocidade × produto por
 município e mês. Sem chave única simples (por isso não há teste de unicidade).
+
+**Tratamento.** `treatment` (`utils.py`) lê o CSV do ano com polars, todo como texto, e
+grava um mês por vez em `ano=<ano>/mes=<mes>/sigla_uf=<uf>/data.csv`. Cada `data.csv` é
+sobrescrito, nunca acrescentado. No CSV de 2026 (884 MB), o pico de memória fica entre 2,8 GB
+(2 threads) e 3,7 GB (32 threads), e não cabe em 2 GB; por isso o `extract_and_load` do
+microdados roda com `memory_limit` de 6Gi (`flows.py`).
+
+**CNPJ com 14 dígitos.** O `.sql` completa o `cnpj` com zeros à esquerda
+(`lpad(cnpj, 14, '0')`). Parte dos arquivos da staging foi gravada lendo o CSV como número,
+o que tira o zero de cerca de 15% dos CNPJs. Com o `lpad`, todos os CNPJs de 2026 casam com
+`br_bd_diretorios_brasil.empresa`.
 
 **Range de partição.** A partição por `ano` estava com `end: 2023`, mas o dado já vai
 até 2026 — os anos 2024–2026 (os mais consultados) caíam na partição de overflow
@@ -199,11 +216,6 @@ vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
   partição do `microdados` (`end` 2023 → 2031) e **desativação do schedule das 3
   densidades** (`cron=None`) para evitar regressão (ver seção Densidades). Recuperação do
   backlog do microdados (maio/2026 + revisões) via `force_run`.
-- **Pendente — tratamento das densidades (PR de follow-up):** fixes de `_parse_densidade`
-  (NaN→NULL), `dtype=str` (corrige `id_municipio` `"…0"` que reprovava o `relationships`)
-  e `dropna(["Código IBGE"])` (remove linhas sem código que reprovavam o
-  `unique_combination`). Em espera junto da decisão sobre o apagão da fonte (PRUV).
-  Rastreado na issue #1608.
 
 > O `telefonia_movel` (`pipelines/shared/anatel/telefonia_movel/flows.py`) tem o
 > **mesmo** poll eager — o mesmo fix se aplica lá, em correção à parte.
