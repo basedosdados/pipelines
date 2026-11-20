@@ -7,9 +7,9 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2004, "end": 2026, "interval": 1},
+            "range": {"start": 2004, "end": 2031, "interval": 1},
         },
-        cluster_by=["id_municipio", "sigla_uf"],
+        cluster_by=["sigla_uf"],
         labels={"project_id": "basedosdados-dev"},
         pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
     )
@@ -37,7 +37,8 @@ with
             {{ set_datalake_project("br_anp_precos_combustiveis_staging.microdados") }}
             as t
     )
-select *
+-- descarta linhas idênticas repetidas no arquivo da anp
+select distinct *
 from anp
 {% if is_incremental() %}
     where data_coleta > (select max(data_coleta) from {{ this }})
