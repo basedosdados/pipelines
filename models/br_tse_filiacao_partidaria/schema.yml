@@ -70,7 +70,13 @@ models:
       - name: motivo_cancelamento
         description: Motivo de cancelamento
   - name: br_tse_filiacao_partidaria__microdados
-    description: Microdados de filiação partidária do TSE.
+    description: >-
+      Filiações partidárias registradas no Sistema de Filiação Partidária do
+      TSE, que os partidos políticos usam para cadastrar e gerenciar seus
+      filiados. A tabela guarda a lista completa de cada extração feita na
+      consulta pública de filiação do TSE, identificada pela coluna
+      data_extracao. Cada linha é uma filiação em uma extração: a mesma
+      filiação aparece uma vez em cada extração em que constava.
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.55
@@ -82,8 +88,12 @@ models:
             - motivo_cancelamento
             - data_cancelamento
             - nome_social
+          config:
+            where: __most_recent__(data_extracao)
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [registro_filiacao]
+          combination_of_columns: [data_extracao, registro_filiacao]
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: registro_filiacao
         description: Sequecia do registro filiação
@@ -96,12 +106,16 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               ignore_values: [ZZ]
+              config:
+                where: __most_recent__(data_extracao)
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent__(data_extracao)
       - name: id_municipio_tse
         description: ID Município - TSE
       - name: zona
@@ -134,33 +148,45 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_desfiliacao
         description: Data de desfiliação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_cadastro_desfiliacao
         description: Data do cadastro da desfiliação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_cancelamento
         description: Data de cancelamento
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_exclusao
         description: Data de exclusão
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
       - name: data_extracao
         description: Data de extração
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent__(data_extracao)
