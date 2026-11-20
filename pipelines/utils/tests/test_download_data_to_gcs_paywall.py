@@ -103,3 +103,114 @@ def test_backend_failure_fails_closed(
     monkeypatch.setattr(t.bd, "Backend", _boom)
 
     assert t._table_expects_bdpro_paywall("ds", "tb") is True
+
+
+class _FakeBackend(t.bd.Backend):
+    """Backend que devolve uma resposta GraphQL crua, simplificada pelo SDK.
+
+    Usa o `_simplify_response` real, para que o teste veja o mesmo formato que
+    `_execute_query` devolve em produção (`edges` vira `{"items": [...]}`).
+    """
+
+    instances: list[_FakeBackend] = []
+
+    def __init__(
+        self,
+        raw: dict[str, Any],
+        django_table_id: str | None = "uuid",
+        **kwargs: Any,
+    ) -> None:
+        self._raw = raw
+        self._django_table_id = django_table_id
+        self.kwargs = kwargs
+        _FakeBackend.instances.append(self)
+
+    def _get_table_id_from_name(
+        self, gcp_dataset_id: str, gcp_table_id: str
+    ) -> str | None:
+        return self._django_table_id
+
+    def _execute_query(
+        self,
+        query: str,
+        variables: dict[str, Any] | None = None,
+        client: Any = None,
+        headers: dict[str, str] | None = None,
+        page: int = 1,
+        page_size: int = 10,
+        fetch_schema_from_transport: bool = False,
+    ) -> dict[str, Any]:
+        return self._simplify_response(self._raw)
+
+
+def _coverages_response(*is_closed: bool) -> dict[str, Any]:
+    """Resposta crua de `allTable { coverages { isClosed } }`."""
+    return {
+        "allTable": {
+            "edges": [
+                {
+                    "node": {
+                        "coverages": {
+                            "edges": [
+                                {"node": {"isClosed": closed}}
+                                for closed in is_closed
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+
+
+@pytest.mark.parametrize(
+    ("is_closed", "expected"),
+    [
+        ((False, True), True),  # coverage aberta + coverage pro
+        ((False,), False),  # só coverage aberta
+    ],
+)
+def test_paywall_reads_coverages_in_sdk_response_shape(
+    monkeypatch: pytest.MonkeyPatch,
+    is_closed: tuple[bool, ...],
+    expected: bool,
+) -> None:
+    """Lê `isClosed` no formato que o SDK devolve, sem cair no fail closed."""
+    monkeypatch.setattr(
+        t.bd,
+        "Backend",
+        lambda **k: _FakeBackend(_coverages_response(*is_closed), **k),
+    )
+
+    assert t._table_expects_bdpro_paywall("ds", "tb") is expected
+
+
+def test_paywall_uses_backend_graphql_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Consulta o backend de prod, não `api.basedosdados.org`."""
+    _FakeBackend.instances.clear()
+    monkeypatch.setattr(
+        t.bd,
+        "Backend",
+        lambda **k: _FakeBackend(_coverages_response(False), **k),
+    )
+
+    t._table_expects_bdpro_paywall("ds", "tb")
+
+    assert _FakeBackend.instances[0].kwargs == {
+        "graphql_url": t.constants.API_URL.value["prod"]
+    }
+
+
+def test_table_missing_from_backend_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Tabela sem registro no backend assume paywall."""
+    monkeypatch.setattr(
+        t.bd,
+        "Backend",
+        lambda **k: _FakeBackend({}, django_table_id=None, **k),
+    )
+
+    assert t._table_expects_bdpro_paywall("ds", "tb") is True
