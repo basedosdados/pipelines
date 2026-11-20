@@ -1,0 +1,686 @@
+---
+version: 2
+models:
+  - name: us_census_bds__country
+    description: >-
+      Annual firm and establishment counts, employment, establishment entry and
+      exit, job creation and destruction, and firm deaths for the United States
+      private non-farm economy, from 1978. One row per year and cell of a
+      breakdown: economy-wide, by metro status, by NAICS sector or vintage
+      consistent 3- and 4-digit industry, by firm and establishment age and
+      size, and their published crosses. Filter on breakdown before
+      aggregating, because every breakdown tabulates the same universe.
+      Exception: establishment_size and initial_establishment_size are exempt
+      from the 5 percent not-null test, because only the establishment-size
+      breakdowns populate them.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - breakdown
+            - metro_status
+            - naics_id
+            - firm_age
+            - firm_size
+            - initial_firm_size
+            - establishment_age
+            - establishment_size
+            - initial_establishment_size
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [establishment_size, initial_establishment_size]
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_census_bds__dictionary')
+          columns_covered_by_dictionary: [breakdown, metro_status]
+    columns:
+      - name: year
+        description: >-
+          Reference year; flows measure change from March of the prior year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: breakdown
+        description: >-
+          Combination of dimensions the row is tabulated by, as the comma-
+          separated BDS variable names
+        tests: [not_null]
+      - name: metro_status
+        description: >-
+          Whether establishments are in a metropolitan or micropolitan area
+          (M), outside one (N), or without a fixed location (SW)
+      - name: naics_id
+        description: >-
+          NAICS 2017 industry code: 2-digit sector, or vintage consistent 3- or
+          4-digit industry
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+      - name: firm_age
+        description: >-
+          Firm age class in years, from the year the firm first had employment
+      - name: firm_size
+        description: >-
+          Firm size class, by the average of the firm's employment in the prior
+          and current year
+      - name: initial_firm_size
+        description: >-
+          Initial firm size class, by the firm's employment in the prior year,
+          or in the current year if the prior year's was zero
+      - name: establishment_age
+        description: >-
+          Establishment age class in years, from the year the establishment
+          first had employment
+      - name: establishment_size
+        description: >-
+          Establishment size class, by the average of the establishment's
+          employment in the prior and current year
+      - name: initial_establishment_size
+        description: >-
+          Initial establishment size class, by the establishment's employment
+          in the prior year, or in the current year if the prior year's was
+          zero
+      - name: firms
+        description: >-
+          Number of firms
+      - name: establishments
+        description: >-
+          Number of establishments
+      - name: employment
+        description: >-
+          Paid employment in the pay period including March 12
+      - name: dhs_denominator
+        description: >-
+          Davis-Haltiwanger-Schuh denominator: average of employment in the
+          prior and current year
+      - name: establishment_entries
+        description: >-
+          Number of establishments born in the last 12 months
+      - name: establishment_entry_rate
+        description: >-
+          Establishment entries over the average of establishments in the prior
+          and current year, times 100
+      - name: establishment_exits
+        description: >-
+          Number of establishments that exited in the last 12 months
+      - name: establishment_exit_rate
+        description: >-
+          Establishment exits over the average of establishments in the prior
+          and current year, times 100
+      - name: job_creation
+        description: >-
+          Employment gains from opening and expanding establishments since
+          March of the prior year
+      - name: job_creation_births
+        description: >-
+          Employment gains from establishment births since March of the prior
+          year
+      - name: job_creation_continuers
+        description: >-
+          Employment gains from continuing establishments that expanded since
+          March of the prior year
+      - name: job_creation_rate_births
+        description: >-
+          Job creation from births over the DHS denominator, times 100
+      - name: job_creation_rate
+        description: >-
+          Job creation over the DHS denominator, times 100
+      - name: job_destruction
+        description: >-
+          Employment losses from closing and contracting establishments since
+          March of the prior year
+      - name: job_destruction_deaths
+        description: >-
+          Employment losses from establishment deaths since March of the prior
+          year
+      - name: job_destruction_continuers
+        description: >-
+          Employment losses from continuing establishments that contracted
+          since March of the prior year
+      - name: job_destruction_rate_deaths
+        description: >-
+          Job destruction from deaths over the DHS denominator, times 100
+      - name: job_destruction_rate
+        description: >-
+          Job destruction over the DHS denominator, times 100
+      - name: net_job_creation
+        description: >-
+          Job creation minus job destruction
+      - name: net_job_creation_rate
+        description: >-
+          Job creation rate minus job destruction rate
+      - name: reallocation_rate
+        description: >-
+          Excess job reallocation rate: job creation rate plus job destruction
+          rate minus the absolute net job creation rate
+      - name: firm_death_firms
+        description: >-
+          Number of firms that exited entirely, with every establishment closed
+      - name: firm_death_establishments
+        description: >-
+          Number of establishments of firms that exited entirely
+      - name: firm_death_employment
+        description: >-
+          Employment of firms that exited entirely
+      - name: suppression_flags
+        description: >-
+          Measures the source suppressed in this row, as measure=flag pairs
+          separated by semicolons
+  - name: us_census_bds__state
+    description: >-
+      Annual business dynamics by state: firm and establishment counts,
+      employment, establishment entry and exit, job creation and destruction,
+      and firm deaths, from 1978 for the 50 states and the District of Columbia
+      and from 1998 for Puerto Rico. One row per year, state and cell of a
+      breakdown: by metro status, NAICS sector, firm and establishment age and
+      size, and their published crosses. A firm with establishments in several
+      states is counted once in each. Exception: establishment_size and
+      initial_establishment_size are exempt from the 5 percent not-null test,
+      because only the establishment-size breakdowns populate them.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - breakdown
+            - state_id
+            - metro_status
+            - naics_id
+            - firm_age
+            - firm_size
+            - initial_firm_size
+            - establishment_age
+            - establishment_size
+            - initial_establishment_size
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [establishment_size, initial_establishment_size]
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_census_bds__dictionary')
+          columns_covered_by_dictionary: [breakdown, metro_status]
+    columns:
+      - name: year
+        description: >-
+          Reference year; flows measure change from March of the prior year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: breakdown
+        description: >-
+          Combination of dimensions the row is tabulated by, as the comma-
+          separated BDS variable names
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: metro_status
+        description: >-
+          Whether establishments are in a metropolitan or micropolitan area
+          (M), outside one (N), or without a fixed location (SW)
+      - name: naics_id
+        description: >-
+          NAICS 2017 industry code: 2-digit sector, or vintage consistent 3- or
+          4-digit industry
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+      - name: firm_age
+        description: >-
+          Firm age class in years, from the year the firm first had employment
+      - name: firm_size
+        description: >-
+          Firm size class, by the average of the firm's employment in the prior
+          and current year
+      - name: initial_firm_size
+        description: >-
+          Initial firm size class, by the firm's employment in the prior year,
+          or in the current year if the prior year's was zero
+      - name: establishment_age
+        description: >-
+          Establishment age class in years, from the year the establishment
+          first had employment
+      - name: establishment_size
+        description: >-
+          Establishment size class, by the average of the establishment's
+          employment in the prior and current year
+      - name: initial_establishment_size
+        description: >-
+          Initial establishment size class, by the establishment's employment
+          in the prior year, or in the current year if the prior year's was
+          zero
+      - name: firms
+        description: >-
+          Number of firms
+      - name: establishments
+        description: >-
+          Number of establishments
+      - name: employment
+        description: >-
+          Paid employment in the pay period including March 12
+      - name: dhs_denominator
+        description: >-
+          Davis-Haltiwanger-Schuh denominator: average of employment in the
+          prior and current year
+      - name: establishment_entries
+        description: >-
+          Number of establishments born in the last 12 months
+      - name: establishment_entry_rate
+        description: >-
+          Establishment entries over the average of establishments in the prior
+          and current year, times 100
+      - name: establishment_exits
+        description: >-
+          Number of establishments that exited in the last 12 months
+      - name: establishment_exit_rate
+        description: >-
+          Establishment exits over the average of establishments in the prior
+          and current year, times 100
+      - name: job_creation
+        description: >-
+          Employment gains from opening and expanding establishments since
+          March of the prior year
+      - name: job_creation_births
+        description: >-
+          Employment gains from establishment births since March of the prior
+          year
+      - name: job_creation_continuers
+        description: >-
+          Employment gains from continuing establishments that expanded since
+          March of the prior year
+      - name: job_creation_rate_births
+        description: >-
+          Job creation from births over the DHS denominator, times 100
+      - name: job_creation_rate
+        description: >-
+          Job creation over the DHS denominator, times 100
+      - name: job_destruction
+        description: >-
+          Employment losses from closing and contracting establishments since
+          March of the prior year
+      - name: job_destruction_deaths
+        description: >-
+          Employment losses from establishment deaths since March of the prior
+          year
+      - name: job_destruction_continuers
+        description: >-
+          Employment losses from continuing establishments that contracted
+          since March of the prior year
+      - name: job_destruction_rate_deaths
+        description: >-
+          Job destruction from deaths over the DHS denominator, times 100
+      - name: job_destruction_rate
+        description: >-
+          Job destruction over the DHS denominator, times 100
+      - name: net_job_creation
+        description: >-
+          Job creation minus job destruction
+      - name: net_job_creation_rate
+        description: >-
+          Job creation rate minus job destruction rate
+      - name: reallocation_rate
+        description: >-
+          Excess job reallocation rate: job creation rate plus job destruction
+          rate minus the absolute net job creation rate
+      - name: firm_death_firms
+        description: >-
+          Number of firms that exited entirely, with every establishment closed
+      - name: firm_death_establishments
+        description: >-
+          Number of establishments of firms that exited entirely
+      - name: firm_death_employment
+        description: >-
+          Employment of firms that exited entirely
+      - name: suppression_flags
+        description: >-
+          Measures the source suppressed in this row, as measure=flag pairs
+          separated by semicolons
+  - name: us_census_bds__county
+    description: >-
+      Annual business dynamics by county: firm and establishment counts,
+      employment, establishment entry and exit, job creation and destruction,
+      and firm deaths, from 1978. One row per year, county and cell of a
+      breakdown: total, NAICS sector, and coarse firm age, firm size, initial
+      firm size and establishment age. Statewide rows hold establishments
+      without a fixed location.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - breakdown
+            - state_id
+            - county_id
+            - naics_id
+            - firm_age
+            - firm_size
+            - initial_firm_size
+            - establishment_age
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_census_bds__dictionary')
+          columns_covered_by_dictionary: [breakdown]
+    columns:
+      - name: year
+        description: >-
+          Reference year; flows measure change from March of the prior year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: breakdown
+        description: >-
+          Combination of dimensions the row is tabulated by, as the comma-
+          separated BDS variable names
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit FIPS county code, state code followed by county code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: naics_id
+        description: >-
+          NAICS 2017 industry code: 2-digit sector, or vintage consistent 3- or
+          4-digit industry
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+      - name: firm_age
+        description: >-
+          Firm age class in years, from the year the firm first had employment
+      - name: firm_size
+        description: >-
+          Firm size class, by the average of the firm's employment in the prior
+          and current year
+      - name: initial_firm_size
+        description: >-
+          Initial firm size class, by the firm's employment in the prior year,
+          or in the current year if the prior year's was zero
+      - name: establishment_age
+        description: >-
+          Establishment age class in years, from the year the establishment
+          first had employment
+      - name: firms
+        description: >-
+          Number of firms
+      - name: establishments
+        description: >-
+          Number of establishments
+      - name: employment
+        description: >-
+          Paid employment in the pay period including March 12
+      - name: dhs_denominator
+        description: >-
+          Davis-Haltiwanger-Schuh denominator: average of employment in the
+          prior and current year
+      - name: establishment_entries
+        description: >-
+          Number of establishments born in the last 12 months
+      - name: establishment_entry_rate
+        description: >-
+          Establishment entries over the average of establishments in the prior
+          and current year, times 100
+      - name: establishment_exits
+        description: >-
+          Number of establishments that exited in the last 12 months
+      - name: establishment_exit_rate
+        description: >-
+          Establishment exits over the average of establishments in the prior
+          and current year, times 100
+      - name: job_creation
+        description: >-
+          Employment gains from opening and expanding establishments since
+          March of the prior year
+      - name: job_creation_births
+        description: >-
+          Employment gains from establishment births since March of the prior
+          year
+      - name: job_creation_continuers
+        description: >-
+          Employment gains from continuing establishments that expanded since
+          March of the prior year
+      - name: job_creation_rate_births
+        description: >-
+          Job creation from births over the DHS denominator, times 100
+      - name: job_creation_rate
+        description: >-
+          Job creation over the DHS denominator, times 100
+      - name: job_destruction
+        description: >-
+          Employment losses from closing and contracting establishments since
+          March of the prior year
+      - name: job_destruction_deaths
+        description: >-
+          Employment losses from establishment deaths since March of the prior
+          year
+      - name: job_destruction_continuers
+        description: >-
+          Employment losses from continuing establishments that contracted
+          since March of the prior year
+      - name: job_destruction_rate_deaths
+        description: >-
+          Job destruction from deaths over the DHS denominator, times 100
+      - name: job_destruction_rate
+        description: >-
+          Job destruction over the DHS denominator, times 100
+      - name: net_job_creation
+        description: >-
+          Job creation minus job destruction
+      - name: net_job_creation_rate
+        description: >-
+          Job creation rate minus job destruction rate
+      - name: reallocation_rate
+        description: >-
+          Excess job reallocation rate: job creation rate plus job destruction
+          rate minus the absolute net job creation rate
+      - name: firm_death_firms
+        description: >-
+          Number of firms that exited entirely, with every establishment closed
+      - name: firm_death_establishments
+        description: >-
+          Number of establishments of firms that exited entirely
+      - name: firm_death_employment
+        description: >-
+          Employment of firms that exited entirely
+      - name: suppression_flags
+        description: >-
+          Measures the source suppressed in this row, as measure=flag pairs
+          separated by semicolons
+  - name: us_census_bds__metropolitan_area
+    description: >-
+      Annual business dynamics by metropolitan and micropolitan statistical
+      area, under the OMB delineation of July 2023: firm and establishment
+      counts, employment, establishment entry and exit, job creation and
+      destruction, and firm deaths, from 1978. One row per year, area and cell
+      of a breakdown: total, NAICS sector, and coarse firm age, firm size,
+      initial firm size and establishment age.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - breakdown
+            - cbsa_id
+            - naics_id
+            - firm_age
+            - firm_size
+            - initial_firm_size
+            - establishment_age
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_census_bds__dictionary')
+          columns_covered_by_dictionary: [breakdown]
+    columns:
+      - name: year
+        description: >-
+          Reference year; flows measure change from March of the prior year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: breakdown
+        description: >-
+          Combination of dimensions the row is tabulated by, as the comma-
+          separated BDS variable names
+        tests: [not_null]
+      - name: cbsa_id
+        description: >-
+          Code of the metropolitan or micropolitan statistical area
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+      - name: naics_id
+        description: >-
+          NAICS 2017 industry code: 2-digit sector, or vintage consistent 3- or
+          4-digit industry
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+      - name: firm_age
+        description: >-
+          Firm age class in years, from the year the firm first had employment
+      - name: firm_size
+        description: >-
+          Firm size class, by the average of the firm's employment in the prior
+          and current year
+      - name: initial_firm_size
+        description: >-
+          Initial firm size class, by the firm's employment in the prior year,
+          or in the current year if the prior year's was zero
+      - name: establishment_age
+        description: >-
+          Establishment age class in years, from the year the establishment
+          first had employment
+      - name: firms
+        description: >-
+          Number of firms
+      - name: establishments
+        description: >-
+          Number of establishments
+      - name: employment
+        description: >-
+          Paid employment in the pay period including March 12
+      - name: dhs_denominator
+        description: >-
+          Davis-Haltiwanger-Schuh denominator: average of employment in the
+          prior and current year
+      - name: establishment_entries
+        description: >-
+          Number of establishments born in the last 12 months
+      - name: establishment_entry_rate
+        description: >-
+          Establishment entries over the average of establishments in the prior
+          and current year, times 100
+      - name: establishment_exits
+        description: >-
+          Number of establishments that exited in the last 12 months
+      - name: establishment_exit_rate
+        description: >-
+          Establishment exits over the average of establishments in the prior
+          and current year, times 100
+      - name: job_creation
+        description: >-
+          Employment gains from opening and expanding establishments since
+          March of the prior year
+      - name: job_creation_births
+        description: >-
+          Employment gains from establishment births since March of the prior
+          year
+      - name: job_creation_continuers
+        description: >-
+          Employment gains from continuing establishments that expanded since
+          March of the prior year
+      - name: job_creation_rate_births
+        description: >-
+          Job creation from births over the DHS denominator, times 100
+      - name: job_creation_rate
+        description: >-
+          Job creation over the DHS denominator, times 100
+      - name: job_destruction
+        description: >-
+          Employment losses from closing and contracting establishments since
+          March of the prior year
+      - name: job_destruction_deaths
+        description: >-
+          Employment losses from establishment deaths since March of the prior
+          year
+      - name: job_destruction_continuers
+        description: >-
+          Employment losses from continuing establishments that contracted
+          since March of the prior year
+      - name: job_destruction_rate_deaths
+        description: >-
+          Job destruction from deaths over the DHS denominator, times 100
+      - name: job_destruction_rate
+        description: >-
+          Job destruction over the DHS denominator, times 100
+      - name: net_job_creation
+        description: >-
+          Job creation minus job destruction
+      - name: net_job_creation_rate
+        description: >-
+          Job creation rate minus job destruction rate
+      - name: reallocation_rate
+        description: >-
+          Excess job reallocation rate: job creation rate plus job destruction
+          rate minus the absolute net job creation rate
+      - name: firm_death_firms
+        description: >-
+          Number of firms that exited entirely, with every establishment closed
+      - name: firm_death_establishments
+        description: >-
+          Number of establishments of firms that exited entirely
+      - name: firm_death_employment
+        description: >-
+          Employment of firms that exited entirely
+      - name: suppression_flags
+        description: >-
+          Measures the source suppressed in this row, as measure=flag pairs
+          separated by semicolons
+  - name: us_census_bds__dictionary
+    description: >-
+      Dictionary of the coded values used across the us_census_bds tables, one
+      row per table, column and key.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, column_name, key]
+    columns:
+      - name: table_id
+        description: >-
+          Slug of the us_census_bds table the dictionary entry describes
+      - name: column_name
+        description: >-
+          Name of the column the dictionary entry describes
+      - name: key
+        description: >-
+          Coded value (key) exactly as stored in the data
+      - name: temporal_coverage
+        description: >-
+          Temporal coverage of the key
+      - name: value
+        description: >-
+          Human-readable label corresponding to the coded value
