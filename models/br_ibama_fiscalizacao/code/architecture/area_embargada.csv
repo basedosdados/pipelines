@@ -5,7 +5,7 @@ id_municipio,STRING,Identificador IBGE de 7 dígitos do município onde a área 
 id_embargo,STRING,Identificador único do termo de embargo no sistema do Ibama,,no,,,no,Chave primária lógica. Ausente em 2.862 termos originados no aplicativo AI-e Mob,SEQ_TAD
 numero_tad,STRING,Número impresso do termo de embargo,,no,,,no,,NUM_TAD
 serie_tad,STRING,Série do formulário do termo de embargo,,no,,,no,,SER_TAD
-data_embargo,DATE,Data do embargo,,no,,,no,Cinco registros trazem anos impossíveis na fonte (1667 2063 2080 2090 e 2925) e são reproduzidos como divulgados,DAT_EMBARGO
+data_embargo,DATE,Data do embargo,,no,,,no,Cinco registros trazem anos impossíveis na fonte (1667 2063 2080 2090 e 2925). As quatro datas posteriores a data_extracao ficam nulas; a de 1667 é reproduzida como divulgada,DAT_EMBARGO
 id_auto,STRING,Identificador do auto de infração que originou o embargo,,no,,,no,Chave estrangeira para auto_infracao.id_auto. Preenchida em 83% dos termos,SEQ_AUTO_INFRACAO
 numero_auto_infracao,STRING,Número impresso do auto de infração que originou o embargo,,no,,,no,,NUM_AUTO_INFRACAO
 area_ha,FLOAT64,Área embargada,,no,,hectare,no,Ausente em 38% dos termos,QTD_AREA_EMBARGADA
@@ -17,6 +17,7 @@ nome_embargado,STRING,Nome ou razão social do embargado,,no,,,yes,Publicado pel
 latitude,FLOAT64,Latitude do local embargado em graus decimais,,no,,degree,no,Preenchida em 85% dos termos. Ver indicador_coordenada_valida antes de usar,NUM_LATITUDE_TAD
 longitude,FLOAT64,Longitude do local embargado em graus decimais,,no,,degree,no,Preenchida em 85% dos termos. Ver indicador_coordenada_valida antes de usar,NUM_LONGITUDE_TAD
 indicador_coordenada_valida,STRING,Indica se o ponto publicado cai dentro do polígono do município declarado,,no,,,no,Calculado contra br_geobr_mapas.municipio. sim para dentro nao para fora e nulo quando não há coordenada. 15% dos pontos testáveis caem fora com distância mediana de 60 km,
+geometria,GEOGRAPHY,Polígono da área embargada,,no,,,no,Publicado pelo Ibama em WKT (POLYGON ou MULTIPOLYGON em graus decimais) e convertido com make_valid. Preenchido em 51% dos termos; uma geometria que o BigQuery não consegue interpretar fica nula,GEOM_AREA_EMBARGADA
 indicador_desembargado,STRING,Indica se a área foi desembargada,,yes,,,no,S para desembargada e vazio caso contrário,SIT_DESEMBARGO
 data_desembargo,DATE,Data do desembargo da área,,no,,,no,,DAT_DESEMBARGO
 data_ultima_alteracao,DATE,Data da última alteração do registro no sistema do Ibama,,no,,,no,Usada para manter a versão mais recente quando o Ibama republica um termo emendado,DAT_ULT_ALTERACAO

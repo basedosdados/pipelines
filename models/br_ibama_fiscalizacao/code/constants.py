@@ -20,17 +20,5 @@ OUTPUT_DIR = DATA_DIR / "output"
 # table and is never uploaded. See feedback_derive_dictionaries_from_the_models.
 TABLES = ("auto_infracao", "area_embargada")
 
-BLOB_BASE = (
-    "https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados"
-)
-
-SOURCE_FILES = {
-    "auto_infracao": f"{BLOB_BASE}/SIFISC/auto_infracao/auto_infracao/auto_infracao_csv.zip",
-    # The CKAN record for the embargo file points at TERMOS/TERMO_EMBARGO/, which
-    # 404s. The live path is TERMOS_DE_EMBARGO/TERMO_EMBARGO/.
-    "termo_de_embargo": f"{BLOB_BASE}/TERMOS_DE_EMBARGO/TERMO_EMBARGO/termo_de_embargo.csv",
-    "multas_bens_tutelados": (
-        f"{BLOB_BASE}/MULTAS_AMBIENTAIS_DISTRIBUIDAS_POR_BENS_TUTELADOS"
-        "/multas_ambientais_distribuidas_por_bens_tutelados_csv.zip"
-    ),
-}
+# The source URLs live with the pipeline:
+# pipelines/datasets/br_ibama_fiscalizacao/constants.py (SOURCE_FILES).
