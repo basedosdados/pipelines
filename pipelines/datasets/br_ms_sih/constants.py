@@ -10,3 +10,5 @@ DATASET_ID = "br_ms_sih"
 # br_ms_sia/br_ms_sinan).
 SERVICOS_PROFISSIONAIS_TABLE_ID = "servicos_profissionais"
 AIHS_REDUZIDAS_TABLE_ID = "aihs_reduzidas"
+
+RELOAD_WINDOW_MONTHS = 3

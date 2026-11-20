@@ -251,19 +251,29 @@ async def download_file(file: str, output_path: str) -> None:
         output_path (str): output path to save
     """
 
-    try:
-        log(f"------- Downloading {file} ")
-        async with aioftp.Client.context(
-            host="ftp.datasus.gov.br",
-            # pyrefly: ignore [bad-argument-type]
-            parse_list_line_custom=line_file_parser,
-            # max wait time for data to be received from the server
-            socket_timeout=30,
-        ) as client:
-            await client.download(file, output_path)
-    except aioftp.StatusCodeError as e:
-        # pyrefly: ignore [bad-argument-count, bad-argument-type]
-        log(e.expected_codes, e.received_codes, e.info)
+    # O FTP do DATASUS derruba conexões com frequência. Antes, a falha era só
+    # logada e o arquivo ficava de fora sem aviso; agora tenta de novo e, se
+    # não der, propaga o erro.
+    attempts = 4
+    for attempt in range(1, attempts + 1):
+        try:
+            log(f"------- Downloading {file} ")
+            async with aioftp.Client.context(
+                host="ftp.datasus.gov.br",
+                # pyrefly: ignore [bad-argument-type]
+                parse_list_line_custom=line_file_parser,
+                # max wait time for data to be received from the server
+                socket_timeout=30,
+            ) as client:
+                await client.download(file, output_path)
+            return
+        except (aioftp.StatusCodeError, OSError) as e:
+            log(
+                f"Download de {file} falhou (tentativa {attempt}/{attempts}): {e!r}"
+            )
+            if attempt == attempts:
+                raise
+            await asyncio.sleep(30 * attempt)
 
 
 def line_file_parser(file_line) -> tuple[list, dict]:
