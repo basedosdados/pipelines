@@ -29,10 +29,12 @@ admin — merging does **not** arm it), and the Row Access Policies only if a ta
 is `part_bdpro` — an all-free pipeline never issues them. The agent says plainly
 which of those remain unexercised.
 
-It also sets the **BD Pro rolling window**: any table refreshing monthly or more
-often gets `PartBdpro` (default `free_lag=6 months`) so its recent window is
-pro-only and older data stays free; lower-frequency tables in the same dataset
-stay `AllFree`. The window rolls itself — `register_table_materialization_task`
+It also checks the **BD Pro rolling window**, which lives in the backend, not in
+the pipeline code: any table refreshing monthly or more often has a free and a pro
+Coverage (`is_closed=True`) and is read as `part_bdpro` (6-month lag), so its
+recent window is pro-only and older data stays free; lower-frequency tables in the
+same dataset have only the free Coverage (`all_free`). The window rolls itself —
+`register_table_materialization_task` reads the spec with `coverage_from_backend`,
 rewrites both coverage ranges and re-issues the BigQuery Row Access Policies on
-every run, and the dbt model is untouched. The pro Coverage (`is_closed=True`)
-must exist first or the run hard-fails at `assert_coverage_topology`.
+every run, and the dbt model is untouched. The temporal columns must carry
+`coverage_entity`, or the table is read as `non_historical` and nothing moves.

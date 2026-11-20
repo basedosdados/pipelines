@@ -13,10 +13,10 @@ migrated yet.
 
 Reference implementations:
 - single-source, multi-table: `pipelines/datasets/br_ibge_ipca/` (4 monthly
-  tables, `PartBdpro`, shared code in `pipelines/shared/ibge_inflacao/`);
+  tables, `part_bdpro`, shared code in `pipelines/shared/ibge_inflacao/`);
 - multi-table mixing coverage tiers and a per-table cron:
   `pipelines/datasets/br_rf_cnpj/` (`empresas`/`estabelecimentos`/`socios` are
-  `PartBdpro`; only `simples`/`dicionario` are `NonHistorical`);
+  `part_bdpro`; only `simples`/`dicionario` are `non_historical`);
 - overwrite-mode dataset: `pipelines/datasets/us_bls_cpi/`.
 
 The API lives in `pipelines/utils/stage_dispatch.py`.
@@ -47,8 +47,10 @@ each its own Prefect deployment in its own pod:
   pipeline class — the dataset code never dispatches by hand.
 - **Handoff**: `check_update → extract_and_load` passes `download_params`
   (always `reference_date`, plus `SourceInspection.extra_download_params`).
-  `extract_and_load → build_and_promote` passes `dataset_id, table_id, coverage,
-  partition_folders, dump_mode, source_format, prefect_mode, …`.
+  `extract_and_load → build_and_promote` passes `dataset_id, table_id,
+  partition_folders, dump_mode, prefect_mode, …`. No coverage travels in the
+  handoff — `build_and_promote` reads it from the backend (see
+  "Coverage comes from the backend" below).
 - **`promote_to_prod` is not set by the dataset.** It is `not _dev_prefix()`: true
   only when the `extract_and_load` ran in a prod deployment. `deploy_flows.py` tags
   deployments `env:dev` / `env:prod` (plus `env:local` for `--local`), and dev
@@ -70,7 +72,7 @@ Not supported yet: sources that detect change by **file size** instead of a date
 ```
 pipelines/datasets/<gcp_dataset_id>/
 ├── __init__.py      # empty
-├── constants.py     # DATASET_ID, one <TABLE>_TABLE_ID per table, COVERAGE specs, URLs, params
+├── constants.py     # DATASET_ID, one <TABLE>_TABLE_ID per table, URLs, params (no coverage)
 ├── utils.py         # PURE functions: download + cleaning transform (no Prefect)
 ├── tasks.py         # get_latest_update / extract_load_data (factories) + make_pipeline
 ├── flows.py         # wiring only: pipeline + @flow(s) + schedule; the deploy unit
@@ -121,23 +123,21 @@ before committing (reuse the already-downloaded `input/`).
 
 ### 1. `constants.py`
 
-`DATASET_ID`; one `<TABLE>_TABLE_ID` per table; the `CoverageSpec` per table
-(`PartBdpro` / `AllFree` / `AllBdpro` / `NonHistorical`, see
-"Coverage domain types" below); download
-parameters. `br_ibge_ipca`:
+`DATASET_ID`; one `<TABLE>_TABLE_ID` per table; download parameters.
+`br_ibge_ipca`:
 
 ```python
 DATASET_ID = "br_ibge_ipca"
 MES_BRASIL_TABLE_ID = "mes_brasil"
 ...
-COVERAGE = PartBdpro(
-    date_column=YearMonth(year="ano", month="mes"),
-    date_format=DateFormat.YEAR_MONTH,
-)
 ```
 
-`br_rf_cnpj` has one coverage per table (`COVERAGE[table_id]`) and a
-`CHECK_UPDATE_CRON[table_id]` dict so each table's cron is data, not code.
+**No `CoverageSpec` here.** The tier, date columns and date kind live in the backend
+(`Column.coverage_entity` + the table's `Coverage` records) — see
+"Coverage comes from the backend" below.
+
+`br_rf_cnpj` has a `CHECK_UPDATE_CRON[table_id]` dict so each table's cron is data,
+not code.
 
 ### 2. `get_latest_update` (in `tasks.py`)
 
@@ -154,7 +154,7 @@ class SourceInspection:
 ```
 
 - `compare_against="coverage"` (default) compares to `Coverage.DateTimeRange`.
-  Use `"table_update"` (compares to `Table.Update.latest`) for **`NonHistorical`**
+  Use `"table_update"` (compares to `Table.Update.latest`) for **`non_historical`**
   tables, which have no trustworthy coverage baseline.
 - Multi-table: pass a **factory** `make_get_latest_update(table_id)` returning the
   right callable. If one function serves all tables, pass `lambda _: fn`.
@@ -170,7 +170,6 @@ Receives `download_params` and **actually downloads/cleans**, returning:
 ```python
 @dataclass
 class ExtractAndLoad:
-    coverage: dict  # CoverageSpec.model_dump()
     data_path: str  # local file, or Hive-partitioned directory
     prefect_mode: str = "prod"
     dump_mode: str = "append"  # or "overwrite"
@@ -302,13 +301,14 @@ flag them.
 | `check_update_and_dispatch` (`utils.stage_dispatch`) | `prefect_dataset_id, dataset_id, table_id, reference_date, …, compare_against` | poll → commit source `Update` → `run_deployment` next stage (internal to the pipeline class) |
 | `dispatch_build_and_promote` (`utils.stage_dispatch`) | `dataset_id, table_id, result: ExtractAndLoad, env` | Triggers the generic `build_and_promote`; derives `promote_to_prod` |
 | `deploy_tags` (`utils.stage_dispatch`) | `dataset_id, etapa, table_id=None` | Tags for finding deployments (`staged-pipeline`, stage, dataset, `<ds>__<table>`) |
-| `build_and_promote` (`utils.metadata.flows`) | `dataset_id, table_id, coverage, env, bq_project, prefect_mode, promote_to_prod, partition_folders, dump_mode, source_format, …` | The shared flow; do not define one per dataset |
+| `build_and_promote` (`utils.metadata.flows`) | `dataset_id, table_id, env, bq_project, prefect_mode, promote_to_prod, partition_folders, dump_mode, …` | The shared flow; do not define one per dataset |
 | `rename_flow_run_dataset_table` (`utils.tasks`) | `prefix, dataset_id, table_id` | Names the run in the UI (done for you by the pipeline class) |
 | `upload_to_gcs` (`utils.tasks`) | `data_path, dataset_id, table_id, bucket_name, dump_mode="append", source_format="csv"` | Upload a file/partitioned dir to `<bucket>/staging/<ds>/<table>` + create staging BQ table (done for you; don't call from `extract_load_data`) |
 | `run_dbt` (`utils.tasks`) | `dataset_id, table_id=None, dbt_alias=True, dbt_command="run", target="dev", flags=None, _vars=None` | dbt run and/or test, then upload artifacts (done for you in `build_and_promote`) |
 | `poll_source_for_update_task` (`utils.metadata.tasks`) | `dataset_id, table_id, source_max_date, env, date_format, compare_against` → `bool` | Record a Poll; is source newer? |
 | `commit_source_update_task` (`utils.metadata.tasks`) | `dataset_id, table_id, source_max_date, env, date_format` | Write source `Update.latest` |
-| `register_table_materialization_task` (`utils.metadata.tasks`) | `dataset_id, table_id, coverage: CoverageSpec, env, bq_project, prefect_mode` | Update coverage `DateTimeRange` + table update from BQ |
+| `register_table_materialization_task` (`utils.metadata.tasks`) | `dataset_id, table_id, env, bq_project, prefect_mode` (`coverage=` only as a manual override) | Read the `CoverageSpec` from the backend, update coverage `DateTimeRange` + table update from BQ |
+| `coverage_from_backend` (`utils.metadata.coverage`) | `client, dataset_id, table_id` → `CoverageSpec` | Fetch `tier`/`date_column_kind`/`coverage_columns` from the `coverageSpec` query (called for you) |
 
 A dataset's own code normally only touches the first three rows; the rest are
 called by the pipeline class and `build_and_promote`.
@@ -369,19 +369,28 @@ raw source (the primary one), and note in the dataset's memory that the others s
 re-linked afterwards. Register the `RawDataSource` **before** migrating.
 → `project_metadata_multi_raw_source_bug`
 
-### Coverage domain types (`utils.metadata.domain`)
+### Coverage comes from the backend (`utils.metadata.coverage`)
 
-Build a `CoverageSpec` per table; the `date_column.kind` must match `date_format`:
+Datasets no longer build a `CoverageSpec`. `register_table_materialization_task`
+(inside `build_and_promote` and `transfer_files_to_prod_flow`) calls
+`coverage_from_backend(client, dataset_id, table_id)`, which reads the backend's
+`coverageSpec` query and returns a flat `CoverageSpec`:
 
-| Tier class | Use |
-|---|---|
-| `AllFree(date_column, date_format)` | Fully public data (no BD-pro gating) |
-| `PartBdpro(date_column, date_format, free_lag=6 months)` | Recent data behind BD-pro |
-| `AllBdpro(...)` / `NonHistorical()` | All-pro / single last-modified coverage |
+| Field | Values | Comes from |
+|---|---|---|
+| `tier` | `all_free`, `part_bdpro`, `all_bdpro`, `non_historical`, `""` | the table's `Coverage` records (`is_closed`); `non_historical` when no column is marked |
+| `date_column_kind` | `date`, `year`, `year_month`, `year_quarter`, `year_bimester` | the entities marked on the columns |
+| `coverage_columns` | `[{name, entity}]` | columns with `Column.coverage_entity` set |
 
-Date columns: `YearMonth(year=, month=)`→`DateFormat.YEAR_MONTH`,
-`YearOnly(col=)`→`DateFormat.YEAR`, `DateOnly(col=)`→`DateFormat.YEAR_MD`,
-`YearQuarter(year=, quarter=)`→`DateFormat.YEAR_MONTH`.
+The date format follows from `date_column_kind` (`DATE_FORMAT_BY_KIND`); `free_lag` is a
+fixed 6 months (`policy.PART_BDPRO_FREE_LAG`). `domain.py` (`AllFree`/`PartBdpro`/
+`YearMonth`/…) is legacy — do not import it in new code.
+
+**Before the first run, mark `coverage_entity` on the table's temporal columns in the
+prod backend** (`year` before `month`/`quarter`/`bimester`). How, and how to verify it,
+is in the "`coverage_entity`" section of `metadata-schema`. If you skip it the table is
+read as `non_historical`: the run stays green, but the `DateTimeRange`s never move and
+no paywall is applied.
 
 ## Update and Poll records — a recurring pipeline must have all three
 
@@ -428,19 +437,20 @@ RawDataSource.Poll    day    freq=1            latest=2026-07-17  (wall clock)
 
 **Business rule: any table refreshed monthly or more often paywalls its most
 recent window to BD Pro subscribers; everything older stays free.** Lower-frequency
-tables in the same dataset (annual, semiannual) stay `AllFree`. A `dicionario` (or
-any table with no date column) can take no coverage spec at all.
+tables in the same dataset (annual, semiannual) stay `all_free`. A `dicionario` (or
+any table with no date column) has no column marked and is `non_historical`.
 
-Pick the tier per table, not per dataset. Reference: `us_bls_cpi` — `monthly` is
-`PartBdpro(free_lag=6 months)`; `annual`/`semiannual` are `AllFree`.
+Pick the tier per table, not per dataset, by **which Coverages you register** — there
+is no tier to set in code. Reference: `us_bls_cpi` — `monthly` is `part_bdpro`
+(free + pro Coverage); `annual`/`semiannual` are `all_free` (free Coverage only).
 
 ### It is already built — do not hand-roll it
 
 `register_table_materialization_task` (reached through `build_and_promote` /
 `transfer_files_to_prod_flow`) does the whole thing on every promoted run:
 
-1. `source_end = bq.read_max_date(...)`
-2. `free_end = source_end - free_lag`
+1. `source_end = bq.read_max_date(...)`, on the columns marked with `coverage_entity`
+2. `free_end = source_end - PART_BDPRO_FREE_LAG` (6 months)
 3. upserts **both** `DateTimeRange`s — free ends at `free_end`; pro spans
    `free_end + 1 period → source_end`. `free_end` is **inclusive** (the RAP grants
    `date <= free_end`), so the two ranges are mutually exclusive — pro starts the
@@ -478,29 +488,35 @@ Set `is_closed` on the **`DateTimeRange` too**, matching its Coverage (pro range
 field — so whatever you register at onboarding is what stays. Every existing
 part_bdpro table has it set on both.
 
-Reference shape (`us_bls_cpi.monthly`, `free_lag=6 months`, source `1913-01..2026-06`):
+Reference shape (`us_bls_cpi.monthly`, 6-month lag, source `1913-01..2026-06`):
 
 | Coverage | `is_closed` | DateTimeRange | range `is_closed` |
 |---|---|---|---|
 | free | `False` | `1913-01 .. 2025-12` | `False` |
 | pro | `True` | `2026-01 .. 2026-06` | `True` |
 
-`assert_coverage_topology` **hard-fails before any write** if the topology does not
-match the tier — `part_bdpro exige Coverage free + pro`. A table onboarded as
-`AllFree` has only the free Coverage, so **create the pro Coverage before switching
-the spec**:
+Since the backend derives `tier` from these Coverages, **creating the pro Coverage is
+what turns a table into `part_bdpro`** — there is no spec to switch. To paywall a
+table onboarded as `all_free`:
 
 ```
 create_update_coverage(table_id=…, area_id=…, is_closed=True, env="prod")
 ```
 
-Conversely `AllFree` requires free **and no pro**, and `AllBdpro` the reverse — so
-you cannot silently flip tiers without fixing the coverages too.
+then add its pro `DateTimeRange` (`is_closed=True`) and confirm with the `coverageSpec`
+query (see `metadata-schema`) that `tier` reads `part_bdpro`. The next promoted run
+rewrites both ranges and applies the Row Access Policies.
+
+This only works if the table's temporal columns carry `coverage_entity`. Without it
+the table is `non_historical` whatever Coverages exist, and the paywall is never
+applied.
 
 ### What you can verify locally
 
 `assert_coverage_topology`, `compute_coverage_ranges`, and `needs_row_access_policy`
-are pure — unit-test the window and its roll. `apply_row_access_policies` issues real
+are pure — unit-test the window and its roll by building a `CoverageSpec` by hand
+(`pipelines/utils/tests/metadata/test_policy.py`). The `coverageSpec` query is the
+check for what the backend will hand the run. `apply_row_access_policies` issues real
 BigQuery DDL and needs the worker's rights; it is **not** exercisable locally. Say so
 rather than implying the paywall was tested end-to-end.
 
@@ -714,8 +730,10 @@ checks to fail fast, then **run it**.
 5. **Deploy discovery**: run `deploy_flows.load_flows_from_file("pipelines/datasets/<ds>/flows.py")`
    and confirm **every** expected flow name appears (2 per table). `load_flows_from_file`
    **swallows import errors** and returns `{}`, so a broken import means a silent no-deploy.
-6. Pure metadata policy (`compute_coverage_ranges`, `assert_coverage_topology`,
-   `needs_row_access_policy`) is unit-testable — test the window and its roll.
+6. **Coverage spec**: query `coverageSpec(datasetId, tableId)` on the prod backend for
+   every table and confirm `tier`/`dateColumnKind`/`coverageColumns` match the table
+   (see "`coverage_entity`" in `metadata-schema`). A temporal table answering
+   `non_historical` is not marked.
 7. Optionally, the whole chain against a local Prefect server (see
    "Environments & credentials").
 
@@ -779,6 +797,9 @@ of the two applies, plainly, rather than implying the pipeline is proven end-to-
 | `FileNotFoundError` promoting a parquet dataset | Missing `source_format="parquet"` in `ExtractAndLoad` |
 | Old flow still runs beside the new one | Monolith still registered; remove manually after confirming the new one |
 | `poll_source_for_update` silently no-ops | Table has no `RawDataSource` registered |
+| Run is green but the coverage never moves / no paywall | Temporal columns lack `coverage_entity`, so the backend reports `tier=non_historical`. Mark them (see `metadata-schema`) |
+| `tem coverage_entity marcado no backend, mas nenhuma Coverage cadastrada ainda` | Columns are marked but the table has no `Coverage` — create the free (and, if paywalled, pro) Coverage |
+| `Backend não tem coverageSpec pra <ds>.<tbl>` | No `CloudTable` with that `gcp_dataset_id`/`gcp_table_id` in the backend being written to |
 | New table missing in `basedosdados-dev` | `bd.Table.create()` only registers the staging pointer; create the dev table by hand before the first `dbt run` there |
 
 ## Commit discipline

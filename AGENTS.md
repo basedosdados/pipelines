@@ -290,6 +290,8 @@ Notes: <anything unusual>
 
 The agent runs an 11-step sequence: context → architecture → download → clean → upload → dbt → validate → discover → metadata (dev) → [human approval] → metadata (prod) → PR.
 
+Both metadata steps must mark `coverage_entity` on every table's temporal columns (`year` first, then `month`/`quarter`/`bimester`, or `date` alone). The coverage spec is read from the backend on every materialization, including `table-approve`; an unmarked table is silently treated as `non_historical`. See "`coverage_entity`" in `metadata-schema.md`.
+
 ### Onboarding scripts (`models/<gcp_dataset_id>/code/`)
 
 The one-shot scripts that download, clean and upload a dataset are Python modules like any other, and one script often imports another (`clean.py` importing `schema.py`). Two rules keep that safe:
