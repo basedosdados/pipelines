@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es,observations_en,observations_es
+id_tabela,STRING,ID Tabela,,no,,,no,,id_tabela,Table ID,ID Tabla,,
+nome_coluna,STRING,Nome da coluna,,no,,,no,,nome_coluna,Column name,Nombre de la columna,,
+chave,STRING,Chave,,no,,,no,,chave,Key,Clave,,
+cobertura_temporal,STRING,Cobertura temporal,,no,,,no,,cobertura_temporal,Temporal coverage,Cobertura temporal,,
+valor,STRING,Valor,,no,,,no,,valor,Value,Valor,,
