@@ -149,28 +149,37 @@ alone does not identify the column.
 **Signature**
 
 ```
-ValidationError: 1 validation error for PartBdpro
-  Value error, date_column 'date' incompatível com date_format '%Y-%m'
-                                              (br_rf_cnpj__estabelecimentos)
-part_bdpro exige Coverage free + pro          (assert_coverage_topology)
+<ds>.<tbl> tem coverage_entity marcado no backend, mas nenhuma Coverage
+  cadastrada ainda                            (coverage_from_backend)
+Backend não tem coverageSpec pra <ds>.<tbl>   (coverage_from_backend)
 allRawdatasource: mais de um nó encontrado para {'tables_Id': …}
 ```
 
+…and one with **no** signature: the run is green, but the table's coverage never
+moves and a monthly table has no paywall.
+
 **Cause.**
 
-- The `CoverageSpec`'s `date_column` kind does not match its `date_format`:
-  `YearMonth` ↔ `YEAR_MONTH`, `YearOnly` ↔ `YEAR`, `DateOnly` ↔ `YEAR_MD`.
-- `assert_coverage_topology` hard-fails **before any write** when the tier and
-  the registered Coverages disagree. `part_bdpro` needs both a free Coverage
-  (`is_closed=False`) and a pro one (`is_closed=True`); `AllFree` needs free and
-  no pro. Create the missing Coverage before switching a tier.
+- The coverage spec comes from the backend (`coverageSpec` query), derived from
+  `Column.coverage_entity` and the table's Coverages. Query it for the table
+  first — it tells you what the run saw.
+- `tier="non_historical"` on a table that has `ano`/`mes`/`data`: the temporal
+  columns were never marked with `coverage_entity`. The materialization then only
+  updates `Table.Update` and skips the ranges and Row Access Policies, silently.
+- `tier=""` (`nenhuma Coverage cadastrada`): columns are marked but the table has
+  no Coverage. Create the free one (and the pro one for a paywalled table).
+- `Backend não tem coverageSpec`: no `CloudTable` with that
+  `gcp_dataset_id`/`gcp_table_id` in the backend the run writes to (prod).
 - `mais de um nó` is the known client bug: a table linked to two raw data
   sources cannot resolve one, and both the poll and commit tasks go through that
   resolver. Link exactly **one** raw source per table.
 
-**Fix.** These are pure-function or metadata fixes. `assert_coverage_topology`,
-`compute_coverage_ranges` and `needs_row_access_policy` are unit-testable
-locally — test the window and its roll. `apply_row_access_policies` issues real
+**Fix.** These are backend metadata fixes, not code changes: mark
+`coverage_entity` (`year` before `month`/`quarter`/`bimester`), create the
+missing Coverage, or register the `CloudTable` — see "`coverage_entity`" in
+`metadata-schema` — and re-query `coverageSpec`. `compute_coverage_ranges` and
+`needs_row_access_policy` are unit-testable locally with a hand-built
+`CoverageSpec`. `apply_row_access_policies` issues real
 BigQuery DDL and is not exercisable locally; say so.
 
 ---
