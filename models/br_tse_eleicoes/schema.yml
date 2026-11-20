@@ -7,6 +7,17 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.70
           ignore_values: [tipo_item, data_eleicao, id_eleicao]
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_eleicao
+            - sigla_uf
+            - sequencial_candidato
+            - tipo_item
+            - descricao_item
+            - valor_item
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -726,6 +737,15 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.60
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_municipio_tse
+            - zona
+            - secao
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -861,8 +881,30 @@ models:
   - name: br_tse_eleicoes__perfil_eleitorado_secao
     description: Perfil eleitorado a nível de seção eleitoral.
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio_tse
+            - zona
+            - secao
+            - genero
+            - estado_civil
+            - grupo_idade
+            - instrucao
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.60
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_tse_eleicoes__dicionario')
+          columns_covered_by_dictionary:
+            - estado_civil
+            - genero
+            - grupo_idade
+            - instrucao
+            - situacao_biometria
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -1081,7 +1123,21 @@ models:
       - name: valor_receita
         description: Valor da receita
   - name: br_tse_eleicoes__receitas_comite
-    description: Receitas de comitês eleitorais
+    description: Receitas de comitês eleitorais.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.10
+          ignore_values:
+            - cnae_2_doador_classe
+            - cpf_membro
+            - id_municipio
+            - id_municipio_tse
+            - nome_membro
+            - numero_candidato_doador
+            - numero_partido
+            - situacao_receita
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -1193,7 +1249,24 @@ models:
       - name: valor_receita
         description: Valor da receita
   - name: br_tse_eleicoes__receitas_orgao_partidario
-    description: Receitas de Órgãos Partidários
+    description: Receitas de Órgãos Partidários.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.02
+          ignore_values:
+            - cpf_cnpj_doador_orig
+            - descricao_cnae_2_doador_orig
+            - nome_doador_orig
+            - nome_doador_orig_rf
+            - numero_documento
+            - numero_recibo_eleitoral
+            - sequencial_diretorio
+            - cnae_2_doador_subclasse
+            - tipo_diretorio
+            - tipo_doador_orig
+            - tipo_documento
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -1340,6 +1413,17 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.85
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - sigla_uf
+            - id_municipio_tse
+            - cargo
+            - sequencial_candidato
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -1544,6 +1628,23 @@ models:
         description: Zona eleitoral
   - name: br_tse_eleicoes__resultados_candidato_secao
     description: Dados de resultados eleitorais a nível de candidato-seção.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - zona
+            - secao
+            - cargo
+            - numero_candidato
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
@@ -1726,6 +1827,11 @@ models:
         description: Zona eleitoral
   - name: br_tse_eleicoes__resultados_partido_secao
     description: Dados de resultados em eleições brasileiras a nível de partido-seção.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
