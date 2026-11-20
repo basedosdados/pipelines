@@ -18,7 +18,7 @@ to date. Add this only after static onboarding is verified in dev.
 ## Rules
 
 - Follow `prefect-pipeline-conventions` for structure, the flow recipe, shared
-  `pipelines/utils` signatures, coverage domain types, scheduling, deploy, and
+  `pipelines/utils` signatures, coverage from the backend, scheduling, deploy, and
   local verification.
 - The cleaning transform is shared (DRY): pure functions in
   `pipelines/datasets/<ds>/utils.py`, imported by both the flow's tasks and the
@@ -31,7 +31,7 @@ to date. Add this only after static onboarding is verified in dev.
    `pipelines/shared/ibge_inflacao/flows.py` (the recipe), plus
    `pipelines/datasets/us_bls_cpi/` (parquet, full-replace reference). Confirm
    the shared-util signatures from `pipelines/utils/tasks.py` and
-   `pipelines/utils/metadata/{tasks,domain}.py` — do not guess them.
+   `pipelines/utils/metadata/{tasks,coverage}.py` — do not guess them.
 2. **Determine cadence & mode**: how often the source publishes, and whether each
    release is the full history (→ `dump_mode="overwrite"`) or incremental
    (→ `"append"`). Pick the `source_format` (`parquet` or `csv`).
@@ -47,18 +47,23 @@ to date. Add this only after static onboarding is verified in dev.
    upload/dbt → prod upload/dbt → register coverage + commit source update).
    Set `deploy_schedules` (cron, America/Sao_Paulo) and, if the clean step is
    memory-heavy, `job_variables={"memory": "…"}`.
-   **Pick the coverage tier per table.** Any table refreshed monthly or more
-   often paywalls its recent window: `PartBdpro(free_lag=…)`, default 6 months.
-   Lower-frequency tables stay `AllFree`; a table with no date column gets no
-   spec. This needs a **pro Coverage (`is_closed=True`) created before the run**
-   or it hard-fails at `assert_coverage_topology`. The rolling window, the Row
+   **The coverage tier is backend metadata, not code.** Do not build a
+   `CoverageSpec` or pass `coverage=` anywhere; `register_table_materialization_task`
+   reads it from the backend (`coverage_from_backend`). Any table refreshed monthly
+   or more often paywalls its recent window (`part_bdpro`, 6-month lag): it needs a
+   free **and** a pro Coverage (`is_closed=True`). Lower-frequency tables get only
+   the free one (`all_free`). Either way the temporal columns must carry
+   `coverage_entity` in the prod backend, or the table is read as
+   `non_historical` and nothing moves. Check with the `coverageSpec` query (see
+   "`coverage_entity`" in `metadata-schema`). The rolling window, the Row
    Access Policies, and the coverage ranges are all handled by
    `register_table_materialization_task` — do not hand-roll them, and do not
    touch the dbt model. See "BD Pro rolling window" in
    `prefect-pipeline-conventions`.
 8. **Verify locally** (imports, transform parity, one-file download, deploy
-   discovery via `load_flows_from_file`). If the flow uses `PartBdpro`, also
-   unit-test the window: `assert_coverage_topology`, `compute_coverage_ranges`
+   discovery via `load_flows_from_file`, `coverageSpec` per table). If a table is
+   `part_bdpro`, also unit-test the window with a hand-built `CoverageSpec`:
+   `assert_coverage_topology`, `compute_coverage_ranges`
    at the real `source_end`, and that `free_end` rolls when the source advances
    — these are pure functions.
 9. **Then actually run it — this is the gate, not step 8.** Local checks pass
