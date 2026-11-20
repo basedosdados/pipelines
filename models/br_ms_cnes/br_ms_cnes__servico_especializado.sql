@@ -45,7 +45,9 @@ select
     concat(
         ltrim(safe_cast(serv_esp as string), '0'), class_sr
     ) as subtipo_servico_especializado,
-    ltrim(safe_cast(srvunico as string), '0') as tipo_servico_especializado_unico,
+    nullif(
+        ltrim(safe_cast(srvunico as string), '0'), 'nan'
+    ) as tipo_servico_especializado_unico,
     safe_cast(caracter as string) as tipo_caracterizacao,
     safe_cast(amb_nsus as int64) as indicador_servico_ambulatorial_sus,
     safe_cast(amb_sus as int64) as indicador_servico_nao_sus,

@@ -51,9 +51,8 @@ def br_ms_cnes_profissional_check_update() -> None:
 br_ms_cnes_profissional_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, PROFISSIONAL_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo (main).
 br_ms_cnes_profissional_check_update.deploy_schedules = [
-    Cron("30 6 * * *", timezone="America/Sao_Paulo")
+    Cron("40 10 * * *", timezone="America/Sao_Paulo")
 ]
 
 

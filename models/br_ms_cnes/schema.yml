@@ -26,6 +26,14 @@ models:
           dictionary_model: ref('br_ms_cnes__dicionario')
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
@@ -99,6 +107,14 @@ models:
           dictionary_model: ref('br_ms_cnes__dicionario')
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
@@ -194,6 +210,15 @@ models:
           dictionary_model: ref('br_ms_cnes__dicionario')
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cbo_1994, indicador_estabelecimento_terceiro]
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
@@ -219,6 +244,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year_month__
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
               config:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
@@ -285,7 +314,6 @@ models:
           combination_of_columns: [ano, mes, id_estabelecimento_cnes]
           config:
             where: __most_recent_year_month__
-      # NOTE: colunas: tipo_orgao_expedidor | tipo_unidade | tipo_classificacao_acreditacao_hospitalar | tipo_grau_dependencia
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - tipo_pessoa
@@ -299,9 +327,30 @@ models:
             - tipo_turno
             - tipo_prestador
             - tipo_avaliacao_acreditacao_hospitalar
+            - tipo_grau_dependencia
+            - tipo_orgao_expedidor
+            - tipo_unidade
           dictionary_model: ref('br_ms_cnes__dicionario')
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ano_avaliacao_pnass
+            - mes_avaliacao_pnass
+            - data_publicacao_contrato_estadual
+            - data_publicacao_contrato_municipal
+            - tipo_avaliacao_acreditacao_hospitalar
+            - tipo_classificacao_acreditacao_hospitalar
+            - tipo_natureza_administrativa
+            - tipo_retencao_tributos
+            - tipo_retencao_tributos_mantenedora
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
@@ -828,12 +877,19 @@ models:
             - tipo_leito
           config:
             where: __most_recent_year_month__
-      # NOTE: aguardando pedido lai
-      # - custom_dictionary_coverage:
-      #     columns_covered_by_dictionary: [tipo_especialidade_leito, tipo_leito]
-      #     dictionary_model: ref('br_ms_cnes__dicionario')
-      #     config:
-      #       where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_especialidade_leito, tipo_leito]
+          dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
@@ -879,6 +935,10 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes, id_estabelecimento_cnes]
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
           config:
             where: __most_recent_year_month__
     columns:
@@ -1103,6 +1163,10 @@ models:
           dictionary_model: ref('br_ms_cnes__dicionario')
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -1125,7 +1189,7 @@ models:
               config:
                 where: __most_recent_year_month__
           - dbt_utils.not_null_proportion:
-              at_least: 0.05
+              at_least: 0.95
               config:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
@@ -1162,6 +1226,10 @@ models:
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [tipo_habilitacao]
           dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
           config:
             where: __most_recent_year_month__
     columns:
@@ -1224,9 +1292,17 @@ models:
             - tipo_habilitacao
             - portaria
             - data_portaria
+          config:
+            where: __most_recent_year_month__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [tipo_habilitacao, tipo_gestao_metas]
           dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -1296,12 +1372,21 @@ models:
             - data_portaria
           config:
             where: __most_recent_year_month__
-      # NOTE: aguardando pedido LAI para reativar;
-      # - custom_dictionary_coverage:
-      #     columns_covered_by_dictionary: [tipo_habilitacao, tipo_incentivo]
-      #     dictionary_model: ref('br_ms_cnes__dicionario')
-      #     config:
-      #       where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_incentivo]
+          dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_habilitacao]
+          dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+            severity: warn
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -1368,12 +1453,25 @@ models:
             - portaria
           config:
             where: __most_recent_year_month__
-      # NOTE: aguardando pedido LAI para reativar;
-      # - custom_dictionary_coverage:
-      #     columns_covered_by_dictionary: [tipo_habilitacao, nivel_habilitacao]
-      #     dictionary_model: ref('br_ms_cnes__dicionario')
-      #     config:
-      #       where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [nivel_habilitacao]
+          dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_habilitacao]
+          dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+            severity: warn
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
@@ -1447,6 +1545,10 @@ models:
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [tipo_habilitacao, tipo_regra_contratual]
           dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
           config:
             where: __most_recent_year_month__
     columns:
@@ -1524,15 +1626,24 @@ models:
             - indicador_servico_hospitalar_sus
           config:
             where: __most_recent_year_month__
-      # NOTE: aguardando pedido LAI para reativar;
-      # - custom_dictionary_coverage:
-      #     columns_covered_by_dictionary:
-      #       - tipo_servico_especializado
-      #       - subtipo_servico_especializado
-      #       - tipo_servico_especializado_unico
-      #     dictionary_model: ref('br_ms_cnes__dicionario')
-      #     config:
-      #       where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - tipo_servico_especializado
+            - subtipo_servico_especializado
+            - tipo_servico_especializado_unico
+          dictionary_model: ref('br_ms_cnes__dicionario')
+          config:
+            where: __most_recent_year_month__
+            severity: warn
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [quantidade_nacional_estabelecimento_saude_terceiro]
+          config:
+            where: __most_recent_year_month__
+      - custom_uf_month_completeness:
+          min_share: 0.7
+          window_months: 1
+          grace_months: 0
     columns:
       - name: ano
         description: Ano
