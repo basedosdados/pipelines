@@ -1,0 +1,102 @@
+---
+version: 2
+models:
+  - name: us_ssa_baby_names__first_name
+    description: >-
+      Número de pessoas nascidas nos Estados Unidos com cada prenome, por sexo e ano
+      de nascimento, a partir de 1880, segundo os pedidos de número de Seguro Social.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, sex, name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ssa_baby_names__dictionary')
+          columns_covered_by_dictionary: [sex]
+    columns:
+      - name: year
+        description: >-
+          Ano de nascimento
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Sexo registrado no pedido do número de Seguro Social
+        tests: [not_null]
+      - name: name
+        description: >-
+          Prenome, com a grafia registrada no pedido do número de Seguro Social
+        tests: [not_null]
+      - name: count
+        description: >-
+          Número de pessoas nascidas no ano com o prenome e o sexo
+        tests: [not_null]
+  - name: us_ssa_baby_names__first_name_state
+    description: >-
+      Número de pessoas nascidas em cada estado ou território dos Estados Unidos com
+      cada prenome, por sexo e ano de nascimento, a partir de 1910, segundo os pedidos
+      de número de Seguro Social.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_abbreviation, sex, name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ssa_baby_names__dictionary')
+          columns_covered_by_dictionary: [sex]
+    columns:
+      - name: year
+        description: >-
+          Ano de nascimento
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Código FIPS de dois dígitos do estado ou território de nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: state_abbreviation
+        description: >-
+          Sigla postal de duas letras do estado ou território de nascimento
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Sexo registrado no pedido do número de Seguro Social
+        tests: [not_null]
+      - name: name
+        description: >-
+          Prenome, com a grafia registrada no pedido do número de Seguro Social
+        tests: [not_null]
+      - name: count
+        description: >-
+          Número de pessoas nascidas no ano com o prenome e o sexo no estado ou território
+        tests: [not_null]
+  - name: us_ssa_baby_names__dictionary
+    description: >-
+      Dicionário de valores das colunas codificadas das tabelas do conjunto.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, column_name, key]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [temporal_coverage]
+    columns:
+      - name: table_id
+        description: >-
+          Identificador da tabela
+        tests: [not_null]
+      - name: column_name
+        description: >-
+          Nome da coluna
+        tests: [not_null]
+      - name: key
+        description: >-
+          Código
+        tests: [not_null]
+      - name: temporal_coverage
+        description: >-
+          Cobertura temporal do código
+      - name: value
+        description: >-
+          Significado do código
+        tests: [not_null]
