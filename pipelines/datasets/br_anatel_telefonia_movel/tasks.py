@@ -17,6 +17,8 @@ from pipelines.datasets.br_anatel_telefonia_movel.constants import (
 from pipelines.datasets.br_anatel_telefonia_movel.utils import (
     clean_csv_densidade,
     clean_csv_microdados,
+)
+from pipelines.shared.anatel.utils import (
     download_csv_from_zip,
     normalize_label,
 )
@@ -30,7 +32,16 @@ from pipelines.utils.stage_dispatch import (
 @task(retries=5, retry_delay_seconds=10)
 def download_csv(table_id: str) -> str:
     """Baixa do ZIP da Anatel o CSV que a tabela lê e devolve o caminho dele."""
-    return download_csv_from_zip(table_id)
+    return download_csv_from_zip(
+        table_id=table_id,
+        api_url=anatel_constants.API_URL.value,
+        resource_format=anatel_constants.RESOURCE_FORMAT.value,
+        microdados_pattern=anatel_constants.MICRODADOS_FILE_PATTERN.value,
+        densidade_file=anatel_constants.DENSIDADE_FILE.value,
+        cookies=anatel_constants.COOKIES.value,
+        headers=anatel_constants.HEADERS.value,
+        input_path=anatel_constants.INPUT_PATH.value,
+    )
 
 
 @task(retries=5, retry_delay_seconds=10)
