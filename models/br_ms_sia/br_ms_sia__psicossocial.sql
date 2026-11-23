@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2005, "end": 2024, "interval": 1},
+            "range": {"start": 2005, "end": 2031, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
     )
@@ -120,7 +120,7 @@ select
                 else null
             end
         ) as string
-    ) as cid_principal_subcategoria
+    ) as cid_principal_subcategoria,
     safe_cast(
         trim(case when length(trim(cidassoc)) = 3 then cidassoc else null end) as string
     ) as cid_causas_associadas_categoria,
