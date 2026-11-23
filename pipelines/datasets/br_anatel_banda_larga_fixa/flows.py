@@ -1,27 +1,4 @@
-"""
-Flows para br_anatel_banda_larga_fixa — Prefect 3.
-
-Migrado por completo pro pipeline em estágios (staged pipeline):
-check_update -> extract_and_load -> build_and_promote, uma dupla de flows por
-tabela. Lógica específica do dataset mora em `tasks.py`, constantes em
-`constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
-Ver README.md deste diretório pro histórico completo da migração (causa raiz
-do congelamento, revisão histórica do microdados, apagão das densidades).
-
-As 3 tabelas de densidade (`densidade_brasil`, `densidade_uf`,
-`densidade_municipio`) seguem SEM schedule (nenhum `deploy_schedules`
-setado): a fonte apagou 2023-2025 nelas, e um run automático re-materializaria
-do arquivo degradado e regrediria prod (ver README.md, seção Densidades). Só
-rodam via trigger manual do `check_update` até a decisão da PRUV. Os crons
-originais (desativados) seguem documentados em comentário em cada bloco,
-prontos para reativar quando a fonte for restaurada.
-
-O flow monolítico antigo (`_run_anatel_banda_larga_fixa`, que vivia em
-`pipelines/shared/anatel/banda_larga_fixa/flows.py`) não tinha mais
-consumidor no repositório e foi removido nesta limpeza — a lógica de
-check/download/unzip/clean que ele reusava já estava preservada em
-`tasks.py`/`utils.py` deste módulo.
-"""
+"""Flows do br_anatel_banda_larga_fixa."""
 
 from prefect.schedules import Cron
 
@@ -53,9 +30,6 @@ def br_anatel_banda_larga_fixa_microdados_check_update() -> None:
 br_anatel_banda_larga_fixa_microdados_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo (`_anatel_blf_flow(cron="0 15 * * *")`
-# em `pipelines/shared/anatel/banda_larga_fixa` — único dos 4 com schedule
-# ativo, por ser o único que não regride com a revisão histórica da fonte).
 br_anatel_banda_larga_fixa_microdados_check_update.deploy_schedules = [
     Cron("0 15 * * *", timezone="America/Sao_Paulo")
 ]
@@ -71,6 +45,10 @@ def br_anatel_banda_larga_fixa_microdados_download(
 br_anatel_banda_larga_fixa_microdados_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
 )
+br_anatel_banda_larga_fixa_microdados_download.job_variables = {
+    "memory_limit": "6Gi",
+    "memory_request": "2Gi",
+}
 _microdados_pipeline.extract_load_deployment = (
     br_anatel_banda_larga_fixa_microdados_download.fn.__name__
 )
@@ -80,9 +58,6 @@ _microdados_pipeline.extract_load_deployment = (
 # densidade_brasil
 # check_update: br_anatel_banda_larga_fixa__densidade_brasil
 # extract_and_load: br_anatel_banda_larga_fixa__densidade_brasil
-#
-# Sem schedule — ver docstring do módulo. Cron original (desativado):
-# "0 17 * * *".
 # ──────────────────────────────────────────────────────────────────────────────
 
 _densidade_brasil_pipeline = make_pipeline(DENSIDADE_BRASIL_TABLE_ID)
@@ -123,9 +98,6 @@ _densidade_brasil_pipeline.extract_load_deployment = (
 # densidade_uf
 # check_update: br_anatel_banda_larga_fixa__densidade_uf
 # extract_and_load: br_anatel_banda_larga_fixa__densidade_uf
-#
-# Sem schedule — ver docstring do módulo. Cron original (desativado):
-# "0 18 * * *".
 # ──────────────────────────────────────────────────────────────────────────────
 
 _densidade_uf_pipeline = make_pipeline(DENSIDADE_UF_TABLE_ID)
@@ -163,9 +135,6 @@ _densidade_uf_pipeline.extract_load_deployment = (
 # densidade_municipio
 # check_update: br_anatel_banda_larga_fixa__densidade_municipio
 # extract_and_load: br_anatel_banda_larga_fixa__densidade_municipio
-#
-# Sem schedule — ver docstring do módulo. Cron original (desativado):
-# "0 16 * * *".
 # ──────────────────────────────────────────────────────────────────────────────
 
 _densidade_municipio_pipeline = make_pipeline(DENSIDADE_MUNICIPIO_TABLE_ID)
