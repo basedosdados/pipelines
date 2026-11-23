@@ -1,22 +1,43 @@
 {#
     Falha quando uma UF some ou encolhe num mês recente.
 
-    Para cada UF e cada mês dos últimos `window_months` meses (contados a
-    partir do mês mais recente da tabela), compara o número de linhas com a
-    mediana dos `baseline_months` meses anteriores da mesma UF. Retorna as
-    UF-mês com zero linhas ou com menos de `min_share` dessa mediana.
+    Para cada UF e cada mês da janela conferida, compara o número de linhas
+    com a mediana dos `baseline_months` meses anteriores da mesma UF. Retorna
+    as UF-mês com zero linhas ou com menos de `min_share` dessa mediana, com
+    as colunas `competencia`, `uf`, `n` e `mediana_anterior`.
 
-    As `grace_months` competências mais recentes ficam de fora: o DATASUS
-    publica o mês primeiro com UFs faltando ou parciais e o completa depois, e
-    o pipeline recarrega esses meses quando isso acontece. Um buraco que
-    sobrevive à carência é falha de carga, e o teste falha.
+    A janela conferida são os `window_months` meses que terminam no mês mais
+    recente da tabela, menos as `grace_months` competências mais recentes.
+    Com `window_months=1` e `grace_months=0`, só o mês mais recente é
+    conferido; com `grace_months` igual a `window_months`, nenhum mês é.
 
-    Uma UF que não aparece num mês entra com zero linhas, porque a grade de
-    meses × UFs é montada à parte e não a partir dos dados.
+    A carência serve a fontes que publicam o mês com UFs faltando ou parciais
+    e o completam depois, quando o pipeline recarrega os meses recentes. Um
+    buraco que sobrevive à carência é falha de carga.
 
-    O filtro por `current_date()` limita a leitura às partições recentes. Com
-    `date_column`, a competência e o filtro saem dessa coluna, para a leitura
-    ser podada numa tabela particionada por data.
+    Requisitos da tabela:
+    - as 27 UFs aparecem todo mês; uma tabela com menos UFs reprova sempre;
+    - `uf_column` traz a sigla em maiúscula. A grade de meses × UFs é montada
+      à parte, com as 27 siglas, e não a partir dos dados: uma UF que não
+      aparece num mês entra com zero linhas, e `pa` conta como `PA` ausente.
+
+    A leitura é limitada por `current_date()` às partições recentes, os
+    últimos `(window_months + baseline_months) // 12 + 2` anos. Uma tabela
+    sem dado nesse período passa sem conferir nada. Com `date_column`, a
+    competência e o filtro saem dessa coluna, para a leitura ser podada numa
+    tabela particionada por data.
+
+    Parâmetros: `year_column` ("ano"), `month_column` ("mes") e `uf_column`
+    ("sigla_uf") nomeiam as colunas; `date_column` (nenhuma) substitui ano e
+    mês; `window_months` (24), `baseline_months` (12), `min_share` (0.5) e
+    `grace_months` (2) seguem a descrição acima.
+
+    Exemplo, conferindo só o mês mais recente:
+
+        - custom_uf_month_completeness:
+            min_share: 0.7
+            window_months: 1
+            grace_months: 0
 #}
 {% test custom_uf_month_completeness(
     model,
