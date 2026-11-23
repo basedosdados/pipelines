@@ -1,7 +1,3 @@
--- materialized dictionary table for br_ms_cnes.
--- O staging é um CSV mantido à mão: códigos novos do DATASUS entram por
--- models/br_ms_cnes/code/update_dicionario.py (--apply). Última inclusão:
--- tipo_equipe 83 (EMCP-Ped, Portaria SAES/MS nº 4.288/2026).
 {{ config(alias="dicionario", schema="br_ms_cnes") }}
 
 select

@@ -142,6 +142,12 @@ NEW_ROWS: list[dict[str, str]] = [
         "chave": "1",
         "valor": "Sim",
     },
+    {
+        "id_tabela": "leito",
+        "nome_coluna": "tipo_especialidade_leito",
+        "chave": "96",
+        "valor": "Suporte Ventilatório Pulmonar",
+    },
 ]
 
 # Rótulos do código de 4 dígitos do equipamento (2 do tipo + 2 do equipamento).
@@ -320,6 +326,223 @@ CODIGO_EQUIPAMENTO: dict[str, str] = {
     "0679": "veiculo pick-up cabine dupla 4x4 (diesel)",
 }
 
+SIGTAP_LABELS: dict[tuple[str, str], dict[str, str]] = {
+    ("habilitacao", "tipo_habilitacao"): {
+        "406": "Serviço de Especialidade em Saúde Bucal",
+        "638": "CENTRO DE CONVIVÊNCIA BÁSICO",
+        "639": "CENTRO DE CONVIVÊNCIA INTERMEDIÁRIO",
+        "640": "CENTRO DE CONVIVÊNCIA AMPLIADO",
+        "815": "Implante Percutâneo de Válvula Aórtica (TAVI)",
+        "1420": (
+            "Hospital de Referência à Gestação e ao Puerpério de Alto Risco "
+            "-HGPAR"
+        ),
+        "1515": "Incremento financeiro à Terapia Renal Substitutiva - TRS",
+        "1618": "Neurocirurgia Endovascular/Trombectomia Mecanica",
+        "1722": "Tratamentos Integrados Sincrônicos em Oncologia",
+        "2308": (
+            "Serviço de Referência em Tratamento da Pessoa com Falência "
+            "Intestinal"
+        ),
+        "2436": "Incremento Financeiro SNT TMO Nível A",
+        "2437": "Incremento Financeiro SNT TMO Nível B",
+        "2438": "Incremento Financeiro SNT TMO Nível C",
+        "2439": "Incremento Financeiro SNT TMO Nível D",
+        "2440": "Incremento Financeiro SNT TMO Nível E",
+        "2441": "Incremento Financeiro SNT Pâncreas Nível A",
+        "2442": "Incremento Financeiro SNT Pâncreas Nível B",
+        "2443": "Incremento Financeiro SNT Pâncreas Nível C",
+        "2446": "Incremento Financeiro SNT Rim Nível A",
+        "2447": "Incremento Financeiro SNT Rim Nível B",
+        "2448": "Incremento Financeiro SNT Rim Nível C",
+        "2449": "Incremento Financeiro SNT Rim Nível D",
+        "2450": "Incremento Financeiro SNT Rim Nível E",
+        "2451": "Incremento Financeiro SNT Fígado Nível A",
+        "2452": "Incremento Financeiro SNT Fígado Nível B",
+        "2453": "Incremento Financeiro SNT Fígado Nível C",
+        "2454": "Incremento Financeiro SNT Fígado Nível D",
+        "2455": "Incremento Financeiro SNT Fígado Nível E",
+        "2456": "Incremento Financeiro SNT Pulmão Nível A",
+        "2458": "Incremento Financeiro SNT Pulmão Nível C",
+        "2461": "Incremento Financeiro SNT Coração Nível A",
+        "2462": "Incremento Financeiro SNT Coração Nível B",
+        "2463": "Incremento Financeiro SNT Coração Nível C",
+        "2464": "Incremento Financeiro SNT Coração Nível D",
+        "2465": "Incremento Financeiro SNT Coração Nível E",
+        "2466": "Transplante de intestino delgado ou multivisceral",
+        "2467": "Transplante de Membrana Amniótica",
+        "2468": "Banco de Multitecidos",
+        "2469": "Transplante Pediátrico Tipo I",
+        "2470": "Transplante Pediátrico Tipo II",
+        "2471": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado com HLA haploidêntico"
+        ),
+        "2472": (
+            "Transplante de Células Progenitoras Hematopoéticas Autólogo "
+            "Pediátrico I"
+        ),
+        "2473": (
+            "Transplante de Células Progenitoras Hematopoéticas Autólogo "
+            "Pediátrico II"
+        ),
+        "2474": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Idêntico Pediátrico I"
+        ),
+        "2475": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Idêntico Ped II"
+        ),
+        "2476": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Haploidêntico - Ped I"
+        ),
+        "2477": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Haploidêntico Ped II"
+        ),
+        "2478": (
+            "Transplante de Células Progenitoras Hematopoéticas Não "
+            "Aparentado Pediátrico I"
+        ),
+        "2479": (
+            "Transplante de Células Progenitoras Hematopoéticas Não "
+            "Aparentado Pediátrico II"
+        ),
+        "2482": "Transplante de Rim - Pediátrico Tipo I",
+        "2483": "Transplante de Rim - Pediátrico Tipo II",
+        "2484": "Transplante de Fígado - Pediátrico Tipo I",
+        "2485": "Transplante de Fígado - Pediátrico Tipo II",
+        "2486": "Transplante de Pulmão - Pediátrico Tipo I",
+        "2487": "Transplante de Pulmão - Pediátrico Tipo II",
+        "2488": "Transplante de Coração - Pediátrico Tipo I",
+        "2489": "Transplante de Coração - Pediátrico Tipo II",
+        "2490": (
+            "Transplante de Intestino Delgado ou Multivisceral - Pediátrico "
+            "Tipo I"
+        ),
+        "2902": "Programa Mais Acesso a Especialistas - Componente Cirurgias",
+        "3516": "Terapia Génica",
+        "3801": "Programa Mais Acesso a Especialistas",
+        "3803": "Agora Tem Especialistas Modalidade 2 Equipes Volantes",
+        "3804": "Agora Tem Especialistas Modalidade 3 Unidades Móveis",
+        "3805": "Agora Tem Especialistas - Componente Créditos Financeiro",
+        "3806": "Agora Tem Especialistas - Componente Ressarcimento ao SUS",
+        "3807": (
+            "Componente Acesso à Radioterapia do Programa Agora Tem "
+            "Especialistas"
+        ),
+        "3808": "Agora Tem Especialistas - Teleatendimento em Saúde Mental",
+        "3811": "Agora tem Especialistas 3 Unidade Móvel Exame de Imagem",
+        "3812": "Agora tem Especialistas 3 Unidade Móvel Oftalmologia",
+        "3813": "Agora tem Especialistas 3 Unidade Móvel Saúde da Mulher",
+        "3814": "Agora tem Especialistas 3 Unidade Móvel Cardiologia",
+        "3815": "Agora tem Especialistas 3 Unidade Móvel Saúde Bucal",
+    },
+    ("servico_especializado", "tipo_servico_especializado"): {
+        "171": "Cuidados Paliativos",
+        "172": "Atenção ao Luto Materno e Parental",
+        "175": "Cirúrgia Robótica",
+    },
+    ("servico_especializado", "subtipo_servico_especializado"): {
+        "112007": (
+            "Ambulatório de Seguimento do RN e Criança Egresso de Unidade "
+            "Neonatal"
+        ),
+        "112008": "Ambulatório  de Gestação e Puerpério de Alto Risco",
+        "114008": "Odontopediatria",
+        "114009": "Disfunsão temporomandibular",
+        "114010": "Estomatologia",
+        "114011": "Implantodondia",
+        "114012": "Odontogeriatria",
+        "114013": "Ortodontia",
+        "114014": "Prótese Dentária",
+        "114015": "Radiologia Odontológica e Imaginologia",
+        "114016": "Acupuntura na Odontologia",
+        "114017": "Ortopedia funcional dos maxilares",
+        "114018": "Odontologia hospitalar",
+        "114019": "Patologia Oral e Máxilo Fácial",
+        "114020": "Prótese Buco Maxilo Facial",
+        "115010": (
+            "DESINST de Pessoas com Transtorno  Mental em Conflito com a Lei"
+        ),
+        "115011": "Promoção da Saúde Mental, Protagonismo e Cidadania",
+        "125010": "Manipulação, Reconstituição e Diluição de Medicamentos",
+        "141005": "Vigilância de Zoonoses",
+        "154003": "Banco de Multitecidos",
+        "160004": "TELEDIAGNOSTICO",
+        "160005": "TELE-EDUCACAO",
+        "160006": "TELECONSULTA",
+        "160007": "TELEMONITORAMENTO",
+        "160008": "TELEORIENTACAO",
+        "160009": "TELEINTERCONSULTA",
+        "160010": "TELETRIAGEM",
+        "160011": "TELERREGULACAO",
+        "164012": "Confecção de OPM Auxiliares de Locomoção e Ortopédicas",
+        "168003": "Terapia Génica",
+        "171001": "Abordagem Paliativa",
+        "171002": "Apoio Matricial em Cuidados Paliativos",
+        "171003": "Cuidados Paliativos Especializados",
+        "172001": "Assistência Multiprofissional ao luto materno e parental",
+        "175001": "Prostatectomia",
+    },
+    ("servico_especializado", "tipo_servico_especializado_unico"): {
+        "171": "Cuidados Paliativos",
+        "172": "Atenção ao Luto Materno e Parental",
+        "175": "Cirúrgia Robótica",
+    },
+}
+
+NO_MEANING_LABEL = (
+    "Código {}: sem significado nas fontes oficiais (nota da BD)"
+)
+
+CODES_WITHOUT_MEANING: dict[tuple[str, str], list[str]] = {
+    ("estabelecimento", "tipo_unidade"): ["16"],
+    ("incentivos", "tipo_habilitacao"): [
+        "8116",
+        "8117",
+        "8119",
+        "8121",
+        "8122",
+        "8123",
+        "8124",
+        "8125",
+        "8126",
+        "8127",
+        "8256",
+        "8257",
+        "8258",
+        "8259",
+        "8260",
+        "8263",
+        "8264",
+        "8266",
+        "8267",
+        "8268",
+        "8269",
+        "8270",
+        "8271",
+        "8272",
+        "8273",
+        "8274",
+        "8275",
+        "8276",
+        "8277",
+        "8278",
+        "8279",
+        "8280",
+        "8285",
+        "8286",
+        "8287",
+        "8288",
+        "8290",
+        "8291",
+    ],
+    ("servico_especializado", "subtipo_servico_especializado"): ["170002"],
+}
+
 # Rótulos que substituem tapa-buracos já presentes no dicionário — as chaves
 # 77 a 81 foram registradas com o valor literal "Não encontrado nos dicionários
 # oficiais" só para o `custom_dictionary_coverage` passar. Procedência:
@@ -353,6 +576,7 @@ REPLACE_ROWS: dict[tuple[str, str, str], str] = {
     ("equipe", "tipo_equipe", "81"): (
         "EqAE - Equipe de Atenção Especializada"
     ),
+    ("estabelecimento", "tipo_unidade", "16"): NO_MEANING_LABEL.format("16"),
 }
 
 
@@ -372,11 +596,13 @@ def load_staging_dictionary() -> pd.DataFrame:
 
 
 def candidate_rows() -> list[dict[str, str]]:
-    """Junta as linhas declaradas uma a uma com os rótulos de 4 dígitos.
+    """Junta as linhas declaradas uma a uma com as declaradas por coluna.
 
     `NEW_ROWS` traz `id_tabela` e `nome_coluna` por linha porque cobre tabelas
-    e colunas diferentes. `CODIGO_EQUIPAMENTO` é sempre a mesma coluna da mesma
-    tabela, então só declara chave e valor, e os dois campos entram aqui.
+    e colunas diferentes. `CODIGO_EQUIPAMENTO`, `SIGTAP_LABELS` e
+    `CODES_WITHOUT_MEANING` agrupam as chaves por coluna, e os dois campos
+    entram aqui. Os códigos de `CODES_WITHOUT_MEANING` recebem o rótulo de
+    `NO_MEANING_LABEL`.
 
     Returns:
         Linhas no formato de `NEW_ROWS`, ainda sem `cobertura_temporal`.
@@ -390,7 +616,27 @@ def candidate_rows() -> list[dict[str, str]]:
         }
         for chave, valor in CODIGO_EQUIPAMENTO.items()
     ]
-    return NEW_ROWS + codigo_equipamento
+    sigtap = [
+        {
+            "id_tabela": table_and_column[0],
+            "nome_coluna": table_and_column[1],
+            "chave": chave,
+            "valor": valor,
+        }
+        for table_and_column, labels in SIGTAP_LABELS.items()
+        for chave, valor in labels.items()
+    ]
+    without_meaning = [
+        {
+            "id_tabela": table_and_column[0],
+            "nome_coluna": table_and_column[1],
+            "chave": chave,
+            "valor": NO_MEANING_LABEL.format(chave),
+        }
+        for table_and_column, chaves in CODES_WITHOUT_MEANING.items()
+        for chave in chaves
+    ]
+    return NEW_ROWS + codigo_equipamento + sigtap + without_meaning
 
 
 def add_rows(atual: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
