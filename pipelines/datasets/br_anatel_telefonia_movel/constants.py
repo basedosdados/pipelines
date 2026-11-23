@@ -45,7 +45,13 @@ class constants(Enum):
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0",
     }
 
-    URL = "https://dados.gov.br/api/publico/conjuntos-dados/acessos-autorizadas-smp"
+    API_URL = "https://dados.gov.br/api/publico/conjuntos-dados/acessos-autorizadas-smp"
+
+    RESOURCE_FORMAT = "CSV"
+
+    MICRODADOS_FILE_PATTERN = r"Acessos_Telefonia_Movel_\d{4}_[12]S\.csv"
+
+    DENSIDADE_FILE = "Densidade_Telefonia_Movel.csv"
 
     INPUT_PATH = "/tmp/data/input/"
 
