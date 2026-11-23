@@ -1,7 +1,7 @@
 """Register world_noaa_ghcn metadata in the Data Basis backend.
 
-    python models/world_noaa_ghcn/code/register_metadata.py --env staging
-    python models/world_noaa_ghcn/code/register_metadata.py --env prod
+    uv run models/world_noaa_ghcn/code/register_metadata.py --env staging
+    uv run models/world_noaa_ghcn/code/register_metadata.py --env prod
 
 Idempotent by construction: every create_update_* call is passed the existing
 record's id when one is found, because these endpoints are NOT idempotent
@@ -17,27 +17,12 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
-import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-# The databasis MCP server is a plain Python module; importing it calls the same
-# code the mcp__databasis__* tools do. Its checkout is outside this repo, so its
-# location comes from BD_MCP_PATH rather than a hardcoded home directory.
-_MCP_PATH = os.environ.get(
-    "BD_MCP_PATH",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if not Path(_MCP_PATH).is_dir():
-    raise SystemExit(
-        f"databasis MCP checkout not found at {_MCP_PATH!r}. "
-        "Set BD_MCP_PATH to its location."
-    )
-sys.path.insert(0, _MCP_PATH)
-
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ARCH = Path(__file__).parent / "architecture"
 DATASET_SLUG = "ghcn_daily"
@@ -79,9 +64,9 @@ def _lookup(category: str, slugs: tuple[str, ...], env: str) -> str:
     """Resolve a reference id, trying each slug the environments may use."""
     for slug in slugs:
         try:
-            return server.lookup_id(category=category, slug=slug, env=env)[
-                "id"
-            ]
+            return bd_mcp_metadata.lookup_id(
+                category=category, slug=slug, env=env
+            )["id"]
         except RuntimeError:
             continue
     raise RuntimeError(f"{category} not found in {env} under any of {slugs}")
@@ -332,9 +317,9 @@ def existing_latest(update_id: str | None, env: str) -> str:
     """
     if update_id:
         q = "query($id: ID!) { allUpdate(id: $id) { edges { node { latest } } } }"
-        edges = server._gql(q, {"id": update_id}, env=env)["allUpdate"][
-            "edges"
-        ]
+        edges = bd_mcp_metadata._gql(q, {"id": update_id}, env=env)[
+            "allUpdate"
+        ]["edges"]
         if edges and edges[0]["node"].get("latest"):
             return edges[0]["node"]["latest"]
     return datetime.now(UTC).isoformat()
@@ -390,14 +375,14 @@ def main() -> None:
 
     gcp_project = "basedosdados-dev" if env == "staging" else "basedosdados"
     ids = resolve(env)
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = account["id"] if isinstance(account, dict) else account
     print("authenticated as", account_id)
 
-    status = server.discover_ids(env=env, keys=["status"])["status"]
-    existing = server.get_dataset(DATASET_SLUG, env=env)
+    status = bd_mcp_metadata.discover_ids(env=env, keys=["status"])["status"]
+    existing = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
 
-    ds_id = server.create_update_dataset(
+    ds_id = bd_mcp_write.create_update_dataset(
         id=existing.get("id") if existing.get("found") else None,
         slug=DATASET_SLUG,
         organization_ids=[ids["organization"]],
@@ -412,11 +397,11 @@ def main() -> None:
 
     prev_raw = {
         r.get("url"): r.get("id")
-        for r in server.get_raw_data_sources(DATASET_SLUG, env=env)
+        for r in bd_mcp_write.get_raw_data_sources(DATASET_SLUG, env=env)
     }
     raw_ids = []
     for rs in RAW_SOURCES:
-        r = server.create_update_raw_data_source(
+        r = bd_mcp_write.create_update_raw_data_source(
             id=prev_raw.get(rs["url"]),
             dataset_id=ds_id,
             license_id=ids["license"],
@@ -427,19 +412,21 @@ def main() -> None:
         raw_ids.append(r["id"] if isinstance(r, dict) else r)
     print("raw data sources", raw_ids)
 
-    existing = server.get_dataset(DATASET_SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     for table in TABLE_ORDER:
         spec = TABLES[table]
         prev = existing.get("tables", {}).get(table, {})
-        t = server.create_update_table(
+        t = bd_mcp_write.create_update_table(
             id=prev.get("id"),
             slug=table,
             dataset_id=ds_id,
             status_id=status["published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # pyrefly: ignore [bad-argument-type]
             auxiliary_files_url=AUXILIARY_FILES_URL.get(table),
             env=env,
+            # pyrefly: ignore [bad-argument-type]
             **{
                 k: v
                 for k, v in spec.items()
@@ -449,7 +436,7 @@ def main() -> None:
         tid = t["id"] if isinstance(t, dict) else t
         print(f"  table {table} -> {tid}")
 
-        server.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=tid, columns_json=columns_json(table), env=env
         )
 
@@ -460,7 +447,7 @@ def main() -> None:
         }
         for entity_key, col in spec["observation_levels"]:
             entity_id = ids[f"entity_{entity_key}"]
-            o = server.create_update_observation_level(
+            o = bd_mcp_write.create_update_observation_level(
                 id=prev_ols.get(entity_id),
                 table_id=tid,
                 entity_id=entity_id,
@@ -473,12 +460,12 @@ def main() -> None:
         # default to False, so is_partition must be re-passed here.
         cols = {
             c["name"]: c["id"]
-            for c in server.get_dataset(DATASET_SLUG, env=env)["tables"][
-                table
-            ]["columns"]
+            for c in bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)[
+                "tables"
+            ][table]["columns"]
         }
         for col, oid in ol_ids.items():
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=cols[col],
                 column_name=col,
                 table_id=tid,
@@ -487,7 +474,7 @@ def main() -> None:
                 env=env,
             )
         if table == "observation":
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=cols["year"],
                 column_name="year",
                 table_id=tid,
@@ -495,7 +482,7 @@ def main() -> None:
                 env=env,
             )
 
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=(prev.get("cloud_tables") or [{}])[0].get("id"),
             table_id=tid,
             gcp_project_id=gcp_project,
@@ -504,7 +491,7 @@ def main() -> None:
             env=env,
         )
 
-        cov = server.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=(prev.get("coverages") or [{}])[0].get("id"),
             table_id=tid,
             area_id=ids["area"],
@@ -517,7 +504,7 @@ def main() -> None:
                 if prev.get("coverages")
                 else None
             )
-            server.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 id=(ranges or [{}])[0].get("id") if ranges else None,
                 coverage_id=cov_id,
                 start_year=1763,
@@ -533,7 +520,7 @@ def main() -> None:
         # advanced it would make the recurring pipeline poll green while
         # ingesting nothing. Only stamp it when creating the record.
         prev_update = (prev.get("updates") or [{}])[0]
-        server.create_update_update(
+        bd_mcp_write.create_update_update(
             id=prev_update.get("id"),
             table_id=tid,
             # NCEI rewrites the current year daily and reconstructs the whole
@@ -544,16 +531,18 @@ def main() -> None:
             latest=existing_latest(prev_update.get("id"), env),
             env=env,
         )
-        server.create_update_table(
+        bd_mcp_write.create_update_table(
             id=tid,
             slug=table,
             dataset_id=ds_id,
             status_id=status["published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # pyrefly: ignore [bad-argument-type]
             auxiliary_files_url=AUXILIARY_FILES_URL.get(table),
             raw_data_source_ids=raw_ids,
             env=env,
+            # pyrefly: ignore [bad-argument-type]
             **{
                 k: v
                 for k, v in spec.items()
@@ -561,7 +550,7 @@ def main() -> None:
             },
         )
 
-    server.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
     )
     print("done.")

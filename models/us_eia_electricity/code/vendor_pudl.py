@@ -1,6 +1,6 @@
 """Vendor the PUDL extraction maps and code vocabularies into this repo.
 
-    python vendor_pudl.py --pudl-src ~/Downloads/us_eia_electricity_data/ref/pudl
+    uv run models/us_eia_electricity/code/vendor_pudl.py --pudl-src ~/Downloads/us_eia_electricity_data/ref/pudl
 
 The Public Utility Data Liberation project (Catalyst Cooperative, MIT licence)
 has already solved the two hard parts of reading the EIA-860 and EIA-923 form
@@ -105,7 +105,9 @@ def vendor_codes(pudl_src: Path) -> None:
     """
     path = pudl_src / "src/pudl/metadata/codes.py"
     spec = importlib.util.spec_from_file_location("_pudl_codes", path)
+    # pyrefly: ignore [bad-argument-type]
     module = importlib.util.module_from_spec(spec)
+    # pyrefly: ignore [missing-attribute]
     spec.loader.exec_module(module)
     everything = {**module.CODE_METADATA, **module.DISABLED_CODE_METADATA}
 

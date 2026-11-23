@@ -15,8 +15,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
 from pipelines.datasets.us_dot_bts_ontime.utils import (
     _session,
     download_lookups,

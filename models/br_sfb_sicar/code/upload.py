@@ -2,7 +2,7 @@
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      uv run python models/br_sfb_sicar/code/upload.py [--env dev|prod] [table ...]
+      uv run models/br_sfb_sicar/code/upload.py [--env dev|prod] [table ...]
 
 Data lives under $CAR_DATA/output (default ~/Downloads/br_sfb_sicar_data/output),
 hive-partitioned by data (snapshot) + sigla_uf. Uploads smallest first, stops on

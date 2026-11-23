@@ -16,7 +16,7 @@ unique if and only if `unitid` is unique within each cohort file, which is
 Writes code/validation_report.json and code/sparse_columns.json.
 
 Usage:
-    /tmp/cs_venv/bin/python models/us_ed_college_scorecard/code/validate_output.py
+    uv run models/us_ed_college_scorecard/code/validate_output.py
 """
 
 import csv
@@ -28,9 +28,7 @@ import sys
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-import spec
+from models.us_ed_college_scorecard.code import spec
 
 CODE_DIR = pathlib.Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
@@ -75,7 +73,6 @@ def duplicate_keys(table, key):
     for path in partition_files(table):
         keyed = pq.read_table(path, columns=key)
         parts = [
-            # pyrefly: ignore [missing-attribute]
             pc.fill_null(pc.cast(keyed.column(c), "string"), "\x00")
             for c in key
         ]

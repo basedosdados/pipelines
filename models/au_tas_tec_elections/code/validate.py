@@ -7,7 +7,7 @@ the division totals. On a sibling state the same check caught a "TOTAL FORMAL
 VOTES" row parsed as a candidate, which doubled every district total while leaving
 row counts entirely plausible.
 
-Run: PYTHONPATH=. ~/.venvs/bd-pipelines-tas/bin/python \
+Run: PYTHONPATH=. uv run \
         models/au_tas_tec_elections/code/validate.py
 """
 

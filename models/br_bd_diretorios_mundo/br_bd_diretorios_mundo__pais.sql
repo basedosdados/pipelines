@@ -1,5 +1,5 @@
 {{ config(alias="pais", schema="br_bd_diretorios_mundo", materialized="table") }}
--- Atualizado em: 2024-06-19
+-- Atualizado em: 2026-10-07 (sigla_iso2 da Namíbia e do Kosovo)
 select
     safe_cast(id_m49 as string) id_m49,
     safe_cast(replace(id_fao, ".0", "") as string) id_fao,

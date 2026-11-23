@@ -87,3 +87,11 @@ class constants(Enum):
         / "code"
         / "architecture"
     )
+
+
+DATASET_ID = constants.DATASET_ID.value
+TABLE_ID = constants.TABLE_ID.value
+# favorecido não tem entry no Enum acima (é um 2º produto do mesmo host,
+# declarado só em `constants.PRODUCTS`) — exposto aqui como constante simples,
+# mesma convenção de DATASET_ID/TABLE_ID.
+FAVORECIDO_TABLE_ID = "favorecido"

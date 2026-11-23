@@ -1,7 +1,7 @@
 """Upload the cleaned us_fhfa_hpi parquet tables to BigQuery.
 
 Usage:
-    uv run python models/us_fhfa_hpi/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run models/us_fhfa_hpi/code/upload.py [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Onboarding
 only ever uploads to dev: the prod tables are materialised by the table-approve

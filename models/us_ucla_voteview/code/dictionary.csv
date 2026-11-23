@@ -1,0 +1,20 @@
+table_id,column_name,key,temporal_coverage,value
+votes,cast_code,0,,Not a member of the chamber when the vote was taken
+votes,cast_code,1,,Yea
+votes,cast_code,2,,Paired Yea
+votes,cast_code,3,,Announced Yea
+votes,cast_code,4,,Announced Nay
+votes,cast_code,5,,Paired Nay
+votes,cast_code,6,,Nay
+votes,cast_code,7,,Present (some Congresses)
+votes,cast_code,8,,Present (some Congresses)
+votes,cast_code,9,,Not Voting (abstention)
+members,last_means,0,,Not documented by Voteview
+members,last_means,1,,Elected in a general election
+members,last_means,2,,Elected in a special election
+members,last_means,3,,Elected directly by a state legislature
+members,last_means,5,,Appointed
+members,last_means,6,,Not documented by Voteview
+members,last_means,7,,Not documented by Voteview
+members,conditional,0,,Estimated in the full NOMINATE estimation
+members,conditional,1,,Estimated conditionally (provisional)

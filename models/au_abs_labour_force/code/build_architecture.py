@@ -20,7 +20,7 @@ the national aggregate does not map to a state directory row. The FK is noted in
 observations and can be added in a later PR.
 
 Usage:
-    python models/au_abs_labour_force/code/build_architecture.py
+    uv run models/au_abs_labour_force/code/build_architecture.py
 """
 
 import csv

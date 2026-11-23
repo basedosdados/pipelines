@@ -19,7 +19,10 @@ from pipelines.constants import constants
 from pipelines.utils.metadata.bq import BigQueryReader
 from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import constants as metadata_constants
-from pipelines.utils.metadata.domain import CoverageSpec
+from pipelines.utils.metadata.coverage import (
+    CoverageSpec,
+    coverage_from_backend,
+)
 from pipelines.utils.metadata.poll import (
     check_source_is_ahead_of_table,
     register_source_coverage,
@@ -216,7 +219,7 @@ def register_source_poll_by_size_task(
 def register_table_materialization_task(
     dataset_id: str,
     table_id: str,
-    coverage: CoverageSpec,
+    coverage: CoverageSpec | None = None,
     env: str = "dev",
     bq_project: str = "basedosdados",
     prefect_mode: str = "prod",
@@ -231,16 +234,11 @@ def register_table_materialization_task(
     Args:
         dataset_id: ID do dataset no GCP/BigQuery.
         table_id: ID da tabela no GCP/BigQuery.
-        coverage: especificação da cobertura (`CoverageSpec`), união discriminada
-            pelo campo `tier`:
-            - `AllFree`       — toda a série é pública (free);
-            - `AllBdpro`      — toda a série é BD pro;
-            - `PartBdpro`     — série mista; a parte recente é BD pro e a antiga
-              é liberada após `free_lag` (padrão 6 meses);
-            - `NonHistorical` — cobertura única derivada do `last_modified` da
-              tabela no BQ (sem coluna de data).
-            Os tiers com data exigem `date_column` + `date_format` compatíveis
-            (validados pelo Pydantic).
+        coverage: `CoverageSpec` já validado, se disponível — útil pra
+            disparo manual sobrescrevendo o que está no backend. Quando
+            `None` (padrão), busca do próprio backend
+            (`coverage_from_backend`, ver `pipelines.utils.metadata.coverage`)
+            a partir de `dataset_id`/`table_id`.
         env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
             Gravar em `prod` com dados de um `bq_project` não-produtivo exige que
             a tabela esteja `under_review`.
@@ -254,6 +252,8 @@ def register_table_materialization_task(
     billing = metadata_constants.MODE_PROJECT.value[prefect_mode]
     # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env, billing_project=billing)
+    if coverage is None:
+        coverage = coverage_from_backend(client, dataset_id, table_id)
     bq = BigQueryReader(billing_project_id=billing, bq_project=bq_project)
     register_table_materialization(
         client,

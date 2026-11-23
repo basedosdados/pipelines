@@ -8,8 +8,8 @@ Scratch data lives under ``~/Downloads/us_irs_form990_data`` (never in the repo
 or Dropbox); override with ``FORM990_DATA_DIR``. Run from the repo root with
 ``PYTHONPATH=.``::
 
-    python models/us_irs_form990/code/clean.py efile      # all ZIPs present
-    python models/us_irs_form990/code/clean.py bmf revocation dicionario
+    uv run models/us_irs_form990/code/clean.py efile      # all ZIPs present
+    uv run models/us_irs_form990/code/clean.py bmf revocation dicionario
 
 ``efile`` processes ZIPs in parallel, skips batches whose result JSON already
 exists, and writes ``output/efile_results/<batch>.json`` (counts, skipped form

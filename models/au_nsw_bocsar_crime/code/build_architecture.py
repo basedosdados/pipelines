@@ -8,7 +8,7 @@ reads them for column order; build_columns_json.py reads them for metadata.
 English dataset -> English column names (year/month/date), per
 .claude/rules/data-basis-style.md.
 
-Usage: uv run python models/au_nsw_bocsar_crime/code/build_architecture.py
+Usage: uv run models/au_nsw_bocsar_crime/code/build_architecture.py
 """
 
 import csv

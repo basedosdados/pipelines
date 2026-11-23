@@ -153,11 +153,11 @@ whole prefix.
 ## Rebuilding from scratch
 
 ```bash
-python models/us_fbi_cde/code/build_architecture.py     # architecture CSVs + style checks
-python models/us_fbi_cde/code/build_dicionario.py       # dicionario.csv from the bundles
-python models/us_fbi_cde/code/build_dbt.py              # SQL models + schema.yml
-python models/us_fbi_cde/code/clean.py --workers 3      # ~14 GB in, partitioned parquet out
-uv run python models/us_fbi_cde/code/upload.py          # staging (dev) only
+uv run models/us_fbi_cde/code/build_architecture.py     # architecture CSVs + style checks
+uv run models/us_fbi_cde/code/build_dicionario.py       # dicionario.csv from the bundles
+uv run models/us_fbi_cde/code/build_dbt.py              # SQL models + schema.yml
+uv run models/us_fbi_cde/code/clean.py --workers 3      # ~14 GB in, partitioned parquet out
+uv run models/us_fbi_cde/code/upload.py          # staging (dev) only
 ```
 
 Scratch data lives in `~/Downloads/us_fbi_cde_data/`, never in the repo or

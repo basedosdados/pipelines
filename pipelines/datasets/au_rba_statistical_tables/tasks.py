@@ -1,5 +1,11 @@
-"""Prefect 3 tasks for au_rba_statistical_tables — thin wrappers over utils.py."""
+"""Prefect 3 tasks for au_rba_statistical_tables — thin wrappers over utils.py,
+plus the check_update entry point the staged pipeline dispatches through (see
+the module banner in flows.py).
+"""
 
+import shutil
+import tempfile
+from datetime import date
 from pathlib import Path
 
 from prefect import task
@@ -9,6 +15,7 @@ from pipelines.datasets.au_rba_statistical_tables.utils import (
     download_all,
     write_partitioned,
 )
+from pipelines.utils.stage_dispatch import SourceInspection
 
 
 @task(retries=2, retry_delay_seconds=30)
@@ -54,3 +61,47 @@ def clean_rba(work_dir: str, input_dir: str) -> dict:
     result = {table: str(output_dir / table) for table in counts}
     result["max_publication_date"] = cleaned["max_publication_date"]
     return result
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# get_latest_update — the staged pipeline's check_update entry point.
+#
+# There is no cheap freshness signal for this source: the RBA's "Publication
+# date" stamp lives inside each CSV's own metadata block, not in any index page
+# or HTTP header, so discovering it requires downloading and parsing every
+# file — exactly the same work `extract_and_load` does. A "check_and_download"
+# variant that passed the already-downloaded CSVs through to extract_and_load
+# was considered and dropped: every dataset in this migration uses the same
+# check_update -> extract_and_load shape, even when check_update has to
+# download data to find the reference date. `extract_load_data` (via
+# `clean_rba` in flows.py) downloads and parses again, independently — a
+# duplicated ~220-file download+parse pass accepted in exchange for one
+# uniform pipeline shape across the repo.
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def get_latest_update() -> SourceInspection:
+    """Download every CSV and parse it, solely to read the freshness stamp.
+
+    See the module banner above for why this re-does the same download+parse
+    pass that `extract_and_load` performs on its own, independently.
+
+    Returns:
+        `SourceInspection` with the max "Publication date" across all kept
+        series as `reference_date`. Compared against `Table.Update.latest`
+        (`compare_against="table_update"`), not the default `Coverage` check:
+        the newest coverage date belongs to a forward-dated quarterly
+        expectations series (G3), months ahead of the daily data, which would
+        stall the poll against a plain coverage baseline.
+    """
+    work_dir = tempfile.mkdtemp(prefix="au_rba_statistical_tables_check_")
+    try:
+        input_dir = download_rba(work_dir=work_dir)
+        cleaned = clean_all(Path(input_dir))
+        max_pub = cleaned["max_publication_date"]
+        return SourceInspection(
+            reference_date=date.fromisoformat(max_pub),
+            compare_against="table_update",
+        )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)

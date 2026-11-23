@@ -1,7 +1,7 @@
 """Upload the cleaned parquet to BigQuery staging in basedosdados-dev.
 
-    uv run python upload.py                # every table
-    uv run python upload.py general        # one table
+    uv run upload.py                # every table
+    uv run upload.py general        # one table
 
 Each table's BigQuery row count is checked against the local parquet row count
 and the run stops at the first mismatch, so a partial upload never passes for
@@ -15,11 +15,12 @@ gcs.Client.bucket is pinned to the billing project.
 import sys
 
 import basedosdados as bd
-import constants as c
 import google.cloud.storage as gcs
-import layout
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import layout
 
 BILLING_PROJECT = "basedosdados-dev"
 

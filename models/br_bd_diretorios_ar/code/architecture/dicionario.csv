@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nombre de la tabla que contiene la columna descrita,,no,,,no,,
+nome_coluna,STRING,Nombre de la columna descrita,,no,,,no,,
+chave,STRING,Valor codificado almacenado en la columna,,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal del par clave-valor,,no,,,no,"Vacía en todas las filas: los códigos del Censo 2022 no varían dentro del directorio",
+valor,STRING,Significado del valor codificado,,no,,,no,,

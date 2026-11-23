@@ -1,6 +1,16 @@
 """
 br_ms_sinasc — Microdados do SINASC
 ====================================
+
+**Código legado. Não é mais executado.**
+
+A carga da tabela passou para o flow do Prefect em
+``pipelines/datasets/br_ms_sinasc/``, que baixa, limpa e materializa a série
+inteira. Este arquivo fica como registro de como os anos anteriores foram
+processados — em particular os de 2021 a 2024, que ele produziu. Duas
+diferenças de comportamento em relação ao flow estão documentadas em
+``pipelines/datasets/br_ms_sinasc/README.md``.
+
 Processamento dos microdados do Sistema de Informações sobre Nascidos Vivos
 (SINASC/DATASUS).
 

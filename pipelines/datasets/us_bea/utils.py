@@ -636,7 +636,22 @@ class _StringWriter:
         self.buf = []
 
 
-def _write_dicionario(rows: list[dict], output_dir: Path) -> Path:
+def write_dicionario(output_dir: Path) -> Path:
+    """Build + write the dicionario table (code -> label maps).
+
+    Cheap relative to the other five tables: only ``GetParameterValues``
+    (table/industry/frequency listings), never ``GetData`` — there is no
+    history to page through.
+
+    Args:
+        output_dir: Root output directory; the table lands under
+            ``<output_dir>/dicionario/data.parquet`` (no partitioning — small,
+            and has no date column to partition by).
+
+    Returns:
+        The table's output directory.
+    """
+    rows = build_dicionario_rows()
     tdir = output_dir / "dicionario"
     tdir.mkdir(parents=True, exist_ok=True)
     at = pa.Table.from_pylist(rows, schema=STAGING_SCHEMAS["dicionario"])
@@ -646,64 +661,146 @@ def _write_dicionario(rows: list[dict], output_dir: Path) -> Path:
     return tdir
 
 
-def clean_all(output_dir: Path) -> dict:
-    """Download all six tables from the BEA API and write all-STRING parquet.
-
-    The single entry point the recurring pipeline uses (via
-    :func:`pipelines.datasets.us_bea.tasks.clean_bea`). Streams and flushes in
-    chunks to bound RAM (county alone is ~50M rows).
-
-    Args:
-        output_dir: Root output directory; each table lands under
-            ``<output_dir>/<table>/year=<YYYY>/data-<n>.parquet``.
+# --------------------------------------------------------------------------- #
+# per-table fetch + write (recurring pipeline: one check_update/extract_and_load
+# pair per table_id — see tasks.py/flows.py). Each BEA "dataset" family (NIPA /
+# GDPbyIndustry / Regional) already has its own independent GetData calls, so,
+# unlike a single-archive source, fetching one table here never touches
+# another table's rows — there is nothing shared to slice. The *_latest
+# functions discard rows after scanning (used by check_update to find a
+# reference date); the write_* functions stream the same fetch straight into
+# a `_StringWriter`, flushing in chunks to bound RAM (regional_county alone is
+# ~50M rows) — both independently re-run the same GetData calls, the accepted
+# repo-wide cost of a check_update that needs to download data to find a
+# reference date.
+# --------------------------------------------------------------------------- #
+def nipa_latest_year_month() -> tuple[int, int] | None:
+    """Fetch every NIPA table; return the latest (year, month) among monthly rows.
 
     Returns:
-        Mapping of table slug to output directory, plus ``"max_year_month"`` —
-        the latest ``"YYYY-MM"`` among monthly (frequency M) NIPA rows, which
-        drives the source-update poll. None if no monthly rows are present.
+        The latest ``(year, month)`` among monthly (frequency ``M``) rows
+        across every NIPA ``TableName``, or ``None`` if none are monthly.
     """
-    output_dir = Path(output_dir)
-    result: dict = {}
     max_ym: tuple[int, int] | None = None
-
-    # nipa
-    w = _StringWriter("nipa", output_dir)
     for t in nipa_table_names():
-        rows = fetch_nipa_table(t)
-        for r in rows:
+        for r in fetch_nipa_table(t):
             if r["month"] is not None:
                 ym = (r["year"], int(r["month"]))
                 if max_ym is None or ym > max_ym:
                     max_ym = ym
-        w.add(rows)
+    return max_ym
+
+
+def write_nipa(output_dir: Path) -> Path:
+    """Fetch + write the nipa table.
+
+    Args:
+        output_dir: Root output directory; lands under
+            ``<output_dir>/nipa/year=<YYYY>/data-<n>.parquet``.
+
+    Returns:
+        The table's output directory.
+    """
+    w = _StringWriter("nipa", output_dir)
+    for t in nipa_table_names():
+        w.add(fetch_nipa_table(t))
     w.flush()
     log.info("nipa: %s rows -> %s", f"{w.total:,}", w.dir)
-    result["nipa"] = str(w.dir)
+    return w.dir
 
-    # gdp_by_industry
+
+def gi_latest_year_quarter() -> tuple[int, int] | None:
+    """Fetch every GDPbyIndustry table; return the latest (year, quarter).
+
+    An annual-only row (no quarterly figure yet published for that year)
+    counts as quarter 4 (year-end) — the finest grain actually available for
+    that year, matching the quarter-level granularity of the coverage.
+
+    Returns:
+        The latest ``(year, quarter)`` across every TableID, or ``None`` if
+        the source returned no rows at all.
+    """
+    max_yq: tuple[int, int] | None = None
+    for x in gi_tables():
+        for r in fetch_gi_table(x["key"], (x["desc"] or "").strip()):
+            eff_q = int(r["quarter"]) if r["quarter"] is not None else 4
+            yq = (r["year"], eff_q)
+            if max_yq is None or yq > max_yq:
+                max_yq = yq
+    return max_yq
+
+
+def write_gi(output_dir: Path) -> Path:
+    """Fetch + write the gdp_by_industry table.
+
+    Args:
+        output_dir: Root output directory; lands under
+            ``<output_dir>/gdp_by_industry/year=<YYYY>/data-<n>.parquet``.
+
+    Returns:
+        The table's output directory.
+    """
     w = _StringWriter("gdp_by_industry", output_dir)
     for x in gi_tables():
         w.add(fetch_gi_table(x["key"], (x["desc"] or "").strip()))
     w.flush()
     log.info("gdp_by_industry: %s rows -> %s", f"{w.total:,}", w.dir)
-    result["gdp_by_industry"] = str(w.dir)
+    return w.dir
 
-    # regional_state / regional_county / regional_metro
-    for table, fam in constants.REGIONAL_FAMILIES.value.items():
-        w = _StringWriter(table, output_dir)
-        for t in regional_table_names(fam["prefixes"]):
-            for batch in fetch_regional_table(t, fam["geofips"], fam["level"]):
-                w.add(batch)
-        w.flush()
-        log.info("%s: %s rows -> %s", table, f"{w.total:,}", w.dir)
-        result[table] = str(w.dir)
 
-    # dicionario
-    result["dicionario"] = str(
-        _write_dicionario(build_dicionario_rows(), output_dir)
-    )
+def regional_latest(
+    table_id: str,
+) -> tuple[int | None, tuple[int, int] | None]:
+    """Fetch one regional BEA table family; return its latest reference.
 
-    result["max_year_month"] = (
-        f"{max_ym[0]}-{max_ym[1]:02d}" if max_ym else None
-    )
-    return result
+    Args:
+        table_id: one of ``"regional_state"``, ``"regional_county"``,
+            ``"regional_metro"`` (keys of ``constants.REGIONAL_FAMILIES``).
+
+    Returns:
+        ``(latest_year, latest_year_quarter)``. ``latest_year_quarter`` is
+        only populated for ``"regional_state"`` — the only family with a
+        quarter field — using the same annual-as-Q4 convention as
+        :func:`gi_latest_year_quarter`; ``None`` for county/metro, which are
+        year-level. ``latest_year`` is always populated (or ``None`` if the
+        source returned no rows at all).
+    """
+    fam = constants.REGIONAL_FAMILIES.value[table_id]
+    has_quarter = table_id == "regional_state"
+    max_year: int | None = None
+    max_yq: tuple[int, int] | None = None
+    for t in regional_table_names(fam["prefixes"]):
+        for batch in fetch_regional_table(t, fam["geofips"], fam["level"]):
+            for r in batch:
+                y = r["year"]
+                if max_year is None or y > max_year:
+                    max_year = y
+                if has_quarter:
+                    q = r.get("quarter")
+                    eff_q = int(q) if q is not None else 4
+                    yq = (y, eff_q)
+                    if max_yq is None or yq > max_yq:
+                        max_yq = yq
+    return max_year, max_yq
+
+
+def write_regional(table_id: str, output_dir: Path) -> Path:
+    """Fetch + write one regional BEA table family.
+
+    Args:
+        table_id: one of ``"regional_state"``, ``"regional_county"``,
+            ``"regional_metro"``.
+        output_dir: Root output directory; lands under
+            ``<output_dir>/<table_id>/year=<YYYY>/data-<n>.parquet``.
+
+    Returns:
+        The table's output directory.
+    """
+    fam = constants.REGIONAL_FAMILIES.value[table_id]
+    w = _StringWriter(table_id, output_dir)
+    for t in regional_table_names(fam["prefixes"]):
+        for batch in fetch_regional_table(t, fam["geofips"], fam["level"]):
+            w.add(batch)
+    w.flush()
+    log.info("%s: %s rows -> %s", table_id, f"{w.total:,}", w.dir)
+    return w.dir

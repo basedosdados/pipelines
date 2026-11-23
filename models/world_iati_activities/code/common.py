@@ -12,15 +12,12 @@ and the raw -> clean name mapping; ``gen_architecture.py`` writes them.
 """
 
 import os
-import sys
 from pathlib import Path
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
 REPO_ROOT = CODE_DIR.parents[2]
-# These scripts run from their own directory with bare sibling imports, so the
-# repo root is not otherwise importable.
-sys.path.insert(0, str(REPO_ROOT))
+
 
 DATA_DIR = Path(
     os.environ.get(

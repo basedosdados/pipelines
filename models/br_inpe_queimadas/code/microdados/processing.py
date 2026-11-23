@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-# pyrefly: ignore [missing-import]
 import duckdb
 
 # Último registro já carregado em basedosdados.br_inpe_queimadas.microdados.

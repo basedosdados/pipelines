@@ -3,7 +3,7 @@
 Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they implement.
 
-Run: uv run python models/us_dot_fars/code/gen_dbt.py
+Run: uv run models/us_dot_fars/code/gen_dbt.py
 """
 
 import json
@@ -11,7 +11,12 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from common import ALL_TABLES, DATA_TABLES, REPO_ROOT, load_cols
+from models.us_dot_fars.code.common import (
+    ALL_TABLES,
+    DATA_TABLES,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_dot_fars"
 DATASET = "us_dot_fars"

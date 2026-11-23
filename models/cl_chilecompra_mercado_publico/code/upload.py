@@ -1,6 +1,6 @@
 """Upload cleaned cl_chilecompra_mercado_publico parquet to BigQuery staging.
 
-    uv run python models/cl_chilecompra_mercado_publico/code/upload.py [--env dev] [table ...]
+    uv run models/cl_chilecompra_mercado_publico/code/upload.py [--env dev] [table ...]
 
 Point GOOGLE_APPLICATION_CREDENTIALS at the matching service account; this machine's
 config.toml is provisioned for dev only. Prod table data is materialised by the
@@ -135,7 +135,6 @@ def upload_dicionario(root: Path, billing_project: str) -> int:
         table_id="dicionario",
         bucket_name=billing_project,
         dump_mode="append",
-        source_format="csv",
     )
     client = bigquery.Client(project=billing_project)
     query = (
@@ -163,7 +162,6 @@ def upload_table(
         table_id=table,
         bucket_name=billing_project,
         dump_mode="append",
-        source_format="parquet",
     )
 
     client = bigquery.Client(project=billing_project)

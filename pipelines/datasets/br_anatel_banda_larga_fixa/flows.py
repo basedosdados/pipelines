@@ -1,58 +1,173 @@
-"""
-Flows for br_anatel_banda_larga_fixa — Prefect 3.
+"""Flows do br_anatel_banda_larga_fixa."""
 
-Contexto e decisões do fix de atualização (poll deferido): ver o README.md
-deste diretório.
-"""
+from prefect.schedules import Cron
 
-from prefect import flow
+from pipelines.datasets.br_anatel_banda_larga_fixa.constants import (
+    DATASET_ID,
+    DENSIDADE_BRASIL_TABLE_ID,
+    DENSIDADE_MUNICIPIO_TABLE_ID,
+    DENSIDADE_UF_TABLE_ID,
+    MICRODADOS_TABLE_ID,
+)
+from pipelines.datasets.br_anatel_banda_larga_fixa.tasks import make_pipeline
+from pipelines.utils.flow import flow
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
-from pipelines.crawler.anatel.banda_larga_fixa.flows import (
-    _run_anatel_banda_larga_fixa,
+# ──────────────────────────────────────────────────────────────────────────────
+# microdados
+# check_update: br_anatel_banda_larga_fixa__microdados
+# extract_and_load: br_anatel_banda_larga_fixa__microdados
+# ──────────────────────────────────────────────────────────────────────────────
+
+_microdados_pipeline = make_pipeline(MICRODADOS_TABLE_ID)
+
+
+@flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
+def br_anatel_banda_larga_fixa_microdados_check_update() -> None:
+    _microdados_pipeline.run_check_update()
+
+
+br_anatel_banda_larga_fixa_microdados_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
+)
+br_anatel_banda_larga_fixa_microdados_check_update.deploy_schedules = [
+    Cron("0 15 * * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_microdados_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_anatel_banda_larga_fixa_microdados_download(
+    download_params: dict,
+) -> None:
+    _microdados_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_banda_larga_fixa_microdados_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
+)
+br_anatel_banda_larga_fixa_microdados_download.job_variables = {
+    "memory_limit": "6Gi",
+    "memory_request": "2Gi",
+}
+_microdados_pipeline.extract_load_deployment = (
+    br_anatel_banda_larga_fixa_microdados_download.fn.__name__
 )
 
 
-def _anatel_blf_flow(table_id: str, cron: str | None):
-    @flow(
-        name=f"br_anatel_banda_larga_fixa__{table_id}",
-        log_prints=True,
-        description=f"Dump da tabela {table_id} do dataset br_anatel_banda_larga_fixa.",
+# ──────────────────────────────────────────────────────────────────────────────
+# densidade_brasil
+# check_update: br_anatel_banda_larga_fixa__densidade_brasil
+# extract_and_load: br_anatel_banda_larga_fixa__densidade_brasil
+# ──────────────────────────────────────────────────────────────────────────────
+
+_densidade_brasil_pipeline = make_pipeline(DENSIDADE_BRASIL_TABLE_ID)
+
+
+@flow(
+    name=_densidade_brasil_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_anatel_banda_larga_fixa_densidade_brasil_check_update() -> None:
+    _densidade_brasil_pipeline.run_check_update()
+
+
+br_anatel_banda_larga_fixa_densidade_brasil_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, DENSIDADE_BRASIL_TABLE_ID)
+)
+
+
+@flow(
+    name=_densidade_brasil_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_anatel_banda_larga_fixa_densidade_brasil_download(
+    download_params: dict,
+) -> None:
+    _densidade_brasil_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_banda_larga_fixa_densidade_brasil_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DENSIDADE_BRASIL_TABLE_ID
+)
+_densidade_brasil_pipeline.extract_load_deployment = (
+    br_anatel_banda_larga_fixa_densidade_brasil_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# densidade_uf
+# check_update: br_anatel_banda_larga_fixa__densidade_uf
+# extract_and_load: br_anatel_banda_larga_fixa__densidade_uf
+# ──────────────────────────────────────────────────────────────────────────────
+
+_densidade_uf_pipeline = make_pipeline(DENSIDADE_UF_TABLE_ID)
+
+
+@flow(name=_densidade_uf_pipeline.check_update_flow_name, log_prints=True)
+def br_anatel_banda_larga_fixa_densidade_uf_check_update() -> None:
+    _densidade_uf_pipeline.run_check_update()
+
+
+br_anatel_banda_larga_fixa_densidade_uf_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, DENSIDADE_UF_TABLE_ID
+)
+
+
+@flow(
+    name=_densidade_uf_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_anatel_banda_larga_fixa_densidade_uf_download(
+    download_params: dict,
+) -> None:
+    _densidade_uf_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_banda_larga_fixa_densidade_uf_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DENSIDADE_UF_TABLE_ID
+)
+_densidade_uf_pipeline.extract_load_deployment = (
+    br_anatel_banda_larga_fixa_densidade_uf_download.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# densidade_municipio
+# check_update: br_anatel_banda_larga_fixa__densidade_municipio
+# extract_and_load: br_anatel_banda_larga_fixa__densidade_municipio
+# ──────────────────────────────────────────────────────────────────────────────
+
+_densidade_municipio_pipeline = make_pipeline(DENSIDADE_MUNICIPIO_TABLE_ID)
+
+
+@flow(
+    name=_densidade_municipio_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_anatel_banda_larga_fixa_densidade_municipio_check_update() -> None:
+    _densidade_municipio_pipeline.run_check_update()
+
+
+br_anatel_banda_larga_fixa_densidade_municipio_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE, DENSIDADE_MUNICIPIO_TABLE_ID)
+)
+
+
+@flow(
+    name=_densidade_municipio_pipeline.extract_and_load_flow_name,
+    log_prints=True,
+)
+def br_anatel_banda_larga_fixa_densidade_municipio_download(
+    download_params: dict,
+) -> None:
+    _densidade_municipio_pipeline.run_extract_and_load(download_params)
+
+
+br_anatel_banda_larga_fixa_densidade_municipio_download.deploy_tags = (
+    deploy_tags(
+        DATASET_ID, Etapa.EXTRACT_AND_LOAD, DENSIDADE_MUNICIPIO_TABLE_ID
     )
-    def _flow(
-        dataset_id: str = "br_anatel_banda_larga_fixa",
-        table_id: str = table_id,
-        ano: int | None = None,
-        materialize_after_dump: bool = True,
-        update_metadata: bool = True,
-        target: str = "prod",
-        force_run: bool = False,
-    ) -> None:
-        _run_anatel_banda_larga_fixa(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            ano=ano,
-            materialize_after_dump=materialize_after_dump,
-            update_metadata=update_metadata,
-            target=target,
-            force_run=force_run,
-        )
-
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = (
-        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
-    )
-    return _flow
-
-
-br_anatel_banda_larga_fixa__microdados = _anatel_blf_flow(
-    table_id="microdados", cron="0 15 * * *"
 )
-br_anatel_banda_larga_fixa__densidade_municipio = _anatel_blf_flow(
-    table_id="densidade_municipio", cron=None
-)
-br_anatel_banda_larga_fixa__densidade_brasil = _anatel_blf_flow(
-    table_id="densidade_brasil", cron=None
-)
-br_anatel_banda_larga_fixa__densidade_uf = _anatel_blf_flow(
-    table_id="densidade_uf", cron=None
+_densidade_municipio_pipeline.extract_load_deployment = (
+    br_anatel_banda_larga_fixa_densidade_municipio_download.fn.__name__
 )

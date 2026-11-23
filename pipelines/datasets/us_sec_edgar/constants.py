@@ -12,6 +12,11 @@ class constants(Enum):
 
     DATASET_ID = "us_sec_edgar"
 
+    # The poll/rename anchor table — the same role `CORE_TABLE` plays for
+    # au_geoscape_gnaf/us_bls_oes, datasets that likewise share one
+    # check_update/extract_and_load across every table they produce.
+    CORE_TABLE = "numeric_fact"
+
     # SEC fair-access rules require a descriptive User-Agent carrying a contact
     # address, and no more than 10 requests per second.
     # https://www.sec.gov/os/webmaster-faq#developers

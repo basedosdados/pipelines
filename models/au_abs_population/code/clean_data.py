@@ -10,19 +10,13 @@ never inside the repo or Dropbox -- and is deleted once the onboarding is
 verified. Override with AU_ABS_POPULATION_DATA.
 
 Usage:
-    python clean_data.py [--download]
+    uv run models/au_abs_population/code/clean_data.py [--download]
 """
 
 import argparse
 import os
-import sys
 
-REPO = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..")
-)
-sys.path.insert(0, REPO)
-
-from pipelines.datasets.au_abs_population.utils import (  # noqa: E402
+from pipelines.datasets.au_abs_population.utils import (
     clean_all,
     download_all,
 )

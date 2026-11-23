@@ -1,6 +1,11 @@
 """Architecture for the contratação result and ata de registro de preço tables."""
 
-from arch_common import BRL, DIR_ANO, DIR_UF, c
+from models.br_mgi_compras_publicas.code.arch_common import (
+    BRL,
+    DIR_ANO,
+    DIR_UF,
+    c,
+)
 
 COB_RES = "2021(1)2026"
 COB_ARP = "2023(1)2027"

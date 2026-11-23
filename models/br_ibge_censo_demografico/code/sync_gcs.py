@@ -12,7 +12,7 @@ materialises ``basedosdados.<dataset>.*`` when the onboarding PR merges.
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      uv run python models/br_ibge_censo_demografico/code/sync_gcs.py \
+      uv run models/br_ibge_censo_demografico/code/sync_gcs.py \
         [--skip-staging] [--skip-aux] [--delete-local]
 """
 
@@ -143,7 +143,6 @@ def upload_staging(slugs: list[str]) -> None:
             # Rebuild the prefix and the table from what is on disk, so a
             # rerun is deterministic and a stale native table is replaced.
             dump_mode="overwrite",
-            source_format="csv" if slug == "dicionario" else "parquet",
         )
         found = staging_rows(bq_client, slug)
         if found != expected:

@@ -1,6 +1,6 @@
 """Build the per-table auxiliary-file bundles for us_census_lodes.
 
-    uv run python models/us_census_lodes/code/build_auxiliary_files.py
+    uv run models/us_census_lodes/code/build_auxiliary_files.py
 
 Writes one ZIP per table under ``<LODES_DATA_ROOT>/aux/bundles/``, each with a
 README recording the citation, per-file provenance and download date, plus the
@@ -21,12 +21,8 @@ objects (HTTP 404). That is not specific to this dataset.
 from __future__ import annotations
 
 import shutil
-import sys
 import zipfile
 from datetime import date
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     BASE_URL,

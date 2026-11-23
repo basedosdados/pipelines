@@ -2,19 +2,15 @@
 Flow br_cnj_improbidade_administrativa — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
+from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     get_max_date,
     is_up_to_date,
     main_task,
     write_csv_file,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -37,7 +33,6 @@ def br_cnj_improbidade_administrativa__condenacao(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -87,16 +82,11 @@ def br_cnj_improbidade_administrativa__condenacao(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_propositura"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cnj_improbidade_administrativa__condenacao.deploy_schedules = [
-    {"cron": "0 7 * * 1", "timezone": "America/Sao_Paulo"}
+    Cron("0 7 * * 1", timezone="America/Sao_Paulo")
 ]

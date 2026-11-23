@@ -2,9 +2,7 @@
 
 import csv
 import os
-import sys
 
-sys.path.insert(0, os.getcwd())
 from pipelines.datasets.au_abs_population.constants import constants
 
 OUT = "models/au_abs_population/code/architecture"

@@ -1,0 +1,958 @@
+{
+ "microdatos_individuo": {
+  "COMPONENTE": {
+   "51": "Servicio doméstico en hogares",
+   "71": "Pensionistas en hogares"
+  },
+  "H15": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "TRIMESTRE": {
+   "1": "1er. Trimestre",
+   "2": "2do. Trimestre",
+   "3": "3er. Trimestre",
+   "4": "4to. Trimestre"
+  },
+  "REGION": {
+   "1": "Gran Buenos Aires",
+   "40": "NOA",
+   "41": "NEA",
+   "42": "Cuyo",
+   "43": "Pampeana",
+   "44": "Patagónica"
+  },
+  "AGLOMERADO": {
+   "2": "Gran La Plata",
+   "3": "Bahía Blanca - Cerri",
+   "4": "Gran Rosario",
+   "5": "Gran Santa Fe",
+   "6": "Gran Paraná",
+   "7": "Posadas",
+   "8": "Gran Resistencia",
+   "9": "Comodoro Rivadavia - Rada Tilly",
+   "10": "Gran Mendoza",
+   "12": "Corrientes",
+   "13": "Gran Córdoba",
+   "14": "Concordia",
+   "15": "Formosa",
+   "17": "Neuquén - Plottier",
+   "18": "Santiago del Estero - La Banda",
+   "19": "Jujuy - Palpalá",
+   "20": "Río Gallegos",
+   "22": "Gran Catamarca",
+   "23": "Salta",
+   "25": "La Rioja",
+   "26": "San Luis - El Chorrillo",
+   "27": "Gran San Juan",
+   "29": "Gran Tucumán - Tafí Viejo",
+   "30": "Santa Rosa - Toay",
+   "31": "Ushuaia - Río Grande",
+   "32": "Ciudad de Buenos Aires",
+   "33": "Partidos del GBA",
+   "34": "Mar del Plata - Batán",
+   "36": "Río Cuarto",
+   "38": "San Nicolás - Villa Constitución",
+   "91": "Rawson - Trelew",
+   "93": "Viedma - Carmen de Patagones"
+  },
+  "CH03": {
+   "1": "Jefe",
+   "2": "Cónyuge/Pareja",
+   "3": "Hijo/Hijastro",
+   "4": "Yerno/Nuera",
+   "5": "Nieto",
+   "6": "Madre/Padre",
+   "7": "Suegro",
+   "8": "Hermano",
+   "9": "Otros familiares",
+   "10": "No familiares"
+  },
+  "CH04": {
+   "1": "Varón",
+   "2": "Mujer"
+  },
+  "CH06": {
+   "-1": "Menos de 1 año",
+   "98": "98 y más años",
+   "99": "Ns./Nr."
+  },
+  "CH07": {
+   "1": "Unido",
+   "2": "Casado",
+   "3": "Separado o divorciado",
+   "4": "Viudo",
+   "5": "Soltero",
+   "9": "Ns./Nr."
+  },
+  "CH08": {
+   "1": "Obra social (incluye PAMI)",
+   "2": "Mutual/Prepaga/Servicio de emergencia",
+   "3": "Planes y seguros públicos",
+   "4": "No paga ni le descuentan",
+   "9": "Ns./Nr.",
+   "12": "Obra social y mutual/prepaga/servicio de emergencia",
+   "13": "Obra social y planes y seguros públicos",
+   "23": "Mutual/prepaga/servicio de emergencia/planes y seguros públi",
+   "123": "Obra social, mutual/prepaga/servicio de emergencia y planes"
+  },
+  "CH09": {
+   "1": "Sí",
+   "2": "No",
+   "3": "Menor de 2 años",
+   "9": "Ns./Nr."
+  },
+  "CH10": {
+   "1": "Sí, asiste",
+   "2": "No asiste, pero asistió",
+   "3": "Nunca asistió",
+   "9": "Ns./Nr."
+  },
+  "CH11": {
+   "1": "Público",
+   "2": "Privado",
+   "9": "Ns./Nr."
+  },
+  "CH12": {
+   "1": "Jardín/Preescolar",
+   "2": "Primario",
+   "3": "EGB",
+   "4": "Secundario",
+   "5": "Polimodal",
+   "6": "Terciario",
+   "7": "Universitario",
+   "8": "Posgrado Universitario",
+   "9": "Educación especial (discapacitado)",
+   "99": "Ns./Nr."
+  },
+  "CH13": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "CH15": {
+   "1": "En esta localidad",
+   "2": "En otra localidad",
+   "3": "En otra provincia (especificar)",
+   "4": "En un país limítrofe",
+   "5": "En otro país",
+   "9": "Ns./Nr."
+  },
+  "CH16": {
+   "1": "En esta localidad",
+   "2": "En otra localidad de esta provincia",
+   "3": "En otra provincia (especificar)",
+   "4": "En un país limítrofe",
+   "5": "En otro país",
+   "6": "No había nacido",
+   "9": "Ns./Nr."
+  },
+  "NIVEL_ED": {
+   "1": "Primaria Incompleta (incluye educación especial)",
+   "2": "Primaria Completa",
+   "3": "Secundaria Incompleta",
+   "4": "Secundaria Completa",
+   "5": "Superior Universitaria Incompleta",
+   "6": "Superior Universitaria Completa",
+   "7": "Sin instrucción",
+   "9": "Ns./Nr."
+  },
+  "ESTADO": {
+   "0": "Entrevista individual no realizada (no respuesta al cuestion",
+   "1": "Ocupado",
+   "2": "Desocupado",
+   "3": "Inactivo",
+   "4": "Menor de 10 años"
+  },
+  "CAT_OCUP": {
+   "1": "Patrón",
+   "2": "Cuenta propia",
+   "3": "Obrero o empleado",
+   "4": "Trabajador familiar sin remuneración",
+   "9": "Ns./Nr."
+  },
+  "CAT_INAC": {
+   "1": "Jubilado/pensionado",
+   "2": "Rentista",
+   "3": "Estudiante",
+   "4": "Ama de casa",
+   "5": "Menor de 6 años",
+   "6": "Discapacitado",
+   "7": "Otros"
+  },
+  "PP02C1": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C2": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C3": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C4": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C5": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C6": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C7": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02C8": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02E": {
+   "1": "Está suspendido",
+   "2": "Ya tiene trabajo asegurado",
+   "3": "Se cansó de buscar trabajo",
+   "4": "Hay poco trabajo en esta época del año",
+   "5": "Por otras razones"
+  },
+  "PP02H": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP02I": {
+   "1": "Sí",
+   "2": "No"
+  },
+  "PP03C": {
+   "1": "...un sólo empleo/ocupación/actividad?",
+   "2": "...más de un empleo/ocupación/actividad?",
+   "9": "Ns./Nr."
+  },
+  "PP03G": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr"
+  },
+  "PP03H": {
+   "1": "...podía trabajarlas esa semana?",
+   "2": "...podía empezar a trabajarlas en dos semanas a más tardar?",
+   "3": "...no podía trabajar más horas?",
+   "9": "Ns./Nr."
+  },
+  "PP03I": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP03J": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "INTENSI": {
+   "1": "Subocupación horaria Demandante",
+   "2": "Subocupación horaria No Demandante",
+   "3": "Ocupación plena",
+   "4": "Sobreocupación horaria",
+   "5": "Ocupado que no trabajó en la semana",
+   "9": "Ns./Nr."
+  },
+  "PP04A": {
+   "1": "...estatal?",
+   "2": "...privada?",
+   "3": "...de otro tipo? (especificar)",
+   "9": "Ns./Nr."
+  },
+  "PP04B1": {
+   "1": "Casa de familia"
+  },
+  "PP04C": {
+   "1": "1 persona",
+   "2": "2 personas",
+   "3": "3 personas",
+   "4": "4 personas",
+   "5": "5 personas",
+   "6": "de 6 a 10 personas",
+   "7": "de 11 a 25 personas",
+   "8": "de 26 a 40 personas",
+   "9": "de 41 a 100 personas",
+   "10": "de 101 a 200 personas",
+   "11": "de 201 a 500 personas",
+   "12": "más de 500 personas",
+   "99": "Ns./Nr."
+  },
+  "PP04C99": {
+   "1": "Hasta 5",
+   "2": "De 6 a 40",
+   "3": "Más de 40",
+   "9": "Ns./Nr."
+  },
+  "PP04G": {
+   "1": "En un local/oficina/establecimiento/negocio/taller/chacra/fi",
+   "2": "En puesto o kiosco fijo callejero",
+   "3": "En vehículos: bicicleta/moto/auto/barco/bote (no incluye ser",
+   "4": "En vehículo para transporte de personas y mercaderías-aéreo,",
+   "5": "En obras en construcción, de infraestructura, minería o simi",
+   "6": "En esta vivienda",
+   "7": "En la vivienda del socio o del patrón",
+   "8": "En el domicilio/local de los clientes",
+   "9": "En la calle/espacios públicos/ambulante/de casa en casa/pues",
+   "10": "En otro lugar",
+   "99": "Ns./Nr."
+  },
+  "PP05C_1": {
+   "1": "Propio (del negocio)",
+   "2": "Prestado/alquilado",
+   "3": "No tiene",
+   "9": "Ns./Nr."
+  },
+  "PP05C_2": {
+   "1": "Propio (del negocio)",
+   "2": "Prestado/alquilado",
+   "3": "No tiene",
+   "9": "Ns./Nr."
+  },
+  "PP05C_3": {
+   "1": "Propio (del negocio)",
+   "2": "Prestado/alquilado",
+   "3": "No tiene",
+   "9": "Ns./Nr."
+  },
+  "PP05E": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP05F": {
+   "6": "Un solo cliente? (persona, empresa)",
+   "7": "Distintos clientes? (incluye público en general)",
+   "9": "Ns./Nr."
+  },
+  "PP05H": {
+   "1": "Menos de un mes",
+   "2": "De 1 a 3 meses",
+   "3": "Más de 3 a 6 meses",
+   "4": "Más de 6 meses a 1 año",
+   "5": "Más de 1 a 5 años",
+   "6": "Más de 5 años",
+   "9": "Ns./Nr."
+  },
+  "PP06A": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP06E": {
+   "1": "Es una sociedad jurídicamente constituida? (S.A., S.R.L., Co",
+   "2": "Es una sociedad de otra forma legal?",
+   "3": "O es una sociedad convenida de palabra?",
+   "9": "Ns./Nr."
+  },
+  "PP06H": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07A": {
+   "1": "Menos de un mes",
+   "2": "1 a 3 meses",
+   "3": "Más de 3 a 6 meses",
+   "4": "Más de 6 a 12 meses",
+   "5": "Más de 1 a 5 años",
+   "6": "Más de 5 años",
+   "9": "Ns./Nr."
+  },
+  "PP07C": {
+   "1": "Sí (incluye changa, trabajo transitorio, por tarea u obra, s",
+   "2": "No (Incluye permanente, fijo, estable, de planta)",
+   "9": "Ns./Nr."
+  },
+  "PP07D": {
+   "1": "Sólo fue esa vez/sólo cuando lo llaman",
+   "2": "Hasta 3 meses",
+   "3": "Más de 3 a 6 meses",
+   "4": "Más de 6 a 12 meses",
+   "5": "Más de 1 año",
+   "9": "Ns./Nr."
+  },
+  "PP07E": {
+   "1": "...un plan de empleo?",
+   "2": "...un período de prueba?",
+   "3": "...una beca/pasantía/aprendizaje?",
+   "4": "Ninguno de estos",
+   "9": "Ns./Nr."
+  },
+  "PP07F1": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07F2": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07F3": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07F4": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07F5": {
+   "5": "Si",
+   "9": "Ns./Nr."
+  },
+  "PP07G1": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07G2": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07G3": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07G4": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07G_59": {
+   "1": "Sí",
+   "9": "Ns./Nr."
+  },
+  "PP07H": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07I": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP07J": {
+   "1": "...de día? (mañana/tarde)",
+   "2": "...de noche",
+   "3": "...de otro tipo? (rotativo, día y noche, guardias con franco",
+   "9": "Ns./Nr."
+  },
+  "PP07K": {
+   "1": "...le dan recibo con sello/membrete/firma del empleador?",
+   "2": "...le dan un papel/recibo sin nada?",
+   "3": "...entrega una factura?",
+   "4": "...no le dan ni entrega nada?",
+   "5": "no cobra, es trabajador sin pago, ad-honorem",
+   "9": "Ns./Nr."
+  },
+  "PP09A": {
+   "1": "Ciudad de Buenos Aires",
+   "2": "Partidos del GBA",
+   "3": "Ambos",
+   "4": "En otro lugar",
+   "9": "Ns./Nr."
+  },
+  "PP09B": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP09C": {
+   "1": "En otro lugar de esta provincia",
+   "2": "En otra provincia",
+   "3": "En otro país",
+   "9": "Ns./Nr."
+  },
+  "PP10A": {
+   "1": "...menos de 1 mes?",
+   "2": "...de 1 a 3 meses?",
+   "3": "...más de 3 a 6 meses?",
+   "4": "...más de 6 a 12 meses?",
+   "5": "...más de 1 año?",
+   "9": "Ns./Nr."
+  },
+  "PP10C": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP10D": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP10E": {
+   "1": "...menos de 1 mes?",
+   "2": "...de 1 a 3 meses?",
+   "3": "...más de 3 a 6 meses?",
+   "4": "...más de 6 a 12 meses?",
+   "5": "...más de 1 a 3 años?",
+   "6": "...más de 3 años?",
+   "9": "Ns./Nr."
+  },
+  "PP11A": {
+   "1": "...estatal?",
+   "2": "...privada?",
+   "3": "...de otro tipo?",
+   "9": "Ns./Nr."
+  },
+  "PP11B1": {
+   "1": "Casa de familia",
+   "9": "Ns./Nr."
+  },
+  "PP11C": {
+   "1": "1 persona",
+   "2": "2 personas",
+   "3": "3 personas",
+   "4": "4 personas",
+   "5": "5 personas",
+   "6": "de 6 a 10 personas",
+   "7": "de 11 a 25 personas",
+   "8": "de 26 a 40 personas",
+   "9": "de 41 a 100 personas",
+   "10": "de 101 a 200 personas",
+   "11": "de 201 a 500 personas",
+   "12": "más de 500 personas",
+   "99": "Ns./Nr."
+  },
+  "PP11C99": {
+   "1": "Hasta 5",
+   "2": "De 6 a 40",
+   "3": "Más de 40",
+   "9": "Ns./Nr."
+  },
+  "PP11L": {
+   "1": "Falta de clientes/clientes que no pagan",
+   "2": "Falta de capital/equipamiento",
+   "3": "Trabajo estacional",
+   "4": "Tenía gastos demasiado altos",
+   "5": "Otras causas laborales (especificar)",
+   "6": "Jubilación/retiro",
+   "7": "Causas personales (matrimonio, embarazo, cuidado de hijos o",
+   "9": "Ns./Nr."
+  },
+  "PP11L1": {
+   "1": "...una changa, trabajo transitorio, por tarea u obra, suplen",
+   "2": "...un trabajo permanente, fijo estable, de planta, etc.?",
+   "3": "Ns./Nr."
+  },
+  "PP11M": {
+   "1": "...un plan de empleo?",
+   "2": "...un período de prueba?",
+   "3": "...otro tipo de trabajo?",
+   "9": "Ns./Nr."
+  },
+  "PP11N": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP11O": {
+   "1": "Despido/cierre",
+   "2": "Por retiro voluntario del sector público",
+   "3": "Por jubilación",
+   "4": "Fin del trabajo temporario/estacional",
+   "5": "Le pagaban poco/no le pagaban",
+   "6": "Malas relaciones laborales/malas condiciones de trabajo (ins",
+   "7": "Renuncia obligada/pactada",
+   "8": "Otras causas laborales",
+   "9": "Por razones personales",
+   "99": "Ns./Nr."
+  },
+  "PP11P": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP11Q": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP11R": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP11S": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PP11T": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "PJ1_1": {
+   "1": "Tiene plan jefas y jefes",
+   "9": "Ns./Nr."
+  },
+  "PJ2_1": {
+   "1": "Tiene plan jefas y jefes",
+   "9": "Ns./Nr."
+  },
+  "PJ3_1": {
+   "1": "Tiene plan jefas y jefes",
+   "9": "Ns./Nr."
+  }
+ },
+ "microdatos_hogar": {
+  "REALIZADA": {
+   "1": "Sí",
+   "2": "No (hogar no respuesta)"
+  },
+  "TRIMESTRE": {
+   "1": "1er. Trimestre",
+   "2": "2do. Trimestre",
+   "3": "3er. Trimestre",
+   "4": "4to. Trimestre"
+  },
+  "REGION": {
+   "1": "Gran Buenos Aires",
+   "40": "NOA",
+   "41": "NEA",
+   "42": "Cuyo",
+   "43": "Pampeana",
+   "44": "Patagónica"
+  },
+  "AGLOMERADO": {
+   "2": "Gran La Plata",
+   "3": "Bahía Blanca - Cerri",
+   "4": "Gran Rosario",
+   "5": "Gran Santa Fe",
+   "6": "Gran Paraná",
+   "7": "Posadas",
+   "8": "Gran Resistencia",
+   "9": "Comodoro Rivadavia - Rada Tilly",
+   "10": "Gran Mendoza",
+   "12": "Corrientes",
+   "13": "Gran Córdoba",
+   "14": "Concordia",
+   "15": "Formosa",
+   "17": "Neuquén - Plottier",
+   "18": "Santiago del Estero - La Banda",
+   "19": "Jujuy - Palpalá",
+   "20": "Río Gallegos",
+   "22": "Gran Catamarca",
+   "23": "Salta",
+   "25": "La Rioja",
+   "26": "San Luis - El Chorrillo",
+   "27": "Gran San Juan",
+   "29": "Gran Tucumán - Tafí Viejo",
+   "30": "Santa Rosa - Toay",
+   "31": "Ushuaia - Río Grande",
+   "32": "Ciudad de Buenos Aires",
+   "33": "Partidos del GBA",
+   "34": "Mar del Plata - Batán",
+   "36": "Río Cuarto",
+   "38": "San Nicolás - Villa Constitución",
+   "91": "Rawson - Trelew",
+   "93": "Viedma - Carmen de Patagones"
+  },
+  "IV1": {
+   "1": "Casa",
+   "2": "Departamento",
+   "3": "Pieza de inquilinato",
+   "4": "Pieza en hotel/pensión",
+   "5": "Local no construido para habitación",
+   "6": "Otro"
+  },
+  "IV2": {
+   "99": "Ns./Nr."
+  },
+  "IV3": {
+   "1": "Mosaico/baldosa/madera/cerámica/alfombra",
+   "2": "Cemento/ladrillo fijo",
+   "3": "Ladrillo suelto/tierra",
+   "4": "Otro",
+   "9": "Ns./Nr."
+  },
+  "IV4": {
+   "1": "Membrana/cubierta asfáltica",
+   "2": "Baldosa/losa sin cubierta",
+   "3": "Pizarra/teja",
+   "4": "Chapa de metal sin cubierta",
+   "5": "Chapa de fibrocemento/plástico",
+   "6": "Chapa de cartón",
+   "7": "Caña/tabla/paja con barro/paja sola",
+   "9": "N/S. Depto. de propiedad horizontal"
+  },
+  "IV5": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "IV6": {
+   "1": "Por cañería dentro de la vivienda",
+   "2": "Fuera de la vivienda pero dentro del terreno",
+   "3": "Fuera del terreno",
+   "9": "Ns./Nr."
+  },
+  "IV7": {
+   "1": "Red pública (agua corriente)",
+   "2": "Perforación con bomba a motor",
+   "3": "Perforación con bomba manual",
+   "4": "Otra fuente",
+   "9": "Ns./Nr."
+  },
+  "IV8": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "IV9": {
+   "1": "Dentro de la vivienda",
+   "2": "Fuera de la vivienda pero dentro del terreno",
+   "3": "Fuera del terreno",
+   "9": "Ns./Nr."
+  },
+  "IV10": {
+   "1": "Inodoro con botón/mochila/cadena y arrastre de agua",
+   "2": "Inodoro sin botón/cadena y con arrastre de agua",
+   "3": "Letrina (sin arrastre de agua)",
+   "9": "Ns./Nr."
+  },
+  "IV11": {
+   "1": "A red pública (cloaca)",
+   "2": "A cámara séptica y pozo ciego",
+   "3": "Sólo a pozo ciego",
+   "4": "A hoyo/excavación en la tierra",
+   "9": "Ns/Nr"
+  },
+  "IV12_1": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "IV12_2": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "IV12_3": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II1": {
+   "99": "Ns./Nr."
+  },
+  "II2": {
+   "99": "Ns./Nr."
+  },
+  "II3": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II4_1": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II4_2": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II4_3": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II5": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II6": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "II7": {
+   "1": "Propietario de la vivienda y el terreno",
+   "2": "Propietario de la vivienda solamente",
+   "3": "Inquilino/arrendatario de la vivienda",
+   "4": "Ocupante por pago de impuestos/expensas",
+   "5": "Ocupante en relación de dependencia",
+   "6": "Ocupante gratuito (con permiso)",
+   "7": "Ocupante de hecho (sin permiso)",
+   "8": "Está en sucesión",
+   "9": "Otra situación",
+   "99": "Ns./Nr."
+  },
+  "II8": {
+   "1": "Gas de red",
+   "2": "Gas de tubo/garrafa",
+   "3": "Kerosene/leña/carbón",
+   "4": "Otro",
+   "9": "Ns./Nr."
+  },
+  "II9": {
+   "1": "Uso exclusivo del hogar",
+   "2": "Compartido con otro/s hogar/es de la misma vivienda",
+   "3": "Compartido con otra/s vivienda/s",
+   "4": "No tiene baño",
+   "9": "Ns./Nr."
+  },
+  "V1": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V2": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V21": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V22": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V3": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V4": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V5": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V6": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V7": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V8": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V9": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V10": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V11": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V12": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V13": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V14": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V15": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V16": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V17": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V18": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V19_A": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "V19_B": {
+   "1": "Sí",
+   "2": "No",
+   "9": "Ns./Nr."
+  },
+  "VII1_1": {
+   "96": "Servicio doméstico",
+   "97": "Otra persona que no vive en el hogar",
+   "99": "Ns./Nr."
+  },
+  "VII1_2": {
+   "96": "Servicio doméstico",
+   "97": "Otra persona que no vive en el hogar",
+   "98": "Ninguna",
+   "99": "Ns./Nr."
+  },
+  "VII2_1": {
+   "96": "Servicio doméstico",
+   "97": "Otra persona que no vive en el hogar",
+   "99": "Ns./Nr."
+  },
+  "VII2_2": {
+   "96": "Servicio doméstico",
+   "97": "Otra persona que no vive en el hogar",
+   "98": "Ninguna",
+   "99": "Ns./Nr."
+  },
+  "VII2_3": {
+   "96": "Servicio doméstico",
+   "97": "Otra persona que no vive en el hogar",
+   "98": "Ninguna",
+   "99": "Ns./Nr."
+  },
+  "VII2_4": {
+   "96": "Servicio doméstico",
+   "97": "Otra persona que no vive en el hogar",
+   "98": "Ninguna",
+   "99": "Ns./Nr."
+  }
+ }
+}

@@ -12,6 +12,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent__(data_extracao)
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - data_extracao
@@ -19,10 +21,64 @@ models:
             - id_municipio
             - id_cobrade
             - data_ocorrencia
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: >-
           Data em que o retrato do relatório foi extraído da fonte
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent__(data_extracao)
+      - name: id_municipio
+        description: >-
+          Identificador do município no IBGE
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent__(data_extracao)
+      - name: id_cobrade
+        description: >-
+          Código COBRADE da tipologia do desastre
+      - name: nome_cobrade
+        description: >-
+          Nome da tipologia do desastre segundo a classificação COBRADE
+      - name: situacao
+        description: >-
+          Situação reconhecida pelo governo federal
+      - name: data_ocorrencia
+        description: >-
+          Data de ocorrência do desastre
+      - name: data_vigencia
+        description: >-
+          Data final de vigência do reconhecimento federal
+  - name: br_sedec_desastres__reconhecimentos_realizados
+    description: >
+      Reconhecimentos federais de situação de emergência e estado de calamidade
+      pública realizados desde 2013, registrados no S2ID pela SEDEC/MIDR. Cada
+      linha é o reconhecimento de um município por uma portaria, com o decreto
+      municipal, a tipologia do desastre e a publicação no Diário Oficial da
+      União. Cobertura nacional. A fonte repete algumas linhas de forma
+      idêntica, e a tabela as mantém como vêm, por isso não há chave única.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.9
+      - dbt_utils.expression_is_true:
+          expression: ano = extract(year from data_dou)
+    columns:
+      - name: ano
+        description: >-
+          Ano de publicação da portaria no Diário Oficial da União
         tests: [not_null]
       - name: sigla_uf
         description: >-
@@ -47,10 +103,29 @@ models:
           Nome da tipologia do desastre segundo a classificação COBRADE
       - name: situacao
         description: >-
-          Situação reconhecida pelo governo federal
-      - name: data_ocorrencia
+          Situação reconhecida pelo governo federal, de emergência ou de
+          calamidade pública
+      - name: rito
         description: >-
-          Data de ocorrência do desastre
-      - name: data_vigencia
+          Rito do processo de reconhecimento
+      - name: numero_decreto
         description: >-
-          Data final de vigência do reconhecimento federal
+          Número do decreto municipal ou estadual que declarou a situação
+      - name: data_decreto
+        description: >-
+          Data do decreto municipal ou estadual que declarou a situação
+      - name: numero_portaria
+        description: >-
+          Número da portaria federal de reconhecimento
+      - name: data_portaria
+        description: >-
+          Data da portaria federal de reconhecimento
+      - name: numero_dou
+        description: >-
+          Número da edição do Diário Oficial da União que publicou a portaria
+      - name: data_dou
+        description: >-
+          Data da edição do Diário Oficial da União que publicou a portaria
+      - name: numero_processo
+        description: >-
+          Número do processo de reconhecimento

@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+congress,INT64,"Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)",,no,,,no,"Ordinal Congress number, starting at 1 in 1789. Each Congress spans two years. Partition column of the partitioned tables",congress
+chamber,STRING,"Chamber: House, Senate or President",,no,,,no,,chamber
+rollnumber,STRING,Sequential number of the roll call within the Congress and chamber,,no,,,no,"Starts at 1 in the first roll call of each Congress. Excludes quorum calls and vacated votes, so it does not match clerk_rollnumber. Stored as text: cast to INT64 to sort numerically",rollnumber
+date,DATE,Date of the roll call,,no,,,no,"Not in the Voteview votes file. Added by Data Basis from the rollcalls table (congress, chamber, rollnumber)",
+icpsr,STRING,ICPSR identifier of the member,,no,,,no,"In general one identifier per member for their whole career. Members who switched parties, and members who later became president, receive a new identifier so that a separate NOMINATE estimate can be produced. Use bioguide_id to identify the person",icpsr
+cast_code,STRING,How the member voted,,yes,,,no,,cast_code
+prob,FLOAT64,"Estimated probability, from NOMINATE (DW-NOMINATE), of the member casting the vote as recorded",,no,,percent,no,,prob

@@ -1,7 +1,7 @@
 """Upload cleaned au_doe_higher_education parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_doe_higher_education/code/upload.py [table_slug ...]
+    uv run models/au_doe_higher_education/code/upload.py [table_slug ...]
 
 Targets basedosdados-dev only: prod table data is materialised by the
 table-approve action when the onboarding PR merges, never uploaded by hand.

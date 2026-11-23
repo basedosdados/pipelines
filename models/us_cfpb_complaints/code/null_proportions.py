@@ -11,7 +11,8 @@ from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import COMPLAINT, OUTPUT
+
+from models.us_cfpb_complaints.code.common import COMPLAINT, OUTPUT
 
 
 def measure(table_dir: Path) -> dict[int, dict[str, tuple[int, int]]]:

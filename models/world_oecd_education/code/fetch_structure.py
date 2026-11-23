@@ -17,13 +17,13 @@ snapshot cubes those older versions carry *disjoint* reference periods (actual
 salaries v1.1 = 2020-2022, v2.1 = 2023-2025), so taking only the newest silently
 drops years. Second, everything is cached, because the API rate-limits by IP.
 
-Run: ``python fetch_structure.py``  (add ``--refresh`` to re-download)
+Run: ``uv run models/world_oecd_education/code/fetch_structure.py``  (add ``--refresh`` to re-download)
 """
 
 import argparse
 import xml.etree.ElementTree as ET
 
-from common import SDMX, STRUCTURE, get
+from models.world_oecd_education.code.common import SDMX, STRUCTURE, get
 
 AGENCIES = ("OECD.EDU.IMEP", "OECD.EDU.ECS")
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
@@ -38,6 +38,7 @@ def cached(name, url, *, refresh=False):
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
     print(f"  fetching {name}", flush=True)
+    # pyrefly: ignore [missing-attribute]
     path.write_bytes(get(url).content)
     return path
 

@@ -20,10 +20,7 @@ from __future__ import annotations
 import csv
 import json
 import re
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fdic_bankfind.institution_spec import (
     SPEC,

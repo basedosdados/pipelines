@@ -6,7 +6,7 @@ truth for column order, BigQuery type and description; the cleaning transform
 step all read it back from here. `columns.json` carries the same columns with
 PT/EN/ES descriptions for `bulk_upsert_columns`.
 
-Run:  uv run python models/us_epa_ghgrp/code/build_architecture.py
+Run:  uv run models/us_epa_ghgrp/code/build_architecture.py
 """
 
 from __future__ import annotations

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+indicator_id,STRING,Identifier of the indicator the observation belongs to,,no,,,no,Foreign key to the au_abs_productivity indicator table,(derived)
+period,STRING,Productivity growth cycle the observation covers in YYYY-YY to YYYY-YY format,,no,,,no,"ABS growth cycles run peak to peak in MFP, so they are of unequal length and are the ABS-preferred basis for comparing productivity growth over time",(column header or row stub)
+period_start_financial_year,STRING,Australian financial year the growth cycle starts in,,no,,,no,,(derived)
+period_end_financial_year,STRING,Australian financial year the growth cycle ends in,,no,,,no,,(derived)
+value,FLOAT64,Observed value of the indicator over the growth cycle,,no,,,no,"Usually a compound annual percentage change; the unit is given in the unit column of the indicator table, so no fixed measurement unit applies here",(cell value)

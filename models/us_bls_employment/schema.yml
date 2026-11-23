@@ -1,0 +1,282 @@
+---
+version: 2
+models:
+  - name: us_bls_employment__ces_national
+    description: Estatísticas nacionais de emprego, horas e salários do Current Employment
+      Statistics (CES), a pesquisa mensal de estabelecimentos do BLS. Uma linha por
+      série, ano e período, cobrindo emprego em folha de pagamento, horas semanais
+      médias, salários médios por hora e por semana, horas e folhas agregadas, índices
+      de difusão e taxas de resposta, por setor de atividade e ajuste sazonal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period_id, series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [month, naics_id, footnote_id]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: period_id
+        description: BLS period code identifying the month or the annual average
+        tests: [not_null]
+      - name: series_id
+        description: Full BLS CES series identifier
+        tests: [not_null]
+      - name: supersector_id
+        description: CES supersector the industry belongs to
+      - name: industry_id
+        description: CES industry code
+      - name: naics_id
+        description: NAICS code the CES industry corresponds to
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__naics_2022')
+              field: id_naics
+      - name: data_type_id
+        description: CES data type, which fixes what the value measures
+      - name: seasonal_adjustment
+        description: Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: value
+        description: Published value of the series for the period
+      - name: measurement_unit
+        description: Unit the value is measured in
+      - name: footnote_id
+        description: BLS footnote code attached to the observation
+  - name: us_bls_employment__ces_state_metro
+    description: Estatísticas estaduais e metropolitanas de emprego, horas e salários
+      do State and Metro Area Employment, Hours, and Earnings (SAE), a desagregação
+      geográfica da pesquisa de estabelecimentos do BLS. Uma linha por série, ano
+      e período, para cada estado, território e área metropolitana ou micropolitana,
+      por setor de atividade e ajuste sazonal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period_id, series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [month, state_id, cbsa_id, naics_id, footnote_id]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: period_id
+        description: BLS period code identifying the month or the annual average
+        tests: [not_null]
+      - name: state_id
+        description: FIPS code of the state or territory
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: cbsa_id
+        description: CBSA code of the metropolitan or micropolitan area
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+      - name: area_id
+        description: BLS state-and-metro area code, including the statewide aggregate
+      - name: series_id
+        description: Full BLS CES state and metro area series identifier
+        tests: [not_null]
+      - name: supersector_id
+        description: CES supersector the industry belongs to
+      - name: industry_id
+        description: CES industry code
+      - name: naics_id
+        description: NAICS code the CES industry corresponds to
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__naics_2022')
+              field: id_naics
+      - name: data_type_id
+        description: CES data type, which fixes what the value measures
+      - name: seasonal_adjustment
+        description: Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: benchmark_year
+        description: Year of the benchmark the series is currently anchored to
+      - name: value
+        description: Published value of the series for the period
+      - name: measurement_unit
+        description: Unit the value is measured in
+      - name: footnote_id
+        description: BLS footnote code attached to the observation
+  - name: us_bls_employment__laus
+    description: Estimativas mensais de força de trabalho, emprego, desemprego e taxa
+      de desemprego do Local Area Unemployment Statistics (LAUS), para estados, condados,
+      áreas metropolitanas e micropolitanas, cidades e demais áreas locais dos Estados
+      Unidos. Uma linha por série, ano e período, com ajuste sazonal identificado
+      como dimensão. Quatro áreas censitárias do Alasca extintas antes da delimitação
+      atual de condados (02201, 02232, 02261, 02280) aparecem entre 1990 e 2019 e
+      não resolvem contra o diretório de condados; o teste de relacionamento de county_id
+      as trata como exceção declarada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period_id, series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [month, state_id, county_id, cbsa_id, footnote_id]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: period_id
+        description: BLS period code identifying the month or the annual average
+        tests: [not_null]
+      - name: state_id
+        description: FIPS code of the state or territory the area belongs to
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: FIPS code of the county, on county rows
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: ['02201', '02232', '02261', 02280]
+              proportion_allowed_failures: 0
+      - name: cbsa_id
+        description: CBSA code, on metropolitan and micropolitan area rows
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+      - name: area_type_id
+        description: LAUS area type, from statewide down to towns and balance-of-state
+          areas
+      - name: area_id
+        description: LAUS 15-character area code
+      - name: series_id
+        description: Full BLS LAUS series identifier
+        tests: [not_null]
+      - name: measure_id
+        description: LAUS measure the value reports
+      - name: seasonal_adjustment
+        description: Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: value
+        description: Published value of the series for the period
+      - name: measurement_unit
+        description: Unit the value is measured in
+      - name: footnote_id
+        description: BLS footnote code attached to the observation
+  - name: us_bls_employment__jolts
+    description: Vagas abertas, contratações e desligamentos do Job Openings and Labor
+      Turnover Survey (JOLTS). Uma linha por série, ano e período, cobrindo vagas
+      abertas, contratações, desligamentos totais, pedidos de demissão, demissões
+      e dispensas, e a razão entre desempregados e vagas abertas, em nível e em taxa,
+      por setor de atividade, região, classe de tamanho do estabelecimento e ajuste
+      sazonal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period_id, series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [month, state_id, region_id, footnote_id]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: period_id
+        description: BLS period code identifying the month or the annual average
+        tests: [not_null]
+      - name: state_id
+        description: FIPS code of the state
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: region_id
+        description: Census region the estimate covers
+      - name: series_id
+        description: Full BLS JOLTS series identifier
+        tests: [not_null]
+      - name: industry_id
+        description: JOLTS industry code
+      - name: sizeclass_id
+        description: Establishment size class the estimate covers
+      - name: dataelement_id
+        description: JOLTS data element the value reports
+      - name: ratelevel_id
+        description: Whether the value is a level or a rate
+      - name: seasonal_adjustment
+        description: Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: value
+        description: Published value of the series for the period
+      - name: measurement_unit
+        description: Unit the value is measured in
+      - name: footnote_id
+        description: BLS footnote code attached to the observation
+  - name: us_bls_employment__dicionario
+    description: Dicionário de códigos das tabelas do conjunto us_bls_employment,
+      com o rótulo correspondente a cada código armazenado nas colunas codificadas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: Slug of the us_bls_employment table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: Coded value (key) exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Temporal coverage of the key
+      - name: valor
+        description: Human-readable label corresponding to the coded value
+        tests: [not_null]

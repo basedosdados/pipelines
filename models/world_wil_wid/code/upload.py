@@ -2,7 +2,7 @@
 
 Usage::
 
-    uv run python models/world_wil_wid/code/upload.py [--env dev|prod] [table ...]
+    uv run models/world_wil_wid/code/upload.py [--env dev|prod] [table ...]
 
 ``--env dev`` (the default) targets ``basedosdados-dev``; ``--env prod`` targets
 ``basedosdados``. Point ``GOOGLE_APPLICATION_CREDENTIALS`` at the matching
@@ -77,6 +77,7 @@ def _patched_bucket(
         self,
         bucket_name,
         user_project=BILLING_PROJECT,
+        # pyrefly: ignore [unexpected-keyword]
         generation=generation,
     )
 

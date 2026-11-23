@@ -1,6 +1,6 @@
 """Download every au_tas_tec_elections source artefact into the scratch input tree.
 
-Run: PYTHONPATH=. ~/.venvs/bd-pipelines-tas/bin/python \
+Run: PYTHONPATH=. uv run \
         models/au_tas_tec_elections/code/download.py
 
 Writes ``$TEC_DATA_ROOT/input/<election_id>/`` plus ``input/manifest.json``.

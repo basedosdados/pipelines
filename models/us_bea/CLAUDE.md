@@ -42,7 +42,7 @@ it just does not gate access. ``dicionario`` has no date column, so it takes no 
 spec. If a rolling BD Pro paywall is wanted later, add an end-of-period ``date`` column
 to ``nipa`` and key the policy on it.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_bea_flow``; the dev pool
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_bea_flow``; the dev pool
 ignores the schedule, the prod pool activates it (paused).
 
 Pure functions (no Prefect) so they are importable and unit-testable. The recurring

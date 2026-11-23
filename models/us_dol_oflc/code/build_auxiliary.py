@@ -10,7 +10,7 @@ changes almost every fiscal year, and the layouts are what the crosswalk was
 checked against.
 
 Usage:
-    uv run python models/us_dol_oflc/code/build_auxiliary.py
+    uv run models/us_dol_oflc/code/build_auxiliary.py
 """
 
 from __future__ import annotations

@@ -34,7 +34,7 @@ Worker sizing: `"memory": "8Gi"`
 - (none literal in `constants.py`)
 
 ## Design notes
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_mf_divida_ativa_flow``
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_mf_divida_ativa_flow``
 (defined at module level here); the dev pool ignores the schedule, the prod pool
 activates it (paused until armed).
 

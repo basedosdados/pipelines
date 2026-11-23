@@ -3,7 +3,7 @@
 Everything is derived from the architecture CSVs, so a column added there
 appears in the model, in its cast, and in schema.yml without a second edit.
 
-Run ``python gen_dbt.py``, then ``uv run pre-commit run --files
+Run ``uv run models/world_iati_activities/code/gen_dbt.py``, then ``uv run pre-commit run --files
 models/world_iati_activities/*`` — sqlfmt and yamlfix rewrite the output, and
 committing without that first produces the hook re-write loop.
 """
@@ -11,8 +11,12 @@ committing without that first produces the hook re-write loop.
 import csv
 import json
 
-from common import ARCH_DIR, OUTPUT, REPO_ROOT
-from tables import TABLES
+from models.world_iati_activities.code.common import (
+    ARCH_DIR,
+    OUTPUT,
+    REPO_ROOT,
+)
+from models.world_iati_activities.code.tables import TABLES
 
 DATASET = "world_iati_activities"
 MODEL_DIR = REPO_ROOT / "models" / DATASET
@@ -183,6 +187,7 @@ def write_schema(tables):
         if UNIQUE_KEY[table] is not None:
             out.append("      - dbt_utils.unique_combination_of_columns:\n")
             out.append(
+                # pyrefly: ignore [no-matching-overload]
                 "          combination_of_columns: "
                 f"[{', '.join(UNIQUE_KEY[table])}]\n"
             )

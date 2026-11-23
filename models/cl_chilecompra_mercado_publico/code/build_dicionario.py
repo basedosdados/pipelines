@@ -10,7 +10,7 @@ It also reports which dictionary-flagged columns end up with no entries, so that
 `covered_by_dictionary` can be set to "no" for them: the flag is a promise that the
 labels exist in this table, and a column with no derivable labels does not keep it.
 
-    uv run python models/cl_chilecompra_mercado_publico/code/build_dicionario.py
+    uv run models/cl_chilecompra_mercado_publico/code/build_dicionario.py
 """
 
 from __future__ import annotations

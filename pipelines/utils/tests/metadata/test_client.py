@@ -15,14 +15,16 @@ import datetime
 
 import pytest
 
-# pyrefly: ignore [missing-import]
-from conftest import RecordingBackend, mutation_response, node_response
-
 from pipelines.utils.metadata.client import (
     BackendMutationError,
     MetadataClient,
 )
 from pipelines.utils.metadata.dto import DateTimeRangeInput
+from pipelines.utils.tests.metadata.conftest import (
+    RecordingBackend,
+    mutation_response,
+    node_response,
+)
 
 UUID = "00000000-0000-4000-8000-000000000000"
 DAY_ENTITY = "00000000-0000-4000-8000-0000000000d1"
@@ -128,6 +130,44 @@ def test_upsert_coverage_datetime_range_passes_dto_fields(client, backend):
     v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
     assert v["coverage"] == UUID
     assert v["endYear"] == 2026 and v["endMonth"] == 6 and v["endDay"] == 1
+
+
+def test_upsert_coverage_datetime_range_create_sets_interval(client, backend):
+    backend.set_response(
+        "allDatetimerange", node_response("allDatetimerange", None)
+    )
+    backend.set_response(
+        "CreateUpdateDateTimeRange",
+        mutation_response("CreateUpdateDateTimeRange"),
+    )
+
+    dto = DateTimeRangeInput(
+        coverage=UUID, startYear=2014, startMonth=1, endYear=2026, endMonth=4
+    )
+    client.upsert_coverage_datetime_range(dto)
+
+    v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
+    assert v["interval"] == 1
+    assert "id" not in v
+
+
+def test_upsert_coverage_datetime_range_update_keeps_stored_interval(
+    client, backend
+):
+    backend.set_response(
+        "allDatetimerange", node_response("allDatetimerange", "dtr-1")
+    )
+    backend.set_response(
+        "CreateUpdateDateTimeRange",
+        mutation_response("CreateUpdateDateTimeRange"),
+    )
+
+    dto = DateTimeRangeInput(coverage=UUID, endYear=2026, endMonth=6)
+    client.upsert_coverage_datetime_range(dto)
+
+    v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
+    assert v["id"] == "dtr-1"
+    assert "interval" not in v
 
 
 def test_write_carries_auth_header(client, backend):
@@ -353,6 +393,7 @@ def test_token_authenticated_once_per_instance(monkeypatch):
         "CreateUpdateUpdate", mutation_response("CreateUpdateUpdate")
     )
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env="dev", backend=backend)
     client.upsert_raw_source_poll(
         "br_x", "tab", latest=datetime.date(2026, 6, 1)

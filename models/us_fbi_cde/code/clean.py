@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 import urllib.request
 from collections import Counter
@@ -28,8 +27,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.utils import (
@@ -534,15 +531,19 @@ def main():
         report["nibrs"] = dict(pass_nibrs(args.limit, args.workers))
     if "reta" in steps:
         print("== Return A")
+        # pyrefly: ignore [unsupported-operation]
         report["ucr_summary"] = pass_reta(args.limit, args.workers)
     if "agency" in steps:
         print("== agency")
+        # pyrefly: ignore [unsupported-operation]
         report["agency"] = pass_agency()
     if "hate_crime" in steps:
         print("== hate crime")
+        # pyrefly: ignore [unsupported-operation]
         report["hate_crime"] = pass_hate_crime()
     if "dicionario" in steps:
         print("== dictionary")
+        # pyrefly: ignore [unsupported-operation]
         report["dicionario"] = pass_dicionario()
     (DATA_ROOT / "clean_report.json").write_text(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))

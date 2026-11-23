@@ -7,8 +7,9 @@ Per-state files, 2008-2024. Uses named columns (has header row).
 from pathlib import Path
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.helpers import merge_municipio
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.helpers import merge_municipio
 
 # fmt: off
 UFS = {
@@ -21,6 +22,7 @@ UFS = {
     2020: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
     2022: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
     2024: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2026: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
 }
 # fmt: on
 
@@ -104,7 +106,7 @@ def clean_perfil_frame(df: pd.DataFrame, ano: int, uf: str) -> pd.DataFrame:
             "qt_eleitores_deficiencia": "eleitores_deficiencia",
             "qt_eleitores_inc_nm_social": "eleitores_inclusao_nome_social",
         }
-    else:  # 2024
+    else:  # 2024+ (no municipal biometric status column)
         keep_cols = {
             "ano_eleicao": "ano",
             "aa_eleicao": "ano",
@@ -117,9 +119,11 @@ def clean_perfil_frame(df: pd.DataFrame, ano: int, uf: str) -> pd.DataFrame:
             "cd_faixa_etaria": "grupo_idade",
             "cd_grau_escolaridade": "instrucao",
             "qt_eleitores_perfil": "eleitores",
+            "qt_eleitores": "eleitores",  # 2026 rename
             "qt_eleitores_biometria": "eleitores_biometria",
             "qt_eleitores_deficiencia": "eleitores_deficiencia",
             "qt_eleitores_inc_nm_social": "eleitores_inclusao_nome_social",
+            "qt_eleitores_nome_social": "eleitores_inclusao_nome_social",  # 2026
         }
 
     # first present key wins per target (matches select_named semantics)
@@ -131,7 +135,7 @@ def clean_perfil_frame(df: pd.DataFrame, ano: int, uf: str) -> pd.DataFrame:
             taken.add(v)
     df = df[list(available.keys())].rename(columns=available)
 
-    if ano == 2024:
+    if ano >= 2024:
         df["situacao_biometria"] = ""
 
     for col in PERFIL_SUM_COLS:

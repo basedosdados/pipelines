@@ -19,7 +19,7 @@ with no special-casing. Extraction uses pypdf (pure Python — no poppler depend
 Idempotent: skips a download or a render whose output already exists, and never
 overwrites a dictionary that the Census actually publishes as .txt (2009+).
 
-Usage:  python3 code/fetch_legacy_dicts.py
+Usage:  uv run models/us_census_acs/code/fetch_legacy_dicts.py
 """
 
 import os

@@ -16,12 +16,9 @@ data outgrew, and the run exits non-zero.
 from __future__ import annotations
 
 import argparse
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
-import clean
+from models.us_stanford_dime.code import architecture as arch
+from models.us_stanford_dime.code import clean
 
 SOURCES = {
     "recipient": "dime_recipients_all_1979_2024.csv.gz",
@@ -55,16 +52,20 @@ def verify(table: str, cycle: int | None) -> bool:
         f"create or replace view built as select * from read_parquet('{out}/*.parquet')"
     )
 
+    # pyrefly: ignore [unsupported-operation]
     raw_n = con.execute("select count(*) from raw").fetchone()[0]
+    # pyrefly: ignore [unsupported-operation]
     built_n = con.execute("select count(*) from built").fetchone()[0]
     print(
         f"rows: raw {raw_n:,}  built {built_n:,}  "
         f"{'MATCH' if raw_n == built_n else 'MISMATCH'}"
     )
 
+    # pyrefly: ignore [bad-index]
     cols = [c for c in arch.TABLES[table] if c[9] and "<" not in c[9]]
     # One aggregate pass per side rather than a query per column.
     raw_sel = ", ".join(
+        # pyrefly: ignore [bad-index]
         f"""count(case when trim("{c[9]}") not in ('', '\\N') then 1 end) as "{c[0]}\""""
         for c in cols
     )
@@ -74,6 +75,7 @@ def verify(table: str, cycle: int | None) -> bool:
 
     print(f"\n{'column':<38} {'type':<8} {'raw':>12} {'built':>12}  status")
     ok = raw_n == built_n
+    # pyrefly: ignore [bad-argument-type]
     for col, r, b in zip(cols, raw_counts, built_counts, strict=True):
         name, bq_type = col[0], col[1]
         if b < r:

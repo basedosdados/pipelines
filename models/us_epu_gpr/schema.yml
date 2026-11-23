@@ -1,0 +1,127 @@
+---
+version: 2
+models:
+  - name: us_epu_gpr__index_monthly
+    description: >-
+      Monthly newspaper-based uncertainty indices in long format: Economic Policy
+      Uncertainty (EPU; Baker, Bloom and Davis) and Geopolitical Risk (GPR;
+      Caldara and Iacoviello), one row per country, index series, and month. Base
+      periods and newspaper panels differ across series and countries, so
+      cross-series and cross-country level comparisons are not meaningful.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_id
+            - index_family
+            - index_name
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: country_id
+        description: >-
+          ISO 3166-1 alpha-3 code of the country the series refers to; null for
+          global or aggregate series
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: index_family
+        description: 'Index family: epu (Economic Policy Uncertainty) or gpr (Geopolitical
+          Risk)'
+        tests: [not_null]
+      - name: index_name
+        description: Coded identifier of the specific index series; labels are in
+          the dicionario table
+        tests: [not_null]
+      - name: value
+        description: >-
+          Value of the index for the given series and period. Index points
+          (base = 100 in the series' reference window) for EPU and global GPR;
+          share of geopolitically-focused articles in percent for country-level
+          GPR
+  - name: us_epu_gpr__index_daily
+    description: >-
+      Daily newspaper-based uncertainty indices in long format: the US Economic
+      Policy Uncertainty index and the global Geopolitical Risk index (total,
+      acts, threats), one row per date and index series.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date, country_id, index_family, index_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: day
+        description: Reference day of the month, from 1 to 31
+        tests: [not_null]
+      - name: date
+        description: Calendar date of the observation
+        tests: [not_null]
+      - name: country_id
+        description: >-
+          ISO 3166-1 alpha-3 code of the country the series refers to; null for
+          the global daily GPR series
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: index_family
+        description: 'Index family: epu (Economic Policy Uncertainty) or gpr (Geopolitical
+          Risk)'
+        tests: [not_null]
+      - name: index_name
+        description: Coded identifier of the specific index series; labels are in
+          the dicionario table
+        tests: [not_null]
+      - name: value
+        description: Value of the index for the given series and date
+  - name: us_epu_gpr__dicionario
+    description: >-
+      Dictionary mapping the coded columns of us_epu_gpr (index_family and
+      index_name) to their human-readable labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Slug of the us_epu_gpr table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: Coded value (key) exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Temporal coverage of the key
+      - name: valor
+        description: Human-readable label corresponding to the coded value

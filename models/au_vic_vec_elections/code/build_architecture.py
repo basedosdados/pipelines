@@ -3,7 +3,7 @@
 The architecture is derived from ``pipelines/datasets/au_vic_vec_elections/schema.py`` so
 the sheets, the cleaning transform and the dbt models cannot drift apart.
 
-Run:  PYTHONPATH=. ~/.venvs/bd-pipelines-vic/bin/python models/au_vic_vec_elections/code/build_architecture.py
+Run:  PYTHONPATH=. uv run models/au_vic_vec_elections/code/build_architecture.py
 """
 
 from __future__ import annotations

@@ -48,7 +48,7 @@ the most recent 6 months are pro-only, everything older is free. The registratio
 (candidate, committee, candidate_committee_link) have no date column and stay fully
 free.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``us_fec_campaign_finance_flow``; the dev pool ignores the schedule, the prod pool
 activates it.
 

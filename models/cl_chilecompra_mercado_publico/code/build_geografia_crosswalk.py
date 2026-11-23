@@ -9,7 +9,7 @@ data changes; a table produces the same answer or none.
 
 Run against the directory in BigQuery to refresh the snapshot:
 
-    uv run python models/cl_chilecompra_mercado_publico/code/build_geografia_crosswalk.py
+    uv run models/cl_chilecompra_mercado_publico/code/build_geografia_crosswalk.py
 
 Writes code/geografia_crosswalk.csv, which the cleaning transform reads at load time.
 """

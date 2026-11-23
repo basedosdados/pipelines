@@ -1,6 +1,6 @@
 """Architecture for the legado tables (Lei 8.666/1993 and earlier, 1997-2025)."""
 
-from arch_common import BRL, DIR_ANO, c
+from models.br_mgi_compras_publicas.code.arch_common import BRL, DIR_ANO, c
 
 
 def ano(

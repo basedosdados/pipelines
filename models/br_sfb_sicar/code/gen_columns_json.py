@@ -6,7 +6,7 @@ is_partition."""
 import json
 import os
 
-import architecture as A  # noqa: N812
+from models.br_sfb_sicar.code import architecture as A  # noqa: N812
 
 
 def col_json(c):

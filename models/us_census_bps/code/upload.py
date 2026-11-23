@@ -12,21 +12,18 @@ writes an all-STRING staging table over the same prefix, so a typed table left
 here would collide with it on the first pipeline run.
 
 Usage:
-    uv run python models/us_census_bps/code/upload.py [table ...]
+    uv run models/us_census_bps/code/upload.py [table ...]
 """
 
 from __future__ import annotations
 
 import argparse
 import os
-import sys
 import tomllib
 from pathlib import Path
 
 from google.cloud import bigquery, storage
 from google.oauth2 import service_account
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_bps.constants import constants
 

@@ -1,0 +1,37 @@
+[
+ {
+  "name": "id_tabela",
+  "bigquery_type": "STRING",
+  "description_es": "Nombre de la tabla de microdatos a la que se refiere la fila",
+  "description_pt": "Nome da tabela de microdados a que se refere a linha",
+  "description_en": "Name of the microdata table the row refers to"
+ },
+ {
+  "name": "nome_coluna",
+  "bigquery_type": "STRING",
+  "description_es": "Nombre de la columna codificada",
+  "description_pt": "Nome da coluna codificada",
+  "description_en": "Name of the coded column"
+ },
+ {
+  "name": "chave",
+  "bigquery_type": "STRING",
+  "description_es": "Codigo almacenado en la columna",
+  "description_pt": "Codigo armazenado na coluna",
+  "description_en": "Code stored in the column"
+ },
+ {
+  "name": "cobertura_temporal",
+  "bigquery_type": "STRING",
+  "description_es": "Periodo de vigencia del codigo",
+  "description_pt": "Periodo de vigencia do codigo",
+  "description_en": "Period over which the code applies"
+ },
+ {
+  "name": "valor",
+  "bigquery_type": "STRING",
+  "description_es": "Etiqueta del codigo, en espanol, tal como la publica el INDEC",
+  "description_pt": "Rotulo do codigo, em espanhol, tal como o INDEC publica",
+  "description_en": "The code's label, in Spanish, as INDEC publishes it"
+ }
+]

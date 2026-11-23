@@ -5,12 +5,12 @@ all-STRING parquet under ``OUTPUT``. The transform itself is imported from the
 pipeline module — this script only drives it over the full year range and reports
 row counts.
 
-Run: uv run python models/us_noaa_storm_events/code/clean.py
+Run: uv run models/us_noaa_storm_events/code/clean.py
 """
 
 import json
 
-from common import (
+from models.us_noaa_storm_events.code.common import (
     INPUT,
     OUTPUT,
     assert_all_string,

@@ -1,7 +1,7 @@
 """Download every us_census_cog source archive into the scratch input tree.
 
-    python download.py              # everything
-    python download.py gus          # one family: gus | employment | finance
+    uv run models/us_census_cog/code/download.py              # everything
+    uv run models/us_census_cog/code/download.py gus          # one family: gus | employment | finance
 
 Files already present are left alone, so the script is resumable. Nothing here
 writes to the repo.
@@ -9,8 +9,7 @@ writes to the repo.
 
 import sys
 
-from common import INPUT, K
-
+from models.us_census_cog.code.common import INPUT, K
 from pipelines.datasets.us_census_cog.utils import (
     download_employment,
     download_finance,

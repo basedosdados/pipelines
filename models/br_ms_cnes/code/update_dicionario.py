@@ -11,10 +11,10 @@ Uso:
     cd models/br_ms_cnes/code
 
     # Conferir o que será acrescentado (não altera nada)
-    uv run python update_dicionario.py --dry-run
+    uv run update_dicionario.py --dry-run
 
     # Aplicar: grava o CSV e sobe para o staging dev
-    uv run python update_dicionario.py --apply
+    uv run update_dicionario.py --apply
 """
 
 from __future__ import annotations
@@ -52,6 +52,12 @@ COBERTURA = "(1)"
 #           Portaria SAES/MS nº 4.109/2026, citada por terceiros; não
 #           localizamos o texto oficial (ver issue #1714)
 #   82      CNES 4.8.40, divulgado por terceiros; idem
+#   83      Portaria SAES/MS nº 4.288, de 22/06/2026 (DOU de 23/07/2026),
+#           Anexo II — "Tabela de Equipes do CNES". Lido na reprodução do
+#           Conass Informa 140/2026; o link do DOU é
+#           in.gov.br/web/dou/-/portaria-saes/ms-n-4.288-de-22-de-junho-de-2026-720815464
+#           Aparece nos dados em 2026-09 (uma equipe em 3505500, "CUIDADOS
+#           PALIA PEDIATRIA"), e derrubava o `custom_dictionary_coverage`.
 #
 # As tabelas auxiliares oficiais (TAB_CNES.zip, regeradas em 21/07/2026) ainda
 # trazem só 10 tipos de equipamento e param no 76 em EQUIPE.dbf — não servem.
@@ -97,6 +103,15 @@ NEW_ROWS: list[dict[str, str]] = [
         "nome_coluna": "tipo_equipe",
         "chave": "82",
         "valor": "E-DOT - Equipe Hospitalar de Doação para Transplantes",
+    },
+    {
+        "id_tabela": "equipe",
+        "nome_coluna": "tipo_equipe",
+        "chave": "83",
+        "valor": (
+            "EMCP-Ped - Equipe Macrorregional de Cuidados Paliativos com "
+            "Pediatra"
+        ),
     },
     # Os dois indicadores do equipamento passam a ser STRING cobertos por
     # dicionário (issue #1722). O Equipamento.def do TAB_CNES documenta: "o campo
@@ -517,10 +532,7 @@ def main() -> None:
         return
 
     if not args.apply:
-        print(
-            "\nDry-run. Para aplicar: "
-            "uv run python update_dicionario.py --apply"
-        )
+        print("\nDry-run. Para aplicar: uv run update_dicionario.py --apply")
         return
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

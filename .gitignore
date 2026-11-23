@@ -4,6 +4,7 @@ test.py
 test.ipynb
 test_local.py
 pylint.txt
+.prefect-local/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

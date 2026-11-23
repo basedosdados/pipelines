@@ -25,7 +25,7 @@ import zipfile
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from config import INPUT_DIR
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR
 
 from .spec import FAMILIES, MEMBER_PREFER
 

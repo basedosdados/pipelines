@@ -1,7 +1,7 @@
 """Upload cleaned au_nsw_bocsar_crime parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_nsw_bocsar_crime/code/upload.py [--env dev|prod] [table ...]
+    uv run models/au_nsw_bocsar_crime/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads

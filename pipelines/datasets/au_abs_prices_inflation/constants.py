@@ -3,6 +3,11 @@
 The dataset covers the whole ABS "Price indexes and inflation" topic, one fact
 table per ABS release. This module holds the shared settings plus the
 Consumer Price Index (former catalogue 6401.0) release configuration.
+
+One independent check_update/extract_and_load pair per table (the
+one-pipeline-per-table_id shape, see
+``pipelines.utils.stage_dispatch.pipeline_factory``) -- 7 tables in total: the
+two CPI tables below, plus the 5 other releases named in ``RELEASES``.
 """
 
 from enum import Enum
@@ -259,3 +264,11 @@ class constants(Enum):
             "value",
         ],
     }
+
+
+# Table ids. Kept here as plain literals (not Enum members) so `tasks.py`/
+# `flows.py` can import them directly -- one per independent check_update/
+# extract_and_load pair. The 5 other releases use their release name directly
+# as their table id (see `constants.RELEASES`), so they need no constant here.
+CPI_QUARTERLY_TABLE_ID = constants.TABLE_ID.value["quarterly"]
+CPI_MONTHLY_TABLE_ID = constants.TABLE_ID.value["monthly"]

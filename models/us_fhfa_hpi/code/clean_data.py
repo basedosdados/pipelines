@@ -8,8 +8,8 @@ Scratch data never goes in the repo or under Dropbox. Default root is
 ``~/Downloads/us_fhfa_hpi_data`` (override with ``FHFA_HPI_DATA_DIR``).
 
 Run:
-    uv run python models/us_fhfa_hpi/code/clean_data.py            # clean only
-    uv run python models/us_fhfa_hpi/code/clean_data.py --download # fetch first
+    uv run models/us_fhfa_hpi/code/clean_data.py            # clean only
+    uv run models/us_fhfa_hpi/code/clean_data.py --download # fetch first
 """
 
 import argparse

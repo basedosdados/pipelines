@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the record date,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column derived from record_date,record_date
+month,INT64,Calendar month of the record date,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from record_date,record_date
+record_date,DATE,Last day of the month the statement reports,,no,,,no,MTS is a monthly report,record_date
+fiscal_year,INT64,"U.S. federal fiscal year of the record date, running October through September",,no,,year,no,,record_fiscal_year
+src_line_nbr,STRING,"Source line number within the MTS table, stable across releases for a given line",,no,,,no,"Part of the natural key (record_date, src_line_nbr)",src_line_nbr
+parent_id,STRING,"Classification id of the parent row in the statement hierarchy, empty for top-level rows",,no,,,no,Pairs with classification_id to reconstruct the tree within a release,parent_id
+classification_id,STRING,"Classification id of the row within a single release, not stable across releases",,no,,,no,Regenerated each release; use src_line_nbr as the stable key,classification_id
+classification_desc,STRING,"Name of the receipt source, spending agency, budget function, or financing category the row reports",,no,,,no,Human-readable label,classification_desc
+sequence_level_nbr,STRING,"Depth of the row in the statement hierarchy, from 1 at the top to deeper components",,no,,,no,Distinguishes totals from their components,sequence_level_nbr
+current_month_gross_receipts,FLOAT64,Total receipts of the U.S. government in the current month,,no,,USD,no,,current_month_gross_rcpt_amt
+current_month_gross_outlays,FLOAT64,Total outlays of the U.S. government in the current month,,no,,USD,no,,current_month_gross_outly_amt
+current_month_deficit_or_surplus,FLOAT64,Budget deficit (negative) or surplus (positive) in the current month,,no,,USD,no,,current_month_dfct_sur_amt

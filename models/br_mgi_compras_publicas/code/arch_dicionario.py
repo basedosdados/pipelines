@@ -1,6 +1,6 @@
 """Architecture for the dicionario table."""
 
-from arch_common import c
+from models.br_mgi_compras_publicas.code.arch_common import c
 
 DICIONARIO = [
     c(

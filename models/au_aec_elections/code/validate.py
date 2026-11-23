@@ -6,7 +6,7 @@ Checks, in order:
   3. Staging typing — every parquet column is STRING, and no NULL was stringified.
   4. Substance — spot checks against facts independently known about the elections.
 
-Run:  uv run python models/au_aec_elections/code/validate.py
+Run:  uv run models/au_aec_elections/code/validate.py
 """
 
 from __future__ import annotations
@@ -331,6 +331,7 @@ elections = tables["election"]
 check("events catalogued", len(elections), 34)
 check(
     "federal elections catalogued",
+    # pyrefly: ignore [unnecessary-type-conversion]
     int((elections["election_type"] == "federal_election").sum()),
     8,
 )

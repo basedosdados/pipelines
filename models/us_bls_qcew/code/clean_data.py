@@ -6,11 +6,11 @@ onboarding and the (future) recurring Prefect pipeline share one implementation.
 
 Usage:
     # representative subset (dev verification checkpoint)
-    uv run python models/us_bls_qcew/code/clean_data.py --subset
+    uv run models/us_bls_qcew/code/clean_data.py --subset
     # full history
-    uv run python models/us_bls_qcew/code/clean_data.py --full
+    uv run models/us_bls_qcew/code/clean_data.py --full
     # explicit years
-    uv run python models/us_bls_qcew/code/clean_data.py --naics 2024 2025 --sic 2000
+    uv run models/us_bls_qcew/code/clean_data.py --naics 2024 2025 --sic 2000
 """
 
 import argparse

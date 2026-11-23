@@ -1,7 +1,7 @@
 """Check the materialized flight table against the local parquet, column by column.
 
     uv run --no-project --with basedosdados --with pyarrow --with pandas \
-        python models/us_dot_bts_ontime/code/validate.py 2026
+        uv run models/us_dot_bts_ontime/code/validate.py 2026
 
 `safe_cast` returns NULL rather than raising, so a column whose type was assigned
 wrongly arrives *empty* while every dbt test still passes. Row counts do not catch
@@ -19,8 +19,6 @@ from pathlib import Path
 
 import basedosdados as bd
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_dot_bts_ontime.utils import read_arch
 

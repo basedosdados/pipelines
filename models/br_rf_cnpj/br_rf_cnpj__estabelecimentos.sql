@@ -9,9 +9,13 @@
             "granularity": "month",
         },
         cluster_by=["sigla_uf"],
+        post_hook=[
+            "{{ br_me_cnpj_redirect_notice() }}",
+            "{{ br_me_cnpj_redirect_policy() }}",
+        ],
     )
 }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     cnpj_estabelecimentos as (
         select
@@ -41,7 +45,17 @@ with
             safe_cast(numero as string) numero,
             safe_cast(complemento as string) complemento,
             safe_cast(bairro as string) bairro,
-            safe_cast(replace (cep, ".0", "") as string) cep,
+            safe_cast(
+                case
+                    when regexp_contains(trim(replace(cep, ".0", "")), r'^0*$')
+                    then null
+                    when regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{1,7}$')
+                    then lpad(trim(replace(cep, ".0", "")), 8, '0')
+                    when regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{8}$')
+                    then trim(replace(cep, ".0", ""))
+                    else null
+                end as string
+            ) cep,
             safe_cast(ddd_1 as string) ddd_1,
             safe_cast(telefone_1 as string) telefone_1,
             safe_cast(ddd_2 as string) ddd_2,
@@ -92,7 +106,21 @@ with
                 safe_cast(numero as string) numero,
                 safe_cast(complemento as string) complemento,
                 safe_cast(bairro as string) bairro,
-                safe_cast(replace (cep, ".0", "") as string) cep,
+                safe_cast(
+                    case
+                        when regexp_contains(trim(replace(cep, ".0", "")), r'^0*$')
+                        then null
+                        when
+                            regexp_contains(
+                                trim(replace(cep, ".0", "")), r'^[0-9]{1,7}$'
+                            )
+                        then lpad(trim(replace(cep, ".0", "")), 8, '0')
+                        when
+                            regexp_contains(trim(replace(cep, ".0", "")), r'^[0-9]{8}$')
+                        then trim(replace(cep, ".0", ""))
+                        else null
+                    end as string
+                ) cep,
                 safe_cast(ddd_1 as string) ddd_1,
                 safe_cast(telefone_1 as string) telefone_1,
                 safe_cast(ddd_2 as string) ddd_2,

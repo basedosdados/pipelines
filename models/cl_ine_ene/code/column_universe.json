@@ -1,0 +1,2170 @@
+[
+ {
+  "name": "ano_trimestre",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "mes_central",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "ano_encuesta",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "mes_encuesta",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "region",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "provincia",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "r_p_c",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "tipo",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "estrato",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "conglomerado",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "id_identificacion",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "hogar",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "idrph",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "nro_linea",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "proveedor",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "parentesco",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "sexo",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "edad",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "est_conyugal",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "mig1",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "mig2_cod",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "mig3_cod",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "mig4",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "mig5_cod",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "mig6_cod",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "nacionalidad",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "orig1",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "orig2",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "orig3",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "curso",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "nivel",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "termino_nivel",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "estudia_actual",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "edu1",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "edu2",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "edu3",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "edu4",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "a1",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a3",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a4",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a5",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a6",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a6_otro",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a7",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a8",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b1",
+  "first_period": "2017-02",
+  "last_period": "2026-06",
+  "n_periods": 113,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b3",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b4",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b5",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b6",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b7a_1",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7a_2",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7a_3",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7b_1",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7b_2",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7b_3",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7b_4",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b8",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b9",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b10",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b12",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b13_rev4cl_caenes",
+  "first_period": "2016-02",
+  "last_period": "2026-06",
+  "n_periods": 125,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b14_rev4cl_caenes",
+  "first_period": "2013-02",
+  "last_period": "2026-06",
+  "n_periods": 161,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b15_1",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b15_2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b16",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b16_otro",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b17_mes",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b17_ano",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b18_region",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b18_codigo",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b18_varias",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "b19",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "dependencia_segunda",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i1",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i2",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i3",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i3_v",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i4",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i5",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i6",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i7",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "f7a",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "f7b",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "f7c",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "f7d",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "f7e",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "de_1a",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "de_1b",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "de_2a",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "de_2b",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "de_3a",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "de_3b",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "do_1",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "do_2",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "do_3",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "do_4",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "re1",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "re2",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "re3",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "re4",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "re5",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "re6",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_d",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_de",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_h",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_t",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "c2_1_1",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c2_1_2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c2_1_3",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c2_2_1",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c2_2_2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c2_2_3",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c3_1",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c3_2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c3_3",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "turno_cont_d",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_cont_de",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_cont_h",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "turno_cont_t",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "c4",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c5",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c6",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c7",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c8",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c9",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c9_otro",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "adicionales_h",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "adicionales_d",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "adicionales_t",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "c10",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c11",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "c12",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_1",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_2",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_3",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_4",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_5",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_6",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_7",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_8",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_9",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_10",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_11",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_12",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e3_total",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e4",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e5",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e5_dia",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e5_sem",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e5_mes",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e5_ano",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e6_mes",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e6_ano",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e7",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e9",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e9_otro",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e10",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "deseo_trabajar",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e11",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e12",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e12_otro",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e13",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "e21_mes",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e21_ano",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e21_tramo",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e22",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e23",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e23_otro",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e24",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e24_otro",
+  "first_period": "2020-07",
+  "last_period": "2026-06",
+  "n_periods": 72,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b11_proxy",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ocup_honorarios",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "asocia",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "plataformas_digitales",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "pd_especifique",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "pd_ley",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "sda_pd",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "sda_pd_especifique",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "sda_pd_ley",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "meses_ocup_actual",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "dep_economica",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "dep_organizativa",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "dep_ambas",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "no_salario",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "no_prevision",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "riesgo_economico",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "n_dependencias",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "cdi",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "cdd",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "cd",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ciso1",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ciso2",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ciso3_a",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ciso3_b",
+  "first_period": "2020-02",
+  "last_period": "2026-06",
+  "n_periods": 77,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "cine97",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "cine11_1d",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "cine11_2d",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "habituales",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "efectivas",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "pet",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ft",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ftp",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "inhab",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "fta",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "obe",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "idisp",
+  "first_period": "2019-12",
+  "last_period": "2026-06",
+  "n_periods": 79,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "tpi",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "ina_cal_edu",
+  "first_period": "2017-02",
+  "last_period": "2026-06",
+  "n_periods": 113,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "ocup_form",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "sector",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "r_p_rev4cl_caenes",
+  "first_period": "2017-08",
+  "last_period": "2026-06",
+  "n_periods": 107,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "tramo_edad",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "categoria_ocupacion",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "cae_general",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "cae_especifico",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "activ",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "fact_cal",
+  "first_period": "2010-02",
+  "last_period": "2026-06",
+  "n_periods": 197,
+  "in_all": true,
+  "contiguous": true
+ },
+ {
+  "name": "a9",
+  "first_period": "2020-04",
+  "last_period": "2023-01",
+  "n_periods": 34,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i11",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i12",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_1",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_2",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_3",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_4",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_5",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_6",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_7",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_8",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_9",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_10",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_11",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_88",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_99",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "i13_total",
+  "first_period": "2020-06",
+  "last_period": "2021-11",
+  "n_periods": 18,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b11",
+  "first_period": "2010-02",
+  "last_period": "2020-01",
+  "n_periods": 120,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "id_directorio",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "c1",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "c13",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e1",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e8",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e14_mes",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e14_ano",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e15_meses",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e15_anos",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e16_ciuo08",
+  "first_period": "2017-02",
+  "last_period": "2019-11",
+  "n_periods": 34,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e17",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e18_rev4cl_caenes",
+  "first_period": "2016-02",
+  "last_period": "2019-11",
+  "n_periods": 46,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e19",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e19_otro",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "id",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "fact",
+  "first_period": "2010-02",
+  "last_period": "2019-11",
+  "n_periods": 118,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b1_ciuo88",
+  "first_period": "2010-02",
+  "last_period": "2019-02",
+  "n_periods": 109,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e16_ciuo88",
+  "first_period": "2010-02",
+  "last_period": "2019-02",
+  "n_periods": 109,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "region_15",
+  "first_period": "2010-02",
+  "last_period": "2018-07",
+  "n_periods": 102,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "estrato_15",
+  "first_period": "2010-02",
+  "last_period": "2018-07",
+  "n_periods": 102,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "r_p_c_15",
+  "first_period": "2010-02",
+  "last_period": "2018-07",
+  "n_periods": 102,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_1",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_2",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_3",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_4",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_5",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_6",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b7_7",
+  "first_period": "2010-02",
+  "last_period": "2017-07",
+  "n_periods": 90,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b13_ciiu_rev3",
+  "first_period": "2010-02",
+  "last_period": "2016-11",
+  "n_periods": 82,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "b14_ciiu_rev3",
+  "first_period": "2010-02",
+  "last_period": "2016-11",
+  "n_periods": 82,
+  "in_all": false,
+  "contiguous": true
+ },
+ {
+  "name": "e18_ciiu_rev3",
+  "first_period": "2010-02",
+  "last_period": "2016-11",
+  "n_periods": 82,
+  "in_all": false,
+  "contiguous": true
+ }
+]

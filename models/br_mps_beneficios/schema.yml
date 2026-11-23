@@ -1,0 +1,229 @@
+---
+version: 2
+models:
+  - name: br_mps_beneficios__beneficio_concedido_municipio_mes
+    description: >
+      Quantidade e valor dos benefícios concedidos pelo INSS, agregados por
+      município de residência do titular, mês da competência da concessão,
+      espécie do benefício, clientela, sexo e faixa etária. Fluxo de novas
+      concessões, extraído dos microdados do SUIBE publicados pelo Ministério
+      da Previdência Social. O valor refere-se à renda mensal inicial: a fonte
+      o publica apenas em múltiplos do salário mínimo, e valor_total é a
+      conversão para reais nominais pelo salário mínimo vigente na competência.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf
+            - id_municipio
+            - especie_beneficio
+            - clientela
+            - sexo
+            - faixa_etaria
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da competência da concessão
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês da competência da concessão
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf
+        description: >
+          Sigla da Unidade da Federação de residência do titular. Extraída do
+          campo Mun Resid, não da coluna UF da fonte, que se refere à Agência
+          da Previdência Social concessora
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: >
+          ID Município IBGE 7 dígitos de residência do titular. Nulo quando a
+          fonte registra o sentinela 00000-Zerada, que responde por cerca de
+          7% das linhas nas competências recentes
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: especie_beneficio
+        description: Código da espécie do benefício, conforme publicado pelo INSS
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_mps_beneficios__dicionario_especie')
+              field: especie_beneficio
+              config:
+                where: __most_recent_year_month__
+      - name: categoria_beneficio
+        description: >
+          Agrupamento funcional das espécies, construído sobre o código e
+          portanto estável às renomeações da EC 103/2019
+        tests: [not_null]
+      - name: clientela
+        description: Clientela do titular, urbana ou rural
+      - name: sexo
+        description: Sexo do titular do benefício
+      - name: faixa_etaria
+        description: >
+          Faixa etária do titular na competência da concessão, derivada da data
+          de nascimento
+      - name: quantidade
+        description: Quantidade de benefícios concedidos
+        tests: [not_null]
+      - name: valor_total_salarios_minimos
+        description: >
+          Soma da renda mensal inicial dos benefícios concedidos, em salários
+          mínimos. Única medida de valor publicada pela fonte
+      - name: valor_total
+        description: >
+          Soma da renda mensal inicial dos benefícios concedidos, em reais
+          nominais, sem deflacionamento
+  - name: br_mps_beneficios__beneficio_mantido_municipio_mes
+    description: >
+      Quantidade e valor dos benefícios ativos mantidos pelo INSS, agregados
+      por município de residência do titular, mês da competência da folha,
+      espécie do benefício, clientela, sexo e faixa etária. Estoque de
+      benefícios em manutenção, e não fluxo de concessões. O valor é a renda
+      mensal efetiva publicada pela fonte, em reais nominais. A fonte trunca o
+      rótulo da espécie em 20 caracteres e não publica o código, de modo que
+      especie_beneficio é nulo quando o rótulo truncado é ambíguo entre
+      espécies; categoria_beneficio está sempre preenchida.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf
+            - id_municipio
+            - especie_beneficio_rotulo
+            - clientela
+            - sexo
+            - faixa_etaria
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da competência da folha
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year_month__
+      - name: mes
+        description: Mês da competência da folha
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+              config:
+                where: __most_recent_year_month__
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação de residência do titular
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: >
+          ID Município IBGE 7 dígitos de residência do titular. A fonte trunca
+          o campo em 20 caracteres, e o município é recuperado pela chave
+          truncada completa, que inclui o código da Gerência-Executiva
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: especie_beneficio
+        description: >
+          Código da espécie do benefício, preenchido apenas quando o rótulo
+          truncado publicado pela fonte corresponde a uma única espécie. Treze
+          prefixos truncados são ambíguos — por exemplo "Aposentadoria por Id"
+          cobre as espécies 8, 41 e 81 — e nesses casos o código é nulo
+        tests:
+          - relationships:
+              to: ref('br_mps_beneficios__dicionario_especie')
+              field: especie_beneficio
+              config:
+                where: __most_recent_year_month__
+      - name: especie_beneficio_rotulo
+        description: >
+          Rótulo da espécie exatamente como publicado, truncado em 20
+          caracteres. É a única identificação de espécie que a fonte fornece
+          para benefícios mantidos
+        tests: [not_null]
+      - name: categoria_beneficio
+        description: >
+          Agrupamento funcional das espécies, construído sobre o código e
+          portanto estável às renomeações da EC 103/2019
+        tests: [not_null]
+      - name: clientela
+        description: Clientela do titular, urbana ou rural
+      - name: sexo
+        description: Sexo do titular do benefício
+      - name: faixa_etaria
+        description: >
+          Faixa etária do titular na competência da folha, derivada da data de
+          nascimento
+      - name: quantidade
+        description: Quantidade de benefícios ativos mantidos
+        tests: [not_null]
+      - name: valor_total
+        description: >
+          Soma da renda mensal dos benefícios ativos mantidos, em reais
+          nominais, sem deflacionamento
+  - name: br_mps_beneficios__dicionario_especie
+    description: >
+      Tabela de códigos das espécies de benefício do INSS, conforme o
+      Dicionário de Dados - Espécies de Benefício. Inclui o agrupamento
+      funcional categoria_beneficio, estável à reforma de 2019, a natureza do
+      benefício, e o nome anterior das espécies renomeadas pela Emenda
+      Constitucional 103/2019.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [especie_beneficio]
+    columns:
+      - name: especie_beneficio
+        description: Código da espécie do benefício
+        tests: [not_null, unique]
+      - name: nome_especie
+        description: Nome oficial vigente da espécie do benefício
+        tests: [not_null]
+      - name: nome_especie_anterior
+        description: >
+          Nome da espécie antes da Emenda Constitucional 103/2019, preenchido
+          apenas para as espécies renomeadas pela reforma
+      - name: categoria_beneficio
+        description: Agrupamento funcional das espécies
+        tests: [not_null]
+      - name: natureza_beneficio
+        description: >
+          Natureza do benefício: previdenciaria, assistencial, acidentaria ou
+          indenizatoria
+        tests: [not_null]
+      - name: observacao
+        description: Notas sobre vigência, base legal e mudanças de nomenclatura

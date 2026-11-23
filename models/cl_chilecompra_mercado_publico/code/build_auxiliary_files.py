@@ -5,7 +5,7 @@ ChileCompra publishes no downloadable codebook -- its only documentation is the
 and how the four procurement mechanisms differ, so it is transcribed here rather than
 left as a link that may be restructured away.
 
-    uv run python models/cl_chilecompra_mercado_publico/code/build_auxiliary_files.py
+    uv run models/cl_chilecompra_mercado_publico/code/build_auxiliary_files.py
 
 Writes <root>/auxiliary_files/<table>/auxiliary_files.zip, ready to upload to
 gs://basedosdados-public/auxiliary_files/cl_chilecompra_mercado_publico/<table>/ -- the

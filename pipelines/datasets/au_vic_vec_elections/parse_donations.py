@@ -421,7 +421,6 @@ def _count(mask: pd.Series) -> int:
     otherwise, hence the suppression. The cast is load-bearing: ``numpy.int64`` is not
     JSON-serialisable, and these counts end up in reports that are dumped.
     """
-    # pyrefly: ignore [unnecessary-type-conversion]
     return int(mask.sum())
 
 

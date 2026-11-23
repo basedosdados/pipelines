@@ -1,7 +1,7 @@
 """Register cl_chilecompra_mercado_publico metadata in the Data Basis backend.
 
-    python models/cl_chilecompra_mercado_publico/code/register_metadata.py --env staging
-    python models/cl_chilecompra_mercado_publico/code/register_metadata.py --env prod
+    uv run models/cl_chilecompra_mercado_publico/code/register_metadata.py --env staging
+    uv run models/cl_chilecompra_mercado_publico/code/register_metadata.py --env prod
 
 The whole registration is one idempotent script rather than a hand-driven sequence
 of MCP calls, for two reasons:
@@ -24,14 +24,15 @@ import sys
 from datetime import date
 from pathlib import Path
 
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
+
 CODE = Path(__file__).resolve().parent
 sys.path.insert(0, str(CODE))
-sys.path.insert(
-    0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
-)
 
-import metadata_spec as spec  # noqa: E402
-import server  # noqa: E402
+from models.cl_chilecompra_mercado_publico.code import (  # noqa: E402
+    metadata_spec as spec,
+)
 
 GCP_PROJECT = {
     "staging": "basedosdados-dev",
@@ -55,7 +56,7 @@ class Registrar:
         # published only after merge + table-approve + verification.
         self.publish = publish
         self.ids: dict[str, dict[str, str]] = {}
-        self.account = server.get_authenticated_account(env=env)["id"]
+        self.account = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
 
     # ---------------------------------------------------------------- helpers
     def log(self, *parts):
@@ -82,7 +83,7 @@ class Registrar:
                 self.ids["license"][spec.LICENSE] = "<dry-run>"
                 self.log(f"  would create licence {spec.LICENSE}")
             else:
-                made = server.create_update_license(
+                made = bd_mcp_write.create_update_license(
                     env=self.env, **spec.LICENSE_RECORD
                 )
                 self.ids["license"][spec.LICENSE] = made["id"]
@@ -92,10 +93,10 @@ class Registrar:
                 self.ids["organization"][spec.ORGANIZATION] = "<dry-run>"
                 self.log(f"  would create organization {spec.ORGANIZATION}")
             else:
-                area = server.lookup_id(
+                area = bd_mcp_metadata.lookup_id(
                     category="area", slug=spec.AREA, env=self.env
                 )
-                made = server.create_update_organization(
+                made = bd_mcp_write.create_update_organization(
                     env=self.env,
                     area_id=area["id"],
                     **spec.ORGANIZATION_RECORD,
@@ -115,12 +116,14 @@ class Registrar:
             "license",
             "availability",
         ]
-        found = server.discover_ids(env=self.env, keys=keys)
+        found = bd_mcp_metadata.discover_ids(env=self.env, keys=keys)
         for key in keys:
             self.ids[key] = found.get(key, {})
         # discover_ids deliberately excludes "area" -- it is looked up one slug
         # at a time.
-        area = server.lookup_id(category="area", slug=spec.AREA, env=self.env)
+        area = bd_mcp_metadata.lookup_id(
+            category="area", slug=spec.AREA, env=self.env
+        )
         self.ids["area"] = {spec.AREA: area["id"]} if area.get("id") else {}
         # The organization and the licence are this dataset's own records, and are
         # created on a backend that lacks them. Everything else must already exist:
@@ -140,6 +143,7 @@ class Registrar:
         ):
             if slug not in self.ids[key]:
                 missing.append(f"{key}:{slug}")
+        # pyrefly: ignore [not-iterable]
         entities = {e for t in spec.TABLES for e in t["observation_levels"]}
         missing += [
             f"entity:{e}" for e in entities if e not in self.ids["entity"]
@@ -150,7 +154,7 @@ class Registrar:
             )
 
     def state(self) -> dict:
-        return server.get_dataset(spec.DATASET_SLUG, env=self.env)
+        return bd_mcp_metadata.get_dataset(spec.DATASET_SLUG, env=self.env)
 
     def coverage_state(self, table_id: str) -> list[dict]:
         """Coverages with isClosed, which get_dataset does not return."""
@@ -163,7 +167,7 @@ class Registrar:
             } } }
           } } } } } }
         }"""
-        data = server._gql(q, {"id": table_id}, env=self.env)
+        data = bd_mcp_metadata._gql(q, {"id": table_id}, env=self.env)
         edges = data["allTable"]["edges"]
         if not edges:
             return []
@@ -172,12 +176,12 @@ class Registrar:
             node = cov["node"]
             out.append(
                 {
-                    "id": server._strip_id(node["id"]),
+                    "id": bd_mcp_metadata._strip_id(node["id"]),
                     "is_closed": bool(node["isClosed"]),
                     "area_slug": (node.get("area") or {}).get("slug"),
                     "ranges": [
                         {
-                            "id": server._strip_id(r["node"]["id"]),
+                            "id": bd_mcp_metadata._strip_id(r["node"]["id"]),
                             "start": (
                                 r["node"]["startYear"],
                                 r["node"]["startMonth"],
@@ -217,7 +221,8 @@ class Registrar:
                 f"({status})",
             )
             return current["id"] or ""
-        result = server.create_update_dataset(**args)
+        # pyrefly: ignore [bad-argument-type]
+        result = bd_mcp_write.create_update_dataset(**args)
         self.log("dataset:", result["id"], f"({status})")
         return result["id"]
 
@@ -225,7 +230,7 @@ class Registrar:
     def raw_sources(self, dataset_id: str) -> dict[str, str]:
         existing = {
             s["name"]: s["id"]
-            for s in server.get_raw_data_sources(
+            for s in bd_mcp_write.get_raw_data_sources(
                 spec.DATASET_SLUG, env=self.env
             )
         }
@@ -249,7 +254,7 @@ class Registrar:
             out[key] = (
                 existing_id
                 if self.dry_run
-                else server.create_update_raw_data_source(**args)["id"]
+                else bd_mcp_write.create_update_raw_data_source(**args)["id"]
             )
             self.log(f"  raw source {key}: {out[key]}")
         return out
@@ -280,8 +285,10 @@ class Registrar:
             # table with more than one, which would make the recurring pipeline's poll
             # fail before it did anything.
             if table["raw_source"]:
+                # pyrefly: ignore [bad-index]
                 args["raw_data_source_ids"] = [raw_ids[table["raw_source"]]]
             if table["auxiliary_files"]:
+                # pyrefly: ignore [bad-argument-type]
                 args["auxiliary_files_url"] = spec.auxiliary_files_url(slug)
             existing_id = current[slug]["id"] if slug in current else ""
             if existing_id:
@@ -289,9 +296,10 @@ class Registrar:
             out[slug] = (
                 existing_id
                 if self.dry_run
-                else server.create_update_table(**args)["id"]
+                else bd_mcp_write.create_update_table(**args)["id"]  # pyrefly: ignore [bad-argument-type]
             )
             self.log(f"  table {slug}: {out[slug]}")
+        # pyrefly: ignore [bad-return]
         return out
 
     # ------------------------------------------------------------- 4. columns
@@ -307,7 +315,8 @@ class Registrar:
             if self.dry_run:
                 self.log(f"  {slug}: {len(payload)} columns (dry run)")
                 continue
-            result = server.bulk_upsert_columns(
+            result = bd_mcp_write.bulk_upsert_columns(
+                # pyrefly: ignore [bad-index]
                 table_id=table_ids[slug],
                 columns_json=json.dumps(payload, ensure_ascii=False),
                 env=self.env,
@@ -332,21 +341,27 @@ class Registrar:
                 for ol in current.get(slug, {}).get("observation_levels", [])
             }
             ol_ids = {}
+            # pyrefly: ignore [not-iterable]
             for entity in table["observation_levels"]:
                 if entity in have:
                     ol_ids[entity] = have[entity]
                 elif self.dry_run:
                     ol_ids[entity] = ""
                 else:
-                    ol_ids[entity] = server.create_update_observation_level(
-                        table_id=table_ids[slug],
-                        entity_id=self.ids["entity"][entity],
-                        env=self.env,
-                    )["id"]
+                    ol_ids[entity] = (
+                        bd_mcp_write.create_update_observation_level(
+                            # pyrefly: ignore [bad-index]
+                            table_id=table_ids[slug],
+                            entity_id=self.ids["entity"][entity],
+                            env=self.env,
+                        )["id"]
+                    )
             self.log(f"  {slug}: {len(ol_ids)} observation levels")
             if not self.dry_run:
-                server.reorder_observation_levels(
+                bd_mcp_write.reorder_observation_levels(
+                    # pyrefly: ignore [bad-index]
                     table_id=table_ids[slug],
+                    # pyrefly: ignore [not-iterable]
                     ol_ids=[ol_ids[e] for e in table["observation_levels"]],
                     env=self.env,
                 )
@@ -359,15 +374,17 @@ class Registrar:
                 for c in current.get(slug, {}).get("columns", [])
             }
             linked = 0
+            # pyrefly: ignore [missing-attribute]
             for column, entity in table["observation_level_columns"].items():
                 if column not in by_name:
                     raise SystemExit(f"{slug}: column {column} not registered")
                 if self.dry_run:
                     linked += 1
                     continue
-                server.update_column(
+                bd_mcp_write.update_column(
                     column_id=by_name[column],
                     column_name=column,
+                    # pyrefly: ignore [bad-index]
                     table_id=table_ids[slug],
                     observation_level_id=ol_ids[entity],
                     is_partition=column in spec.PARTITION_COLUMNS,
@@ -384,6 +401,7 @@ class Registrar:
             slug = table["slug"]
             have = current.get(slug, {}).get("cloud_tables", [])
             args = dict(
+                # pyrefly: ignore [bad-index]
                 table_id=table_ids[slug],
                 gcp_project_id=project,
                 gcp_dataset_id=spec.GCP_DATASET_ID,
@@ -397,7 +415,8 @@ class Registrar:
                     f"  {slug}: cloud table -> {project}.{spec.GCP_DATASET_ID}"
                 )
                 continue
-            result = server.create_update_cloud_table(**args)
+            # pyrefly: ignore [bad-argument-type]
+            result = bd_mcp_write.create_update_cloud_table(**args)
             self.log(f"  {slug}: cloud table {result['id']}")
 
     # ------------------------------------------------------------ 7. coverage
@@ -408,6 +427,7 @@ class Registrar:
         for table in spec.TABLES:
             slug = table["slug"]
             monthly = slug != "dicionario"
+            # pyrefly: ignore [bad-index]
             have = self.coverage_state(table_ids[slug])
             by_closed = {c["is_closed"]: c for c in have}
 
@@ -420,6 +440,7 @@ class Registrar:
             for is_closed, start, end in wanted:
                 cov = by_closed.get(is_closed)
                 cov_args = dict(
+                    # pyrefly: ignore [bad-index]
                     table_id=table_ids[slug],
                     area_id=area_id,
                     is_closed=is_closed,
@@ -432,7 +453,7 @@ class Registrar:
                         f"  {slug}: coverage closed={is_closed} {start}..{end}"
                     )
                     continue
-                cov_id = server.create_update_coverage(**cov_args)["id"]
+                cov_id = bd_mcp_write.create_update_coverage(**cov_args)["id"]
 
                 # Annual table (the dicionario) gets year-only bounds; the three data
                 # tables are month-granular and must carry months on both sides.
@@ -449,7 +470,7 @@ class Registrar:
                     rng_args["end_month"] = (end or spec.COVERAGE_END)[1]
                 if cov and cov["ranges"]:
                     rng_args["id"] = cov["ranges"][0]["id"]
-                server.create_update_datetime_range(**rng_args)
+                bd_mcp_write.create_update_datetime_range(**rng_args)
                 label = "pro" if is_closed else "free"
                 self.log(
                     f"  {slug}: {label} coverage {start} .. {end or spec.COVERAGE_END}"
@@ -472,13 +493,14 @@ class Registrar:
                 frequency=1,
                 lag=1,
                 latest=today,
+                # pyrefly: ignore [bad-index]
                 table_id=table_ids[slug],
                 env=self.env,
             )
             if have:
                 args["id"] = have[0]["id"]
             if not self.dry_run:
-                server.create_update_update(**args)
+                bd_mcp_write.create_update_update(**args)
             self.log(f"  {slug}: table Update latest={today[:10]}")
 
         # The source-anchored Update carries the source's max COVERAGE date, not a
@@ -496,7 +518,7 @@ class Registrar:
             # every re-run -- the exact duplication this script exists to avoid, and one
             # the table-anchored loop above already guards against.
             existing = self.raw_source_update_id(raw_id)
-            server.create_update_update(
+            bd_mcp_write.create_update_update(
                 entity_id=month,
                 frequency=1,
                 latest=source_latest,
@@ -514,22 +536,23 @@ class Registrar:
             edges { node { id entity { slug } } }
           } } } }
         }"""
-        edges = server._gql(q, {"id": raw_id}, env=self.env)[
+        edges = bd_mcp_metadata._gql(q, {"id": raw_id}, env=self.env)[
             "allRawdatasource"
         ]["edges"]
         if not edges:
             return None
         for upd in edges[0]["node"]["updates"]["edges"]:
             if (upd["node"].get("entity") or {}).get("slug") == "month":
-                return server._strip_id(upd["node"]["id"])
+                return bd_mcp_metadata._strip_id(upd["node"]["id"])
         return None
 
     # --------------------------------------------------------------- 9. order
     def order(self):
         if self.dry_run:
             return
-        server.reorder_tables(
+        bd_mcp_write.reorder_tables(
             dataset_slug=spec.DATASET_SLUG,
+            # pyrefly: ignore [bad-argument-type]
             table_slugs=[t["slug"] for t in spec.TABLES],
             env=self.env,
         )

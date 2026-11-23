@@ -1,6 +1,12 @@
 """Architecture for the Lei 14.133/2021 contratação tables (2021-)."""
 
-from arch_common import BRL, DIR_ANO, DIR_MUNICIPIO, DIR_UF, c
+from models.br_mgi_compras_publicas.code.arch_common import (
+    BRL,
+    DIR_ANO,
+    DIR_MUNICIPIO,
+    DIR_UF,
+    c,
+)
 
 COBERTURA = "2021(1)2026"
 

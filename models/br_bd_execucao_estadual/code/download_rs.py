@@ -23,14 +23,17 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 import zipfile
 from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import BROWSER_UA, INPUT_DIR, RS_CKAN, RS_PACKAGE_LIST
+from models.br_bd_execucao_estadual.code.constants import (
+    BROWSER_UA,
+    INPUT_DIR,
+    RS_CKAN,
+    RS_PACKAGE_LIST,
+)
 
 RS_INPUT = INPUT_DIR / "rs"
 CHUNK = 1 << 20

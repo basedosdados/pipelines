@@ -10,7 +10,7 @@ county-council (Kreistag), European. Plus the two crosswalk files used to build
 the br_bd_diretorios_de geography directories.
 
 Run:
-    cd models/us_nature_gerda/code && python3 download.py [name ...]
+    uv run models/us_nature_gerda/code/download.py [name ...]
 (no args = download everything in the manifest)
 """
 

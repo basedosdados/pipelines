@@ -67,8 +67,8 @@ env="prod")` re-passing every field. Arm `us_epa_ghgrp` in Django admin. Delete
 ## Local commands
 
 ```bash
-PYTHONPATH=. uv run python models/us_epa_ghgrp/code/clean_data.py [--download]
-PYTHONPATH=. uv run python models/us_epa_ghgrp/code/upload.py
+PYTHONPATH=. uv run models/us_epa_ghgrp/code/clean_data.py [--download]
+PYTHONPATH=. uv run models/us_epa_ghgrp/code/upload.py
 BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/prod.json uv run dbt run --select us_epa_ghgrp
 BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/prod.json uv run dbt test --select us_epa_ghgrp
 ```

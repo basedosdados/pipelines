@@ -6,6 +6,15 @@ entire history on every (near-daily) release, so each run is a full replace
 the pipeline runs **weekly** rather than daily (see ``flows.py`` schedule). See
 models/world_cricsheet/ for the onboarding design and the architecture CSVs (the
 schema source of truth).
+
+One check_update/extract_and_load pair for the whole dataset, not a pair per
+table (``ALL_TABLES`` below): the bundle download is a single non-decomposable
+pass that builds all four tables at once (``utils.clean_all``), and
+``world_cricsheet__match_players.person_id`` carries a cross-table
+``relationships`` test against ``ref('world_cricsheet__people')`` (see
+``models/world_cricsheet/schema.yml``) — the one case the repo-wide
+one-pipeline-per-table_id rule carves out. See the module banner in
+``flows.py`` (same shape as ``br_bcb_ifdata``/``au_rba_statistical_tables``).
 """
 
 from enum import Enum

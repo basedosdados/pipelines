@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from pathlib import Path
+from typing import TypedDict
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT_DIR = ROOT / "input"
@@ -18,8 +19,16 @@ OUTPUT_DIR = ROOT / "output"
 ARCH_DIR = Path(__file__).resolve().parent / "architecture"
 META_CACHE = Path(__file__).resolve().parent / "meta_cache.json"
 
+
 # Merged round files. `num` is the round; `filename` is the cached local name.
-ROUNDS = [
+class Round(TypedDict):
+    num: int
+    slug: str
+    filename: str
+    url: str
+
+
+ROUNDS: list[Round] = [
     {
         "num": 1,
         "slug": "round1",

@@ -4,7 +4,7 @@ Imports the shared transform from the pipeline package — the cleaning logic
 lives in exactly one place (see .claude/rules/prefect-pipeline-conventions.md).
 
 Usage:
-    uv run python models/au_rba_statistical_tables/code/clean.py [--download]
+    uv run models/au_rba_statistical_tables/code/clean.py [--download]
 
 Scratch data lives under ~/Downloads/au_rba_statistical_tables_data/ (override
 with RBA_DATA); nothing is written into the repo or Dropbox.

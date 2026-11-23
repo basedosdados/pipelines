@@ -1,8 +1,8 @@
 """Generate DBT model files (.sql) and schema.yml for gb_eric_ess.
 
 Usage:
-    uv run python models/gb_eric_ess/code/build_dbt_files.py profile [--cache PATH]
-    uv run python models/gb_eric_ess/code/build_dbt_files.py generate [--cache PATH]
+    uv run models/gb_eric_ess/code/build_dbt_files.py profile [--cache PATH]
+    uv run models/gb_eric_ess/code/build_dbt_files.py generate [--cache PATH]
 
 `profile` scans the local partitioned parquet in models/gb_eric_ess/output/ one round
 at a time to (1) verify the [country_id, respondent_id] key empirically and
@@ -21,8 +21,6 @@ from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 CODE_DIR = Path(__file__).resolve().parent

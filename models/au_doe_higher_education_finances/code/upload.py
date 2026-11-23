@@ -8,8 +8,8 @@ a re-clean that changes the data cannot pass a stale expectation.
 The provider directory table belongs to br_bd_diretorios_au and is uploaded into
 that dataset's staging, not this one.
 
-Run:  python upload.py                     # every table
-      python upload.py research_income     # a subset
+Run:  uv run models/au_doe_higher_education_finances/code/upload.py                     # every table
+      uv run models/au_doe_higher_education_finances/code/upload.py research_income     # a subset
 """
 
 from __future__ import annotations

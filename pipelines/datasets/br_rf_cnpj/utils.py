@@ -6,8 +6,10 @@ import datetime
 import os
 import re
 import zipfile
+import zlib
 from asyncio import Semaphore, gather, sleep
 from pathlib import Path
+from time import sleep as blocking_sleep
 
 import basedosdados as bd
 import pandas as pd
@@ -16,11 +18,49 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
-from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
-from pipelines.utils.utils import log
+from pipelines.datasets.br_rf_cnpj.constants import (
+    COLUNAS_EMPRESAS,
+    COLUNAS_ESTABELECIMENTO,
+    COLUNAS_ESTABELECIMENTO_ORDEM,
+    COLUNAS_SIMPLES,
+    COLUNAS_SOCIOS,
+    COMPONENTS_SPECS,
+    DOWNLOAD_ZIP_MAX_ATTEMPTS,
+    EXPECTED_FILES_TOLERANCE,
+    HEADERS,
+    PROPFIND_MAX_ATTEMPTS,
+    PROPFIND_TIMEOUT,
+    UFS,
+    XML_BODY,
+)
+from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
 
-ufs = constants_cnpj.UFS.value
-timeout = constants_cnpj.TIMEOUT.value
+
+def _propfind(url: str) -> requests.Response:
+    """PROPFIND na listagem WebDAV da RF, com timeout folgado e retry com backoff."""
+    for attempt in range(PROPFIND_MAX_ATTEMPTS):
+        try:
+            response = requests.request(
+                method="PROPFIND",
+                url=url,
+                headers=HEADERS,
+                data=XML_BODY,
+                timeout=PROPFIND_TIMEOUT,
+                proxies=brasil_proxy_dict(),
+            )
+            response.raise_for_status()
+            return response
+        except (requests.Timeout, requests.ConnectionError) as e:
+            if attempt == PROPFIND_MAX_ATTEMPTS - 1:
+                raise
+            delay = 10 * 2**attempt
+            log(
+                f"Falha no PROPFIND {url} na tentativa {attempt + 1} "
+                f"({type(e).__name__}). Retentando em {delay} segundos...",
+                "warning",
+            )
+            blocking_sleep(delay)
+    raise AssertionError("inalcançável")
 
 
 def data_url(
@@ -37,15 +77,7 @@ def data_url(
 
         tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
-
-    link_data = requests.request(
-        method="PROPFIND",
-        url=url,
-        headers=constants_cnpj.HEADERS.value,
-        data=constants_cnpj.XML_BODY.value,
-        timeout=30,
-    )
-    link_data.raise_for_status()
+    link_data = _propfind(url)
     soup = BeautifulSoup(link_data.text, "html.parser")
 
     last_modified_dates = [p for p in soup.find_all("d:prop")]
@@ -97,14 +129,7 @@ def get_table_files(table_name: str, url_base: str):
     """
     Get the files and its links of the specified table from the given BeautifulSoup object.
     """
-    link_data = requests.request(
-        method="PROPFIND",
-        url=url_base,
-        headers=constants_cnpj.HEADERS.value,
-        data=constants_cnpj.XML_BODY.value,
-        timeout=30,
-    )
-    link_data.raise_for_status()
+    link_data = _propfind(url_base)
     soup = BeautifulSoup(link_data.text, "html.parser")
 
     pattern = re.compile(rf"{table_name}.+\.zip")
@@ -128,7 +153,7 @@ def get_table_files(table_name: str, url_base: str):
 # ! Cria o caminho do output
 def build_paths(
     table_id: str, build_input: bool = True, build_output: bool = True
-):
+) -> tuple[Path | None, Path | None]:
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -221,7 +246,7 @@ async def download(
     Raises:
         HTTPError: If the server responds with an error or the download fails.
     """
-    async with AsyncClient() as client:
+    async with AsyncClient(proxy=brasil_proxy_url()) as client:
         try:
             request_head = await client.head(url, timeout=timeout)
             request_head.raise_for_status()
@@ -344,6 +369,18 @@ async def download_chunk(
                 )
                 response.raise_for_status()
 
+                # Evita que Um chunk corrompido atrapalhe a extração de todo o zip
+                # exige exatamente os bytes do range pedido.
+                expected_size = chunk_range[1] - chunk_range[0] + 1
+                if len(response.content) != expected_size or (
+                    response.status_code != 206 and chunk_range[0] > 0
+                ):
+                    raise HTTPError(
+                        f"Resposta inválida para o range {chunk_range[0]}-{chunk_range[1]}: "
+                        f"status={response.status_code}, "
+                        f"{len(response.content)} bytes (esperado {expected_size})"
+                    )
+
                 with open(save_path, "r+b") as fd:
                     fd.seek(chunk_range[0])
                     fd.write(response.content)
@@ -354,11 +391,17 @@ async def download_chunk(
                 )
 
                 return
-            except HTTPError:
-                delay = 2**attempt
+            except HTTPError as e:
+                # Timeouts e quedas de conexão não têm response; só erros HTTP têm status
+                status = getattr(
+                    getattr(e, "response", None), "status_code", None
+                )
+                # Backoff longo o bastante para atravessar instabilidades do servidor da RF
+                delay = min(5 * 2**attempt, 120)
                 log(
                     f"Falha no download do chunk {chunk_range[0]}-{chunk_range[1]} "
-                    f"na tentativa {attempt + 1}. Retentando em {delay} segundos..."
+                    f"na tentativa {attempt + 1} ({type(e).__name__}: {e!r}, status={status}). "
+                    f"Retentando em {delay} segundos..."
                 )
                 await sleep(delay)
 
@@ -385,24 +428,63 @@ async def download_unzip_csv(
     """
     log(f"Baixando o arquivo {url}")
     save_path = path / f"{Path(url).stem}.zip"
-    await download(
-        url,
-        save_path,
-        chunk_size=chunk_size,
-        max_retries=max_retries,
-        max_parallel=max_parallel,
-        timeout=timeout,
+
+    for attempt in range(DOWNLOAD_ZIP_MAX_ATTEMPTS):
+        await download(
+            url,
+            save_path,
+            chunk_size=chunk_size,
+            max_retries=max_retries,
+            max_parallel=max_parallel,
+            timeout=timeout,
+        )
+        try:
+            # testzip confere o CRC de todos os membros antes de extrair
+            with zipfile.ZipFile(save_path) as z:
+                bad_member = z.testzip()
+                if bad_member is not None:
+                    raise zipfile.BadZipFile(f"CRC inválido em {bad_member}")
+                z.extractall(path)
+            os.remove(save_path)
+            log("Dados extraídos com sucesso!")
+            return
+        except (zipfile.BadZipFile, zlib.error) as e:
+            log(
+                f"O arquivo {Path(url).stem} chegou corrompido na tentativa "
+                f"{attempt + 1}/{DOWNLOAD_ZIP_MAX_ATTEMPTS} ({e!r}).",
+                "warning",
+            )
+            os.remove(save_path)
+
+    raise RuntimeError(
+        f"{Path(url).stem}.zip corrompido após {DOWNLOAD_ZIP_MAX_ATTEMPTS} downloads"
     )
 
-    try:
-        with zipfile.ZipFile(save_path) as z:
-            z.extractall(path)
-        log("Dados extraídos com sucesso!")
-    except zipfile.BadZipFile:
-        log(f"O arquivo {Path(url).stem} não é um arquivo ZIP válido.")
-        # raise
 
-    os.remove(save_path)
+def validate_expected_file_count(
+    table_id: str,
+    found: int,
+    expected: int,
+    tolerance: int = EXPECTED_FILES_TOLERANCE,
+) -> None:
+    """Confere a quantidade de arquivos fragmentados da tabela na fonte.
+    Atualmente, as tabelas `empresas`, `estabelecimentos`, `socios` estão
+    fragmentadas em 10 arquivos.
+    Args:
+        table_id: tabela (`empresas`, `estabelecimentos`, `socios`).
+        found: arquivos achados na listagem da RF.
+        expected: quantidade esperada.
+        tolerance: diferença absoluta aceita.
+
+    Raises:
+        ValueError: se `found` diferir de `expected` além de `tolerance`.
+    """
+    if abs(found - expected) > tolerance:
+        raise ValueError(
+            f"{table_id}: a Receita Federal lista {found} arquivos, esperado "
+            f"{expected} (tolerância de {tolerance}). A divisão em fragmentos "
+            f"pode ter mudado; confira a fonte antes de carregar."
+        )
 
 
 # ! Salva os dados CSV Estabelecimentos
@@ -413,7 +495,7 @@ def process_csv_estabelecimentos(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for establishments, organizing data into partitions by state.
 
@@ -424,11 +506,21 @@ def process_csv_estabelecimentos(
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
-    ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
-    colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
+    rows_in = 0
+    rows_out = 0
+    ordem = COLUNAS_ESTABELECIMENTO_ORDEM
+    colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
+
+    # A escrita abaixo é em modo append: sobra de uma tentativa que caiu no meio
+    # deste arquivo duplicaria linhas no retry.
+    for parcial in save_folder.glob(f"sigla_uf=*/estabelecimentos_{i}.csv"):
+        parcial.unlink()
 
     for filepath in Path(input_path).iterdir():
         if "estabele" in filepath.as_posix().lower():
@@ -477,8 +569,10 @@ def process_csv_estabelecimentos(
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
                 chunk["data_modificacao"] = data_coleta
-                for uf in constants_cnpj.UFS.value:
+                rows_in += len(chunk)
+                for uf in UFS:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
+                    rows_out += len(df_particao)
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = save_folder / f"sigla_uf={uf}"
                     particao_path.mkdir(exist_ok=True, parents=True)
@@ -496,6 +590,8 @@ def process_csv_estabelecimentos(
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(filepath)
 
+    return rows_in
+
 
 # ! Salva os dados CSV Empresas
 def process_csv_empresas(
@@ -505,7 +601,7 @@ def process_csv_empresas(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for companies.
 
@@ -516,11 +612,15 @@ def process_csv_empresas(
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
-    colunas = constants_cnpj.COLUNAS_EMPRESAS.value
+    colunas = COLUNAS_EMPRESAS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
+    rows_saved = 0
     for filepath in Path(input_path).iterdir():
         if filepath.as_posix().lower().endswith("csv"):
             log(f"Carregando o arquivo: {filepath}")
@@ -551,6 +651,7 @@ def process_csv_empresas(
                         .astype(float)
                     )
                     chunk["data_modificacao"] = data_coleta
+                    rows_saved += len(chunk)
                     chunk.to_csv(
                         fd,
                         index=False,
@@ -561,6 +662,8 @@ def process_csv_empresas(
             log(f"Arquivo empresas_{i} salvo")
             os.remove(filepath)
 
+    return rows_saved
+
 
 # ! Salva os dados CSV Socios
 def process_csv_socios(
@@ -570,7 +673,7 @@ def process_csv_socios(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 1000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for socios (partners).
 
@@ -583,12 +686,13 @@ def process_csv_socios(
         chunk_size (int): Number of rows to process per chunk.
 
     Returns:
-        None
+        int: Number of rows passed to `to_csv`.
     """
-    colunas = constants_cnpj.COLUNAS_SOCIOS.value
+    colunas = COLUNAS_SOCIOS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
+    rows_saved = 0
     for filepath in Path(input_path).iterdir():
         if filepath.as_posix().lower().endswith("csv"):
             log(f"Carregando o arquivo: {filepath}")
@@ -621,6 +725,7 @@ def process_csv_socios(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
                     chunk["data_modificacao"] = data_coleta
+                    rows_saved += len(chunk)
                     chunk.to_csv(
                         fd,
                         index=False,
@@ -631,6 +736,8 @@ def process_csv_socios(
             log(f"Arquivo socios_{i} salvo")
             os.remove(filepath)
 
+    return rows_saved
+
 
 # ! Salva os dados CSV Simples
 def process_csv_simples(
@@ -640,7 +747,7 @@ def process_csv_simples(
     data_coleta: str | datetime.date,
     sufixo: str,
     chunk_size: int = 1000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for simples.
 
@@ -653,12 +760,13 @@ def process_csv_simples(
         chunk_size (int): Number of rows to process per chunk.
 
     Returns:
-        None
+        int: Number of rows passed to `to_csv`.
     """
-    colunas = constants_cnpj.COLUNAS_SIMPLES.value
+    colunas = COLUNAS_SIMPLES
     save_folder = Path(output_path)
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"{sufixo}.csv"
+    rows_saved = 0
     for filepath in Path(input_path).iterdir():
         if "simples.csv" in filepath.as_posix().lower():
             log(f"Carregando o arquivo: {filepath}")
@@ -695,6 +803,7 @@ def process_csv_simples(
                         {"N": "0", "S": "1"}
                     )
                     chunk["data_modificacao"] = data_coleta
+                    rows_saved += len(chunk)
                     chunk.to_csv(
                         fd,
                         index=False,
@@ -704,6 +813,8 @@ def process_csv_simples(
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(filepath)
+
+    return rows_saved
 
 
 def get_table_unique_keys(table_id: str, column: str):
@@ -715,16 +826,21 @@ def get_table_unique_keys(table_id: str, column: str):
     Returns:
         pd.DataFrame: A DataFrame containing the unique keys from the specified table and column.
     """
+    # A staging é tabela externa sobre CSV acumulado por competência: ler uma
+    # coluna custa o arquivo inteiro, de todos os meses. A materializada é
+    # nativa e particionada, então a leitura é só da coluna pedida.
     query = f"""WITH tmp_split AS(
     SELECT
-        split(safe_cast({column} AS STRING),",") AS chave 
-    FROM `basedosdados-dev.br_rf_cnpj_staging.{table_id}`
+        split(safe_cast({column} AS STRING),",") AS chave
+    FROM `basedosdados-dev.br_rf_cnpj.{table_id}`
     )
     SELECT DISTINCT chave
     FROM tmp_split,
     UNNEST(chave) AS chave"""
     uniques = bd.read_sql(
-        query=query, from_file=True, billing_project_id="basedosdados"
+        query=query,
+        from_file=True,
+        billing_project_id=os.getenv("BD_BILLING_PROJECT_ID", "basedosdados"),
     )["chave"].unique()
     df_uniques = pd.DataFrame(uniques, columns=["chave"])
     df_uniques.loc[df_uniques["chave"] == "", "chave"] = None
@@ -877,7 +993,7 @@ def process_csv_dicionario(
     input_path: Path,
     output_path: Path,
     table_name: str,
-) -> Path:
+) -> int:
     """
     Processes CSV dictionary files and transforms them into a standardized format.
 
@@ -888,14 +1004,18 @@ def process_csv_dicionario(
     Args:
         input_path (Path): Directory containing the input CSV files.
         output_path (Path): Base directory for output.
-        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
+    rows_saved = 0
 
     log(f"Save path: {save_path}")
-    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = COMPONENTS_SPECS[table_name]
     files = [
         fp
         for fp in Path(input_path).iterdir()
@@ -954,6 +1074,7 @@ def process_csv_dicionario(
                     subset=["id_tabela", "nome_coluna", "chave", "valor"]
                 )
 
+                rows_saved += len(chunk_save)
                 chunk_save[
                     [
                         "id_tabela",
@@ -972,21 +1093,25 @@ def process_csv_dicionario(
 
     log(f"Arquivo {table_name} salvo")
     os.remove(filepath)
-    return save_path
+    return rows_saved
 
 
-def process_manual_dictionaries(output_path: Path, table_name: str):
+def process_manual_dictionaries(output_path: Path, table_name: str) -> int:
     """
     Processes dictionary keys and values, manually defined.
 
     Args:
         output_path (Path): Base directory for output.
-        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
-    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = COMPONENTS_SPECS[table_name]
+    rows_saved = 0
 
     chunk = pd.DataFrame(table_configs["chaves_valores"])
     for relationship in table_configs["relationships"]:
@@ -1013,6 +1138,7 @@ def process_manual_dictionaries(output_path: Path, table_name: str):
             subset=["id_tabela", "nome_coluna", "chave", "valor"]
         )
 
+        rows_saved += len(chunk_save)
         chunk_save[
             [
                 "id_tabela",
@@ -1028,3 +1154,5 @@ def process_manual_dictionaries(output_path: Path, table_name: str):
             encoding="utf-8",
             header=not save_path.exists(),  # Write header only if file doesn't exist
         )
+
+    return rows_saved

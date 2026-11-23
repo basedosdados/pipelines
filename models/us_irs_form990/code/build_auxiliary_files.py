@@ -11,7 +11,7 @@ link-only.
 
 Usage (from the repo root, ``PYTHONPATH=.``)::
 
-    python models/us_irs_form990/code/build_auxiliary_files.py [--upload]
+    uv run models/us_irs_form990/code/build_auxiliary_files.py [--upload]
 
 Uploads go to ``gs://basedosdados-dev/auxiliary_files/us_irs_form990/<table>/``
 (the prod bucket is not writable with local credentials). The public URL is

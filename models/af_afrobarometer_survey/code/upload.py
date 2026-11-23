@@ -3,7 +3,7 @@
 Uploads output/<slug>/data.parquet into <project>_staging.<slug>.
 
 Usage:
-    .venv/bin/python models/af_afrobarometer_survey/code/upload.py [--prod] [slug ...]
+    uv run models/af_afrobarometer_survey/code/upload.py [--prod] [slug ...]
 
 Default project is basedosdados-dev. Uploads smallest first; stops on the
 first failure; verifies row counts against the cleaned Parquet.

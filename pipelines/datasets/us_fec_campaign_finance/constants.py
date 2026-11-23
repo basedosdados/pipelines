@@ -49,3 +49,15 @@ class constants(Enum):
     # The FEC republishes the current cycle daily and freezes past cycles, so a
     # scheduled run re-pulls only the current cycle's partition.
     FIRST_CYCLE = 1980
+
+
+# Table ids. One independent check_update/extract_and_load pair per table (see
+# flows.py's module banner) — kept as plain literals, not Enum members, so
+# tasks.py/flows.py can import them directly (same convention as au_ato_abr).
+CANDIDATE_TABLE_ID = "candidate"
+COMMITTEE_TABLE_ID = "committee"
+CANDIDATE_COMMITTEE_LINK_TABLE_ID = "candidate_committee_link"
+CONTRIBUTION_INDIVIDUAL_TABLE_ID = "contribution_individual"
+CONTRIBUTION_COMMITTEE_TABLE_ID = "contribution_committee"
+COMMITTEE_TRANSACTION_TABLE_ID = "committee_transaction"
+DISBURSEMENT_TABLE_ID = "disbursement"

@@ -22,7 +22,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-import requests  # pyrefly: ignore [missing-attribute]
+import requests
 
 from pipelines.datasets.us_fema_openfema.constants import constants
 
@@ -119,7 +119,7 @@ def _pad(array: pa.Array, width: int) -> pa.Array:
     array = pc.if_else(  # pyrefly: ignore [missing-attribute]
         pc.equal(array, ""),  # pyrefly: ignore [missing-attribute]
         pa.nulls(len(array), pa.string()),
-        array,  # pyrefly: ignore [missing-attribute]
+        array,
     )
     return pc.utf8_lpad(array, width, padding="0")  # pyrefly: ignore [missing-attribute]
 
@@ -128,7 +128,7 @@ def _blank_to_null(array: pa.Array) -> pa.Array:
     return pc.if_else(  # pyrefly: ignore [missing-attribute]
         pc.equal(array, ""),  # pyrefly: ignore [missing-attribute]
         pa.nulls(len(array), pa.string()),
-        array,  # pyrefly: ignore [missing-attribute]
+        array,
     )
 
 
@@ -196,14 +196,14 @@ def _derive(table: str, batch: pa.Table) -> pa.Table:
         tract = pc.if_else(  # pyrefly: ignore [missing-attribute]
             well_formed,
             pc.utf8_slice_codeunits(geoid, 0, 11),  # pyrefly: ignore [missing-attribute]
-            nulls,  # pyrefly: ignore [missing-attribute]
+            nulls,
         )
         batch = batch.append_column("census_tract_id", tract)
         if table == "nfip_policy":
             county = pc.if_else(  # pyrefly: ignore [missing-attribute]
                 well_formed,
                 pc.utf8_slice_codeunits(geoid, 0, 5),  # pyrefly: ignore [missing-attribute]
-                nulls,  # pyrefly: ignore [missing-attribute]
+                nulls,
             )
             batch = batch.append_column(
                 "county_id",

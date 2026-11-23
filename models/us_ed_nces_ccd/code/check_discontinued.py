@@ -12,7 +12,7 @@ usually a `safe_cast` that silently produced NULLs -- and must not be added to
 the ignore list.
 
 Usage:
-    uv run python models/us_ed_nces_ccd/code/check_discontinued.py
+    uv run models/us_ed_nces_ccd/code/check_discontinued.py
 """
 
 from __future__ import annotations

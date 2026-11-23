@@ -7,7 +7,7 @@ the same information shaped for ``mcp__databasis__bulk_upsert_columns``, with
 the Portuguese and Spanish descriptions attached.
 
 Usage:
-    uv run python models/us_dol_oflc/code/build_architecture.py
+    uv run models/us_dol_oflc/code/build_architecture.py
 """
 
 from __future__ import annotations

@@ -58,6 +58,10 @@ class constants(Enum):
         "dicionario",
     ]
 
+    # Tabela usada para o poll da fonte. `data` carrega a cobertura temporal
+    # (year) que determina se há um novo ano publicado.
+    POLL_TABLE = "data"
+
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "world_wb_wdi" / "code" / "architecture"
     )

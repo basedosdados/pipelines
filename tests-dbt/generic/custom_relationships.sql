@@ -4,7 +4,8 @@
     to,
     field,
     ignore_values=None,
-    proportion_allowed_failures=0.00
+    proportion_allowed_failures=0.00,
+    to_where=None
 ) %}
 
     {{ config(severity="error") }}
@@ -19,7 +20,11 @@
                     and {{ column_name }} is not null
             {% endif %}
         ),
-        parent as (select {{ field }} as parent_value from {{ to }}),
+        parent as (
+            select {{ field }} as parent_value
+            from {{ to }}
+            {% if to_where %} where {{ to_where }} {% endif %}
+        ),
         validation as (
             select child.child_value
             from child
@@ -30,9 +35,7 @@
             select
                 count(*) as total_missing,
                 (select count(*) from child) as total_child_records,
-                round(
-                    safe_divide(count(*), (select count(*) from child)), 2
-                ) as failure_rate
+                safe_divide(count(*), (select count(*) from child)) as failure_rate
             from validation
         )
 

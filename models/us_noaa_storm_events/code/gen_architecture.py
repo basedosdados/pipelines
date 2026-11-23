@@ -8,7 +8,7 @@ generated from them, so a schema change is made here and nowhere else.
 Descriptions are carried in all three languages in the CSV itself rather than
 translated downstream, so no second source of truth exists.
 
-Run: uv run python models/us_noaa_storm_events/code/gen_architecture.py
+Run: uv run models/us_noaa_storm_events/code/gen_architecture.py
 """
 
 import csv

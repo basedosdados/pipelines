@@ -1,49 +1,58 @@
 import os
-import zipfile
 from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
 import requests
 
-# pyrefly: ignore [missing-import]
-from utils import (
-    # pyrefly: ignore [missing-module-attribute]
+from models.br_inep_saeb.code.utils import (
     convert_to_pd_dtype,
-    # pyrefly: ignore [missing-module-attribute]
     get_disciplina_serie,
-    # pyrefly: ignore [missing-module-attribute]
     get_nivel_serie_disciplina,
 )
 
-CWD = Path(os.getcwd()).parent
+input = Path("input") / "br_inep_saeb"
+output = Path("output") / "br_inep_saeb"
 
-INPUT = CWD / "input"
-OUTPUT = CWD / "output"
+os.makedirs(input, exist_ok=True)
+os.makedirs(output, exist_ok=True)
 
-os.makedirs(INPUT, exist_ok=True)
-os.makedirs(OUTPUT, exist_ok=True)
+url = "https://download.inep.gov.br/saeb/resultados/saeb_2025_brasil_estados_municipios_censitario.xlsx"
+xlsx_file = "saeb_2025.xlsx"
 
-URL = "https://download.inep.gov.br/microdados/planilhas_de_resultados_20250507.zip"
 
-r = requests.get(
-    URL, headers={"User-Agent": "Mozilla/5.0"}, verify=False, stream=True
-)
+def download(url: str, max_attempts: int = 3, timeout: float = 120):
+    for attempt in range(1, max_attempts + 1):
+        try:
+            r = requests.get(
+                url,
+                headers={"User-Agent": "Mozilla/5.0"},
+                verify=False,
+                stream=True,
+                timeout=timeout,
+            )
+            r.raise_for_status()
+            return r
+        except requests.exceptions.ConnectionError as exc:
+            print(
+                f"[attempt {attempt}/{max_attempts}] failed: {exc!r} - retrying.."
+            )
+    raise Exception(f"All {max_attempts} attempts failed for {url}")
 
-with open(INPUT / "2023.zip", "wb") as fd:
+
+r = download(url)
+
+with open(input / xlsx_file, "wb") as fd:
     for chunk in r.iter_content(chunk_size=128):
         fd.write(chunk)
 
-with zipfile.ZipFile(INPUT / "2023.zip") as z:
-    z.extractall(INPUT)
-
 br_saeb_latest = pd.read_excel(
-    INPUT / "PLANILHAS DE RESULTADOS_20250507" / "TS_BRASIL_20250507.xlsx",
+    input / xlsx_file,
+    sheet_name="Brasil",
     dtype=str,
 )
 
 br_saeb_latest.head()
-
 
 br_saeb_latest = (
     br_saeb_latest.drop(0, axis="index")
@@ -123,6 +132,7 @@ br_saeb_latest_output = (
             index=["DEPENDENCIA_ADM", "LOCALIZACAO", "disciplina", "serie"],
             columns="nivel",
             values="value",
+            aggfunc="first",
         )
         .reset_index()
         .merge(
@@ -156,7 +166,7 @@ br_saeb_latest_output = (
     )
 )
 
-br_saeb_latest_output["ano"] = 2023
+br_saeb_latest_output["ano"] = 2025
 
 br_saeb_latest_output.head()
 
@@ -182,13 +192,15 @@ upstream_df = bd.read_sql(
     billing_project_id="basedosdados-dev",
 )
 
-pd.concat([br_saeb_latest_output, upstream_df]).to_csv(  # type: ignore
-    os.path.join(OUTPUT, "brasil.csv"), index=False
-)
+br_saeb_updated = pd.concat([br_saeb_latest_output, upstream_df])
+
+br_saeb_updated.to_csv(os.path.join(output, "brasil.csv"), index=False)
+
+print(br_saeb_updated)
 
 # Update table
 tb.create(
-    os.path.join(OUTPUT, "brasil.csv"),
+    output / "brasil.csv",
     if_table_exists="replace",
     if_storage_data_exists="replace",
 )

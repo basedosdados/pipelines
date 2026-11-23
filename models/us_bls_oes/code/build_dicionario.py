@@ -4,7 +4,7 @@ Logic lives in `pipelines.datasets.us_bls_oes.utils.build_dicionario` (shared
 with the recurring pipeline). Run it after clean_data.py, since the dictionary
 keys are read back from the written partitions.
 
-Run: uv run python models/us_bls_oes/code/build_dicionario.py
+Run: uv run models/us_bls_oes/code/build_dicionario.py
 """
 
 import logging

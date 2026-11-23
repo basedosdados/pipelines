@@ -18,14 +18,10 @@ import csv
 import json
 import os
 import re
-import sys
 import urllib.request
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# pyrefly: ignore [missing-import]
-import schema
+from models.us_ed_nces_ccd.code import schema
 
 ROOT = Path(__file__).resolve().parent
 ARCH = ROOT / "architecture"

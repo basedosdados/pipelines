@@ -267,6 +267,7 @@ def build_rows(text_path: str):
                     continue
                 year, row_measure = "2000", f"{measure}, {label.lower()}"
             found += 1
+            # pyrefly: ignore [bad-argument-type]
             for label_text, value in zip(labels, values, strict=True):
                 rows.append(
                     {

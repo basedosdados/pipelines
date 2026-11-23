@@ -16,7 +16,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from descriptions_i18n import DESCRIPTIONS, OBSERVATIONS  # noqa: E402
+from models.cl_chilecompra_mercado_publico.code.descriptions_i18n import (  # noqa: E402
+    DESCRIPTIONS,
+    OBSERVATIONS,
+)
 
 TABLES = ["orden_compra_item", "licitacion_item", "licitacion_oferta"]
 

@@ -1,7 +1,7 @@
 """Upload the cleaned world_oecd_piaac tables to BigQuery staging.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run models/world_oecd_piaac/code/upload.py [--env dev|prod] [table_slug ...]
 
 Uploads smallest first and stops on the first failure, so a bad table is caught
 before the large ones spend time uploading.

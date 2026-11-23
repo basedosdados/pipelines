@@ -1,7 +1,7 @@
 """Upload cleaned au_qld_ecq_elections parquet to BigQuery staging.
 
 Usage:
-    PYTHONPATH=. ~/.venvs/bd-pipelines/bin/python models/au_qld_ecq_elections/code/upload.py \
+    PYTHONPATH=. uv run models/au_qld_ecq_elections/code/upload.py \
         [--env dev] [table_slug ...]
 
 Reads the cleaned parquet from ``$ECQ_DATA/output`` (default

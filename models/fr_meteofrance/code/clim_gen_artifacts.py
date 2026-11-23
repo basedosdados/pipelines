@@ -1,6 +1,6 @@
 """Generate architecture CSVs, dbt models and columns JSON for the climatologiques tables.
 
-    uv run python models/fr_meteofrance/code/clim_gen_artifacts.py
+    uv run models/fr_meteofrance/code/clim_gen_artifacts.py
 
 Run after any change to ``clim_schema.py``, then run pre-commit — the emitted
 SQL is unformatted and ``sqlfmt`` rewrites it.

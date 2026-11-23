@@ -3,8 +3,8 @@
 Calls the same transform the recurring pipeline calls, so the two cannot drift.
 Writes partitioned, all-STRING parquet under ``$NIH_REPORTER_DATA_DIR/output``.
 
-Run: uv run python models/us_nih_reporter/code/clean.py [--skip-download]
-     uv run python models/us_nih_reporter/code/clean.py --fiscal 2024 2025
+Run: uv run models/us_nih_reporter/code/clean.py [--skip-download]
+     uv run models/us_nih_reporter/code/clean.py --fiscal 2024 2025
 """
 
 import argparse
@@ -12,7 +12,8 @@ import sys
 import time
 
 import requests
-from common import (
+
+from models.us_nih_reporter.code.common import (
     CALENDAR_YEARS,
     FISCAL_YEARS,
     INPUT,

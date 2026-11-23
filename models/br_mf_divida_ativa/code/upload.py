@@ -5,7 +5,7 @@ PGFN_DATA_ROOT) and loads each into the dataset's staging. Row count is verified
 against the local parquet footers (metadata-only, so cheap even for ~1B rows).
 
 Usage:
-    uv run python models/br_mf_divida_ativa/code/upload.py [--env dev|prod] [table ...]
+    uv run models/br_mf_divida_ativa/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Smallest table

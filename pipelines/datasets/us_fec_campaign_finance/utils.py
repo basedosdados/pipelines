@@ -426,6 +426,33 @@ def download(
     return None
 
 
+def source_last_modified(spec: FileSpec, cycle: int) -> str:
+    """Return `cycle`'s bulk ZIP ``Last-Modified`` date, without downloading it.
+
+    Cheap poll signal (HTTP HEAD) for tables whose own Coverage can't be used to
+    detect republication (the registration snapshots — see
+    ``tasks.CONTENT_TABLES``), since their coverage sits at year granularity and
+    doesn't move within a two-year cycle.
+
+    Returns:
+        The ``Last-Modified`` date as ``"YYYY-MM-DD"``.
+
+    Raises:
+        RuntimeError: the response carried no ``Last-Modified`` header.
+    """
+    from email.utils import parsedate_to_datetime
+
+    headers = {"User-Agent": USER_AGENT}
+    resp = requests.head(
+        spec.url(cycle), headers=headers, allow_redirects=True, timeout=60
+    )
+    resp.raise_for_status()
+    last_modified = resp.headers.get("Last-Modified")
+    if not last_modified:
+        raise RuntimeError(f"No Last-Modified header on {spec.url(cycle)}")
+    return parsedate_to_datetime(last_modified).date().isoformat()
+
+
 # --------------------------------------------------------------------------- #
 # Clean
 # --------------------------------------------------------------------------- #

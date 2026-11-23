@@ -6,15 +6,34 @@ Equivalent of sub/candidatos.do. The most complex table.
 from datetime import date
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON, UFS_CANDIDATOS
-from utils.clean_education import clean_education_series
-from utils.clean_election_type import clean_election_type_series
-from utils.clean_marital_status import clean_marital_status_series
-from utils.clean_party import clean_party_series
-from utils.clean_result import clean_result_series
-from utils.clean_string import clean_string_series
-from utils.fix_candidate import fix_candidate
-from utils.helpers import (
+
+from models.br_tse_eleicoes.code.python.config import (
+    INPUT_DIR,
+    OUTPUT_PYTHON,
+    UFS_CANDIDATOS,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_education import (
+    clean_education_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_election_type import (
+    clean_election_type_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_marital_status import (
+    clean_marital_status_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_party import (
+    clean_party_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_result import (
+    clean_result_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_string import (
+    clean_string_series,
+)
+from models.br_tse_eleicoes.code.python.utils.fix_candidate import (
+    fix_candidate,
+)
+from models.br_tse_eleicoes.code.python.utils.helpers import (
     clean_nulls,
     merge_municipio,
     pad_cpf,

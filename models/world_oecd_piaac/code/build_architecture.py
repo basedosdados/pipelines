@@ -1,7 +1,7 @@
 """Generate the architecture CSVs and the codebook-derived reference tables.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/build_architecture.py
+    uv run models/world_oecd_piaac/code/build_architecture.py
 
 Writes:
     models/world_oecd_piaac/code/architecture/<table>.csv   schema definitions
@@ -17,7 +17,6 @@ from __future__ import annotations
 import csv
 import json
 import re
-import sys
 from dataclasses import asdict
 from pathlib import Path
 
@@ -25,11 +24,9 @@ import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import architecture as arch
-import codebook as cb
-import constants as piaac
+from models.world_oecd_piaac.code import architecture as arch
+from models.world_oecd_piaac.code import codebook as cb
+from models.world_oecd_piaac.code import constants as piaac
 
 ARCHITECTURE_DIR = Path(__file__).parent / "architecture"
 CSV_FIELDS = [

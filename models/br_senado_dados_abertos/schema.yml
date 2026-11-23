@@ -9,8 +9,14 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [url_pagina_particular]
+          at_least: 0.95
+          ignore_values:
+            - sigla_partido
+            - email
+            - url_foto
+            - url_pagina
+            - url_pagina_particular
+            - id_publico_legislatura_atual
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -50,8 +56,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da sessão em que ocorreu a votação
@@ -60,6 +70,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação (sessão de votação)
         tests: [not_null]
@@ -120,8 +132,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao, id_senador]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [descricao_voto]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da sessão em que ocorreu a votação
@@ -130,6 +147,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação
         tests: [not_null]
@@ -146,6 +165,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: voto
         description: Sigla do voto do parlamentar
       - name: descricao_voto
@@ -157,8 +178,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao_sve, bancada]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da votação
@@ -167,6 +192,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao_sve
         description: Código identificador da votação no sistema SVE
         tests: [not_null]
@@ -191,12 +218,40 @@ models:
     description: >
       Processos legislativos (projetos, requerimentos, medidas e demais matérias)
       apresentados no Senado Federal e no Congresso Nacional, com uma linha por processo.
+      `objetivo`, `situacao_atual`, `sigla_tipo_deliberacao`, `norma_gerada`,
+      `apelido`, `data_deliberacao` e `data_situacao_atual` ficam fora do piso de
+      95% de não-nulos (`ignore_values`). `norma_gerada` e `apelido` são
+      esparsas por natureza, não por falha de coleta.
+      Só uma minoria dos processos chega a virar norma jurídica, e a conversão
+      leva anos: a proporção de `norma_gerada` preenchida cai de 42% em 1988 para
+      3,9% em 2026 de forma contínua, já que o teste é escopado em
+      `__most_recent_year__` — sempre a safra mais recente e menos madura. Na
+      tabela inteira a proporção é de 23,9%. `apelido` nunca passa de 4% em
+      nenhum ano (1,1% na tabela inteira).
+      `data_ultima_atualizacao` e `ultima_informacao_atualizada` também ficam fora
+      do piso: a API só preenche os dois campos quando a última atualização do
+      processo ocorreu nos últimos 8 meses, aproximadamente. Fora dessa janela
+      móvel eles vêm nulos, e a proporção de nulos do ano mais recente cresce à
+      medida que os processos do começo do ano saem da janela.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_processo]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [apelido]
+          at_least: 0.95
+          ignore_values:
+            - objetivo
+            - situacao_atual
+            - sigla_tipo_deliberacao
+            - norma_gerada
+            - apelido
+            - data_deliberacao
+            - data_situacao_atual
+            - data_ultima_atualizacao
+            - ultima_informacao_atualizada
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de identificação do processo legislativo
@@ -205,6 +260,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_processo
         description: Código identificador do processo legislativo
         tests: [not_null]
@@ -247,9 +304,16 @@ models:
       - name: data_situacao_atual
         description: Data da situação atual do processo
       - name: data_ultima_atualizacao
-        description: Data e hora da última atualização do registro
+        description: >
+          Data e hora da última atualização do registro. A API do Senado só
+          preenche o campo quando a atualização ocorreu nos últimos 8 meses,
+          aproximadamente; fora dessa janela móvel o valor é nulo, o que não
+          significa que o processo nunca foi atualizado
       - name: ultima_informacao_atualizada
-        description: Tipo da última informação atualizada
+        description: >
+          Tipo da última informação atualizada. A API do Senado só preenche o
+          campo quando a atualização ocorreu nos últimos 8 meses,
+          aproximadamente; fora dessa janela móvel o valor é nulo
       - name: url_documento
         description: URL do documento do processo
   - name: br_senado_dados_abertos__partido
@@ -260,7 +324,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_partido]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_extincao]
     columns:
       - name: id_partido
         description: Código identificador do partido político
@@ -281,7 +346,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_bloco]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [data_extincao]
     columns:
       - name: id_bloco
@@ -303,7 +368,12 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_lideranca]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - id_bloco
+            - sigla_bloco
+            - nome_bloco
+            - numero_ordem_vice_lider
     columns:
       - name: id_lideranca
         description: Código identificador da liderança
@@ -346,7 +416,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_comissao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_comissao
         description: Código identificador do colegiado
@@ -375,7 +445,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_colegiado, cargo]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: id_colegiado
         description: Código identificador do colegiado da Mesa
@@ -406,7 +476,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_mandato]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [id_mandato, participacao]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -443,7 +514,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_partido, data_filiacao]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [id_partido, data_filiacao, data_desfiliacao]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -465,7 +537,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_senador, id_comissao, data_inicio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_fim]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -495,7 +568,8 @@ models:
             - id_cargo
             - data_inicio
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [data_fim]
     columns:
       - name: id_senador
         description: Código identificador do parlamentar no Senado Federal
@@ -520,9 +594,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_relatoria]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
           ignore_values: [tipo_encerramento, data_destituicao]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de apresentação do processo relatado
@@ -531,6 +609,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_relatoria
         description: Código identificador da relatoria
         tests: [not_null]
@@ -575,8 +655,17 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values:
+            - identificacao_materia
+            - sigla_materia
+            - numero_materia
+            - ano_materia
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da reunião em que ocorreu a votação
@@ -585,6 +674,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação em comissão
         tests: [not_null]
@@ -629,8 +720,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao, id_senador]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da reunião em que ocorreu a votação
@@ -639,6 +734,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação em comissão
         tests: [not_null]
@@ -663,8 +760,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_pronunciamento]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [id_senador, sigla_partido, sigla_uf]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da sessão em que ocorreu o pronunciamento
@@ -673,6 +775,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_pronunciamento
         description: Código identificador do pronunciamento
         tests: [not_null]

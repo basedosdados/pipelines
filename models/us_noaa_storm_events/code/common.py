@@ -13,19 +13,12 @@ writes them.
 """
 
 import os
-import sys
 from pathlib import Path
 
-CODE_DIR = Path(__file__).resolve().parent
-REPO_ROOT = CODE_DIR.parents[2]
-# These scripts run from their own directory with bare sibling imports, so the
-# repo root is not otherwise importable.
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.us_noaa_storm_events.constants import (  # noqa: E402
+from pipelines.datasets.us_noaa_storm_events.constants import (
     constants,
 )
-from pipelines.datasets.us_noaa_storm_events.utils import (  # noqa: E402,F401
+from pipelines.datasets.us_noaa_storm_events.utils import (  # noqa: F401
     Col,
     assert_all_string,
     build_dicionario,
@@ -44,6 +37,7 @@ from pipelines.datasets.us_noaa_storm_events.utils import (  # noqa: E402,F401
     state_id_for,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = Path(
     os.environ.get(
         "NOAA_STORM_EVENTS_DATA_DIR",

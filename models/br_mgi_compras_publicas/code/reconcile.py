@@ -10,7 +10,7 @@ Compares against the **consolidated parquet**, not the dbt model: several
 endpoints serve the same row many times (endpoint 6 about 3.3x), and the source's
 own totals count those repeats, so the model is legitimately smaller.
 
-    uv run python models/br_mgi_compras_publicas/code/reconcile.py [table ...]
+    uv run models/br_mgi_compras_publicas/code/reconcile.py [table ...]
 """
 
 from __future__ import annotations
@@ -22,13 +22,11 @@ from pathlib import Path
 import pyarrow.parquet as pq
 import requests
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mgi_compras_publicas.constants import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.constants import (
     constants,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 BASE = constants.BASE_URL.value
 DATA = Path.home() / "Downloads" / "br_mgi_compras_publicas_data"
 

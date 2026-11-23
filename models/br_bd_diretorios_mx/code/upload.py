@@ -2,7 +2,7 @@
 """Upload br_bd_diretorios_mx parquet (estado, municipio) to BigQuery staging.
 
 Usage:
-    uv run python models/br_bd_diretorios_mx/code/upload.py [--env dev|prod] [table ...]
+    uv run models/br_bd_diretorios_mx/code/upload.py [--env dev|prod] [table ...]
 """
 
 import glob

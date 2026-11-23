@@ -7,7 +7,7 @@ cloud tables, coverages and updates when called without one.
 The dataset is created as ``under_review``; publishing is a separate,
 post-merge action.
 
-Run:  python metadata.py [--env staging]
+Run:  uv run models/au_abs_migration/code/metadata.py [--env staging]
 """
 
 from __future__ import annotations
@@ -16,50 +16,11 @@ import argparse
 import csv
 import datetime as dt
 import json
-import os
-import subprocess
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
 
-
-def _mcp_path() -> str:
-    """Where the databasis MCP checkout lives.
-
-    It is a separate repository, not a dependency of this one, so the path
-    cannot be assumed. DATABASIS_MCP_PATH wins; otherwise try the conventional
-    sibling checkout next to this repository, resolved through git so that a
-    worktree finds it too.
-    """
-    candidates = [os.environ.get("DATABASIS_MCP_PATH")]
-    try:
-        common = subprocess.run(
-            ["git", "rev-parse", "--git-common-dir"],
-            cwd=Path(__file__).resolve().parent,
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-        candidates.append(str(Path(common).resolve().parent.parent / "mcp"))
-    except (OSError, subprocess.CalledProcessError):
-        pass
-    for candidate in candidates:
-        if candidate and (Path(candidate) / "server.py").is_file():
-            return candidate
-    raise RuntimeError(
-        "The databasis MCP checkout was not found. Set DATABASIS_MCP_PATH to the "
-        "directory containing server.py (https://github.com/basedosdados/mcp)."
-    )
-
-
-if TYPE_CHECKING:
-    # The databasis MCP server is a separate checkout, absent from CI, so it is
-    # imported for real only at runtime.
-    server: Any = None
-else:
-    sys.path.insert(0, _mcp_path())
-    import server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 CODE = Path(__file__).resolve().parent
 ARCH = CODE / "architecture"
@@ -607,15 +568,15 @@ def columns_payload(table_slug: str, env: str) -> str:
 
 
 def lookup(category: str, slug: str, env: str) -> str:
-    result = server.lookup_id(category=category, slug=slug, env=env)
+    result = bd_mcp_metadata.lookup_id(category=category, slug=slug, env=env)
     if isinstance(result, dict):
         for key in ("id", "value"):
             if key in result:
-                return server._strip_id(str(result[key]))
+                return bd_mcp_metadata._strip_id(str(result[key]))
         raise RuntimeError(
             f"{category}/{slug}: unexpected lookup response {result}"
         )
-    return server._strip_id(str(result))
+    return bd_mcp_metadata._strip_id(str(result))
 
 
 def existing_state(env: str) -> dict:
@@ -635,7 +596,7 @@ def existing_state(env: str) -> dict:
       }
     }
     """
-    data = server._gql(query, {"slug": DATASET_SLUG}, env=env)
+    data = bd_mcp_metadata._gql(query, {"slug": DATASET_SLUG}, env=env)
     edges = data["allDataset"]["edges"]
     if not edges:
         return {}
@@ -644,9 +605,9 @@ def existing_state(env: str) -> dict:
     for edge in node["tables"]["edges"]:
         item = edge["node"]
         tables[item["slug"]] = {
-            "id": server._strip_id(item["id"]),
+            "id": bd_mcp_metadata._strip_id(item["id"]),
             "observation_levels": {
-                level["node"]["entity"]["slug"]: server._strip_id(
+                level["node"]["entity"]["slug"]: bd_mcp_metadata._strip_id(
                     level["node"]["id"]
                 )
                 for level in item["observationLevels"]["edges"]
@@ -654,21 +615,21 @@ def existing_state(env: str) -> dict:
             },
             "cloud_table": next(
                 (
-                    server._strip_id(c["node"]["id"])
+                    bd_mcp_metadata._strip_id(c["node"]["id"])
                     for c in item["cloudTables"]["edges"]
                 ),
                 None,
             ),
             "coverage": next(
                 (
-                    server._strip_id(c["node"]["id"])
+                    bd_mcp_metadata._strip_id(c["node"]["id"])
                     for c in item["coverages"]["edges"]
                 ),
                 None,
             ),
             "datetime_range": next(
                 (
-                    server._strip_id(r["node"]["id"])
+                    bd_mcp_metadata._strip_id(r["node"]["id"])
                     for c in item["coverages"]["edges"]
                     for r in c["node"]["datetimeRanges"]["edges"]
                 ),
@@ -676,16 +637,16 @@ def existing_state(env: str) -> dict:
             ),
             "update": next(
                 (
-                    server._strip_id(u["node"]["id"])
+                    bd_mcp_metadata._strip_id(u["node"]["id"])
                     for u in item["updates"]["edges"]
                 ),
                 None,
             ),
         }
     return {
-        "id": server._strip_id(node["id"]),
+        "id": bd_mcp_metadata._strip_id(node["id"]),
         "raw_data_sources": {
-            edge["node"]["url"]: server._strip_id(edge["node"]["id"])
+            edge["node"]["url"]: bd_mcp_metadata._strip_id(edge["node"]["id"])
             for edge in node["rawDataSources"]["edges"]
         },
         "tables": tables,
@@ -711,7 +672,7 @@ def resolve_tags(env: str) -> list[str]:
         if found is None:
             slug = candidates[0]
             name_pt, name_en, name_es = NEW_TAGS[slug]
-            created = server.create_update_tag(
+            created = bd_mcp_write.create_update_tag(
                 slug=slug,
                 name_pt=name_pt,
                 name_en=name_en,
@@ -719,7 +680,7 @@ def resolve_tags(env: str) -> list[str]:
                 env=env,
             )
             print(f"  created tag {slug}")
-            found = server._strip_id(str(created.get("id", created)))
+            found = bd_mcp_metadata._strip_id(str(created.get("id", created)))
         ids.append(found)
     return ids
 
@@ -743,17 +704,17 @@ def main() -> None:
     today = dt.datetime.now().replace(microsecond=0).isoformat()
 
     state = existing_state(env)
-    account = server.get_authenticated_account(env=env)
-    account_id = server._strip_id(str(account.get("id", account)))
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
+    account_id = bd_mcp_metadata._strip_id(str(account.get("id", account)))
     entities = {
         slug: lookup("entity", slug, env)
         for slug in {"year", "quarter", "state", "country", "age", "sex"}
     }
     area_id = lookup("area", "au", env)
 
-    dataset_id = server._strip_id(
+    dataset_id = bd_mcp_metadata._strip_id(
         str(
-            server.create_update_dataset(
+            bd_mcp_write.create_update_dataset(
                 slug=DATASET_SLUG,
                 name_pt=DATASET["name_pt"],
                 name_en=DATASET["name_en"],
@@ -783,24 +744,32 @@ def main() -> None:
 
     source_ids = {}
     for key, source in RAW_SOURCES.items():
-        result = server.create_update_raw_data_source(
+        result = bd_mcp_write.create_update_raw_data_source(
             dataset_id=dataset_id,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=source["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=source["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=source["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             url=source["url"],
             license_id=lookup("license", "cc_by", env),
             availability_id=lookup("availability", "online", env),
+            # pyrefly: ignore [bad-argument-type]
             description_pt=source["description_pt"],
+            # pyrefly: ignore [bad-argument-type]
             description_en=source["description_en"],
+            # pyrefly: ignore [bad-argument-type]
             description_es=source["description_es"],
+            # pyrefly: ignore [bad-argument-type]
             contains_api=source["contains_api"],
             is_free=True,
             requires_registration=False,
             id=state.get("raw_data_sources", {}).get(source["url"]),
             env=env,
         )
-        source_ids[key] = server._strip_id(str(result["id"]))
+        source_ids[key] = bd_mcp_metadata._strip_id(str(result["id"]))
         print(f"raw source {key} = {source_ids[key]}")
 
     wanted = args.tables or [spec.slug for spec in [*TABLES, DICIONARIO]]
@@ -809,9 +778,9 @@ def main() -> None:
             continue
         slug = spec.slug
         known = state.get("tables", {}).get(slug, {})
-        table_id = server._strip_id(
+        table_id = bd_mcp_metadata._strip_id(
             str(
-                server.create_update_table(
+                bd_mcp_write.create_update_table(
                     slug=slug,
                     name_pt=spec.name_pt,
                     name_en=spec.name_en,
@@ -834,15 +803,17 @@ def main() -> None:
 
         level_ids = {}
         for entity_slug in spec.observation_levels:
-            result = server.create_update_observation_level(
+            result = bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entities[entity_slug],
                 id=known.get("observation_levels", {}).get(entity_slug),
                 env=env,
             )
-            level_ids[entity_slug] = server._strip_id(str(result["id"]))
+            level_ids[entity_slug] = bd_mcp_metadata._strip_id(
+                str(result["id"])
+            )
 
-        upsert = server.bulk_upsert_columns(
+        upsert = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id, columns_json=columns_payload(slug, env), env=env
         )
 
@@ -852,8 +823,8 @@ def main() -> None:
             )
 
         columns = {
-            c["name"]: server._strip_id(c["id"])
-            for c in server._fetch_table_columns(table_id, env)
+            c["name"]: bd_mcp_metadata._strip_id(c["id"])
+            for c in bd_mcp_write._fetch_table_columns(table_id, env)
         }
         # A column the backend rejected is simply absent from the read-back, and
         # indexing it below would raise a KeyError far from the cause.
@@ -876,7 +847,7 @@ def main() -> None:
                 continue
             # update_column's booleans default to False, so the partition flag has
             # to be re-passed on every call that touches the column.
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=columns[name],
                 column_name=name,
                 table_id=table_id,
@@ -885,7 +856,7 @@ def main() -> None:
                 env=env,
             )
 
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=GCP_DATASET_ID,
@@ -895,15 +866,15 @@ def main() -> None:
         )
 
         if spec.coverage:
-            coverage = server.create_update_coverage(
+            coverage = bd_mcp_write.create_update_coverage(
                 table_id=table_id,
                 area_id=area_id,
                 id=known.get("coverage"),
                 env=env,
             )
-            coverage_id = server._strip_id(str(coverage["id"]))
+            coverage_id = bd_mcp_metadata._strip_id(str(coverage["id"]))
             start_year, start_month, end_year, end_month = spec.coverage
-            server.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 coverage_id=coverage_id,
                 start_year=start_year,
                 start_month=start_month,
@@ -916,7 +887,7 @@ def main() -> None:
 
         if spec.update:
             entity_slug, frequency, lag = spec.update
-            server.create_update_update(
+            bd_mcp_write.create_update_update(
                 entity_id=entities[entity_slug],
                 frequency=frequency,
                 lag=lag,
@@ -933,7 +904,7 @@ def main() -> None:
 
     if args.tables is None:
         # Ordering only makes sense once every table exists.
-        server.reorder_tables(
+        bd_mcp_write.reorder_tables(
             dataset_slug=DATASET_SLUG,
             table_slugs=[spec.slug for spec in [*TABLES, DICIONARIO]],
             env=env,

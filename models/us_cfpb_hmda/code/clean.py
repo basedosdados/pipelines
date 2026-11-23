@@ -18,7 +18,8 @@ import sys
 from pathlib import Path
 
 import duckdb
-from common import (
+
+from models.us_cfpb_hmda.code.common import (
     INPUT,
     LEGACY,
     LEGACY_YEARS,
@@ -95,6 +96,7 @@ def clean(table: str, year: int) -> Path:
         f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY, ROW_GROUP_SIZE 100000)"
     )
     con.execute(sql)
+    # pyrefly: ignore [unsupported-operation]
     n = con.execute(f"SELECT count(*) FROM read_parquet('{out}')").fetchone()[
         0
     ]

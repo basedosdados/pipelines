@@ -1,0 +1,23 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano do termo de embargo,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de partição. Derivada de DAT_EMBARGO; cinco registros com ano impossível foram alocados no ano da extração e mantêm a data original em data_embargo,DAT_EMBARGO
+sigla_uf,STRING,Sigla da unidade da federação onde a área embargada se localiza,,no,br_bd_diretorios_brasil.uf:sigla,,no,,UF
+id_municipio,STRING,Identificador IBGE de 7 dígitos do município onde a área embargada se localiza,,no,br_bd_diretorios_brasil.municipio:id_municipio,,no,,COD_MUNICIPIO
+id_embargo,STRING,Identificador único do termo de embargo no sistema do Ibama,,no,,,no,Chave primária lógica. Ausente em 2.862 termos originados no aplicativo AI-e Mob,SEQ_TAD
+numero_tad,STRING,Número impresso do termo de embargo,,no,,,no,,NUM_TAD
+serie_tad,STRING,Série do formulário do termo de embargo,,no,,,no,,SER_TAD
+data_embargo,DATE,Data do embargo,,no,,,no,Cinco registros trazem anos impossíveis na fonte (1667 2063 2080 2090 e 2925) e são reproduzidos como divulgados,DAT_EMBARGO
+id_auto,STRING,Identificador do auto de infração que originou o embargo,,no,,,no,Chave estrangeira para auto_infracao.id_auto. Preenchida em 83% dos termos,SEQ_AUTO_INFRACAO
+numero_auto_infracao,STRING,Número impresso do auto de infração que originou o embargo,,no,,,no,,NUM_AUTO_INFRACAO
+area_ha,FLOAT64,Área embargada,,no,,hectare,no,Ausente em 38% dos termos,QTD_AREA_EMBARGADA
+tipo_area,STRING,Tipo de área embargada,,no,,,no,Vazio em 62% dos termos,TIPO_AREA
+nome_imovel,STRING,Nome do imóvel onde se localiza a área embargada,,no,,,no,,NOME_IMOVEL
+tipo_pessoa_embargado,STRING,Natureza jurídica do embargado,,yes,,,no,Derivada do número de dígitos do documento: 11 dígitos indicam pessoa física e 14 pessoa jurídica,CPF_CNPJ_EMBARGADO
+cpf_cnpj_embargado,STRING,CPF ou CNPJ do embargado somente dígitos,,no,,,yes,Publicado sem máscara pelo Ibama e reproduzido como divulgado. Contém 88.313 CPFs completos de pessoas físicas,CPF_CNPJ_EMBARGADO
+nome_embargado,STRING,Nome ou razão social do embargado,,no,,,yes,Publicado pelo Ibama e reproduzido como divulgado,NOME_EMBARGADO
+latitude,FLOAT64,Latitude do local embargado em graus decimais,,no,,degree,no,Preenchida em 85% dos termos. Ver indicador_coordenada_valida antes de usar,NUM_LATITUDE_TAD
+longitude,FLOAT64,Longitude do local embargado em graus decimais,,no,,degree,no,Preenchida em 85% dos termos. Ver indicador_coordenada_valida antes de usar,NUM_LONGITUDE_TAD
+indicador_coordenada_valida,STRING,Indica se o ponto publicado cai dentro do polígono do município declarado,,no,,,no,Calculado contra br_geobr_mapas.municipio. sim para dentro nao para fora e nulo quando não há coordenada. 15% dos pontos testáveis caem fora com distância mediana de 60 km,
+indicador_desembargado,STRING,Indica se a área foi desembargada,,yes,,,no,S para desembargada e vazio caso contrário,SIT_DESEMBARGO
+data_desembargo,DATE,Data do desembargo da área,,no,,,no,,DAT_DESEMBARGO
+data_ultima_alteracao,DATE,Data da última alteração do registro no sistema do Ibama,,no,,,no,Usada para manter a versão mais recente quando o Ibama republica um termo emendado,DAT_ULT_ALTERACAO
+data_extracao,DATE,Data da extração do arquivo publicado pelo Ibama,,no,,,no,Permite distinguir safras do mesmo termo entre atualizações diárias da fonte,ULTIMA_ATUALIZACAO_RELATORIO

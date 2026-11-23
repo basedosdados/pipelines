@@ -1,6 +1,6 @@
 """Emit bulk_upsert_columns payloads from the architecture CSVs.
 
-    python gen_columns_json.py <table>
+    uv run models/us_fec_campaign_finance/code/gen_columns_json.py <table>
 
 The architecture CSV is the source of truth, so the metadata registration reads it
 rather than restating column facts by hand.

@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the record date,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column derived from record_date,record_date
+record_date,DATE,"Date the debt figure reports, the last day of the fiscal year",,no,,,no,Annual fiscal-year-end series from 1790,record_date
+fiscal_year,INT64,U.S. federal fiscal year the debt figure reports,,no,,year,no,,record_fiscal_year
+debt_outstanding,FLOAT64,Total public debt outstanding of the U.S. government at the end of the fiscal year,,no,,USD,no,High-level summary with no breakdown of debt components,debt_outstanding_amt

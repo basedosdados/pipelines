@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+institution_type,STRING,Authorised deposit-taking institution type or grouping,,yes,,,no,,
+measure,STRING,Coded measure within the statement (see dictionary for the label),,yes,,,no,,
+unit,STRING,"Unit of the value: aud_million, proportion or unit",,no,,,no,,
+value,FLOAT64,Reported value of the measure (unit given by the unit column; NULL when not applicable or confidentiality-masked),,no,,,no,,

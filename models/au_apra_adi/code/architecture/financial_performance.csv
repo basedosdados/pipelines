@@ -1,0 +1,33 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+institution_type,STRING,Authorised deposit-taking institution type or grouping,,yes,,,no,APRA institution groupings; some do not report every statement (e.g. foreign branch banks report no capital adequacy),
+interest_income,FLOAT64,Interest income,,no,,AUD million,no,Values in millions of Australian dollars,Interest income
+cash_and_liquid_assets,FLOAT64,Cash and liquid assets,,no,,AUD million,no,Values in millions of Australian dollars,Cash and liquid assets
+loans_and_advances,FLOAT64,Loans and advances,,no,,AUD million,no,Values in millions of Australian dollars,Loans and advances
+housing_loans,FLOAT64,Housing loans,,no,,AUD million,no,Values in millions of Australian dollars,Housing loans
+term_loans,FLOAT64,Term loans,,no,,AUD million,no,Values in millions of Australian dollars,Term loans
+interest_income__other,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other
+other_interest_earning_assets,FLOAT64,Other interest earning assets,,no,,AUD million,no,Values in millions of Australian dollars,Other interest earning assets
+interest_expense,FLOAT64,Interest expense,,no,,AUD million,no,Values in millions of Australian dollars,Interest expense
+deposits,FLOAT64,Deposits,,no,,AUD million,no,Values in millions of Australian dollars,Deposits
+borrowings,FLOAT64,Borrowings,,no,,AUD million,no,Values in millions of Australian dollars,Borrowings
+other_interest_bearing_liabilities,FLOAT64,Other interest bearing liabilities,,no,,AUD million,no,Values in millions of Australian dollars,Other interest bearing liabilities
+net_interest_income,FLOAT64,Net interest income,,no,,AUD million,no,Values in millions of Australian dollars,Net interest income
+other_operating_income,FLOAT64,Other operating income,,no,,AUD million,no,Values in millions of Australian dollars,Other operating income
+fee_and_commission,FLOAT64,Fee and commission,,no,,AUD million,no,Values in millions of Australian dollars,Fee and commission
+lending,FLOAT64,Lending,,no,,AUD million,no,Values in millions of Australian dollars,Lending
+transaction_deposit_account_service_fee,FLOAT64,Transaction/deposit account service fee,,no,,AUD million,no,Values in millions of Australian dollars,Transaction/deposit account service fee
+other_fee_based_activities,FLOAT64,Other fee based activities,,no,,AUD million,no,Values in millions of Australian dollars,Other fee based activities
+other_operating_income__other,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other
+total_operating_income,FLOAT64,Total operating income,,no,,AUD million,no,Values in millions of Australian dollars,Total operating income
+charge_for_bad_or_doubtful_debts,FLOAT64,Charge for bad or doubtful debts,,no,,AUD million,no,Values in millions of Australian dollars,Charge for bad or doubtful debts
+total_operating_expenses,FLOAT64,Total operating expenses,,no,,AUD million,no,Values in millions of Australian dollars,Total operating expenses
+personnel,FLOAT64,Personnel,,no,,AUD million,no,Values in millions of Australian dollars,Personnel
+fees_and_commissions,FLOAT64,Fees and commissions,,no,,AUD million,no,Values in millions of Australian dollars,Fees and commissions
+total_operating_expenses__other,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other
+profit_before_tax,FLOAT64,Profit before tax,,no,,AUD million,no,Values in millions of Australian dollars,Profit before tax
+income_tax,FLOAT64,Income tax,,no,,AUD million,no,Values in millions of Australian dollars,Income tax
+net_profit_after_taxa,FLOAT64,Net profit (loss) after taxa,,no,,AUD million,no,Values in millions of Australian dollars,Net profit (loss) after taxa
+number_of_entities,INT64,Number of entities,,no,,unit,no,,Number of entities
+operating_expenses__other,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other

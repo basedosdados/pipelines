@@ -5,6 +5,16 @@ republishes a full snapshot **weekly**; we stack each snapshot, partitioned by
 ``extraction_date`` (see models/au_ato_abr/ONBOARDING_PLAN.md). Each run uploads
 the new snapshot to staging with ``dump_mode="overwrite"`` and the incremental
 dbt models append the new ``extraction_date`` partition to the prod tables.
+
+One independent check_update/extract_and_load pair per table (entity,
+other_name, dgr, dicionario) — the usual one-pipeline-per-table_id shape (see
+``pipelines.utils.stage_dispatch.pipeline_factory``). Each table's
+extract_and_load redownloads the two source ZIPs and reruns the whole
+streaming ``lxml.iterparse`` pass from scratch, keeping only its own table
+(see the banner in ``tasks.py``) — redundant, since a single pass already
+builds all 4 tables together (``utils.clean_all``), but uniform 1-flow-per-
+table is the rule now; ``br_mf_divida_ativa`` took the same trade-off for a
+similar shared-download, multi-table source.
 """
 
 from enum import Enum
@@ -49,3 +59,12 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "au_ato_abr" / "code" / "architecture"
     )
+
+
+# Table ids. Kept here as plain literals (not Enum members) so `tasks.py`/
+# `flows.py` can import them directly — one per independent check_update/
+# extract_and_load pair (see the module banner).
+ENTITY_TABLE_ID = "entity"
+OTHER_NAME_TABLE_ID = "other_name"
+DGR_TABLE_ID = "dgr"
+DICIONARIO_TABLE_ID = "dicionario"

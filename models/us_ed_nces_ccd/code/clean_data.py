@@ -23,17 +23,10 @@ import argparse
 import csv
 import json
 import logging
-import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# pyrefly: ignore [missing-import]
-import schema
-
-# pyrefly: ignore [missing-import]
-import utils
+from models.us_ed_nces_ccd.code import schema, utils
 
 ROOT = Path(__file__).resolve().parent
 

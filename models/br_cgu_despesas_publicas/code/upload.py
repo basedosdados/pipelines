@@ -1,7 +1,7 @@
 """Upload the cleaned br_cgu_despesas_publicas parquet to BigQuery.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/upload.py \
+    uv run models/br_cgu_despesas_publicas/code/upload.py \
         [--env dev|prod] [--table execucao|favorecido]
 
 ``--env dev`` (default) targets ``basedosdados-dev``. Prod is never uploaded from

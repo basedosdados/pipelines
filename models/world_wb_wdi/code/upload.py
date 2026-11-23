@@ -1,7 +1,7 @@
 """Upload cleaned world_wb_wdi parquet tables to BigQuery staging.
 
 Usage:
-    uv run python models/world_wb_wdi/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run models/world_wb_wdi/code/upload.py [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads

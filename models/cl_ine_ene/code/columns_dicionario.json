@@ -1,0 +1,22 @@
+[
+ {"name": "id_tabela", "bigquery_type": "STRING", "covered_by_dictionary": false, "has_sensitive_data": false,
+  "description_pt": "Nome da tabela do conjunto a que corresponde a chave",
+  "description_en": "Name of the dataset table the key belongs to",
+  "description_es": "Nombre de la tabla del conjunto a la que corresponde la clave"},
+ {"name": "nome_coluna", "bigquery_type": "STRING", "covered_by_dictionary": false, "has_sensitive_data": false,
+  "description_pt": "Nome da coluna a que corresponde a chave",
+  "description_en": "Name of the column the key belongs to",
+  "description_es": "Nombre de la columna a la que corresponde la clave"},
+ {"name": "chave", "bigquery_type": "STRING", "covered_by_dictionary": false, "has_sensitive_data": false,
+  "description_pt": "Valor da chave tal como aparece armazenado na coluna",
+  "description_en": "The key exactly as it is stored in the column",
+  "description_es": "Valor de la clave tal como aparece almacenado en la columna"},
+ {"name": "cobertura_temporal", "bigquery_type": "STRING", "covered_by_dictionary": false, "has_sensitive_data": false,
+  "description_pt": "Cobertura temporal da chave; vazia quando coincide com a da tabela",
+  "description_en": "Temporal coverage of the key; empty when it matches the table's own",
+  "description_es": "Cobertura temporal de la clave; vacía cuando coincide con la de la tabla"},
+ {"name": "valor", "bigquery_type": "STRING", "covered_by_dictionary": false, "has_sensitive_data": false,
+  "description_pt": "Etiqueta da chave segundo o livro de códigos do INE",
+  "description_en": "Label for the key, from INE's codebook",
+  "description_es": "Etiqueta de la clave según el libro de códigos del INE"}
+]

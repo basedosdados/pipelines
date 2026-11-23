@@ -9,14 +9,16 @@ from pathlib import Path
 from typing import Any
 
 from dbt.cli.main import dbtRunner
-from prefect import flow, task
+from prefect import task
+
+from pipelines.utils.flow import flow
+from pipelines.utils.tasks import _resolve_dbt_model_path
 
 
 @task
 def run_dbt_task(
     dataset_id: str,
     table_id: str | None,
-    dbt_alias: bool,
     dbt_command: str,
     target: str,
     flags: str | None,
@@ -27,11 +29,7 @@ def run_dbt_task(
 
     models_folder = Path("models") / dataset_id
     if table_id is not None:
-        model_path = (
-            models_folder / f"{dataset_id}__{table_id}.sql"
-            if dbt_alias
-            else models_folder / f"{table_id}.sql"
-        )
+        model_path = _resolve_dbt_model_path(dataset_id, table_id)
         selected = model_path.as_posix()
     else:
         model_path = models_folder
@@ -87,7 +85,6 @@ def download_data_to_gcs_task(dataset_id: str, table_id: str) -> None:
 def run_dbt_model_flow(
     dataset_id: str,
     table_id: str | None = None,
-    dbt_alias: bool = True,
     dbt_command: str = "run",
     flags: str | None = None,
     target: str = "dev",
@@ -97,7 +94,6 @@ def run_dbt_model_flow(
     dbt_done = run_dbt_task.submit(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias=dbt_alias,
         dbt_command=dbt_command,
         target=target,
         flags=flags,
@@ -115,5 +111,4 @@ def run_dbt_model_flow(
         dbt_done.result()
 
 
-# pyrefly: ignore [missing-attribute]
 run_dbt_model_flow.deploy_schedules = []

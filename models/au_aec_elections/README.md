@@ -140,10 +140,10 @@ Raw downloads and cleaned parquet go to `~/Downloads/au_aec_elections_data/`
 (override with `$AEC_DATA`) — never inside the repo or Dropbox.
 
 ```bash
-uv run python models/au_aec_elections/code/clean.py          # download + clean (~85 MB in)
-uv run python models/au_aec_elections/code/validate.py       # verify against sources
+uv run models/au_aec_elections/code/clean.py          # download + clean (~85 MB in)
+uv run models/au_aec_elections/code/validate.py       # verify against sources
 GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-  uv run python models/au_aec_elections/code/upload.py --env dev
+  uv run models/au_aec_elections/code/upload.py --env dev
 uv run dbt run  --select au_aec_elections
 uv run dbt test --select au_aec_elections
 ```

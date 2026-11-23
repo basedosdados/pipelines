@@ -10,7 +10,7 @@ typed hive schema. The recurring pipeline instead writes all-STRING parquet, so
 its ``upload_to_gcs`` staging schema (inferred from a stringified header) matches.
 
 Run from the repo root so ``pipelines`` is importable, e.g.:
-    uv run python models/au_geoscape_gnaf/code/clean.py
+    uv run models/au_geoscape_gnaf/code/clean.py
 
 Env:
   GNAF_DATA_DIR   default ~/Downloads/au_geoscape_gnaf_data

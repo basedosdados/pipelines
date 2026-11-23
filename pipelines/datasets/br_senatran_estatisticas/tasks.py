@@ -371,7 +371,6 @@ def get_latest_date_task(
         if year > 2012:
             files_dir = Path(input_dir) / "files"
             files_dir.mkdir(exist_ok=True, parents=True)
-            # pyrefly: ignore [unnecessary-type-conversion]
             year_dir_name = os.path.join(str(files_dir), f"{year}")
             try:
                 files_to_download = extract_links_post_2012(

@@ -17,7 +17,7 @@ nameable unit. Identifiers, FIPS/geographic codes, categorical codes and
 0/1 flags are STRING even though they are stored as digits.
 
 Usage:
-    /tmp/cs_venv/bin/python models/us_ed_college_scorecard/code/build_architecture.py
+    uv run models/us_ed_college_scorecard/code/build_architecture.py
 """
 
 import csv
@@ -25,17 +25,10 @@ import logging
 import os
 import pathlib
 import re
-import sys
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-import i18n
-
-# pyrefly: ignore [missing-import]
-import spec
+from models.us_ed_college_scorecard.code import i18n, spec
 
 DATA_DIR = pathlib.Path(
     os.environ.get(

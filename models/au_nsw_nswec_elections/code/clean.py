@@ -10,7 +10,7 @@ through arrow rather than ``astype(str)``, which would render NULL as the litera
 
 Usage::
 
-    PYTHONPATH=. python models/au_nsw_nswec_elections/code/clean.py [table ...]
+    PYTHONPATH=. uv run models/au_nsw_nswec_elections/code/clean.py [table ...]
 """
 
 from __future__ import annotations
@@ -56,6 +56,7 @@ def to_string_table(frame: pd.DataFrame, table: str) -> pa.Table:
         # NaN must become a real null before the cast: pyarrow rejects a float in a
         # string array, and astype(str) would write the literal "nan", which
         # safe_cast will not turn back into NULL.
+        # pyrefly: ignore [bad-argument-type]
         values = frame[name].astype(object).where(frame[name].notna(), None)
         arrays.append(
             pa.array(values.to_numpy(dtype=object), type=pa.string())

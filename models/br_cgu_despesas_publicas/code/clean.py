@@ -1,7 +1,7 @@
 """Clean the downloaded br_cgu_despesas_publicas months into partitioned parquet.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/clean.py
+    uv run models/br_cgu_despesas_publicas/code/clean.py
 
 Reads the raw monthly CSVs from ``$BR_CGU_DESPESAS_DATA/input`` (default
 ``~/Downloads/br_cgu_despesas_publicas_data``) and writes all-STRING Snappy
@@ -15,10 +15,7 @@ Scratch data deliberately lives outside the repo and outside Dropbox.
 import json
 import logging
 import os
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_cgu_despesas_publicas.utils import (
     clean_all,

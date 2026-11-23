@@ -1,0 +1,62 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação",
+    "description_en": "Reference year of the observation",
+    "description_es": "Año de referencia de la observación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "month",
+    "bigquery_type": "INT64",
+    "description_pt": "Mês de referência da observação, de 1 a 12",
+    "description_en": "Reference month of the observation, from 1 to 12",
+    "description_es": "Mes de referencia de la observación, de 1 a 12",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.mes:mes",
+    "measurement_unit": "month"
+  },
+  {
+    "name": "country_id",
+    "bigquery_type": "STRING",
+    "description_pt": "Código ISO 3166-1 alfa-3 do país a que a série se refere; nulo para séries globais ou agregadas",
+    "description_en": "ISO 3166-1 alpha-3 code of the country the series refers to",
+    "description_es": "Código ISO 3166-1 alfa-3 del país al que se refiere la serie; nulo para series globales o agregadas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_mundo.pais:sigla_iso3"
+  },
+  {
+    "name": "index_family",
+    "bigquery_type": "STRING",
+    "description_pt": "Família do índice: epu (Incerteza da Política Econômica) ou gpr (Risco Geopolítico)",
+    "description_en": "Index family: epu (Economic Policy Uncertainty) or gpr (Geopolitical Risk)",
+    "description_es": "Familia del índice: epu (Incertidumbre de la Política Económica) o gpr (Riesgo Geopolítico)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "index_name",
+    "bigquery_type": "STRING",
+    "description_pt": "Identificador codificado da série específica do índice; os rótulos estão na tabela dicionario",
+    "description_en": "Coded identifier of the specific index series; labels are in the dicionario table",
+    "description_es": "Identificador codificado de la serie específica del índice; las etiquetas están en la tabla dicionario",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "value",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valor do índice para a série e o período. Pontos de índice (base = 100 na janela de referência da série) para EPU e GPR global; participação de artigos com foco geopolítico em porcentagem para o GPR nacional",
+    "description_en": "Value of the index for the given series and period",
+    "description_es": "Valor del índice para la serie y el período. Puntos de índice (base = 100 en la ventana de referencia de la serie) para EPU y GPR global; participación de artículos con enfoque geopolítico en porcentaje para el GPR nacional",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "index"
+  }
+]

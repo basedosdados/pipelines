@@ -2,7 +2,7 @@
 """Generate the au_nsw_bocsar_crime dbt models (.sql) and schema.yml from the
 architecture CSVs (the column source of truth) plus a per-table config.
 
-Usage: uv run python models/au_nsw_bocsar_crime/code/build_dbt.py
+Usage: uv run models/au_nsw_bocsar_crime/code/build_dbt.py
 """
 
 import csv

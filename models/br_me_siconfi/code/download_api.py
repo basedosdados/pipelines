@@ -10,11 +10,11 @@ Resumable: already-downloaded files are skipped automatically.
 API docs: https://apidatalake.tesouro.gov.br/docs/siconfi/
 
 Usage:
-    python download_api.py                      # all entities, 2013-current year
-    python download_api.py --workers 5          # parallel download with 5 workers
-    python download_api.py --start-year 2020    # from 2020 onward
-    python download_api.py --force              # re-download everything (full refresh)
-    python download_api.py --test               # verify API connection and exit
+    uv run models/br_me_siconfi/code/download_api.py                      # all entities, 2013-current year
+    uv run models/br_me_siconfi/code/download_api.py --workers 5          # parallel download with 5 workers
+    uv run models/br_me_siconfi/code/download_api.py --start-year 2020    # from 2020 onward
+    uv run models/br_me_siconfi/code/download_api.py --force              # re-download everything (full refresh)
+    uv run models/br_me_siconfi/code/download_api.py --test               # verify API connection and exit
 """
 
 import argparse

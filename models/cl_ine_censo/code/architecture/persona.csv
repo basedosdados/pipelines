@@ -1,0 +1,65 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano del levantamiento censal,,no,,year,no,"Columna de particion. El Censo de Poblacion y Vivienda es decenal, por lo que la tabla contiene un unico ano",
+id_region,STRING,"Codigo unico territorial (CUT) de la region, de dos digitos",,no,br_bd_diretorios_cl.region:id_region,,no,Columna de particion. Derivable de los dos primeros digitos de id_comuna,region
+id_provincia,STRING,"Codigo unico territorial (CUT) de la provincia, de tres digitos",,no,br_bd_diretorios_cl.provincia:id_provincia,,no,Derivable de los tres primeros digitos de id_comuna,provincia
+id_comuna,STRING,"Codigo unico territorial (CUT) de la comuna, de cinco digitos",,no,br_bd_diretorios_cl.comuna:id_comuna,,no,,comuna
+id_vivienda,STRING,"Identificador de la vivienda, unico en todo el pais",,no,,,no,Llave primaria de la tabla vivienda. Verificado unico en todo el pais: no requiere id_comuna para desambiguar,id_vivienda
+id_hogar,STRING,Identificador del hogar dentro de la vivienda,,no,,,no,,id_hogar
+id_persona,STRING,Identificador de la persona dentro del hogar,,no,,,no,,id_persona
+comuna_bajo_umbral,STRING,Comuna con menos de 6.000 personas censadas,,yes,,,no,,comuna_bajo_umbral
+area,STRING,Estrato censal urbano o rural en que se ubica el registro,,yes,,,no,,area
+tipo_operativo,STRING,Tipo de operativo,,yes,,,no,,tipo_operativo
+sexo,STRING,¿Cuál es su sexo?,,yes,,,no,,sexo
+edad,INT64,¿Cuántos años cumplidos tiene?,,no,,year,no,"Topecodificada: el valor 85 significa '85 anos o mas'. Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",edad
+edad_quinquenal,STRING,Edad en quinquenios,,yes,,,no,,edad_quinquenal
+parentesco,STRING,¿Qué relación de parentesco tiene con la jefa o jefe de hogar?,,yes,,,no,,parentesco
+p23_est_civil,STRING,¿Cuál es su estado conyugal o civil actual?,,yes,,,no,,p23_est_civil
+p24_lug_resid5,STRING,¿En qué comuna o país vivía en abril de 2019?,,yes,,,no,,p24_lug_resid5
+p24_lug_resid5_esp,STRING,Lugar específico de residencia hace 5 años,,yes,,,no,,p24_lug_resid5_esp
+p25_lug_nacimiento,STRING,"Cuándo nació, ¿en qué comuna o país vivía su madre?",,yes,,,no,,p25_lug_nacimiento
+p25_lug_nacimiento_rec,STRING,Indica si la persona nacio en Chile o en el extranjero,,yes,,,no,,p25_lug_nacimiento_rec
+p25_lug_nacimiento_esp,STRING,Lugar específico de nacimiento,,yes,,,no,,p25_lug_nacimiento_esp
+p26_llegada_periodo,STRING,¿En qué año llegó a vivir a Chile?,,yes,,,no,,p26_llegada_periodo
+p27_nacionalidad,STRING,¿Cuál es su nacionalidad?,,yes,,,no,,p27_nacionalidad
+p27_nacionalidad_esp,STRING,Pais de nacionalidad,,yes,,,no,,p27_nacionalidad_esp
+p27_nacionalidad_rec,STRING,Nacionalidad chilena,,yes,,,no,,p27_nacionalidad_rec
+p28_autoid_pueblo,STRING,¿Es o se considera perteneciente a algún pueblo indígena u originario?,,yes,,,no,,p28_autoid_pueblo
+p28_pueblo_pert,STRING,Pueblo originario al que declara pertenecer la persona que se autoidentifico como indigena en p28_autoid_pueblo,,yes,,,no,,p28_pueblo_pert
+p29_afrodescendencia_rec,STRING,Afrodescendencia,,yes,,,no,,p29_afrodescendencia_rec
+p29_afrodescendencia,STRING,"De acuerdo con sus antepasados, tradiciones y cultura, es o se considera:",,yes,,,no,,p29_afrodescendencia
+p30_lengua_indigena,STRING,¿Habla o entiende una de las siguientes lenguas indígenas u originarias?,,yes,,,no,,p30_lengua_indigena
+p30_lengua_indigena_rec,STRING,Habla o entiende alguna lengua originaria,,yes,,,no,,p30_lengua_indigena_rec
+p31_religion,STRING,¿Cuál es su religión o credo?,,yes,,,no,,p31_religion
+p31_religion_rec,STRING,Tiene religión o credo,,yes,,,no,,p31_religion_rec
+p32a_dificultad_ver,STRING,"¿Tiene dificultad para ver, aun usando anteojos o lentes?",,yes,,,no,,p32a_dificultad_ver
+p32b_dificultad_oir,STRING,"¿Tiene dificultad para oír, aun usando un dispositivo auditivo",,yes,,,no,,p32b_dificultad_oir
+p32c_dificultad_mover,STRING,¿Tiene dificultad para caminar o subir escaleras?,,yes,,,no,,p32c_dificultad_mover
+p32d_dificultad_cogni,STRING,¿Tiene dificultad para recordar o concentrarse?,,yes,,,no,,p32d_dificultad_cogni
+p32e_dificultad_cuidado,STRING,"¿Tiene dificultad para realizar tareas de cuidado personal, como bañarse o vestirse?",,yes,,,no,,p32e_dificultad_cuidado
+p32f_dificultad_comunic,STRING,"¿Tiene dificultad para hablar o comunicarse usando su idioma habitual, por ejemplo, entender o ser entendido por otras personas?",,yes,,,no,,p32f_dificultad_comunic
+discapacidad,STRING,"Condicion de discapacidad, derivada del conjunto de preguntas de dificultad funcional p32a a p32f",,yes,,,no,,discapacidad
+p33_edu_asiste,STRING,"¿Asiste actualmente a la educación formal? Incluye educación parvularia, especial, básica, media y superior",,yes,,,no,,p33_edu_asiste
+asistencia_parv,STRING,Asistencia a nivel de educación parvularia o preescolar,,yes,,,no,,asistencia_parv
+asistencia_basica,STRING,Asistencia a nivel de educación básica,,yes,,,no,,asistencia_basica
+asistencia_media,STRING,Asistencia a nivel de educación media,,yes,,,no,,asistencia_media
+asistencia_superior,STRING,Asistencia a nivel de educación superior,,yes,,,no,,asistencia_superior
+p37_alfabet,STRING,¿Sabe leer y escribir?,,yes,,,no,,p37_alfabet
+escolaridad,INT64,Años de escolaridad,,no,,year,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",escolaridad
+cine11,STRING,Logro educativo de acuerdo con la Clasificación Internacional Normalizada de la Educación,,yes,,,no,,cine11
+sit_fuerza_trabajo,STRING,Situación en la fuerza de trabajo,,yes,,,no,,sit_fuerza_trabajo
+p40_cise_rec,STRING,"Categoria ocupacional en el empleo (CISE recodificada): independiente, dependiente o trabajador no remunerado",,yes,,,no,,p40_cise_rec
+depend_econ_deficit_hab,STRING,Dependencia económica,,yes,,,no,,depend_econ_deficit_hab
+cod_ciuo,STRING,CIUO-08.CL a 1 dígito,,yes,,,no,,cod_ciuo
+cod_caenes,STRING,CAENES a 1 dígito,,yes,,,no,,cod_caenes
+p44_lug_trab,STRING,¿En qué comuna o país se ubica su trabajo?,,yes,,,no,,p44_lug_trab
+p44_lug_trab_esp,STRING,Lugar de trabajo,,yes,,,no,,p44_lug_trab_esp
+p45_medio_transporte,STRING,¿Cuál es el medio de transporte principal que utiliza para dirigirse a su lugar de trabajo?,,yes,,,no,,p45_medio_transporte
+p46a_tot_hijs_nac,INT64,¿Cuántas hijas e hijos nacidos vivos ha tenido en total?,,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p46a_tot_hijs_nac
+p46b_hijas_nac,INT64,"Del total de hijas e hijos nacidos vivos, ¿cuántas son mujeres?",,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p46b_hijas_nac
+p46c_hijos_nac,INT64,"Del total de hijas e hijos nacidos vivos, ¿cuántos son hombres?",,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p46c_hijos_nac
+p47a_tot_hijs_sobrev,INT64,¿Cuántas hijas e hijos están vivos actualmente?,,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p47a_tot_hijs_sobrev
+p47b_hijas_sobrev,INT64,"Del total de hijas e hijos que se encuentran vivos, ¿cuántas son mujeres?",,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p47b_hijas_sobrev
+p47c_hijos_sobrev,INT64,"Del total de hijas e hijos que se encuentran vivos, ¿cuántos son hombres?",,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p47c_hijos_sobrev
+p48_anio_nac_uh,INT64,¿En qué mes y año nació su última hija o hijo nacido vivo? Año,,no,,year,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p48_anio_nac_uh
+p48_mes_nac_uh,INT64,¿En qué mes y año nació su última hija o hijo nacido vivo? Mes,,no,,month,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p48_mes_nac_uh
+div_genero,STRING,Diversidades de género,,yes,,,no,,div_genero
