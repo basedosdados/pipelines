@@ -1,8 +1,7 @@
 # Documentação do Conjunto de Dados: br_anatel_banda_larga_fixa (Acessos — Banda Larga Fixa)
 
-Este documento centraliza o contexto da base de Acessos de Banda Larga Fixa da Anatel,
-consolidando a causa raiz do congelamento que travou a atualização das tabelas e as
-decisões de engenharia adotadas no fix. Serve de referência para futuros mantenedores.
+Este documento centraliza o contexto da base de Acessos de Banda Larga Fixa da Anatel.
+Serve de referência para futuros mantenedores.
 
 ---
 
@@ -31,59 +30,23 @@ domicílios) nos níveis Brasil, UF e município.
 
 ---
 
-## Causa raiz do congelamento (ponto crítico)
-
-O flow desistia sozinho **antes de materializar**, por causa do poll eager
-`register_source_poll_task` (`pipelines/shared/anatel/banda_larga_fixa/flows.py`). Esse
-poll comparava duas grandezas incompatíveis:
-
-| lado da comparação                 | valor                 | o que é                                |
-| ---------------------------------- | --------------------- | -------------------------------------- |
-| `source_max` (calculado pelo flow) | `2026-04-01` (dia 01) | **cobertura** — último ano-mês do dado |
-| "última atualização na fonte"      | `2026-06-04` (dia 04) | **data de publicação** do arquivo      |
-
-A regra só atualiza se `source_max > api_latest`. Como a cobertura (abril, dia 01)
-**sempre atrasa** em relação à data de publicação (4 de junho), o resultado era sempre
-`False` → *"não há novas atualizações na fonte"* → o flow retornava sem materializar.
-Ficaria travado até a cobertura passar de julho/2026.
-
-O `2026-06-04` (dia 04) é um **resíduo envenenado**: este poll só grava datas de
-cobertura com dia 01, então o dia 04 veio de um fluxo antigo / cadastro manual que
-gravou a data de modificação do arquivo no campo que o poll lê. Além disso, o poll
-eager tinha um segundo defeito: gravava o `Update` no momento da checagem, mesmo que o
-flow morresse antes de materializar.
-
-**Fix aplicado.** Migração para o poll **deferido**, espelhando
-`pipelines/shared/ibge_inflacao/flows.py`:
-
-- `poll_source_for_update_task` apenas **detecta** a novidade antes de materializar;
-- `commit_source_update_task` grava o `Update` **só depois** da materialização em prod.
-
-Como o `commit` grava a `source_max` (cobertura, dia 01) como novo `api_latest`, e o
-`upsert_raw_source_update` grava **sem trava monotônica**, esse commit **sobrescreve o
-`2026-06-04` envenenado** por uma data de cobertura. A partir daí o poll compara
-cobertura × cobertura (correto), e um crash no meio do flow não adianta mais o `Update`.
-
----
-
 ## Revisão histórica da fonte (microdados)
 
 A Anatel **revisa meses passados para cima** conforme chegam registros atrasados.
-Comparação da contagem por mês (fonte × prod, verificação 2026-07-06) — a fonte já tinha
-maio/2026 enquanto o prod estava preso em abril:
+Contagem de linhas por mês na fonte e em prod, medida em 2026-07-06:
 
-| mês     | fonte  | BQ (prod, congelado) | diff          |
-| ------- | ------ | -------------------- | ------------- |
-| 2026-01 | 698274 | 696371               | +1903         |
-| 2026-02 | 698074 | 692951               | +5123         |
-| 2026-03 | 679799 | 671575               | +8224         |
-| 2026-04 | 684785 | 669968               | +14817        |
-| 2026-05 | 652876 | —                    | novo na fonte |
+| mês     | fonte  | prod   | diff          |
+| ------- | ------ | ------ | ------------- |
+| 2026-01 | 698274 | 696371 | +1903         |
+| 2026-02 | 698074 | 692951 | +5123         |
+| 2026-03 | 679799 | 671575 | +8224         |
+| 2026-04 | 684785 | 669968 | +14817        |
+| 2026-05 | 652876 | —      | novo na fonte |
 
-Os diffs positivos crescem com a recência do mês (assinatura de revisão histórica). As 4
-tabelas são materializadas como `table` (**override**) e o upload é `append`, então o
-`force_run` re-materializa do staging revisado e realinha sozinho — backfill idempotente
-por partição.
+Os diffs positivos crescem com a recência do mês (assinatura de revisão histórica). Cada
+run do `microdados` regrava na staging todos os meses do ano mais recente, nos mesmos
+caminhos, e a tabela é materializada como `table`. As revisões da fonte nos meses desse ano
+entram na tabela junto com o próximo mês publicado.
 
 > ⚠️ Isso vale para o **microdados**, que **não** regrediu. **NÃO vale para as
 > densidades**: a fonte apagou 2023–2025 (ver seção Densidades), então ali o mesmo
@@ -131,14 +94,22 @@ até 2026 — os anos 2024–2026 (os mais consultados) caíam na partição de 
 (convenção BD: último ano + 5). Como o model é `create or replace`, o novo
 particionamento entra sozinho na próxima materialização completa.
 
+**`acessos` conta acessos em serviço, não contratos.** A coluna traz o campo `Acessos` do
+CSV, que a Anatel descreve como os acessos em serviço das prestadoras do SCM. O Glossário
+das Telecomunicações ([Resolução Anatel nº 779/2025](https://informacoes.anatel.gov.br/legislacao/resolucoes/2025/2029-resolucao-779),
+anexo, art. 1º) define acesso em serviço como o "acesso que está ativado e prestando
+serviço ao usuário" (inciso II) e assinante como a "pessoa natural ou jurídica que firma
+contrato com a Prestadora" (inciso XXXI). Um mesmo assinante pode ter vários acessos em
+serviço ([Análise nº 304/2013-GCMB](https://www.anatel.gov.br/Portal/verificaDocumentos/documento.asp?numeroPublicacao=298286),
+item 5.76).
+
 **`acessos` NULL em 2017–2020.** A coluna `acessos` é nula em ~61–66% das linhas de
 2017 a 2020 (e ~12% em 2007), com 0% nos demais anos. É **característica da fonte**, não
 regressão: o padrão é idêntico em dev e prod e casa com um salto de volume (~3,3× de
 2016 para 2017), sugerindo que a Anatel passou a emitir linhas decompostas sem o valor
-de acesso preenchido. **Investigação pendente** (não bloqueia o fix do congelamento):
-abrir os CSVs de 2017–2020 e comparar os headers com `RENAME_MICRODADOS`
-(`constants.py`) para decidir entre documentar (decomposição legítima) ou corrigir o
-parse.
+de acesso preenchido. **Investigação pendente:** abrir os CSVs de 2017–2020 e comparar
+os headers com `RENAME_MICRODADOS` (`constants.py`) para decidir entre documentar
+(decomposição legítima) ou corrigir o parse.
 
 ### Densidades: `densidade_brasil`, `densidade_uf`, `densidade_municipio`
 
@@ -148,10 +119,11 @@ Densidade = acessos por 100 domicílios. Níveis geográficos consistentes em 1 
 **A fonte apagou a densidade de 2023–2025.** O ZIP atual da Anatel publica 2023 e 2024
 com as linhas em branco em todos os níveis (Brasil, UF e município) e quase todo 2025
 vazio; retoma parcial em 2026. Prod ainda serve esses anos **completos**, materializado
-de uma versão anterior da fonte. Por isso as 3 tabelas de densidade estão **sem schedule**
-(`cron=None` em `flows.py`): um run automático re-materializaria do arquivo degradado e
-**regrediria o prod** (ex.: município 2025 cairia de 66.840 → 250 linhas). Elas só rodam
-via `force_run` manual. Reativar o cron somente após a decisão sobre a fonte (o apagão é
+de uma versão anterior da fonte. Por isso os `check_update` das 3 tabelas de densidade
+estão **sem schedule** (sem `deploy_schedules` em `flows.py`): um run automático
+re-materializaria do arquivo degradado e **regrediria o prod** (ex.: município 2025 cairia
+de 66.840 → 250 linhas). Elas só rodam por disparo manual do `check_update`. Reativar o
+cron somente após a decisão sobre a fonte (o apagão é
 transitório — recálculo de densidade? — ou permanente? confirmar com a PRUV). O
 `microdados` (acessos) **não** regrediu e mantém o schedule normal (`0 15 * * *`).
 
@@ -179,43 +151,5 @@ Densidade = "Municipio"`. **Não basta contar linhas por `Ano`** — a soma pode
 levando a reativar em cima de fonte incompleta (regressão em prod). Antes de reativar, exija
 completude **por mês**: para cada ano (2023/2024), confirme os **12 meses** presentes e
 **~5.570 `Código IBGE` distintos em cada mês** (contagem de *distintos*, não de linhas). Só
-com 12 meses × ~5.570 municípios é seguro reativar o schedule/`force_run` das densidades.
-
----
-
-## Estrutura dos Flows
-
-Um flow por tabela em `pipelines/datasets/br_anatel_banda_larga_fixa/flows.py`, gerado
-por `_anatel_blf_flow(table_id, cron)`. O `microdados` tem cron diário; as 3 densidades
-vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
-`_run_anatel_banda_larga_fixa` (`pipelines/shared/anatel/banda_larga_fixa/flows.py`).
-
-### Parâmetros de execução
-
-| Parâmetro                | Default  | Observação                                                                |
-| ------------------------ | -------- | ------------------------------------------------------------------------- |
-| `ano`                    | `None`   | Ano a processar; `None` deriva o ano corrente do ZIP                      |
-| `target`                 | `"prod"` | Use `"dev"` para testes                                                   |
-| `materialize_after_dump` | `True`   | Quando `True`, escreve no bucket `basedosdados` (prod) e materializa prod |
-| `update_metadata`        | `True`   | Grava o Update de fonte (poll deferido) após materializar                 |
-| `force_run`              | `False`  | `True` ignora o poll e força o dump/materialização                        |
-
-> **Testes em dev sem tocar prod:** rode com `target="dev"`,
-> `materialize_after_dump=False`, `force_run=True`. Com os defaults
-> (`target="prod"`, `materialize_after_dump=True`), o flow grava no bucket de
-> **produção** mesmo rodando no worker de dev.
-
----
-
-## Histórico de Correções
-
-- **Destravamento do microdados (PR #1635, merged):** substituição do poll eager
-  (`register_source_poll_task`) pelo par deferido (`poll_source_for_update_task` +
-  `commit_source_update_task`), que reescreve o `Update` envenenado (`2026-06-04`) por
-  uma data de cobertura e só grava após materializar. No mesmo PR: extensão do range de
-  partição do `microdados` (`end` 2023 → 2031) e **desativação do schedule das 3
-  densidades** (`cron=None`) para evitar regressão (ver seção Densidades). Recuperação do
-  backlog do microdados (maio/2026 + revisões) via `force_run`.
-
-> O `telefonia_movel` (`pipelines/shared/anatel/telefonia_movel/flows.py`) tem o
-> **mesmo** poll eager — o mesmo fix se aplica lá, em correção à parte.
+com 12 meses × ~5.570 municípios é seguro reativar o schedule ou disparar o `check_update`
+das densidades.

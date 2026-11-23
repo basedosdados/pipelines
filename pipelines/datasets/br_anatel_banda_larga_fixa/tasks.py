@@ -129,8 +129,5 @@ make_pipeline = pipeline_factory(
     DATASET_ID,
     make_get_latest_update,
     make_extract_load_data,
-    # Mesmo formato do flow monolítico antigo (`_run_anatel_banda_larga_fixa`,
-    # que já chama `poll_source_for_update_task` com date_format="%Y-%m" — o
-    # dado é mensal).
     date_format="%Y-%m",
 )

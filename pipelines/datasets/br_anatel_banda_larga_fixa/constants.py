@@ -8,9 +8,6 @@ from enum import Enum
 
 DATASET_ID = "br_anatel_banda_larga_fixa"
 
-# As 4 tabelas do dataset — ver README.md pro histórico da migração e as
-# particularidades de cada uma (revisão histórica do microdados, apagão de
-# 2023-2025 nas densidades).
 MICRODADOS_TABLE_ID = "microdados"
 DENSIDADE_BRASIL_TABLE_ID = "densidade_brasil"
 DENSIDADE_UF_TABLE_ID = "densidade_uf"
