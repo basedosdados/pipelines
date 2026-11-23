@@ -117,7 +117,7 @@ Rename files to something self-describing (`international_codebook.xlsx`, not
 `Table.auxiliaryFilesUrl` exists on the backend and is exposed by
 `create_update_table` in the databasis MCP as `auxiliary_files_url`. Pass it in the
 same call that creates or updates the table; as with every other field, the API
-does no partial updates, so re-pass the required fields when updating.
+updates partially, but the wrapper sends every field it takes, so pass the current values of the required fields when updating (see "Updates are partial" in `metadata-schema`).
 
 If the MCP in use predates that argument, set the field through Django admin and
 say that you did — do not silently skip it.
