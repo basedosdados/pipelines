@@ -8,14 +8,13 @@
             "data_type": "int64",
             "range": {"start": 2005, "end": 2031, "interval": 1},
         },
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
     raw_cnes_servico_especializado as (
         -- 1. Retirar linhas com id_estabelecimento_cnes nulo
         select *
-        from {{ set_datalake_project("br_ms_cnes_staging.servico_especializado") }}
+        from {{ cnes_staging_nan_as_null("br_ms_cnes_staging.servico_especializado") }}
         where cnes is not null
     ),
     raw_cnes_servico_especializado_without_duplicates as (
@@ -45,9 +44,7 @@ select
     concat(
         ltrim(safe_cast(serv_esp as string), '0'), class_sr
     ) as subtipo_servico_especializado,
-    nullif(
-        ltrim(safe_cast(srvunico as string), '0'), 'nan'
-    ) as tipo_servico_especializado_unico,
+    ltrim(safe_cast(srvunico as string), '0') as tipo_servico_especializado_unico,
     safe_cast(caracter as string) as tipo_caracterizacao,
     safe_cast(amb_nsus as int64) as indicador_servico_ambulatorial_sus,
     safe_cast(amb_sus as int64) as indicador_servico_nao_sus,

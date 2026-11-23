@@ -8,7 +8,6 @@
             "data_type": "int64",
             "range": {"start": 2005, "end": 2031, "interval": 1},
         },
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
@@ -17,7 +16,7 @@ with
         select *
         from
             {{
-                set_datalake_project(
+                cnes_staging_nan_as_null(
                     "br_ms_cnes_staging.estabelecimento_filantropico"
                 )
             }}

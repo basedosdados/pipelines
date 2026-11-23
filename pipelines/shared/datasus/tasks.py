@@ -322,7 +322,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
             processed_df = post_process_function(concatenated_df)
 
         # pyrefly: ignore [unbound-name]
-        processed_df = processed_df.astype(str)
+        processed_df = processed_df.astype("string")
         output_path = file.replace(".csv", ".parquet")
         processed_df.to_parquet(output_path, index=None, compression="gzip")
 

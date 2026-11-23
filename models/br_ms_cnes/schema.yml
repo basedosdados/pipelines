@@ -27,7 +27,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -108,7 +108,8 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
+          ignore_values: [area, descricao_segmento]
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -211,8 +212,13 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [cbo_1994, indicador_estabelecimento_terceiro]
+          at_least: 0.99
+          ignore_values:
+            - cbo_1994
+            - indicador_estabelecimento_terceiro
+            - id_municipio_6_residencia
+            - id_registro_conselho
+            - tipo_conselho
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -334,7 +340,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           ignore_values:
             - ano_avaliacao_pnass
             - mes_avaliacao_pnass
@@ -345,6 +351,22 @@ models:
             - tipo_natureza_administrativa
             - tipo_retencao_tributos
             - tipo_retencao_tributos_mantenedora
+            - id_microrregiao_saude
+            - id_distrito_administrativo
+            - tipo_nivel_hierarquia
+            - id_contrato_municipio_sus
+            - id_contrato_estado_sus
+            - tipo_fluxo_atendimento
+            - cpf_cnpj
+            - tipo_orgao_expedidor
+            - numero_alvara
+            - data_expedicao_alvara
+            - id_regiao_saude
+            - cnpj_mantenedora
+            - banco
+            - agencia
+            - conta_corrente
+            - id_distrito_sanitario
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -883,7 +905,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -938,7 +960,19 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
+          ignore_values:
+            - cns_medico_responsavel_administrador_responsavel_tecnico
+            - cns_medico_responsavel_oncologista_pediatrico
+            - cns_medico_responsavel_cirurgia_oncologica
+            - cns_medico_responsavel_oncologista_clinico
+            - cns_medico_responsavel_radioterapeuta
+            - cns_medico_responsavel_fisico_nuclear
+            - cns_medico_responsavel_nefrologista
+            - cns_medico_responsavel_hemoterapeuta
+            - cns_medico_capacitado_responsavel
+            - cns_medico_responsavel_hematologista
+            - cns_responsavel_tecnico_sorologia
           config:
             where: __most_recent_year_month__
     columns:
@@ -1164,7 +1198,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
     columns:
@@ -1229,7 +1263,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
     columns:
@@ -1300,7 +1334,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
     columns:
@@ -1384,7 +1418,7 @@ models:
             where: __most_recent_year_month__
             severity: warn
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
     columns:
@@ -1465,7 +1499,8 @@ models:
             where: __most_recent_year_month__
             severity: warn
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
+          ignore_values: [portaria]
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -1548,7 +1583,7 @@ models:
           config:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           config:
             where: __most_recent_year_month__
     columns:
@@ -1636,8 +1671,11 @@ models:
             where: __most_recent_year_month__
             severity: warn
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [quantidade_nacional_estabelecimento_saude_terceiro]
+          at_least: 0.99
+          ignore_values:
+            - quantidade_nacional_estabelecimento_saude_terceiro
+            - tipo_servico_especializado_unico
+            - indicador_servico_especializado_unico
           config:
             where: __most_recent_year_month__
       - custom_uf_month_completeness:
@@ -1712,7 +1750,7 @@ models:
             - chave
             - cobertura_temporal
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
     columns:
       - name: id_tabela
         description: ID Tabela
