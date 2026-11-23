@@ -74,9 +74,11 @@ def br_bcb_estban_municipio_check_update() -> None:
 br_bcb_estban_municipio_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIO_TABLE_ID
 )
-# Mesmo cron do flow monolítico antigo (`br_bcb_estban__municipio`).
+# Diário: o BCB publica o ESTBAN sem dia fixo (o arquivo de 06/2026 saiu em
+# 04/09/2026), e uma janela só nos dias 25-31 atrasava a carga em semanas. O
+# check só lista os documentos da API do BCB, sem baixar nada.
 br_bcb_estban_municipio_check_update.deploy_schedules = [
-    Cron("30 22 25-31 * *", timezone="America/Sao_Paulo")
+    Cron("30 22 * * *", timezone="America/Sao_Paulo")
 ]
 
 
