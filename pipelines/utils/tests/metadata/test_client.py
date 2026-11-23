@@ -285,6 +285,27 @@ def test_update_latest_parsed_to_date(client, backend):
     )
 
 
+def test_table_status_returns_slug(client, backend):
+    backend.set_response(
+        "allTable",
+        {"allTable": {"items": [{"status": {"slug": "published"}}]}},
+    )
+    assert client.get_table_status("br_x", "tab") == "published"
+
+
+def test_missing_table_status_returns_none(client, backend):
+    backend.set_response("allTable", {"allTable": {"items": []}})
+    assert client.get_table_status("br_x", "tab") is None
+
+
+def test_table_without_status_raises_clear_error(client, backend):
+    backend.set_response(
+        "allTable", {"allTable": {"items": [{"status": None}]}}
+    )
+    with pytest.raises(ValueError, match=r"br_x\.tab está sem status"):
+        client.get_table_status("br_x", "tab")
+
+
 def test_coverage_max_date_none_when_no_coverage(client, backend):
     backend.set_response("allCoverage", {"allCoverage": {"items": []}})
     assert client.get_coverage_max_date("br_x", "tab") is None
