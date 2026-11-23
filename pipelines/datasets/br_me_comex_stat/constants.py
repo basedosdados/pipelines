@@ -45,8 +45,6 @@ class constants(Enum):
 
     PATH = "/tmp/br_me_comex_stat/"
 
-    CSV_CHUNK_ROWS = 1_000_000
-
     TABLE_TYPE = ["mun", "ncm"]
 
     TABLE_MUNICIPIO = [

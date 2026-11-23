@@ -95,7 +95,6 @@ def us_dot_bts_ontime_flow(
                     table_id=table,
                     bucket_name=bucket,
                     dump_mode="append",
-                    source_format="parquet",
                 )
                 run_dbt(
                     dataset_id=DATASET_ID,

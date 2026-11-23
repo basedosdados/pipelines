@@ -61,7 +61,6 @@ def _upload_and_run(result: dict, bucket_name: str, target: str) -> None:
             table_id=table,
             bucket_name=bucket_name,
             dump_mode="append",
-            source_format="parquet",
         )
     for table in TABLES:
         run_dbt(

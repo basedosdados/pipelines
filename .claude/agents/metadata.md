@@ -40,8 +40,20 @@ Guidelines from `metadata-schema`: technical, 1–3 sentences, no bullet lists. 
 Follow the full operation sequence defined in `metadata-schema`:
 1. Dataset creation/update
 2. Raw data sources
-3. Per-table loop: table → observation levels → columns upload → column updates → cloud table → coverage → datetime range → update record → raw source linking
+3. Per-table loop: table → observation levels → columns upload → column updates → **`coverage_entity` on temporal columns** → cloud table → coverage → datetime range → update record → raw source linking
 4. Table ordering checkpoint
+
+### `coverage_entity` (every table with a time dimension)
+
+The coverage spec is read from the backend (`coverageSpec`), so the temporal columns
+must be marked: `ano`→`year`, then `mes`→`month` / `trimestre`→`quarter` /
+`bimestre`→`bimester`, or `data`→`date` alone. Mark `year` first — `month` without
+`year` is rejected. The MCP tools do not expose this field yet, so you cannot set it
+yourself: list the exact column → entity pairs per table and ask the user to set them
+in Django admin (dev, and again in prod), then confirm the result before the
+checkpoint. Never report a temporal table as done while it is unmarked — it would be
+treated as `non_historical` and its coverage would never update. See "`coverage_entity`"
+in `metadata-schema`.
 
 ## Verification checkpoint
 

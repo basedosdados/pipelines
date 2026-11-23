@@ -139,7 +139,6 @@ def au_apra_superannuation_flow(
                 table_id=table,
                 bucket_name=bucket,
                 dump_mode=_DUMP_MODE,
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,

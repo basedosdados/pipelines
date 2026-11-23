@@ -3,7 +3,9 @@ Tasks for br_camara_dados_abertos — Prefect 3.
 """
 
 import os
+from io import BytesIO
 
+import pandas as pd
 import requests
 from prefect import task
 
@@ -14,6 +16,8 @@ from pipelines.datasets.br_camara_dados_abertos.constants import (
 from pipelines.datasets.br_camara_dados_abertos.utils import (
     download_and_read_data,
 )
+from pipelines.utils.data_tests.contained import check_rows_contained
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.utils import log
 
 TASK_RETRIES = constants.TASK_MAX_RETRIES.value
@@ -30,6 +34,7 @@ def save_data(table_id: str) -> str:
         constants_camara.TABLES_OUTPUT_PATH.value[table_id],
         constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
     ]
+    rows_read_by_file = {}
     for output_path_year, df_year in zip(output_path, df, strict=False):
         if table_id == "proposicao_microdados":
             df_year["ultimoStatus_despacho"] = df_year[
@@ -140,9 +145,15 @@ def save_data(table_id: str) -> str:
 
         log(f"Saving {table_id} to {output_path_year}")
 
+        rows_read_by_file[output_path_year] = len(df_year)
         df_year.to_csv(
             output_path_year, sep=",", index=False, encoding="utf-8"
         )
+
+    check_rows_written(
+        rows_read=sum(rows_read_by_file.values()),
+        output_dir=f"{constants_camara.OUTPUT_PATH.value}{table_id}",
+    )
 
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
 
@@ -173,3 +184,24 @@ def check_if_url_is_valid(table_id: str) -> bool:
         return False
     else:
         raise ValueError("URL is not valid")
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def check_historico_cobre_ano_atual() -> None:
+    """falha se alguma linha do arquivo do ano atual não está no de 1999."""
+    url = constants_camara.LICITACAO_CONTRATO_ANO_ATUAL_URL.value
+    response = requests.get(
+        url, headers=constants_camara.HEADERS.value, timeout=60
+    )
+    # sem o arquivo do ano atual não há o que conferir
+    if response.status_code == 404:
+        log(f"Arquivo do ano atual não existe, checagem pulada: {url}")
+        return
+    response.raise_for_status()
+    ano_atual = pd.read_csv(BytesIO(response.content), sep=";", dtype=str)
+    historico = pd.read_csv(
+        constants_camara.TABLES_INPUT_PATH.value["licitacao_contrato"],
+        sep=";",
+        dtype=str,
+    )
+    check_rows_contained(rows=ano_atual, container=historico)

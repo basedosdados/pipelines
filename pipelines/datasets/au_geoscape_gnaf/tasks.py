@@ -160,7 +160,6 @@ def make_extract_load_data(
         return ExtractAndLoad(
             data_path=result[table_id],
             dump_mode="overwrite",
-            source_format="parquet",
         )
 
     return extract_load_data

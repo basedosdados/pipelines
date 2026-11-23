@@ -85,7 +85,6 @@ def _materialize(
             table_id=table,
             bucket_name=bucket,
             dump_mode=dump_modes[table],
-            source_format="parquet",
         )
         run_dbt(
             dataset_id=DATASET_ID,

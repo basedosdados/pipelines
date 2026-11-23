@@ -127,7 +127,6 @@ def us_dot_fars_flow(
                     table_id=table,
                     bucket_name="basedosdados-dev",
                     dump_mode="append",
-                    source_format="parquet",
                 )
                 run_dbt(
                     dataset_id=DATASET_ID,
@@ -151,7 +150,6 @@ def us_dot_fars_flow(
                 table_id=table,
                 bucket_name="basedosdados",
                 dump_mode="append",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,

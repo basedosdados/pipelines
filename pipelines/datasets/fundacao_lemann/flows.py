@@ -20,7 +20,6 @@ def fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada(
     dataset_id: str = "fundacao_lemann",
     table_id: str = "ano_escola_serie_educacao_aprendizagem_adequada",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = False,
     update_metadata: bool = False,
     target: str = "prod",
     force_run: bool = False,
@@ -33,7 +32,6 @@ def fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

@@ -105,7 +105,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         return ExtractAndLoad(
             data_path=data_path,
             dump_mode="append",
-            source_format="parquet",
         )
 
     return extract_load_data

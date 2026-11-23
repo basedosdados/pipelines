@@ -130,7 +130,6 @@ def us_dol_oflc_flow(
                     table_id=program,
                     bucket_name=bucket,
                     dump_mode="append",
-                    source_format="parquet",
                 )
 
         # Build every table before testing any of them: the dictionary-coverage

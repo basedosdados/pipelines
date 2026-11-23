@@ -4,6 +4,8 @@ Tasks for br_ms_cnes.
 
 from collections.abc import Callable
 
+import pandas as pd
+
 from pipelines.datasets.br_ms_cnes.constants import DATASET_ID
 from pipelines.shared.datasus.tasks import (
     access_ftp_download_files_async,
@@ -13,6 +15,7 @@ from pipelines.shared.datasus.tasks import (
     get_datasus_source_max_date,
     pre_process_files,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.metadata.tasks import task_get_api_most_recent_date
 from pipelines.utils.stage_dispatch import (
     ExtractAndLoad,
@@ -73,19 +76,26 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         )
         decompress_dbc(file_list=dbc_files, dataset_id=DATASET_ID)
         csv_files = decompress_dbf(file_list=dbc_files, table_id=table_id)
+        rows_read = 0
+        for csv_file in csv_files:
+            rows_read += len(
+                pd.read_csv(
+                    csv_file, usecols=[0], dtype=str, encoding="iso-8859-1"
+                )
+            )
         # decompress_dbf está anotado -> str mas devolve list (mesmo bug de
         # tipo pré-existente em crawler/datasus/flows.py::_run_cnes).
         # pyrefly: ignore [no-matching-overload]
         files_path = pre_process_files(
             file_list=csv_files, dataset_id=DATASET_ID, table_id=table_id
         )
+        check_rows_written(rows_read=rows_read, output_dir=files_path)
 
         return ExtractAndLoad(
             data_path=files_path,
             # `pre_process_files` grava parquet — sem declarar o formato, o
             # `dump_header` chamado por `_sync_staging_schema` procura .csv e
             # não encontra nada (mesmo aviso já existente no flow antigo).
-            source_format="parquet",
         )
 
     return extract_load_data

@@ -143,7 +143,6 @@ def upload_staging(slugs: list[str]) -> None:
             # Rebuild the prefix and the table from what is on disk, so a
             # rerun is deterministic and a stale native table is replaced.
             dump_mode="overwrite",
-            source_format="csv" if slug == "dicionario" else "parquet",
         )
         found = staging_rows(bq_client, slug)
         if found != expected:

@@ -4,7 +4,6 @@ import os
 import re
 import time as tm
 from datetime import datetime
-from pathlib import Path
 from typing import Literal
 
 import pandas as pd
@@ -98,51 +97,6 @@ def check_year_matches_filename(
             f"{len(other_years)} linha(s) de {filename} com `ano` diferente "
             f"de {file_year}: {other_years.unique()[:5].tolist()}"
         )
-
-
-def count_written_rows(output_dir: str | Path) -> int:
-    """Conta as linhas gravadas nos `.csv` de um diretório.
-
-    Args:
-        output_dir: Raiz das partições.
-
-    Returns:
-        O total de linhas, sem os cabeçalhos.
-    """
-    rows = 0
-
-    for path in sorted(Path(output_dir).rglob("*.csv")):
-        chunks = pd.read_csv(
-            path,
-            usecols=[0],
-            dtype=str,
-            chunksize=comex_constants.CSV_CHUNK_ROWS.value,
-        )
-        for chunk in chunks:
-            rows += len(chunk)
-
-    return rows
-
-
-def check_rows_written(rows_read: int, output_dir: str | Path) -> None:
-    """Confere se as partições gravadas têm as mesmas linhas que as lidas.
-
-    Args:
-        rows_read: Linhas lidas da fonte.
-        output_dir: Raiz das partições.
-
-    Raises:
-        ValueError: Quando as partições têm mais ou menos linhas que as lidas.
-    """
-    rows_written = count_written_rows(output_dir)
-
-    if rows_written != rows_read:
-        raise ValueError(
-            f"{rows_read} linhas lidas e {rows_written} gravadas em "
-            f"{output_dir}."
-        )
-
-    log(f"{rows_read} linhas lidas e gravadas em {output_dir}")
 
 
 def download_validation(

@@ -162,5 +162,4 @@ def br_ans_beneficiario_download(download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=output_filepath,
         # crawler_ans -> parquet_partition grava .parquet, não .csv (default).
-        source_format="parquet",
     )

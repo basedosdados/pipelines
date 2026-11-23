@@ -180,7 +180,6 @@ def cl_ine_ene_flow(
                 table_id=TABLE_ID,
                 bucket_name="basedosdados-dev",
                 dump_mode=dump_mode,
-                source_format="parquet",
             )
             # Build every table first, then test: the dicionario coverage test
             # reads microdato, so an interleaved run/test would test against a
@@ -207,7 +206,6 @@ def cl_ine_ene_flow(
             table_id=TABLE_ID,
             bucket_name="basedosdados",
             dump_mode=dump_mode,
-            source_format="parquet",
         )
         for table in constants.DBT_TABLES.value:
             run_dbt(

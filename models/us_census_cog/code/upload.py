@@ -88,7 +88,6 @@ def main(tables: list[str]) -> None:
             table_id=table,
             bucket_name=BUCKET,
             dump_mode="append",
-            source_format="parquet",
         )
         print(f"{table}: done", flush=True)
 

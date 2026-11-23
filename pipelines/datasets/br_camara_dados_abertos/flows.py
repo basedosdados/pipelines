@@ -5,6 +5,7 @@ Flows para br_camara_dados_abertos — Prefect 3.
 from prefect.schedules import Cron
 
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
+    check_historico_cobre_ano_atual,
     check_if_url_is_valid,
     save_data,
 )
@@ -44,13 +45,16 @@ def _camara_flow(table_id: str, cron: str):
 
         filepath = save_data(table_id=table_id)
 
+        # o arquivo de 1999 precisa trazer os contratos do ano atual
+        if table_id == "licitacao_contrato":
+            check_historico_cobre_ano_atual()
+
         upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             bucket_name="basedosdados-dev",
             dump_mode="append",
-            source_format="csv",
         )
         run_dbt(
             dataset_id=dataset_id,
@@ -68,7 +72,6 @@ def _camara_flow(table_id: str, cron: str):
             table_id=table_id,
             bucket_name="basedosdados",
             dump_mode="append",
-            source_format="csv",
         )
 
         run_dbt(

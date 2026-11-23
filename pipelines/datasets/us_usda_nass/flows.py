@@ -113,7 +113,6 @@ def us_usda_nass_flow(
                     table_id=table,
                     bucket_name="basedosdados-dev",
                     dump_mode="overwrite",
-                    source_format="parquet",
                 )
             for table in tables:
                 run_dbt(
@@ -141,7 +140,6 @@ def us_usda_nass_flow(
                 table_id=table,
                 bucket_name="basedosdados",
                 dump_mode="overwrite",
-                source_format="parquet",
             )
         for table in tables:
             run_dbt(

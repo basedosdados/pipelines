@@ -347,7 +347,6 @@ def make_extract_load_data(
         return ExtractAndLoad(
             data_path=output_path,
             dump_mode="append",
-            source_format="parquet",
         )
 
     return extract_load_data

@@ -49,7 +49,6 @@ def br_bd_diretorios_brasil__escola(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -68,7 +67,6 @@ def br_bd_diretorios_brasil__escola(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format="parquet",
     )
 
     run_dbt(

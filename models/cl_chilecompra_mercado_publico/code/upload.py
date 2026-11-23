@@ -135,7 +135,6 @@ def upload_dicionario(root: Path, billing_project: str) -> int:
         table_id="dicionario",
         bucket_name=billing_project,
         dump_mode="append",
-        source_format="csv",
     )
     client = bigquery.Client(project=billing_project)
     query = (
@@ -163,7 +162,6 @@ def upload_table(
         table_id=table,
         bucket_name=billing_project,
         dump_mode="append",
-        source_format="parquet",
     )
 
     client = bigquery.Client(project=billing_project)

@@ -141,7 +141,6 @@ def _materialize(
             table_id=table,
             bucket_name=bucket,
             dump_mode="append",
-            source_format="parquet",
         )
     for table in constants.ALL_TABLES.value:
         run_dbt(

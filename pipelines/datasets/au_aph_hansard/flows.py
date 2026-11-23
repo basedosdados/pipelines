@@ -147,7 +147,6 @@ def au_aph_hansard_flow(
                     table_id=table,
                     bucket_name="basedosdados-dev",
                     dump_mode="append",
-                    source_format="parquet",
                 )
                 run_dbt(
                     dataset_id=DATASET_ID,
@@ -171,7 +170,6 @@ def au_aph_hansard_flow(
                 table_id=table,
                 bucket_name="basedosdados",
                 dump_mode="append",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DATASET_ID,

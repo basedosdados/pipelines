@@ -85,7 +85,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
 
         return ExtractAndLoad(
             data_path=files_path,
-            source_format="parquet",
         )
 
     return extract_load_data
