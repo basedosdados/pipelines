@@ -103,22 +103,12 @@ melted_dataframe = pd.concat(
 melted_dataframe["sigla_uf"].unique()
 
 # %%
-melted_dataframe["etapa_ensino"] = melted_dataframe["metrica"].apply(
-    lambda v: v.split("_")[-1]
-)  # Extracts 'anosiniciais', 'anosfinais', or 'ensinomedio'
-melted_dataframe["tipo_metrica"] = melted_dataframe["metrica"].apply(
-    lambda v: v.split("_")[0]
-)  # Extracts 'tdi'
+# The metric names were already renamed to the full stage labels
+# (e.g. "Ensino Médio Regular") in RENAME_COLUMNS
+melted_dataframe["etapa_ensino"] = melted_dataframe["metrica"]
 melted_dataframe["tdi"] = pd.to_numeric(
     melted_dataframe["tdi"], errors="coerce"
 )
-
-# Pivoting the melted DataFrame to get desired columns
-df_final = melted_dataframe.pivot_table(
-    index=["ano", "sigla_uf", "etapa_ensino"],
-    columns="tipo_metrica",
-    values="tdi",
-).reset_index()
 
 # %%
 # Remove all rows where the column 'valor' has missing (NaN) values.
@@ -138,7 +128,7 @@ melted_dataframe = melted_dataframe[
 
 # %%
 # Define the output file path by joining the OUTPUT directory with a subfolder name
-path = os.path.join(OUTPUT, "educacao_especial_brasil_distorcao_idade_serie")
+path = os.path.join(OUTPUT, "educacao_especial_uf_distorcao_idade_serie")
 # Create the directory if it does not already exist
 os.makedirs(path, exist_ok=True)
 # Convert all values in df_final to string (astype(str)),
@@ -156,6 +146,10 @@ df_bq = bd.read_sql(
     "select * from basedosdados.br_inep_educacao_especial.uf_distorcao_idade_serie",
     billing_project_id="basedosdados-dev",
 )
+
+# Keep only the years not covered by the new data, so re-running this script
+# after those years are published does not duplicate them
+df_bq = df_bq[df_bq["ano"] < melted_dataframe["ano"].min()]
 
 # %%
 # Concatenate two DataFrames.

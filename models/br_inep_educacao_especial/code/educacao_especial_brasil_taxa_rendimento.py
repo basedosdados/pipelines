@@ -175,6 +175,10 @@ df_bq = bd.read_sql(
     billing_project_id="basedosdados-dev",
 )
 
+# Keep only the years not covered by the new data, so re-running this script
+# after those years are published does not duplicate them
+df_bq = df_bq[df_bq["ano"] < df_final["ano"].min()]
+
 # %%
 # Concatenate two DataFrames.
 df_updated = pd.concat([df_bq, df_final])

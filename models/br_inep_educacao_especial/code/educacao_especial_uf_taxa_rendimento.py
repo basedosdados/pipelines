@@ -169,7 +169,7 @@ df_final = df_final[
 
 # %%
 # Define the output file path by joining the OUTPUT directory with a subfolder name
-path = os.path.join(OUTPUT, "educacao_especial_brasil_taxa_rendimento")
+path = os.path.join(OUTPUT, "educacao_especial_uf_taxa_rendimento")
 # Create the directory if it does not already exist
 os.makedirs(path, exist_ok=True)
 # Convert all values in df_final to string (astype(str)),
@@ -187,6 +187,10 @@ df_bq = bd.read_sql(
     "select * from basedosdados.br_inep_educacao_especial.uf_taxa_rendimento",
     billing_project_id="basedosdados-dev",
 )
+
+# Keep only the years not covered by the new data, so re-running this script
+# after those years are published does not duplicate them
+df_bq = df_bq[df_bq["ano"] < df_final["ano"].min()]
 
 # %%
 # Concatenate two DataFrames.

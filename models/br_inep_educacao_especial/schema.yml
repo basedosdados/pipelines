@@ -206,6 +206,8 @@ models:
     description: 'Taxa de distorção idade-série da Educação Especial por UF. Dados
       obtidos via Pedido LAI (nº protocolo: 23546066150202238)'
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, etapa_ensino]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -230,6 +232,8 @@ models:
     description: 'Taxa de distorção idade-série da Educação Especial no Brasil. Dados
       obtidos via Pedido LAI (nº protocolo: 23546066150202238)'
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, etapa_ensino]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -248,6 +252,8 @@ models:
     description: 'Taxas de rendimento (aprovação, reprovação e abandono) da Educação
       Especial por UF. Dados obtidos via Pedido LAI (nº protocolo: 23546054413202266)'
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, etapa_ensino]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -276,6 +282,8 @@ models:
     description: 'Taxas de rendimento (aprovação, reprovação e abandono) da Educação
       Especial no Brasil. Dados obtidos via Pedido LAI (nº protocolo: 23546054413202266)'
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, etapa_ensino]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:

@@ -108,31 +108,16 @@ melted_dataframe = pd.concat(
 )
 
 # %%
-melted_dataframe["etapa_ensino"] = melted_dataframe["metrica"].apply(
-    lambda v: v.split("_")[-1]
-)  # Extracts 'anosiniciais', 'anosfinais', or 'ensinomedio'
-melted_dataframe["tipo_metrica"] = melted_dataframe["metrica"].apply(
-    lambda v: v.split("_")[0]
-)  # Extracts 'tdi'
+# The metric names were already renamed to the full stage labels
+# (e.g. "Ensino Médio Regular") in RENAME_COLUMNS
+melted_dataframe["etapa_ensino"] = melted_dataframe["metrica"]
 melted_dataframe["tdi"] = pd.to_numeric(
     melted_dataframe["tdi"], errors="coerce"
 )
 
-# Pivoting the melted DataFrame to get desired columns
-df_final = melted_dataframe.pivot_table(
-    index=["ano", "regiao", "etapa_ensino"],
-    columns="tipo_metrica",
-    values="tdi",
-).reset_index()
-
 # %%
-# Remove all rows where the column 'valor' has missing (NaN) values.
+# Remove all rows where the column 'tdi' has missing (NaN) values.
 melted_dataframe = melted_dataframe.dropna(subset=["tdi"])
-
-# %%
-# Dictionary used to rename columns in the melted DataFrame
-# to a more standardized format.
-RENAME_COLUMNS_MELTED = {"tdi": "tdi", "metrica": "etapa_ensino"}
 
 # %%
 # Select only the relevant columns for analysis
@@ -160,6 +145,10 @@ df_bq = bd.read_sql(
     "select * from basedosdados.br_inep_educacao_especial.brasil_distorcao_idade_serie",
     billing_project_id="basedosdados-dev",
 )
+
+# Keep only the years not covered by the new data, so re-running this script
+# after those years are published does not duplicate them
+df_bq = df_bq[df_bq["ano"] < melted_dataframe["ano"].min()]
 
 # %%
 # Concatenate two DataFrames:
