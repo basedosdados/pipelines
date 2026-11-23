@@ -8,9 +8,6 @@ from enum import Enum
 
 DATASET_ID = "br_anatel_banda_larga_fixa"
 
-# As 4 tabelas do dataset — ver README.md pro histórico da migração e as
-# particularidades de cada uma (revisão histórica do microdados, apagão de
-# 2023-2025 nas densidades).
 MICRODADOS_TABLE_ID = "microdados"
 DENSIDADE_BRASIL_TABLE_ID = "densidade_brasil"
 DENSIDADE_UF_TABLE_ID = "densidade_uf"
@@ -50,6 +47,14 @@ class constants(Enum):
         "sec-fetch-site": "same-origin",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0",
     }
+
+    API_URL = "https://dados.gov.br/api/publico/conjuntos-dados/acessos---banda-larga-fixa"
+
+    RESOURCE_FORMAT = "ZIP"
+
+    MICRODADOS_FILE_PATTERN = r"Acessos_Banda_Larga_Fixa_\d{4}\.csv"
+
+    DENSIDADE_FILE = "Densidade_Banda_Larga_Fixa.csv"
 
     INPUT_PATH = "/tmp/data/input/"
 
@@ -93,21 +98,6 @@ class constants(Enum):
         "produto",
         "acessos",
     ]
-
-    SORT_VALUES_MICRODADOS = [
-        "ano",
-        "mes",
-        "sigla_uf",
-        "id_municipio",
-        "cnpj",
-        "empresa",
-        "porte_empresa",
-        "tecnologia",
-        "transmissao",
-        "velocidade",
-    ]
-
-    DROP_COLUMNS_MICRODADOS = ["grupo_economico", "municipio"]
 
     # ! ------------ > Densidade Brasil
 
