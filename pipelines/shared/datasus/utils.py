@@ -324,7 +324,7 @@ def year_month_sigla_uf_parser(file: str) -> str:
         month = int(file[6:8])
 
         # parse and build state
-        sigla_uf = file[2:4]
+        sigla_uf = file[2:4].upper()
 
     except IndexError as e:
         raise ValueError("Unable to parse month and year from file") from e

@@ -14,7 +14,9 @@
     Uma UF que não aparece num mês entra com zero linhas, porque a grade de
     meses × UFs é montada à parte e não a partir dos dados.
 
-    O filtro por `current_date()` limita a leitura às partições recentes.
+    O filtro por `current_date()` limita a leitura às partições recentes. Com
+    `date_column`, a competência e o filtro saem dessa coluna, para a leitura
+    ser podada numa tabela particionada por data.
 #}
 {% test custom_uf_month_completeness(
     model,
@@ -24,7 +26,8 @@
     window_months=24,
     baseline_months=12,
     min_share=0.5,
-    grace_months=2
+    grace_months=2,
+    date_column=none
 ) %}
 
     {%- set ufs = [
@@ -61,13 +64,20 @@
     with
         counts as (
             select
-                date({{ year_column }}, {{ month_column }}, 1) as competencia,
+                {% if date_column %} date_trunc({{ date_column }}, month)
+                {% else %} date({{ year_column }}, {{ month_column }}, 1)
+                {% endif %} as competencia,
                 {{ uf_column }} as uf,
                 count(*) as n
             from {{ model }}
             where
-                {{ year_column }}
-                >= extract(year from current_date()) - {{ lookback_years }}
+                {% if date_column %}
+                    {{ date_column }}
+                    >= date_sub(current_date(), interval {{ lookback_years }} year)
+                {% else %}
+                    {{ year_column }}
+                    >= extract(year from current_date()) - {{ lookback_years }}
+                {% endif %}
             group by 1, 2
         ),
 

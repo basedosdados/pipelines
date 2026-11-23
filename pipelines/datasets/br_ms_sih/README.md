@@ -60,6 +60,11 @@ Na staging de dev, o flow apaga a partição de cada arquivo antes de subir os n
 staging de prod, a pasta da partição precisa ser apagada à mão antes da recarga (ver
 "Cuidados em prod", abaixo).
 
+A UF da partição sai do nome do arquivo, e o FTP tem um arquivo com nome em minúsculo:
+`sppa1001.dbc`, o grupo SP do Pará em 2010-01. Por isso o `year_month_sigla_uf_parser`
+passa a UF para maiúsculo, e o modelo da `servicos_profissionais` aplica `upper()` em
+`sigla_uf`. Sem isso, esse mês entrava na tabela com `sigla_uf = 'pa'`.
+
 ## Recarga dos meses recentes e backfill
 
 O `check_update` só dispara o `extract_and_load` quando aparece no FTP uma competência
@@ -75,23 +80,27 @@ staging de dev (`gs://basedosdados-dev/staging/br_ms_sih/<tabela>/`) antes de su
 novos.
 
 Os modelos `br_ms_sih__aihs_reduzidas` e `br_ms_sih__servicos_profissionais` são
-`incremental`, com `incremental_strategy="insert_overwrite"` e partição por `ano`. Cada
-`dbt run` refaz por inteiro, a partir da staging, as partições dos anos `>= max(ano) - 1`
-e deixa as anteriores como estão. Por isso rodar de novo não faz o mesmo mês entrar duas
-vezes. Com `--vars '{br_ms_sih_min_ano: 2024}'`, o run refaz os anos `>= 2024`.
+`incremental`, com `incremental_strategy="insert_overwrite"` e partição mensal na coluna
+`data_competencia`, o primeiro dia do mês da competência. Filtro em `ano` ou `mes` não poda
+partição; só filtro em `data_competencia`.
 
-São dois anos porque há competências reescritas no FTP até cerca de um ano depois de
-publicadas: em janeiro, o ano anterior ainda precisa ser refeito. A janela de recarga de 3
-competências sempre cai dentro desses dois anos.
+Cada `dbt run` refaz por inteiro, a partir da staging, as partições da penúltima
+competência da tabela em diante, e deixa as anteriores como estão. Por isso rodar de novo
+não faz o mesmo mês entrar duas vezes. Quando o dbt roda depois de um `extract_and_load`
+com competência nova, a tabela ainda não a tem, e o run refaz as 3 competências que o flow
+acabou de recarregar. Se `RELOAD_WINDOW_MONTHS` mudar, o `interval 1 month` do filtro dos
+dois modelos tem de mudar junto (ele vale `RELOAD_WINDOW_MONTHS` − 2). Com
+`--vars '{"br_ms_sih_most_recent_competencia": "2024-03"}'`, o run refaz de 2024-03 em
+diante.
 
 Dois detalhes do filtro reduzem o custo de cada run:
 
-- O `max(ano)` vem dos metadados de partição (`INFORMATION_SCHEMA.PARTITIONS`), que não
-  custam quase nada. Um `select max(ano)` leria a coluna inteira, cerca de 20 GB em
-  `servicos_profissionais`.
-- O filtro compara `ano` com um valor fixo (`ano >= '2025'`), e não com uma subconsulta.
-  Assim o BigQuery lê na staging só as pastas `ano=…` desses anos. Com subconsulta, ele lê
-  a staging inteira.
+- A penúltima competência vem dos metadados de partição (`INFORMATION_SCHEMA.PARTITIONS`),
+  que não custam quase nada. Um `select max(data_competencia)` leria a coluna inteira.
+- O filtro compara `ano` e `mes` da staging com valores fixos
+  (`ano > '2026' or (ano = '2026' and mes in ('7', …, '12'))`), e não com uma subconsulta.
+  Assim o BigQuery lê na staging só as pastas `ano=…/mes=…` dessas competências. Com
+  subconsulta, ele lê a staging inteira.
 
 O teste `custom_uf_month_completeness` (`tests-dbt/generic/`), aplicado às duas tabelas,
 falha quando uma UF tem zero linhas num mês, ou menos de 50% da mediana dos 12 meses
@@ -101,10 +110,12 @@ e nos dois runs seguintes) antes de o teste olhar para ela. Se a UF continuar in
 o `dbt test` de dev do `build_and_promote` falha, nada é promovido para prod, e o run se
 repete a cada dia com a mesma falha até alguém rodar o backfill.
 
-O teste de unicidade da `aihs_reduzidas` (`dbt_utils.unique_combination_of_columns`) olha só
-`ano >= extract(year from current_date()) - 2`, para não ler a tabela inteira a cada run.
-Esse corte cobre os anos que o run reescreve, até em janeiro, quando o ano mais recente da
-tabela ainda é o anterior. Uma duplicata em ano mais antigo só aparece numa consulta à parte.
+Os outros testes das duas tabelas olham só as 3 competências mais recentes
+(`where: __most_recent_months__(data_competencia, 3)`, em
+`macros/custom_get_where_subquery.sql`), que são as que o run acabou de refazer. A
+competência mais recente vem de `INFORMATION_SCHEMA.PARTITIONS`, e o corte em
+`data_competencia` poda as partições, então o teste não lê a tabela inteira a cada run. Um
+problema em competência mais antiga só aparece numa consulta à parte.
 
 ### Backfill
 
@@ -131,10 +142,8 @@ pedidas, de todas as UFs, com a mesma limpeza da staging de dev, e depois o
    reescrito que gera menos pedaços que a versão anterior, cujos pedaços a mais continuam
    lá. Em (a) e (b), apague à mão a pasta da partição em prod antes da recarga. O caso (c)
    pode acontecer num run normal da janela.
-2. **Ano antigo.** O `build_and_promote` roda o dbt sem `--vars`, então uma competência de
-   ano anterior a `max(ano) - 1` não chega à tabela. Depois do backfill, rode o dbt em
-   prod pelo deployment `run_dbt_model_flow` (flow "BD template: Executa DBT model") com
-   `--vars '{br_ms_sih_min_ano: AAAA}'` em `flags`. Esse run executa o `pre_hook` dos dois
-   modelos, que apaga todas as row access policies da tabela. Elas só voltam com o
-   registro da materialização (`register_table_materialization_task`, no fim do
-   `build_and_promote` de prod). Até lá, a parte paga da tabela fica aberta.
+2. **Competência antiga.** O `build_and_promote` roda o dbt sem `--vars`, então uma
+   competência anterior à penúltima da tabela não chega a ela. Depois do backfill, rode o
+   dbt em prod pelo deployment `run_dbt_model_flow` (flow "BD template: Executa DBT model")
+   com `--vars '{"br_ms_sih_most_recent_competencia": "AAAA-MM"}'` em `flags`, usando a
+   competência mais antiga do backfill.

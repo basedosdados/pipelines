@@ -5,17 +5,17 @@
         materialized="incremental",
         incremental_strategy="insert_overwrite",
         partition_by={
-            "field": "ano",
-            "data_type": "int64",
-            "range": {"start": 2008, "end": 2031, "interval": 1},
+            "field": "data_competencia",
+            "data_type": "date",
+            "granularity": "month",
         },
-        cluster_by=["mes", "sigla_uf"],
-        pre_hook="{% if adapter.get_relation(this.database, this.schema, this.identifier) %}DROP ALL ROW ACCESS POLICIES ON {{ this }}{% else %}SELECT 1{% endif %}",
+        cluster_by=["sigla_uf"],
     )
 }}
 
 
 select
+    date(safe_cast(ano as int64), safe_cast(mes as int64), 1) data_competencia,
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
     safe_cast(sigla_uf as string) sigla_uf,
@@ -350,18 +350,45 @@ select
 from {{ set_datalake_project("br_ms_sih_staging.aihs_reduzidas") }}
 
 {% if is_incremental() %}
-        {%- set max_year_result = run_query(
-            "select max(safe_cast(partition_id as int64)) from `"
-            ~ this.database
-            ~ "`.`"
-            ~ this.schema
-            ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
-            ~ this.identifier
-            ~ "' and total_rows > 0"
-        ) -%}
-        {%- set max_year = 0 -%}
-        {%- if execute and max_year_result.rows[0][0] -%}
-            {%- set max_year = max_year_result.rows[0][0] -%}
-        {%- endif -%}
-    where ano >= '{{ var("br_ms_sih_min_ano", max_year - 1) }}'
+
+        {% set most_recent_competencia = var(
+            "br_ms_sih_most_recent_competencia", none
+        ) %}
+
+        {% if most_recent_competencia is none %}
+            {% set query_result = run_query(
+                "select format_date('%Y-%m',date_sub(                 max(                   parse_date('%Y%m', partition_id)                 ), interval 1 month               )             ) from `"
+                ~ this.database
+                ~ "`.`"
+                ~ this.schema
+                ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
+                ~ this.identifier
+                ~ "' and total_rows > 0"
+                ~ " and regexp_contains(partition_id, r'^[0-9]{6}$')"
+            ) %}
+
+            {% if execute %}
+                {% set most_recent_competencia = query_result.rows[0][0] %}
+            {% endif %}
+
+        {% endif %}
+
+    {% if most_recent_competencia is not none %}
+            {% set most_recent_competencia_year = most_recent_competencia[:4] %}
+            {% set most_recent_competencia_month = most_recent_competencia[5:7] | int %}
+
+        where
+            (
+                ano > '{{ most_recent_competencia_year }}'
+                or (
+                    ano = '{{ most_recent_competencia_year }}'
+                    and mes in (
+                        {% for mes in range(most_recent_competencia_month, 13) %}
+                            '{{ mes }}' {% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    )
+                )
+            )
+
+    {% endif %}
 {% endif %}
