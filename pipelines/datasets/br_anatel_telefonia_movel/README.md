@@ -40,7 +40,7 @@ A partir de **2025-01** a Anatel emite `acessos` como **float** (`"1.0"`) em vez
 
 As 3 tabelas de densidade saem do **mesmo** `Densidade_Telefonia_Movel.csv`, filtrado pela coluna `Nível Geográfico Densidade`, que traz `"Brasil"`, `"UF"` ou `"Municipio"`.
 
-O nível de cada tabela fica em `DENSITY_GEOGRAPHIC_LEVEL` (`constants.py`), já normalizado. Antes da comparação, a coluna passa pela `normalize_label` (`utils.py`), tanto no poll quanto na limpeza. O glossário grafa "Município", com acento, mas o dado vem sem. Como a normalização tira os acentos e os espaços das pontas e passa tudo para minúsculas, o filtro continua casando se a Anatel mudar a grafia numa revisão.
+O nível de cada tabela fica em `DENSITY_GEOGRAPHIC_LEVEL` (`constants.py`), já normalizado. Antes da comparação, a coluna passa pela `normalize_label` (`pipelines/shared/anatel/utils.py`), tanto no poll quanto na limpeza. O glossário grafa "Município", com acento, mas o dado vem sem. Como a normalização tira os acentos e os espaços das pontas e passa tudo para minúsculas, o filtro continua casando se a Anatel mudar a grafia numa revisão.
 
 ### 5. A Anatel regrava semestres anteriores
 
@@ -50,7 +50,7 @@ A Anatel gera o ZIP inteiro de novo a cada publicação, e o conteúdo de semest
 
 ## Download
 
-`get_zip_url` (`utils.py`) consulta a API do dados.gov.br, que lista os recursos do conjunto. O recurso de formato `CSV` aponta para um ZIP único da Anatel, de cerca de 3 GB, que traz:
+`get_zip_url` (`pipelines/shared/anatel/utils.py`, com o endereço e o formato em `API_URL` e `RESOURCE_FORMAT` do `constants.py`) consulta a API do dados.gov.br, que lista os recursos do conjunto. O recurso de formato `CSV` aponta para um ZIP único da Anatel, de cerca de 3 GB, que traz:
 
 | Arquivo | Conteúdo | Lido por |
 | --- | --- | --- |
@@ -58,9 +58,9 @@ A Anatel gera o ZIP inteiro de novo a cada publicação, e o conteúdo de semest
 | `Densidade_Telefonia_Movel.csv` | densidade nos três níveis geográficos | as 3 densidades |
 | `Acessos_Telefonia_Movel_Total.csv` | total de acessos por mês | nenhuma tabela |
 
-O flow não baixa o ZIP inteiro. O servidor da Anatel aceita o cabeçalho HTTP `Range`, e a `HttpRangeFile` (`utils.py`) faz o ZIP remoto funcionar como um arquivo comum, com `read`, `seek` e `tell`, e pede ao servidor só os bytes que o `zipfile` lê. Assim, `download_csv_from_zip` lê o índice do ZIP e extrai só o CSV da tabela para `/tmp/data/input/`, em requisições de até 8 MiB (o `buffer_size` do `BufferedReader`). No semestre de 82 MB compactados, são 11 requisições de dados, em cerca de 10 s.
+O flow não baixa o ZIP inteiro. O servidor da Anatel aceita o cabeçalho HTTP `Range`, e a `HttpRangeFile` (`pipelines/shared/anatel/utils.py`) faz o ZIP remoto funcionar como um arquivo comum, com `read`, `seek` e `tell`, e pede ao servidor só os bytes que o `zipfile` lê. Assim, `download_csv_from_zip` lê o índice do ZIP e extrai só o CSV da tabela para `/tmp/data/input/`, em requisições de até 8 MiB (o `buffer_size` do `BufferedReader`). No semestre de 82 MB compactados, são 11 requisições de dados, em cerca de 10 s.
 
-`get_csv_file_from_zip` escolhe o arquivo pelo nome. As densidades leem o `Densidade_Telefonia_Movel.csv`. O `microdados` lê o semestre mais recente, que é o `max()` dos nomes: como o formato do nome é fixo, a ordem alfabética coincide com a do tempo.
+`get_csv_file_from_zip` escolhe o arquivo pelo nome, a partir de `DENSIDADE_FILE` e `MICRODADOS_FILE_PATTERN` do `constants.py`. As densidades leem o `Densidade_Telefonia_Movel.csv`. O `microdados` lê o semestre mais recente, que é o `max()` dos nomes: como o formato do nome é fixo, a ordem alfabética coincide com a do tempo.
 
 ---
 
