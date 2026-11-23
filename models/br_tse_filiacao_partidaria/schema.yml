@@ -79,7 +79,7 @@ models:
       filiação aparece uma vez em cada extração em que constava.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.55
+          at_least: 0.97
           ignore_values:
             - data_desfiliacao
             - data_exclusao

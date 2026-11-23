@@ -208,6 +208,16 @@ registros, inclusive nos 19 com `dtDesfiliacao`: a fonte parece não preencher o
 grupo só não confirma. O tratamento atual lê o campo com qualquer horário; o anterior só lia
 quando o horário era exatamente 1h00.
 
+### `cpf` vazio em 2,3% das filiações
+
+Na coleta de 2026-11-12, 381.815 das 16.845.808 filiações (2,27%) não tinham CPF. O nulo vem da
+API: o `numCpf` chega vazio, e o tratamento grava o campo como recebe. A fonte não diz por que
+esses registros não têm CPF.
+
+Fora as colunas do `ignore_values`, o `cpf` é a única abaixo dos 99% de preenchimento que o
+manual de testes pede. Por isso o `not_null_proportion_multiple_columns` da `microdados` usa
+`at_least: 0.97`. Na mesma coleta, as outras colunas testadas passam de 99,8%.
+
 ---
 
 ## Testar em dev
