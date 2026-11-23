@@ -5,7 +5,7 @@ from io import SEEK_CUR, SEEK_END
 import httpx
 import pytest
 
-from pipelines.datasets.br_anatel_telefonia_movel.utils import HttpRangeFile
+from pipelines.shared.anatel.utils import HttpRangeFile
 
 URL = "https://www.anatel.gov.br/acessos_telefonia_movel.zip"
 CONTENT = bytes(range(100))

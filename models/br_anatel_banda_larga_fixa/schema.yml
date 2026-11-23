@@ -46,9 +46,9 @@ models:
       - name: velocidade
         description: Velocidade contratada
       - name: produto
-        description: Tipo de Produto
+        description: Tipo de produto
       - name: acessos
-        description: Número total de contratos
+        description: Número total de acessos
   - name: br_anatel_banda_larga_fixa__densidade_brasil
     tests:
       - dbt_utils.unique_combination_of_columns:
