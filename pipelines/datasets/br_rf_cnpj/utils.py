@@ -26,6 +26,7 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     COLUNAS_SOCIOS,
     COMPONENTS_SPECS,
     DOWNLOAD_ZIP_MAX_ATTEMPTS,
+    EXPECTED_FILES_TOLERANCE,
     HEADERS,
     PROPFIND_MAX_ATTEMPTS,
     PROPFIND_TIMEOUT,
@@ -152,7 +153,7 @@ def get_table_files(table_name: str, url_base: str):
 # ! Cria o caminho do output
 def build_paths(
     table_id: str, build_input: bool = True, build_output: bool = True
-):
+) -> tuple[Path | None, Path | None]:
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -460,6 +461,32 @@ async def download_unzip_csv(
     )
 
 
+def validate_expected_file_count(
+    table_id: str,
+    found: int,
+    expected: int,
+    tolerance: int = EXPECTED_FILES_TOLERANCE,
+) -> None:
+    """Confere a quantidade de arquivos fragmentados da tabela na fonte.
+    Atualmente, as tabelas `empresas`, `estabelecimentos`, `socios` estão
+    fragmentadas em 10 arquivos.
+    Args:
+        table_id: tabela (`empresas`, `estabelecimentos`, `socios`).
+        found: arquivos achados na listagem da RF.
+        expected: quantidade esperada.
+        tolerance: diferença absoluta aceita.
+
+    Raises:
+        ValueError: se `found` diferir de `expected` além de `tolerance`.
+    """
+    if abs(found - expected) > tolerance:
+        raise ValueError(
+            f"{table_id}: a Receita Federal lista {found} arquivos, esperado "
+            f"{expected} (tolerância de {tolerance}). A divisão em fragmentos "
+            f"pode ter mudado; confira a fonte antes de carregar."
+        )
+
+
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
     input_path: Path,
@@ -483,11 +510,12 @@ def process_csv_estabelecimentos(
     Returns:
         int: Number of rows passed to `to_csv`.
     """
+    rows_in = 0
+    rows_out = 0
     ordem = COLUNAS_ESTABELECIMENTO_ORDEM
     colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
-    rows_saved = 0
 
     # A escrita abaixo é em modo append: sobra de uma tentativa que caiu no meio
     # deste arquivo duplicaria linhas no retry.
@@ -541,8 +569,10 @@ def process_csv_estabelecimentos(
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
                 chunk["data_modificacao"] = data_coleta
+                rows_in += len(chunk)
                 for uf in UFS:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
+                    rows_out += len(df_particao)
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = save_folder / f"sigla_uf={uf}"
                     particao_path.mkdir(exist_ok=True, parents=True)
@@ -550,7 +580,6 @@ def process_csv_estabelecimentos(
                     particao_file_path = particao_path / particao_filename
 
                     mode = "a" if particao_file_path.exists() else "w"
-                    rows_saved += len(df_particao)
                     df_particao.to_csv(
                         particao_file_path,
                         index=False,
@@ -561,7 +590,7 @@ def process_csv_estabelecimentos(
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(filepath)
 
-    return rows_saved
+    return rows_in
 
 
 # ! Salva os dados CSV Empresas
