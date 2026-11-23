@@ -175,7 +175,12 @@ O cruzamento fica no `.sql`, e não no `utils.py`. Com isso:
   novas já saem com o município, e as que já estão na tabela mudam com um `dbt run --full-refresh`,
   sem recarregar nada da fonte.
 
-Em outubro de 2026, 26.963 linhas não tinham par no diretório.
+**As linhas sem município são de eleitores no exterior.** Na coleta de 2026-11-12, as 26.505
+linhas sem par no diretório têm UF `ZZ` e são de 142 cidades estrangeiras, como Lisboa (3.421
+linhas), Porto (2.115) e Boston (2.093). O diretório só tem municípios brasileiros, então essas
+linhas ficam com `id_municipio` nulo. Nenhuma linha de UF brasileira fica sem município, e nenhuma
+cidade do exterior encontra par no diretório pelo código sem os zeros à esquerda nem pelo nome.
+Pelo mesmo motivo, o teste de `sigla_uf` contra o diretório de UFs ignora o `ZZ`.
 
 ---
 
