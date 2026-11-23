@@ -19,7 +19,7 @@ Default: `dev`. Only switch to `prod` after explicit user approval.
 
 **Create a dataset with `status_id = status.under_review`** on registration. `under_review` hides the dataset from the **production** frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
 
-**On dev/staging, publish the dataset before the PR/prod-promotion step.** After the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `status.under_review → status.published` via `create_update_dataset(id=…, status_id=status.published, env=<dev|staging>)` (re-pass every required field). The dev/staging frontend is not the public production site, so this is safe and lets the reviewer see the dataset as it will appear. This is the only pre-merge publish, and only on dev/staging. When extending an already-published dataset, keep it published (and refresh its description if coverage changed).
+**On dev/staging, publish the dataset before the PR/prod-promotion step.** After the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `status.under_review → status.published` via `create_update_dataset(id=…, status_id=status.published, env=<dev|staging>)` (the wrapper takes every required field, so pass the current values — see "Updates are partial" below). The dev/staging frontend is not the public production site, so this is safe and lets the reviewer see the dataset as it will appear. This is the only pre-merge publish, and only on dev/staging. When extending an already-published dataset, keep it published (and refresh its description if coverage changed).
 
 Flip the **prod** dataset to `status.published` **only after all three hold**:
 
@@ -27,7 +27,7 @@ Flip the **prod** dataset to `status.published` **only after all three hold**:
 2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`);
 3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, `get_dataset(slug, env="prod")` shows the expected shape.
 
-The **prod** publish is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR (the dev/staging publish already happened pre-promotion). Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
+The **prod** publish is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (the wrapper takes every required field, so pass the current values — see "Updates are partial" below). Do this as a **separate post-merge action**, never inside the onboarding PR (the dev/staging publish already happened pre-promotion). Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
 
 ## ID resolution (always run first)
 
@@ -101,7 +101,7 @@ Every dataset must carry tags — several recent onboardings shipped with none, 
    - **Names are translated and lowercase** in all three languages (`name_pt`, `name_en`, `name_es`), except that **acronyms stay uppercase** (e.g. `name_en="tax"`, but `name_en="GDP"`, `name_pt="PIB"`).
 5. **Attach** all chosen ids via `tag_ids` on `create_update_dataset`, then verify with `get_dataset` (tags are M2M — see Known issues).
 
-Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any approved new tag) on prod before attaching there. When updating an already-published dataset to add tags, re-pass every required field plus the full `tag_ids` (the API does no partial updates).
+Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any approved new tag) on prod before attaching there. When updating an already-published dataset to add tags, pass the **full** `tag_ids` list (existing + new). Treat any M2M field you send as replacing the stored list — that it appends has never been verified.
 
 ## `create_update_table` fields
 
@@ -405,7 +405,15 @@ to your `first`, treat it as truncated until proven otherwise.
 
 **M2M fields (organizations, themes, tags, raw_data_source_ids):** These are Django ManyToManyFields. Pass them and verify with `get_dataset` after saving. If they appear empty despite being passed, it is a backend deployment issue — note and continue; do not retry indefinitely.
 
-**Deferred raw_data_source linking:** Always link raw data sources in a second `create_update_table` call (step 15), after all raw sources exist. Pass ALL required fields again — the API does not support partial updates.
+**Deferred raw_data_source linking:** Always link raw data sources in a second `create_update_table` call (step 15), after all raw sources exist. The wrapper takes every required field, so pass the current values; `raw_data_source_ids` is M2M, so pass the full list.
+
+**Updates are partial.** A `CreateUpdate<Model>` mutation with an `id` only writes the fields in its input; fields you leave out are not touched (verified in prod on 2026-11-23: `CreateUpdateTable` and `CreateUpdateDataset` with only `{id, status}`, and `CreateUpdateUpdate` without `lag`, kept every other field, M2M included). What does overwrite data:
+
+- a field sent explicitly as `null`/empty;
+- an M2M field you send (tags, themes, organizations, `publishedBy`, `rawDataSource`) — treat it as replacing the stored list and send the full list (not verified either way; omitting it leaves it untouched);
+- the MCP **wrappers**, which send every argument they take, defaults included (`update_column`'s booleans default to `False`; `create_update_table`/`create_update_dataset` always send name, slug, status and the M2M lists). That is a property of the wrapper, not of the API.
+
+For a one-field change (a status flip, nulling an `Update`'s entity), call the mutation directly with only that field — `_mut("CreateUpdateTable", {"id": <id>, "status": <status_id>}, "table { status { slug } }", env=…)` from `databasis_mcp.gql` — and check the returned value. No need to re-read and diff every other field.
 
 ## Description writing guidelines
 
