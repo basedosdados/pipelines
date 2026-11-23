@@ -19,9 +19,4 @@ LICITACAO_EMPENHO_TABLE_ID = "licitacao_empenho"
 CONTRATO_COMPRA_TABLE_ID = "contrato_compra"
 CONTRATO_ITEM_TABLE_ID = "contrato_item"
 CONTRATO_TERMO_ADITIVO_TABLE_ID = "contrato_termo_aditivo"
-
-# Mesmo valor do parâmetro `relative_month` do flow monolítico antigo
-# (default em `_run_cgu_licitacao_contrato`,
-# `pipelines/shared/cgu/flows.py`) — quantos meses somar à última data
-# registrada nos metadados pra chegar no período a baixar.
 RELATIVE_MONTH = 1
