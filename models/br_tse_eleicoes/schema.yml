@@ -7,17 +7,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.70
           ignore_values: [tipo_item, data_eleicao, id_eleicao]
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ano
-            - id_eleicao
-            - sigla_uf
-            - sequencial_candidato
-            - tipo_item
-            - descricao_item
-            - valor_item
-          config:
-            where: __most_recent_year__
+      # Sem unique_combination_of_columns: o mesmo candidato declara itens
+      # idênticos (mesmo tipo, descrição e valor) mais de uma vez; não há chave natural.
     columns:
       - name: ano
         description: Ano
@@ -170,6 +161,7 @@ models:
   - name: br_tse_eleicoes__despesas_candidato
     description: Dados de despesas em campanhas eleitorais a nível de despesa.
     tests:
+      # Sem unique_combination_of_columns: a tabela não tem chave natural.
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -831,6 +823,14 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.75
           ignore_values: [situacao_biometria]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_tse_eleicoes__dicionario')
+          columns_covered_by_dictionary:
+            - estado_civil
+            - genero
+            - grupo_idade
+            - instrucao
+            - situacao_biometria
     columns:
       - name: ano
         description: Ano
@@ -957,6 +957,7 @@ models:
   - name: br_tse_eleicoes__receitas_candidato
     description: Dados de financiamento de campanha de receita para candidatos.
     tests:
+      # Sem unique_combination_of_columns: a tabela não tem chave natural.
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -1472,7 +1473,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1543,7 +1544,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1615,7 +1616,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1751,7 +1752,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -1814,7 +1815,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB]
+              ignore_values: [GB, GP, RB, ZZ]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno

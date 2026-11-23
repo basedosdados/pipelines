@@ -16,7 +16,7 @@ select
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_municipio_tse as string) id_municipio_tse,
-    safe_cast(situacao_biometria as string) situacao_biometria,
+    nullif(safe_cast(situacao_biometria as string), '') situacao_biometria,
     safe_cast(zona as string) zona,
     safe_cast(secao as string) secao,
     safe_cast(genero as string) genero,
