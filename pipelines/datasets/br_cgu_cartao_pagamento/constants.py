@@ -21,3 +21,4 @@ DATASET_ID = "br_cgu_cartao_pagamento"
 MICRODADOS_GOVERNO_FEDERAL_TABLE_ID = "microdados_governo_federal"
 MICRODADOS_COMPRAS_CENTRALIZADAS_TABLE_ID = "microdados_compras_centralizadas"
 MICRODADOS_DEFESA_CIVIL_TABLE_ID = "microdados_defesa_civil"
+RELATIVE_MONTH = 1
