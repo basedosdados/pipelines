@@ -58,7 +58,9 @@ def print_flow_run_error_logs(flow_run_id: str) -> None:
 
 
 async def _poll_flow_run_until_final(
-    flow_run_id: str, poll_interval: float = 10
+    flow_run_id: str,
+    poll_interval: float = 10,
+    max_consecutive_errors: int = 3,
 ):
     """Espera um flow run terminar, via polling HTTP simples.
 
@@ -67,16 +69,37 @@ async def _poll_flow_run_until_final(
     pra login, HTTP 302) — por isso o polling manual aqui, igual ao que
     `run_deployment`/`arun_deployment` já fazem por baixo dos panos.
 
+    Um erro passageiro da API (timeout, 5xx) numa checagem não derruba o
+    polling inteiro — o flow continua rodando no Prefect independente da
+    Action conseguir falar com a API nesse instante. Só desiste depois de
+    `max_consecutive_errors` falhas seguidas.
+
     Args:
         flow_run_id: UUID string do flow run.
         poll_interval: segundos entre cada checagem de estado.
+        max_consecutive_errors: falhas seguidas da API toleradas antes de
+            desistir e propagar o erro.
 
     Returns:
         O `FlowRun` já em estado final.
     """
     async with get_client() as client:
+        consecutive_errors = 0
         while True:
-            flow_run = await client.read_flow_run(flow_run_id)
+            try:
+                flow_run = await client.read_flow_run(flow_run_id)
+            except Exception as exc:
+                consecutive_errors += 1
+                if consecutive_errors > max_consecutive_errors:
+                    raise
+                print(
+                    f" - Transient error polling flow run {flow_run_id} "
+                    f"({consecutive_errors}/{max_consecutive_errors}): {exc}"
+                )
+                await asyncio.sleep(poll_interval)
+                continue
+
+            consecutive_errors = 0
             if flow_run.state and flow_run.state.is_final():
                 return flow_run
             await asyncio.sleep(poll_interval)
@@ -192,7 +215,14 @@ def _launch_and_wait(
     flow_run_url = f"{PREFECT_UI_URL}/runs/flow-run/{flow_run.id}"
     print(f" - Flow run launched: {flow_run_url}")
 
-    flow_run = asyncio.run(_poll_flow_run_until_final(str(flow_run.id)))
+    try:
+        flow_run = asyncio.run(_poll_flow_run_until_final(str(flow_run.id)))
+    except Exception as exc:
+        raise Exception(
+            f"Could not confirm the final state of flow run {flow_run.id} "
+            f"for {label} after repeated API errors: {exc}. The flow may "
+            f"still be running or have already finished — check {flow_run_url}"
+        ) from exc
 
     state = flow_run.state
     if state is None or not state.is_completed():
@@ -209,17 +239,13 @@ def _launch_and_wait(
 def run_table_approve() -> None:
     """Parses CLI arguments and orchestrates the table-approve pipeline.
 
-    Builds the argument parser, resolves the list of modified SQL tables,
-    optionally syncs staging data to the prod bucket, and launches a Prefect 3
-    materialization flow run for each table. Raises an exception (failing the
-    GitHub Actions job) if any flow run does not complete successfully.
+    Builds the argument parser, resolves the list of modified SQL tables, and
+    launches a Prefect 3 materialization flow run for each one. Raises an
+    exception (failing the GitHub Actions job) if any flow run does not
+    complete successfully.
     """
     arg_parser = ArgumentParser()
     arg_parser.add_argument("--modified-files", type=str, required=False)
-    arg_parser.add_argument("--sync-bucket", action="store_true")
-    arg_parser.add_argument(
-        "--materialization-target", type=str, required=False, default="prod"
-    )
     args = arg_parser.parse_args()
 
     existing_datasets_tables = (
@@ -229,10 +255,6 @@ def run_table_approve() -> None:
             args.modified_files.split(",")
         )
     )
-
-    if not args.sync_bucket:
-        print("Skipping promotion because --sync-bucket was not set")
-        return
 
     # Cada tabela de PR dispara build_and_promote — o MESMO deployment que o
     # pipelines despacha via dispatch_build_and_promote, não só a mesma
@@ -248,7 +270,7 @@ def run_table_approve() -> None:
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id,
-                "env": args.materialization_target,
+                "env": "prod",
             },
             label=f"{dataset_id}.{table_id}",
         )
