@@ -82,11 +82,12 @@ entra sozinha; datas fora da janela só entram com `--full-refresh`.
 
 Ficam em `models/br_anp_precos_combustiveis/schema.yml` e rodam só no ano mais recente
 (`where: __most_recent_year__`), exceto o `not_null` de `ano`, que roda na tabela
-inteira.
+inteira. Um erro no `build_and_promote` em dev impede a publicação em produção; avisos
+não.
 
 | teste | o que verifica |
 |---|---|
-| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto, preco_venda)`. Avisa a partir de 1 chave repetida e falha acima de 8, a média dos anos recentes com repetição (10 em 2024, 6 em 2026) |
+| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto, preco_venda)`. Avisa a partir de 1 chave repetida e falha acima de 8, a média dos anos recentes com repetição (10 em 2024, 6 em 2026). O preço entra na chave porque o mesmo posto pode ter dois preços no mesmo dia e produto |
 | `not_null_proportion_multiple_columns` | pelo menos 99% de preenchimento em cada coluna, exceto `preco_compra` (vazio desde 2021) |
 | `dbt_utils.expression_is_true` (unidade) | `R$/13kg` para GLP, `R$/m3` para GNV e `R$/litro` para os demais |
 | `dbt_utils.expression_is_true` (preço, `warn`) | `preco_venda` entre R$ 50 e R$ 250 para GLP e entre R$ 1 e R$ 20 para os demais |
