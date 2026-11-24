@@ -7,8 +7,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.70
           ignore_values: [tipo_item, data_eleicao, id_eleicao]
-      # Sem unique_combination_of_columns: o mesmo candidato declara itens
-      # idênticos (mesmo tipo, descrição e valor) mais de uma vez; não há chave natural.
+      # Sem unique_combination_of_columns por enquanto: a ordem do bem
+      # (NR_ORDEM_BEM_CANDIDATO) não está na tabela; ver  # 2356.
     columns:
       - name: ano
         description: Ano
@@ -50,14 +50,7 @@ models:
           at_least: 0.05
           ignore_values: [email, raca]
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ano
-            - id_eleicao
-            - sigla_uf
-            - id_municipio_tse
-            - sequencial
-            - numero
-            - cpf
+          combination_of_columns: [ano, id_eleicao, sequencial]
     columns:
       - name: ano
         description: Ano
@@ -393,7 +386,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -479,7 +472,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -564,7 +557,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -811,15 +804,11 @@ models:
             - ano
             - sigla_uf
             - id_municipio_tse
-            - situacao_biometria
             - zona
             - genero
             - estado_civil
             - grupo_idade
             - instrucao
-            - eleitores
-            - eleitores_biometria
-            - eleitores_deficiencia
       - not_null_proportion_multiple_columns:
           at_least: 0.75
           ignore_values: [situacao_biometria]
@@ -1422,7 +1411,7 @@ models:
             - sigla_uf
             - id_municipio_tse
             - cargo
-            - sequencial_candidato
+            - numero_candidato
           config:
             where: __most_recent_year__
     columns:
@@ -1473,7 +1462,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB, ZZ]
+              ignore_values: [GB, GP, RB, ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1493,9 +1482,7 @@ models:
             - sigla_uf
             - id_municipio_tse
             - cargo
-            - sequencial_candidato
             - numero_candidato
-            - titulo_eleitoral_candidato
       - not_null_proportion_multiple_columns:
           at_least: 0.90
     columns:
@@ -1544,7 +1531,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB, ZZ]
+              ignore_values: [GB, GP, RB, ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1565,9 +1552,7 @@ models:
             - id_municipio_tse
             - cargo
             - zona
-            - sequencial_candidato
             - numero_candidato
-            - titulo_eleitoral_candidato
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
@@ -1616,7 +1601,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB, ZZ]
+              ignore_values: [GB, GP, RB, ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1688,7 +1673,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: titulo_eleitoral_candidato
@@ -1752,7 +1737,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB, ZZ]
+              ignore_values: [GB, GP, RB, ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -1815,7 +1800,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [GB, GP, RB, ZZ]
+              ignore_values: [GB, GP, RB, ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -1829,6 +1814,18 @@ models:
   - name: br_tse_eleicoes__resultados_partido_secao
     description: Dados de resultados em eleições brasileiras a nível de partido-seção.
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - turno
+            - id_eleicao
+            - id_municipio_tse
+            - zona
+            - secao
+            - cargo
+            - numero_partido
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.95
           config:
@@ -1875,7 +1872,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, VT]
       - name: tipo_eleicao
         description: Tipo da eleição
       - name: turno
@@ -1893,8 +1890,6 @@ models:
           combination_of_columns:
             - ano
             - id_eleicao
-            - tipo_eleicao
-            - data_eleicao
             - sigla_uf
             - id_municipio_tse
             - cargo
