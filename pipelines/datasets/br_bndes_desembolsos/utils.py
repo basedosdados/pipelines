@@ -201,6 +201,9 @@ def transform(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe = dataframe.apply(lambda column: column.str.strip())
     dataframe = dataframe.replace("", pd.NA)
 
+    for column, labels in constants.MENSAL_SETOR_LABELS.value.items():
+        dataframe[column] = dataframe[column].str.capitalize().replace(labels)
+
     dataframe["sigla_uf"] = parse_sigla_uf(dataframe["sigla_uf"])
     dataframe["id_municipio"] = parse_id_municipio(dataframe["id_municipio"])
     dataframe["valor_desembolsado"] = parse_valor(

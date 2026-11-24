@@ -44,7 +44,20 @@ Contagens e ocorrências citadas abaixo se referem ao arquivo de 02/10/2026, cuj
 - `inovacao` e `instrumento_financeiro` vêm vazios em todas as linhas de 1995 a 2001 (204.269 linhas), e só nelas. Ficam nulos.
 - `desembolsos_reais` vem com vírgula decimal e sem ponto de milhar (`24753538073,6`). A vírgula vira ponto; valor fora desse formato interrompe a limpeza.
 
-Os rótulos ficam como a fonte publica, em caixa alta. Nenhuma coluna tem o mesmo valor escrito de dois jeitos (diferença de acento, caixa, espaço ou pontuação). Em `instrumento_financeiro`, a caixa, o travessão e o acento dos nomes mudam de um programa para outro, e dois nomes têm espaço duplo, mantido.
+`setor_cnae`, `subsetor_cnae_agrupado`, `setor_bndes` e `subsetor_bndes` ficam com a inicial maiúscula e o resto minúsculo, como pede o manual de estilo da BD, e com os mesmos rótulos da tabela `mapeamento_bndes_cnae`, para que as duas se juntem pelo setor. Seis rótulos da fonte são escritos de outro jeito no arquivo do mapeamento, e um de-para em `constants.py` (`MENSAL_SETOR_LABELS`) usa a grafia do mapeamento:
+
+| Coluna | Fonte | Tabela |
+|---|---|---|
+| `setor_cnae` | `AGROPECUÁRIA` | `Agropecuária e pesca` |
+| `subsetor_cnae_agrupado` | `EQUIP INFO, ELETRONICO, ÓTICO` | `Equip info, eletrônico, ótico` |
+| `subsetor_cnae_agrupado` | `MÁQ, APARELHO ELETRICO` | `Máq, aparelho elétrico` |
+| `setor_bndes` | `INDUSTRIA` | `Indústria` |
+| `subsetor_bndes` | `ATV. AUX. TRANSPORTES` | `Atividades auxiliares de transportes` |
+| `subsetor_bndes` | `SERV. UTILIDADE PÚBLICA` | `Serviços de utilidade pública` |
+
+Que cada par seja a mesma categoria é dedução pelo nome; nenhum documento do BNDES liga as duas grafias.
+
+Os demais rótulos ficam como a fonte publica, em caixa alta. Nenhuma coluna tem o mesmo valor escrito de dois jeitos (diferença de acento, caixa, espaço ou pontuação). Em `instrumento_financeiro`, a caixa, o travessão e o acento dos nomes mudam de um programa para outro, e dois nomes têm espaço duplo, mantido.
 
 ## Tabela `mapeamento_bndes_cnae`
 
@@ -65,7 +78,7 @@ Contagens e ocorrências citadas abaixo se referem ao arquivo com `last_modified
 
 `setor_bndes` e `subsetor_bndes` mantêm o nome da fonte. `produto_bndes` vira `regra_produto` porque não traz um produto, e sim os produtos a que a linha se aplica (`Todos`, `Exceto BNDES Exim`, `Somente BNDES Finame, BNDES Máquinas e Serviços, Cartão BNDES e BNDES Exim`…). Ela não se junta com a coluna `produto` da `mensal`.
 
-- Os quatro rótulos de setor e a `regra_produto` ficam com a inicial maiúscula e o resto minúsculo, como pede o manual de estilo da BD, inclusive nas siglas: `Exceto BNDES Exim` vira `Exceto bndes exim`. Com isso, `Comércio e serviços` e `Comércio e Serviços`, que a fonte escreve dos dois jeitos em `setor_cnae_classificacao_bndes`, viram um valor só. A `mensal` guarda os mesmos setores em caixa alta, então juntar as duas tabelas pelo setor pede `upper()`. Espaços repetidos e quebras de linha dentro das células viram um espaço.
+- Os quatro rótulos de setor e a `regra_produto` ficam com a inicial maiúscula e o resto minúsculo, como pede o manual de estilo da BD, inclusive nas siglas: `Exceto BNDES Exim` vira `Exceto bndes exim`. Com isso, `Comércio e serviços` e `Comércio e Serviços`, que a fonte escreve dos dois jeitos em `setor_cnae_classificacao_bndes`, viram um valor só. A `mensal` usa os mesmos rótulos (ver o de-para na seção dela). Espaços repetidos e quebras de linha dentro das células viram um espaço.
 - Dois subsetores CNAE agrupados vêm da fonte sem acento, e a limpeza acentua as palavras, como pede o manual: `Máq, aparelho eletrico` vira `Máq, aparelho elétrico`, e `Equip info, eletronico, ótico` vira `Equip info, eletrônico, ótico`. O de-para fica em `constants.py`.
 - Uma célula de `codigo_cnae_ibge` pode ter vários códigos, e a tabela tem uma linha por código:
   - listas (`D352 e D353`, `K64, K65 e K66`) viram um código por item;

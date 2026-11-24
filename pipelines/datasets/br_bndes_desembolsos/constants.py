@@ -65,6 +65,23 @@ class constants(Enum):
     # Código que a fonte usa com o município "DIVERSOS".
     ID_MUNICIPIO_DIVERSOS = "9999998"
 
+    MENSAL_SETOR_LABELS = {
+        "setor_cnae": {
+            "Agropecuária": "Agropecuária e pesca",
+        },
+        "subsetor_cnae_agrupado": {
+            "Equip info, eletronico, ótico": "Equip info, eletrônico, ótico",
+            "Máq, aparelho eletrico": "Máq, aparelho elétrico",
+        },
+        "setor_bndes": {
+            "Industria": "Indústria",
+        },
+        "subsetor_bndes": {
+            "Atv. aux. transportes": "Atividades auxiliares de transportes",
+            "Serv. utilidade pública": "Serviços de utilidade pública",
+        },
+    }
+
     PARTITION_COLUMNS = ["ano"]
 
     COLUMNS = [
