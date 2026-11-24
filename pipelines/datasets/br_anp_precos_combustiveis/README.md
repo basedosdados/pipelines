@@ -61,12 +61,38 @@ entra sozinha; datas fora da janela só entram com `--full-refresh`.
 
 ## Como ler a tabela
 
-- **A ANP repete algumas linhas no próprio arquivo** (2005, jun/2024 e fev/2026). Elas
-  são mantidas como publicadas.
+- **A ANP repete algumas linhas no próprio arquivo.** Elas ficam como publicadas: o
+  arquivo não traz identificador da coleta, então uma repetição pode ser um registro
+  dobrado ou duas coletas no mesmo dia com o mesmo preço. A causa é desconhecida.
+  Pedido de esclarecimento à ANP: protocolo a registrar. Repetições de
+  `(cnpj_revenda, data_coleta, produto, preco_venda)`:
+
+  | ano | datas | postos | chaves repetidas |
+  |---|---|---|---|
+  | 2005 | 7, entre 02/05 e 04/06 | 6 (SP, MG, RJ, PB) | 36 |
+  | 2024 | 10/06 e 12/06 | Posto Metano (RJ) e Souza Filho (SC) | 10 |
+  | 2026 | 16/02 e 18/02 | H. D. Portella (RS) | 6 |
+
 - **O mesmo posto pode ter dois preços no mesmo dia e produto** (ex.: Taubaté,
   jun/2024). Não é duplicata; as duas linhas ficam.
 - Os produtos aparecem com `initcap` (`Glp`, `Gnv`, `Diesel S10`); `Diesel S50` só
   existe em 2012.
+
+## Testes
+
+Ficam em `models/br_anp_precos_combustiveis/schema.yml` e rodam só no ano mais recente
+(`where: __most_recent_year__`), exceto o `not_null` de `ano`, que roda na tabela
+inteira.
+
+| teste | o que verifica |
+|---|---|
+| `dbt_utils.unique_combination_of_columns` | uma linha por `(cnpj_revenda, data_coleta, produto, preco_venda)`. Avisa a partir de 1 chave repetida e falha acima de 8, a média dos anos recentes com repetição (10 em 2024, 6 em 2026) |
+| `not_null_proportion_multiple_columns` | pelo menos 99% de preenchimento em cada coluna, exceto `preco_compra` (vazio desde 2021) |
+| `dbt_utils.expression_is_true` (unidade) | `R$/13kg` para GLP, `R$/m3` para GNV e `R$/litro` para os demais |
+| `dbt_utils.expression_is_true` (preço, `warn`) | `preco_venda` entre R$ 50 e R$ 250 para GLP e entre R$ 1 e R$ 20 para os demais |
+| `relationships` | `sigla_uf` e `id_municipio` existem nos diretórios |
+| `accepted_values` | `produto` e `unidade_medida` só com os valores esperados |
+| `not_null` | `ano` preenchido |
 
 ## Operação
 
