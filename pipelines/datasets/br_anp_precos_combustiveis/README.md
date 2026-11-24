@@ -64,7 +64,7 @@ entra sozinha; datas fora da janela só entram com `--full-refresh`.
 - **A ANP repete algumas linhas no próprio arquivo.** Elas ficam como publicadas: o
   arquivo não traz identificador da coleta, então uma repetição pode ser um registro
   dobrado ou duas coletas no mesmo dia com o mesmo preço. A causa é desconhecida.
-  Pedido de esclarecimento à ANP: protocolo a registrar. Repetições de
+  Repetições de
   `(cnpj_revenda, data_coleta, produto, preco_venda)`:
 
   | ano | datas | postos | chaves repetidas |
