@@ -20,7 +20,7 @@ import pyarrow.parquet as pq
 
 from pipelines.datasets.br_bndes_desembolsos.constants import constants
 from pipelines.utils.metadata.domain import DateFormat
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 
 def build_paths(path: str) -> tuple[Path, Path]:
@@ -55,6 +55,7 @@ def get_resource(resource_id: str) -> dict[str, Any]:
         constants.RESOURCE_SHOW_URL.value,
         params={"id": resource_id},
         timeout=60,
+        proxy=brasil_proxy_url(),
     )
     response.raise_for_status()
     return response.json()["result"]
@@ -108,6 +109,7 @@ def download_table(resource_id: str, path: str, filename: str) -> Path:
         url=resource["url"],
         timeout=5 * 60,
         follow_redirects=True,
+        proxy=brasil_proxy_url(),
     ) as response:
         response.raise_for_status()
         with open(csv_path, "wb") as file:
