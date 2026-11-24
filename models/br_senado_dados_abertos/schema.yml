@@ -228,6 +228,11 @@ models:
       `__most_recent_year__` — sempre a safra mais recente e menos madura. Na
       tabela inteira a proporção é de 23,9%. `apelido` nunca passa de 4% em
       nenhum ano (1,1% na tabela inteira).
+      `data_ultima_atualizacao` e `ultima_informacao_atualizada` também ficam fora
+      do piso: a API só preenche os dois campos quando a última atualização do
+      processo ocorreu nos últimos 8 meses, aproximadamente. Fora dessa janela
+      móvel eles vêm nulos, e a proporção de nulos do ano mais recente cresce à
+      medida que os processos do começo do ano saem da janela.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_processo]
@@ -243,6 +248,8 @@ models:
             - apelido
             - data_deliberacao
             - data_situacao_atual
+            - data_ultima_atualizacao
+            - ultima_informacao_atualizada
           config:
             where: __most_recent_year__
     columns:
@@ -297,9 +304,16 @@ models:
       - name: data_situacao_atual
         description: Data da situação atual do processo
       - name: data_ultima_atualizacao
-        description: Data e hora da última atualização do registro
+        description: >
+          Data e hora da última atualização do registro. A API do Senado só
+          preenche o campo quando a atualização ocorreu nos últimos 8 meses,
+          aproximadamente; fora dessa janela móvel o valor é nulo, o que não
+          significa que o processo nunca foi atualizado
       - name: ultima_informacao_atualizada
-        description: Tipo da última informação atualizada
+        description: >
+          Tipo da última informação atualizada. A API do Senado só preenche o
+          campo quando a atualização ocorreu nos últimos 8 meses,
+          aproximadamente; fora dessa janela móvel o valor é nulo
       - name: url_documento
         description: URL do documento do processo
   - name: br_senado_dados_abertos__partido
