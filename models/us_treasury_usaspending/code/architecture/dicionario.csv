@@ -1,0 +1,6 @@
+name,bigquery_type,description,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela à qual a chave se aplica,Name of the table the key applies to,Nombre de la tabla a la que se aplica la clave,,no,,,no,,
+nome_coluna,STRING,Nome da coluna à qual a chave se aplica,Name of the column the key applies to,Nombre de la columna a la que se aplica la clave,,no,,,no,,
+chave,STRING,Valor codificado armazenado na coluna,Coded value stored in the column,Valor codificado almacenado en la columna,,no,,,no,,
+cobertura_temporal,STRING,Período em que a chave é válida,Period over which the key is valid,Período en que la clave es válida,,no,,,no,,
+valor,STRING,Significado da chave,Meaning of the key,Significado de la clave,,no,,,no,,
