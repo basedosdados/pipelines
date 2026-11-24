@@ -16,7 +16,7 @@ O CKAN declara atualização a cada 3 meses. O pacote tem três recursos:
 |---|---|---|
 | CSV "Desembolsos Mensais": ~754 MB, histórico inteiro desde 1995, republicado inteiro a cada versão | `179950b8-b504-4cc7-b0db-9c9eed99e9ba` | tabela `mensal` |
 | PDF "Dicionário de dados de desembolsos mensais" | `d11d3295-abb5-438d-8a1d-847b0a135eff` | fica na fonte, acessível pelo link da fonte original |
-| CSV "Mapeamento de BNDES para CNAE": correspondência entre as classificações do BNDES e a CNAE do IBGE | `94ca01fe-7554-49a2-9200-e9625a304b88` | fica na fonte, acessível pelo link da fonte original |
+| CSV "Mapeamento de BNDES para CNAE": correspondência entre as classificações do BNDES e a CNAE do IBGE | `94ca01fe-7554-49a2-9200-e9625a304b88` | tabela `mapeamento_bndes_cnae` |
 
 ## Tabela `mensal`
 
@@ -46,13 +46,51 @@ Contagens e ocorrências citadas abaixo se referem ao arquivo de 02/10/2026, cuj
 
 Os rótulos ficam como a fonte publica, em caixa alta. Nenhuma coluna tem o mesmo valor escrito de dois jeitos (diferença de acento, caixa, espaço ou pontuação). Em `instrumento_financeiro`, a caixa, o travessão e o acento dos nomes mudam de um programa para outro, e dois nomes têm espaço duplo, mantido.
 
+## Tabela `mapeamento_bndes_cnae`
+
+Diz em que setor e subsetor das classificações do BNDES cai cada código da CNAE 2.2 do IBGE. São as mesmas classificações das colunas `setor_cnae`, `subsetor_cnae_agrupado`, `setor_bndes` e `subsetor_bndes` da `mensal`. O mesmo arquivo (mesmo MD5) é publicado também nos pacotes `aprovacoes` e `consultas` do CKAN.
+
+Não tem coluna de data nem partição.
+
+### Colunas
+
+Contagens e ocorrências citadas abaixo se referem ao arquivo com `last_modified` em 05/05/2025: 62 linhas na fonte, 109 na tabela.
+
+| Fonte | Tabela |
+|---|---|
+| `setor_cnae_classificacao_bndes` | `setor_cnae` |
+| `subsetor_cnae_agrupado_classificacao_bndes` | `subsetor_cnae_agrupado` |
+| `codigo_cnae_ibge` | `cnae_2_secao`, `cnae_2_divisao`, `cnae_2_grupo`, `cnae_2_classe`, `cnae_2_subclasse` |
+| `produto_bndes` | `regra_produto` |
+
+`setor_bndes` e `subsetor_bndes` mantêm o nome da fonte. `produto_bndes` vira `regra_produto` porque não traz um produto, e sim os produtos a que a linha se aplica (`Todos`, `Exceto BNDES Exim`, `Somente BNDES Finame, BNDES Máquinas e Serviços, Cartão BNDES e BNDES Exim`…). Ela não se junta com a coluna `produto` da `mensal`.
+
+- Os quatro rótulos de setor e a `regra_produto` ficam com a inicial maiúscula e o resto minúsculo, como pede o manual de estilo da BD, inclusive nas siglas: `Exceto BNDES Exim` vira `Exceto bndes exim`. Com isso, `Comércio e serviços` e `Comércio e Serviços`, que a fonte escreve dos dois jeitos em `setor_cnae_classificacao_bndes`, viram um valor só. A `mensal` guarda os mesmos setores em caixa alta, então juntar as duas tabelas pelo setor pede `upper()`. Espaços repetidos e quebras de linha dentro das células viram um espaço.
+- Dois subsetores CNAE agrupados vêm da fonte sem acento, e a limpeza acentua as palavras, como pede o manual: `Máq, aparelho eletrico` vira `Máq, aparelho elétrico`, e `Equip info, eletronico, ótico` vira `Equip info, eletrônico, ótico`. O de-para fica em `constants.py`.
+- Uma célula de `codigo_cnae_ibge` pode ter vários códigos, e a tabela tem uma linha por código:
+  - listas (`D352 e D353`, `K64, K65 e K66`) viram um código por item;
+  - faixas de divisões (`A01 a A03`) viram uma divisão por número;
+  - cada código vai para a coluna do seu nível, com os níveis acima preenchidos: `C10` só tem seção e divisão, `D351` vai até o grupo e `H4912401` até a subclasse. Os formatos são os do diretório `br_bd_diretorios_brasil.cnae_2`.
+- A fonte publica a classe `H4911` sem o dígito verificador. A limpeza grava `4911`, e o modelo dbt completa a classe com o diretório `cnae_2`, pela classe que começa com esses 4 dígitos.
+- `H49 (restante)` vira a divisão 49, com a regra `Exceto BNDES Exim` e o subsetor `Outros transportes`. Com a mesma regra, a divisão 49 tem linhas mais específicas: os grupos 492 e 493, a classe 4911 e as subclasses 4912401 e 4912402. A linha da divisão vale para o resto da divisão 49, o que a fonte indica com `(restante)`.
+- O código `U99` com a regra `Todos` aparece em duas linhas da fonte, uma com o subsetor CNAE agrupado `Organismos internacionais` e outra com `Outros`; o resto é igual. As duas ficam na tabela, e por isso o teste de unicidade inclui `subsetor_cnae_agrupado`.
+
+### Valores ausentes
+
+`cnae_2_grupo`, `cnae_2_classe` e `cnae_2_subclasse` ficam nulas quando o código da fonte é de um nível acima: 101, 106 e 107 das 109 linhas. A linha vale para o nível inteiro, então o nulo não é dado faltando. As três estão no `ignore_values` do teste de nulos.
+
 ## Pipeline
 
-Flow único, toda segunda às 02:35 (America/Sao_Paulo).
+Um flow por tabela, toda segunda (America/Sao_Paulo):
+
+| Tabela | Horário |
+|---|---|
+| `mensal` | 02:35 |
+| `mapeamento_bndes_cnae` | 02:40 |
 
 ### Detecção de novidade
 
-A consulta à fonte é uma chamada só ao `resource_show` do CKAN. O flow lê o `last_modified` do recurso CSV e compara com a "Última atualização na Base dos Dados" (`Table.Update.latest`), via `poll_source_for_update_task(compare_against="table_update")`. Depois grava esse `last_modified` em "Última atualização na fonte original" (`RawDataSource.Update.latest`).
+A consulta à fonte é uma chamada só ao `resource_show` do CKAN. Cada flow lê o `last_modified` do recurso CSV da sua tabela e compara com a "Última atualização na Base dos Dados" (`Table.Update.latest`), via `poll_source_for_update_task(compare_against="table_update")`. Depois grava esse `last_modified` em "Última atualização na fonte original" (`RawDataSource.Update.latest`).
 
 O `last_modified` muda quando o arquivo é substituído, não quando chega um mês novo. Uma correção sem mês novo também dispara a carga, que traz de novo o histórico inteiro, já corrigido.
 
@@ -63,7 +101,7 @@ O flow não usa o mês do dado, lido pelo datastore do CKAN, como sinal: não se
 ### Download e carga
 
 1. Baixa o CSV do recurso e confere o MD5 contra o campo `hash` que o CKAN publica.
-2. Lê o arquivo em blocos, trata as colunas como descrito em [Colunas](#colunas) e grava um parquet por ano, com todas as colunas em texto.
-3. Sobe a staging com `dump_mode="overwrite"`, porque cada versão traz o histórico inteiro.
+2. Trata as colunas como descrito nas seções de cada tabela e grava parquet com todas as colunas em texto: na `mensal`, lê o arquivo em blocos e grava um parquet por ano; no `mapeamento_bndes_cnae`, grava um parquet só.
+3. Sobe a staging com `dump_mode="overwrite"`, porque cada versão traz o arquivo inteiro.
 
 O conjunto não usa o pipeline em estágios (#1932): como cada carga traz o histórico inteiro, todas as partições mudam a cada execução, e promover só as partições alteradas equivale a promover todas.
