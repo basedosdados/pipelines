@@ -37,11 +37,8 @@ def transfer_files_to_prod_flow(
     baixar/subir pelo worker), materializa, testa e registra a
     materialização de uma tabela.
 
-    Mesma função usada pelo `table-approve` (via
-    `.github/workflows/scripts/prefect_run_dbt.py`) — ver
-    `ftwca/investigacoes/pipelines/
-    promocao-dev-prod-pipelines-vs-table-approve-2026-11-03.md` pro desenho
-    completo.
+    Chamada por `build_and_promote` como subflow, depois do `dbt run/test`
+    em dev.
 
     Args:
         dataset_id: ID do dataset no backend/BigQuery.
@@ -50,8 +47,9 @@ def transfer_files_to_prod_flow(
             `["ano=2026/mes=09"]`). `None` promove a tabela inteira —
             inclui backup do staging de prod atual e recriação completa da
             definição da tabela, igual ao comportamento atual do
-            `table-approve`. Com `folders`, só os blobs indicados são
-            copiados e só colunas novas são sincronizadas ao schema.
+            `table-approve` (que nunca usa `folders` parcial). Com
+            `folders`, só os blobs indicados são copiados e só colunas
+            novas são sincronizadas ao schema.
         source_bucket: bucket de origem (requester-pays).
         download_billing_project: projeto cobrado pelo acesso
             requester-pays ao `source_bucket`.
