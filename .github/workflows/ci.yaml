@@ -6,6 +6,7 @@ on:
     types: [labeled, opened, synchronize, reopened]
   push:
     branches: [main]
+  workflow_dispatch:
 jobs:
   lint-dockerfile:
     name: Lint dockerfile
@@ -71,13 +72,22 @@ jobs:
           BD_SERVICE_ACCOUNT_DEV: dbt_sa_dev.json
   check-metadata:
     name: Metadata validation (BigQuery vs API)
-    if: contains(github.event.pull_request.labels.*.name, 'check-metadata')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name,
+      'check-metadata')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+      - name: Debug - show active GCP service account
+        run: |
+          echo "$BASEDOSDADOS_CREDENTIALS_PROD" | base64 -d > /tmp/prod_creds.json
+          gcloud auth activate-service-account --key-file=/tmp/prod_creds.json
+          gcloud auth list
+          rm -f /tmp/prod_creds.json
+        env:
+          BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v47
