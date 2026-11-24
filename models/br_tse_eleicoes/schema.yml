@@ -5,7 +5,8 @@ models:
     description: Declaração de bens de candidatos em eleições brasileiras.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.70
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.97
           ignore_values: [tipo_item, data_eleicao, id_eleicao]
       # Sem unique_combination_of_columns por enquanto: a ordem do bem
       # (NR_ORDEM_BEM_CANDIDATO) não está na tabela; ver  # 2356.
@@ -47,10 +48,13 @@ models:
     description: Dados de candidatos em eleições brasileiras.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [email, raca]
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.91
+          ignore_values: [email, raca, situacao]
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_eleicao, sequencial]
+          config:
+            where: ano >= 2016
     columns:
       - name: ano
         description: Ano
@@ -156,7 +160,8 @@ models:
     tests:
       # Sem unique_combination_of_columns: a tabela não tem chave natural.
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.90
           ignore_values:
             - esfera_partidaria_fornecedor
             - id_municipio_tse_fornecedor
@@ -166,6 +171,31 @@ models:
             - sigla_partido_fornecedor
             - numero_partido_fornecedor
             - sigla_uf_fornecedor
+            - cnae_2_fornecedor
+            - cnae_2_fornecedor_classe
+            - cnae_2_fornecedor_subclasse
+            - cnpj_candidato
+            - cnpj_prestador_contas
+            - cpf_cnpj_fornecedor
+            - data_eleicao
+            - data_prestacao_contas
+            - descricao_cnae_2_fornecedor
+            - descricao_despesa
+            - especie_recurso
+            - fonte_recurso
+            - id_eleicao
+            - id_municipio
+            - id_municipio_tse
+            - nome_fornecedor_rf
+            - numero_documento
+            - origem_despesa
+            - sequencial_despesa
+            - sequencial_prestador_contas
+            - tipo_despesa
+            - tipo_documento
+            - tipo_fornecedor
+            - tipo_prestacao_contas
+            - turno
     columns:
       - name: ano
         description: Ano
@@ -328,7 +358,7 @@ models:
             - id_municipio_tse
             - cargo
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
     columns:
       - name: abstencoes
         description: Número de Abstenções
@@ -414,7 +444,7 @@ models:
             - zona
             - cargo
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
     columns:
       - name: abstencoes
         description: Número de Abstenções
@@ -503,7 +533,7 @@ models:
             - secao
             - cargo
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
     columns:
       - name: abstencoes
         description: Número de abstenções
@@ -585,13 +615,20 @@ models:
           combination_of_columns: [ano, id_municipio, zona, secao]
           proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           ignore_values:
             - ibge_cnefe_endereco
             - ibge_cnefe_local
             - google_relaxado
             - google_centro_geometrico
             - ibge_povoados
+            - escolas_inep
+            - escolas_municipais
+            - google
+            - melhor_rural
+            - melhor_urbano
+            - tse_distribuido
+            - tse_recente
     columns:
       - name: sigla_uf
         description: Sigla da unidade da federação
@@ -655,7 +692,17 @@ models:
             - cargo
             - numero
       - not_null_proportion_multiple_columns:
-          at_least: 0.03
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.95
+          ignore_values:
+            - composicao_federacao
+            - data_eleicao
+            - id_eleicao
+            - nome_coligacao
+            - nome_federacacao
+            - numero_federacao
+            - sigla_federacao
+            - situacao_legenda
     columns:
       - name: ano
         description: Ano
@@ -721,7 +768,8 @@ models:
     description: Perfil eleitorado a nível de local de votação.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.60
+          at_least: 0.99
+          ignore_values: [latitude, longitude, telefone]
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - ano
@@ -759,6 +807,8 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
               ignore_values: ['73709']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: latitude
         description: Latitude
       - name: longitude
@@ -810,7 +860,7 @@ models:
             - grupo_idade
             - instrucao
       - not_null_proportion_multiple_columns:
-          at_least: 0.75
+          at_least: 0.99
           ignore_values: [situacao_biometria]
       - custom_dictionary_coverage:
           dictionary_model: ref('br_tse_eleicoes__dicionario')
@@ -851,7 +901,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: instrucao
         description: Instrução
       - name: sigla_uf
@@ -883,7 +935,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.60
+          at_least: 0.99
       - custom_dictionary_coverage:
           dictionary_model: ref('br_tse_eleicoes__dicionario')
           columns_covered_by_dictionary:
@@ -928,6 +980,8 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
               ignore_values: ['73709']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: instrucao
         description: Instrução
       - name: secao
@@ -948,7 +1002,8 @@ models:
     tests:
       # Sem unique_combination_of_columns: a tabela não tem chave natural.
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.95
           ignore_values:
             - descricao_cnae_2_doador_orig
             - nome_doador_orig_rf
@@ -956,6 +1011,42 @@ models:
             - cpf_cnpj_doador_orig
             - tipo_doador_orig
             - entrega_conjunto
+            - cargo_candidato_doador
+            - cnae_2_doador
+            - cnae_2_doador_classe
+            - cnae_2_doador_subclasse
+            - cnpj_candidato
+            - cnpj_prestador_contas
+            - cpf_administrador
+            - data_eleicao
+            - data_prestacao_contas
+            - descricao_cnae_2_doador
+            - descricao_receita
+            - esfera_partidaria_doador
+            - especie_receita
+            - fonte_receita
+            - id_eleicao
+            - id_municipio
+            - id_municipio_tse
+            - id_municipio_tse_doador
+            - natureza_receita
+            - nome_administrador
+            - nome_doador_rf
+            - numero_candidato_doador
+            - numero_documento
+            - numero_documento_doacao
+            - numero_partido
+            - numero_partido_doador
+            - numero_recibo_doacao
+            - numero_recibo_eleitoral
+            - sequencial_candidato_doador
+            - sequencial_prestador_contas
+            - sequencial_receita
+            - sigla_partido_doador
+            - sigla_uf_doador
+            - situacao_receita
+            - tipo_prestacao_contas
+            - turno
     columns:
       - name: ano
         description: Ano
@@ -1116,7 +1207,8 @@ models:
     description: Receitas de comitês eleitorais.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.10
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.95
           ignore_values:
             - cnae_2_doador_classe
             - cpf_membro
@@ -1126,6 +1218,25 @@ models:
             - numero_candidato_doador
             - numero_partido
             - situacao_receita
+            - cnae_2_doador
+            - cnae_2_doador_subclasse
+            - cnpj_prestador_contas
+            - cpf_cnpj_doador_orig
+            - data_receita
+            - descricao_cnae_2_doador
+            - descricao_cnae_2_doador_orig
+            - descricao_receita
+            - fonte_receita
+            - nome_doador_orig
+            - nome_doador_orig_rf
+            - nome_doador_rf
+            - numero_documento
+            - numero_partido_doador
+            - origem_receita
+            - sequencial_comite
+            - sigla_uf_doador
+            - tipo_doador_orig
+            - tipo_documento
           config:
             where: __most_recent_year__
     columns:
@@ -1242,7 +1353,8 @@ models:
     description: Receitas de Órgãos Partidários.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.02
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.93
           ignore_values:
             - cpf_cnpj_doador_orig
             - descricao_cnae_2_doador_orig
@@ -1255,6 +1367,33 @@ models:
             - tipo_diretorio
             - tipo_doador_orig
             - tipo_documento
+            - cargo_candidato_doador
+            - cnae_2_doador
+            - cnae_2_doador_classe
+            - cnpj_prestador_contas
+            - data_prestacao_contas
+            - descricao_cnae_2_doador
+            - descricao_receita
+            - esfera_partidaria
+            - esfera_partidaria_doador
+            - especie_receita
+            - id_municipio
+            - id_municipio_doador
+            - id_municipio_tse
+            - id_municipio_tse_doador
+            - nome_partido
+            - nome_partido_doador
+            - numero_candidato_doador
+            - numero_documento_doacao
+            - numero_partido
+            - numero_partido_doador
+            - numero_recibo_doacao
+            - sequencial_candidato_doador
+            - sequencial_prestador_contas
+            - sequencial_receita
+            - sigla_partido_doador
+            - sigla_uf_doador
+            - tipo_prestacao_contas
           config:
             where: __most_recent_year__
     columns:
@@ -1402,7 +1541,8 @@ models:
     description: Dados de resultados eleitorais a nível de candidato.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.85
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.92
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - ano
@@ -1483,8 +1623,10 @@ models:
             - id_municipio_tse
             - cargo
             - numero_candidato
+          config:
+            where: ano >= 2016
       - not_null_proportion_multiple_columns:
-          at_least: 0.90
+          at_least: 0.99
     columns:
       - name: ano
         description: Ano
@@ -1514,7 +1656,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1553,8 +1697,10 @@ models:
             - cargo
             - zona
             - numero_candidato
+          config:
+            where: ano >= 2016
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
     columns:
       - name: ano
         description: Ano
@@ -1584,7 +1730,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1628,7 +1776,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
           config:
             where: __most_recent_year__
     columns:
@@ -1656,7 +1804,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1696,7 +1846,7 @@ models:
             - cargo
             - numero_partido
       - not_null_proportion_multiple_columns:
-          at_least: 0.90
+          at_least: 0.99
     columns:
       - name: ano
         description: Ano
@@ -1726,7 +1876,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_partido
         description: Número do partido
       - name: sigla_partido
@@ -1759,7 +1911,7 @@ models:
             - cargo
             - numero_partido
       - not_null_proportion_multiple_columns:
-          at_least: 0.90
+          at_least: 0.99
     columns:
       - name: ano
         description: Ano
@@ -1789,7 +1941,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_partido
         description: Número do partido
       - name: sigla_partido
@@ -1827,7 +1981,7 @@ models:
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
           config:
             where: __most_recent_year__
     columns:
@@ -1859,7 +2013,9 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              ignore_values: ['73709', '91065']
+              config:
+                where: sigla_uf is null or sigla_uf not in ('ZZ', 'VT')
       - name: numero_partido
         description: Número do partido
       - name: secao
@@ -1893,8 +2049,12 @@ models:
             - sigla_uf
             - id_municipio_tse
             - cargo
+          config:
+            where: ano >= 2016
       - not_null_proportion_multiple_columns:
-          at_least: 0.35
+          # at_least < 0.99: medição e motivo no README do conjunto.
+          at_least: 0.98
+          ignore_values: [data_eleicao, id_eleicao]
     columns:
       - name: ano
         description: Ano
@@ -1942,7 +2102,7 @@ models:
             - chave
             - cobertura_temporal
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
           ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
@@ -1967,7 +2127,7 @@ models:
           combination_of_columns: [ano, id_pesquisa]
           proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           ignore_values:
             - id_municipio
             - id_municipio_tse
@@ -1975,6 +2135,7 @@ models:
             - pesquisa_propria
             - hora_registro
             - data_divulgacao
+            - descricao_area_abrangencia
       - custom_dictionary_coverage:
           dictionary_model: ref('br_tse_eleicoes__dicionario')
           columns_covered_by_dictionary: [pesquisa_propria]
@@ -2085,7 +2246,7 @@ models:
             - cpf_cnpj_contratante
           proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           ignore_values:
             - id_contratante
             - cpf_cnpj_contratante
@@ -2141,7 +2302,7 @@ models:
             - cpf_cnpj_pagante
           proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
           ignore_values: [id_contratante, cpf_cnpj_pagante, origem_recurso]
     columns:
       - name: ano

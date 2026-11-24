@@ -118,6 +118,34 @@ Nas tabelas `resultados_candidato*`, a chave usa `numero_candidato`. Em 2026,
 `sequencial_candidato` se repete em 216 casos, que são pares de candidatos com
 números diferentes e o mesmo sequencial. O número é um identificador mais confiável.
 
+### Testes de unicidade só de 2016 em diante
+
+Os testes de unicidade de `candidatos`, `resultados_candidato_municipio`,
+`resultados_candidato_municipio_zona` e `vagas` usam `where: ano >= 2016`. Nas
+tabelas inteiras, as chaves repetem em anos antigos (medição de 24/11/2026 em
+`basedosdados-dev`, grupos repetidos por ano):
+
+| Tabela | Anos com grupos repetidos |
+| --- | --- |
+| `candidatos` | 1994 (1.135), 1996 (480), 2000 (1.962), 2002 (1.949), 2004 (1.279), 2006 (2.354), 2008 (61.704) |
+| `resultados_candidato_municipio` | 1998 (5.587), 2000 (1.014), 2002 (89), 2004 (88), 2006 (72), 2014 (417) |
+| `resultados_candidato_municipio_zona` | 1998 (7.640), 2000 (1.460), 2002 (260), 2004 (92), 2006 (243), 2014 (447) |
+| `vagas` | 2008 (162) e 2012 (262), todos com `id_eleicao` nulo |
+
+De 2016 em diante, nenhuma das quatro chaves repete. As duplicatas são do dado
+histórico do TSE e não foram tratadas nesta etapa.
+
+### Municípios do exterior e voto em trânsito
+
+Os testes `custom_relationships` de `id_municipio_tse` ignoram as linhas com
+`sigla_uf` igual a `ZZ` (exterior) ou `VT`, com `where` no próprio teste. Nessas
+linhas, o código TSE não existe em `br_bd_diretorios_brasil.municipio`: são 294
+códigos `ZZ` em `perfil_eleitorado_municipio_zona` e 276 `ZZ` mais 27 `VT` (todos
+de 2010) em `resultados_candidato_municipio`. O código `73709` (Boa Esperança do
+Norte, MT) segue no `ignore_values`. O código `91065`, de `MT` e só de 2002, também
+não existe no diretório. Ele está no `ignore_values` de `perfil_eleitorado_municipio_zona`
+e dos 6 modelos `resultados_*` com `id_municipio_tse` (de 48 a 179 linhas por tabela).
+
 ### `ignore_values` do `not_null_proportion_multiple_columns`
 
 Medição feita em 24/11/2026 nas tabelas de `basedosdados-dev.br_tse_eleicoes`,
