@@ -34,7 +34,8 @@ to date. Add this only after static onboarding is verified in dev.
    `pipelines/utils/metadata/{tasks,coverage}.py` — do not guess them.
 2. **Determine cadence & mode**: how often the source publishes, and whether each
    release is the full history (→ `dump_mode="overwrite"`) or incremental
-   (→ `"append"`). Pick the `source_format` (`parquet` or `csv`).
+   (→ `"append"`). The file format (`parquet` or `csv`) is not declared: since
+   #2278 the upload detects it from the extension of the files in `data_path`.
 3. **Write `constants.py`**: dataset id, source URLs + any required headers
    (e.g. a browser User-Agent), table list, and a repo-relative path to the
    architecture CSVs.
@@ -100,5 +101,5 @@ to date. Add this only after static onboarding is verified in dev.
 
 ## Output
 
-Report: the files created, the cadence + schedule chosen, dump_mode/source_format,
+Report: the files created, the cadence + schedule chosen, dump_mode,
 the local verification results, and exactly which steps run only on the worker.

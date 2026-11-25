@@ -181,14 +181,17 @@ models:
 
 #### Non-null proportion (custom)
 
-Validates that at least a given proportion of rows are non-null across multiple columns:
+Validates that at least a given proportion of rows are non-null across multiple columns.
+The preferred `at_least` is `0.99`. It may go down to `0.9`, with the reason and the
+measurement documented in the dataset README; a column below `0.9` goes to
+`ignore_values`.
 
 ```yaml
 models:
   - name: dataset_id__table_id
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
 ```
 
 #### Custom referential integrity (`custom_relationships`)
