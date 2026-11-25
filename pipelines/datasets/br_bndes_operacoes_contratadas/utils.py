@@ -552,6 +552,7 @@ def _transform_administracao_publica(df: pd.DataFrame) -> pd.DataFrame:
         df["data_nivel_atual"], format="%Y-%m-%d", errors="coerce"
     ).dt.year.astype("Int64")
 
+    # pyrefly: ignore[unnecessary-type-conversion]
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
         log(
@@ -737,6 +738,7 @@ def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
         df["data_contratacao"], format="%Y-%m-%d", errors="coerce"
     ).dt.year.astype("Int64")
 
+    # pyrefly: ignore[unnecessary-type-conversion]
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
         raise ValueError(
@@ -880,6 +882,7 @@ def _transform_exportacao_servicos(df: pd.DataFrame) -> pd.DataFrame:
         df["data_contratacao"], format="%Y-%m-%d", errors="coerce"
     ).dt.year.astype("Int64")
 
+    # pyrefly: ignore[unnecessary-type-conversion]
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
         raise ValueError(

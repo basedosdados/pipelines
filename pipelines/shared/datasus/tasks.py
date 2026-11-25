@@ -286,13 +286,11 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
                 check=True,
             )
             log(f"------ Removing {file.split('/')[-1]} file")
-            # pyrefly: ignore [deprecated]
             os.system(f"rm -f {file}")
         else:
             log(f"Skipping non-DBC file: {file}")
 
     log(f"------ Removing {blast_dir}")
-    # pyrefly: ignore [deprecated]
     os.system(f"rm -rf {blast_dir}")
 
 
@@ -327,7 +325,6 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
         if file.endswith(".dbf"):
             file = file.replace("output", "input")
             log(f"------ Removing {file.split('/')[-1]}")
-            # pyrefly: ignore [deprecated]
             os.system(f"rm -f {file}")
 
     # pyrefly: ignore [bad-return]
@@ -382,7 +379,6 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
         output_path = file.replace(".csv", ".parquet")
         processed_df.to_parquet(output_path, index=None, compression="gzip")
 
-        # pyrefly: ignore [deprecated]
         os.system(f"rm -f {file}")
 
     log("Post-processing complete")

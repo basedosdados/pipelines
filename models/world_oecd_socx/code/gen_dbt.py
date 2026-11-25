@@ -75,7 +75,6 @@ def dimensions(slug, spec):
     dsd = next(root.iter(f"{s}DataStructure"))
     dim_list = dsd.find(f"{s}DataStructureComponents/{s}DimensionList")
     sdmx_dims = {
-        # pyrefly: ignore [missing-attribute]
         d.get("id")
         # pyrefly: ignore [missing-attribute]
         for d in dim_list.iter(f"{s}Dimension")

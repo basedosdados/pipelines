@@ -301,7 +301,6 @@ def line_file_parser(file_line) -> tuple[list, dict]:
     # pyrefly: ignore [unsupported-operation]
     info["modify"] = modify.strftime("%m/%d/%Y %I:%M%p")
 
-    # pyrefly: ignore [bad-return]
     return name, info
 
 
