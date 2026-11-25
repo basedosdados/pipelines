@@ -43,6 +43,7 @@ async def main(years, categories):
                     response = await future
                     responses.append(response)
                 except TimeoutError:
+                    # pyrefly: ignore[unbound-name]
                     print(f"Request timed out for {url}")
             os.makedirs("./output/silvicultura/json/", exist_ok=True)
             with open(f"./output/silvicultura/json/{year}.json", "a") as f:

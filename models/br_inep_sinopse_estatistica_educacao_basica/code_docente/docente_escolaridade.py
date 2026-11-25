@@ -297,6 +297,7 @@ def read_sheet(
     df_escolaridade = pd.concat(
         [
             df.pipe(
+                # pyrefly: ignore[bad-index]
                 lambda d: d.loc[
                     (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
                 ]

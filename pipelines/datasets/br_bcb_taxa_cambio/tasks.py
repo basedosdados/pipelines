@@ -138,7 +138,6 @@ def extract_load_data(download_params: dict) -> ExtractAndLoad:
     for ano in anos_alvo:
         get_data_taxa_cambio(table_id=TAXA_CAMBIO_TABLE_ID, ano=ano)
         file_info = treat_data_taxa_cambio(table_id=TAXA_CAMBIO_TABLE_ID)
-        # pyrefly: ignore [bad-index]
         output_paths.append(file_info["save_output_path"])
 
     return ExtractAndLoad(

@@ -241,7 +241,6 @@ def register(env: str, gcp_project: str) -> None:
         for entity_slug, column_name in spec["levels"]:
             level = bd_mcp_write.create_update_observation_level(
                 id=existing_levels.get(entity_slug),
-                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=entities[entity_slug],
                 env=env,
@@ -256,7 +255,6 @@ def register(env: str, gcp_project: str) -> None:
         # --- columns -------------------------------------------------------
         payload = json.loads((PAYLOAD_DIR / f"{slug}.json").read_text("utf-8"))
         bd_mcp_write.bulk_upsert_columns(
-            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -285,7 +283,6 @@ def register(env: str, gcp_project: str) -> None:
             bd_mcp_write.update_column(
                 column_id=column_id,
                 column_name=column_name,
-                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 observation_level_id=level_id,
                 is_partition=column_name == "ano",
@@ -301,7 +298,6 @@ def register(env: str, gcp_project: str) -> None:
         cloud = (current.get("cloud_tables") or [{}])[0]
         bd_mcp_write.create_update_cloud_table(
             id=cloud.get("id"),
-            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=DATASET_ID,
@@ -318,7 +314,6 @@ def register(env: str, gcp_project: str) -> None:
         coverage = (current.get("coverages") or [{}])[0]
         cov = bd_mcp_write.create_update_coverage(
             id=coverage.get("id"),
-            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             area_id=ids["area_cl"],
             env=env,
