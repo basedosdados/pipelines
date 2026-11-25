@@ -137,6 +137,7 @@ def main() -> None:
             f"cloud {nodes(n, 'cloudTables')[0]['gcpProjectId'] if nodes(n, 'cloudTables') else None}, "
             f"dir links {dir_links}"
         )
+    # pyrefly: ignore[unbound-name]
     d = n["dataset"]
     print(
         f"dataset status={d['status']['slug']} orgs={[o['slug'] for o in nodes(d, 'organizations')]} "
