@@ -272,7 +272,7 @@ def download_and_process_files(
                     )
                 else:
                     rows_read += process_csv_dicionario(
-                        # pyrefly: ignore [bad-argument-type]
+                        # pyrefly: ignore[bad-argument-type, unbound-name]
                         input_path,
                         # pyrefly: ignore [bad-argument-type]
                         output_path,
@@ -280,7 +280,7 @@ def download_and_process_files(
                     )
             elif table_configs["table_name"] == "Simples":
                 rows_read += process_csv_simples(
-                    # pyrefly: ignore [bad-argument-type]
+                    # pyrefly: ignore[bad-argument-type, unbound-name]
                     input_path,
                     # pyrefly: ignore [bad-argument-type]
                     output_path,
@@ -294,7 +294,6 @@ def download_and_process_files(
     check_rows_written(rows_read=rows_read, output_dir=output_path)
 
     # pyrefly: ignore[bad-return]
-    # pyrefly: ignore [unbound-name]
     return output_path
 
 

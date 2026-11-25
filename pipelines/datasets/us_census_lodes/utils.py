@@ -151,6 +151,7 @@ def download(
             if exc.code == 404 and missing_ok:
                 return None
             last = exc
+        # pyrefly: ignore[unreachable-except-clause]
         except (OSError, urllib.error.URLError, EOFError) as exc:
             part.unlink(missing_ok=True)
             last = exc

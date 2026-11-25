@@ -159,12 +159,10 @@ def read_csv(
     )
 
     value_constants = TABELAS[dataset_id][table_id]
-    # pyrefly: ignore [no-matching-overload]
     log(os.listdir(value_constants["INPUT"]))
     if dataset_id == "br_cgu_cartao_pagamento":
         csv_file = next(
             f
-            # pyrefly: ignore [no-matching-overload]
             for f in os.listdir(value_constants["INPUT"])
             if f.endswith(".csv")
         )
@@ -190,7 +188,6 @@ def read_csv(
     if dataset_id == LICITACAO_CONTRATO_DATASET_ID:
         csv_file = [  # noqa: RUF015
             f
-            # pyrefly: ignore [no-matching-overload]
             for f in os.listdir(value_constants["INPUT"])
             if f.endswith(value_constants["READ"])
         ][0]
@@ -285,7 +282,6 @@ def next_available_date(
         candidate <= datetime.datetime.now().date() and _step < MAX_MONTH_RANGE
     ):
         urls = build_urls(
-            # pyrefly: ignore [bad-argument-type]
             url=url,
             year=candidate.year,
             month=candidate.month,
