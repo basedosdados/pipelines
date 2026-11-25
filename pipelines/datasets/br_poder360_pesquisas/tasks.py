@@ -21,7 +21,6 @@ def crawler() -> str:
     """
     Crawler to consume poder360's API  and save local csv
     """
-    # pyrefly: ignore [deprecated]
     os.system("mkdir -p /tmp/data/poder360/")
     header = [
         "id_pesquisa",

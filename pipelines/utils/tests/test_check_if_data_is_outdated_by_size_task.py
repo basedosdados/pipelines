@@ -7,7 +7,9 @@ import pytest
 from pipelines.utils.metadata.tasks import check_if_data_is_outdated_by_size
 
 
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.get_redis_client")
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.log")
 def test_first_run(mock_log, mock_get_redis_client):
     # Setup mock
@@ -34,7 +36,9 @@ def test_first_run(mock_log, mock_get_redis_client):
     assert args[1][table_id][today] == byte_length
 
 
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.get_redis_client")
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.log")
 def test_size_increased(mock_log, mock_get_redis_client):
     # Setup mock
@@ -60,7 +64,9 @@ def test_size_increased(mock_log, mock_get_redis_client):
     assert args[1][table_id][today] == byte_length
 
 
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.get_redis_client")
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.log")
 def test_size_equal(mock_log, mock_get_redis_client):
     # Setup mock
@@ -82,7 +88,9 @@ def test_size_equal(mock_log, mock_get_redis_client):
     mock_redis.set.assert_not_called()
 
 
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.get_redis_client")
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.log")
 def test_size_decreased(mock_log, mock_get_redis_client):
     # Setup mock
@@ -101,7 +109,9 @@ def test_size_decreased(mock_log, mock_get_redis_client):
         )
 
 
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.get_redis_client")
+# pyrefly: ignore[missing-attribute-patch-target]
 @patch("pipelines.utils.metadata.tasks.log")
 def test_keep_last_10(mock_log, mock_get_redis_client):
     # Setup mock with 10 records

@@ -83,6 +83,7 @@ df_etapa_ensino_classes_comuns = (
         columns=RENAMES_ETAPA_ENSINO, errors="raise"
     )[RENAMES_ETAPA_ENSINO.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -105,6 +106,7 @@ df_etapa_ensino_classes_exclusisas = (
         columns=RENAMES_ETAPA_ENSINO, errors="raise"
     )[RENAMES_ETAPA_ENSINO.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -179,6 +181,7 @@ df_faixa_etaria_classes_comuns = (
         columns=RENAMES_FAIXA_ETARIA, errors="raise"
     )[RENAMES_FAIXA_ETARIA.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -201,6 +204,7 @@ df_faixa_etaria_classes_exclusisas = (
         columns=RENAMES_FAIXA_ETARIA, errors="raise"
     )[RENAMES_FAIXA_ETARIA.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -277,6 +281,7 @@ df_localizacao_classes_comuns = (
         columns=RENAMES_LOCALIZACAO, errors="raise"
     )[RENAMES_LOCALIZACAO.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -302,6 +307,7 @@ df_localizacao_classes_exclusisas = (
         columns=RENAMES_LOCALIZACAO, errors="raise"
     )[RENAMES_LOCALIZACAO.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -378,6 +384,7 @@ df_tempo_ensino_classes_comuns = (
         columns=RENAMES_TEMPO_ENSINO, errors="raise"
     )[RENAMES_TEMPO_ENSINO.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -403,6 +410,7 @@ df_tempo_ensino_classes_exclusisas = (
         columns=RENAMES_TEMPO_ENSINO, errors="raise"
     )[RENAMES_TEMPO_ENSINO.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -485,6 +493,7 @@ df_sexo_raca_cor_classes_comuns = (
         columns=RENAMES_SEXO_RACA_COR, errors="raise"
     )[RENAMES_SEXO_RACA_COR.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -510,6 +519,7 @@ df_sexo_raca_cor_classes_exclusisas = (
         columns=RENAMES_SEXO_RACA_COR, errors="raise"
     )[RENAMES_SEXO_RACA_COR.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -591,6 +601,7 @@ df_tipo_deficiencia_classes_comuns = (
         columns=RENAMES_TIPO_DEFICIENCIA, errors="raise"
     )[RENAMES_TIPO_DEFICIENCIA.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]
@@ -615,6 +626,7 @@ df_tipo_deficiencia_classes_exclusisas = (
         columns=RENAMES_TIPO_DEFICIENCIA, errors="raise"
     )[RENAMES_TIPO_DEFICIENCIA.values()]
     .pipe(
+        # pyrefly: ignore[bad-index]
         lambda d: d.loc[
             (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
         ]

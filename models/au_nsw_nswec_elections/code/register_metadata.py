@@ -148,7 +148,6 @@ LAST_REFRESHED = "2026-09-10T00:00:00"
 
 
 def call(tool, /, **kwargs):
-    # pyrefly: ignore [not-callable]
     return getattr(tool, "fn", tool)(**kwargs)
 
 
