@@ -164,6 +164,7 @@ def _select_list(node: ast.expr) -> list[str] | None:
     if not isinstance(node, ast.Subscript):
         return None
     sl = node.slice
+    # pyrefly: ignore[deprecated]
     if isinstance(sl, ast.Index):  # py<3.9 compat in stale ASTs
         # pyrefly: ignore [missing-attribute]
         sl = sl.value
