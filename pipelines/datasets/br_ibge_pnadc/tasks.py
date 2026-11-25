@@ -135,7 +135,6 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
     Gets all csv files from a url and saves them to a directory.
     """
     if mkdir:
-        # pyrefly: ignore [deprecated]
         os.system("mkdir -p /tmp/data/input/")
 
     request_headers = {
@@ -150,7 +149,6 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
 
     with zipfile.ZipFile(save_path) as z:
         z.extractall("/tmp/data/input")
-    # pyrefly: ignore [deprecated]
     os.system('cd /tmp/data/input; find . -type f ! -iname "*.txt" -delete')
     filepath = glob("/tmp/data/input/*.txt")[0]
 
@@ -241,6 +239,7 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
             )
 
         # Release memory
+        # pyrefly: ignore[unbound-name]
         del df_uf
         del chunk
     log("Partitions created")

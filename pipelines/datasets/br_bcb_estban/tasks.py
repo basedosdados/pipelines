@@ -241,7 +241,6 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
             partition_columns=["ano", "mes", "sigla_uf"],
             savepath=output_path,
         )
-        # pyrefly: ignore [unsupported-delete]
         del (df_wide, df_long, df_raw)
 
     return output_path

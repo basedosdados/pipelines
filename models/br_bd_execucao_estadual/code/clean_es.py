@@ -150,6 +150,7 @@ def clean_table(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
         )
 
     span = con.execute(
+        # pyrefly: ignore[unbound-name]
         f"SELECT min({label}), max({label}), count(DISTINCT {label}) "
         f"FROM read_parquet('{dest}/data_*.parquet')"
     ).fetchone()

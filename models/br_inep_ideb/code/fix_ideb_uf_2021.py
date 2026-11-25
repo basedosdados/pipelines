@@ -14,7 +14,6 @@ os.makedirs(INPUT, exist_ok=True)
 os.makedirs(TMP, exist_ok=True)
 os.makedirs(OUTPUT, exist_ok=True)
 
-# pyrefly: ignore [deprecated]
 exit_code = os.system(
     f"cd {INPUT}; curl -O -k https://download.inep.gov.br/educacao_basica/portal_ideb/planilhas_para_download/2021/divulgacao_regioes_ufs_ideb_2021.zip"
 )

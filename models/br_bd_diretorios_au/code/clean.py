@@ -211,7 +211,7 @@ def build_table(table):
     if (
         "area_albers_sqkm" in out.columns
         and "AREA_ALBERS_SQM" in src.columns  # pyrefly: ignore [missing-attribute]
-        and "AREA_ALBERS_SQKM" not in src.columns  # pyrefly: ignore [not-iterable]
+        and "AREA_ALBERS_SQKM" not in src.columns
     ):
         out["area_albers_sqkm"] = (
             # pyrefly: ignore [unsupported-operation]

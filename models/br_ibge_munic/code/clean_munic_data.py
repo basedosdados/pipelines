@@ -145,7 +145,7 @@ def detect_sigla_uf_column(df: pd.DataFrame) -> str | None:
 
 def standardize_id(series: pd.Series) -> pd.Series:
     out = series.astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
-    # pyrefly: ignore [bad-argument-type]
+    # pyrefly: ignore[bad-assignment]
     out = out.replace({"nan": pd.NA, "NaN": pd.NA, "None": pd.NA, "": pd.NA})
     return out
 
@@ -423,7 +423,7 @@ def build_section_year(
                 series = pd.Series(pd.NA, index=master_df.index)
 
         if clean_name == "idade" and str(bq_type).lower().startswith("int"):
-            # pyrefly: ignore [bad-argument-type]
+            # pyrefly: ignore[bad-assignment]
             series = series.replace({"Ignorado": pd.NA, "ignorado": pd.NA})
         series = cast_series(series, bq_type)
         # Validate year columns (columns with "ano" in name that are int64)
@@ -520,7 +520,6 @@ def run(sections: list[str]) -> None:
             final_df = final_df.sort_values(
                 ["id_municipio", "ano"], na_position="last"
             )
-        # pyrefly: ignore [no-matching-overload]
         string_cols = final_df.select_dtypes(
             include=["object", "string"]
         ).columns

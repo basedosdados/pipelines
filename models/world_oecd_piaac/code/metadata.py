@@ -508,9 +508,7 @@ def main() -> None:
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
     today = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
-    # pyrefly: ignore [not-callable]
     tool(bd_mcp_metadata.auth)(env=env)
-    # pyrefly: ignore [not-callable]
     ids = tool(bd_mcp_metadata.discover_ids)(
         env=env,
         keys=[
@@ -523,10 +521,8 @@ def main() -> None:
             "entity",
         ],
     )
-    # pyrefly: ignore [not-callable]
     account = tool(bd_mcp_metadata.get_authenticated_account)(env=env)
     account_id = account["id"]
-    # pyrefly: ignore [not-callable]
     area_id = tool(bd_mcp_metadata.lookup_id)(
         category="area", slug=AREA_WORLD, env=env
     )["id"]
@@ -534,13 +530,11 @@ def main() -> None:
 
     # create_update_dataset matches on id, not slug: calling it without one
     # creates a second dataset with the same slug rather than updating the first.
-    # pyrefly: ignore [not-callable]
     existing = tool(bd_mcp_metadata.get_dataset)(slug=DATASET_SLUG, env=env)
     existing_id = existing.get("id") if isinstance(existing, dict) else None
     if existing_id:
         print(f"reusing existing dataset {existing_id}")
 
-    # pyrefly: ignore [not-callable]
     dataset = tool(bd_mcp_write.create_update_dataset)(
         id=existing_id,
         slug=DATASET_SLUG,
@@ -565,7 +559,6 @@ def main() -> None:
     existing_sources: dict[str, str] = {}
     try:
         for source in (
-            # pyrefly: ignore [not-callable]
             tool(bd_mcp_write.get_raw_data_sources)(
                 dataset_slug=DATASET_SLUG, env=env
             )
@@ -584,7 +577,6 @@ def main() -> None:
 
     source_ids = {}
     for slug, names, url, descriptions in RAW_SOURCES:
-        # pyrefly: ignore [not-callable]
         source = tool(bd_mcp_write.create_update_raw_data_source)(
             id=existing_sources.get(url),
             name_pt=names[0],
@@ -611,7 +603,6 @@ def main() -> None:
     # empty list when none do. Without the id, create_update_table raises
     # "Table com este Dataset e Slug ja existe" on a re-run.
     raw_tables = (
-        # pyrefly: ignore [not-callable]
         tool(bd_mcp_metadata.get_dataset)(slug=DATASET_SLUG, env=env).get(
             "tables"
         )
@@ -627,7 +618,6 @@ def main() -> None:
 
     for table_slug in TABLE_NAMES:
         names = TABLE_NAMES[table_slug]
-        # pyrefly: ignore [not-callable]
         table = tool(bd_mcp_write.create_update_table)(
             id=existing_tables.get(table_slug),
             slug=table_slug,
@@ -650,7 +640,6 @@ def main() -> None:
         table_id = table["id"]
         print(f"  table {table_slug}: {table_id}")
 
-        # pyrefly: ignore [not-callable]
         result = tool(bd_mcp_write.bulk_upsert_columns)(
             table_id=table_id,
             columns_json=columns_payload(table_slug),
@@ -669,7 +658,6 @@ def main() -> None:
             for error in errors[:3]:
                 print(f"      ERROR {error}")
 
-        # pyrefly: ignore [not-callable]
         tool(bd_mcp_write.create_update_cloud_table)(
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -687,7 +675,6 @@ def main() -> None:
         for entity_slug, identifying_column in OBSERVATION_LEVELS.get(
             table_slug, []
         ):
-            # pyrefly: ignore [not-callable]
             level = tool(bd_mcp_write.create_update_observation_level)(
                 id=have_levels.get(entity_slug),
                 table_id=table_id,
@@ -698,7 +685,6 @@ def main() -> None:
             if column_id:
                 # update_column's booleans default to False, so a bare call would
                 # clear is_partition on the way past.
-                # pyrefly: ignore [not-callable]
                 tool(bd_mcp_write.update_column)(
                     column_id=column_id,
                     column_name=identifying_column,
@@ -711,12 +697,10 @@ def main() -> None:
         prior_coverage, prior_ranges = have_coverages.get(
             AREA_WORLD, (None, [])
         )
-        # pyrefly: ignore [not-callable]
         coverage = tool(bd_mcp_write.create_update_coverage)(
             id=prior_coverage, table_id=table_id, area_id=area_id, env=env
         )
         start_year, end_year = COVERAGE_YEARS[table_slug]
-        # pyrefly: ignore [not-callable]
         tool(bd_mcp_write.create_update_datetime_range)(
             id=prior_ranges[0] if prior_ranges else None,
             coverage_id=coverage["id"],
@@ -728,7 +712,6 @@ def main() -> None:
 
         # Table-anchored: `latest` is when Data Basis last refreshed the table,
         # not the newest date in the data. PIAAC releases roughly once a decade.
-        # pyrefly: ignore [not-callable]
         tool(bd_mcp_write.create_update_update)(
             id=have_updates[0] if have_updates else None,
             table_id=table_id,
@@ -743,7 +726,6 @@ def main() -> None:
         "\nregistered. run with --publish to flip the dataset to published on this env."
     )
     if args.publish:
-        # pyrefly: ignore [not-callable]
         tool(bd_mcp_write.create_update_dataset)(
             id=dataset_id,
             slug=DATASET_SLUG,

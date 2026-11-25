@@ -481,6 +481,7 @@ dfs_faixa_etaria = {
 df_faixa_etaria = pd.concat(
     [
         df.pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
@@ -602,6 +603,7 @@ dfs_localizacao = {
 df_localizacao = pd.concat(
     [
         df.pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
@@ -711,6 +713,7 @@ dfs_tempo_ensino = {
 df_tempo_ensino = pd.concat(
     [
         df.pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
@@ -826,6 +829,7 @@ dfs_sexo_raca_cor = {
 df_sexo_raca_cor = pd.concat(
     [
         df.pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
@@ -1150,6 +1154,7 @@ df_docente_etapa_ensino = (
         [
             df.assign(tipo_classe=tipo_classe)
             .pipe(
+                # pyrefly: ignore[bad-index]
                 lambda d: d.loc[
                     (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
                 ]
@@ -1467,6 +1472,7 @@ df_docente_localizacao = pd.concat(
     [
         df.assign(etapa_ensino=etapa_ensino)
         .pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
@@ -1679,6 +1685,7 @@ df_docente_escolaridade = (
         [
             df.assign(etapa_ensino=etapa_ensino)
             .pipe(
+                # pyrefly: ignore[bad-index]
                 lambda d: d.loc[
                     (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
                 ]
@@ -1788,6 +1795,7 @@ df_docente_deficiencia = (
         [
             df.assign(etapa_ensino=etapa_ensino)
             .pipe(
+                # pyrefly: ignore[bad-index]
                 lambda d: d.loc[
                     (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
                 ]
@@ -2076,6 +2084,7 @@ df_docente_faixa_etaria_sexo = pd.concat(
     [
         df.assign(etapa_ensino=etapa_ensino)
         .pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
@@ -2347,6 +2356,7 @@ df_docente_regime_contrato = pd.concat(
     [
         df.assign(etapa_ensino=etapa_ensino)
         .pipe(
+            # pyrefly: ignore[bad-index]
             lambda d: d.loc[
                 (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
