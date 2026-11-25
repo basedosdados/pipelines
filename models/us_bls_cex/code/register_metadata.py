@@ -638,7 +638,6 @@ def main() -> None:
         spec = TABLE_TEXT[table]
         prior = prior_tables.get(table, {})
         tb = bd_mcp_write.create_update_table(
-            # pyrefly: ignore [bad-argument-type]
             id=prior.get("id"),
             env=env,
             # pyrefly: ignore [bad-argument-type]
@@ -736,7 +735,6 @@ def main() -> None:
                 "id"
             )
             bd_mcp_write.create_update_datetime_range(
-                # pyrefly: ignore [bad-argument-type]
                 id=prior_range,
                 coverage_id=cov["id"],
                 env=env,

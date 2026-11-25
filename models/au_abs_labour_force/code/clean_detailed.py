@@ -584,7 +584,6 @@ def validate(table: str, df: pd.DataFrame) -> dict[str, float]:
                 f"{table}.{col}: {n_null:,} NULLs in a grain column"
             )
 
-    # pyrefly: ignore [unnecessary-type-conversion]
     frac = {c: round(float(df[c].notna().mean()), 4) for c in order}
     sparse = {c: v for c, v in frac.items() if v < 0.10}
     log.info(

@@ -39,11 +39,9 @@ def call(tool):
 
 
 def main(env: str, tables: list[str]) -> None:
-    # pyrefly: ignore [not-callable]
     call(bd_mcp_metadata.auth)(env=env)
     for table in tables:
         js = payload(table)
-        # pyrefly: ignore [not-callable]
         result = call(bd_mcp_write.bulk_upsert_columns)(
             table_id=TABLE_IDS[table], columns_json=js, env=env
         )

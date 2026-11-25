@@ -788,7 +788,6 @@ def build_uf_semestre(
     """State-level convenience aggregate."""
     pop = (
         populacao.groupby(["ano", "semestre", "sigla_uf"])
-        # pyrefly: ignore [no-matching-overload]
         .apply(
             lambda g: pd.Series(
                 {
@@ -938,7 +937,6 @@ def build_cobertura(
             if (n + miss)
             else np.nan,
             "taxa_capacidade_informada": round(
-                # pyrefly: ignore [unnecessary-type-conversion]
                 float(g["capacidade_total"].notna().mean()),
                 6,
             ),
@@ -955,7 +953,6 @@ def build_cobertura(
                 ("ausente", "nao"),
             ):
                 rec[f"taxa_{char}_{suffix}"] = (
-                    # pyrefly: ignore [unnecessary-type-conversion]
                     round(float((s == key).sum() / total), 6)
                     if total
                     else np.nan

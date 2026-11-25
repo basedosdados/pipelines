@@ -146,20 +146,20 @@ DICIONARIO_ROWS: list[tuple[str, str, str, str, str]] = [
 def clean_string(s: pd.Series) -> pd.Series:
     """Trim whitespace; empty string -> NA. 'Sem Informação' is preserved."""
     out = s.astype(str).str.strip()
-    # pyrefly: ignore [bad-argument-type]
+    # pyrefly: ignore[bad-assignment]
     return out.replace({"": pd.NA})
 
 
 def clean_date(s: pd.Series) -> pd.Series:
     """DD/MM/YYYY -> pandas datetime; invalid/empty -> NaT."""
-    # pyrefly: ignore [bad-argument-type]
+    # pyrefly: ignore[bad-assignment]
     stripped = s.astype(str).str.strip().replace({"": pd.NA})
     return pd.to_datetime(stripped, format="%d/%m/%Y", errors="coerce")
 
 
 def clean_float_brl(s: pd.Series) -> pd.Series:
     """'1.234,56' -> 1234.56; empty -> NaN."""
-    # pyrefly: ignore [bad-argument-type]
+    # pyrefly: ignore[bad-assignment]
     stripped = s.astype(str).str.strip().replace({"": pd.NA})
     normalized = stripped.str.replace(".", "", regex=False).str.replace(
         ",", ".", regex=False
