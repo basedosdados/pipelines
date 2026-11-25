@@ -214,7 +214,6 @@ def save_input(df: pd.DataFrame, table_id: str) -> str:
     # Define the folder path for storing the file
     folder = f"tmp/{table_id}/input/"
     # Create the folder if it doesn't exist
-    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     # Define the full file path for the CSV file
     full_filepath = f"{folder}/{table_id}.csv"
@@ -240,7 +239,6 @@ def save_output(df: pd.DataFrame, table_id: str) -> str:
     # Define the folder path for storing the file
     folder = f"tmp/{table_id}/output/"
     # Create the folder if it doesn't exist
-    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     # Define the full file path for the CSV file
     full_filepath = f"{folder}/{table_id}.csv"
@@ -277,7 +275,6 @@ def download_and_unzip(url, path):
         list: unziped files in a given folder
     """
 
-    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {path}")
 
     http_response = urlopen(url)
@@ -311,5 +308,6 @@ def connect_to_endpoint_json(url: str, max_attempts: int = 3) -> dict:
 
     raise requests.HTTPError(
         f"{url} não devolveu 200 em {max_attempts} tentativas",
+        # pyrefly: ignore[unbound-name]
         response=response,
     )

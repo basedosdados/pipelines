@@ -464,6 +464,7 @@ def run_dbt(
                 run_result = getattr(result, "result", None)
                 if run_result is not None:
                     separator = "─" * 80
+                    # pyrefly: ignore[missing-attribute]
                     for node_result in run_result.results:
                         if node_result.status not in {"error", "fail"}:
                             continue

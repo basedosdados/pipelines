@@ -46,6 +46,7 @@ def is_intact(path: Path) -> bool:
             while fh.read(CHUNK):
                 pass
         return True
+    # pyrefly: ignore[unreachable-except-clause]
     except (OSError, EOFError, gzip.BadGzipFile):
         return False
 
