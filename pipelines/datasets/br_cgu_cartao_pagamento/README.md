@@ -27,3 +27,15 @@ Cada tabela baixa o próprio ZIP, de forma independente, e tem um par de flows (
 | URLs, pastas de entrada e saída | `TABELAS` em `pipelines/shared/cgu/constants.py` |
 | Fiação dos flows e crons | `flows.py` |
 | `get_latest_update` e `extract_load_data` | `tasks.py` |
+
+## Mudanças no dicionário
+
+Códigos sem rótulo na fonte entram no `dicionario` com o rótulo `Código <chave>: sem significado nas fontes oficiais (nota da BD)`, conforme o [manual da equipe de dados](https://basedosdados.github.io/manual-equipe-dados/governanca/tratamento-de-dados/como-fazer/como-tratar-codigo-sem-rotulo/). Quando o órgão responder, o rótulo é trocado pelo significado informado.
+
+| Tabela.coluna | Chave | Rótulo | Primeira competência | Linhas | Fontes consultadas | Pedido LAI |
+|---------------|-------|--------|----------------------|--------|--------------------|------------|
+| `microdados_defesa_civil.transacao` | `PAGAMENTO DCC-LIQUIDACAO TOTAL ANTECIP.` | Código PAGAMENTO DCC-LIQUIDACAO TOTAL ANTECIP.: sem significado nas fontes oficiais (nota da BD) | 2025-09 | 221 | [Dicionário de dados do CPDC](https://portaldatransparencia.gov.br/dicionario-de-dados/cpdc) | Protocolo `<PREENCHER>` / issue `<PREENCHER>` |
+| `microdados_defesa_civil.transacao` | `ESTORNO DE PAGAMENTO - LIQUID.ANT.SAQUE` | Código ESTORNO DE PAGAMENTO - LIQUID.ANT.SAQUE: sem significado nas fontes oficiais (nota da BD) | 2025-09 | 3 | [Dicionário de dados do CPDC](https://portaldatransparencia.gov.br/dicionario-de-dados/cpdc) | Protocolo `<PREENCHER>` / issue `<PREENCHER>` |
+| `microdados_defesa_civil.transacao` | `COMPRA A/V - R$ - REVRS APRES` | Código COMPRA A/V - R$ - REVRS APRES: sem significado nas fontes oficiais (nota da BD) | 2025-09 | 3 | [Dicionário de dados do CPDC](https://portaldatransparencia.gov.br/dicionario-de-dados/cpdc) | Protocolo `<PREENCHER>` / issue `<PREENCHER>` |
+
+Os três códigos aparecem só nos dados de setembro de 2025.
