@@ -336,7 +336,6 @@ def main() -> None:
         # the two ranges are mutually exclusive. This mirrors exactly what
         # register_table_materialization_task recomputes on every pipeline run.
         free_end_year, free_end_month = shift_months(
-            # pyrefly: ignore [bad-argument-type]
             end_year,
             # pyrefly: ignore [bad-argument-type]
             end_month,

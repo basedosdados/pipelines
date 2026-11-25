@@ -121,7 +121,6 @@ def crawler_ans(files):
             path="/tmp/data/br_ans_beneficiario/beneficiario/input/"
         )
 
-        # pyrefly: ignore [deprecated]
         os.system(
             'cd /tmp/data/br_ans_beneficiario/beneficiario/input; find . -type f -iname "*.csv" -delete'
         )

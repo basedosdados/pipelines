@@ -118,6 +118,7 @@ def read_sheet(
     df_deficiencia = pd.concat(
         [
             df.pipe(
+                # pyrefly: ignore[bad-index]
                 lambda d: d.loc[
                     (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
                 ]

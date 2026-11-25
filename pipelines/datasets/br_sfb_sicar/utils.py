@@ -421,6 +421,7 @@ def _adaptive_chunk_size(
     reproject copy, and WKT expansion — a few times the chunk's raw WKB — so a
     256 MB budget keeps peak near 1 GB, well under the 32 GiB worker.
     """
+    # pyrefly: ignore[unnecessary-type-conversion]
     n = int(pyogrio.read_info(shp)["features"])
     if n == 0:
         return 0, cap
