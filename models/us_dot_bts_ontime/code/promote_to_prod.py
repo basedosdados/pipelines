@@ -126,9 +126,7 @@ def column_ids(table_id: str) -> dict[str, str]:
 
 
 def main() -> None:
-    # pyrefly: ignore [not-callable]
     call(bd_mcp_metadata.auth)(env="prod")
-    # pyrefly: ignore [not-callable]
     call(bd_mcp_metadata.auth)(env="staging")
 
     existing = prod_tables()
@@ -138,7 +136,6 @@ def main() -> None:
         prior = existing.get(slug)
         tid = bare(prior["id"]) if prior else None
 
-        # pyrefly: ignore [not-callable]
         res = call(bd_mcp_write.create_update_table)(
             id=tid,
             slug=slug,
@@ -159,7 +156,6 @@ def main() -> None:
         tid = res["id"]
         print(f"\n=== {slug}: table {tid}")
 
-        # pyrefly: ignore [not-callable]
         r = call(bd_mcp_write.bulk_upsert_columns)(
             table_id=tid, columns_json=payload(slug), env="prod"
         )
@@ -176,7 +172,6 @@ def main() -> None:
         }
         for entity_key in OL_COLUMNS.get(slug, {}):
             eid = PROD[entity_key]
-            # pyrefly: ignore [not-callable]
             ol = call(bd_mcp_write.create_update_observation_level)(
                 id=prior_ols.get(eid), table_id=tid, entity_id=eid, env="prod"
             )
@@ -187,7 +182,6 @@ def main() -> None:
             cids = column_ids(tid)
             for entity_key, cols in OL_COLUMNS[slug].items():
                 for name in cols:
-                    # pyrefly: ignore [not-callable]
                     call(bd_mcp_write.update_column)(
                         column_id=cids[name],
                         column_name=name,
@@ -204,7 +198,6 @@ def main() -> None:
             bare(e["node"]["id"])
             for e in (prior["cloudTables"]["edges"] if prior else [])
         ]
-        # pyrefly: ignore [not-callable]
         ct = call(bd_mcp_write.create_update_cloud_table)(
             id=ct_prior[0] if ct_prior else None,
             table_id=tid,

@@ -120,7 +120,6 @@ def crawler_novo_caged_ftp(
     Returns:
         list: List of successfully and unsuccessfully downloaded files
     """
-    # pyrefly: ignore [unknown-name]
     global CORRUPT_FILES
     CORRUPT_FILES = []
 

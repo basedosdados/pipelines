@@ -139,7 +139,7 @@ def load_data(input_dir: Path, survey_dir: str) -> pd.DataFrame:
     df["period"] = df["period"].str.strip()
     df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("int64")
     df["index_value"] = pd.to_numeric(
-        # pyrefly: ignore [bad-argument-type]
+        # pyrefly: ignore[bad-assignment]
         df["value"].str.strip().replace({"-": ""}).replace({"": None}),
         errors="coerce",
     )
