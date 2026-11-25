@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
-import yaml  # pyrefly: ignore[untyped-import]
+import yaml
 
 HERE = Path(__file__).resolve().parent
 ARCH = HERE / "architecture"

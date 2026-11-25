@@ -325,7 +325,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         reference_date = download_params["reference_date"]
 
         df, _ = extract_links_and_dates(table_id=table_id)
-        # pyrefly: ignore [no-matching-overload]
         arquivos = generate_links_to_download(df=df, max_date=reference_date)
 
         input_filepath = download_unzip(table_id=table_id, files=arquivos)
