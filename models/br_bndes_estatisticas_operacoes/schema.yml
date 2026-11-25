@@ -1,0 +1,987 @@
+---
+version: 2
+models:
+  - name: br_bndes_estatisticas_operacoes__produto_direta_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, nas operações de forma de
+      apoio direta, por produto, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__produto_indireta_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, nas operações de forma de
+      apoio indireta, por produto, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__porte_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, por porte da empresa, em
+      reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, porte_empresa]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: porte_empresa
+        description: >-
+          Porte da empresa pela política de classificação do BNDES vigente à
+          época
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__uf_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, por unidade federativa, em
+      reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade federativa onde o investimento foi realizado ou onde
+          o cliente está registrado
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__setor_cnae_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, por setor CNAE, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_cnae]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__subsetor_cnae_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, por setor e subsetor CNAE
+      agrupado, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - setor_cnae
+            - subsetor_cnae_agrupado
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__setor_bndes_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, por setor BNDES, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_bndes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__subsetor_bndes_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, por setor e subsetor
+      BNDES, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_bndes, subsetor_bndes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+        tests: [not_null]
+      - name: subsetor_bndes
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+          e nos produtos do BNDES
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__exim_aprovacao
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, no BNDES Exim, por
+      modalidade, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, modalidade_exim]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: modalidade_exim
+        description: >-
+          Modalidade do BNDES Exim de financiamento à produção e exportação de
+          bens e serviços brasileiros
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em reais
+  - name: br_bndes_estatisticas_operacoes__produto_direta_aprovacao_dolar
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, nas operações de forma de
+      apoio direta, por produto, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em dólares
+  - name: br_bndes_estatisticas_operacoes__produto_indireta_aprovacao_dolar
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, nas operações de forma de
+      apoio indireta, por produto, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em dólares
+  - name: br_bndes_estatisticas_operacoes__exim_aprovacao_dolar
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, no BNDES Exim, por
+      modalidade, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, modalidade_exim]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: modalidade_exim
+        description: >-
+          Modalidade do BNDES Exim de financiamento à produção e exportação de
+          bens e serviços brasileiros
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em dólares
+  - name: br_bndes_estatisticas_operacoes__exim_setor_cnae_aprovacao_dolar
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, no BNDES Exim, por setor
+      CNAE, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_cnae]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em dólares
+  - name: br_bndes_estatisticas_operacoes__exim_subsetor_cnae_aprovacao_dolar
+    description: >-
+      Valor aprovado pelo Sistema BNDES em cada mês, no BNDES Exim, por setor e
+      subsetor CNAE agrupado, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - setor_cnae
+            - subsetor_cnae_agrupado
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da aprovação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_aprovado
+        description: >-
+          Valor aprovado, em dólares
+  - name: br_bndes_estatisticas_operacoes__produto_direta_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, nas operações de forma
+      de apoio direta, por produto, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__produto_indireta_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, nas operações de forma
+      de apoio indireta, por produto, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__porte_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, por porte da empresa,
+      em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, porte_empresa]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: porte_empresa
+        description: >-
+          Porte da empresa pela política de classificação do BNDES vigente à
+          época
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__uf_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, por unidade federativa,
+      em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade federativa onde o investimento foi realizado ou onde
+          o cliente está registrado
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__setor_cnae_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, por setor CNAE, em
+      reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_cnae]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__subsetor_cnae_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, por setor e subsetor
+      CNAE agrupado, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - setor_cnae
+            - subsetor_cnae_agrupado
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__setor_bndes_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, por setor BNDES, em
+      reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_bndes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__subsetor_bndes_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, por setor e subsetor
+      BNDES, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_bndes, subsetor_bndes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+        tests: [not_null]
+      - name: subsetor_bndes
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+          e nos produtos do BNDES
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__exim_consulta
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, no BNDES Exim, por
+      modalidade, em reais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, modalidade_exim]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: modalidade_exim
+        description: >-
+          Modalidade do BNDES Exim de financiamento à produção e exportação de
+          bens e serviços brasileiros
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em reais
+  - name: br_bndes_estatisticas_operacoes__produto_direta_consulta_dolar
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, nas operações de forma
+      de apoio direta, por produto, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em dólares
+  - name: br_bndes_estatisticas_operacoes__produto_indireta_consulta_dolar
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, nas operações de forma
+      de apoio indireta, por produto, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, produto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em dólares
+  - name: br_bndes_estatisticas_operacoes__exim_consulta_dolar
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, no BNDES Exim, por
+      modalidade, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, modalidade_exim]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: modalidade_exim
+        description: >-
+          Modalidade do BNDES Exim de financiamento à produção e exportação de
+          bens e serviços brasileiros
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em dólares
+  - name: br_bndes_estatisticas_operacoes__exim_setor_cnae_consulta_dolar
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, no BNDES Exim, por
+      setor CNAE, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, setor_cnae]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em dólares
+  - name: br_bndes_estatisticas_operacoes__exim_subsetor_cnae_consulta_dolar
+    description: >-
+      Valor das consultas ao Sistema BNDES em cada mês, no BNDES Exim, por
+      setor e subsetor CNAE agrupado, em dólares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - setor_cnae
+            - subsetor_cnae_agrupado
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >-
+          Mês da consulta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+        tests: [not_null]
+      - name: valor_consulta
+        description: >-
+          Valor da consulta, em dólares
