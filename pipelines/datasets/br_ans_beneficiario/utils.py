@@ -78,7 +78,6 @@ def download_unzip_csv(
             except zipfile.BadZipFile:
                 log(f"O arquivo {file} não é um arquivo ZIP válido.")
 
-            # pyrefly: ignore [deprecated]
             os.system(
                 f'cd /tmp/data/br_ans_beneficiario/{id}/input; find . -type f ! -iname "*.csv" -delete'
             )
@@ -105,7 +104,6 @@ def download_unzip_csv(
         except zipfile.BadZipFile:
             log(f"O arquivo {zips} não é um arquivo ZIP válido.")
 
-        # pyrefly: ignore [deprecated]
         os.system(
             f'cd /tmp/data/br_ans_beneficiario/{id}/input; find . -type f ! -iname "*.csv" -delete'
         )

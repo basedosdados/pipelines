@@ -28,6 +28,7 @@ async def unzip_file(zip_path, extract_to):
         log(
             f"The ZIP file {os.path.basename(zip_path)} is too large to be processed."
         )
+    # pyrefly: ignore[unreachable-except-clause]
     except zipfile.error as e:
         log(f"Error extracting ZIP file {os.path.basename(zip_path)}: {e!s}")
     os.remove(zip_path)

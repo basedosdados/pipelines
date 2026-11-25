@@ -20,7 +20,6 @@ URLS = {
 
 
 for _, url in URLS.items():
-    # pyrefly: ignore [deprecated]
     os.system(f"cd {INPUT}; curl -O -k {url}")
 
 for file in os.listdir(INPUT):

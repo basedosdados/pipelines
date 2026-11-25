@@ -442,7 +442,6 @@ def strip_dataframe_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Updated DataFrame.
     """
-    # pyrefly: ignore [no-matching-overload]
     for col in dataframe.select_dtypes(include=["object", "string"]).columns:
         dataframe[col] = dataframe[col].str.strip()
     return dataframe
