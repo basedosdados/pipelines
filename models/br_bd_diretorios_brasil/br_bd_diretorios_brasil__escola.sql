@@ -25,5 +25,6 @@ select
     safe_cast(etapas_modalidades_oferecidas as string) etapas_modalidades_oferecidas,
     safe_cast(outras_ofertas_educacionais as string) outras_ofertas_educacionais,
     safe_cast(latitude as string) latitude,
-    safe_cast(longitude as string) longitude
+    safe_cast(longitude as string) longitude,
+    safe_cast(situacao_catalogo as string) situacao_catalogo
 from {{ set_datalake_project("br_bd_diretorios_brasil_staging.escola") }} as t

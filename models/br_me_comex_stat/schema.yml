@@ -15,6 +15,15 @@ models:
             - id_municipio
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+          config:
+            where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_pais]
+          dictionary_model: ref('br_me_comex_stat__dicionario')
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -24,7 +33,7 @@ models:
         description: ID Sistema Harmonizado
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              to: ref('br_bd_diretorios_comercio_internacional__sistema_harmonizado')
               field: id_sh4
               config:
                 where: __most_recent_year_month__
@@ -41,6 +50,13 @@ models:
                 where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [EX]
+              config:
+                where: __most_recent_year_month__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -51,8 +67,19 @@ models:
                 where: __most_recent_year_month__
       - name: peso_liquido_kg
         description: Peso Líquido
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: valor_fob_dolar
         description: Valor Livre a Bordo
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
+                severity: warn
   - name: br_me_comex_stat__municipio_importacao
     description: Base de dados detalhada por município da empresa importadora e Posição
       do Sistema Harmonizado (SH4)
@@ -67,6 +94,15 @@ models:
             - id_municipio
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+          config:
+            where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_pais]
+          dictionary_model: ref('br_me_comex_stat__dicionario')
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -76,7 +112,7 @@ models:
         description: ID Sistema Harmonizado
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              to: ref('br_bd_diretorios_comercio_internacional__sistema_harmonizado')
               field: id_sh4
               config:
                 where: __most_recent_year_month__
@@ -93,6 +129,13 @@ models:
                 where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [EX]
+              config:
+                where: __most_recent_year_month__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -103,8 +146,19 @@ models:
                 where: __most_recent_year_month__
       - name: peso_liquido_kg
         description: Peso Líquido
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: valor_fob_dolar
         description: Valor Livre a Bordo
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
+                severity: warn
   - name: br_me_comex_stat__ncm_importacao
     description: Base de dados dos produtos importados pelo Brasil segundo a Nomenclatura
       Comum do Mercosul
@@ -120,6 +174,15 @@ models:
             - id_urf
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+          config:
+            where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_pais, id_via, id_urf]
+          dictionary_model: ref('br_me_comex_stat__dicionario')
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -131,7 +194,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
               field: id_ncm
-              ignore_values: ['85492100', '90189097', '90189097', '90189097']
               config:
                 where: __most_recent_year_month__
       - name: id_unidade
@@ -155,20 +217,53 @@ models:
                 where: __most_recent_year_month__
       - name: sigla_uf_ncm
         description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosul
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [EX]
+              config:
+                where: __most_recent_year_month__
       - name: id_via
         description: ID Via de Transporte
       - name: id_urf
         description: ID da URF de embarque/desembarque
       - name: quantidade_estatistica
         description: Quantidade Estatística
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: peso_liquido_kg
         description: Peso Líquido
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: valor_fob_dolar
         description: Valor Livre a Bordo
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
+                severity: warn
       - name: valor_frete
         description: Valor do Frete
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: valor_seguro
         description: Valor do Seguro
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
   - name: br_me_comex_stat__ncm_exportacao
     description: Base de dados detalhada de exportação por NCM.
     tests:
@@ -183,6 +278,15 @@ models:
             - id_urf
           config:
             where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
+          config:
+            where: __most_recent_year_month__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_pais, id_via, id_urf]
+          dictionary_model: ref('br_me_comex_stat__dicionario')
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -194,7 +298,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
               field: id_ncm
-              ignore_values: ['85492100', '90189097', '90189097', '90189097']
               config:
                 where: __most_recent_year_month__
       - name: id_unidade
@@ -217,17 +320,40 @@ models:
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf_ncm
-        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosu
+        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosul
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              ignore_values: [EX]
+              config:
+                where: __most_recent_year_month__
       - name: id_via
         description: ID Via de Transporte
       - name: id_urf
         description: ID da URF de embarque/desembarque
       - name: quantidade_estatistica
         description: Quantidade Estatística
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: peso_liquido_kg
         description: Peso Líquido
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
       - name: valor_fob_dolar
         description: Valor Livre a Bordo
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: __most_recent_year_month__
+                severity: warn
   - name: br_me_comex_stat__dicionario
     description: Dicionário para tradução dos códigos do conjunto br_me_comex_stat.
       Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
@@ -239,11 +365,23 @@ models:
             - nome_coluna
             - chave
             - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.90
     columns:
       - name: id_tabela
         description: ID da tabela
+        tests:
+          - accepted_values:
+              values:
+                - municipio_exportacao
+                - municipio_importacao
+                - ncm_exportacao
+                - ncm_importacao
       - name: nome_coluna
         description: Nome da coluna
+        tests:
+          - accepted_values:
+              values: [id_pais, id_via, id_urf]
       - name: chave
         description: Chave
       - name: cobertura_temporal

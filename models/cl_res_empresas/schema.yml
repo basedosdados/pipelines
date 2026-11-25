@@ -1,0 +1,127 @@
+---
+version: 2
+models:
+  - name: cl_res_empresas__sociedad
+    description: >
+      Sociedades y empresas constituidas bajo el Régimen Simplificado de la Ley
+      20.659 ("Tu Empresa en un Día") e inscritas en el Registro de Empresas y
+      Sociedades, desde la entrada en vigencia del régimen en mayo de 2013. Cada
+      registro corresponde a una sociedad constituida e identificada por su RUT,
+      con su razón social, tipo societario, capital declarado, fechas del trámite
+      y los domicilios tributario y social a nivel de comuna. La fuente publica
+      únicamente las constituciones: las modificaciones, disoluciones,
+      migraciones y anotaciones que el Registro también tramita no están
+      incluidas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_actuacion]
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [rut]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_sociedad]
+          dictionary_model: ref('cl_res_empresas__dicionario')
+    columns:
+      - name: ano
+        description: >
+          Año de aprobación de la constitución por el Servicio de Impuestos Internos
+        tests: [not_null]
+      - name: mes
+        description: >
+          Mes de aprobación de la constitución por el Servicio de Impuestos
+          Internos, de 1 a 12
+        tests: [not_null]
+      - name: id_region_tributaria
+        description: >
+          Código CUT de la región del domicilio tributario de la sociedad
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_comuna_tributaria
+        description: >
+          Código CUT de la comuna del domicilio tributario de la sociedad
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: id_region_social
+        description: >
+          Código CUT de la región del domicilio social de la sociedad
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_comuna_social
+        description: >
+          Código CUT de la comuna del domicilio social de la sociedad
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: rut
+        description: >
+          Rol Único Tributario de la sociedad, con dígito verificador
+        tests: [not_null]
+      - name: id_actuacion
+        description: >
+          Identificador de la actuación en el Registro de Empresas y Sociedades
+        tests: [not_null]
+      - name: razon_social
+        description: >
+          Razón social de la sociedad tal como fue inscrita
+      - name: tipo_sociedad
+        description: >
+          Tipo societario bajo el que se constituye la sociedad
+        tests: [not_null]
+      - name: tipo_actuacion
+        description: >
+          Tipo de actuación registrada
+      - name: fecha_actuacion
+        description: >
+          Fecha de la primera firma de la actuación
+      - name: fecha_registro
+        description: >
+          Fecha de la última firma que completa la inscripción en el Registro
+      - name: fecha_aprobacion_sii
+        description: >
+          Fecha de aprobación de la constitución por el Servicio de Impuestos Internos
+      - name: capital
+        description: >
+          Capital declarado en la constitución de la sociedad, en pesos chilenos
+          nominales de la fecha de constitución
+  - name: cl_res_empresas__dicionario
+    description: >
+      Diccionario de las columnas codificadas del conjunto cl_res_empresas.
+      Cubre tipo_sociedad de la tabla sociedad, con los ocho tipos societarios
+      admitidos por el Régimen Simplificado de la Ley 20.659.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: >
+          Nombre de la tabla del conjunto a la que corresponde la clave
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nombre de la columna a la que corresponde la clave
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor de la clave tal como aparece almacenado en la columna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal en la que la clave tiene el significado indicado
+      - name: valor
+        description: >
+          Significado de la clave
+        tests: [not_null]

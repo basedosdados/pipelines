@@ -2,7 +2,10 @@
 version: 2
 models:
   - name: br_rj_isp_estatisticas_seguranca__evolucao_mensal_cisp
-    description: Série histórica mensal por área de delegacia desde 01/2003
+    description: >-
+      Série histórica mensal por área de delegacia desde 01/2003.
+      Exception em id_municipio - códigos 9999994 e 9999999 são placeholders
+      do ISP e não existem no diretório IBGE.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes, id_cisp]
@@ -50,7 +53,9 @@ models:
                 - 999999
                 - 9999996
                 - 999994
+                - 9999994
                 - 9999995
+                - 9999999
       - name: regiao
         description: Região do Rio de Janeiro
       - name: quantidade_homicidio_doloso

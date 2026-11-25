@@ -1,0 +1,24 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de publicação do edital do pregão,2000(1)2023,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada da data correspondente",,Year of publication of the reverse auction notice,Año de publicación del pliego del pregón
+id_compra,STRING,Identificador do pregão no SIASG,,no,,,no,"Chave primária da tabela. Junta com a tabela licitacao, embora pregões sem data de publicação não apareçam lá",id_compra,Identifier of the reverse auction in SIASG,Identificador del pregón en el SIASG
+numero,STRING,Número do pregão,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,numero,Number of the reverse auction,Número del pregón
+codigo_uasg,STRING,Código da UASG responsável pelo pregão,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08. O nome da unidade está em nome_uasg,co_uasg,Code of the UASG running the reverse auction,Código de la UASG responsable del pregón
+nome_uasg,STRING,Nome da UASG responsável pelo pregão,,no,,,no,,no_ausg,Name of the UASG running the reverse auction,Nombre de la UASG responsable del pregón
+codigo_orgao,STRING,Código do órgão responsável pelo pregão,,no,,,no,,co_orgao,Code of the body running the reverse auction,Código del órgano responsable del pregón
+nome_orgao,STRING,Nome do órgão responsável pelo pregão,,no,,,no,,no_orgao,Name of the body running the reverse auction,Nombre del órgano responsable del pregón
+numero_processo,STRING,Número do processo administrativo do pregão,,no,,,no,,co_processo,Administrative case number of the reverse auction,Número del proceso administrativo del pregón
+numero_portaria,STRING,Número da portaria que designou o pregoeiro,,no,,,no,,co_portaria,Number of the order appointing the auctioneer,Número de la resolución que designó al pregonero
+situacao_pregao,STRING,"Situação do pregão, como aberto, homologado, revogado ou anulado",,no,,,no,,ds_situacao_pregao,"Status of the reverse auction, such as open, awarded, revoked or annulled","Situación del pregón, como abierto, homologado, revocado o anulado"
+tipo_pregao,STRING,"Forma de realização do pregão, eletrônico ou presencial",,no,,,no,,ds_tipo_pregao,"How the reverse auction was run, electronic or in person","Forma de realización del pregón, electrónico o presencial"
+tipo_pregao_compra,STRING,Sistema de compra do pregão,,yes,,,no,"SISPP preço praticado, SISRP registro de preços",ds_tipo_pregao_compra,Purchasing system of the reverse auction,Sistema de compra del pregón
+objeto,STRING,Descrição do objeto do pregão,,no,,,no,,tx_objeto,Description of the reverse auction's subject matter,Descripción del objeto del pregón
+valor_estimado_total,FLOAT64,Valor total estimado do pregão,,no,,BRL,no,,valor_estimado_total,Total estimated value of the reverse auction,Valor total estimado del pregón
+valor_homologado_total,FLOAT64,Valor total homologado do pregão,,no,,BRL,no,,valor_homologado_total,Total awarded value of the reverse auction,Valor total homologado del pregón
+indicador_pertence_14133,BOOLEAN,Indica se o pregão foi realizado sob a Lei 14.133/2021,,no,,,no,,pertence14133,Whether the reverse auction was run under Law 14.133/2021,Indica si el pregón se realizó bajo la Ley 14.133/2021
+data_portaria,DATE,Data da portaria que designou o pregoeiro,,no,,,no,,dt_portaria,Date of the order appointing the auctioneer,Fecha de la resolución que designó al pregonero
+data_edital,DATE,Data de publicação do edital do pregão,,no,,,no,,dt_data_edital,Date the reverse auction notice was published,Fecha de publicación del pliego del pregón
+data_inicio_proposta,DATETIME,Data e hora de abertura do prazo de propostas,,no,,,no,,dt_inicio_proposta,Timestamp when the proposal window opened,Fecha y hora de apertura del plazo de propuestas
+data_fim_proposta,DATETIME,Data e hora de encerramento do prazo de propostas,,no,,,no,,dt_fim_proposta,Timestamp when the proposal window closed,Fecha y hora de cierre del plazo de propuestas
+data_encerramento,DATETIME,Data e hora de encerramento do pregão,,no,,,no,,dt_encerramento,Timestamp when the reverse auction closed,Fecha y hora de cierre del pregón
+data_resultado,DATETIME,Data e hora do resultado do pregão,,no,,,no,,dt_resultado,Timestamp of the reverse auction's result,Fecha y hora del resultado del pregón
+data_alteracao,DATETIME,Data e hora da última alteração do registro,,no,,,no,,dt_alteracao,Timestamp of the last change to the record,Fecha y hora de la última modificación del registro

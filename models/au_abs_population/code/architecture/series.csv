@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+series_id,STRING,ABS series identifier uniquely identifying a time series across ABS releases,,no,,,no,Primary key; stable ABS-wide identifier such as A2133244X,Series ID
+description,STRING,Full description of the data item as published by the ABS,,no,,,no,,Data Item Description
+unit,STRING,Unit of measure of the series as published by the ABS,,no,,,no,"Persons, Number, 000 or Percent",Unit
+frequency,STRING,"Publication frequency of the series, Quarter or Annual",,no,,,no,,Frequency
+source_catalogue,STRING,ABS catalogue number the series is published under,,no,,,no,3101.0 for the population estimates and 3222.0 for the projections,Index
+source_table,STRING,Title of the source ABS table the series is published in,,no,,,no,,Index
+series_start,DATE,Date of the first observation of the series,,no,,,no,,Series Start
+series_end,DATE,Date of the last observation of the series,,no,,,no,,Series End

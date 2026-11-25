@@ -1,0 +1,482 @@
+---
+version: 2
+models:
+  - name: fr_meteofrance__synop
+    description: >
+      Observações meteorológicas de superfície a cada três horas nas estações
+      SYNOP da França metropolitana e do ultramar, desde 1996. Uma linha por
+      estação e horário de medição. As unidades são as da fonte: temperaturas em
+      kelvin, pressões em pascal, precipitação em milímetros, vento em metros por
+      segundo. Retransmissões e correções da mesma medição foram desduplicadas
+      mantendo a inserção mais recente. Várias colunas são legitimamente esparsas,
+      por dependerem da instrumentação da estação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date, heure, indicatif_omm]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_fr__
+          # Measured against the LATEST partition, which is what the test now
+          # scans — not the full history. Scoping to 2026 revealed seven more
+          # sparse columns, including phenomene_special_1..4, which the source
+          # has stopped populating entirely.
+          ignore_values:
+            - geopotentiel
+            - hauteur_base_nuage_4
+            - hauteur_neige_fraiche
+            - methode_mesure_tw
+            - nebulosite_couche_4
+            - niveau_barometrique
+            - periode_mesure_neige_fraiche
+            - phenomene_special_1
+            - phenomene_special_2
+            - phenomene_special_3
+            - phenomene_special_4
+            - temperature_thermometre_mouille
+            - temps_passe_2
+            - type_nuage_2
+            - type_nuage_3
+            - type_nuage_4
+      - custom_dictionary_coverage:
+          config:
+            where: __most_recent_year_fr__
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary:
+            - type_tendance_barometrique
+            - temps_present
+            - temps_passe_1
+            - temps_passe_2
+            - type_nuages_etage_inferieur
+            - type_nuages_etage_moyen
+            - type_nuages_etage_superieur
+            - methode_mesure_tw
+            - etat_sol
+            - type_nuage_1
+            - type_nuage_2
+            - type_nuage_3
+            - type_nuage_4
+    columns:
+      - name: annee
+        description: Ano da observação, em tempo universal coordenado (UTC)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mois
+        description: Mês da observação, em tempo universal coordenado (UTC)
+        tests: [not_null]
+      - name: date
+        description: Data da observação, em tempo universal coordenado (UTC)
+        tests: [not_null]
+      - name: heure
+        description: Hora da observação, em tempo universal coordenado (UTC)
+        tests: [not_null]
+      - name: indicatif_omm
+        description: Indicativo OMM da estação, de cinco dígitos
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('fr_meteofrance__station_synop')
+              field: indicatif_omm
+  - name: fr_meteofrance__station_synop
+    description: >
+      Cadastro das estações que aparecem no arquivo SYNOP. Uma linha por estação.
+      A rede publicada passou de 60 para 190 estações em 2025, o que explica o
+      intervalo de observação curto de boa parte das linhas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [indicatif_omm]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: indicatif_omm
+        description: Indicativo OMM da estação, de cinco dígitos
+        tests: [not_null]
+      - name: nom_station
+        description: Nome usual da estação
+        tests: [not_null]
+      - name: geolocalisation
+        description: Ponto geográfico da estação, em WGS 84
+        tests: [not_null]
+  - name: fr_meteofrance__station_climatologique
+    description: >
+      Cadastro dos postos meteorológicos que possuem ficha climatológica
+      publicada. Uma linha por posto. O código de departamento segue a
+      codificação da Météo-France, que atribui 20 à Córsega em vez de 2A e 2B e
+      inclui coletividades de além-mar ausentes do Code officiel géographique.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_poste]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests: [not_null]
+      - name: nom_poste
+        description: Nome usual do posto
+        tests: [not_null]
+      - name: id_departement
+        description: Código do departamento ou da coletividade ultramarina do posto
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__departement')
+              field: id_departamento
+              ignore_values: ['20', '984', '986', '987', '988']
+      - name: geolocalisation
+        description: Ponto geográfico do posto, em WGS 84
+        tests: [not_null]
+  - name: fr_meteofrance__normale_climatologique
+    description: >
+      Normais climatológicas de 1991 a 2020 e recordes absolutos por posto
+      meteorológico, em formato longo. Uma linha por posto, indicador e período,
+      sendo o período um mês de 01 a 12 ou o valor anual. A unidade de cada valor
+      está na coluna unite, porque os indicadores têm unidades diferentes. As
+      colunas de recorde só estão preenchidas para os indicadores que são
+      recordes, e não para as médias.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_poste, indicateur, periode]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary: [indicateur, periode, unite]
+    columns:
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('fr_meteofrance__station_climatologique')
+              field: numero_poste
+      - name: indicateur
+        description: Código do indicador climatológico
+        tests: [not_null]
+      - name: periode
+        description: >
+          Período do indicador: mês de 01 a 12, ou annee para o valor anual
+        tests: [not_null]
+      - name: unite
+        description: Unidade de medida do valor
+        tests: [not_null]
+  - name: fr_meteofrance__dicionario
+    description: >
+      Dicionário das colunas codificadas do conjunto. Cobre as tabelas de código
+      da Organização Meteorológica Mundial usadas nas observações SYNOP e os
+      códigos de indicador, período e unidade das normais climatológicas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: Chave, isto é, o valor codificado na coluna
+        tests: [not_null]
+      - name: valor
+        description: Valor, isto é, o significado da chave
+        tests: [not_null]
+  - name: fr_meteofrance__poste
+    description: >
+      Cadastro dos postos da base climatológica da Météo-France, muito mais amplo
+      que o das fichas climatológicas: cobre todo posto que já registrou uma
+      observação diária ou mensal, desde a abertura. Uma linha por posto, com o
+      número de oito dígitos, o nome usual, o departamento, as coordenadas e a
+      altitude. Um posto pode ser deslocado ao longo do tempo; o cadastro guarda
+      a posição mais recente publicada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_poste]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests: [not_null]
+      - name: nom_poste
+        description: Nome usual do posto
+        tests: [not_null]
+      - name: id_departement
+        description: Código do departamento ou da coletividade ultramarina do posto
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__departement')
+              field: id_departamento
+              # Météo-France's own coding, not the INSEE COG: 20 for Corsica
+              # rather than 2A/2B, 99 for stations outside France, and five
+              # overseas codes the directory does not carry — including 975
+              # (Saint-Pierre-et-Miquelon), which is a genuine gap in
+              # br_bd_diretorios_fr rather than a Météo-France invention.
+              # 771 of 14,746 postes.
+              ignore_values: ['20', '99', '975', '984', '985', '986', '987', '988']
+      - name: geolocalisation
+        description: Ponto geográfico do posto, em WGS 84
+        tests: [not_null]
+  - name: fr_meteofrance__quotidienne
+    description: >
+      Série climatológica diária da Météo-France, por posto, desde a abertura de
+      cada um. Uma linha por posto e dia, com precipitação, temperatura, vento,
+      umidade, insolação, radiação, neve, temperatura do solo e do mar, e os
+      indicadores de ocorrência de fenômenos (neve, nevoeiro, trovoada, granizo,
+      orvalho, geada, relâmpago). Cada medição vem acompanhada de um código de
+      qualidade. As unidades são as da fonte. Os arquivos RR-T-Vent e
+      autres-parametres da fonte são unidos por junção externa em
+      (numero_poste, date).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date, numero_poste]
+          config:
+            where: __most_recent_year_fr__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_fr__
+          # Measured against the latest partition, which is what the test scans.
+          ignore_values:
+            - direction_rafale_maximale_2m
+            - duree_humectation
+            - hauteur_base_sous_300m
+            - hauteur_neige_fraiche
+            - heure_rafale_maximale_2m
+            - indice_uv_maximal
+            - nebulosite_maximale_sous_300m
+            - occurrence_eclair
+            - occurrence_grele
+            - occurrence_gresil
+            - occurrence_rosee
+            - occurrence_sol_enneige
+            - occurrence_verglas
+            - qualite_direction_rafale_maximale_2m
+            - qualite_duree_humectation
+            - qualite_hauteur_base_sous_300m
+            - qualite_hauteur_neige_fraiche
+            - qualite_heure_rafale_maximale_2m
+            - qualite_indice_uv_maximal
+            - qualite_nebulosite_maximale_sous_300m
+            - qualite_occurrence_eclair
+            - qualite_occurrence_grele
+            - qualite_occurrence_gresil
+            - qualite_occurrence_rosee
+            - qualite_occurrence_sol_enneige
+            - qualite_occurrence_verglas
+            - qualite_rafale_maximale_2m
+            - qualite_rayonnement_diffus
+            - qualite_rayonnement_direct
+            - qualite_rayonnement_infrarouge
+            - qualite_rayonnement_ultraviolet
+            - qualite_temperature_mer_maximale
+            - qualite_temperature_mer_minimale
+            - qualite_vitesse_vent_moyenne_2m
+            - rafale_maximale_2m
+            - rayonnement_diffus
+            - rayonnement_direct
+            - rayonnement_infrarouge
+            - rayonnement_ultraviolet
+            - temperature_mer_maximale
+            - temperature_mer_minimale
+            - vitesse_vent_moyenne_2m
+      - custom_dictionary_coverage:
+          config:
+            where: __most_recent_year_fr__
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary:
+            - qualite_precipitation
+            - qualite_temperature_minimale
+            - qualite_heure_temperature_minimale
+            - qualite_temperature_maximale
+            - qualite_heure_temperature_maximale
+            - qualite_temperature_moyenne
+            - qualite_temperature_moyenne_min_max
+            - qualite_amplitude_thermique
+            - qualite_temperature_minimale_sol_10cm
+            - qualite_temperature_minimale_sol_50cm
+            - qualite_duree_gel
+            - qualite_vitesse_vent_moyenne_10m
+            - qualite_vitesse_vent_moyenne_2m
+            - qualite_vitesse_vent_maximale_moyennee_10m
+            - qualite_direction_vent_maximal_moyenne_10m
+            - qualite_heure_vitesse_vent_maximale_moyennee_10m
+            - qualite_rafale_maximale_10m
+            - qualite_direction_rafale_maximale_10m
+            - qualite_heure_rafale_maximale_10m
+            - qualite_rafale_maximale_2m
+            - qualite_direction_rafale_maximale_2m
+            - qualite_heure_rafale_maximale_2m
+            - qualite_rafale_maximale_3s_10m
+            - qualite_direction_rafale_maximale_3s_10m
+            - qualite_heure_rafale_maximale_3s_10m
+            - qualite_duree_precipitation
+            - qualite_duree_humectation
+            - qualite_pression_mer_moyenne
+            - qualite_pression_mer_minimale
+            - qualite_duree_insolation
+            - qualite_rayonnement_global
+            - qualite_rayonnement_diffus
+            - qualite_rayonnement_direct
+            - qualite_rayonnement_infrarouge
+            - qualite_rayonnement_ultraviolet
+            - qualite_indice_uv_maximal
+            - qualite_fraction_insolation
+            - qualite_humidite_minimale
+            - qualite_heure_humidite_minimale
+            - qualite_humidite_maximale
+            - qualite_heure_humidite_maximale
+            - qualite_humidite_moyenne
+            - qualite_duree_humidite_inf_40
+            - qualite_duree_humidite_sup_80
+            - qualite_tension_vapeur_moyenne
+            - qualite_evapotranspiration_penman_monteith
+            - qualite_evapotranspiration_point_grille
+            - qualite_hauteur_neige_fraiche
+            - qualite_hauteur_neige_maximale
+            - qualite_hauteur_neige_06h
+            - occurrence_neige
+            - qualite_occurrence_neige
+            - occurrence_brouillard
+            - qualite_occurrence_brouillard
+            - occurrence_orage
+            - qualite_occurrence_orage
+            - occurrence_gresil
+            - qualite_occurrence_gresil
+            - occurrence_grele
+            - qualite_occurrence_grele
+            - occurrence_rosee
+            - qualite_occurrence_rosee
+            - occurrence_verglas
+            - qualite_occurrence_verglas
+            - occurrence_sol_enneige
+            - qualite_occurrence_sol_enneige
+            - occurrence_gelee_blanche
+            - qualite_occurrence_gelee_blanche
+            - occurrence_fumee
+            - qualite_occurrence_fumee
+            - occurrence_brume
+            - qualite_occurrence_brume
+            - occurrence_eclair
+            - qualite_occurrence_eclair
+            - qualite_nebulosite_maximale_sous_300m
+            - qualite_hauteur_base_sous_300m
+            - qualite_temperature_mer_minimale
+            - qualite_temperature_mer_maximale
+    columns:
+      - name: annee
+        description: Ano da observação
+        tests: [not_null]
+      - name: mois
+        description: Mês da observação
+        tests: [not_null]
+      - name: date
+        description: Data da observação
+        tests: [not_null]
+      - name: numero_poste
+        description: Número Météo-France do posto de observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fr_meteofrance__poste')
+              field: numero_poste
+              config:
+                where: __most_recent_year_fr__
+  - name: fr_meteofrance__mensuelle
+    description: >
+      Série climatológica mensal da Météo-France, por posto, desde a abertura de
+      cada um. Uma linha por posto e mês, com precipitação, temperatura, vento,
+      umidade, insolação, radiação, neve e as contagens de dias que ultrapassam
+      cada limiar. Cada medição vem acompanhada de um código de qualidade. As
+      unidades são as da fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [annee, mois, numero_poste]
+          config:
+            where: __most_recent_year_fr__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_fr__
+          # Measured against the latest partition, which is what the test scans.
+          ignore_values:
+            - hauteur_neige_fraiche_maximale
+            - hauteur_neige_fraiche_totale
+            - jour_hauteur_neige_fraiche_maximale
+            - nombre_jours_grel
+            - nombre_jours_hneigef1
+            - nombre_jours_hneigef10
+            - nombre_jours_hneigef5
+            - nombre_jours_solng
+            - precipitation_totale_estimee
+            - qualite_hauteur_neige_fraiche_maximale
+            - qualite_hauteur_neige_fraiche_totale
+            - qualite_rayonnement_diffus_total
+            - qualite_rayonnement_direct_total
+            - rayonnement_diffus_total
+            - rayonnement_direct_total
+            - temperature_maximale_moyenne_estimee
+            - temperature_minimale_moyenne_estimee
+      - custom_dictionary_coverage:
+          config:
+            where: __most_recent_year_fr__
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary:
+            - qualite_precipitation_totale
+            - qualite_precipitation_quotidienne_maximale
+            - qualite_pression_mer_moyenne
+            - qualite_pression_mer_minimale_absolue
+            - qualite_temperature_maximale_moyenne
+            - qualite_temperature_maximale_absolue
+            - qualite_temperature_maximale_la_plus_basse
+            - qualite_temperature_minimale_moyenne
+            - qualite_temperature_minimale_absolue
+            - qualite_temperature_minimale_la_plus_haute
+            - qualite_amplitude_thermique_moyenne
+            - qualite_amplitude_thermique_absolue
+            - qualite_temperature_moyenne_min_max
+            - qualite_temperature_moyenne
+            - qualite_temperature_moyenne_min_max_minimale
+            - qualite_temperature_moyenne_min_max_maximale
+            - qualite_humidite_minimale_absolue
+            - qualite_humidite_maximale_absolue
+            - qualite_humidite_moyenne
+            - qualite_tension_vapeur_moyenne
+            - qualite_evapotranspiration_totale
+            - qualite_rafale_maximale_absolue_10m
+            - qualite_direction_rafale_maximale_absolue_10m
+            - qualite_rafale_maximale_3s_absolue_10m
+            - qualite_direction_rafale_maximale_3s_absolue_10m
+            - qualite_vitesse_vent_maximale_moyennee_absolue_10m
+            - qualite_direction_vent_maximal_moyenne_absolue_10m
+            - qualite_vitesse_vent_moyenne_10m
+            - qualite_duree_insolation_totale
+            - qualite_rayonnement_global_total
+            - qualite_rayonnement_diffus_total
+            - qualite_rayonnement_direct_total
+            - qualite_hauteur_neige_fraiche_totale
+            - qualite_hauteur_neige_fraiche_maximale
+            - qualite_hauteur_neige_moyenne
+            - qualite_hauteur_neige_maximale
+    columns:
+      - name: annee
+        description: Ano da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mois
+        description: Mês da observação
+        tests: [not_null]
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('fr_meteofrance__poste')
+              field: numero_poste
+              config:
+                where: __most_recent_year_fr__

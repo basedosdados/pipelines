@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partição,
+mes,INT64,Mês de referência do trimestre (3 março; 6 junho; 9 setembro; 12 dezembro),,no,br_bd_diretorios_data_tempo.mes:mes,,no,,
+id_relatorio,STRING,Código do relatório do IF.data,,no,,,no,"Nulo quando a rubrica não é referenciada por nenhum relatório da competência; o nome está em nome_relatorio, por isso não há dicionário",id
+id_coluna,STRING,Código da rubrica reportada,,no,,,no,Liga a relatorio,lid
+tipo_consolidado,STRING,Tipo de consolidado a que o relatório se aplica,,yes,,,no,Cada relatório se aplica a exatamente um tipo de consolidado; o conjunto de tipos muda ao longo da série,s
+nome_relatorio,STRING,Nome do relatório em português,,no,,,no,,n
+nome_coluna,STRING,Nome da rubrica em português,,no,,,no,,n
+nome_coluna_ingles,STRING,Nome da rubrica em inglês,,no,,,no,Publicado pela própria fonte,ni
+ordem_coluna,INT64,Posição da rubrica no relatório publicado,,no,,,no,Preserva a ordem de exibição do IF.data,o

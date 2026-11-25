@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Election year,,no,,year,no,,election_year
+id_constituency,STRING,Electoral constituency (Wahlkreis) identifier,,no,br_bd_diretorios_de.constituency:id_constituency,,no,,wkr_nr
+constituency_name,STRING,Electoral constituency (Wahlkreis) name,,no,,,no,,wkr_name
+id_state,STRING,"State identifier, 2-digit Land code",,no,br_bd_diretorios_de.state:id_state,,no,,state
+ballot,STRING,"Ballot type: first_vote (Erststimme, candidate) or second_vote (Zweitstimme, party list)",,no,,,no,,stimme
+boundary_change,STRING,"2025 constituency boundary status relative to 2021: unchanged, redrawn, or new",,no,,,no,,boundary_change
+eligible_voters,INT64,Number of eligible voters (Wahlberechtigte),,no,,person,no,,eligible_voters
+valid_votes,INT64,Number of valid votes (gültige Stimmen); counts votes not ballots under multi-vote systems,,no,,vote,no,,valid_votes
+party,STRING,"Party or list, GERDA normalized name",,no,br_bd_diretorios_de.party:id_party,,no,,party
+vote_share,FLOAT64,"Party vote share as a percentage (0-100); denominator is number_voters for federal and European, valid_votes otherwise",,no,,percent,no,,vote_share

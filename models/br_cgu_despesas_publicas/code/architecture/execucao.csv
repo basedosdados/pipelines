@@ -1,0 +1,49 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano do lançamento da despesa,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de partição, derivada de 'Ano e mês do lançamento' (formato AAAA/MM)",Ano e mês do lançamento
+mes,INT64,Mês do lançamento da despesa,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,"Coluna de partição, derivada de 'Ano e mês do lançamento' (formato AAAA/MM)",Ano e mês do lançamento
+id_orgao_superior,STRING,"Código do órgão superior responsável pela despesa, em geral um ministério",,no,,,no,,Código Órgão Superior
+nome_orgao_superior,STRING,Nome do órgão superior responsável pela despesa,,no,,,no,,Nome Órgão Superior
+id_orgao_subordinado,STRING,Código do órgão subordinado responsável pela despesa,,no,,,no,,Código Órgão Subordinado
+nome_orgao_subordinado,STRING,Nome do órgão subordinado responsável pela despesa,,no,,,no,,Nome Órgão Subordinado
+id_unidade_gestora,STRING,"Código da unidade gestora, a unidade administrativa que executa o gasto no SIAFI",,no,,,no,Assume o sentinela '-3' quando a unidade gestora não é identificada; o nome correspondente é 'Inválido',Código Unidade Gestora
+nome_unidade_gestora,STRING,Nome da unidade gestora,,no,,,no,Assume 'Inválido' quando a unidade gestora não é identificada,Nome Unidade Gestora
+id_gestao,STRING,"Código da gestão, que identifica o conjunto orçamentário-financeiro a que a unidade gestora pertence",,no,,,no,,Código Gestão
+nome_gestao,STRING,Nome da gestão,,no,,,no,,Nome Gestão
+id_unidade_orcamentaria,STRING,"Código da unidade orçamentária, menor nível da estrutura administrativa a que se aloca a dotação",,no,,,no,,Código Unidade Orçamentária
+nome_unidade_orcamentaria,STRING,Nome da unidade orçamentária,,no,,,no,,Nome Unidade Orçamentária
+id_funcao,STRING,Código da função de governo em que a despesa foi classificada,,no,,,no,,Código Função
+nome_funcao,STRING,Nome da função de governo em que a despesa foi classificada,,no,,,no,,Nome Função
+id_subfuncao,STRING,"Código da subfunção, que detalha a função em áreas de atuação mais específicas",,no,,,no,O cabeçalho da fonte traz a grafia incorreta 'Código Subfução',Código Subfução
+nome_subfuncao,STRING,Nome da subfunção,,no,,,no,,Nome Subfunção
+id_programa_orcamentario,STRING,"Código do programa orçamentário, instrumento do plano plurianual que articula ações para um objetivo",,no,,,no,,Código Programa Orçamentário
+nome_programa_orcamentario,STRING,Nome do programa orçamentário,,no,,,no,,Nome Programa Orçamentário
+id_acao,STRING,"Código da ação orçamentária, menor unidade de programação que gera bem ou serviço",,no,,,no,Alfanumérico: assume valores como '20RL' além de códigos puramente numéricos,Código Ação
+nome_acao,STRING,Nome da ação orçamentária,,no,,,no,,Nome Ação
+id_plano_orcamentario,STRING,"Código do plano orçamentário, subdivisão da ação usada no detalhamento gerencial da despesa",,no,,,no,,Código Plano Orçamentário
+nome_plano_orcamentario,STRING,Nome do plano orçamentário,,no,,,no,,Plano Orçamentário
+id_programa_governo,STRING,Código do programa de governo associado à despesa,,no,,,no,Assume o sentinela '-1' quando não há programa de governo associado; '00' predomina,Código Programa Governo
+nome_programa_governo,STRING,Nome do programa de governo associado à despesa,,no,,,no,Quase sempre 'Sem informação'; valores reais são raros,Nome Programa Governo
+sigla_uf,STRING,Sigla da unidade da federação do localizador da despesa,,no,br_bd_diretorios_brasil.uf:sigla,,no,Vazia em cerca de dois terços das linhas: só é preenchida quando o localizador da ação tem recorte estadual,UF
+nome_municipio,STRING,Nome do município do localizador da despesa,,no,,,no,"Vazia em cerca de 99% das linhas. A fonte publica o nome, não o código IBGE, então a coluna não é ligada ao diretório de municípios",Município
+id_subtitulo,STRING,"Código do subtítulo, que identifica a localização física ou o recorte da ação orçamentária",,no,,,no,,Código Subtítulo
+nome_subtitulo,STRING,Nome do subtítulo,,no,,,no,,Nome Subtítulo
+id_localizador,STRING,Código do localizador do gasto dentro da ação orçamentária,,no,,,no,,Código Localizador
+nome_localizador,STRING,Nome do localizador do gasto,,no,,,no,,Nome Localizador
+sigla_localizador,STRING,Sigla do localizador do gasto,,no,,,no,Assume o sentinela '-1' em cerca de 99% das linhas,Sigla Localizador
+descricao_complementar_localizador,STRING,Descrição complementar do localizador do gasto,,no,,,no,Assume 'Sem informação' em cerca de 99% das linhas,Descrição Complementar Localizador
+id_autor_emenda,STRING,Código do autor da emenda parlamentar que originou a despesa,,no,,,no,Vazia em cerca de 97% das linhas: só é preenchida quando a despesa decorre de emenda parlamentar,Código Autor Emenda
+nome_autor_emenda,STRING,Nome do autor da emenda parlamentar que originou a despesa,,no,,,no,Assume 'SEM EMENDA' quando não há emenda e 'Informação do autor não disponível' quando o autor não foi informado,Nome Autor Emenda
+id_categoria_economica,STRING,"Código da categoria econômica da despesa, que separa despesas correntes de despesas de capital",,no,,,no,,Código Categoria Econômica
+nome_categoria_economica,STRING,Nome da categoria econômica da despesa,,no,,,no,,Nome Categoria Econômica
+id_grupo_despesa,STRING,"Código do grupo de natureza da despesa, por exemplo pessoal e encargos sociais, juros da dívida, investimentos",,no,,,no,,Código Grupo de Despesa
+nome_grupo_despesa,STRING,Nome do grupo de natureza da despesa,,no,,,no,,Nome Grupo de Despesa
+id_elemento_despesa,STRING,"Código do elemento de despesa, que identifica o objeto do gasto",,no,,,no,,Código Elemento de Despesa
+nome_elemento_despesa,STRING,Nome do elemento de despesa,,no,,,no,,Nome Elemento de Despesa
+id_modalidade_despesa,STRING,"Código da modalidade de aplicação, que indica se o gasto é direto ou por transferência a outro ente",,no,,,no,,Código Modalidade da Despesa
+nome_modalidade_despesa,STRING,Nome da modalidade de aplicação,,no,,,no,,Modalidade da Despesa
+valor_empenhado,FLOAT64,"Valor empenhado no mês, em reais correntes",,no,,brl,no,,Valor Empenhado (R$)
+valor_liquidado,FLOAT64,"Valor liquidado no mês, isto é, reconhecido como devido após a verificação da entrega, em reais correntes",,no,,brl,no,,Valor Liquidado (R$)
+valor_pago,FLOAT64,"Valor efetivamente pago no mês, em reais correntes",,no,,brl,no,,Valor Pago (R$)
+valor_restos_pagar_inscritos,FLOAT64,"Valor inscrito em restos a pagar, isto é, empenhado em exercício anterior e não pago até o seu encerramento, em reais correntes",,no,,brl,no,,Valor Restos a Pagar Inscritos (R$)
+valor_restos_pagar_cancelados,FLOAT64,"Valor de restos a pagar cancelado no mês, em reais correntes",,no,,brl,no,,Valor Restos a Pagar Cancelado (R$)
+valor_restos_pagar_pagos,FLOAT64,"Valor de restos a pagar efetivamente pago no mês, em reais correntes",,no,,brl,no,,Valor Restos a Pagar Pagos (R$)

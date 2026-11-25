@@ -32,6 +32,39 @@ models:
       - name: rank_cargo_partido
       - name: receita_partido
       - name: valor_total
+  - name: br_jota__eleicao_perfil_candidato
+    description: Descreve o perfil dos candidatos das eleições de 2022 e 2026
+    columns:
+      - name: ano
+      - name: sequencial
+      - name: ano_sequencial_candidato
+      - name: nome_urna
+      - name: sigla_partido
+      - name: cargo
+      - name: sigla_uf
+      - name: genero
+      - name: raca
+      - name: idade
+      - name: faixa_etaria
+  - name: br_jota__eleicao_prestacao_contas_candidato
+    description: Informações de prestação de contas no nível de candidato
+    columns:
+      - name: ano
+      - name: sequencial
+      - name: ano_sequencial_candidato
+      - name: nome_urna
+      - name: sigla_partido
+      - name: cargo
+      - name: sigla_uf
+      - name: genero
+      - name: raca
+      - name: idade
+      - name: faixa_etaria
+      - name: rank_cargo
+      - name: rank_partido
+      - name: rank_cargo_partido
+      - name: receita_partido
+      - name: valor_total
   # - name: br_jota__eleicao_prestacao_contas_candidato_2024
   #   description: Informações de prestação de contas no nível de candidato
   #   columns:

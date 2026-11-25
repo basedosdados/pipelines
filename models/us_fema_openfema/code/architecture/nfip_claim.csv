@@ -1,0 +1,86 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,Derived during cleaning: year of year_of_loss,yearOfLoss
+state_abbreviation,STRING,"Sigla de duas letras do estado, distrito ou território",,no,,,no,"Não vinculado ao diretório de estados, que é chaveado pelo código FIPS e não pela sigla; a integridade é verificada por teste dbt",state
+county_id,STRING,Código FIPS de cinco posições do condado,,no,diretorios_us.county:id_county,,no,Derivado na limpeza; nulo quando a fonte não identifica um condado,countyCode
+census_tract_id,STRING,Código de onze posições do setor censitário (census tract),,no,,,no,"Derivado dos onze primeiros dígitos de census_geoid. A vintage do código censitário não é documentada pela FEMA, portanto não há ligação com o diretório de setores censitários. Derived during cleaning: first 11 digits of census_geoid",
+census_block_group_id,STRING,Código de doze posições do grupo de quadras censitário (block group),,no,,,no,"Doze dígitos: estado, condado, setor censitário e grupo de quadras",censusGeoid
+claim_id,STRING,Identificador único do sinistro atribuído pela OpenFEMA,,no,,,no,,id
+date_of_loss,DATE,Data em que a água entrou pela primeira vez na edificação segurada,,no,,,no,,dateOfLoss
+agriculture_structure_indicator,BOOLEAN,Indica se o imóvel foi declarado como estrutura agrícola na proposta,,no,,,no,,agricultureStructureIndicator
+as_of_date,DATETIME,Data de vigência dos dados no arquivo: quando o registro foi criado ou atualizado pela última vez no sistema de origem,,no,,,no,,asOfDate
+basement_enclosure_crawlspace_type,STRING,"Tipo de porão, área fechada ou vão sanitário do imóvel segurado",,yes,,,no,,basementEnclosureCrawlspaceType
+policy_count,INT64,Número de unidades seguradas em situação ativa,,no,,,no,Contagem sem unidade de medida cadastrada no back-end,policyCount
+crs_class_code,STRING,"Classificação do Community Rating System usada para tarifar a apólice, que determina o desconto no prêmio",,yes,,,no,,crsClassCode
+elevated_building_indicator,BOOLEAN,Indica se o imóvel atende à definição de edificação elevada do NFIP,,no,,,no,,elevatedBuildingIndicator
+elevation_certificate_indicator,STRING,Indica se a apólice foi tarifada com Elevation Certificate,,yes,,,no,,elevationCertificateIndicator
+elevation_difference,INT64,Diferença em pés entre a elevação do piso mais baixo usado na tarifação e a cota de inundação base,,no,,foot,no,,elevationDifference
+base_flood_elevation,FLOAT64,"Cota de inundação base em pés, elevação com 1% de chance anual de ser atingida ou superada",,no,,foot,no,,baseFloodElevation
+rated_flood_zone,STRING,Zona de inundação do FIRM usada para tarifar o imóvel segurado,,yes,,,no,,ratedFloodZone
+house_of_worship_indicator,BOOLEAN,Indica se o imóvel foi declarado como templo religioso na proposta,,no,,,no,,houseWorship
+location_of_contents,STRING,Código que indica onde o conteúdo segurado está situado dentro da edificação,,yes,,,no,,locationOfContents
+lowest_adjacent_grade,FLOAT64,"Cota natural mais baixa adjacente à estrutura segurada antes de escavação ou aterro, em pés",,no,,foot,no,,lowestAdjacentGrade
+lowest_floor_elevation,FLOAT64,"Elevação em pés do piso mais baixo da edificação, incluindo porão, área fechada ou vão sanitário",,no,,foot,no,,lowestFloorElevation
+number_of_floors_in_insured_building,STRING,Código que indica o número de pavimentos da edificação segurada,,yes,,,no,,numberOfFloorsInTheInsuredBuilding
+non_profit_indicator,BOOLEAN,Indica se o imóvel foi declarado como pertencente a entidade sem fins lucrativos na proposta,,no,,,no,,nonProfitIndicator
+obstruction_type,STRING,Código que descreve o tipo de obstrução presente sob uma edificação elevada,,yes,,,no,,obstructionType
+occupancy_type,STRING,Código que indica o uso e o tipo de ocupação da estrutura segurada,,yes,,,no,,occupancyType
+original_construction_date,DATE,Data original de construção da edificação,,no,,,no,,originalConstructionDate
+original_nb_date,DATE,Data original de emissão da apólice de inundação,,no,,,no,,originalNBDate
+amount_paid_on_building_claim,FLOAT64,"Valor pago pelo sinistro da edificação, em dólares",,no,,usd,no,,amountPaidOnBuildingClaim
+amount_paid_on_contents_claim,FLOAT64,"Valor pago pelo sinistro do conteúdo, em dólares",,no,,usd,no,,amountPaidOnContentsClaim
+amount_paid_on_increased_cost_of_compliance_claim,FLOAT64,"Valor pago pela cobertura Increased Cost of Compliance, em dólares",,no,,usd,no,,amountPaidOnIncreasedCostOfComplianceClaim
+post_firm_construction_indicator,BOOLEAN,Indica se a construção começou após a publicação do FIRM,,no,,,no,,postFIRMConstructionIndicator
+rate_method,STRING,Código do método de tarifação aplicado à apólice,,yes,,,no,,rateMethod
+small_business_indicator_building,BOOLEAN,Indica se o segurado é uma pequena empresa,,no,,,no,,smallBusinessIndicatorBuilding
+total_building_insurance_coverage,INT64,"Importância segurada da edificação, em dólares inteiros",,no,,usd,no,,totalBuildingInsuranceCoverage
+total_contents_insurance_coverage,INT64,"Importância segurada do conteúdo, em dólares inteiros",,no,,usd,no,,totalContentsInsuranceCoverage
+primary_residence_indicator,BOOLEAN,Indica se a edificação é residência principal do segurado,,no,,,no,,primaryResidenceIndicator
+building_damage_amount,INT64,"Valor em dinheiro do dano à edificação principal, em dólares inteiros",,no,,usd,no,,buildingDamageAmount
+building_deductible_code,STRING,Código da franquia aplicável à edificação principal e às acessórias,,yes,,,no,,buildingDeductibleCode
+net_building_payment_amount,FLOAT64,"Valor líquido pago ao segurado pela edificação, descontadas as recuperações, em dólares",,no,,usd,no,,netBuildingPaymentAmount
+building_property_value,INT64,"Valor em dinheiro da edificação principal antes da inundação, estimado por regulador, em dólares inteiros",,no,,usd,no,,buildingPropertyValue
+cause_of_damage,STRING,Código do modo pelo qual o imóvel e o conteúdo foram danificados,,yes,,,no,,causeOfDamage
+condominium_coverage_type_code,STRING,Código do tipo de cobertura de condomínio contratada para a edificação,,yes,,,no,,condominiumCoverageTypeCode
+contents_damage_amount,INT64,"Valor em dinheiro do dano ao conteúdo, em dólares inteiros",,no,,usd,no,,contentsDamageAmount
+contents_deductible_code,STRING,Código da franquia aplicável ao conteúdo,,yes,,,no,,contentsDeductibleCode
+net_contents_payment_amount,FLOAT64,"Valor líquido pago ao segurado pelo conteúdo, descontadas as recuperações, em dólares",,no,,usd,no,,netContentsPaymentAmount
+contents_property_value,INT64,"Valor em dinheiro do conteúdo antes da inundação, estimado por regulador, em dólares inteiros",,no,,usd,no,,contentsPropertyValue
+disaster_assistance_coverage_required,STRING,Código da agência federal que exigiu a contratação do seguro de inundação como condição de auxílio em desastre,,yes,,,no,,disasterAssistanceCoverageRequired
+event_designation_number,STRING,"Identificador único do evento catastrófico de inundação, que substituiu o FICO number",,no,,,no,,eventDesignationNumber
+fico_number,STRING,Número atribuído no momento de um evento significativo de inundação para identificar cada estado afetado,,no,,,no,,ficoNumber
+flood_characteristics_indicator,STRING,Código das características das águas da inundação,,yes,,,no,,floodCharacteristicsIndicator
+flood_water_duration,INT64,Número de horas em que a água permaneceu na edificação segurada,,no,,hour,no,,floodWaterDuration
+floodproofed_indicator,BOOLEAN,Indica se a estrutura segurada é à prova de inundação,,no,,,no,,floodproofedIndicator
+flood_event,STRING,Nome atribuído à catástrofe de inundação,,no,,,no,,floodEvent
+icc_coverage,INT64,"Importância segurada da cobertura Increased Cost of Compliance da edificação, em dólares inteiros",,no,,usd,no,,iccCoverage
+net_icc_payment_amount,FLOAT64,"Valor líquido pago ao segurado pela cobertura Increased Cost of Compliance, em dólares",,no,,usd,no,,netIccPaymentAmount
+nfip_rated_community_number,STRING,Código de seis posições da comunidade NFIP usada na tarifação,,no,,,no,,nfipRatedCommunityNumber
+nfip_community_number_current,STRING,Código de seis posições da comunidade NFIP atual do imóvel,,no,,,no,,nfipCommunityNumberCurrent
+nfip_community_name,STRING,Nome da entidade político-administrativa responsável por adotar e fazer cumprir as normas de planície de inundação,,no,,,no,,nfipCommunityName
+non_payment_reason_contents,STRING,Código do motivo pelo qual o sinistro do conteúdo não foi pago,,yes,,,no,,nonPaymentReasonContents
+non_payment_reason_building,STRING,Código do motivo pelo qual o sinistro da edificação não foi pago,,yes,,,no,,nonPaymentReasonBuilding
+number_of_units,INT64,Número de unidades residenciais e não residenciais cobertas pela apólice coletiva de condomínio,,no,,,no,Contagem sem unidade de medida cadastrada no back-end,numberOfUnits
+building_replacement_cost,INT64,"Custo estimado de reposição da edificação em dólares inteiros, conforme informado pela seguradora",,no,,usd,no,,buildingReplacementCost
+contents_replacement_cost,INT64,"Custo estimado de reposição do conteúdo em dólares inteiros, conforme informado pela seguradora",,no,,usd,no,,contentsReplacementCost
+replacement_cost_basis,STRING,Indica se o sinistro da edificação foi liquidado com base no custo de reposição,,yes,,,no,,replacementCostBasis
+state_owned_indicator,BOOLEAN,Indica se o imóvel segurado pertence ao estado,,no,,,no,,stateOwnedIndicator
+water_depth,INT64,"Profundidade da água da inundação, em polegadas",,no,,inch,no,,waterDepth
+flood_zone_current,STRING,Zona de inundação do FIRM em que o imóvel segurado se situa atualmente,,yes,,,no,,floodZoneCurrent
+building_description_code,STRING,Código que descreve o uso da edificação segurada,,yes,,,no,,buildingDescriptionCode
+rental_property_indicator,BOOLEAN,Indica se o imóvel é destinado a locação,,no,,,no,,rentalPropertyIndicator
+reported_city,STRING,Cidade do imóvel segurado conforme informada pelas seguradoras parceiras Write Your Own,,no,,,no,,reportedCity
+reported_zip_code,STRING,Código postal de cinco dígitos do imóvel segurado conforme informado pelas seguradoras parceiras,,no,,,no,Normalizado para cinco dígitos: strings vazias viram nulo e valores ZIP+4 são truncados,reportedZipCode
+latitude,FLOAT64,"Latitude aproximada da edificação segurada, arredondada a uma casa decimal pela FEMA",,no,,,no,"Sem unidade de medida cadastrada no back-end (graus decimais). Arredondada a uma casa decimal na origem: é a localização aproximada, não o endereço do imóvel",latitude
+longitude,FLOAT64,"Longitude aproximada da edificação segurada, arredondada a uma casa decimal pela FEMA",,no,,,no,"Sem unidade de medida cadastrada no back-end (graus decimais). Arredondada a uma casa decimal na origem: é a localização aproximada, não o endereço do imóvel",longitude
+foundation_type,STRING,Código do tipo de fundação da edificação,,yes,,,no,,foundationType
+open_date,DATE,Data de abertura do sinistro no sistema,,no,,,no,,openDate
+most_recent_recovery_date,DATE,Data em que um pagamento a maior foi recuperado do segurado,,no,,,no,,mostRecentRecoveryDate
+exterior_water_depth,INT64,"Profundidade da água em polegadas medida por marcas externas, em relação à cota adjacente mais baixa",,no,,inch,no,,exteriorWaterDepth
+interior_water_depth,INT64,"Profundidade da água em polegadas medida por marcas internas, em relação à cota adjacente mais baixa",,no,,inch,no,,interiorWaterDepth
+most_recent_payment_date,DATE,Data do pagamento mais recente emitido ao segurado,,no,,,no,,mostRecentPaymentDate
+pre_firm_construction_indicator,BOOLEAN,Indica se a construção começou antes da publicação do FIRM,,no,,,no,,preFirmIndicator
+total_salvage_recovery,FLOAT64,"Valor recuperado com a venda ou destinação de bens danificados considerados aproveitáveis, em dólares",,no,,usd,no,,totalSalvageRecovery
+total_bldg_claim_pmt_recovery,FLOAT64,"Valor recuperado do valor residual de materiais ou componentes danificados da edificação, em dólares",,no,,usd,no,,totalBldgClaimPmtRecovery
+total_contents_claim_pmt_recovery,FLOAT64,"Valor recuperado do valor residual de bens do conteúdo danificados, em dólares",,no,,usd,no,,totalContentsClaimPmtRecovery
+total_icc_claim_pmt_recovery,FLOAT64,"Valor recuperado de pagamento indevido da cobertura Increased Cost of Compliance, em dólares",,no,,usd,no,,totalIccClaimPmtRecovery
+total_subrogation_recovery,FLOAT64,"Valor recuperado pelo NFIP junto a terceiro responsável pelo sinistro, em dólares",,no,,usd,no,,totalSubrogationRecovery

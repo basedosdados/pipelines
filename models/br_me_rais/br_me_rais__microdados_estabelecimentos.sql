@@ -7,7 +7,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1985, "end": 2024, "interval": 1},
+            "range": {"start": 1985, "end": 2031, "interval": 1},
         },
         cluster_by=["sigla_uf"],
     )
@@ -23,7 +23,13 @@ select
     ) quantidade_vinculos_estatutarios,
     safe_cast(natureza as string) natureza_estabelecimento,
     safe_cast(natureza_juridica as string) natureza_juridica,
-    safe_cast(tamanho as string) tamanho_estabelecimento,
+    case
+        when
+            safe_cast(ano as int64) <= 2001
+            and safe_cast(tamanho as int64) between 0 and 9
+        then cast(safe_cast(tamanho as int64) + 1 as string)
+        else tamanho
+    end as tamanho_estabelecimento,
     safe_cast(regexp_replace(tipo, r'^0+', '') as string) as tipo_estabelecimento,
     safe_cast(indicador_cei_vinculado as int64) indicador_cei_vinculado,
     safe_cast(indicador_pat as int64) indicador_pat,
@@ -70,4 +76,11 @@ left join
     on left(cnae1_dir.cnae_1, 4) = safe_cast(t.cnae_1 as string)
     and length(safe_cast(t.cnae_1 as string)) = 4
     and safe_cast(t.ano as int64) in (2023, 2024)
-{% if is_incremental() %} where safe_cast(ano as int64) > 2022 {% endif %}
+{% if is_incremental() %}
+        {% set ano_query %}
+        select max(safe_cast(ano as int64))
+        from {{ set_datalake_project("br_me_rais_staging.microdados_estabelecimentos") }}
+        {% endset %}
+        {% set ano = run_query(ano_query).rows[0][0] if execute else 0 %}
+    where safe_cast(t.ano as int64) = {{ ano }}
+{% endif %}

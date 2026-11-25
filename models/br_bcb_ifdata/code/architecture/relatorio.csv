@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partição,
+mes,INT64,Mês de referência do trimestre (3 março; 6 junho; 9 setembro; 12 dezembro),,no,br_bd_diretorios_data_tempo.mes:mes,,no,,
+id_instituicao,STRING,Código da instituição ou conglomerado atribuído pelo Banco Central,,no,,,no,Liga a instituicao,e
+id_coluna,STRING,Código da rubrica reportada,,no,,,no,"Liga a coluna. Uma mesma rubrica aparece em vários relatórios (um por tipo de consolidado) com o mesmo código, por isso o relatório não faz parte da chave desta tabela",i
+valor,FLOAT64,Valor reportado pela instituição para a rubrica,,no,,BRL,no,Valores em reais correntes sem ajuste de inflação,v

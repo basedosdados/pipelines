@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+person_id,STRING,Identificador da pessoa,,no,,,no,References us_harvard_cbdb.person.person_id,c_personid
+address_code,STRING,Código do lugar,,no,,,no,References sibling table us_harvard_cbdb.address_code,c_addr_id
+address_type_code,STRING,"Código do tipo de vínculo com o lugar (residência, origem, sepultamento)",,yes,,,no,,c_addr_type
+sequence,STRING,Número de ordem do vínculo com o lugar para a pessoa,,no,,,no,,c_sequence
+first_year,INT64,Primeiro ano do vínculo com o lugar,,no,,year,no,,c_firstyear
+last_year,INT64,Último ano do vínculo com o lugar,,no,,year,no,,c_lastyear
+is_natal,STRING,Indica se o endereço se refere à família natal de uma mulher (código),,no,,,no,,c_natal
+source_id,STRING,Identificador da fonte histórica que documenta o registro,,no,,,no,,c_source
+source_pages,STRING,Páginas ou localização na fonte histórica citada,,no,,,no,,c_pages
+notes,STRING,"Notas textuais livres sobre o registro, conforme o CBDB",,no,,,no,,c_notes

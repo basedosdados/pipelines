@@ -1,3 +1,4 @@
+-- Atualizada em 14/10/2024
 {{
     config(
         alias="natureza_juridica",

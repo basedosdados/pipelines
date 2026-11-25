@@ -2,19 +2,15 @@
 Flow br_cnj_improbidade_administrativa — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
+from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     get_max_date,
     is_up_to_date,
     main_task,
     write_csv_file,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -33,7 +29,6 @@ def br_cnj_improbidade_administrativa__condenacao(
     dataset_id: str = "br_cnj_improbidade_administrativa",
     table_id: str = "condenacao",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -62,7 +57,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -81,7 +75,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -89,15 +82,11 @@ def br_cnj_improbidade_administrativa__condenacao(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_propositura"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
 
 
 br_cnj_improbidade_administrativa__condenacao.deploy_schedules = [
-    {"cron": "0 7 * * 1", "timezone": "America/Sao_Paulo"}
+    Cron("0 7 * * 1", timezone="America/Sao_Paulo")
 ]

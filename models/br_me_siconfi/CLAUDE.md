@@ -110,6 +110,35 @@ When the build fails with "unmatched rows detected":
 
 A row is only flagged as missing if the key does not exist in the crosswalk file at all. Rows that exist but have empty `*_bd` columns are **not** flagged — fill those at your own pace.
 
+### How to fill the `*_bd` columns
+
+The three BD columns follow fixed conventions. In a typical refresh the raw fields are already close to canonical, so `estagio_bd` and `conta_bd` are usually verbatim copies and only a handful of `id_conta_bd` cells get filled.
+
+**`estagio_bd` — stage name, abbreviations expanded.** Copy `estagio` verbatim, expanding `RP` → `Restos a Pagar`:
+- `Inscrição de RP Não Processados` → `Inscrição de Restos a Pagar Não Processados`
+- `Inscrição de RP Processados` → `Inscrição de Restos a Pagar Processados`
+
+The API has emitted the expanded form for years, so new API rows are typically already expanded (`estagio_bd = estagio`). The abbreviation shows up mainly in older/legacy rows.
+
+**`conta_bd` — account name, cleaned.** Copy `conta` verbatim, except:
+- expand legacy mnemonic codes to full names — these come from the 1989–2012 files (`ALIENBENS` → `Alienação de Bens`, `CPFPM` → `Cota-Parte do Fundo de Participação dos Municípios - FPM`, `CPICMS` → `Cota-Parte do ICMS`, `IPTU`/`ISS`/… → full names);
+- apply targeted string cleanup where the source name is inconsistent.
+
+For new API rows the raw `conta` is already the full name, so `conta_bd = conta` in almost every case.
+
+**`id_conta_bd` — harmonized account code, only to the top 2–3 hierarchy levels.** The delicate one. BD's promise is to harmonize accounts down to the top 2–3 levels of the account hierarchy; anything deeper is **left blank**. The column is therefore *mostly blank by design* — existing crosswalk: `receitas` 91% blank, `despesas_orcamentarias` 95%, `balanco_patrimonial` 15%, while `despesas_funcao` is only 1% blank because a função code already *is* the 2–3-level grain. Fill it only for a row whose account sits at the harmonization level; otherwise leave it empty.
+
+Each file uses its own fixed digit-and-zeros format (fixed segment count, zero-padded). Match the format of sibling rows already in the same file — do not invent a new shape:
+
+| File | `id_conta_bd` format | Example (`portaria` → `id_conta_bd`) |
+|---|---|---|
+| `receitas_orcamentarias` | 8 segments `1.X.X.X.X.XX.XX.XX` | `2.2.0.0.00.0.0` → `1.2.2.0.0.00.00.00` |
+| `despesas_orcamentarias` | 6 segments `X.X.X.XX.XX.XX` | `2.4.5.00.00.00` |
+| `despesas_funcao` | 3 segments `3.FF.SSS` (função 2-digit zero-padded, subfunção 3-digit) | `7.211` → `3.07.211` |
+| `balanco_patrimonial` | 7 segments `X.X.X.X.X.XX.XX` | `1.2.2.0.0.00.00` |
+
+A blank `id_conta_bd` never blocks the build: the merge key is `(ano, estagio, portaria, conta)` and the `*_bd` columns are only the payload.
+
 ---
 
 ## `apply_conta_split` — Key Logic

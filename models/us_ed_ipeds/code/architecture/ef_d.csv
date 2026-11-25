@@ -1,0 +1,48 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+xgrcohrt,STRING,Imputation field for GRCOHRT - Full-time first-time degree/certificate-seeking undergraduate (current year GRS cohort),,no,,,no,,xgrcohrt
+grcohrt,FLOAT64,Full-time first-time degree/certificate-seeking undergraduate (current year GRS cohort),,no,,,no,,grcohrt
+xugenter,STRING,"Imputation field for UGENTERN - Total entering students at the undergraduate level, fall 2023",,no,,,no,,xugenter
+ugentern,FLOAT64,"Total entering students at the undergraduate level, fall 2023",,no,,,no,,ugentern
+xpgrcohr,STRING,Imputation field for PGRCOHRT - Current year GRS cohort as a percent of entering class,,no,,,no,,xpgrcohr
+pgrcohrt,FLOAT64,Current year GRS cohort as a percent of entering class,,no,,,no,,pgrcohrt
+xrrftct,STRING,Imputation field for RRFTCT - Full-time fall 2022 cohort,,no,,,no,,xrrftct
+rrftct,FLOAT64,Full-time fall 2022 cohort,,no,,,no,,rrftct
+xrrftex,STRING,Imputation field for RRFTEX - Exclusions from full-time fall 2022 cohort,,no,,,no,,xrrftex
+rrftex,FLOAT64,Exclusions from full-time fall 2022 cohort,,no,,,no,,rrftex
+xrrftin,STRING,Imputation field for RRFTIN - Inclusions to the full-time fall 2022 cohort,,no,,,no,,xrrftin
+rrftin,FLOAT64,Inclusions to the full-time fall 2022 cohort,,no,,,no,,rrftin
+xrrftcta,STRING,Imputation field for RRFTCTA - Full-time adjusted fall 2022 cohort,,no,,,no,,xrrftcta
+rrftcta,FLOAT64,Full-time adjusted fall 2022 cohort,,no,,,no,,rrftcta
+xret_nmf,STRING,Imputation field for RET_NMF - Students from the full-time adjusted fall 2022 cohort enrolled in fall 2023,,no,,,no,,xret_nmf
+ret_nmf,FLOAT64,Students from the full-time adjusted fall 2022 cohort enrolled in fall 2023,,no,,,no,,ret_nmf
+xret_pcf,STRING,"Imputation field for RET_PCF - Full-time retention rate, 2023",,no,,,no,,xret_pcf
+ret_pcf,FLOAT64,"Full-time retention rate, 2023",,no,,,no,,ret_pcf
+xrrptct,STRING,Imputation field for RRPTCT - Part-time fall 2022 cohort,,no,,,no,,xrrptct
+rrptct,FLOAT64,Part-time fall 2022 cohort,,no,,,no,,rrptct
+xrrptex,STRING,Imputation field for RRPTEX - Exclusions from part-time fall 2022 cohort,,no,,,no,,xrrptex
+rrptex,FLOAT64,Exclusions from part-time fall 2022 cohort,,no,,,no,,rrptex
+xrrptin,STRING,Imputation field for RRPTIN - Inclusions to the part-time fall 2022 cohort,,no,,,no,,xrrptin
+rrptin,FLOAT64,Inclusions to the part-time fall 2022 cohort,,no,,,no,,rrptin
+xrrptcta,STRING,Imputation field for RRPTCTA - Part-time adjusted fall 2022 cohort,,no,,,no,,xrrptcta
+rrptcta,FLOAT64,Part-time adjusted fall 2022 cohort,,no,,,no,,rrptcta
+xret_nmp,STRING,Imputation field for RET_NMP - Students from the part-time adjusted fall 2022 cohort enrolled in fall 2023,,no,,,no,,xret_nmp
+ret_nmp,FLOAT64,Students from the part-time adjusted fall 2022 cohort enrolled in fall 2023,,no,,,no,,ret_nmp
+xret_pcp,STRING,"Imputation field for RET_PCP - Part-time retention rate, 2023",,no,,,no,,xret_pcp
+ret_pcp,FLOAT64,"Part-time retention rate, 2023",,no,,,no,,ret_pcp
+xstufacr,STRING,Imputation field for STUFACR - Student-to-faculty ratio,,no,,,no,,xstufacr
+stufacr,FLOAT64,Student-to-faculty ratio,,no,,,no,,stufacr
+fyrpyear,FLOAT64,12-month reporting period  for enrollment and instructional activity,,no,,,no,,fyrpyear
+xtostucu,STRING,Imputation field for TOSTUCU - 12-month unduplicated headcount: undergraduates,,no,,,no,,xtostucu
+tostucu,FLOAT64,12-month unduplicated headcount: undergraduates,,no,,,no,,tostucu
+xtostucg,STRING,Imputation field for TOSTUCG - 12-month unduplicated headcount: graduates,,no,,,no,,xtostucg
+tostucg,FLOAT64,12-month unduplicated headcount: graduates,,no,,,no,,tostucg
+xtostucp,STRING,Imputation field for TOSTUCP - 12-month unduplicated headcount: first-professional,,no,,,no,,xtostucp
+tostucp,FLOAT64,12-month unduplicated headcount: first-professional,,no,,,no,,tostucp
+xcdactua,STRING,Imputation field for CDACTUA - 12-month instructional activity credit hours: undergraduates,,no,,,no,,xcdactua
+cdactua,FLOAT64,12-month instructional activity credit hours: undergraduates,,no,,,no,,cdactua
+xcnactua,STRING,Imputation field for CNACTUA - 12-month instructional activity contact hours: undergraduates,,no,,,no,,xcnactua
+cnactua,FLOAT64,12-month instructional activity contact hours: undergraduates,,no,,,no,,cnactua
+xcdactga,STRING,Imputation field for CDACTGA - 12-month instructional activity credit hours: graduates,,no,,,no,,xcdactga
+cdactga,FLOAT64,12-month instructional activity credit hours: graduates,,no,,,no,,cdactga

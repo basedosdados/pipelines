@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year in which the survey financial year ends,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column; the 2019-20 Survey of Income and Housing is stored as 2020,derived
+survey_year,STRING,Australian financial year the estimate refers to in YYYY-YY format,,no,,,no,Runs 1 July to 30 June; the Survey of Income and Housing is biennial so the series steps two years at a time,derived
+geography,STRING,Area the estimate covers,,no,,,no,Australia for most tables; cube 13 covers states and territories greater capital city areas and rest of state; cube 14 covers one state or territory per table. No directory link because the values mix three geographic levels and ABS publishes no code for them here,derived
+geography_level,STRING,Geographic level of the area,,no,,,no,One of national state or territory greater capital city area rest of state,derived
+source_table_id,STRING,Number of the ABS data cube table the estimate is published in,,no,,,no,Such as 10.2 for the second table of cube 10. Table numbers are specific to the 2019-20 release: ABS renumbers its cubes between releases,derived
+source_table_name,STRING,Title of the ABS data cube table the estimate is published in,,no,,,no,,Table title
+breakdown_type,STRING,Population characteristic the estimate is broken down by,,yes,,,no,Total where the estimate covers all households or persons,derived
+breakdown_value,STRING,Category of the breakdown the estimate refers to,,no,,,no,Verbatim ABS category label; where ABS groups categories the group and the category are joined with a greater-than sign as in 65 YEARS AND OVER > 65-74,derived
+measure,STRING,Quantity the estimate measures,,no,,,no,Verbatim ABS row or column label; where ABS nests labels the levels are joined with a greater-than sign as in Household net worth > Mean net worth,derived
+measurement_unit,STRING,Unit the estimate is expressed in,,no,,,no,One of $ $'000 % '000 ratio no. years hours as published by ABS,Unit
+estimate,FLOAT64,Value of the estimate,,no,,,no,Null where ABS did not publish a number; the reason is then given in estimate_flag. No fixed measurement unit because it varies by row and is given in measurement_unit,Cell value
+estimate_flag,STRING,Marker ABS published in place of a value,,yes,,,no,Null where an estimate was published,Cell value
+relative_standard_error,FLOAT64,Relative standard error of the estimate,,no,,percent,no,Null where ABS published no relative standard error for the estimate; ABS considers an estimate with a relative standard error above 50% too unreliable for general use,RSE(%)
+margin_of_error,FLOAT64,95% margin of error of the estimate,,no,,,no,Published for proportions in place of a relative standard error. Expressed in the same unit as the estimate so it carries no fixed measurement unit,MOE(±)

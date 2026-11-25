@@ -17,6 +17,8 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.oauth2 import service_account
 
+from pipelines.utils.utils import log
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Credenciais GCS via env vars
 # ──────────────────────────────────────────────────────────────────────────────
@@ -55,35 +57,46 @@ def list_blobs_with_prefix(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def dump_header(data_path: str | Path, source_format: str) -> str:
-    """
-    Escreve apenas o cabeçalho de um CSV ou Parquet para um arquivo temporário.
-    Necessário para criar a tabela staging no BQ antes do primeiro upload.
-    Retorna o caminho do diretório com o arquivo de cabeçalho.
+def dump_header(data_path: str | Path) -> tuple[str, str]:
+    """Escreve só o cabeçalho de um CSV ou Parquet pra um arquivo temporário.
+
+    Necessário pra criar a tabela staging no BQ antes do primeiro upload.
+    O formato é sempre detectado pela extensão do primeiro arquivo
+    encontrado em `data_path` — nunca declarado pelo chamador.
+
+    Args:
+        data_path: arquivo ou diretório com os dados baixados/gerados.
+
+    Returns:
+        `(save_header_path, source_format)` — o diretório com o arquivo de
+        cabeçalho, e o formato detectado (`"csv"` ou `"parquet"`).
     """
     path = Path(data_path)
     if not path.is_dir():
         path = path.parent
 
     file: str | None = None
+    source_format: str | None = None
     for subdir, _, filenames in walk(str(path)):
         for fname in filenames:
-            if (source_format == "csv" and fname.endswith(".csv")) or (
-                source_format == "parquet" and fname.endswith(".parquet")
-            ):
-                file = join(subdir, fname)
-                break
+            if fname.endswith(".csv"):
+                file, source_format = join(subdir, fname), "csv"
+            elif fname.endswith(".parquet"):
+                file, source_format = join(subdir, fname), "parquet"
+            else:
+                continue
+            break
         if file:
             break
 
-    if file is None:
+    if file is None or source_format is None:
         raise FileNotFoundError(
-            f"Nenhum arquivo {source_format} encontrado em {path}"
+            f"Nenhum arquivo csv ou parquet encontrado em {path}"
         )
 
     save_header_path = f"data/{uuid4()}"
     partition_folders = [folder for folder in file.split("/") if "=" in folder]
-    ext = source_format  # csv ou parquet
+    ext = source_format
 
     if partition_folders:
         partition_path = "/".join(partition_folders)
@@ -105,7 +118,7 @@ def dump_header(data_path: str | Path, source_format: str) -> str:
             save_header_file_path, index=False
         )
 
-    return save_header_path
+    return save_header_path, source_format
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -151,19 +164,24 @@ class DBTArtifactUploader:
 
     def run(self) -> None:
         if not self._should_run():
-            print(
+            log(
                 "DBTArtifactUploader: ignorado (não em Kubernetes e enable_upload=False)"
             )
             return
         self._init_gcs()
-        print("DBTArtifactUploader: iniciando upload de artefatos dbt")
+        uploaded = 0
         try:
             prefix = self._table_prefix()
             self._delete_once(prefix)
             for local_path, subfolder in self._list_files():
                 self._upload(local_path, subfolder)
+                uploaded += 1
         finally:
             self._cleanup()
+        log(
+            f"DBTArtifactUploader: {uploaded} artefato(s) enviado(s) para "
+            f"gs://{self.bucket_name}/{self._table_prefix()}"
+        )
 
     def _should_run(self) -> bool:
         return (
@@ -193,10 +211,12 @@ class DBTArtifactUploader:
     def _delete_once(self, prefix: str) -> None:
         if prefix in self._deleted_prefixes:
             return
+        # pyrefly: ignore [missing-attribute]
         blobs = list(self._client.list_blobs(self._bucket, prefix=prefix))
         if blobs:
+            # pyrefly: ignore [missing-attribute]
             self._bucket.delete_blobs(blobs)
-            print(
+            log(
                 f"DBTArtifactUploader: removidos {len(blobs)} artefatos antigos em {prefix}"
             )
         self._deleted_prefixes.add(prefix)
@@ -212,13 +232,13 @@ class DBTArtifactUploader:
 
     def _upload(self, local_path: str, subfolder: str) -> None:
         filename = os.path.basename(local_path)
+        # pyrefly: ignore [missing-attribute]
         blob = self._bucket.blob(self._blob_path(subfolder, filename))
         blob.upload_from_filename(local_path)
-        print(f"DBTArtifactUploader: → gs://{self.bucket_name}/{blob.name}")
 
     def _cleanup(self) -> None:
         import shutil
 
         if os.path.exists(self.source_dir):
             shutil.rmtree(self.source_dir)
-            print(f"DBTArtifactUploader: {self.source_dir} removido")
+            log(f"DBTArtifactUploader: {self.source_dir} removido")

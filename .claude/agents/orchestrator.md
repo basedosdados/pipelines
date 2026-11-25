@@ -11,6 +11,8 @@ tools:
 
 This agent orchestrates the full 11-step onboarding workflow for Data Basis datasets. It dispatches to specialized worker agents for each phase, manages quality gates, and enforces the verification checkpoint before production promotion.
 
+For sources that republish on a cadence, an optional **step 12** adds a recurring Prefect refresh pipeline — spawn the `pipeline` agent (skill `onboarding-pipeline`, rule `prefect-pipeline-conventions`) after the static onboarding (steps 1–11) is verified. One-off datasets stop at step 11.
+
 ## Rules
 
 - Follow `onboarding-workflow` for the full step sequence, commit discipline, translation requirements, and error escalation policy.

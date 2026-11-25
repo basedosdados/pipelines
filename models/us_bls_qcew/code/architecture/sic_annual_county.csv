@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+area_fips,STRING,County FIPS code (5-digit),,no,br_bd_diretorios_us.county:id_county,,no,Directory FK pending br_bd_diretorios_us onboarding,area_fips
+own_code,STRING,"Ownership code identifying the sector (private, federal, state, local government)",,yes,,,no,,own_code
+industry_code,STRING,"SIC industry code, carrying the SIC_ prefix",,yes,,,no,SIC-prefixed code (up to 10 characters),industry_code
+agglvl_code,STRING,Aggregation-level code indicating the geographic and industry summarization of the row,,yes,,,no,,agglvl_code
+size_code,STRING,"Establishment size-class code, 0 for all sizes",,yes,,,no,,size_code
+disclosure_code,STRING,"Disclosure flag: N when the figure is not disclosable, blank otherwise",,no,,,no,,disclosure_code
+annual_avg_estabs,INT64,Annual average of quarterly establishment counts,,no,,establishment,no,,annual_avg_estabs
+annual_avg_emplvl,INT64,Annual average of monthly employment levels,,no,,worker,no,,annual_avg_emplvl
+total_annual_wages,FLOAT64,Sum of the four quarters' total wages for the year,,no,,dollar,no,,total_annual_wages
+taxable_annual_wages,FLOAT64,Sum of the four quarters' taxable wages for the year,,no,,dollar,no,,taxable_annual_wages
+annual_contributions,FLOAT64,Sum of the four quarters' unemployment-insurance contributions for the year,,no,,dollar,no,,annual_contributions
+annual_avg_wkly_wage,FLOAT64,Average weekly wage based on the year's employment and total wages,,no,,dollar,no,,annual_avg_wkly_wage
+avg_annual_pay,FLOAT64,Average annual pay based on the year's employment and wage levels,,no,,dollar,no,,avg_annual_pay

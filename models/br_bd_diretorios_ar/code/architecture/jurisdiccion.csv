@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_jurisdiccion,STRING,"Código de la jurisdicción, de dos dígitos",,no,,,no,"Llave primaria. Los códigos no son contiguos: van de 02 a 94 y cubren las 23 provincias y la Ciudad Autónoma de Buenos Aires",Código de jurisdicción
+nombre,STRING,Nombre de la jurisdicción,,no,,,no,,Jurisdicción
+nombre_completo,STRING,Nombre oficial completo de la jurisdicción,,no,,,no,"Agregado por Data Basis. Derivado como «Provincia de» o «Provincia del» más el nombre, según el artículo que fija cada constitución provincial; la Ciudad Autónoma de Buenos Aires no es una provincia y conserva su nombre",
+sigla,STRING,Código de subdivisión de una letra según la norma ISO 3166-2:AR,,no,,,no,"Agregado por Data Basis, sin el prefijo «AR-». No forma parte del archivo del INDEC",

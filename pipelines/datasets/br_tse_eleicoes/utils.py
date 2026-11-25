@@ -1,0 +1,525 @@
+"""
+General purpose functions for the br_tse_eleicoes project
+"""
+
+import tempfile
+import unicodedata
+import zipfile
+from datetime import datetime
+from pathlib import Path
+
+import basedosdados as bd
+import pandas as pd
+import requests
+
+from pipelines.datasets.br_tse_eleicoes.constants import (
+    constants as tse_constants,
+)
+from pipelines.utils.data_tests.rows import check_rows_written
+
+
+def conv_data(date: str, birth: bool = False) -> str:
+    try:
+        data_datetime = datetime.strptime(date, "%d/%m/%Y")
+        if birth:
+            idade = datetime.now().year - data_datetime.year
+            if not 18 <= idade < 120:
+                raise Exception("Idade Inválida")
+        return data_datetime.strftime("%Y-%m-%d")
+    except:  # noqa: E722
+        return ""
+
+
+def slugify(s: str) -> str:
+    s = s.strip().lower()
+    s = unicodedata.normalize("NFD", s)
+    # pyrefly: ignore [bad-assignment]
+    s = s.encode("ascii", "ignore")
+    # pyrefly: ignore [missing-attribute]
+    s = s.decode("utf-8")
+    s = s.lower().strip()
+    return s
+
+
+def add_ensino(instrucao: str) -> str:
+    if instrucao.count("superior"):
+        instrucao = f"ensino {instrucao}"
+
+    return instrucao
+
+
+def flows_catalog(year: int | str) -> dict:
+    catalog = {
+        "candidatos": {
+            "flow": Candidatos,
+            "urls": tse_constants.CANDIDATOS_URLS.value,
+            "source": f"consulta_cand_{year}_BRASIL.csv",
+        },
+        "bens_candidato": {
+            "flow": BensCandidato,
+            "urls": [tse_constants.BENS_CANDIDATOS.value],
+            "source": f"bem_candidato_{year}_BRASIL.csv",
+        },
+        "despesas_candidato": {
+            "flow": DespesasCandidato,
+            "urls": [tse_constants.DESPESAS_RECEITAS.value],
+            "source": f"despesas_contratadas_candidatos_{year}_BRASIL.csv",
+        },
+        "receitas_candidato": {
+            "flow": ReceitasCandidato,
+            "urls": [tse_constants.DESPESAS_RECEITAS.value],
+            "source": f"receitas_candidatos_{year}_BRASIL.csv",
+        },
+    }
+
+    return catalog
+
+
+# Class Principal
+class BrTseEleicoes:
+    def __init__(
+        self,
+        urls: list,
+        table_id: str,
+        source: str,
+        year: int,
+        mode: str = "dev",
+    ):
+        self.urls = urls
+        self.year = year
+        self.table_id = table_id
+        self.source = source
+        self.billing_project_id = tse_constants.MODE_TO_PROJECT_DICT.value[
+            mode
+        ]
+        self.query = tse_constants.QUERY_COUNT_MODIFIED.value.format(
+            table_id=table_id, mode=self.billing_project_id, year=year
+        )
+        self.remove = {remove: "" for remove in tse_constants.REMOVES.value}
+        self.base_path = Path(tempfile.gettempdir(), "data", table_id)
+        self.path_input = self.base_path / "input"
+        self.path_output = self.base_path / "output"
+        self.df_main = self.df_complement = self.path_main = (
+            self.path_complement
+        ) = None
+        self.path_zips: list[Path] = []
+
+    def download_urls(self) -> None:
+        """Baixa os ZIPs da fonte para `path_input`, sem extrair."""
+        for url in self.urls:
+            save_path = self.download_zip(url.format(year=self.year))
+            self.path_zips.append(save_path)
+
+    def download_zip(self, url: str, chunk_size: int = 1024 * 1024) -> Path:
+        """Baixa um ZIP para `path_input`, gravando em blocos.
+
+        Args:
+            url: endereço do ZIP.
+            chunk_size: bytes lidos da resposta e gravados por vez.
+
+        Returns:
+            Caminho do ZIP salvo.
+        """
+        self.path_input.mkdir(parents=True, exist_ok=True)
+
+        request_headers = {
+            "referer": "https://dadosabertos.tse.jus.br/",
+            "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+        }
+
+        r = requests.get(url, headers=request_headers, stream=True, timeout=60)
+
+        save_path = self.path_input / url.split("/")[-1]
+
+        with open(save_path, "wb") as fd:
+            for chunk in r.iter_content(chunk_size=chunk_size):
+                fd.write(chunk)
+
+        return save_path
+
+    def read_source_data(self) -> None:
+        """Extrai os CSVs nacionais dos ZIPs baixados e carrega `df_main`/`df_complement`."""
+        for save_path in self.path_zips:
+            self.extract_read_zip(save_path)
+
+    def extract_read_zip(self, save_path: Path) -> None:
+        """Extrai os `*BRASIL.csv` de um ZIP e carrega o CSV correspondente.
+
+        O primeiro ZIP lido vira `df_main`; o seguinte, `df_complement`.
+
+        Args:
+            save_path: caminho do ZIP baixado.
+        """
+        with zipfile.ZipFile(save_path) as z:
+            members = [
+                name
+                for name in z.namelist()
+                if name.upper().endswith("BRASIL.CSV")
+            ]
+            z.extractall(self.path_input, members=members)
+        # save_path.unlink()
+
+        if not self.path_main:
+            # pyrefly: ignore [bad-assignment]
+            self.path_main = self.path_input / self.source
+            # pyrefly: ignore [no-matching-overload]
+            self.df_main = pd.read_csv(
+                self.path_main,
+                sep=";",
+                encoding="ISO-8859-1",
+                dtype=str,
+                usecols=self.source_columns(),
+            )
+
+        else:
+            self.path_complement = (
+                # pyrefly: ignore [bad-assignment]
+                self.path_input / f"{save_path.stem}_BRASIL.csv"
+            )
+            # pyrefly: ignore [no-matching-overload]
+            self.df_complement = pd.read_csv(
+                self.path_complement, sep=";", encoding="ISO-8859-1", dtype=str
+            )
+
+    def count_source_rows(self, chunk_size: int = 1024 * 1024) -> int:
+        """Conta as linhas de dados do CSV principal lendo os bytes dentro do ZIP.
+
+        Não extrai o arquivo nem o carrega inteiro: lê `chunk_size` bytes por
+        vez e conta as quebras de linha, descontando o cabeçalho.
+
+        Args:
+            chunk_size: bytes descompactados lidos por vez.
+
+        Returns:
+            Número de linhas do CSV, sem o cabeçalho.
+        """
+        line_breaks = 0
+        last_byte = b"\n"
+        with (
+            zipfile.ZipFile(self.path_zips[0]) as z,
+            z.open(self.source) as f,
+        ):
+            while chunk := f.read(chunk_size):
+                line_breaks += chunk.count(b"\n")
+                last_byte = chunk[-1:]
+
+        if last_byte != b"\n":
+            line_breaks += 1
+
+        return line_breaks - 1
+
+    def get_data_source_max_date(self) -> bool:
+        df_prod = bd.read_sql(
+            self.query,
+            from_file=True,
+            billing_project_id=self.billing_project_id,
+        )
+        prod_len, last_modified = df_prod.iloc[0].to_numpy()
+
+        if self.count_source_rows() > prod_len:
+            # pyrefly: ignore [bad-return]
+            return datetime.today()
+
+        return last_modified
+
+    def formatar(self) -> None:
+        self.read_source_data()
+        base = self.form_df_base()
+        # Etapa de salvar a base
+
+        # pyrefly: ignore [missing-attribute]
+        base = base.drop_duplicates()
+        path_output = self.path_output / f"ano={self.year}"
+        file_path = path_output / f"{self.table_id}.csv"
+        path_output.mkdir(parents=True, exist_ok=True)
+        rows_read = len(base)
+        base.to_csv(file_path, index=False)
+
+        check_rows_written(rows_read=rows_read, output_dir=self.path_output)
+
+    def form_df_base(self) -> None:
+        pass
+
+    def source_columns(self) -> list[str] | None:
+        """Colunas do CSV principal que a tabela usa.
+
+        Returns:
+            Nomes das colunas a ler; `None` lê todas.
+        """
+        return None
+
+
+# Classes Dos Flows
+class Candidatos(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
+    def form_df_base(self) -> pd.DataFrame:
+        municipios = bd.read_sql(
+            tse_constants.QUERY_MUNICIPIOS.value,
+            from_file=True,
+            billing_project_id=self.billing_project_id,
+        )
+
+        # pyrefly: ignore [missing-attribute]
+        temp_merge_left = self.df_main.merge(
+            self.df_complement,
+            left_on="SQ_CANDIDATO",
+            right_on="SQ_CANDIDATO",
+            how="left",
+        )
+
+        temp_merge_left["SG_UE"] = temp_merge_left["SG_UE"].str.lstrip(
+            "0"
+        )  # Precisamos limpas alguns zero a esquerda
+
+        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
+        temp_merge_left.loc[
+            ~temp_merge_left["SG_UE"].astype(str).str.isdigit(), "SG_UE"
+        ] = None
+
+        temp_merge_left = temp_merge_left.merge(
+            municipios,
+            left_on="SG_UE",
+            right_on="id_municipio_tse",
+            how="left",
+        )
+
+        base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
+        base = base.fillna("")
+        base.columns = tse_constants.ORDER.value.keys()
+
+        base = base.replace(self.remove, regex=False)
+
+        # Formatar datas
+        base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
+        base["data_nascimento"] = base["data_nascimento"].apply(
+            lambda date: conv_data(date, birth=True)
+        )
+
+        # Formatar Colunas com slug
+        slug_columns_format = [
+            "tipo_eleicao",
+            "cargo",
+            "situacao",
+            "ocupacao",
+            "genero",
+            "instrucao",
+            "estado_civil",
+            "nacionalidade",
+            "raca",
+        ]
+
+        base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
+        base["instrucao"] = base["instrucao"].apply(add_ensino)
+
+        # Colocar nomes como title como dados em produção
+        for column_to_format in ["municipio_nascimento", "nome", "nome_urna"]:
+            base[column_to_format] = base[column_to_format].str.title()
+
+        # trocar `brasileira nata` para `brasileira`
+        base["nacionalidade"] = base["nacionalidade"].str.replace(
+            "brasileira nata", "brasileira"
+        )
+
+        return base
+
+
+class BensCandidato(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
+    def form_df_base(self) -> pd.DataFrame:
+        # pyrefly: ignore [no-matching-overload]
+        self.df_main = pd.read_csv(
+            self.path_main,
+            sep=";",
+            encoding="ISO-8859-1",
+            decimal=",",
+            dtype={
+                "CD_ELEICAO": str,
+                "SQ_CANDIDATO": str,
+            },
+        )
+
+        self.df_main["titulo_eleitoral_candidato"] = ""
+        base = self.df_main.loc[:, tse_constants.ORDER_BENS.value.values()]
+        base.columns = tse_constants.ORDER_BENS.value.keys()
+
+        base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
+        base["tipo_eleicao"] = base["tipo_eleicao"].apply(slugify)
+
+        return base
+
+
+class DespesasCandidato(BrTseEleicoes):
+    def source_columns(self) -> list[str]:
+        """Colunas do CSV de despesas que a tabela usa.
+
+        Returns:
+            Colunas de origem de `ORDER_DESPESAS`, sem as criadas vazias nem o
+            `id_municipio` do diretório, mais `SG_UE` e `CD_MUNICIPIO_FORNECEDOR`.
+        """
+        vazios = tse_constants.VAZIOS_DESPESA.value
+        columns = {
+            origin
+            for target, origin in tse_constants.ORDER_DESPESAS.value.items()
+            if target not in vazios and origin != "id_municipio"
+        }
+        columns.add("SG_UE")
+        columns.add("CD_MUNICIPIO_FORNECEDOR")
+        return sorted(columns)
+
+    # pyrefly: ignore [bad-override]
+    def form_df_base(self) -> pd.DataFrame:
+        """Monta a tabela de despesas a partir do CSV lido em `df_main`.
+
+        Busca o `id_municipio` num dicionário `id_municipio_tse` → `id_municipio`
+        e formata coluna a coluna, tirando cada coluna de origem de `df_main`
+        assim que ela é usada, sem copiar a tabela inteira.
+
+        Returns:
+            Tabela com as colunas de `ORDER_DESPESAS`, já formatadas.
+        """
+        municipios = bd.read_sql(
+            tse_constants.QUERY_MUNICIPIOS.value,
+            from_file=True,
+            billing_project_id=self.billing_project_id,
+        )
+        id_municipio_by_tse = dict(
+            zip(
+                municipios["id_municipio_tse"],
+                municipios["id_municipio"],
+                strict=True,
+            )
+        )
+
+        # pyrefly: ignore [bad-assignment]
+        source: pd.DataFrame = self.df_main
+        self.df_main = None
+
+        for column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
+            source[column] = source[column].str.lstrip("0")
+        source.loc[~source["SG_UE"].astype(str).str.isdigit(), "SG_UE"] = None
+        source["id_municipio"] = source["SG_UE"].map(id_municipio_by_tse)
+
+        order = tse_constants.ORDER_DESPESAS.value
+        vazios = tse_constants.VAZIOS_DESPESA.value
+        slug_columns = [
+            "tipo_eleicao",
+            "cargo",
+            "origem_despesa",
+            "tipo_prestacao_contas",
+            "tipo_documento",
+            "descricao_cnae_2_fornecedor",
+            "tipo_fornecedor",
+        ]
+        date_columns = [
+            "data_eleicao",
+            "data_despesa",
+            "data_prestacao_contas",
+        ]
+
+        last_target_by_origin = {}
+        for target, origin in order.items():
+            last_target_by_origin[origin] = target
+
+        base = pd.DataFrame(index=source.index)
+        for target, origin in order.items():
+            if target in vazios:
+                column = pd.Series("", index=source.index)
+            elif last_target_by_origin[origin] == target:
+                column = source.pop(origin)
+            else:
+                column = source[origin]
+            column = column.fillna("").replace(self.remove, regex=False)
+            if target in slug_columns:
+                column = column.map(slugify)
+            if target in date_columns:
+                column = column.map(conv_data)
+            base[target] = column
+        del source
+
+        base["tipo_eleicao"] = base["tipo_eleicao"].str.replace(
+            rf"eleicoes municipais {self.year}(?!\s-\s)",
+            "eleicao ordinaria",
+            regex=True,
+        )
+        base["valor_despesa"] = base["valor_despesa"].str.replace(",", ".")
+
+        return base
+
+
+class ReceitasCandidato(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
+    def form_df_base(self) -> pd.DataFrame:
+        municipios = bd.read_sql(
+            tse_constants.QUERY_MUNICIPIOS.value,
+            from_file=True,
+            billing_project_id=self.billing_project_id,
+        )
+
+        # Precisamos limpas alguns zero a esquerda
+        for date_column in ["SG_UE", "CD_MUNICIPIO_DOADOR"]:
+            # pyrefly: ignore [unsupported-operation]
+            self.df_main[date_column] = self.df_main[date_column].str.lstrip(
+                "0"
+            )
+
+        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
+        # pyrefly: ignore [missing-attribute]
+        self.df_main.loc[
+            # pyrefly: ignore [unsupported-operation]
+            ~self.df_main["SG_UE"].astype(str).str.isdigit(), "SG_UE"
+        ] = None
+        # pyrefly: ignore [missing-attribute]
+        self.df_main = self.df_main.merge(
+            municipios,
+            left_on="SG_UE",
+            right_on="id_municipio_tse",
+            how="left",
+        )
+
+        # Preparar as colunas vazias
+        self.df_main[tse_constants.VAZIOS_RECEITA.value] = ""
+
+        base = self.df_main.loc[:, tse_constants.ORDER_RECEITA.value.values()]
+
+        del self.df_main
+        base = base.fillna("")
+        base.columns = tse_constants.ORDER_RECEITA.value.keys()
+
+        # Remover nulos e não divulgaveis
+        base = base.replace(self.remove, regex=False)
+
+        # Gerar slugs
+        slug_columns_format = [
+            "tipo_eleicao",
+            "cargo",
+            "origem_receita",
+            "natureza_receita",
+            "especie_receita",
+            "cargo_candidato_doador",
+            "descricao_cnae_2_doador",
+            "tipo_prestacao_contas",
+            "esfera_partidaria_doador",
+            "fonte_receita",
+        ]
+
+        base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
+
+        # Formatar colunas com datas
+        date_columns = [
+            "data_eleicao",
+            "data_receita",
+            "data_prestacao_contas",
+        ]
+        base[date_columns] = base[date_columns].applymap(conv_data)
+        base.tipo_eleicao = base.tipo_eleicao.str.replace(
+            rf"eleicoes municipais {self.year}(?!\s-\s)",
+            "eleicao ordinaria",
+            regex=True,
+        )
+        base["valor_receita"] = base["valor_receita"].str.replace(",", ".")
+
+        return base

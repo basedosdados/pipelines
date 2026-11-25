@@ -3,10 +3,11 @@
         schema="br_ms_cnes",
         alias="equipamento",
         materialized="incremental",
+        on_schema_change="append_new_columns",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2005, "end": 2024, "interval": 1},
+            "range": {"start": 2005, "end": 2031, "interval": 1},
         },
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
@@ -41,12 +42,16 @@ select
     safe_cast(sigla_uf as string) as sigla_uf,
     safe_cast(id_municipio as string) as id_municipio,
     safe_cast(cnes as string) as id_estabelecimento_cnes,
+    concat(
+        lpad(safe_cast(tipequip as string), 2, '0'),
+        lpad(safe_cast(codequip as string), 2, '0')
+    ) as codigo_equipamento,
     ltrim(safe_cast(codequip as string), '0') as id_equipamento,
     ltrim(safe_cast(tipequip as string), '0') as tipo_equipamento,
-    safe_cast(qt_exist as string) as quantidade_equipamentos,
-    safe_cast(qt_uso as string) as quantidade_equipamentos_ativos,
-    safe_cast(ind_sus as int64) as indicador_equipamento_disponivel_sus,
-    safe_cast(ind_nsus as int64) as indicador_equipamento_indisponivel_sus
+    safe_cast(qt_exist as int64) as quantidade_equipamentos,
+    safe_cast(qt_uso as int64) as quantidade_equipamentos_ativos,
+    safe_cast(ind_sus as string) as indicador_equipamento_disponivel_sus,
+    safe_cast(ind_nsus as string) as indicador_equipamento_indisponivel_sus
 from cnes_add_muni
 
 {% if is_incremental() %}

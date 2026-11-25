@@ -1,0 +1,3 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_aglomerado,STRING,"Código del aglomerado, de cuatro dígitos",,no,,,no,Llave primaria,Código de aglomerado
+nombre,STRING,Nombre del aglomerado,,no,,,no,"Para los 119 aglomerados que agrupan más de una localidad es la etiqueta publicada por el INDEC; para los 3.587 aglomerados de una sola localidad, que el INDEC no etiqueta, es el nombre de esa localidad. La tabla no lleva llaves geográficas porque 14 aglomerados abarcan más de una jurisdicción y 62 más de un departamento",Aglomerado

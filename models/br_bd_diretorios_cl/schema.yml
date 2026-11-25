@@ -1,0 +1,100 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_cl__region
+    description: >
+      Directorio de las 16 regiones de Chile, con su código único territorial
+      (CUT) y sus variantes de nombre. Fuente: división político-administrativa
+      del Censo de Población y Vivienda 2024 del INE.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_region]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [numero_romano]
+    columns:
+      - name: id_region
+        description: >
+          Código único territorial (CUT) de la región, de dos dígitos
+        tests: [not_null, unique]
+      - name: nombre
+        description: >
+          Nombre de la región
+        tests: [not_null]
+      - name: nombre_completo
+        description: >
+          Nombre oficial completo de la región
+        tests: [not_null]
+      - name: sigla
+        description: >
+          Sigla de dos letras de la región según la norma ISO 3166-2:CL
+        tests: [not_null, unique]
+      - name: numero_romano
+        description: >
+          Ordinal romano histórico de la región, en desuso desde la Ley N°
+          21.074 (2018). Nulo para la Región Metropolitana de Santiago, que
+          nunca tuvo ordinal romano
+  - name: br_bd_diretorios_cl__provincia
+    description: >
+      Directorio de las 56 provincias de Chile, con su código único territorial
+      (CUT) y la región a la que pertenecen. Fuente: división político-
+      administrativa del Censo de Población y Vivienda 2024 del INE.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_provincia]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_provincia
+        description: >
+          Código único territorial (CUT) de la provincia, de tres dígitos
+        tests: [not_null, unique]
+      - name: id_region
+        description: >
+          Código de la región a la que pertenece la provincia
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: nombre
+        description: >
+          Nombre de la provincia
+        tests: [not_null]
+  - name: br_bd_diretorios_cl__comuna
+    description: >
+      Directorio de las 346 comunas de Chile, con su código único territorial
+      (CUT) y la provincia y región a las que pertenecen. Fuente: división
+      político-administrativa del Censo de Población y Vivienda 2024 del INE.
+      Es la tabla de referencia para cruzar cualquier conjunto de datos chileno
+      a nivel comunal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_comuna]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_comuna
+        description: >
+          Código único territorial (CUT) de la comuna, de cinco dígitos
+        tests: [not_null, unique]
+      - name: id_provincia
+        description: >
+          Código de la provincia a la que pertenece la comuna
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__provincia')
+              field: id_provincia
+      - name: id_region
+        description: >
+          Código de la región a la que pertenece la comuna
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: nombre
+        description: >
+          Nombre de la comuna
+        tests: [not_null]

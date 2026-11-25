@@ -116,7 +116,7 @@ def _build_legacy(path_dados, comp, ano):
             id_vars = ["id_municipio", "sigla_uf", "UF", "Cod Mun"]
             to_drop = ["UF", "Cod Mun"]
 
-        value_vars = df_dados.drop(id_vars, axis=1).columns
+        value_vars = df_dados.drop(id_vars, axis=1).columns.tolist()
         df_dados = pd.melt(
             df_dados,
             id_vars=id_vars,

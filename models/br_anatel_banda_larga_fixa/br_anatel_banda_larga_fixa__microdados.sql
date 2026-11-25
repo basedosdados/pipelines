@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2023, "interval": 1},
+            "range": {"start": 2007, "end": 2031, "interval": 1},
         },
         cluster_by=["id_municipio", "mes"],
         labels={"project_id": "basedosdados"},
@@ -18,7 +18,7 @@ select
     safe_cast(mes as int64) mes,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
-    safe_cast(cnpj as string) cnpj,
+    lpad(safe_cast(cnpj as string), 14, '0') cnpj,
     safe_cast(empresa as string) empresa,
     safe_cast(porte_empresa as string) porte_empresa,
     safe_cast(tecnologia as string) tecnologia,

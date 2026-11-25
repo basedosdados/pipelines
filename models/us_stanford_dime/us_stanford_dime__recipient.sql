@@ -1,0 +1,87 @@
+{{
+    config(
+        schema="us_stanford_dime",
+        alias="recipient",
+        materialized="table",
+        partition_by={
+            "field": "cycle",
+            "data_type": "int64",
+            "range": {"start": 1980, "end": 2030, "interval": 1},
+        },
+    )
+}}
+
+
+select
+    safe_cast(cycle as int64) cycle,
+    safe_cast(recipient_id as string) recipient_id,
+    safe_cast(contributor_id as string) contributor_id,
+    safe_cast(election as string) election,
+    safe_cast(icpsr_id as string) icpsr_id,
+    safe_cast(icpsr2_id as string) icpsr2_id,
+    safe_cast(candidate_id as string) candidate_id,
+    safe_cast(fec_committee_id as string) fec_committee_id,
+    safe_cast(nimsp_id as string) nimsp_id,
+    safe_cast(icpsr_id_before_switch as string) icpsr_id_before_switch,
+    safe_cast(icpsr_id_after_switch as string) icpsr_id_after_switch,
+    safe_cast(fec_year as int64) fec_year,
+    safe_cast(name as string) name,
+    safe_cast(last_name as string) last_name,
+    safe_cast(first_name as string) first_name,
+    safe_cast(middle_name as string) middle_name,
+    safe_cast(full_first_name as string) full_first_name,
+    safe_cast(title as string) title,
+    safe_cast(suffix as string) suffix,
+    safe_cast(candidate_gender as string) candidate_gender,
+    safe_cast(party as string) party,
+    safe_cast(party_original as string) party_original,
+    safe_cast(state as string) state,
+    safe_cast(seat as string) seat,
+    safe_cast(district as string) district,
+    safe_cast(district_cycle as string) district_cycle,
+    safe_cast(incumbency_status as string) incumbency_status,
+    safe_cast(recipient_cfscore as float64) recipient_cfscore,
+    safe_cast(recipient_cfscore_dynamic as float64) recipient_cfscore_dynamic,
+    safe_cast(contributor_cfscore as float64) contributor_cfscore,
+    safe_cast(dw_dime as float64) dw_dime,
+    safe_cast(composite_score as float64) composite_score,
+    safe_cast(dw_nominate_1 as float64) dw_nominate_1,
+    safe_cast(dw_nominate_2 as float64) dw_nominate_2,
+    safe_cast(dw_nominate_1_period as float64) dw_nominate_1_period,
+    safe_cast(dw_nominate_2_period as float64) dw_nominate_2_period,
+    safe_cast(irt_cfscore as float64) irt_cfscore,
+    safe_cast(number_of_givers as int64) number_of_givers,
+    safe_cast(number_of_givers_total as int64) number_of_givers_total,
+    safe_cast(total_receipts as float64) total_receipts,
+    safe_cast(total_disbursements as float64) total_disbursements,
+    safe_cast(total_individual_contributions as float64) total_individual_contributions,
+    safe_cast(total_unitemized as float64) total_unitemized,
+    safe_cast(total_pac_contributions as float64) total_pac_contributions,
+    safe_cast(total_party_contributions as float64) total_party_contributions,
+    safe_cast(
+        total_contributions_from_candidate as float64
+    ) total_contributions_from_candidate,
+    safe_cast(
+        independent_expenditure_support as float64
+    ) independent_expenditure_support,
+    safe_cast(independent_expenditure_oppose as float64) independent_expenditure_oppose,
+    safe_cast(primary_vote_share as float64) primary_vote_share,
+    safe_cast(primary_winner as string) primary_winner,
+    safe_cast(general_vote_share as float64) general_vote_share,
+    safe_cast(general_winner as string) general_winner,
+    safe_cast(special_election_status as string) special_election_status,
+    safe_cast(runoff_election_status as string) runoff_election_status,
+    safe_cast(
+        district_presidential_vote_share as float64
+    ) district_presidential_vote_share,
+    safe_cast(fec_candidate_status as string) fec_candidate_status,
+    safe_cast(recipient_type as string) recipient_type,
+    safe_cast(interest_group_category as string) interest_group_category,
+    safe_cast(committee_type as string) committee_type,
+    safe_cast(included_in_scaling as string) included_in_scaling,
+    safe_cast(nimsp_party as string) nimsp_party,
+    safe_cast(nimsp_incumbency_status as string) nimsp_incumbency_status,
+    safe_cast(nimsp_district as string) nimsp_district,
+    safe_cast(nimsp_office as string) nimsp_office,
+    safe_cast(nimsp_candidate_status as string) nimsp_candidate_status
+from {{ set_datalake_project("us_stanford_dime_staging.recipient") }} as t

@@ -1,0 +1,59 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "institution_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de instituição autorizada a receber depósitos (ADI) ou agrupamento",
+    "description_en": "Authorised deposit-taking institution type or grouping",
+    "description_es": "Tipo de institución autorizada para recibir depósitos (ADI) o agrupamiento",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "measure",
+    "bigquery_type": "STRING",
+    "description_pt": "Medida codificada dentro da demonstração (veja o rótulo no dicionário)",
+    "description_en": "Coded measure within the statement (see dictionary for the label)",
+    "description_es": "Medida codificada dentro del estado (ver la etiqueta en el diccionario)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "unit",
+    "bigquery_type": "STRING",
+    "description_pt": "Unidade do valor: aud_million, proportion ou unit",
+    "description_en": "Unit of the value: aud_million, proportion or unit",
+    "description_es": "Unidad del valor: aud_million, proportion o unit",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "value",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Valor reportado da medida (unidade dada pela coluna unit; NULO quando não aplicável ou mascarado por confidencialidade)",
+    "description_en": "Reported value of the measure (unit given by the unit column; NULL when not applicable or confidentiality-masked)",
+    "description_es": "Valor reportado de la medida (unidad dada por la columna unit; NULO cuando no es aplicable o está enmascarado por confidencialidad)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  }
+]

@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,1998(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"ABS labels each quarter by its final month (Q1 March, Q2 June, Q3 September, Q4 December)",
+series_id,STRING,ABS time series identifier of the series,,no,,,no,"Stable ABS Series ID (A-code); the series key, unique per combination of dimensions",series_id
+statistic,STRING,Statistic reported by the series,,no,,,no,Harmonised across ABS workbooks: the same statistic is spelled differently between a release's quarterly and financial-year tables,
+household_type,STRING,Household type whose living costs the index measures,,no,,,no,"The five ABS selected household types, defined by their principal source of income",
+commodity_group,STRING,Commodity group priced by the index,,no,,,no,All groups plus the eleven CPI commodity groups and the three separately published charge series,
+unit,STRING,"Unit of the reported value, as published by ABS",,no,,,no,"Units vary within a single ABS table, so the unit is carried per row rather than per table",unit
+value,FLOAT64,"Value of the series in the reference period, in the unit given by the unit column",,no,,,no,Carries no fixed measurement_unit: a tidy-indicator column whose unit varies by row and is given by the unit column,value

@@ -1,0 +1,97 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+perfil_eleitorado_secao,situacao_biometria,-3,,inválido                      
+perfil_eleitorado_secao,situacao_biometria,0,,sem biometria
+perfil_eleitorado_secao,situacao_biometria,1,,biométrico
+perfil_eleitorado_secao,situacao_biometria,2,,híbrido
+perfil_eleitorado_secao,genero,0,,não informado
+perfil_eleitorado_secao,genero,2,,masculino
+perfil_eleitorado_secao,genero,4,,feminino
+perfil_eleitorado_secao,estado_civil,-3,,inválido                      
+perfil_eleitorado_secao,estado_civil,0,,não informado
+perfil_eleitorado_secao,estado_civil,1,,solteiro(a)
+perfil_eleitorado_secao,estado_civil,3,,casado(a)
+perfil_eleitorado_secao,estado_civil,5,,viúvo(a)
+perfil_eleitorado_secao,estado_civil,7,,separado(a) judicialmente
+perfil_eleitorado_secao,estado_civil,9,,divorciado(a)
+perfil_eleitorado_secao,grupo_idade,-3,,inválido                      
+perfil_eleitorado_secao,grupo_idade,1600,,16 anos                       
+perfil_eleitorado_secao,grupo_idade,1700,,17 anos                       
+perfil_eleitorado_secao,grupo_idade,1800,,18 anos                       
+perfil_eleitorado_secao,grupo_idade,1900,,19 anos                       
+perfil_eleitorado_secao,grupo_idade,2000,,20 anos                       
+perfil_eleitorado_secao,grupo_idade,2124,,21 a 24 anos                  
+perfil_eleitorado_secao,grupo_idade,2529,,25 a 29 anos                  
+perfil_eleitorado_secao,grupo_idade,3034,,30 a 34 anos                  
+perfil_eleitorado_secao,grupo_idade,3539,,35 a 39 anos                  
+perfil_eleitorado_secao,grupo_idade,4044,,40 a 44 anos                  
+perfil_eleitorado_secao,grupo_idade,4549,,45 a 49 anos                  
+perfil_eleitorado_secao,grupo_idade,5054,,50 a 54 anos                  
+perfil_eleitorado_secao,grupo_idade,5559,,55 a 59 anos                  
+perfil_eleitorado_secao,grupo_idade,6064,,60 a 64 anos                  
+perfil_eleitorado_secao,grupo_idade,6569,,65 a 69 anos                  
+perfil_eleitorado_secao,grupo_idade,7074,,70 a 74 anos                  
+perfil_eleitorado_secao,grupo_idade,7579,,75 a 79 anos                  
+perfil_eleitorado_secao,grupo_idade,8084,,80 a 84 anos                  
+perfil_eleitorado_secao,grupo_idade,8589,,85 a 89 anos                  
+perfil_eleitorado_secao,grupo_idade,9094,,90 a 94 anos                  
+perfil_eleitorado_secao,grupo_idade,9599,,95 a 99 anos                  
+perfil_eleitorado_secao,grupo_idade,9999,,100 anos ou mais              
+perfil_eleitorado_secao,instrucao,0,,não informado
+perfil_eleitorado_secao,instrucao,1,,analfabeto
+perfil_eleitorado_secao,instrucao,2,,lê e escreve
+perfil_eleitorado_secao,instrucao,3,,ensino fundamental incompleto
+perfil_eleitorado_secao,instrucao,4,,ensino fundamental completo
+perfil_eleitorado_secao,instrucao,5,,ensino médio incompleto
+perfil_eleitorado_secao,instrucao,6,,ensino médio completo
+perfil_eleitorado_secao,instrucao,7,,ensino superior incompleto
+perfil_eleitorado_secao,instrucao,8,,ensino superior completo
+perfil_eleitorado_municipio_zona,situacao_biometria,-3,,inválido                      
+perfil_eleitorado_municipio_zona,situacao_biometria,0,,sem biometria
+perfil_eleitorado_municipio_zona,situacao_biometria,1,,biométrico
+perfil_eleitorado_municipio_zona,situacao_biometria,2,,híbrido
+perfil_eleitorado_municipio_zona,genero,0,,não informado
+perfil_eleitorado_municipio_zona,genero,2,,masculino
+perfil_eleitorado_municipio_zona,genero,4,,feminino
+perfil_eleitorado_municipio_zona,estado_civil,-3,,inválido                      
+perfil_eleitorado_municipio_zona,estado_civil,0,,não informado
+perfil_eleitorado_municipio_zona,estado_civil,1,,solteiro(a)
+perfil_eleitorado_municipio_zona,estado_civil,3,,casado(a)
+perfil_eleitorado_municipio_zona,estado_civil,5,,viúvo(a)
+perfil_eleitorado_municipio_zona,estado_civil,7,,separado(a) judicialmente
+perfil_eleitorado_municipio_zona,estado_civil,9,,divorciado(a)
+perfil_eleitorado_municipio_zona,grupo_idade,-3,,inválido                      
+perfil_eleitorado_municipio_zona,grupo_idade,1600,,16 anos                       
+perfil_eleitorado_municipio_zona,grupo_idade,1700,,17 anos                       
+perfil_eleitorado_municipio_zona,grupo_idade,1800,,18 anos                       
+perfil_eleitorado_municipio_zona,grupo_idade,1900,,19 anos                       
+perfil_eleitorado_municipio_zona,grupo_idade,2000,,20 anos                       
+perfil_eleitorado_municipio_zona,grupo_idade,2124,,21 a 24 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,2529,,25 a 29 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,3034,,30 a 34 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,3539,,35 a 39 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,4044,,40 a 44 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,4549,,45 a 49 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,5054,,50 a 54 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,5559,,55 a 59 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,6064,,60 a 64 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,6569,,65 a 69 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,7074,,70 a 74 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,7579,,75 a 79 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,8084,,80 a 84 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,8589,,85 a 89 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,9094,,90 a 94 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,9599,,95 a 99 anos                  
+perfil_eleitorado_municipio_zona,grupo_idade,9999,,100 anos ou mais              
+perfil_eleitorado_municipio_zona,instrucao,0,,não informado
+perfil_eleitorado_municipio_zona,instrucao,1,,analfabeto
+perfil_eleitorado_municipio_zona,instrucao,2,,lê e escreve
+perfil_eleitorado_municipio_zona,instrucao,3,,ensino fundamental incompleto
+perfil_eleitorado_municipio_zona,instrucao,4,,ensino fundamental completo
+perfil_eleitorado_municipio_zona,instrucao,5,,ensino médio incompleto
+perfil_eleitorado_municipio_zona,instrucao,6,,ensino médio completo
+perfil_eleitorado_municipio_zona,instrucao,7,,ensino superior incompleto
+perfil_eleitorado_municipio_zona,instrucao,8,,ensino superior completo
+pesquisa_eleitoral,pesquisa_propria,S,,"Sim, pesquisa realizada pela própria empresa"
+pesquisa_eleitoral,pesquisa_propria,N,,"Não, pesquisa realizada por empresa diferente"
+pesquisa_eleitoral_contratante,contratante_pagante,S,,"Sim, o contratante é o pagante"
+pesquisa_eleitoral_contratante,contratante_pagante,N,,"Não, o contratante não é o pagante"

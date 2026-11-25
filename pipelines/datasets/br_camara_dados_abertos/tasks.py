@@ -1,0 +1,207 @@
+"""
+Tasks for br_camara_dados_abertos — Prefect 3.
+"""
+
+import os
+from io import BytesIO
+
+import pandas as pd
+import requests
+from prefect import task
+
+from pipelines.constants import constants
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    constants as constants_camara,
+)
+from pipelines.datasets.br_camara_dados_abertos.utils import (
+    download_and_read_data,
+)
+from pipelines.utils.data_tests.contained import check_rows_contained
+from pipelines.utils.data_tests.rows import check_rows_written
+from pipelines.utils.utils import log
+
+TASK_RETRIES = constants.TASK_MAX_RETRIES.value
+TASK_RETRY_DELAY_SECONDS = constants.TASK_RETRY_DELAY.value
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def save_data(table_id: str) -> str:
+    if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
+        os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
+    df = download_and_read_data(table_id)
+    df = [df[0], df[1]]
+    output_path = [
+        constants_camara.TABLES_OUTPUT_PATH.value[table_id],
+        constants_camara.TABLES_OUTPUT_PATH_ANO_ANTERIOR.value[table_id],
+    ]
+    rows_read_by_file = {}
+    for output_path_year, df_year in zip(output_path, df, strict=False):
+        if table_id == "proposicao_microdados":
+            df_year["ultimoStatus_despacho"] = df_year[
+                "ultimoStatus_despacho"
+            ].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+            df_year["ementa"] = df_year["ementa"].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+            df_year["ano"] = df_year.apply(
+                lambda x: (
+                    x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"]
+                ),
+                axis=1,
+            )
+
+        if table_id == "frente_deputado":
+            # pyrefly: ignore [no-matching-overload]
+            df_year = df_year.rename(
+                columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value
+            )
+
+        if table_id == "evento":
+            # pyrefly: ignore [no-matching-overload]
+            df_year = df_year.rename(
+                columns=constants_camara.RENAME_COLUMNS_EVENTO.value
+            )
+            df_year["descricao"] = df_year["descricao"].apply(
+                lambda x: str(x).replace("\n", " ").replace("\r", " ")
+            )
+
+        if table_id == "votacao":
+            df_year["ultimaApresentacaoProposicao_descricao"] = df_year[
+                "ultimaApresentacaoProposicao_descricao"
+            ].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        if table_id == "votacao_objeto":
+            df_year[["descricao", "proposicao_ementa"]] = df_year[
+                ["descricao", "proposicao_ementa"]
+            ].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        if table_id == "votacao_proposicao":
+            df_year[["proposicao_ementa"]] = df_year[
+                ["proposicao_ementa"]
+            ].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        if table_id == "licitacao_pedido":
+            df_year[["observacoes"]] = df_year[["observacoes"]].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        if table_id == "licitacao_contrato":
+            df_year["objeto"] = df_year["objeto"].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        if table_id == "licitacao_item":
+            df_year[["especificacao"]] = df_year[["especificacao"]].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        log(f"Saving {table_id} to {output_path_year}")
+
+        rows_read_by_file[output_path_year] = len(df_year)
+        df_year.to_csv(
+            output_path_year, sep=",", index=False, encoding="utf-8"
+        )
+
+    check_rows_written(
+        rows_read=sum(rows_read_by_file.values()),
+        output_dir=f"{constants_camara.OUTPUT_PATH.value}{table_id}",
+    )
+
+    return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def check_if_url_is_valid(table_id: str) -> bool:
+    if (
+        requests.get(
+            constants_camara.TABLES_URL.value[table_id],
+            headers=constants_camara.HEADERS.value,
+        ).status_code
+        == 200
+    ):
+        log("URL is valid")
+        log(constants_camara.TABLES_URL.value[table_id])
+        return True
+    elif (
+        requests.get(
+            constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id],
+            headers=constants_camara.HEADERS.value,
+        ).status_code
+        == 200
+    ):
+        log(
+            "Table is not available in the current year only in the previous year"
+        )
+        log(constants_camara.TABLES_URL_ANO_ANTERIOR.value[table_id])
+        return False
+    else:
+        raise ValueError("URL is not valid")
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def check_historico_cobre_ano_atual() -> None:
+    """falha se alguma linha do arquivo do ano atual não está no de 1999."""
+    url = constants_camara.LICITACAO_CONTRATO_ANO_ATUAL_URL.value
+    response = requests.get(
+        url, headers=constants_camara.HEADERS.value, timeout=60
+    )
+    # sem o arquivo do ano atual não há o que conferir
+    if response.status_code == 404:
+        log(f"Arquivo do ano atual não existe, checagem pulada: {url}")
+        return
+    response.raise_for_status()
+    ano_atual = pd.read_csv(BytesIO(response.content), sep=";", dtype=str)
+    historico = pd.read_csv(
+        constants_camara.TABLES_INPUT_PATH.value["licitacao_contrato"],
+        sep=";",
+        dtype=str,
+    )
+    check_rows_contained(rows=ano_atual, container=historico)

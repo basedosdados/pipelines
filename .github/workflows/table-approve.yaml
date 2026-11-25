@@ -53,12 +53,17 @@ jobs:
         with:
           script: |
             const pr_number = core.getInput("pr_number") || '${{ steps.get_pr.outputs.pr_number }}';
-            const files = await github.rest.pulls.listFiles({
+            // Paginate: listFiles returns only 30 files per page by default,
+            // so PRs with more than 30 changed files (e.g. a dataset with many
+            // models) would silently drop the overflow — including the .sql
+            // models that prefect_run_dbt.py selects on — and materialize nothing.
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pr_number
+              pull_number: pr_number,
+              per_page: 100
             });
-            const fileNames = files.data
+            const fileNames = files
               .filter(file => file.status !== 'removed')
               .map(f => f.filename)
               .join(',');
@@ -80,15 +85,17 @@ jobs:
         if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
           != ''
         run: uv sync --locked --no-dev
-      - name: Run prefect flow to execute dbt model in prod
+      - name: Run build_and_promote to promote tables to prod
         if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
           != ''
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
-            --dbt-command run \
-            --sync-bucket \
             --modified-files "${{ steps.changed_files.outputs.files }}"
         env:
+          # Sem isso, o stdout do Python fica bufferizado por bloco (não é
+          # um terminal) e os prints de progresso só aparecem no log do
+          # Actions quando o processo termina, não em tempo real.
+          PYTHONUNBUFFERED: '1'
           PREFECT_API_URL: https://prefect3.basedosdados.org/api
           PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
           BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}

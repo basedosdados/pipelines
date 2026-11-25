@@ -1,0 +1,37 @@
+{
+ "respondent_cycle_1": [
+  "b_d03d",
+  "b_q04b",
+  "b_q04b_c",
+  "d_q16b_t",
+  "d_q18a",
+  "d_s16a",
+  "e_q05b1",
+  "e_q05b2"
+ ],
+ "respondent_cycle_2": [
+  "a2_q03c1",
+  "a2_q03c2",
+  "a2_q03c2_t",
+  "b2_d01d",
+  "b2_d03d",
+  "c2_q04",
+  "d2_q05b1",
+  "d2_q16a",
+  "d2_s14a",
+  "disp_ds",
+  "e2_q05b1",
+  "e2_q05b2",
+  "earnmthselfc2",
+  "earnmthselfpppc2",
+  "wf_hmpairs"
+ ],
+ "respondent_cycle_1_usa_national": [
+  "b_q04b_c"
+ ],
+ "item_response_cycle_1": [
+  "n_short_visits",
+  "n_visits"
+ ],
+ "item_response_cycle_2": []
+}

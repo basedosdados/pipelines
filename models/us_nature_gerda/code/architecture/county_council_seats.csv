@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Election year,,no,,year,no,,election_year
+id_county,STRING,"County identifier, 5-digit Kreisschlüssel",,no,br_bd_diretorios_de.county:id_county,,no,,county
+id_state,STRING,"State identifier, 2-digit Land code",,no,br_bd_diretorios_de.state:id_state,,no,,state
+county_name,STRING,County name as reported by the source,,no,,,no,,county_name
+county_type,STRING,County type: Landkreis or kreisfreie Stadt,,no,,,no,,county_type
+government_party,STRING,Party of the county executive (Landrat or Oberbürgermeister); parteilos denotes an independent,,no,,,no,,government_party
+seats_total,INT64,Total council size (all parties),,no,,seat,no,,seats_total
+seats_regional,INT64,Council seats won by regional parties,,no,,seat,no,,seats_regional
+seats_other,INT64,Council seats won by all other parties combined,,no,,seat,no,,seats_other
+seats_local_other,INT64,"Council seats held outside the six major parties (freie_wahler plus regional plus other), comparable across years",,no,,seat,no,,seats_local_other
+flag_seats_total_incongruent,STRING,"1 if seats_total does not equal the sum of the party seat columns, else 0",,no,,,no,,flag_seats_total_incongruent
+party,STRING,"Party or list, GERDA normalized name",,no,br_bd_diretorios_de.party:id_party,,no,,party
+seats,INT64,Council seats won by the party,,no,,seat,no,,seats

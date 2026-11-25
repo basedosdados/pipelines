@@ -1,0 +1,135 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+prgmofr,INT64,Number of programs offered,,no,,,no,,prgmofr
+cipcode1,FLOAT64,CIP code of largest program,,no,,,no,,cipcode1
+xciptui1,STRING,"Imputation field for CIPTUIT1 - Tuition and fees 2023-24 (institutions with no full-time, first-time, undergraduate students)",,no,,,no,,xciptui1
+ciptuit1,STRING,"Tuition and fees 2023-24 (institutions with no full-time, first-time, undergraduate students)",,no,,,no,,ciptuit1
+xcipsup1,STRING,"Imputation field for CIPSUPP1 - Books and supplies 2023-24 (institutions with no full-time, first-time, undergraduate students)",,no,,,no,,xcipsup1
+cipsupp1,STRING,"Books and supplies 2023-24 (institutions with no full-time, first-time, undergraduate students)",,no,,,no,,cipsupp1
+xciplgt1,STRING,Imputation field for CIPLGTH1 - Total length of largest program,,no,,,no,,xciplgt1
+ciplgth1,FLOAT64,Total length of largest program,,no,,,no,,ciplgth1
+prgmsr1,FLOAT64,Largest program measured in credit or clock hours,,no,,,no,,prgmsr1
+xmthcmp1,STRING,Imputation field for MTHCMP1 - Average number of months to complete largest program,,no,,,no,,xmthcmp1
+mthcmp1,FLOAT64,Average number of months to complete largest program,,no,,,no,,mthcmp1
+xwkcmp1,STRING,"Imputation field for WKCMP1 - Total length of program in weeks, as completed by a student attending full-time",,no,,,no,,xwkcmp1
+wkcmp1,FLOAT64,"Total length of program in weeks, as completed by a student attending full-time",,no,,,no,,wkcmp1
+xlnayhr1,STRING,Imputation field for LNAYHR1 - Total length of academic year (as used to calculate your Pell budget) in clock or credit hours,,no,,,no,,xlnayhr1
+lnayhr1,FLOAT64,Total length of academic year (as used to calculate your Pell budget) in clock or credit hours,,no,,,no,,lnayhr1
+xlnaywk1,STRING,Imputation field for LNAYWK1 - Total length of academic year (as used to calculate your Pell budget) in weeks,,no,,,no,,xlnaywk1
+lnaywk1,FLOAT64,Total length of academic year (as used to calculate your Pell budget) in weeks,,no,,,no,,lnaywk1
+xchg1py0,STRING,Imputation field for CHG1PY0 - Published tuition and fees 2020-21,,no,,,no,,xchg1py0
+chg1py0,FLOAT64,Published tuition and fees 2020-21,,no,,,no,,chg1py0
+xchg1py1,STRING,Imputation field for CHG1PY1 - Published tuition and fees 2021-22,,no,,,no,,xchg1py1
+chg1py1,FLOAT64,Published tuition and fees 2021-22,,no,,,no,,chg1py1
+xchg1py2,STRING,Imputation field for CHG1PY2 - Published tuition and fees 2022-23,,no,,,no,,xchg1py2
+chg1py2,FLOAT64,Published tuition and fees 2022-23,,no,,,no,,chg1py2
+xchg1py3,STRING,Imputation field for CHG1PY3 - Published tuition and fees 2023-24,,no,,,no,,xchg1py3
+chg1py3,FLOAT64,Published tuition and fees 2023-24,,no,,,no,,chg1py3
+xchg4py0,STRING,Imputation field for CHG4PY0 - Books and supplies 2020-21,,no,,,no,,xchg4py0
+chg4py0,FLOAT64,Books and supplies 2020-21,,no,,,no,,chg4py0
+xchg4py1,STRING,Imputation field for CHG4PY1 - Books and supplies 2021-22,,no,,,no,,xchg4py1
+chg4py1,FLOAT64,Books and supplies 2021-22,,no,,,no,,chg4py1
+xchg4py2,STRING,Imputation field for CHG4PY2 - Books and supplies 2022-23,,no,,,no,,xchg4py2
+chg4py2,FLOAT64,Books and supplies 2022-23,,no,,,no,,chg4py2
+xchg4py3,STRING,Imputation field for CHG4PY3 - Books and supplies 2023-24,,no,,,no,,xchg4py3
+chg4py3,FLOAT64,Books and supplies 2023-24,,no,,,no,,chg4py3
+xchg5py0,STRING,"Imputation field for CHG5PY0 - On campus, food and housing 2020-21",,no,,,no,,xchg5py0
+chg5py0,STRING,"On campus, food and housing 2020-21",,no,,,no,,chg5py0
+xchg5py1,STRING,"Imputation field for CHG5PY1 - On campus, food and housing 2021-22",,no,,,no,,xchg5py1
+chg5py1,STRING,"On campus, food and housing 2021-22",,no,,,no,,chg5py1
+xchg5py2,STRING,"Imputation field for CHG5PY2 - On campus, food and housing 2022-23",,no,,,no,,xchg5py2
+chg5py2,STRING,"On campus, food and housing 2022-23",,no,,,no,,chg5py2
+xchg5py3,STRING,"Imputation field for CHG5PY3 - On campus, food and housing 2023-24",,no,,,no,,xchg5py3
+chg5py3,STRING,"On campus, food and housing 2023-24",,no,,,no,,chg5py3
+xchg6py0,STRING,"Imputation field for CHG6PY0 - On campus, other expenses 2020-21",,no,,,no,,xchg6py0
+chg6py0,STRING,"On campus, other expenses 2020-21",,no,,,no,,chg6py0
+xchg6py1,STRING,"Imputation field for CHG6PY1 - On campus, other expenses 2021-22",,no,,,no,,xchg6py1
+chg6py1,STRING,"On campus, other expenses 2021-22",,no,,,no,,chg6py1
+xchg6py2,STRING,"Imputation field for CHG6PY2 - On campus, other expenses 2022-23",,no,,,no,,xchg6py2
+chg6py2,STRING,"On campus, other expenses 2022-23",,no,,,no,,chg6py2
+xchg6py3,STRING,"Imputation field for CHG6PY3 - On campus, other expenses 2023-24",,no,,,no,,xchg6py3
+chg6py3,STRING,"On campus, other expenses 2023-24",,no,,,no,,chg6py3
+xchg7py0,STRING,"Imputation field for CHG7PY0 - Off campus (not with family), food and housing 2020-21",,no,,,no,,xchg7py0
+chg7py0,FLOAT64,"Off campus (not with family), food and housing 2020-21",,no,,,no,,chg7py0
+xchg7py1,STRING,"Imputation field for CHG7PY1 - Off campus (not with family), food and housing 2021-22",,no,,,no,,xchg7py1
+chg7py1,FLOAT64,"Off campus (not with family), food and housing 2021-22",,no,,,no,,chg7py1
+xchg7py2,STRING,"Imputation field for CHG7PY2 - Off campus (not with family), food and housing 2022-23",,no,,,no,,xchg7py2
+chg7py2,FLOAT64,"Off campus (not with family), food and housing 2022-23",,no,,,no,,chg7py2
+xchg7py3,STRING,"Imputation field for CHG7PY3 - Off campus (not with family), food and housing 2023-24",,no,,,no,,xchg7py3
+chg7py3,FLOAT64,"Off campus (not with family), food and housing 2023-24",,no,,,no,,chg7py3
+xchg8py0,STRING,"Imputation field for CHG8PY0 - Off campus (not with family), other expenses 2020-21",,no,,,no,,xchg8py0
+chg8py0,FLOAT64,"Off campus (not with family), other expenses 2020-21",,no,,,no,,chg8py0
+xchg8py1,STRING,"Imputation field for CHG8PY1 - Off campus (not with family), other expenses 2021-22",,no,,,no,,xchg8py1
+chg8py1,FLOAT64,"Off campus (not with family), other expenses 2021-22",,no,,,no,,chg8py1
+xchg8py2,STRING,"Imputation field for CHG8PY2 - Off campus (not with family), other expenses 2022-23",,no,,,no,,xchg8py2
+chg8py2,FLOAT64,"Off campus (not with family), other expenses 2022-23",,no,,,no,,chg8py2
+xchg8py3,STRING,"Imputation field for CHG8PY3 - Off campus (not with family), other expenses 2023-24",,no,,,no,,xchg8py3
+chg8py3,FLOAT64,"Off campus (not with family), other expenses 2023-24",,no,,,no,,chg8py3
+xchg9py0,STRING,"Imputation field for CHG9PY0 - Off campus (with family), other expenses 2020-21",,no,,,no,,xchg9py0
+chg9py0,FLOAT64,"Off campus (with family), other expenses 2020-21",,no,,,no,,chg9py0
+xchg9py1,STRING,"Imputation field for CHG9PY1 - Off campus (with family), other expenses 2021-22",,no,,,no,,xchg9py1
+chg9py1,FLOAT64,"Off campus (with family), other expenses 2021-22",,no,,,no,,chg9py1
+xchg9py2,STRING,"Imputation field for CHG9PY2 - Off campus (with family), other expenses 2022-23",,no,,,no,,xchg9py2
+chg9py2,FLOAT64,"Off campus (with family), other expenses 2022-23",,no,,,no,,chg9py2
+xchg9py3,STRING,"Imputation field for CHG9PY3 - Off campus (with family), other expenses 2023-24",,no,,,no,,xchg9py3
+chg9py3,FLOAT64,"Off campus (with family), other expenses 2023-24",,no,,,no,,chg9py3
+cipcode2,FLOAT64,CIP code of 2nd largest program,,no,,,no,,cipcode2
+xciptui2,STRING,Imputation field for CIPTUIT2 - Tuition and fees of 2nd largest program,,no,,,no,,xciptui2
+ciptuit2,FLOAT64,Tuition and fees of 2nd largest program,,no,,,no,,ciptuit2
+xcipsup2,STRING,Imputation field for CIPSUPP2 - Cost of books and supplies of 2nd largest program,,no,,,no,,xcipsup2
+cipsupp2,FLOAT64,Cost of books and supplies of 2nd largest program,,no,,,no,,cipsupp2
+xciplgt2,STRING,Imputation field for CIPLGTH2 - Length of 2nd largest program,,no,,,no,,xciplgt2
+ciplgth2,FLOAT64,Length of 2nd largest program,,no,,,no,,ciplgth2
+prgmsr2,FLOAT64,2nd largest program measured in credit or clock hours,,no,,,no,,prgmsr2
+xmthcmp2,STRING,Imputation field for MTHCMP2 - Number of months to complete 2nd largest program,,no,,,no,,xmthcmp2
+mthcmp2,FLOAT64,Number of months to complete 2nd largest program,,no,,,no,,mthcmp2
+cipcode3,FLOAT64,CIP code of 3rd largest program,,no,,,no,,cipcode3
+xciptui3,STRING,Imputation field for CIPTUIT3 - Tuition and fees of 3rd largest program,,no,,,no,,xciptui3
+ciptuit3,FLOAT64,Tuition and fees of 3rd largest program,,no,,,no,,ciptuit3
+xcipsup3,STRING,Imputation field for CIPSUPP3 - Cost of books and supplies of 3rd largest program,,no,,,no,,xcipsup3
+cipsupp3,FLOAT64,Cost of books and supplies of 3rd largest program,,no,,,no,,cipsupp3
+xciplgt3,STRING,Imputation field for CIPLGTH3 - Length of 3rd largest program,,no,,,no,,xciplgt3
+ciplgth3,FLOAT64,Length of 3rd largest program,,no,,,no,,ciplgth3
+prgmsr3,FLOAT64,3rd largest program measured in credit or clock hours,,no,,,no,,prgmsr3
+xmthcmp3,STRING,Imputation field for MTHCMP3 - Number of months to complete 3rd largest program,,no,,,no,,xmthcmp3
+mthcmp3,FLOAT64,Number of months to complete 3rd largest program,,no,,,no,,mthcmp3
+cipcode4,FLOAT64,CIP code of 4th largest program,,no,,,no,,cipcode4
+xciptui4,STRING,Imputation field for CIPTUIT4 - Tuition and fees of 4th largest program,,no,,,no,,xciptui4
+ciptuit4,STRING,Tuition and fees of 4th largest program,,no,,,no,,ciptuit4
+xcipsup4,STRING,Imputation field for CIPSUPP4 - Cost of books and supplies of 4th largest program,,no,,,no,,xcipsup4
+cipsupp4,STRING,Cost of books and supplies of 4th largest program,,no,,,no,,cipsupp4
+xciplgt4,STRING,Imputation field for CIPLGTH4 - Length of 4th largest program,,no,,,no,,xciplgt4
+ciplgth4,STRING,Length of 4th largest program,,no,,,no,,ciplgth4
+prgmsr4,FLOAT64,4th largest program measured in credit or clock hours,,no,,,no,,prgmsr4
+xmthcmp4,STRING,Imputation field for MTHCMP4 - Number of months to complete 4th largest program,,no,,,no,,xmthcmp4
+mthcmp4,STRING,Number of months to complete 4th largest program,,no,,,no,,mthcmp4
+cipcode5,FLOAT64,CIP code of 5th largest program,,no,,,no,,cipcode5
+xciptui5,STRING,Imputation field for CIPTUIT5 - Tuition and fees of 5th largest program,,no,,,no,,xciptui5
+ciptuit5,STRING,Tuition and fees of 5th largest program,,no,,,no,,ciptuit5
+xcipsup5,STRING,Imputation field for CIPSUPP5 - Cost of books and supplies of 5th largest program,,no,,,no,,xcipsup5
+cipsupp5,STRING,Cost of books and supplies of 5th largest program,,no,,,no,,cipsupp5
+xciplgt5,STRING,Imputation field for CIPLGTH5 - Length of 5th largest program,,no,,,no,,xciplgt5
+ciplgth5,STRING,Length of 5th largest program,,no,,,no,,ciplgth5
+prgmsr5,FLOAT64,5th largest program measured in credit or clock hours,,no,,,no,,prgmsr5
+xmthcmp5,STRING,Imputation field for MTHCMP5 - Number of months to complete 5th largest program,,no,,,no,,xmthcmp5
+mthcmp5,STRING,Number of months to complete 5th largest program,,no,,,no,,mthcmp5
+cipcode6,FLOAT64,CIP code of 6th largest program,,no,,,no,,cipcode6
+xciptui6,STRING,Imputation field for CIPTUIT6 - Tuition and fees of 6th largest program,,no,,,no,,xciptui6
+ciptuit6,STRING,Tuition and fees of 6th largest program,,no,,,no,,ciptuit6
+xcipsup6,STRING,Imputation field for CIPSUPP6 - Cost of books and supplies of 6th largest program,,no,,,no,,xcipsup6
+cipsupp6,STRING,Cost of books and supplies of 6th largest program,,no,,,no,,cipsupp6
+xciplgt6,STRING,Imputation field for CIPLGTH6 - Length of 6th largest program,,no,,,no,,xciplgt6
+ciplgth6,STRING,Length of 6th largest program,,no,,,no,,ciplgth6
+prgmsr6,FLOAT64,6th largest program measured in credit or clock hours,,no,,,no,,prgmsr6
+xmthcmp6,STRING,Imputation field for MTHCMP6 - Number of months to complete 6th largest program,,no,,,no,,xmthcmp6
+mthcmp6,STRING,Number of months to complete 6th largest program,,no,,,no,,mthcmp6
+xcmp1py0,STRING,Imputation field for CMP1PY0 - Comprehensive fee 2009-10,,no,,,no,,xcmp1py0
+cmp1py0,STRING,Comprehensive fee 2009-10,,no,,,no,,cmp1py0
+xcmp1py1,STRING,Imputation field for CMP1PY1 - Comprehensive fee 2010-11,,no,,,no,,xcmp1py1
+cmp1py1,STRING,Comprehensive fee 2010-11,,no,,,no,,cmp1py1
+xcmp1py2,STRING,Imputation field for CMP1PY2 - Comprehensive fee 2011-12,,no,,,no,,xcmp1py2
+cmp1py2,STRING,Comprehensive fee 2011-12,,no,,,no,,cmp1py2
+xcmp1py3,STRING,Imputation field for CMP1PY3 - Comprehensive fee 2012-13,,no,,,no,,xcmp1py3
+cmp1py3,STRING,Comprehensive fee 2012-13,,no,,,no,,cmp1py3
+pg300,FLOAT64,Programs at least 300 contact hours,,no,,,no,,pg300

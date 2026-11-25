@@ -1,0 +1,7 @@
+# Never commit data or credentials. Scratch data lives outside the repo, under
+# ~/Downloads/world_wil_wid_data/, but guard against a stray --root anyway.
+input/
+output/
+*.parquet
+*.zip
+.env

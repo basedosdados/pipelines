@@ -3,6 +3,8 @@ Utilitários gerais — logging, detecção de ambiente, helpers de string.
 """
 
 import logging
+import os
+import re
 import zipfile
 from io import BytesIO
 from pathlib import Path
@@ -32,6 +34,23 @@ def log(msg: Any, level: str = "info") -> None:
         logging.getLogger("pipelines").log(levels[level], str(msg))
 
 
+def bq_safe_column_name(name: str) -> str:
+    """Normaliza um nome de coluna como o BigQuery faz ao inferir o schema.
+
+    As colunas que o crawler não renomeia chegam com o nome cru da fonte —
+    com espaço e acento, quando é o caso. Ao criar a tabela externa o
+    BigQuery troca cada caractere inválido por `_`, então `Nome do município`
+    vira `Nome_do_munic_pio`.
+
+    Args:
+        name: nome como vem do arquivo de dados.
+
+    Returns:
+        O nome com todo caractere fora de `[0-9a-zA-Z_]` trocado por `_`.
+    """
+    return re.sub(r"[^0-9a-zA-Z_]", "_", name)
+
+
 def is_running_in_prod() -> bool:
     """Retorna True se o flow está rodando no work pool de prod (basedosdados)."""
     try:
@@ -40,6 +59,36 @@ def is_running_in_prod() -> bool:
         return flow_run.work_pool_name == "basedosdados"
     except Exception:
         return False
+
+
+def brasil_proxy_url() -> str | None:
+    """URL do proxy com IP brasileiro (iac#155), pra fontes que bloqueiam IP estrangeiro.
+
+    Lida de `BRASIL_PROXY_URL`, disponível em todo pod via o secret
+    `gcp-credentials` (injetado por `envFrom` no work pool). Usar direto
+    como `proxy=url` (httpx) — pra `requests`, ver `brasil_proxy_dict()`.
+    Passar só nas chamadas de rede que precisam de IP brasileiro — nunca
+    setar `HTTP_PROXY`/`HTTPS_PROXY` global no processo, isso desviaria
+    tráfego não relacionado (Vault, BigQuery, API do Prefect) por um
+    proxy pensado só pra uma fonte específica.
+
+    Returns:
+        A URL do proxy (com usuário/senha embutidos), ou `None` quando
+        `BRASIL_PROXY_URL` não está definida (dev local, ou fonte que
+        não precisa de proxy).
+    """
+    return os.environ.get("BRASIL_PROXY_URL") or None
+
+
+def brasil_proxy_dict() -> dict[str, str] | None:
+    """`brasil_proxy_url()` pronto pro parâmetro `proxies=` do `requests`.
+
+    Returns:
+        `{"http": url, "https": url}`, ou `None` quando `BRASIL_PROXY_URL`
+        não está definida (mesma condição de `brasil_proxy_url()`).
+    """
+    url = brasil_proxy_url()
+    return {"http": url, "https": url} if url else None
 
 
 def query_to_line(query: str) -> str:
@@ -56,12 +105,14 @@ def to_partitions(
     if not isinstance(data, pd.DataFrame):
         raise TypeError("data deve ser um pandas DataFrame")
 
+    # pyrefly: ignore [bad-assignment]
     savepath = Path(savepath)
     unique_combinations = (
         data[partition_columns].drop_duplicates().to_dict(orient="records")
     )
 
     for combo in unique_combinations:
+        # pyrefly: ignore [unsupported-operation]
         partition_path = savepath / "/".join(
             f"{k}={v}" for k, v in combo.items()
         )

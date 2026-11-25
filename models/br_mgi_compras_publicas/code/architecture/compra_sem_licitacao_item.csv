@@ -1,0 +1,41 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de publicação do aviso de contratação direta,1997(1)2024,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, correspondente ao campo dt_ano_aviso_licitacao da fonte",,Year of publication of the direct contracting notice,Año de publicación del aviso de contratación directa
+id_compra,STRING,Identificador da contratação direta no SIASG,,no,,,no,Junta com a tabela compra_sem_licitacao,id_compra,Identifier of the direct contracting in SIASG,Identificador de la contratación directa en el SIASG
+id_compra_item,STRING,Identificador do item da contratação direta no SIASG,,no,,,no,Chave primária da tabela,id_compra_item,Identifier of the direct contracting item in SIASG,Identificador del ítem de la contratación directa en el SIASG
+numero_item_material,STRING,Número do item dentro da contratação,,no,,,no,,nu_item_material,Item number within the procurement,Número del ítem dentro de la contratación
+codigo_uasg,STRING,Código da UASG responsável pela contratação,,no,,,no,,co_uasg,Code of the UASG running the procurement,Código de la UASG responsable de la contratación
+codigo_orgao,STRING,Código do órgão responsável pela contratação,,no,,,no,,co_orgao,Code of the body running the procurement,Código del órgano responsable de la contratación
+numero_aviso,STRING,Número do aviso da contratação direta,,no,,,no,,nu_aviso_licitacao,Notice number of the direct contracting,Número del aviso de la contratación directa
+numero_processo,STRING,Número do processo administrativo,,no,,,no,,nu_processo,Administrative case number,Número del proceso administrativo
+codigo_modalidade,STRING,Código da modalidade da contratação direta,,yes,,,no,"6 dispensa de licitação, 7 inexigibilidade de licitação",co_modalidade_licitacao,Code of the direct contracting modality,Código de la modalidad de la contratación directa
+quantidade_total_item,INT64,Quantidade total de itens da contratação,,no,,unit,no,,qt_total_item,Total number of items in the procurement,Cantidad total de ítems de la contratación
+objeto_licitacao,STRING,Descrição do objeto da contratação,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,ds_objeto_licitacao,Description of the procurement's subject matter,Descripción del objeto de la contratación
+fundamento_legal,STRING,Dispositivo legal que fundamenta a contratação direta,,no,,,no,,ds_fundamento_legal,Legal provision underpinning the direct contracting,Disposición legal que fundamenta la contratación directa
+justificativa,STRING,Justificativa apresentada para a contratação direta,,no,,,no,,ds_justificativa,Justification given for the direct contracting,Justificación presentada para la contratación directa
+nome_responsavel_declaracao_dispensa,STRING,Nome do responsável pela declaração de dispensa ou inexigibilidade,,no,,,no,,no_responsavel_decl_disp,Name of the official who declared the waiver,Nombre del responsable de la declaración de dispensa o inexigibilidad
+cargo_responsavel_declaracao_dispensa,STRING,Cargo do responsável pela declaração de dispensa ou inexigibilidade,,no,,,no,,no_cargo_resp_decl_disp,Role of the official who declared the waiver,Cargo del responsable de la declaración de dispensa o inexigibilidad
+nome_responsavel_ratificacao,STRING,Nome do responsável pela ratificação,,no,,,no,,no_responsavel_ratificacao,Name of the official who ratified the waiver,Nombre del responsable de la ratificación
+cargo_responsavel_ratificacao,STRING,Cargo do responsável pela ratificação,,no,,,no,,no_cargo_resp_ratificacao,Role of the official who ratified the waiver,Cargo del responsable de la ratificación
+modalidade,STRING,"Modalidade da contratação direta, dispensa ou inexigibilidade",,no,,,no,,no_modalidade_licitacao,"Direct contracting modality, waiver or non-enforceability","Modalidad de la contratación directa, dispensa o inexigibilidad"
+numero_inciso,STRING,Inciso do dispositivo legal que fundamenta a contratação,,no,,,no,,nu_inciso,Subsection of the legal provision underpinning the procurement,Inciso de la disposición legal que fundamenta la contratación
+tipo_item,STRING,Indica se o item é material ou serviço,,yes,,,no,,in_material_servico,Whether the item is a material or a service,Indica si el ítem es material o servicio
+codigo_conjunto_materiais,STRING,Código do conjunto de materiais no CATMAT,,no,,,no,O valor 0 indica item que não é material,co_conjunto_materiais,Code of the material set in CATMAT,Código del conjunto de materiales en el CATMAT
+nome_conjunto_materiais,STRING,Nome do conjunto de materiais,,no,,,no,,no_conjunto_materiais,Name of the material set,Nombre del conjunto de materiales
+codigo_servico,STRING,Código do serviço no CATSER,,no,,,no,,co_servico,Code of the service in CATSER,Código del servicio en el CATSER
+nome_servico,STRING,Nome do serviço contratado,,no,,,no,,no_servico,Name of the contracted service,Nombre del servicio contratado
+descricao_detalhada,STRING,Descrição detalhada do item,,no,,,no,,ds_detalhada,Detailed description of the item,Descripción detallada del ítem
+marca_material,STRING,Marca do material adquirido,,no,,,no,,no_marca_material,Brand of the purchased material,Marca del material adquirido
+fabricante,STRING,Fabricante do material adquirido,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,ds_fabricante,Manufacturer of the purchased material,Fabricante del material adquirido
+unidade_medida,STRING,Unidade de medida do item,,no,,,no,,no_unidade_medida,Unit of measurement of the item,Unidad de medida del ítem
+quantidade_material,FLOAT64,Quantidade contratada do item,,no,,unit,no,,qt_material_alt,Contracted quantity of the item,Cantidad contratada del ítem
+valor_estimado,FLOAT64,Valor total estimado da contratação direta,,no,,BRL,no,,vr_estimado,Total estimated value of the direct contracting,Valor total estimado de la contratación directa
+valor_estimado_item,FLOAT64,Valor estimado do item,,no,,BRL,no,,vr_estimado_item,Estimated value of the item,Valor estimado del ítem
+tipo_fornecedor_vencedor,STRING,Indica se o fornecedor vencedor é pessoa física ou jurídica,,yes,,,no,,in_tipo_fornecedor_vencedor,Whether the winning supplier is an individual or a legal entity,Indica si el proveedor adjudicatario es persona física o jurídica
+nome_fornecedor_vencedor,STRING,Nome ou razão social do fornecedor vencedor,,no,,,no,,no_fornecedor_vencedor,Name of the winning supplier,Nombre o razón social del proveedor adjudicatario
+cnpj_vencedor,STRING,CNPJ do fornecedor vencedor,,no,,,no,,nu_cnpj_vencedor,Taxpayer number of the winning supplier,CNPJ del proveedor adjudicatario
+cpf_vencedor,STRING,CPF mascarado do vencedor pessoa física,,no,,,yes,"A fonte publica o CPF parcialmente mascarado, no formato ***308103**",nu_cpf_vencedor,Masked taxpayer number of the individual winner,CPF enmascarado del ganador persona física
+cpf_responsavel_declaracao_dispensa,STRING,CPF do responsável pela declaração de dispensa,,no,,,yes,Integralmente vazia nas amostras verificadas em 2026-08,nu_cpf_resp_decl_disp,Taxpayer number of the official who declared the waiver,CPF del responsable de la declaración de dispensa
+cpf_responsavel_ratificacao,STRING,CPF do responsável pela ratificação,,no,,,yes,Integralmente vazia nas amostras verificadas em 2026-08,nu_cpf_resp_ratificacao,Taxpayer number of the official who ratified the waiver,CPF del responsable de la ratificación
+cpf_responsavel_publicacao,STRING,CPF do responsável pela publicação,,no,,,yes,Integralmente vazia nas amostras verificadas em 2026-08,nu_cpf_resp_publicacao,Taxpayer number of the official who published the notice,CPF del responsable de la publicación
+data_publicacao,DATE,Data de publicação do aviso,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08,dt_publicacao,Date the notice was published,Fecha de publicación del aviso
+data_alteracao,DATETIME,Data e hora da última alteração do registro,,no,,,no,,dt_alteracao,Timestamp of the last change to the record,Fecha y hora de la última modificación del registro

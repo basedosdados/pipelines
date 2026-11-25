@@ -1,0 +1,17 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+funder_id,STRING,Identificador do financiador no OpenAlex,OpenAlex identifier of the funder,Identificador del financiador en OpenAlex,,no,,,no,Armazenado sem o prefixo de URL (ex.: F4320332161),Stored without the URL prefix (e.g. F4320332161),"Almacenado sin el prefijo de URL (p. ej., F4320332161)",id
+display_name,STRING,Nome do financiador,Name of the funder,Nombre del financiador,,no,,,no,,,,display_name
+country_code,STRING,País (código ISO 3166-1 alfa-2),Country (ISO 3166-1 alpha-2 code),País (código ISO 3166-1 alfa-2),,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,,,country_code
+description,STRING,Descrição textual,Textual description,Descripción textual,,no,,,no,,,,description
+ror_id,STRING,Identificador ROR (Research Organization Registry),ROR (Research Organization Registry) identifier,Identificador ROR (Research Organization Registry),,no,,,no,Armazenado sem o prefixo de URL (ex.: 05dxps055),Stored without the URL prefix (e.g. 05dxps055),"Almacenado sin el prefijo de URL (p. ej., 05dxps055)",ids.ror
+wikidata_id,STRING,Identificador no Wikidata,Wikidata identifier,Identificador en Wikidata,,no,,,no,Armazenado sem o prefixo de URL (ex.: Q49108),Stored without the URL prefix (e.g. Q49108),"Almacenado sin el prefijo de URL (p. ej., Q49108)",ids.wikidata
+crossref_funder_id,STRING,Identificador do financiador no Crossref Funder Registry,Crossref Funder Registry identifier,Identificador del financiador en el Crossref Funder Registry,,no,,,no,,,,ids.crossref
+homepage_url,STRING,Endereço do sítio oficial,Official website URL,Dirección del sitio web oficial,,no,,,no,,,,homepage_url
+works_count,INT64,Número de trabalhos associados,Number of associated works,Número de trabajos asociados,,no,,work,no,,,,works_count
+cited_by_count,INT64,Número de citações recebidas,Number of citations received,Número de citas recibidas,,no,,citation,no,,,,cited_by_count
+awards_count,INT64,Número de financiamentos concedidos,Number of awards granted,Número de subvenciones otorgadas,,no,,award,no,,,,awards_count
+two_year_mean_citedness,FLOAT64,Média de citações recebidas no último ano por trabalhos publicados nos dois anos anteriores,Mean citations received in the last year by works published in the two preceding years,Promedio de citas recibidas en el último año por trabajos publicados en los dos años anteriores,,no,,ratio,no,,,,summary_stats.2yr_mean_citedness
+h_index,INT64,Índice h,H-index: largest h such that h works have at least h citations each,Índice h,,no,,index,no,,,,summary_stats.h_index
+i10_index,INT64,Índice i10: número de trabalhos com ao menos 10 citações,Number of works with at least 10 citations (i10-index),Índice i10: número de trabajos con al menos 10 citas,,no,,work,no,,,,summary_stats.i10_index
+created_date,DATE,Data de criação do registro no OpenAlex,Date the record was created in OpenAlex,Fecha de creación del registro en OpenAlex,,no,,,no,,,,created_date
+updated_date,DATE,Data da última alteração do registro no OpenAlex,Date the record was last changed in OpenAlex,Fecha de la última modificación del registro en OpenAlex,,no,,,no,,,,updated_date

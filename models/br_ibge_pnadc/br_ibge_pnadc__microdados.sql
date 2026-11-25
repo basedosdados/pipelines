@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2012, "end": 2025, "interval": 1},
+            "range": {"start": 2012, "end": 2031, "interval": 1},
         },
         cluster_by="sigla_uf",
         labels={"tema": "economia"},
@@ -459,8 +459,6 @@ with
                 )
         {% endif %}
     )
--- verifica se a coluna é do tipo STRING e, caso seja, limpa as observações que
--- começam com 0 (ie. transforma '05' em '5')
 select
     {% for column in columns %}
         {% if column.data_type == "STRING" and column.name.startswith("V") %}
@@ -473,21 +471,7 @@ select
                     else trim(`{{ column.name }}`)
                 end
             ) as `{{ column.name }}`,
-            {{
-                log(
-                    "Column is of type STRING and starts with V: " ~ column.name,
-                    info=true,
-                )
-            }}
-        {% else %}
-            `{{ column.name }}`,
-            {{
-                log(
-                    "Column is of type not STRING and does not start with V: "
-                    ~ column.name,
-                    info=true,
-                )
-            }}
+        {% else %} `{{ column.name }}`,
         {% endif %}
     {% endfor %}
 from microdados

@@ -1,0 +1,367 @@
+---
+version: 2
+models:
+  - name: us_nchs_vital_statistics__birth
+    description: >
+      Microdados de nascimentos dos Estados Unidos, um registro por nascimento
+      declarado, de 1968 a 2024, a partir do arquivo público de natalidade do NCHS.
+      ATENCAO - contagens exigem ponderacao por record_weight, pois o arquivo e amostra
+      de 50 por cento nos anos iniciais, e a reproducao das estatisticas oficiais
+      exige
+      excluir residence_status igual a 4 (residentes no exterior). Geografia sub-nacional
+      so existe ate 2004: state_residence_id e nulo de 2005 em diante e county_residence_id
+      so cobre 1982 a 2002. Colunas de raca e de escolaridade mudaram de padrao e
+      sao
+      publicadas em colunas separadas por era, sem harmonizacao entre elas. O ano
+      de 1969
+      nao tem layout publicado e esta ausente.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - birth_day_of_week
+            - county_residence_id
+            - county_residence_population_code
+            - mother_education_code
+            - mother_education_years
+            - mother_race_bridged_code
+            - mother_race_recode_6
+            - mother_race_recode_31
+            - father_race_recode_6
+            - mother_hispanic_origin_code
+            - mother_race_hispanic_code
+            - mother_nativity_code
+            - gestation_recode_3
+            - birth_weight_recode_4
+            - delivery_method_recode
+            - apgar_score_5min
+            - prenatal_care_month_began
+            - prenatal_visits
+            - state_residence_id
+            - mother_marital_status
+            - father_age_years
+            - record_weight
+    columns:
+      - name: year
+        description: >
+          Ano do nascimento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: birth_month
+        description: >
+          Mês do nascimento
+      - name: birth_day_of_week
+        description: >
+          Dia da semana do nascimento
+      - name: state_residence_id
+        description: >
+          Código FIPS da unidade federativa de residência da mãe; ausente no arquivo
+          público a partir de 2005
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_residence_id
+        description: >
+          Código FIPS do condado de residência da mãe, disponível apenas de 1982 a
+          2002
+      - name: residence_status
+        description: >
+          Situação de residência do registro em relação ao local de ocorrência
+      - name: record_weight
+        description: >
+          Peso amostral do registro; o arquivo é amostra de 50% em anos iniciais,
+          portanto contagens devem ser ponderadas
+      - name: county_residence_population_code
+        description: >
+          Categoria de tamanho populacional do condado de residência
+      - name: mother_age_years
+        description: >
+          Idade da mãe em anos completos
+      - name: mother_age_recode_9
+        description: >
+          Faixa etária da mãe em nove categorias
+      - name: mother_education_years
+        description: >
+          Anos de estudo concluídos pela mãe, conforme a certidão de 1989; não comparável
+          a mother_education_code
+      - name: mother_education_code
+        description: >
+          Escolaridade da mãe em categorias, conforme a certidão de 2003; não comparável
+          a mother_education_years
+      - name: mother_race_code
+        description: >
+          Raça detalhada da mãe em codificação de raça única ou ponte, usada até 2013
+      - name: mother_race_bridged_code
+        description: >
+          Raça da mãe em codificação ponte, disponível de 2003 a 2019
+      - name: mother_race_recode_6
+        description: >
+          Raça da mãe em seis categorias sob o padrão OMB de 1997, a partir de 2014;
+          não comparável a mother_race_code
+      - name: mother_race_recode_31
+        description: >
+          Raça da mãe em 31 categorias, incluindo combinações de múltiplas raças,
+          a partir de 2014
+      - name: mother_hispanic_origin_code
+        description: >
+          Origem hispânica da mãe
+      - name: mother_race_hispanic_code
+        description: >
+          Raça e origem hispânica combinadas da mãe
+      - name: mother_nativity_code
+        description: >
+          Naturalidade da mãe, indicando nascimento dentro ou fora dos Estados Unidos
+      - name: mother_marital_status
+        description: >
+          Estado civil da mãe
+      - name: father_age_years
+        description: >
+          Idade do pai em anos completos
+      - name: father_race_code
+        description: >
+          Raça detalhada do pai, usada até 2013
+      - name: father_race_recode_6
+        description: >
+          Raça do pai em seis categorias sob o padrão OMB de 1997, a partir de 2014
+      - name: live_birth_order
+        description: >
+          Ordem deste nascimento entre os nascidos vivos da mãe
+      - name: total_birth_order
+        description: >
+          Ordem total de gestações, somando nascidos vivos e óbitos fetais
+      - name: gestation_weeks
+        description: >
+          Duração da gestação em semanas completas
+      - name: gestation_recode_3
+        description: >
+          Duração da gestação em três categorias
+      - name: birth_weight_grams
+        description: >
+          Peso ao nascer em gramas
+      - name: birth_weight_recode_4
+        description: >
+          Peso ao nascer em quatro categorias
+      - name: prenatal_care_month_began
+        description: >
+          Mês de gestação em que o pré-natal começou; zero indica ausência de pré-natal
+      - name: prenatal_visits
+        description: >
+          Número total de consultas de pré-natal
+      - name: sex
+        description: >
+          Sexo do recém-nascido
+      - name: plurality
+        description: >
+          Multiplicidade do parto, de único a quíntuplo ou mais
+      - name: delivery_method_recode
+        description: >
+          Via de parto recodificada
+      - name: birth_attendant
+        description: >
+          Profissional que assistiu ao parto
+      - name: apgar_score_5min
+        description: >
+          Escore de Apgar no quinto minuto, de 0 a 10
+  - name: us_nchs_vital_statistics__death
+    description: >
+      Microdados de obitos dos Estados Unidos, um registro por obito declarado,
+      de 1968 a 2024, a partir do arquivo publico de causas multiplas de morte do
+      NCHS.
+      A reproducao das estatisticas oficiais exige excluir residence_status igual
+      a 4
+      (residentes no exterior). Geografia sub-nacional so existe ate 2004: state_residence_id
+      e county_residence_id sao nulos de 2005 em diante. A causa basica em
+      underlying_cause_code muda de revisao da CID ao longo da serie - CID-8 de 1968
+      a 1978,
+      CID-9 de 1979 a 1998 e CID-10 a partir de 1999 - e a coluna icd_revision indica
+      qual
+      revisao vale em cada ano; codigos de revisoes diferentes nao sao comparaveis.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - county_residence_id
+            - state_residence_id
+            - race_recode_5
+            - race_recode_3
+            - race_bridged_flag
+            - hispanic_origin_code
+            - hispanic_origin_race_recode
+            - hispanic_origin_race_recode_1997
+            - education_years
+            - education_code
+            - education_reporting_flag
+            - marital_status
+            - place_of_death
+            - manner_of_death
+            - cause_recode_113
+            - cause_recode_358
+            - cause_recode_39
+            - cause_recode_72
+            - death_day_of_week
+            - injury_at_work
+            - autopsy
+            - age_years
+    columns:
+      - name: year
+        description: >
+          Ano do óbito
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: death_month
+        description: >
+          Mês do óbito
+      - name: death_day_of_week
+        description: >
+          Dia da semana do óbito
+      - name: state_residence_id
+        description: >
+          Código FIPS da unidade federativa de residência do falecido; ausente no
+          arquivo público a partir de 2005
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_residence_id
+        description: >
+          Código FIPS do condado de residência do falecido, disponível apenas de 1982
+          a 2004
+      - name: residence_status
+        description: >
+          Situação de residência do registro em relação ao local de ocorrência
+      - name: age_detail_code
+        description: >
+          Código bruto de idade com prefixo de unidade, tal como publicado pelo NCHS
+      - name: age_years
+        description: >
+          Idade do falecido em anos completos, derivada de age_detail_code; nula quando
+          a unidade não é anos ou a idade é desconhecida
+      - name: age_recode_27
+        description: >
+          Idade do falecido em 27 categorias
+      - name: age_recode_12
+        description: >
+          Idade do falecido em 12 categorias
+      - name: sex
+        description: >
+          Sexo do falecido
+      - name: race_code
+        description: >
+          Raça detalhada do falecido tal como publicada
+      - name: race_recode_3
+        description: >
+          Raça do falecido em três categorias
+      - name: race_recode_5
+        description: >
+          Raça do falecido em cinco categorias
+      - name: race_bridged_flag
+        description: >
+          Indicador de que a raça foi convertida pela metodologia ponte
+      - name: race_recode_6
+        description: >
+          Raça do falecido em seis categorias de raça única sob o padrão OMB de 1997,
+          a partir de 2022
+      - name: race_recode_40
+        description: >
+          Raça detalhada do falecido em 40 categorias de raça única sob o padrão OMB
+          de 1997, a partir de 2019; de 2021 em diante é a única informação de raça
+          no arquivo
+      - name: hispanic_origin_code
+        description: >
+          Origem hispânica do falecido
+      - name: hispanic_origin_race_recode
+        description: >
+          Origem hispânica e raça ponte combinadas sob o padrão OMB de 1977, de 1989
+          a 2020
+      - name: hispanic_origin_race_recode_1997
+        description: >
+          Origem hispânica e raça única combinadas sob o padrão OMB de 1997, a partir
+          de 2022; não comparável à versão anterior
+      - name: education_years
+        description: >
+          Anos de estudo concluídos, conforme a certidão de 1989; não comparável a
+          education_code
+      - name: education_code
+        description: >
+          Escolaridade em categorias, conforme a certidão de 2003; não comparável
+          a education_years
+      - name: education_reporting_flag
+        description: >
+          Indicador de qual revisão da certidão foi usada para a escolaridade
+      - name: marital_status
+        description: >
+          Estado civil do falecido
+      - name: place_of_death
+        description: >
+          Local do óbito e situação do falecido no atendimento
+      - name: manner_of_death
+        description: >
+          Circunstância do óbito, como acidente, suicídio ou homicídio
+      - name: underlying_cause_code
+        description: >
+          Código CID da causa básica do óbito; a revisão da CID varia por ano e consta
+          em icd_revision
+      - name: icd_revision
+        description: >
+          Revisão da CID vigente para o código de causa básica no ano do óbito
+      - name: cause_recode_113
+        description: >
+          Causa básica agrupada em 113 categorias, baseada na CID-10
+      - name: cause_recode_358
+        description: >
+          Causa básica agrupada em 358 categorias, baseada na CID-10
+      - name: cause_recode_39
+        description: >
+          Causa básica agrupada em 39 categorias, baseada na CID-10
+      - name: cause_recode_72
+        description: >
+          Causa básica agrupada em 72 categorias, baseada na CID-9, de 1979 a 1998
+      - name: record_axis_condition_count
+        description: >
+          Número de condições registradas no eixo de registro do atestado
+      - name: autopsy
+        description: >
+          Indicador de realização de autópsia
+      - name: injury_at_work
+        description: >
+          Indicador de que a lesão que causou o óbito ocorreu no trabalho
+  - name: us_nchs_vital_statistics__dicionario
+    description: >
+      Dicionario de valores das colunas codificadas das tabelas birth e death.
+      Os rotulos sao transcritos manualmente dos guias do usuario publicados pelo
+      NCHS.
+      A cobertura e parcial e deliberada: apenas colunas e periodos verificados constam
+      aqui, e as demais colunas codificadas remetem aos guias do NCHS.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela a que o valor se refere
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna a que o valor se refere
+        tests: [not_null]
+      - name: chave
+        description: >
+          Codigo armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Periodo em que a chave tem este significado
+      - name: valor
+        description: >-
+          Rotulo correspondente ao codigo

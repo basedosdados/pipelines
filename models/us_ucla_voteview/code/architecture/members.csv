@@ -1,0 +1,24 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+congress,INT64,"Number of the Congress, e.g. 115 for the 115th Congress (2017-2019)",,no,,,no,"Ordinal Congress number, starting at 1 in 1789. Each Congress spans two years. Partition column of the partitioned tables",congress
+chamber,STRING,"Chamber: House, Senate or President",,no,,,no,,chamber
+icpsr,STRING,ICPSR identifier of the member,,no,,,no,"In general one identifier per member for their whole career. Members who switched parties, and members who later became president, receive a new identifier so that a separate NOMINATE estimate can be produced. Use bioguide_id to identify the person",icpsr
+state_icpsr,STRING,ICPSR code of the state the member represents,,no,,,no,"ICPSR state codes. 92-96 are territories (PR, AS, GU, MP, VI) and 99 is the whole country (presidents). The state directory has no ICPSR code for territories, so the directory link is on state_id",state_icpsr
+district_code,STRING,Congressional district the member represents within their state,,no,,,no,"0 for senators and presidents. Historical at-large districts are coded 99, 98 or 1",district_code
+state_abbrev,STRING,Two-letter postal abbreviation of the state the member represents,,no,,,no,USA for presidents,state_abbrev
+state_id,STRING,FIPS code of the state the member represents,,no,br_bd_diretorios_us.state:id_state,,no,Not in the Voteview members file. Added by Data Basis from state_abbrev. Empty for presidents,
+party_code,STRING,Voteview code of the member's party,,no,,,no,"Party names are in the parties table (congress, chamber, party_code)",party_code
+occupancy,STRING,ICPSR occupancy code: order of the member among the occupants of the seat,,no,,,no,"0 if the only occupant, 1 if the first, 2 if the second, and so on. Legacy ICPSR field, not verified by Voteview",occupancy
+last_means,STRING,ICPSR attain-office code: the member's last means of attaining office,,yes,,,no,"Legacy ICPSR field, not verified by Voteview",last_means
+bioname,STRING,"Name of the member, surname first",,no,,,no,,bioname
+bioguide_id,STRING,Identifier of the member in the Biographical Directory of the US Congress,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,Empty for most presidents,bioguide_id
+born,INT64,Year of the member's birth,,no,,year,no,,born
+died,INT64,Year of the member's death,,no,,year,no,,died
+nominate_dim1,FLOAT64,NOMINATE (DW-NOMINATE) first-dimension estimate,,no,,index,no,"Ideal-point coordinate, roughly between -1 and 1. The first dimension is usually read as economic liberal (negative) to conservative (positive). Re-estimated over the whole history when new votes arrive, so past values can change between releases",nominate_dim1
+nominate_dim2,FLOAT64,NOMINATE (DW-NOMINATE) second-dimension estimate,,no,,index,no,"Ideal-point coordinate, roughly between -1 and 1. The first dimension is usually read as economic liberal (negative) to conservative (positive). Re-estimated over the whole history when new votes arrive, so past values can change between releases",nominate_dim2
+nominate_log_likelihood,FLOAT64,Log-likelihood of the member's NOMINATE (DW-NOMINATE) estimate,,no,,,no,Dimensionless fit statistic,nominate_log_likelihood
+nominate_geo_mean_probability,FLOAT64,Geometric mean probability of the member's NOMINATE (DW-NOMINATE) estimate,,no,,proportion,no,,nominate_geo_mean_probability
+nominate_number_of_votes,INT64,Number of votes cast by the member in the Congress,,no,,vote,no,,nominate_number_of_votes
+nominate_number_of_errors,INT64,Number of the member's votes misclassified by the NOMINATE (DW-NOMINATE) estimate,,no,,vote,no,,nominate_number_of_errors
+conditional,STRING,Whether the NOMINATE (DW-NOMINATE) estimate was produced conditionally,,yes,,,no,Conditional estimates are provisional and are updated at the next full estimation. Empty in every row of the current release,conditional
+nokken_poole_dim1,FLOAT64,Nokken-Poole first-dimension estimate,,no,,index,no,"Estimated separately for each Congress, unlike nominate_dim1",nokken_poole_dim1
+nokken_poole_dim2,FLOAT64,Nokken-Poole second-dimension estimate,,no,,index,no,"Estimated separately for each Congress, unlike nominate_dim2",nokken_poole_dim2

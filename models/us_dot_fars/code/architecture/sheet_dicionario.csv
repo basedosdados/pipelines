@@ -1,0 +1,6 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations_pt,observations_en,observations_es,original_name
+id_tabela,STRING,Nome da tabela a que a coluna codificada pertence,Name of the table the coded column belongs to,Nombre de la tabla a la que pertenece la columna codificada,,no,,,no,,,,
+nome_coluna,STRING,Nome da coluna codificada,Name of the coded column,Nombre de la columna codificada,,no,,,no,,,,
+chave,STRING,Valor armazenado na coluna,Value stored in the column,Valor almacenado en la columna,,no,,,no,,,,
+cobertura_temporal,STRING,"Anos em que o par código-significado vigorou, na notação início(intervalo)fim","Years over which the code-meaning pair was in force, in start(interval)end notation","Años en que rigió el par código-significado, en la notación inicio(intervalo)fin",,no,,,no,,,,
+valor,STRING,Significado do valor armazenado,Meaning of the stored value,Significado del valor almacenado,,no,,,no,,,,

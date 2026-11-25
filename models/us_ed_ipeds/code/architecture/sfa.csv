@@ -1,0 +1,713 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+xscugrad,STRING,Imputation field for SCUGRAD - Total number of undergraduates - financial aid cohort,,no,,,no,,xscugrad
+scugrad,FLOAT64,Total number of undergraduates - financial aid cohort,,no,,,no,,scugrad
+xscugdgsk,STRING,Imputation field for SCUGDGSK - Total number of degree/certificate-seeking undergraduate students,,no,,,no,,xscugdgsk
+scugdgsk,FLOAT64,Total number of degree/certificate-seeking undergraduate students,,no,,,no,,scugdgsk
+xscugndgs,STRING,Imputation field for SCUGNDGS - Total number of non-degee/non-certificate seeking undergraduate students,,no,,,no,,xscugndgs
+scugndgs,FLOAT64,Total number of non-degee/non-certificate seeking undergraduate students,,no,,,no,,scugndgs
+xscugffn,STRING,Imputation field for SCUGFFN - Total number of full-time first-time degree/certificate seeking undergraduates - financial aid cohort,,no,,,no,,xscugffn
+scugffn,FLOAT64,Total number of full-time first-time degree/certificate seeking undergraduates - financial aid cohort,,no,,,no,,scugffn
+xscugffp,STRING,Imputation field for SCUGFFP - Full-time first-time degree/certificate seeking undergraduates as a percent of all undergraduates - financial aid cohort,,no,,,no,,xscugffp
+scugffp,FLOAT64,Full-time first-time degree/certificate seeking undergraduates as a percent of all undergraduates - financial aid cohort,,no,,,no,,scugffp
+xscfa2,STRING,Imputation field for SCFA2 - Total number of undergraduates - fall cohort,,no,,,no,,xscfa2
+scfa2,FLOAT64,Total number of undergraduates - fall cohort,,no,,,no,,scfa2
+xscfa2dg,STRING,Imputation field for SCFA2DG - Total number of degree/certificate-seeking undergraduates - fall cohort,,no,,,no,,xscfa2dg
+scfa2dg,FLOAT64,Total number of degree/certificate-seeking undergraduates - fall cohort,,no,,,no,,scfa2dg
+xscfa2nd,STRING,Imputation field for SCFA2ND - Total number of non-degee/non-certificate seeking undergraduates - fall cohort,,no,,,no,,xscfa2nd
+scfa2nd,FLOAT64,Total number of non-degee/non-certificate seeking undergraduates - fall cohort,,no,,,no,,scfa2nd
+xscfa1n,STRING,Imputation field for SCFA1N - Number of students in fall cohort,,no,,,no,,xscfa1n
+scfa1n,FLOAT64,Number of students in fall cohort,,no,,,no,,scfa1n
+xscfa1p,STRING,Imputation field for SCFA1P - Students in fall cohort as a percentage of all undergraduates,,no,,,no,,xscfa1p
+scfa1p,FLOAT64,Students in fall cohort as a percentage of all undergraduates,,no,,,no,,scfa1p
+xscfa11n,STRING,Imputation field for SCFA11N - Number of students in fall cohort who are paying in-district tuition rates,,no,,,no,,xscfa11n
+scfa11n,FLOAT64,Number of students in fall cohort who are paying in-district tuition rates,,no,,,no,,scfa11n
+xscfa11p,STRING,Imputation field for SCFA11P - Percentage of students in fall cohort who are paying in-district tuition rates,,no,,,no,,xscfa11p
+scfa11p,FLOAT64,Percentage of students in fall cohort who are paying in-district tuition rates,,no,,,no,,scfa11p
+xscfa12n,STRING,Imputation field for SCFA12N - Number of students in fall cohort who are paying in-state tuititon rates,,no,,,no,,xscfa12n
+scfa12n,FLOAT64,Number of students in fall cohort who are paying in-state tuititon rates,,no,,,no,,scfa12n
+xscfa12p,STRING,Imputation field for SCFA12P - Percentage of students in fall cohort who paying in-state tuition rates,,no,,,no,,xscfa12p
+scfa12p,FLOAT64,Percentage of students in fall cohort who paying in-state tuition rates,,no,,,no,,scfa12p
+xscfa13n,STRING,Imputation field for SCFA13N - Number of students in fall cohort who are paying out-of-state tuition rates,,no,,,no,,xscfa13n
+scfa13n,FLOAT64,Number of students in fall cohort who are paying out-of-state tuition rates,,no,,,no,,scfa13n
+xscfa13p,STRING,Imputation field for SCFA13P - Percentage of students in fall cohort who are paying out-of-state tuition rates,,no,,,no,,xscfa13p
+scfa13p,FLOAT64,Percentage of students in fall cohort who are paying out-of-state tuition rates,,no,,,no,,scfa13p
+xscfa14n,STRING,Imputation field for SCFA14N - Number of students in fall cohort whose residence/tuition rate is unknown,,no,,,no,,xscfa14n
+scfa14n,FLOAT64,Number of students in fall cohort whose residence/tuition rate is unknown,,no,,,no,,scfa14n
+xscfa14p,STRING,Imputation field for SCFA14P - Percentage of students in fall cohort whose residence/ tuition rate is unknown,,no,,,no,,xscfa14p
+scfa14p,FLOAT64,Percentage of students in fall cohort whose residence/ tuition rate is unknown,,no,,,no,,scfa14p
+xscfy2,STRING,Imputation field for SCFY2 - Total number of undergraduates - full-year cohort,,no,,,no,,xscfy2
+scfy2,FLOAT64,Total number of undergraduates - full-year cohort,,no,,,no,,scfy2
+xscfy2dg,STRING,Imputation field for SCFY2DG - Total number of degree/certificate-seeking undergraduates - full-year cohort,,no,,,no,,xscfy2dg
+scfy2dg,FLOAT64,Total number of degree/certificate-seeking undergraduates - full-year cohort,,no,,,no,,scfy2dg
+xscfy2nd,STRING,Imputation field for SCFY2ND - Total number of non-degee/non-certificate seeking undergraduates - full-year cohort,,no,,,no,,xscfy2nd
+scfy2nd,FLOAT64,Total number of non-degee/non-certificate seeking undergraduates - full-year cohort,,no,,,no,,scfy2nd
+xscfy1n,STRING,Imputation field for SCFY1N - Number of students in full-year cohort,,no,,,no,,xscfy1n
+scfy1n,FLOAT64,Number of students in full-year cohort,,no,,,no,,scfy1n
+xscfy1p,STRING,Imputation field for SCFY1P - Students in full-year cohort as a percentage of all  undergraduates,,no,,,no,,xscfy1p
+scfy1p,FLOAT64,Students in full-year cohort as a percentage of all  undergraduates,,no,,,no,,scfy1p
+xuagrntn,STRING,"Imputation field for UAGRNTN - Number of undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,xuagrntn
+uagrntn,FLOAT64,"Number of undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,uagrntn
+xuagrntp,STRING,"Imputation field for UAGRNTP - Percent of undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,xuagrntp
+uagrntp,FLOAT64,"Percent of undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,uagrntp
+xuagrntt,STRING,"Imputation field for UAGRNTT - Total amount of federal, state, local, institutional or other sources of grant aid awarded to undergraduate students",,no,,,no,,xuagrntt
+uagrntt,FLOAT64,"Total amount of federal, state, local, institutional or other sources of grant aid awarded to undergraduate students",,no,,,no,,uagrntt
+xuagrnta,STRING,"Imputation field for UAGRNTA - Average amount of federal, state, local, institutional or other sources of grant aid awarded to undergraduate students",,no,,,no,,xuagrnta
+uagrnta,FLOAT64,"Average amount of federal, state, local, institutional or other sources of grant aid awarded to undergraduate students",,no,,,no,,uagrnta
+xudgagrntn,STRING,"Imputation field for UDGAGRNTN - Number of degree/certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,xudgagrntn
+udgagrntn,FLOAT64,"Number of degree/certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,udgagrntn
+xudgagrntp,STRING,"Imputation field for UDGAGRNTP - Percent of degree/certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,xudgagrntp
+udgagrntp,FLOAT64,"Percent of degree/certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,udgagrntp
+xudgagrntt,STRING,"Imputation field for UDGAGRNTT - Total amount of federal, state, local, institutional or other sources of grant aid awarded to degree/certificate-seeking undergraduate students",,no,,,no,,xudgagrntt
+udgagrntt,FLOAT64,"Total amount of federal, state, local, institutional or other sources of grant aid awarded to degree/certificate-seeking undergraduate students",,no,,,no,,udgagrntt
+xudgagrnta,STRING,"Imputation field for UDGAGRNTA - Average amount of federal, state, local, institutional or other sources of grant aid awarded to degree/certificate-seeking undergraduate students",,no,,,no,,xudgagrnta
+udgagrnta,FLOAT64,"Average amount of federal, state, local, institutional or other sources of grant aid awarded to degree/certificate-seeking undergraduate students",,no,,,no,,udgagrnta
+xundagrntn,STRING,"Imputation field for UNDAGRNTN - Number of non-degree/non-certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,xundagrntn
+undagrntn,FLOAT64,"Number of non-degree/non-certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,undagrntn
+xundagrntp,STRING,"Imputation field for UNDAGRNTP - Percent of non-degree/non-certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,xundagrntp
+undagrntp,FLOAT64,"Percent of non-degree/non-certificate-seeking undergraduate students awarded federal, state, local, institutional or other sources of grant aid",,no,,,no,,undagrntp
+xundagrntt,STRING,"Imputation field for UNDAGRNTT - Total amount of federal, state, local, institutional or other sources of grant aid awarded to non-degree/non-certificate-seeking undergraduates",,no,,,no,,xundagrntt
+undagrntt,FLOAT64,"Total amount of federal, state, local, institutional or other sources of grant aid awarded to non-degree/non-certificate-seeking undergraduates",,no,,,no,,undagrntt
+xundagrnta,STRING,"Imputation field for UNDAGRNTA - Average amount of federal, state, local, institutional or other sources of grant aid awarded to non-degree/non-certificate-seeking undergraduates",,no,,,no,,xundagrnta
+undagrnta,FLOAT64,"Average amount of federal, state, local, institutional or other sources of grant aid awarded to non-degree/non-certificate-seeking undergraduates",,no,,,no,,undagrnta
+xupgrntn,STRING,Imputation field for UPGRNTN - Number of undergraduate students awarded Federal Pell grants,,no,,,no,,xupgrntn
+upgrntn,FLOAT64,Number of undergraduate students awarded Federal Pell grants,,no,,,no,,upgrntn
+xupgrntp,STRING,Imputation field for UPGRNTP - Percent of undergraduate students awarded Federal Pell grants,,no,,,no,,xupgrntp
+upgrntp,FLOAT64,Percent of undergraduate students awarded Federal Pell grants,,no,,,no,,upgrntp
+xupgrntt,STRING,Imputation field for UPGRNTT - Total amount of Federal Pell grant aid awarded to undergraduate students,,no,,,no,,xupgrntt
+upgrntt,FLOAT64,Total amount of Federal Pell grant aid awarded to undergraduate students,,no,,,no,,upgrntt
+xupgrnta,STRING,Imputation field for UPGRNTA - Average amount Federal Pell grant aid awarded to undergraduate students,,no,,,no,,xupgrnta
+upgrnta,FLOAT64,Average amount Federal Pell grant aid awarded to undergraduate students,,no,,,no,,upgrnta
+xudgpgrntn,STRING,Imputation field for UDGPGRNTN - Number of degree/certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,xudgpgrntn
+udgpgrntn,FLOAT64,Number of degree/certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,udgpgrntn
+xudgpgrntp,STRING,Imputation field for UDGPGRNTP - Percent of degree/certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,xudgpgrntp
+udgpgrntp,FLOAT64,Percent of degree/certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,udgpgrntp
+xudgpgrntt,STRING,Imputation field for UDGPGRNTT - Total amount of Federal Pell Grant aid awarded to degree/certificate-seeking undergraduate students,,no,,,no,,xudgpgrntt
+udgpgrntt,FLOAT64,Total amount of Federal Pell Grant aid awarded to degree/certificate-seeking undergraduate students,,no,,,no,,udgpgrntt
+xudgpgrnta,STRING,Imputation field for UDGPGRNTA - Average amount of Federal Pell Grant aid awarded to degree/certificate-seeking undergraduate students,,no,,,no,,xudgpgrnta
+udgpgrnta,FLOAT64,Average amount of Federal Pell Grant aid awarded to degree/certificate-seeking undergraduate students,,no,,,no,,udgpgrnta
+xundpgrntn,STRING,Imputation field for UNDPGRNTN - Number of non-degree/non-certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,xundpgrntn
+undpgrntn,FLOAT64,Number of non-degree/non-certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,undpgrntn
+xundpgrntp,STRING,Imputation field for UNDPGRNTP - Percent of non-degree/non-certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,xundpgrntp
+undpgrntp,FLOAT64,Percent of non-degree/non-certificate-seeking undergraduate students awarded Federal Pell Grants,,no,,,no,,undpgrntp
+xundpgrntt,STRING,Imputation field for UNDPGRNTT - Total amount of Federal Pell Grant aid awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,xundpgrntt
+undpgrntt,FLOAT64,Total amount of Federal Pell Grant aid awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,undpgrntt
+xundpgrnta,STRING,Imputation field for UNDPGRNTA - Average amount of Federal Pell Grant aid awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,xundpgrnta
+undpgrnta,FLOAT64,Average amount of Federal Pell Grant aid awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,undpgrnta
+xufloann,STRING,Imputation field for UFLOANN - Number of undergraduate students awarded federal student loans,,no,,,no,,xufloann
+ufloann,FLOAT64,Number of undergraduate students awarded federal student loans,,no,,,no,,ufloann
+xufloanp,STRING,Imputation field for UFLOANP - Percent of undergraduate students awarded federal student loans,,no,,,no,,xufloanp
+ufloanp,FLOAT64,Percent of undergraduate students awarded federal student loans,,no,,,no,,ufloanp
+xufloant,STRING,Imputation field for UFLOANT - Total amount of federal student loans awarded to undergraduate students,,no,,,no,,xufloant
+ufloant,FLOAT64,Total amount of federal student loans awarded to undergraduate students,,no,,,no,,ufloant
+xufloana,STRING,Imputation field for UFLOANA - Average amount of federal student loans awarded to undergraduate students,,no,,,no,,xufloana
+ufloana,FLOAT64,Average amount of federal student loans awarded to undergraduate students,,no,,,no,,ufloana
+xudgfloann,STRING,Imputation field for UDGFLOANN - Number of degree/certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,xudgfloann
+udgfloann,FLOAT64,Number of degree/certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,udgfloann
+xudgfloanp,STRING,Imputation field for UDGFLOANP - Percent of degree/certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,xudgfloanp
+udgfloanp,FLOAT64,Percent of degree/certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,udgfloanp
+xudgfloant,STRING,Imputation field for UDGFLOANT - Total amount of federal student loans awarded to degree/certificate-seeking undergraduate students,,no,,,no,,xudgfloant
+udgfloant,FLOAT64,Total amount of federal student loans awarded to degree/certificate-seeking undergraduate students,,no,,,no,,udgfloant
+xudgfloana,STRING,Imputation field for UDGFLOANA - Average amount of federal student loans awarded to degree/certificate-seeking undergraduate students,,no,,,no,,xudgfloana
+udgfloana,FLOAT64,Average amount of federal student loans awarded to degree/certificate-seeking undergraduate students,,no,,,no,,udgfloana
+xundfloann,STRING,Imputation field for UNDFLOANN - Number of non-degree/non-certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,xundfloann
+undfloann,FLOAT64,Number of non-degree/non-certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,undfloann
+xundfloanp,STRING,Imputation field for UNDFLOANP - Percent of non-degree/non-certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,xundfloanp
+undfloanp,FLOAT64,Percent of non-degree/non-certificate-seeking undergraduate students awarded federal student loans,,no,,,no,,undfloanp
+xundfloant,STRING,Imputation field for UNDFLOANT - Total amount of federal student loans awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,xundfloant
+undfloant,FLOAT64,Total amount of federal student loans awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,undfloant
+xundfloana,STRING,Imputation field for UNDFLOANA - Average amount of federal student loans awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,xundfloana
+undfloana,FLOAT64,Average amount of federal student loans awarded to non-degree/non-certificate-seeking undergraduate students,,no,,,no,,undfloana
+xanyaidn,STRING,Imputation field for ANYAIDN - Number of full-time first-time undergraduates awarded any financial aid,,no,,,no,,xanyaidn
+anyaidn,FLOAT64,Number of full-time first-time undergraduates awarded any financial aid,,no,,,no,,anyaidn
+xanyaidp,STRING,Imputation field for ANYAIDP - Percent of full-time first-time undergraduates awarded any financial aid,,no,,,no,,xanyaidp
+anyaidp,FLOAT64,Percent of full-time first-time undergraduates awarded any financial aid,,no,,,no,,anyaidp
+xaidfsin,STRING,Imputation field for AIDFSIN - Number of full-time first-time undergraduates awarded any loans to students or grant aid  from federal state/local government or the institution,,no,,,no,,xaidfsin
+aidfsin,FLOAT64,Number of full-time first-time undergraduates awarded any loans to students or grant aid  from federal state/local government or the institution,,no,,,no,,aidfsin
+xaidfsip,STRING,Imputation field for AIDFSIP - Percent of full-time first-time undergraduates awarded any loans to students or grant aid  from federal state/local government or the institution,,no,,,no,,xaidfsip
+aidfsip,FLOAT64,Percent of full-time first-time undergraduates awarded any loans to students or grant aid  from federal state/local government or the institution,,no,,,no,,aidfsip
+xagrnt_n,STRING,"Imputation field for AGRNT_N - Number of full-time first-time undergraduates awarded federal, state, local or institutional grant aid",,no,,,no,,xagrnt_n
+agrnt_n,FLOAT64,"Number of full-time first-time undergraduates awarded federal, state, local or institutional grant aid",,no,,,no,,agrnt_n
+xagrnt_p,STRING,"Imputation field for AGRNT_P - Percent of full-time first-time undergraduates awarded federal, state, local or institutional grant aid",,no,,,no,,xagrnt_p
+agrnt_p,FLOAT64,"Percent of full-time first-time undergraduates awarded federal, state, local or institutional grant aid",,no,,,no,,agrnt_p
+xagrnt_t,STRING,"Imputation field for AGRNT_T - Total amount of federal, state, local or institutional grant aid awarded to full-time first-time undergraduates",,no,,,no,,xagrnt_t
+agrnt_t,FLOAT64,"Total amount of federal, state, local or institutional grant aid awarded to full-time first-time undergraduates",,no,,,no,,agrnt_t
+xagrnt_a,STRING,"Imputation field for AGRNT_A - Average amount of federal, state, local or institutional grant aid awarded",,no,,,no,,xagrnt_a
+agrnt_a,FLOAT64,"Average amount of federal, state, local or institutional grant aid awarded",,no,,,no,,agrnt_a
+xfgrnt_n,STRING,Imputation field for FGRNT_N - Number of full-time first-time undergraduates awarded federal grant aid,,no,,,no,,xfgrnt_n
+fgrnt_n,FLOAT64,Number of full-time first-time undergraduates awarded federal grant aid,,no,,,no,,fgrnt_n
+xfgrnt_p,STRING,Imputation field for FGRNT_P - Percent of full-time first-time undergraduates awarded federal grant aid,,no,,,no,,xfgrnt_p
+fgrnt_p,FLOAT64,Percent of full-time first-time undergraduates awarded federal grant aid,,no,,,no,,fgrnt_p
+xfgrnt_t,STRING,Imputation field for FGRNT_T - Total amount of federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,xfgrnt_t
+fgrnt_t,FLOAT64,Total amount of federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,fgrnt_t
+xfgrnt_a,STRING,Imputation field for FGRNT_A - Average amount of federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,xfgrnt_a
+fgrnt_a,FLOAT64,Average amount of federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,fgrnt_a
+xpgrnt_n,STRING,Imputation field for PGRNT_N - Number of full-time first-time undergraduates awarded Pell grants,,no,,,no,,xpgrnt_n
+pgrnt_n,FLOAT64,Number of full-time first-time undergraduates awarded Pell grants,,no,,,no,,pgrnt_n
+xpgrnt_p,STRING,Imputation field for PGRNT_P - Percent of full-time first-time undergraduates awarded Pell grants,,no,,,no,,xpgrnt_p
+pgrnt_p,FLOAT64,Percent of full-time first-time undergraduates awarded Pell grants,,no,,,no,,pgrnt_p
+xpgrnt_t,STRING,Imputation field for PGRNT_T - Total amount of Pell grant aid awarded to full-time first-time undergraduates,,no,,,no,,xpgrnt_t
+pgrnt_t,FLOAT64,Total amount of Pell grant aid awarded to full-time first-time undergraduates,,no,,,no,,pgrnt_t
+xpgrnt_a,STRING,Imputation field for PGRNT_A - Average amount of Pell grant aid awarded to full-time first-time undergraduates,,no,,,no,,xpgrnt_a
+pgrnt_a,FLOAT64,Average amount of Pell grant aid awarded to full-time first-time undergraduates,,no,,,no,,pgrnt_a
+xofgrt_n,STRING,Imputation field for OFGRT_N - Number of full-time first-time undergraduates awarded other federal grant aid,,no,,,no,,xofgrt_n
+ofgrt_n,FLOAT64,Number of full-time first-time undergraduates awarded other federal grant aid,,no,,,no,,ofgrt_n
+xofgrt_p,STRING,Imputation field for OFGRT_P - Percent of full-time first-time undergraduates awarded other federal grant aid,,no,,,no,,xofgrt_p
+ofgrt_p,FLOAT64,Percent of full-time first-time undergraduates awarded other federal grant aid,,no,,,no,,ofgrt_p
+xofgrt_t,STRING,Imputation field for OFGRT_T - Total amount of other federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,xofgrt_t
+ofgrt_t,FLOAT64,Total amount of other federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,ofgrt_t
+xofgrt_a,STRING,Imputation field for OFGRT_A - Average amount of other federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,xofgrt_a
+ofgrt_a,FLOAT64,Average amount of other federal grant aid awarded to full-time first-time undergraduates,,no,,,no,,ofgrt_a
+xsgrnt_n,STRING,Imputation field for SGRNT_N - Number of full-time first-time undergraduates awarded state/local grant aid,,no,,,no,,xsgrnt_n
+sgrnt_n,FLOAT64,Number of full-time first-time undergraduates awarded state/local grant aid,,no,,,no,,sgrnt_n
+xsgrnt_p,STRING,Imputation field for SGRNT_P - Percent of full-time first-time undergraduates awarded state/local grant aid,,no,,,no,,xsgrnt_p
+sgrnt_p,FLOAT64,Percent of full-time first-time undergraduates awarded state/local grant aid,,no,,,no,,sgrnt_p
+xsgrnt_t,STRING,Imputation field for SGRNT_T - Total amount of state/local grant aid awarded to full-time first-time undergraduates,,no,,,no,,xsgrnt_t
+sgrnt_t,FLOAT64,Total amount of state/local grant aid awarded to full-time first-time undergraduates,,no,,,no,,sgrnt_t
+xsgrnt_a,STRING,Imputation field for SGRNT_A - Average amount of state/local grant aid awarded to full-time first-time undergraduates,,no,,,no,,xsgrnt_a
+sgrnt_a,FLOAT64,Average amount of state/local grant aid awarded to full-time first-time undergraduates,,no,,,no,,sgrnt_a
+xigrnt_n,STRING,Imputation field for IGRNT_N - Number of full-time first-time undergraduates awarded  institutional grant aid,,no,,,no,,xigrnt_n
+igrnt_n,FLOAT64,Number of full-time first-time undergraduates awarded  institutional grant aid,,no,,,no,,igrnt_n
+xigrnt_p,STRING,Imputation field for IGRNT_P - Percent of full-time first-time undergraduates awarded institutional grant aid,,no,,,no,,xigrnt_p
+igrnt_p,FLOAT64,Percent of full-time first-time undergraduates awarded institutional grant aid,,no,,,no,,igrnt_p
+xigrnt_t,STRING,Imputation field for IGRNT_T - Total amount of institutional grant aid awarded to full-time first-time undergraduates,,no,,,no,,xigrnt_t
+igrnt_t,FLOAT64,Total amount of institutional grant aid awarded to full-time first-time undergraduates,,no,,,no,,igrnt_t
+xigrnt_a,STRING,Imputation field for IGRNT_A - Average amount of institutional grant aid awarded to full-time first-time undergraduates,,no,,,no,,xigrnt_a
+igrnt_a,FLOAT64,Average amount of institutional grant aid awarded to full-time first-time undergraduates,,no,,,no,,igrnt_a
+xloan_n,STRING,Imputation field for LOAN_N - Number of full-time first-time undergraduates awarded student loans,,no,,,no,,xloan_n
+loan_n,FLOAT64,Number of full-time first-time undergraduates awarded student loans,,no,,,no,,loan_n
+xloan_p,STRING,Imputation field for LOAN_P - Percent of full-time first-time undergraduates awarded student loans,,no,,,no,,xloan_p
+loan_p,FLOAT64,Percent of full-time first-time undergraduates awarded student loans,,no,,,no,,loan_p
+xloan_t,STRING,Imputation field for LOAN_T - Total amount of student loans awarded to full-time first-time undergraduates,,no,,,no,,xloan_t
+loan_t,FLOAT64,Total amount of student loans awarded to full-time first-time undergraduates,,no,,,no,,loan_t
+xloan_a,STRING,Imputation field for LOAN_A - Average amount of student loans awarded to full-time first-time undergraduates,,no,,,no,,xloan_a
+loan_a,FLOAT64,Average amount of student loans awarded to full-time first-time undergraduates,,no,,,no,,loan_a
+xfloan_n,STRING,Imputation field for FLOAN_N - Number of full-time first-time undergraduates awarded federal student loans,,no,,,no,,xfloan_n
+floan_n,FLOAT64,Number of full-time first-time undergraduates awarded federal student loans,,no,,,no,,floan_n
+xfloan_p,STRING,Imputation field for FLOAN_P - Percent of full-time first-time undergraduates awarded federal student loans,,no,,,no,,xfloan_p
+floan_p,FLOAT64,Percent of full-time first-time undergraduates awarded federal student loans,,no,,,no,,floan_p
+xfloan_t,STRING,Imputation field for FLOAN_T - Total amount of federal student loans awarded to full-time first-time undergraduates,,no,,,no,,xfloan_t
+floan_t,FLOAT64,Total amount of federal student loans awarded to full-time first-time undergraduates,,no,,,no,,floan_t
+xfloan_a,STRING,Imputation field for FLOAN_A - Average amount of federal student loans awarded to full-time first-time undergraduates,,no,,,no,,xfloan_a
+floan_a,FLOAT64,Average amount of federal student loans awarded to full-time first-time undergraduates,,no,,,no,,floan_a
+xoloan_n,STRING,Imputation field for OLOAN_N - Number of full-time first-time undergraduates awarded other student loans,,no,,,no,,xoloan_n
+oloan_n,FLOAT64,Number of full-time first-time undergraduates awarded other student loans,,no,,,no,,oloan_n
+xoloan_p,STRING,Imputation field for OLOAN_P - Percent of full-time first-time undergraduates awarded other student loans,,no,,,no,,xoloan_p
+oloan_p,FLOAT64,Percent of full-time first-time undergraduates awarded other student loans,,no,,,no,,oloan_p
+xoloan_t,STRING,Imputation field for OLOAN_T - Total amount of other student loans awarded to full-time first-time undergraduates,,no,,,no,,xoloan_t
+oloan_t,FLOAT64,Total amount of other student loans awarded to full-time first-time undergraduates,,no,,,no,,oloan_t
+xoloan_a,STRING,Imputation field for OLOAN_A - Average amount of other student loans awarded to full-time first-time undergraduates,,no,,,no,,xoloan_a
+oloan_a,FLOAT64,Average amount of other student loans awarded to full-time first-time undergraduates,,no,,,no,,oloan_a
+xgistn2,STRING,"Imputation field for GISTN2 - Total number, 2022-23",,no,,,no,,xgistn2
+gistn2,FLOAT64,"Total number, 2022-23",,no,,,no,,gistn2
+xgiston2,STRING,"Imputation field for GISTON2 - Number living on-campus, 2022-23",,no,,,no,,xgiston2
+giston2,FLOAT64,"Number living on-campus, 2022-23",,no,,,no,,giston2
+xgistwf2,STRING,"Imputation field for GISTWF2 - Number living off-campus with family, 2022-23",,no,,,no,,xgistwf2
+gistwf2,FLOAT64,"Number living off-campus with family, 2022-23",,no,,,no,,gistwf2
+xgistof2,STRING,"Imputation field for GISTOF2 - Number living off-campus not with family, 2022-23",,no,,,no,,xgistof2
+gistof2,FLOAT64,"Number living off-campus not with family, 2022-23",,no,,,no,,gistof2
+xgistun2,STRING,"Imputation field for GISTUN2 - Number living arrangement unknown, 2022-23",,no,,,no,,xgistun2
+gistun2,FLOAT64,"Number living arrangement unknown, 2022-23",,no,,,no,,gistun2
+xgistt2,STRING,"Imputation field for GISTT2 - Total amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,xgistt2
+gistt2,FLOAT64,"Total amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,gistt2
+xgista2,STRING,"Imputation field for GISTA2 - Average amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,xgista2
+gista2,FLOAT64,"Average amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,gista2
+xgistn1,STRING,"Imputation field for GISTN1 - Total number, 2021-22",,no,,,no,,xgistn1
+gistn1,FLOAT64,"Total number, 2021-22",,no,,,no,,gistn1
+xgiston1,STRING,"Imputation field for GISTON1 - Number living on-campus, 2021-22",,no,,,no,,xgiston1
+giston1,FLOAT64,"Number living on-campus, 2021-22",,no,,,no,,giston1
+xgistwf1,STRING,"Imputation field for GISTWF1 - Number living off-campus with family, 2021-22",,no,,,no,,xgistwf1
+gistwf1,FLOAT64,"Number living off-campus with family, 2021-22",,no,,,no,,gistwf1
+xgistof1,STRING,"Imputation field for GISTOF1 - Number living off-campus not with family, 2021-22",,no,,,no,,xgistof1
+gistof1,FLOAT64,"Number living off-campus not with family, 2021-22",,no,,,no,,gistof1
+xgistun1,STRING,"Imputation field for GISTUN1 - Number living arrangement unknown, 2021-22",,no,,,no,,xgistun1
+gistun1,FLOAT64,"Number living arrangement unknown, 2021-22",,no,,,no,,gistun1
+xgistt1,STRING,"Imputation field for GISTT1 - Total amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,xgistt1
+gistt1,FLOAT64,"Total amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,gistt1
+xgista1,STRING,"Imputation field for GISTA1 - Average amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,xgista1
+gista1,FLOAT64,"Average amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,gista1
+xgistn0,STRING,"Imputation field for GISTN0 - Total number, 2020-21",,no,,,no,,xgistn0
+gistn0,FLOAT64,"Total number, 2020-21",,no,,,no,,gistn0
+xgiston0,STRING,"Imputation field for GISTON0 - Number living on-campus, 2020-21",,no,,,no,,xgiston0
+giston0,FLOAT64,"Number living on-campus, 2020-21",,no,,,no,,giston0
+xgistwf0,STRING,"Imputation field for GISTWF0 - Number living off-campus with family, 2020-21",,no,,,no,,xgistwf0
+gistwf0,FLOAT64,"Number living off-campus with family, 2020-21",,no,,,no,,gistwf0
+xgistof0,STRING,"Imputation field for GISTOF0 - Number living off-campus not with family, 2020-21",,no,,,no,,xgistof0
+gistof0,FLOAT64,"Number living off-campus not with family, 2020-21",,no,,,no,,gistof0
+xgistun0,STRING,"Imputation field for GISTUN0 - Number living arrangement unknown, 2020-21",,no,,,no,,xgistun0
+gistun0,FLOAT64,"Number living arrangement unknown, 2020-21",,no,,,no,,gistun0
+xgistt0,STRING,"Imputation field for GISTT0 - Total amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,xgistt0
+gistt0,FLOAT64,"Total amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,gistt0
+xgista0,STRING,"Imputation field for GISTA0 - Average amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,xgista0
+gista0,FLOAT64,"Average amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,gista0
+xgis4n2,STRING,"Imputation field for GIS4N2 - Total number in all income levels, 2022-23",,no,,,no,,xgis4n2
+gis4n2,FLOAT64,"Total number in all income levels, 2022-23",,no,,,no,,gis4n2
+xgis4on2,STRING,"Imputation field for GIS4ON2 - Number living on-campus in all income levels, 2022-23",,no,,,no,,xgis4on2
+gis4on2,FLOAT64,"Number living on-campus in all income levels, 2022-23",,no,,,no,,gis4on2
+xgis4wf2,STRING,"Imputation field for GIS4WF2 - Number living off-campus with family in all income levels, 2022-23",,no,,,no,,xgis4wf2
+gis4wf2,FLOAT64,"Number living off-campus with family in all income levels, 2022-23",,no,,,no,,gis4wf2
+xgis4of2,STRING,"Imputation field for GIS4OF2 - Number living off-campus not with family in all income levels, 2022-23",,no,,,no,,xgis4of2
+gis4of2,FLOAT64,"Number living off-campus not with family in all income levels, 2022-23",,no,,,no,,gis4of2
+xgis4un2,STRING,"Imputation field for GIS4UN2 - Number living arrangement unknown in all income levels, 2022-23",,no,,,no,,xgis4un2
+gis4un2,FLOAT64,"Number living arrangement unknown in all income levels, 2022-23",,no,,,no,,gis4un2
+xgis4g2,STRING,"Imputation field for GIS4G2 - Number awarded grant and scholarship aid, all income levels, 2022-23",,no,,,no,,xgis4g2
+gis4g2,FLOAT64,"Number awarded grant and scholarship aid, all income levels, 2022-23",,no,,,no,,gis4g2
+xgis4t2,STRING,"Imputation field for GIS4T2 - Total amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,xgis4t2
+gis4t2,FLOAT64,"Total amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,gis4t2
+xgis4a2,STRING,"Imputation field for GIS4A2 - Average amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,xgis4a2
+gis4a2,FLOAT64,"Average amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,gis4a2
+xgis4n12,STRING,"Imputation field for GIS4N12 - Number in income level (0-30,000), 2022-23",,no,,,no,,xgis4n12
+gis4n12,FLOAT64,"Number in income level (0-30,000), 2022-23",,no,,,no,,gis4n12
+xgis4g12,STRING,"Imputation field for GIS4G12 - Number awarded grant and scholarship aid, income level (0-30,000), 2022-23",,no,,,no,,xgis4g12
+gis4g12,FLOAT64,"Number awarded grant and scholarship aid, income level (0-30,000), 2022-23",,no,,,no,,gis4g12
+xgis4t12,STRING,"Imputation field for GIS4T12 - Total amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,xgis4t12
+gis4t12,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,gis4t12
+xgis4a12,STRING,"Imputation field for GIS4A12 - Average amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,xgis4a12
+gis4a12,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,gis4a12
+xgis4n22,STRING,"Imputation field for GIS4N22 - Number in income level (30,001-48,000), 2022-23",,no,,,no,,xgis4n22
+gis4n22,FLOAT64,"Number in income level (30,001-48,000), 2022-23",,no,,,no,,gis4n22
+xgis4g22,STRING,"Imputation field for GIS4G22 - Number awarded grant and scholarship aid, income level (30,001-48,000), 2022-23",,no,,,no,,xgis4g22
+gis4g22,FLOAT64,"Number awarded grant and scholarship aid, income level (30,001-48,000), 2022-23",,no,,,no,,gis4g22
+xgis4t22,STRING,"Imputation field for GIS4T22 - Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,xgis4t22
+gis4t22,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,gis4t22
+xgis4a22,STRING,"Imputation field for GIS4A22 - Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,xgis4a22
+gis4a22,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,gis4a22
+xgis4n32,STRING,"Imputation field for GIS4N32 - Number in income level (48,001-75,000), 2022-23",,no,,,no,,xgis4n32
+gis4n32,FLOAT64,"Number in income level (48,001-75,000), 2022-23",,no,,,no,,gis4n32
+xgis4g32,STRING,"Imputation field for GIS4G32 - Number awarded grant and scholarship aid, income level (48,001-75,000), 2022-23",,no,,,no,,xgis4g32
+gis4g32,FLOAT64,"Number awarded grant and scholarship aid, income level (48,001-75,000), 2022-23",,no,,,no,,gis4g32
+xgis4t32,STRING,"Imputation field for GIS4T32 - Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,xgis4t32
+gis4t32,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,gis4t32
+xgis4a32,STRING,"Imputation field for GIS4A32 - Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,xgis4a32
+gis4a32,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,gis4a32
+xgis4n42,STRING,"Imputation field for GIS4N42 - Number in income level (75,001-110,000), 2022-23",,no,,,no,,xgis4n42
+gis4n42,FLOAT64,"Number in income level (75,001-110,000), 2022-23",,no,,,no,,gis4n42
+xgis4g42,STRING,"Imputation field for GIS4G42 - Number awarded grant and scholarship aid, income level (75,001-110,000), 2022-23",,no,,,no,,xgis4g42
+gis4g42,FLOAT64,"Number awarded grant and scholarship aid, income level (75,001-110,000), 2022-23",,no,,,no,,gis4g42
+xgis4t42,STRING,"Imputation field for GIS4T42 - Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,xgis4t42
+gis4t42,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,gis4t42
+xgis4a42,STRING,"Imputation field for GIS4A42 - Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,xgis4a42
+gis4a42,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,gis4a42
+xgis4n52,STRING,"Imputation field for GIS4N52 - Number in income level (110,001 or more), 2022-23",,no,,,no,,xgis4n52
+gis4n52,FLOAT64,"Number in income level (110,001 or more), 2022-23",,no,,,no,,gis4n52
+xgis4g52,STRING,"Imputation field for GIS4G52 - Number awarded grant and scholarship aid, income level (110,001 or more), 2022-23",,no,,,no,,xgis4g52
+gis4g52,FLOAT64,"Number awarded grant and scholarship aid, income level (110,001 or more), 2022-23",,no,,,no,,gis4g52
+xgis4t52,STRING,"Imputation field for GIS4T52 - Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,xgis4t52
+gis4t52,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,gis4t52
+xgis4a52,STRING,"Imputation field for GIS4A52 - Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,xgis4a52
+gis4a52,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,gis4a52
+xgis4n1,STRING,"Imputation field for GIS4N1 - Total number in all income levels, 2021-22",,no,,,no,,xgis4n1
+gis4n1,FLOAT64,"Total number in all income levels, 2021-22",,no,,,no,,gis4n1
+xgis4on1,STRING,"Imputation field for GIS4ON1 - Number living on-campus in all income levels, 2021-22",,no,,,no,,xgis4on1
+gis4on1,FLOAT64,"Number living on-campus in all income levels, 2021-22",,no,,,no,,gis4on1
+xgis4wf1,STRING,"Imputation field for GIS4WF1 - Number living off-campus with family in all income levels, 2021-22",,no,,,no,,xgis4wf1
+gis4wf1,FLOAT64,"Number living off-campus with family in all income levels, 2021-22",,no,,,no,,gis4wf1
+xgis4of1,STRING,"Imputation field for GIS4OF1 - Number living off-campus not with family in all income levels, 2021-22",,no,,,no,,xgis4of1
+gis4of1,FLOAT64,"Number living off-campus not with family in all income levels, 2021-22",,no,,,no,,gis4of1
+xgis4un1,STRING,"Imputation field for GIS4UN1 - Number living arrangement unknown in all income levels, 2021-22",,no,,,no,,xgis4un1
+gis4un1,FLOAT64,"Number living arrangement unknown in all income levels, 2021-22",,no,,,no,,gis4un1
+xgis4g1,STRING,"Imputation field for GIS4G1 - Number awarded grant and scholarship aid, all income levels, 2021-22",,no,,,no,,xgis4g1
+gis4g1,FLOAT64,"Number awarded grant and scholarship aid, all income levels, 2021-22",,no,,,no,,gis4g1
+xgis4t1,STRING,"Imputation field for GIS4T1 - Total amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,xgis4t1
+gis4t1,FLOAT64,"Total amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,gis4t1
+xgis4a1,STRING,"Imputation field for GIS4A1 - Average amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,xgis4a1
+gis4a1,FLOAT64,"Average amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,gis4a1
+xgis4n11,STRING,"Imputation field for GIS4N11 - Number in income level (0-30,000), 2021-22",,no,,,no,,xgis4n11
+gis4n11,FLOAT64,"Number in income level (0-30,000), 2021-22",,no,,,no,,gis4n11
+xgis4g11,STRING,"Imputation field for GIS4G11 - Number awarded grant and scholarship aid, income level (0-30,000), 2021-22",,no,,,no,,xgis4g11
+gis4g11,FLOAT64,"Number awarded grant and scholarship aid, income level (0-30,000), 2021-22",,no,,,no,,gis4g11
+xgis4t11,STRING,"Imputation field for GIS4T11 - Total amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,xgis4t11
+gis4t11,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,gis4t11
+xgis4a11,STRING,"Imputation field for GIS4A11 - Average amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,xgis4a11
+gis4a11,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,gis4a11
+xgis4n21,STRING,"Imputation field for GIS4N21 - Number in income level (30,001-48,000), 2021-22",,no,,,no,,xgis4n21
+gis4n21,FLOAT64,"Number in income level (30,001-48,000), 2021-22",,no,,,no,,gis4n21
+xgis4g21,STRING,"Imputation field for GIS4G21 - Number awarded grant and scholarship aid, income level (30,001-48,000), 2021-22",,no,,,no,,xgis4g21
+gis4g21,FLOAT64,"Number awarded grant and scholarship aid, income level (30,001-48,000), 2021-22",,no,,,no,,gis4g21
+xgis4t21,STRING,"Imputation field for GIS4T21 - Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,xgis4t21
+gis4t21,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,gis4t21
+xgis4a21,STRING,"Imputation field for GIS4A21 - Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,xgis4a21
+gis4a21,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,gis4a21
+xgis4n31,STRING,"Imputation field for GIS4N31 - Number in income level (48,001-75,000), 2021-22",,no,,,no,,xgis4n31
+gis4n31,FLOAT64,"Number in income level (48,001-75,000), 2021-22",,no,,,no,,gis4n31
+xgis4g31,STRING,"Imputation field for GIS4G31 - Number awarded grant and scholarship aid, income level (48,001-75,000), 2021-22",,no,,,no,,xgis4g31
+gis4g31,FLOAT64,"Number awarded grant and scholarship aid, income level (48,001-75,000), 2021-22",,no,,,no,,gis4g31
+xgis4t31,STRING,"Imputation field for GIS4T31 - Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,xgis4t31
+gis4t31,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,gis4t31
+xgis4a31,STRING,"Imputation field for GIS4A31 - Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,xgis4a31
+gis4a31,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,gis4a31
+xgis4n41,STRING,"Imputation field for GIS4N41 - Number in income level (75,001-110,000), 2021-22",,no,,,no,,xgis4n41
+gis4n41,FLOAT64,"Number in income level (75,001-110,000), 2021-22",,no,,,no,,gis4n41
+xgis4g41,STRING,"Imputation field for GIS4G41 - Number awarded grant and scholarship aid, income level (75,001-110,000), 2021-22",,no,,,no,,xgis4g41
+gis4g41,FLOAT64,"Number awarded grant and scholarship aid, income level (75,001-110,000), 2021-22",,no,,,no,,gis4g41
+xgis4t41,STRING,"Imputation field for GIS4T41 - Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,xgis4t41
+gis4t41,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,gis4t41
+xgis4a41,STRING,"Imputation field for GIS4A41 - Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,xgis4a41
+gis4a41,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,gis4a41
+xgis4n51,STRING,"Imputation field for GIS4N51 - Number in income level (110,001 or more), 2021-22",,no,,,no,,xgis4n51
+gis4n51,FLOAT64,"Number in income level (110,001 or more), 2021-22",,no,,,no,,gis4n51
+xgis4g51,STRING,"Imputation field for GIS4G51 - Number awarded grant and scholarship aid, income level (110,001 or more), 2021-22",,no,,,no,,xgis4g51
+gis4g51,FLOAT64,"Number awarded grant and scholarship aid, income level (110,001 or more), 2021-22",,no,,,no,,gis4g51
+xgis4t51,STRING,"Imputation field for GIS4T51 - Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,xgis4t51
+gis4t51,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,gis4t51
+xgis4a51,STRING,"Imputation field for GIS4A51 - Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,xgis4a51
+gis4a51,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,gis4a51
+xgis4n0,STRING,"Imputation field for GIS4N0 - Total number in all income levels, 2020-21",,no,,,no,,xgis4n0
+gis4n0,FLOAT64,"Total number in all income levels, 2020-21",,no,,,no,,gis4n0
+xgis4on0,STRING,"Imputation field for GIS4ON0 - Number living on-campus in all income levels, 2020-21",,no,,,no,,xgis4on0
+gis4on0,FLOAT64,"Number living on-campus in all income levels, 2020-21",,no,,,no,,gis4on0
+xgis4wf0,STRING,"Imputation field for GIS4WF0 - Number living off-campus with family in all income levels, 2020-21",,no,,,no,,xgis4wf0
+gis4wf0,FLOAT64,"Number living off-campus with family in all income levels, 2020-21",,no,,,no,,gis4wf0
+xgis4of0,STRING,"Imputation field for GIS4OF0 - Number living off-campus not with family in all income levels, 2020-21",,no,,,no,,xgis4of0
+gis4of0,FLOAT64,"Number living off-campus not with family in all income levels, 2020-21",,no,,,no,,gis4of0
+xgis4un0,STRING,"Imputation field for GIS4UN0 - Number living arrangement unknown in all income levels, 2020-21",,no,,,no,,xgis4un0
+gis4un0,FLOAT64,"Number living arrangement unknown in all income levels, 2020-21",,no,,,no,,gis4un0
+xgis4g0,STRING,"Imputation field for GIS4G0 - Number awarded grant and scholarship aid, all income levels, 2020-21",,no,,,no,,xgis4g0
+gis4g0,FLOAT64,"Number awarded grant and scholarship aid, all income levels, 2020-21",,no,,,no,,gis4g0
+xgis4t0,STRING,"Imputation field for GIS4T0 - Total amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,xgis4t0
+gis4t0,FLOAT64,"Total amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,gis4t0
+xgis4a0,STRING,"Imputation field for GIS4A0 - Average amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,xgis4a0
+gis4a0,FLOAT64,"Average amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,gis4a0
+xgis4n10,STRING,"Imputation field for GIS4N10 - Number in income level (0-30,000), 2020-21",,no,,,no,,xgis4n10
+gis4n10,FLOAT64,"Number in income level (0-30,000), 2020-21",,no,,,no,,gis4n10
+xgis4g10,STRING,"Imputation field for GIS4G10 - Number awarded grant and scholarship aid, income level (0-30,000), 2020-21",,no,,,no,,xgis4g10
+gis4g10,FLOAT64,"Number awarded grant and scholarship aid, income level (0-30,000), 2020-21",,no,,,no,,gis4g10
+xgis4t10,STRING,"Imputation field for GIS4T10 - Total amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,xgis4t10
+gis4t10,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,gis4t10
+xgis4a10,STRING,"Imputation field for GIS4A10 - Average amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,xgis4a10
+gis4a10,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,gis4a10
+xgis4n20,STRING,"Imputation field for GIS4N20 - Number in income level (30,001-48,000), 2020-21",,no,,,no,,xgis4n20
+gis4n20,FLOAT64,"Number in income level (30,001-48,000), 2020-21",,no,,,no,,gis4n20
+xgis4g20,STRING,"Imputation field for GIS4G20 - Number awarded grant and scholarship aid, income level (30,001-48,000), 2020-21",,no,,,no,,xgis4g20
+gis4g20,FLOAT64,"Number awarded grant and scholarship aid, income level (30,001-48,000), 2020-21",,no,,,no,,gis4g20
+xgis4t20,STRING,"Imputation field for GIS4T20 - Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,xgis4t20
+gis4t20,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,gis4t20
+xgis4a20,STRING,"Imputation field for GIS4A20 - Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,xgis4a20
+gis4a20,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,gis4a20
+xgis4n30,STRING,"Imputation field for GIS4N30 - Number in income level (48,001-75,000), 2020-21",,no,,,no,,xgis4n30
+gis4n30,FLOAT64,"Number in income level (48,001-75,000), 2020-21",,no,,,no,,gis4n30
+xgis4g30,STRING,"Imputation field for GIS4G30 - Number awarded grant and scholarship aid, income level (48,001-75,000), 2020-21",,no,,,no,,xgis4g30
+gis4g30,FLOAT64,"Number awarded grant and scholarship aid, income level (48,001-75,000), 2020-21",,no,,,no,,gis4g30
+xgis4t30,STRING,"Imputation field for GIS4T30 - Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,xgis4t30
+gis4t30,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,gis4t30
+xgis4a30,STRING,"Imputation field for GIS4A30 - Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,xgis4a30
+gis4a30,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,gis4a30
+xgis4n40,STRING,"Imputation field for GIS4N40 - Number in income level (75,001-110,000), 2020-21",,no,,,no,,xgis4n40
+gis4n40,FLOAT64,"Number in income level (75,001-110,000), 2020-21",,no,,,no,,gis4n40
+xgis4g40,STRING,"Imputation field for GIS4G40 - Number awarded grant and scholarship aid, income level (75,001-110,000), 2020-21",,no,,,no,,xgis4g40
+gis4g40,FLOAT64,"Number awarded grant and scholarship aid, income level (75,001-110,000), 2020-21",,no,,,no,,gis4g40
+xgis4t40,STRING,"Imputation field for GIS4T40 - Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,xgis4t40
+gis4t40,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,gis4t40
+xgis4a40,STRING,"Imputation field for GIS4A40 - Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,xgis4a40
+gis4a40,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,gis4a40
+xgis4n50,STRING,"Imputation field for GIS4N50 - Number in income level (110,001 or more), 2020-21",,no,,,no,,xgis4n50
+gis4n50,FLOAT64,"Number in income level (110,001 or more), 2020-21",,no,,,no,,gis4n50
+xgis4g50,STRING,"Imputation field for GIS4G50 - Number awarded grant and scholarship aid, income level (110,001 or more), 2020-21",,no,,,no,,xgis4g50
+gis4g50,FLOAT64,"Number awarded grant and scholarship aid, income level (110,001 or more), 2020-21",,no,,,no,,gis4g50
+xgis4t50,STRING,"Imputation field for GIS4T50 - Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,xgis4t50
+gis4t50,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,gis4t50
+xgis4a50,STRING,"Imputation field for GIS4A50 - Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,xgis4a50
+gis4a50,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,gis4a50
+xnpist2,STRING,"Imputation field for NPIST2 - Average net price-students awarded grant or scholarship aid, 2022-23",,no,,,no,,xnpist2
+npist2,FLOAT64,"Average net price-students awarded grant or scholarship aid, 2022-23",,no,,,no,,npist2
+xnpist1,STRING,"Imputation field for NPIST1 - Average net price-students awarded grant or scholarship aid, 2021-22",,no,,,no,,xnpist1
+npist1,FLOAT64,"Average net price-students awarded grant or scholarship aid, 2021-22",,no,,,no,,npist1
+xnpist0,STRING,"Imputation field for NPIST0 - Average net price-students awarded grant or scholarship aid, 2020-21",,no,,,no,,xnpist0
+npist0,FLOAT64,"Average net price-students awarded grant or scholarship aid, 2020-21",,no,,,no,,npist0
+xnpis412,STRING,"Imputation field for NPIS412 - Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpis412
+npis412,FLOAT64,"Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npis412
+xnpis422,STRING,"Imputation field for NPIS422 - Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpis422
+npis422,FLOAT64,"Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npis422
+xnpis432,STRING,"Imputation field for NPIS432 - Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpis432
+npis432,FLOAT64,"Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npis432
+xnpis442,STRING,"Imputation field for NPIS442 - Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpis442
+npis442,FLOAT64,"Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npis442
+xnpis452,STRING,"Imputation field for NPIS452 - Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpis452
+npis452,FLOAT64,"Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npis452
+xnpis411,STRING,"Imputation field for NPIS411 - Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpis411
+npis411,FLOAT64,"Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npis411
+xnpis421,STRING,"Imputation field for NPIS421 - Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpis421
+npis421,FLOAT64,"Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npis421
+xnpis431,STRING,"Imputation field for NPIS431 - Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpis431
+npis431,FLOAT64,"Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npis431
+xnpis441,STRING,"Imputation field for NPIS441 - Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpis441
+npis441,FLOAT64,"Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npis441
+xnpis451,STRING,"Imputation field for NPIS451 - Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpis451
+npis451,FLOAT64,"Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npis451
+xnpis410,STRING,"Imputation field for NPIS410 - Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpis410
+npis410,FLOAT64,"Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npis410
+xnpis420,STRING,"Imputation field for NPIS420 - Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpis420
+npis420,FLOAT64,"Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npis420
+xnpis430,STRING,"Imputation field for NPIS430 - Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpis430
+npis430,FLOAT64,"Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npis430
+xnpis440,STRING,"Imputation field for NPIS440 - Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpis440
+npis440,FLOAT64,"Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npis440
+xnpis450,STRING,"Imputation field for NPIS450 - Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpis450
+npis450,FLOAT64,"Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npis450
+xgrntn2,STRING,"Imputation field for GRNTN2 - Total number, 2022-23",,no,,,no,,xgrntn2
+grntn2,FLOAT64,"Total number, 2022-23",,no,,,no,,grntn2
+xgrnton2,STRING,"Imputation field for GRNTON2 - Number living on-campus, 2022-23",,no,,,no,,xgrnton2
+grnton2,FLOAT64,"Number living on-campus, 2022-23",,no,,,no,,grnton2
+xgrntwf2,STRING,"Imputation field for GRNTWF2 - Number living off-campus with family, 2022-23",,no,,,no,,xgrntwf2
+grntwf2,FLOAT64,"Number living off-campus with family, 2022-23",,no,,,no,,grntwf2
+xgrntof2,STRING,"Imputation field for GRNTOF2 - Number living off-campus not with family, 2022-23",,no,,,no,,xgrntof2
+grntof2,FLOAT64,"Number living off-campus not with family, 2022-23",,no,,,no,,grntof2
+xgrntun2,STRING,"Imputation field for GRNTUN2 - Number living arrangement unknown, 2022-23",,no,,,no,,xgrntun2
+grntun2,FLOAT64,"Number living arrangement unknown, 2022-23",,no,,,no,,grntun2
+xgrntt2,STRING,"Imputation field for GRNTT2 - Total amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,xgrntt2
+grntt2,FLOAT64,"Total amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,grntt2
+xgrnta2,STRING,"Imputation field for GRNTA2 - Average amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,xgrnta2
+grnta2,FLOAT64,"Average amount of grant and scholarship aid awarded, 2022-23",,no,,,no,,grnta2
+xgrntn1,STRING,"Imputation field for GRNTN1 - Total number, 2021-22",,no,,,no,,xgrntn1
+grntn1,FLOAT64,"Total number, 2021-22",,no,,,no,,grntn1
+xgrnton1,STRING,"Imputation field for GRNTON1 - Number living on-campus, 2021-22",,no,,,no,,xgrnton1
+grnton1,FLOAT64,"Number living on-campus, 2021-22",,no,,,no,,grnton1
+xgrntwf1,STRING,"Imputation field for GRNTWF1 - Number living off-campus with family, 2021-22",,no,,,no,,xgrntwf1
+grntwf1,FLOAT64,"Number living off-campus with family, 2021-22",,no,,,no,,grntwf1
+xgrntof1,STRING,"Imputation field for GRNTOF1 - Number living off-campus not with family, 2021-22",,no,,,no,,xgrntof1
+grntof1,FLOAT64,"Number living off-campus not with family, 2021-22",,no,,,no,,grntof1
+xgrntun1,STRING,"Imputation field for GRNTUN1 - Number living arrangement unknown, 2021-22",,no,,,no,,xgrntun1
+grntun1,FLOAT64,"Number living arrangement unknown, 2021-22",,no,,,no,,grntun1
+xgrntt1,STRING,"Imputation field for GRNTT1 - Total amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,xgrntt1
+grntt1,FLOAT64,"Total amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,grntt1
+xgrnta1,STRING,"Imputation field for GRNTA1 - Average amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,xgrnta1
+grnta1,FLOAT64,"Average amount of grant and scholarship aid awarded, 2021-22",,no,,,no,,grnta1
+xgrntn0,STRING,"Imputation field for GRNTN0 - Total number, 2020-21",,no,,,no,,xgrntn0
+grntn0,FLOAT64,"Total number, 2020-21",,no,,,no,,grntn0
+xgrnton0,STRING,"Imputation field for GRNTON0 - Number living on-campus, 2020-21",,no,,,no,,xgrnton0
+grnton0,FLOAT64,"Number living on-campus, 2020-21",,no,,,no,,grnton0
+xgrntwf0,STRING,"Imputation field for GRNTWF0 - Number living off-campus with family, 2020-21",,no,,,no,,xgrntwf0
+grntwf0,FLOAT64,"Number living off-campus with family, 2020-21",,no,,,no,,grntwf0
+xgrntof0,STRING,"Imputation field for GRNTOF0 - Number living off-campus not with family, 2020-21",,no,,,no,,xgrntof0
+grntof0,FLOAT64,"Number living off-campus not with family, 2020-21",,no,,,no,,grntof0
+xgrntun0,STRING,"Imputation field for GRNTUN0 - Number living arrangement unknown, 2020-21",,no,,,no,,xgrntun0
+grntun0,FLOAT64,"Number living arrangement unknown, 2020-21",,no,,,no,,grntun0
+xgrntt0,STRING,"Imputation field for GRNTT0 - Total amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,xgrntt0
+grntt0,FLOAT64,"Total amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,grntt0
+xgrnta0,STRING,"Imputation field for GRNTA0 - Average amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,xgrnta0
+grnta0,FLOAT64,"Average amount of grant and scholarship aid awarded, 2020-21",,no,,,no,,grnta0
+xgrn4n2,STRING,"Imputation field for GRN4N2 - Total number in all income levels, 2022-23",,no,,,no,,xgrn4n2
+grn4n2,FLOAT64,"Total number in all income levels, 2022-23",,no,,,no,,grn4n2
+xgrn4on2,STRING,"Imputation field for GRN4ON2 - Number living on-campus in all income levels, 2022-23",,no,,,no,,xgrn4on2
+grn4on2,FLOAT64,"Number living on-campus in all income levels, 2022-23",,no,,,no,,grn4on2
+xgrn4wf2,STRING,"Imputation field for GRN4WF2 - Number living off-campus with family in all income levels, 2022-23",,no,,,no,,xgrn4wf2
+grn4wf2,FLOAT64,"Number living off-campus with family in all income levels, 2022-23",,no,,,no,,grn4wf2
+xgrn4of2,STRING,"Imputation field for GRN4OF2 - Number living off-campus not with family in all income levels, 2022-23",,no,,,no,,xgrn4of2
+grn4of2,FLOAT64,"Number living off-campus not with family in all income levels, 2022-23",,no,,,no,,grn4of2
+xgrn4un2,STRING,"Imputation field for GRN4UN2 - Number living arrangement unknown in all income levels, 2022-23",,no,,,no,,xgrn4un2
+grn4un2,FLOAT64,"Number living arrangement unknown in all income levels, 2022-23",,no,,,no,,grn4un2
+xgrn4g2,STRING,"Imputation field for GRN4G2 - Number awarded grant and scholarship aid, all income levels, 2022-23",,no,,,no,,xgrn4g2
+grn4g2,FLOAT64,"Number awarded grant and scholarship aid, all income levels, 2022-23",,no,,,no,,grn4g2
+xgrn4t2,STRING,"Imputation field for GRN4T2 - Total amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,xgrn4t2
+grn4t2,FLOAT64,"Total amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,grn4t2
+xgrn4a2,STRING,"Imputation field for GRN4A2 - Average amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,xgrn4a2
+grn4a2,FLOAT64,"Average amount of grant and scholarship aid awarded, all income levels, 2022-23",,no,,,no,,grn4a2
+xgrn4n12,STRING,"Imputation field for GRN4N12 - Number in income level (0-30,000), 2022-23",,no,,,no,,xgrn4n12
+grn4n12,FLOAT64,"Number in income level (0-30,000), 2022-23",,no,,,no,,grn4n12
+xgrn4g12,STRING,"Imputation field for GRN4G12 - Number awarded grant and scholarship aid, income level (0-30,000), 2022-23",,no,,,no,,xgrn4g12
+grn4g12,FLOAT64,"Number awarded grant and scholarship aid, income level (0-30,000), 2022-23",,no,,,no,,grn4g12
+xgrn4t12,STRING,"Imputation field for GRN4T12 - Total amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,xgrn4t12
+grn4t12,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,grn4t12
+xgrn4a12,STRING,"Imputation field for GRN4A12 - Average amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,xgrn4a12
+grn4a12,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (0-30,000), 2022-23",,no,,,no,,grn4a12
+xgrn4n22,STRING,"Imputation field for GRN4N22 - Number in income level (30,001-48,000), 2022-23",,no,,,no,,xgrn4n22
+grn4n22,FLOAT64,"Number in income level (30,001-48,000), 2022-23",,no,,,no,,grn4n22
+xgrn4g22,STRING,"Imputation field for GRN4G22 - Number awarded grant and scholarship aid, income level (30,001-48,000), 2022-23",,no,,,no,,xgrn4g22
+grn4g22,FLOAT64,"Number awarded grant and scholarship aid, income level (30,001-48,000), 2022-23",,no,,,no,,grn4g22
+xgrn4t22,STRING,"Imputation field for GRN4T22 - Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,xgrn4t22
+grn4t22,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,grn4t22
+xgrn4a22,STRING,"Imputation field for GRN4A22 - Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,xgrn4a22
+grn4a22,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2022-23",,no,,,no,,grn4a22
+xgrn4n32,STRING,"Imputation field for GRN4N32 - Number in income level (48,001-75,000), 2022-23",,no,,,no,,xgrn4n32
+grn4n32,FLOAT64,"Number in income level (48,001-75,000), 2022-23",,no,,,no,,grn4n32
+xgrn4g32,STRING,"Imputation field for GRN4G32 - Number awarded grant and scholarship aid, income level (48,001-75,000), 2022-23",,no,,,no,,xgrn4g32
+grn4g32,FLOAT64,"Number awarded grant and scholarship aid, income level (48,001-75,000), 2022-23",,no,,,no,,grn4g32
+xgrn4t32,STRING,"Imputation field for GRN4T32 - Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,xgrn4t32
+grn4t32,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,grn4t32
+xgrn4a32,STRING,"Imputation field for GRN4A32 - Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,xgrn4a32
+grn4a32,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2022-23",,no,,,no,,grn4a32
+xgrn4n42,STRING,"Imputation field for GRN4N42 - Number in income level (75,001-110,000), 2022-23",,no,,,no,,xgrn4n42
+grn4n42,FLOAT64,"Number in income level (75,001-110,000), 2022-23",,no,,,no,,grn4n42
+xgrn4g42,STRING,"Imputation field for GRN4G42 - Number awarded grant and scholarship aid, income level (75,001-110,000), 2022-23",,no,,,no,,xgrn4g42
+grn4g42,FLOAT64,"Number awarded grant and scholarship aid, income level (75,001-110,000), 2022-23",,no,,,no,,grn4g42
+xgrn4t42,STRING,"Imputation field for GRN4T42 - Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,xgrn4t42
+grn4t42,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,grn4t42
+xgrn4a42,STRING,"Imputation field for GRN4A42 - Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,xgrn4a42
+grn4a42,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2022-23",,no,,,no,,grn4a42
+xgrn4n52,STRING,"Imputation field for GRN4N52 - Number in income level (110,001 or more), 2022-23",,no,,,no,,xgrn4n52
+grn4n52,FLOAT64,"Number in income level (110,001 or more), 2022-23",,no,,,no,,grn4n52
+xgrn4g52,STRING,"Imputation field for GRN4G52 - Number awarded grant and scholarship aid, income level (110,001 or more), 2022-23",,no,,,no,,xgrn4g52
+grn4g52,FLOAT64,"Number awarded grant and scholarship aid, income level (110,001 or more), 2022-23",,no,,,no,,grn4g52
+xgrn4t52,STRING,"Imputation field for GRN4T52 - Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,xgrn4t52
+grn4t52,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,grn4t52
+xgrn4a52,STRING,"Imputation field for GRN4A52 - Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,xgrn4a52
+grn4a52,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2022-23",,no,,,no,,grn4a52
+xgrn4n1,STRING,"Imputation field for GRN4N1 - Total number in all income levels, 2021-22",,no,,,no,,xgrn4n1
+grn4n1,FLOAT64,"Total number in all income levels, 2021-22",,no,,,no,,grn4n1
+xgrn4on1,STRING,"Imputation field for GRN4ON1 - Number living on-campus in all income levels, 2021-22",,no,,,no,,xgrn4on1
+grn4on1,FLOAT64,"Number living on-campus in all income levels, 2021-22",,no,,,no,,grn4on1
+xgrn4wf1,STRING,"Imputation field for GRN4WF1 - Number living off-campus with family in all income levels, 2021-22",,no,,,no,,xgrn4wf1
+grn4wf1,FLOAT64,"Number living off-campus with family in all income levels, 2021-22",,no,,,no,,grn4wf1
+xgrn4of1,STRING,"Imputation field for GRN4OF1 - Number living off-campus not with family in all income levels, 2021-22",,no,,,no,,xgrn4of1
+grn4of1,FLOAT64,"Number living off-campus not with family in all income levels, 2021-22",,no,,,no,,grn4of1
+xgrn4un1,STRING,"Imputation field for GRN4UN1 - Number living arrangement unknown in all income levels, 2021-22",,no,,,no,,xgrn4un1
+grn4un1,FLOAT64,"Number living arrangement unknown in all income levels, 2021-22",,no,,,no,,grn4un1
+xgrn4g1,STRING,"Imputation field for GRN4G1 - Number awarded grant and scholarship aid, all income levels, 2021-22",,no,,,no,,xgrn4g1
+grn4g1,FLOAT64,"Number awarded grant and scholarship aid, all income levels, 2021-22",,no,,,no,,grn4g1
+xgrn4t1,STRING,"Imputation field for GRN4T1 - Total amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,xgrn4t1
+grn4t1,FLOAT64,"Total amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,grn4t1
+xgrn4a1,STRING,"Imputation field for GRN4A1 - Average amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,xgrn4a1
+grn4a1,FLOAT64,"Average amount of grant and scholarship aid awarded, all income levels, 2021-22",,no,,,no,,grn4a1
+xgrn4n11,STRING,"Imputation field for GRN4N11 - Number in income level (0-30,000), 2021-22",,no,,,no,,xgrn4n11
+grn4n11,FLOAT64,"Number in income level (0-30,000), 2021-22",,no,,,no,,grn4n11
+xgrn4g11,STRING,"Imputation field for GRN4G11 - Number awarded grant and scholarship aid, income level (0-30,000), 2021-22",,no,,,no,,xgrn4g11
+grn4g11,FLOAT64,"Number awarded grant and scholarship aid, income level (0-30,000), 2021-22",,no,,,no,,grn4g11
+xgrn4t11,STRING,"Imputation field for GRN4T11 - Total amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,xgrn4t11
+grn4t11,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,grn4t11
+xgrn4a11,STRING,"Imputation field for GRN4A11 - Average amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,xgrn4a11
+grn4a11,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (0-30,000), 2021-22",,no,,,no,,grn4a11
+xgrn4n21,STRING,"Imputation field for GRN4N21 - Number in income level (30,001-48,000), 2021-22",,no,,,no,,xgrn4n21
+grn4n21,FLOAT64,"Number in income level (30,001-48,000), 2021-22",,no,,,no,,grn4n21
+xgrn4g21,STRING,"Imputation field for GRN4G21 - Number awarded grant and scholarship aid, income level (30,001-48,000), 2021-22",,no,,,no,,xgrn4g21
+grn4g21,FLOAT64,"Number awarded grant and scholarship aid, income level (30,001-48,000), 2021-22",,no,,,no,,grn4g21
+xgrn4t21,STRING,"Imputation field for GRN4T21 - Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,xgrn4t21
+grn4t21,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,grn4t21
+xgrn4a21,STRING,"Imputation field for GRN4A21 - Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,xgrn4a21
+grn4a21,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2021-22",,no,,,no,,grn4a21
+xgrn4n31,STRING,"Imputation field for GRN4N31 - Number in income level (48,001-75,000), 2021-22",,no,,,no,,xgrn4n31
+grn4n31,FLOAT64,"Number in income level (48,001-75,000), 2021-22",,no,,,no,,grn4n31
+xgrn4g31,STRING,"Imputation field for GRN4G31 - Number awarded grant and scholarship aid, income level (48,001-75,000), 2021-22",,no,,,no,,xgrn4g31
+grn4g31,FLOAT64,"Number awarded grant and scholarship aid, income level (48,001-75,000), 2021-22",,no,,,no,,grn4g31
+xgrn4t31,STRING,"Imputation field for GRN4T31 - Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,xgrn4t31
+grn4t31,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,grn4t31
+xgrn4a31,STRING,"Imputation field for GRN4A31 - Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,xgrn4a31
+grn4a31,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2021-22",,no,,,no,,grn4a31
+xgrn4n41,STRING,"Imputation field for GRN4N41 - Number in income level (75,001-110,000), 2021-22",,no,,,no,,xgrn4n41
+grn4n41,FLOAT64,"Number in income level (75,001-110,000), 2021-22",,no,,,no,,grn4n41
+xgrn4g41,STRING,"Imputation field for GRN4G41 - Number awarded grant and scholarship aid, income level (75,001-110,000), 2021-22",,no,,,no,,xgrn4g41
+grn4g41,FLOAT64,"Number awarded grant and scholarship aid, income level (75,001-110,000), 2021-22",,no,,,no,,grn4g41
+xgrn4t41,STRING,"Imputation field for GRN4T41 - Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,xgrn4t41
+grn4t41,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,grn4t41
+xgrn4a41,STRING,"Imputation field for GRN4A41 - Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,xgrn4a41
+grn4a41,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2021-22",,no,,,no,,grn4a41
+xgrn4n51,STRING,"Imputation field for GRN4N51 - Number in income level (110,001 or more), 2021-22",,no,,,no,,xgrn4n51
+grn4n51,FLOAT64,"Number in income level (110,001 or more), 2021-22",,no,,,no,,grn4n51
+xgrn4g51,STRING,"Imputation field for GRN4G51 - Number awarded grant and scholarship aid, income level (110,001 or more), 2021-22",,no,,,no,,xgrn4g51
+grn4g51,FLOAT64,"Number awarded grant and scholarship aid, income level (110,001 or more), 2021-22",,no,,,no,,grn4g51
+xgrn4t51,STRING,"Imputation field for GRN4T51 - Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,xgrn4t51
+grn4t51,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,grn4t51
+xgrn4a51,STRING,"Imputation field for GRN4A51 - Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,xgrn4a51
+grn4a51,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2021-22",,no,,,no,,grn4a51
+xgrn4n0,STRING,"Imputation field for GRN4N0 - Total number in all income levels, 2020-21",,no,,,no,,xgrn4n0
+grn4n0,FLOAT64,"Total number in all income levels, 2020-21",,no,,,no,,grn4n0
+xgrn4on0,STRING,"Imputation field for GRN4ON0 - Number living on-campus in all income levels, 2020-21",,no,,,no,,xgrn4on0
+grn4on0,FLOAT64,"Number living on-campus in all income levels, 2020-21",,no,,,no,,grn4on0
+xgrn4wf0,STRING,"Imputation field for GRN4WF0 - Number living off-campus with family in all income levels, 2020-21",,no,,,no,,xgrn4wf0
+grn4wf0,FLOAT64,"Number living off-campus with family in all income levels, 2020-21",,no,,,no,,grn4wf0
+xgrn4of0,STRING,"Imputation field for GRN4OF0 - Number living off-campus not with family in all income levels, 2020-21",,no,,,no,,xgrn4of0
+grn4of0,FLOAT64,"Number living off-campus not with family in all income levels, 2020-21",,no,,,no,,grn4of0
+xgrn4un0,STRING,"Imputation field for GRN4UN0 - Number living arrangement unknown in all income levels, 2020-21",,no,,,no,,xgrn4un0
+grn4un0,FLOAT64,"Number living arrangement unknown in all income levels, 2020-21",,no,,,no,,grn4un0
+xgrn4g0,STRING,"Imputation field for GRN4G0 - Number awarded grant and scholarship aid, all income levels, 2020-21",,no,,,no,,xgrn4g0
+grn4g0,FLOAT64,"Number awarded grant and scholarship aid, all income levels, 2020-21",,no,,,no,,grn4g0
+xgrn4t0,STRING,"Imputation field for GRN4T0 - Total amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,xgrn4t0
+grn4t0,FLOAT64,"Total amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,grn4t0
+xgrn4a0,STRING,"Imputation field for GRN4A0 - Average amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,xgrn4a0
+grn4a0,FLOAT64,"Average amount of grant and scholarship aid awarded, all income levels, 2020-21",,no,,,no,,grn4a0
+xgrn4n10,STRING,"Imputation field for GRN4N10 - Number in income level (0-30,000), 2020-21",,no,,,no,,xgrn4n10
+grn4n10,FLOAT64,"Number in income level (0-30,000), 2020-21",,no,,,no,,grn4n10
+xgrn4g10,STRING,"Imputation field for GRN4G10 - Number awarded grant and scholarship aid, income level (0-30,000), 2020-21",,no,,,no,,xgrn4g10
+grn4g10,FLOAT64,"Number awarded grant and scholarship aid, income level (0-30,000), 2020-21",,no,,,no,,grn4g10
+xgrn4t10,STRING,"Imputation field for GRN4T10 - Total amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,xgrn4t10
+grn4t10,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,grn4t10
+xgrn4a10,STRING,"Imputation field for GRN4A10 - Average amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,xgrn4a10
+grn4a10,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (0-30,000), 2020-21",,no,,,no,,grn4a10
+xgrn4n20,STRING,"Imputation field for GRN4N20 - Number in income level (30,001-48,000), 2020-21",,no,,,no,,xgrn4n20
+grn4n20,FLOAT64,"Number in income level (30,001-48,000), 2020-21",,no,,,no,,grn4n20
+xgrn4g20,STRING,"Imputation field for GRN4G20 - Number awarded grant and scholarship aid, income level (30,001-48,000), 2020-21",,no,,,no,,xgrn4g20
+grn4g20,FLOAT64,"Number awarded grant and scholarship aid, income level (30,001-48,000), 2020-21",,no,,,no,,grn4g20
+xgrn4t20,STRING,"Imputation field for GRN4T20 - Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,xgrn4t20
+grn4t20,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,grn4t20
+xgrn4a20,STRING,"Imputation field for GRN4A20 - Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,xgrn4a20
+grn4a20,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (30,001-48,000), 2020-21",,no,,,no,,grn4a20
+xgrn4n30,STRING,"Imputation field for GRN4N30 - Number in income level (48,001-75,000), 2020-21",,no,,,no,,xgrn4n30
+grn4n30,FLOAT64,"Number in income level (48,001-75,000), 2020-21",,no,,,no,,grn4n30
+xgrn4g30,STRING,"Imputation field for GRN4G30 - Number awarded grant and scholarship aid, income level (48,001-75,000), 2020-21",,no,,,no,,xgrn4g30
+grn4g30,FLOAT64,"Number awarded grant and scholarship aid, income level (48,001-75,000), 2020-21",,no,,,no,,grn4g30
+xgrn4t30,STRING,"Imputation field for GRN4T30 - Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,xgrn4t30
+grn4t30,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,grn4t30
+xgrn4a30,STRING,"Imputation field for GRN4A30 - Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,xgrn4a30
+grn4a30,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (48,001-75,000), 2020-21",,no,,,no,,grn4a30
+xgrn4n40,STRING,"Imputation field for GRN4N40 - Number in income level (75,001-110,000), 2020-21",,no,,,no,,xgrn4n40
+grn4n40,FLOAT64,"Number in income level (75,001-110,000), 2020-21",,no,,,no,,grn4n40
+xgrn4g40,STRING,"Imputation field for GRN4G40 - Number awarded grant and scholarship aid, income level (75,001-110,000), 2020-21",,no,,,no,,xgrn4g40
+grn4g40,FLOAT64,"Number awarded grant and scholarship aid, income level (75,001-110,000), 2020-21",,no,,,no,,grn4g40
+xgrn4t40,STRING,"Imputation field for GRN4T40 - Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,xgrn4t40
+grn4t40,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,grn4t40
+xgrn4a40,STRING,"Imputation field for GRN4A40 - Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,xgrn4a40
+grn4a40,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (75,001-110,000), 2020-21",,no,,,no,,grn4a40
+xgrn4n50,STRING,"Imputation field for GRN4N50 - Number in income level (110,001 or more), 2020-21",,no,,,no,,xgrn4n50
+grn4n50,FLOAT64,"Number in income level (110,001 or more), 2020-21",,no,,,no,,grn4n50
+xgrn4g50,STRING,"Imputation field for GRN4G50 - Number awarded grant and scholarship aid, income level (110,001 or more), 2020-21",,no,,,no,,xgrn4g50
+grn4g50,FLOAT64,"Number awarded grant and scholarship aid, income level (110,001 or more), 2020-21",,no,,,no,,grn4g50
+xgrn4t50,STRING,"Imputation field for GRN4T50 - Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,xgrn4t50
+grn4t50,FLOAT64,"Total amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,grn4t50
+xgrn4a50,STRING,"Imputation field for GRN4A50 - Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,xgrn4a50
+grn4a50,FLOAT64,"Average amount of grant and scholarship aid awarded, income level (110,001 or more), 2020-21",,no,,,no,,grn4a50
+xnpgrn2,STRING,"Imputation field for NPGRN2 - Average net price-students awarded grant or scholarship aid, 2022-23",,no,,,no,,xnpgrn2
+npgrn2,FLOAT64,"Average net price-students awarded grant or scholarship aid, 2022-23",,no,,,no,,npgrn2
+xnpgrn1,STRING,"Imputation field for NPGRN1 - Average net price-students awarded grant or scholarship aid, 2021-22",,no,,,no,,xnpgrn1
+npgrn1,FLOAT64,"Average net price-students awarded grant or scholarship aid, 2021-22",,no,,,no,,npgrn1
+xnpgrn0,STRING,"Imputation field for NPGRN0 - Average net price-students awarded grant or scholarship aid, 2020-21",,no,,,no,,xnpgrn0
+npgrn0,FLOAT64,"Average net price-students awarded grant or scholarship aid, 2020-21",,no,,,no,,npgrn0
+xnpt412,STRING,"Imputation field for NPT412 - Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpt412
+npt412,FLOAT64,"Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npt412
+xnpt422,STRING,"Imputation field for NPT422 - Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpt422
+npt422,FLOAT64,"Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npt422
+xnpt432,STRING,"Imputation field for NPT432 - Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpt432
+npt432,FLOAT64,"Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npt432
+xnpt442,STRING,"Imputation field for NPT442 - Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpt442
+npt442,FLOAT64,"Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npt442
+xnpt452,STRING,"Imputation field for NPT452 - Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,xnpt452
+npt452,FLOAT64,"Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2022-23",,no,,,no,,npt452
+xnpt411,STRING,"Imputation field for NPT411 - Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpt411
+npt411,FLOAT64,"Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npt411
+xnpt421,STRING,"Imputation field for NPT421 - Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpt421
+npt421,FLOAT64,"Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npt421
+xnpt431,STRING,"Imputation field for NPT431 - Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpt431
+npt431,FLOAT64,"Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npt431
+xnpt441,STRING,"Imputation field for NPT441 - Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpt441
+npt441,FLOAT64,"Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npt441
+xnpt451,STRING,"Imputation field for NPT451 - Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,xnpt451
+npt451,FLOAT64,"Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2021-22",,no,,,no,,npt451
+xnpt410,STRING,"Imputation field for NPT410 - Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpt410
+npt410,FLOAT64,"Average net price (income 0-30,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npt410
+xnpt420,STRING,"Imputation field for NPT420 - Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpt420
+npt420,FLOAT64,"Average net price (income 30,001-48,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npt420
+xnpt430,STRING,"Imputation field for NPT430 - Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpt430
+npt430,FLOAT64,"Average net price (income 48,001-75,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npt430
+xnpt440,STRING,"Imputation field for NPT440 - Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpt440
+npt440,FLOAT64,"Average net price (income 75,001-110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npt440
+xnpt450,STRING,"Imputation field for NPT450 - Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,xnpt450
+npt450,FLOAT64,"Average net price (income over 110,000)-students awarded Title IV federal financial aid, 2020-21",,no,,,no,,npt450
+xscfy11n,STRING,Imputation field for SCFY11N - Number of students in full-year cohort who are paying in-district tuition rates,,no,,,no,,xscfy11n
+scfy11n,FLOAT64,Number of students in full-year cohort who are paying in-district tuition rates,,no,,,no,,scfy11n
+xscfy11p,STRING,Imputation field for SCFY11P - Percentage of students in full-year cohort who are paying in-district tuition rates,,no,,,no,,xscfy11p
+scfy11p,FLOAT64,Percentage of students in full-year cohort who are paying in-district tuition rates,,no,,,no,,scfy11p
+xscfy12n,STRING,Imputation field for SCFY12N - Number of students in full-year cohort who are paying in-state tuition rates,,no,,,no,,xscfy12n
+scfy12n,FLOAT64,Number of students in full-year cohort who are paying in-state tuition rates,,no,,,no,,scfy12n
+xscfy12p,STRING,Imputation field for SCFY12P - Percentage of students in full-year cohort who are paying in-state tuition rates,,no,,,no,,xscfy12p
+scfy12p,FLOAT64,Percentage of students in full-year cohort who are paying in-state tuition rates,,no,,,no,,scfy12p
+xscfy13n,STRING,Imputation field for SCFY13N - Number of students in full-year cohort who are paying out-of-state tuition rates,,no,,,no,,xscfy13n
+scfy13n,FLOAT64,Number of students in full-year cohort who are paying out-of-state tuition rates,,no,,,no,,scfy13n
+xscfy13p,STRING,Imputation field for SCFY13P - Percentage of students in full-year cohort who are paying out-of-state tuition rates,,no,,,no,,xscfy13p
+scfy13p,FLOAT64,Percentage of students in full-year cohort who are paying out-of-state tuition rates,,no,,,no,,scfy13p
+xscfy14n,STRING,Imputation field for SCFY14N - Number of students in full-year cohort whose residence/tuition rate is unknown,,no,,,no,,xscfy14n
+scfy14n,FLOAT64,Number of students in full-year cohort whose residence/tuition rate is unknown,,no,,,no,,scfy14n
+xscfy14p,STRING,Imputation field for SCFY14P - Percentage of students in full-year cohort whose residence/tuition rate  is unknown,,no,,,no,,xscfy14p
+scfy14p,FLOAT64,Percentage of students in full-year cohort whose residence/tuition rate  is unknown,,no,,,no,,scfy14p
+xtotgrnt,STRING,Imputation field for TOTGRNT - Total grant aid dollars received by undergraduate students,,no,,USD,no,,xtotgrnt
+totgrnt,FLOAT64,Total grant aid dollars received by undergraduate students,,no,,USD,no,,totgrnt
+xtstdpel,STRING,Imputation field for TSTDPEL - Number of undergraduate students who  received pell grants,,no,,,no,,xtstdpel
+tstdpel,FLOAT64,Number of undergraduate students who  received pell grants,,no,,,no,,tstdpel

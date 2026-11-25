@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_id,STRING,Name of the table the coded column belongs to,,no,,,no,,
+column_name,STRING,Name of the coded column,,no,,,no,,
+key,STRING,Value as stored in the column,,no,,,no,,
+temporal_coverage,STRING,"Years the key applies to, blank when it applies to the table's whole span",,no,,,no,,
+value,STRING,Meaning of the key,,no,,,no,,

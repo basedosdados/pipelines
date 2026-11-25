@@ -1,0 +1,248 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+institution,main_campus,0,,Not main campus
+institution,main_campus,1,,Main campus
+institution,predominant_degree,0,,Not classified
+institution,predominant_degree,1,,Predominantly certificate-degree granting
+institution,predominant_degree,2,,Predominantly associate's-degree granting
+institution,predominant_degree,3,,Predominantly bachelor's-degree granting
+institution,predominant_degree,4,,Entirely graduate-degree granting
+institution,highest_degree,0,,Non-degree-granting
+institution,highest_degree,1,,Certificate degree
+institution,highest_degree,2,,Associate degree
+institution,highest_degree,3,,Bachelor's degree
+institution,highest_degree,4,,Graduate degree
+institution,control,1,,Public
+institution,control,2,,Private nonprofit
+institution,control,3,,Private for-profit
+institution,region,0,,U.S. Service Schools
+institution,region,1,,"New England (CT, ME, MA, NH, RI, VT)"
+institution,region,2,,"Mid East (DE, DC, MD, NJ, NY, PA)"
+institution,region,3,,"Great Lakes (IL, IN, MI, OH, WI)"
+institution,region,4,,"Plains (IA, KS, MN, MO, NE, ND, SD)"
+institution,region,5,,"Southeast (AL, AR, FL, GA, KY, LA, MS, NC, SC, TN, VA, WV)"
+institution,region,6,,"Southwest (AZ, NM, OK, TX)"
+institution,region,7,,"Rocky Mountains (CO, ID, MT, UT, WY)"
+institution,region,8,,"Far West (AK, CA, HI, NV, OR, WA)"
+institution,region,9,,"Outlying Areas (AS, FM, GU, MH, MP, PR, PW, VI)"
+institution,locale,11,,"City: Large (population of 250,000 or more)"
+institution,locale,12,,"City: Midsize (population of at least 100,000 but less than 250,000)"
+institution,locale,13,,"City: Small (population less than 100,000)"
+institution,locale,21,,"Suburb: Large (outside principal city, in urbanized area with population of 250,000 or more)"
+institution,locale,22,,"Suburb: Midsize (outside principal city, in urbanized area with population of at least 100,000 but less than 250,000)"
+institution,locale,23,,"Suburb: Small (outside principal city, in urbanized area with population less than 100,000)"
+institution,locale,31,,Town: Fringe (in urban cluster up to 10 miles from an urbanized area)
+institution,locale,32,,Town: Distant (in urban cluster more than 10 miles and up to 35 miles from an urbanized area)
+institution,locale,33,,Town: Remote (in urban cluster more than 35 miles from an urbanized area)
+institution,locale,41,,Rural: Fringe (rural territory up to 5 miles from an urbanized area or up to 2.5 miles from an urban cluster)
+institution,locale,42,,Rural: Distant (rural territory more than 5 miles but up to 25 miles from an urbanized area or more than 2.5 and up to 10 miles from an urban cluster)
+institution,locale,43,,Rural: Remote (rural territory more than 25 miles from an urbanized area and more than 10 miles from an urban cluster)
+institution,locale_degree_urbanization,1,,"Large City (a central city of a CMSA or MSA, with the city having a population greater than or equal to 250,000)"
+institution,locale_degree_urbanization,2,,"Mid-Size City (a central city of a CMSA or MSA, with the city having a population less than 250,000)"
+institution,locale_degree_urbanization,3,,Urban Fringe of a Large City (any territory within a CMSA or MSA of a Large City and defined as urban by the Census Bureau)
+institution,locale_degree_urbanization,4,,Urban Fringe of a Mid-Size City (any territory within a CMSA or MSA of a Mid-Size City and defined as urban by the Census Bureau)
+institution,locale_degree_urbanization,5,,"Large Town (an incorporated place or Census-designated place with a population greater than or equal to 25,000 and located outside a CMSA or MSA)"
+institution,locale_degree_urbanization,6,,"Small Town (an incorporated place or Census-designated place with a population less than 25,000 and greater than or equal to 2,500 and located outside a CMSA or MSA)"
+institution,locale_degree_urbanization,7,,"Rural, Outside MSA (any territory designated as rural by the Census Bureau that is outside a CMSA or MSA of a Large or Mid-Size City)"
+institution,locale_degree_urbanization,8,,"Rural, Inside MSA (any territory designated as rural by the Census Bureau that is within a CMSA or MSA of a Large or Mid-Size City)"
+institution,carnegie_basic,-2,,Not applicable
+institution,carnegie_basic,0,,(Not classified)
+institution,carnegie_basic,1,,Associate's Colleges: High Transfer-High Traditional
+institution,carnegie_basic,2,,Associate's Colleges: High Transfer-Mixed Traditional/Nontraditional
+institution,carnegie_basic,3,,Associate's Colleges: High Transfer-High Nontraditional
+institution,carnegie_basic,4,,Associate's Colleges: Mixed Transfer/Career & Technical-High Traditional
+institution,carnegie_basic,5,,Associate's Colleges: Mixed Transfer/Career & Technical-Mixed Traditional/Nontraditional
+institution,carnegie_basic,6,,Associate's Colleges: Mixed Transfer/Career & Technical-High Nontraditional
+institution,carnegie_basic,7,,Associate's Colleges: High Career & Technical-High Traditional
+institution,carnegie_basic,8,,Associate's Colleges: High Career & Technical-Mixed Traditional/Nontraditional
+institution,carnegie_basic,9,,Associate's Colleges: High Career & Technical-High Nontraditional
+institution,carnegie_basic,10,,Special Focus Two-Year: Health Professions
+institution,carnegie_basic,11,,Special Focus Two-Year: Technical Professions
+institution,carnegie_basic,12,,Special Focus Two-Year: Arts & Design
+institution,carnegie_basic,13,,Special Focus Two-Year: Other Fields
+institution,carnegie_basic,14,,Baccalaureate/Associate's Colleges: Associate's Dominant
+institution,carnegie_basic,15,,Doctoral Universities: Very High Research Activity
+institution,carnegie_basic,16,,Doctoral Universities: High Research Activity
+institution,carnegie_basic,17,,Doctoral/Professional Universities
+institution,carnegie_basic,18,,Master's Colleges & Universities: Larger Programs
+institution,carnegie_basic,19,,Master's Colleges & Universities: Medium Programs
+institution,carnegie_basic,20,,Master's Colleges & Universities: Small Programs
+institution,carnegie_basic,21,,Baccalaureate Colleges: Arts & Sciences Focus
+institution,carnegie_basic,22,,Baccalaureate Colleges: Diverse Fields
+institution,carnegie_basic,23,,Baccalaureate/Associate's Colleges: Mixed Baccalaureate/Associate's
+institution,carnegie_basic,24,,Special Focus Four-Year: Faith-Related Institutions
+institution,carnegie_basic,25,,Special Focus Four-Year: Medical Schools & Centers
+institution,carnegie_basic,26,,Special Focus Four-Year: Other Health Professions Schools
+institution,carnegie_basic,27,,Special Focus Four-Year: Research Institution
+institution,carnegie_basic,28,,Special Focus Four-Year: Engineering and Other Technology-Related Schools
+institution,carnegie_basic,29,,Special Focus Four-Year: Business & Management Schools
+institution,carnegie_basic,30,,"Special Focus Four-Year: Arts, Music & Design Schools"
+institution,carnegie_basic,31,,Special Focus Four-Year: Law Schools
+institution,carnegie_basic,32,,Special Focus Four-Year: Other Special Focus Institutions
+institution,carnegie_basic,33,,Tribal Colleges
+institution,carnegie_undergraduate_profile,-2,,Not applicable
+institution,carnegie_undergraduate_profile,0,,Not classified (Exclusively Graduate)
+institution,carnegie_undergraduate_profile,1,,"Two-year, higher part-time"
+institution,carnegie_undergraduate_profile,2,,"Two-year, mixed part/full-time"
+institution,carnegie_undergraduate_profile,3,,"Two-year, medium full-time"
+institution,carnegie_undergraduate_profile,4,,"Two-year, higher full-time"
+institution,carnegie_undergraduate_profile,5,,"Four-year, higher part-time"
+institution,carnegie_undergraduate_profile,6,,"Four-year, medium full-time, inclusive, lower transfer-in"
+institution,carnegie_undergraduate_profile,7,,"Four-year, medium full-time, inclusive, higher transfer-in"
+institution,carnegie_undergraduate_profile,8,,"Four-year, medium full-time, selective, lower transfer-in"
+institution,carnegie_undergraduate_profile,9,,"Four-year, medium full-time , selective, higher transfer-in"
+institution,carnegie_undergraduate_profile,10,,"Four-year, full-time, inclusive, lower transfer-in"
+institution,carnegie_undergraduate_profile,11,,"Four-year, full-time, inclusive, higher transfer-in"
+institution,carnegie_undergraduate_profile,12,,"Four-year, full-time, selective, lower transfer-in"
+institution,carnegie_undergraduate_profile,13,,"Four-year, full-time, selective, higher transfer-in"
+institution,carnegie_undergraduate_profile,14,,"Four-year, full-time, more selective, lower transfer-in"
+institution,carnegie_undergraduate_profile,15,,"Four-year, full-time, more selective, higher transfer-in"
+institution,carnegie_size_setting,-2,,Not applicable
+institution,carnegie_size_setting,0,,(Not classified)
+institution,carnegie_size_setting,1,,"Two-year, very small"
+institution,carnegie_size_setting,2,,"Two-year, small"
+institution,carnegie_size_setting,3,,"Two-year, medium"
+institution,carnegie_size_setting,4,,"Two-year, large"
+institution,carnegie_size_setting,5,,"Two-year, very large"
+institution,carnegie_size_setting,6,,"Four-year, very small, primarily nonresidential"
+institution,carnegie_size_setting,7,,"Four-year, very small, primarily residential"
+institution,carnegie_size_setting,8,,"Four-year, very small, highly residential"
+institution,carnegie_size_setting,9,,"Four-year, small, primarily nonresidential"
+institution,carnegie_size_setting,10,,"Four-year, small, primarily residential"
+institution,carnegie_size_setting,11,,"Four-year, small, highly residential"
+institution,carnegie_size_setting,12,,"Four-year, medium, primarily nonresidential"
+institution,carnegie_size_setting,13,,"Four-year, medium, primarily residential"
+institution,carnegie_size_setting,14,,"Four-year, medium, highly residential"
+institution,carnegie_size_setting,15,,"Four-year, large, primarily nonresidential"
+institution,carnegie_size_setting,16,,"Four-year, large, primarily residential"
+institution,carnegie_size_setting,17,,"Four-year, large, highly residential"
+institution,carnegie_size_setting,18,,Exclusively graduate/professional
+institution,historically_black,0,,No
+institution,historically_black,1,,Yes
+institution,predominantly_black,0,,No
+institution,predominantly_black,1,,Yes
+institution,alaska_native_hawaiian_serving,0,,No
+institution,alaska_native_hawaiian_serving,1,,Yes
+institution,tribal_college,0,,No
+institution,tribal_college,1,,Yes
+institution,asian_pacific_islander_serving,0,,No
+institution,asian_pacific_islander_serving,1,,Yes
+institution,hispanic_serving,0,,No
+institution,hispanic_serving,1,,Yes
+institution,native_american_non_tribal,0,,No
+institution,native_american_non_tribal,1,,Yes
+institution,men_only,0,,No
+institution,men_only,1,,Yes
+institution,women_only,0,,No
+institution,women_only,1,,Yes
+institution,religious_affiliation,-1,,Not reported
+institution,religious_affiliation,-2,,Not applicable
+institution,religious_affiliation,22,,American Evangelical Lutheran Church
+institution,religious_affiliation,24,,African Methodist Episcopal Zion Church
+institution,religious_affiliation,27,,Assemblies of God Church
+institution,religious_affiliation,28,,Brethren Church
+institution,religious_affiliation,30,,Roman Catholic
+institution,religious_affiliation,33,,Wisconsin Evangelical Lutheran Synod
+institution,religious_affiliation,34,,Christ and Missionary Alliance Church
+institution,religious_affiliation,35,,Christian Reformed Church
+institution,religious_affiliation,36,,Evangelical Congregational Church
+institution,religious_affiliation,37,,Evangelical Covenant Church of America
+institution,religious_affiliation,38,,Evangelical Free Church of America
+institution,religious_affiliation,39,,Evangelical Lutheran Church
+institution,religious_affiliation,40,,International United Pentecostal Church
+institution,religious_affiliation,41,,Free Will Baptist Church
+institution,religious_affiliation,42,,Interdenominational
+institution,religious_affiliation,43,,Mennonite Brethren Church
+institution,religious_affiliation,44,,Moravian Church
+institution,religious_affiliation,45,,North American Baptist
+institution,religious_affiliation,47,,Pentecostal Holiness Church
+institution,religious_affiliation,48,,Christian Churches and Churches of Christ
+institution,religious_affiliation,49,,Reformed Church in America
+institution,religious_affiliation,50,,"Episcopal Church, Reformed"
+institution,religious_affiliation,51,,African Methodist Episcopal
+institution,religious_affiliation,52,,American Baptist
+institution,religious_affiliation,53,,American Lutheran
+institution,religious_affiliation,54,,Baptist
+institution,religious_affiliation,55,,Christian Methodist Episcopal
+institution,religious_affiliation,57,,Church of God
+institution,religious_affiliation,58,,Church of Brethren
+institution,religious_affiliation,59,,Church of the Nazarene
+institution,religious_affiliation,60,,Cumberland Presbyterian
+institution,religious_affiliation,61,,Christian Church (Disciples of Christ)
+institution,religious_affiliation,64,,Free Methodist
+institution,religious_affiliation,65,,Friends
+institution,religious_affiliation,66,,Presbyterian Church (USA)
+institution,religious_affiliation,67,,Lutheran Church in America
+institution,religious_affiliation,68,,Lutheran Church - Missouri Synod
+institution,religious_affiliation,69,,Mennonite Church
+institution,religious_affiliation,71,,United Methodist
+institution,religious_affiliation,73,,Protestant Episcopal
+institution,religious_affiliation,74,,Churches of Christ
+institution,religious_affiliation,75,,Southern Baptist
+institution,religious_affiliation,76,,United Church of Christ
+institution,religious_affiliation,77,,"Protestant, not specified"
+institution,religious_affiliation,78,,Multiple Protestant Denomination
+institution,religious_affiliation,79,,Other Protestant
+institution,religious_affiliation,80,,Jewish
+institution,religious_affiliation,81,,Reformed Presbyterian Church
+institution,religious_affiliation,84,,United Brethren Church
+institution,religious_affiliation,87,,Missionary Church Inc
+institution,religious_affiliation,88,,Undenominational
+institution,religious_affiliation,89,,Wesleyan
+institution,religious_affiliation,91,,Greek Orthodox
+institution,religious_affiliation,92,,Russian Orthodox
+institution,religious_affiliation,93,,Unitarian Universalist
+institution,religious_affiliation,94,,Latter Day Saints (Mormon Church)
+institution,religious_affiliation,95,,Seventh Day Adventists
+institution,religious_affiliation,97,,The Presbyterian Church in America
+institution,religious_affiliation,99,,Other (none of the above)
+institution,religious_affiliation,100,,Original Free Will Baptist
+institution,religious_affiliation,101,,Ecumenical Christian
+institution,religious_affiliation,102,,Evangelical Christian
+institution,religious_affiliation,103,,Presbyterian
+institution,religious_affiliation,105,,General Baptist
+institution,religious_affiliation,106,,Muslim
+institution,religious_affiliation,107,,Plymouth Brethren
+institution,online_only,0,,Not distance-education only
+institution,online_only,1,,Distance-education only
+institution,currently_operating,0,,Not currently certified as an operating institution
+institution,currently_operating,1,,Currently certified as operating
+institution,institution_level,1,,4-year
+institution,institution_level,2,,2-year
+institution,institution_level,3,,Less-than-2-year
+institution,open_admissions_policy,1,,Yes
+institution,open_admissions_policy,2,,No
+institution,open_admissions_policy,3,,Does not enroll first-time students
+institution,ownership_peps,1,,Public
+institution,ownership_peps,2,,"Private, Nonprofit"
+institution,ownership_peps,3,,Proprietary
+institution,title_iv_eligibility_type,NULL,,unknown
+institution,title_iv_eligibility_type,1,,Participates in Title IV federal financial aid programs
+institution,title_iv_eligibility_type,2,,Branch campus of a main campus that participates in Title IV
+institution,title_iv_eligibility_type,3,,Deferment only - limited participation
+institution,title_iv_eligibility_type,5,,"Not currently participating in Title IV, has an OPE ID number"
+institution,title_iv_eligibility_type,6,,"Not currently participating in Title IV, does not have OPE ID number"
+institution,title_iv_eligibility_type,7,,Stopped participating during the collection year
+institution,title_iv_eligibility_type,8,,New participants (became eligible during the collection year)
+institution,title_iv_eligibility_type,19,,Not eligible
+institution,dol_provider,0,,Not matched to the DOL list
+institution,dol_provider,1,,Matched to the DOL list
+institution,test_score_requirement,1,,Required
+institution,test_score_requirement,2,,Recommended
+institution,test_score_requirement,3,,Neither required nor recommended
+institution,test_score_requirement,4,,Do not know
+institution,test_score_requirement,5,,Considered but not required
+field_of_study,main_campus,0,,Not main campus
+field_of_study,main_campus,1,,Main campus
+field_of_study,distance_education,0,,Field of study not reported to IPEDS
+field_of_study,distance_education,1,,No credentials in this field of study may be fully completed via distance education
+field_of_study,distance_education,2,,"At least one, but not all credentials in this field of study may be fully completed via distance education"
+field_of_study,distance_education,3,,All credentials in this field of study may be fully completed via distance education
+field_of_study,credential_level,1,,Undergraduate Certificate or Diploma
+field_of_study,credential_level,2,,Associate's Degree
+field_of_study,credential_level,3,,Bachelor's Degree
+field_of_study,credential_level,4,,Post-baccalaureate Certificate
+field_of_study,credential_level,5,,Master's Degree
+field_of_study,credential_level,6,,Doctoral Degree
+field_of_study,credential_level,7,,First Professional Degree
+field_of_study,credential_level,8,,Graduate/Professional Certificate
+field_of_study,credential_level,99,,Non-Credential Program (Preparatory Coursework/Teacher Certification)

@@ -1,0 +1,490 @@
+---
+version: 2
+models:
+  - name: world_aiddata_gcdf__projects
+    description: >
+      Registros a nível de projeto/atividade do financiamento oficial chinês para
+      o desenvolvimento (empréstimos e doações) destinado a países de baixa e média
+      renda entre 2000 e 2021, compilados pela AidData na versão 3.0 do Global Chinese
+      Development Finance Dataset segundo a metodologia TUFF 3.0
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_record]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - indirect_receiving_agencies
+            - indirect_receiving_agencies_type
+            - on_lending
+            - guarantor
+            - guarantor_agency_type
+            - insurance_provider
+            - insurance_provider_agency_type
+            - collateral_provider
+            - collateral_provider_agency_type
+            - security_agent
+            - security_agent_type
+            - collateral
+            - financial_distress
+            - actual_implementation_start_date_estimated
+            - deviation_planned_implementation_start_date
+            - actual_completion_date_estimated
+            - deviation_planned_completion_date
+            - management_fee
+            - commitment_fee
+            - insurance_fee_percent
+            - insurance_fee_nominal_usd
+            - default_interest_rate
+            - suppliers_credit
+            - interest_free_loan
+            - refinancing
+            - mergers_acquisitions
+            - working_capital
+            - epcf
+            - lease
+            - fxsl_bop
+            - cc_irs
+            - rcf
+            - gcl
+            - pbc
+            - pxf_commodity_prepayment
+            - inter_bank_loan
+            - overseas_project_contracting_loan
+            - dpa
+            - project_finance
+            - involving_multilateral
+            - short_term
+            - rescue
+            - jv_spv_host_government_ownership
+            - jv_spv_chinese_government_ownership
+    columns:
+      - name: year
+        description: >
+          Ano em que o compromisso financeiro oficial foi firmado (ano de compromisso)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >
+          Código ISO 3166-1 alfa-3 do país receptor
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              config:
+                where: country_iso3_code is not null
+      - name: recipient_name
+        description: >
+          País receptor, ou região quando envolve múltiplos países receptores
+      - name: recipient_region
+        description: >
+          Região geográfica do país receptor
+      - name: financier_country
+        description: >
+          País de origem da transferência financeira ou em espécie oficial
+      - name: id_record
+        description: >
+          Número de identificação único atribuído pela AidData a cada registro de
+          projeto/atividade
+        tests: [not_null]
+      - name: id_parent
+        description: >
+          Identificador do pacote que agrupa registros de projeto/atividade relacionados
+      - name: recommended_for_aggregates
+        description: >
+          Se a AidData recomenda incluir o registro em análises agregadas (Sim/Não)
+      - name: umbrella
+        description: >
+          Se o registro é um acordo guarda-chuva, excluído dos agregados (Sim/Não)
+      - name: implementation_start_year
+        description: >
+          Ano em que o projeto/atividade iniciou a implementação
+      - name: completion_year
+        description: >
+          Ano em que o projeto/atividade foi concluído
+      - name: title
+        description: >
+          Nome ou descrição breve do projeto/atividade
+      - name: description
+        description: >
+          Resumo narrativo detalhado do projeto/atividade e de seu financiamento
+      - name: staff_comments
+        description: >
+          Comentários da equipe da AidData sobre premissas, lógica e evidências de
+          codificação
+      - name: status
+        description: >
+          Situação mais recente do projeto/atividade
+      - name: intent
+        description: >
+          Propósito principal do projeto/atividade
+      - name: flow_type
+        description: >
+          Tipo de transferência financeira ou em espécie que apoia o projeto/atividade
+      - name: flow_type_simplified
+        description: >
+          Tipo de fluxo simplificado agrupado em quatro categorias
+      - name: oecd_oda_concessionality_threshold
+        description: >
+          Limiar de concessionalidade da OCDE aplicado ao empréstimo para classificação
+          como AOD
+      - name: flow_class
+        description: >
+          Classe do fluxo OCDE-CAD: tipo AOD, tipo OOF ou Vago (Finanças Oficiais)
+      - name: sector_code
+        description: >
+          Código setorial de 3 dígitos da OCDE do setor principal do projeto/atividade
+      - name: sector_name
+        description: >
+          Nome setorial da OCDE do setor principal do projeto/atividade
+      - name: infrastructure
+        description: >
+          Marcador definido como 'Sim' quando o projeto envolve infraestrutura física
+      - name: covid
+        description: >
+          Marcador definido como 'Sim' quando o projeto integra a resposta da China
+          à COVID-19
+      - name: funding_agencies
+        description: >
+          Nome da(s) agência(s) que emitiu(ram) o compromisso ou promessa; separadas
+          por barra vertical quando múltiplas
+      - name: funding_agencies_type
+        description: >
+          Tipo e país de origem da(s) agência(s) financiadora(s); separados por barra
+          vertical quando múltiplos
+      - name: cofinanced
+        description: >
+          Se uma agência distinta cofinanciou o projeto/atividade (Sim/Não)
+      - name: cofinancing_agencies
+        description: >
+          Nome da(s) agência(s) cofinanciadora(s); separadas por barra vertical quando
+          múltiplas
+      - name: cofinancing_agencies_type
+        description: >
+          Tipo e país de origem da(s) agência(s) cofinanciadora(s); separados por
+          barra vertical quando múltiplos
+      - name: direct_receiving_agencies
+        description: >
+          Nome da(s) agência(s) receptora(s) direta(s); separadas por barra vertical
+          quando múltiplas
+      - name: direct_receiving_agencies_type
+        description: >
+          Tipo e país de origem da(s) agência(s) receptora(s) direta(s); separados
+          por barra vertical quando múltiplos
+      - name: indirect_receiving_agencies
+        description: >
+          Nome da(s) agência(s) receptora(s) indireta(s) em arranjos de repasse; separadas
+          por barra vertical quando múltiplas
+      - name: indirect_receiving_agencies_type
+        description: >
+          Tipo e país de origem da(s) agência(s) receptora(s) indireta(s); separados
+          por barra vertical quando múltiplos
+      - name: on_lending
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo envolve arranjo de repasse
+      - name: implementing_agencies
+        description: >
+          Nome da(s) agência(s) executora(s); separadas por barra vertical quando
+          múltiplas
+      - name: implementing_agencies_type
+        description: >
+          Tipo e país de origem da(s) agência(s) executora(s); separados por barra
+          vertical quando múltiplos
+      - name: guarantee_provided
+        description: >
+          Se foi emitida garantia de pagamento do empréstimo por terceiro (Sim/Não)
+      - name: guarantor
+        description: >
+          Nome da(s) agência(s) garantidora(s); separadas por barra vertical quando
+          múltiplas
+      - name: guarantor_agency_type
+        description: >
+          Tipo e país de origem da(s) agência(s) garantidora(s); separados por barra
+          vertical quando múltiplos
+      - name: insurance_provided
+        description: >
+          Se um terceiro forneceu seguro de crédito sobre o empréstimo (Sim/Não)
+      - name: insurance_provider
+        description: >
+          Nome da(s) provedor(es) de seguro de crédito; separadas por barra vertical
+          quando múltiplas
+      - name: insurance_provider_agency_type
+        description: >
+          Tipo e país de origem da(s) provedor(es) de seguro de crédito; separados
+          por barra vertical quando múltiplos
+      - name: collateralized
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é garantido por colateral
+          ou securitizado
+      - name: collateral_provider
+        description: >
+          Nome da(s) provedor(es) de colateral; separadas por barra vertical quando
+          múltiplas
+      - name: collateral_provider_agency_type
+        description: >
+          Tipo e país de origem da(s) provedor(es) de colateral; separados por barra
+          vertical quando múltiplos
+      - name: security_agent
+        description: >
+          Nome da(s) agente(s) de garantia/colateral; separadas por barra vertical
+          quando múltiplas
+      - name: security_agent_type
+        description: >
+          Tipo e país de origem da(s) agente(s) de garantia/colateral; separados por
+          barra vertical quando múltiplos
+      - name: collateral
+        description: >
+          Descrição do colateral ou garantia que respalda o empréstimo
+      - name: amount_original_currency
+        description: >
+          Valor da transação na moeda original
+      - name: original_currency
+        description: >
+          Moeda em que o valor original está denominado
+      - name: amount_estimated
+        description: >
+          Marcador definido como 'Sim' quando o valor da transação é uma estimativa
+      - name: amount_constant_usd_2021
+        description: >
+          Valor da transação em dólares dos EUA constantes de 2021
+      - name: amount_nominal_usd
+        description: >
+          Valor da transação em dólares dos EUA nominais
+      - name: adjusted_amount_original_currency
+        description: >
+          Valor ajustado da transação na moeda original
+      - name: adjusted_amount_constant_usd_2021
+        description: >
+          Valor ajustado da transação em dólares dos EUA constantes de 2021
+      - name: adjusted_amount_nominal_usd
+        description: >
+          Valor ajustado da transação em dólares dos EUA nominais
+      - name: financial_distress
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo apresenta sinais de estresse
+          financeiro
+      - name: commitment_date
+        description: >
+          Data em que o compromisso financeiro oficial foi firmado
+      - name: commitment_date_estimated
+        description: >
+          Se a data de compromisso é uma estimativa (Sim/Não)
+      - name: planned_implementation_start_date
+        description: >
+          Data planejada para o início da implementação do projeto/atividade
+      - name: actual_implementation_start_date
+        description: >
+          Data efetiva em que o projeto/atividade iniciou a implementação
+      - name: actual_implementation_start_date_estimated
+        description: >
+          Marcador definido como 'Sim' quando a data efetiva de início da implementação
+          é uma estimativa
+      - name: deviation_planned_implementation_start_date
+        description: >
+          Desvio do início de implementação efetivo em relação ao planejado, em dias
+      - name: planned_completion_date
+        description: >
+          Data planejada para a conclusão do projeto/atividade
+      - name: actual_completion_date
+        description: >
+          Data efetiva em que o projeto/atividade foi concluído
+      - name: actual_completion_date_estimated
+        description: >
+          Marcador definido como 'Sim' quando a data efetiva de conclusão é uma estimativa
+      - name: deviation_planned_completion_date
+        description: >
+          Desvio da conclusão efetiva em relação à planejada, em dias
+      - name: maturity
+        description: >
+          Prazo de vencimento do empréstimo, em anos
+      - name: interest_rate
+        description: >
+          Taxa de juros do empréstimo, em porcentagem
+      - name: grace_period
+        description: >
+          Período de carência do empréstimo, em anos
+      - name: management_fee
+        description: >
+          Taxa de administração do empréstimo, em porcentagem
+      - name: commitment_fee
+        description: >
+          Taxa de compromisso do empréstimo, em porcentagem
+      - name: insurance_fee_percent
+        description: >
+          Taxa de seguro de crédito, em porcentagem
+      - name: insurance_fee_nominal_usd
+        description: >
+          Taxa de seguro de crédito, em dólares dos EUA nominais
+      - name: default_interest_rate
+        description: >
+          Taxa de juros de mora (penalidade), em porcentagem
+      - name: first_loan_repayment_date
+        description: >
+          Data do primeiro pagamento programado do empréstimo
+      - name: last_loan_repayment_date
+        description: >
+          Data do último pagamento programado do empréstimo
+      - name: grant_element_oecd_cash_flow
+        description: >
+          Elemento de doação pela metodologia de fluxo de caixa da OCDE, em porcentagem
+      - name: grant_element_oecd_grant_equiv
+        description: >
+          Elemento de doação pela metodologia de equivalente-doação da OCDE, em porcentagem
+      - name: grant_element_imf
+        description: >
+          Elemento de doação pela metodologia do FMI, em porcentagem
+      - name: number_of_lenders
+        description: >
+          Estrutura de credores do empréstimo (bilateral ou sindicalizado)
+      - name: export_buyers_credit
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um crédito ao comprador
+          de exportação
+      - name: suppliers_credit
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um crédito ao fornecedor
+          ou vendedor de exportação
+      - name: interest_free_loan
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é sem juros
+      - name: refinancing
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um refinanciamento
+      - name: investment_project_loan
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um empréstimo para projeto
+          de investimento
+      - name: mergers_acquisitions
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é para uma fusão ou aquisição
+      - name: working_capital
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é para capital de giro
+      - name: epcf
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um empréstimo EPC+Financiamento
+          (EPCF)
+      - name: lease
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um arrendamento (leasing)
+      - name: fxsl_bop
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é uma linha de swap cambial
+          ou empréstimo de balanço de pagamentos
+      - name: cc_irs
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um swap de taxa de juros
+          entre moedas
+      - name: rcf
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é uma linha de crédito
+          rotativo
+      - name: gcl
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um empréstimo concessional
+          governamental
+      - name: pbc
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um crédito preferencial
+          ao comprador
+      - name: pxf_commodity_prepayment
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um financiamento pré-exportação
+          ou pré-pagamento de commodities
+      - name: inter_bank_loan
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um empréstimo interbancário
+      - name: overseas_project_contracting_loan
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um empréstimo para contratação
+          de projeto no exterior
+      - name: dpa
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um acordo de pagamento
+          diferido
+      - name: project_finance
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um arranjo de project
+          finance
+      - name: involving_multilateral
+        description: >
+          Marcador definido como 'Sim' quando há envolvimento de instituição multilateral
+      - name: non_chinese_financier
+        description: >
+          Se há envolvimento de financiador não chinês (Sim/Não)
+      - name: short_term
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é de curto prazo (vencimento
+          inferior a um ano)
+      - name: rescue
+        description: >
+          Marcador definido como 'Sim' quando o empréstimo é um empréstimo de resgate
+          emergencial
+      - name: jv_spv_host_government_ownership
+        description: >
+          Nível de propriedade do governo anfitrião na JV/SPE do projeto
+      - name: jv_spv_chinese_government_ownership
+        description: >
+          Nível de propriedade do governo chinês na JV/SPE do projeto
+      - name: level_public_liability
+        description: >
+          Nível de responsabilidade pública associado à dívida
+      - name: total_source_count
+        description: >
+          Número total de fontes que sustentam o registro
+      - name: official_source_count
+        description: >
+          Número de fontes oficiais que sustentam o registro
+      - name: source_urls
+        description: >
+          URLs das fontes que sustentam o registro
+      - name: source_titles
+        description: >
+          Títulos das fontes que sustentam o registro
+      - name: source_publishers
+        description: >
+          Editores das fontes que sustentam o registro
+      - name: source_resource_types
+        description: >
+          Tipos de recurso das fontes que sustentam o registro
+      - name: contact_name
+        description: >
+          Nome da pessoa de contato associada ao projeto/atividade
+      - name: contact_position
+        description: >
+          Cargo da pessoa de contato associada ao projeto/atividade
+      - name: oda_eligible_recipient
+        description: >
+          Se o país receptor é elegível para AOD (Sim/Não)
+      - name: oecd_oda_income_group
+        description: >
+          Grupo de renda OCDE-CAD do país receptor
+      - name: location_narrative
+        description: >
+          Descrição narrativa da localização do projeto/atividade
+      - name: geographic_precision_available
+        description: >
+          Melhor precisão geográfica disponível para o projeto/atividade
+      - name: adm1_level_available
+        description: >
+          Se há dados de localização em nível ADM1 disponíveis (Sim/Não)
+      - name: adm2_level_available
+        description: >
+          Se há dados de localização em nível ADM2 disponíveis (Sim/Não)
+      - name: geospatial_feature_available
+        description: >
+          Marcador definido como 'Sim' quando há feição geoespacial disponível
+      - name: source_quality_score
+        description: >
+          Pontuação de qualidade das fontes da AidData, de 1 a 5
+      - name: data_completeness_score
+        description: >
+          Pontuação de completude dos dados da AidData, de 1 a 5
+      - name: implementation_detail_score
+        description: >
+          Pontuação de detalhamento da implementação da AidData, de 1 a 5
+      - name: loan_detail_score
+        description: >-
+          Pontuação de detalhamento do empréstimo da AidData, de 1 a 5

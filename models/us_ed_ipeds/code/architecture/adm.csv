@@ -1,0 +1,111 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+admcon1,INT64,Secondary school GPA,,no,,,no,,admcon1
+admcon2,INT64,Secondary school rank,,no,,,no,,admcon2
+admcon3,INT64,Secondary school record,,no,,,no,,admcon3
+admcon4,INT64,Completion of college-preparatory program,,no,,,no,,admcon4
+admcon5,INT64,Recommendations,,no,,,no,,admcon5
+admcon6,INT64,Formal demonstration of competencies,,no,,,no,,admcon6
+admcon7,INT64,Admission test scores,,no,,,no,,admcon7
+admcon8,INT64,English Proficiency Test,,no,,,no,,admcon8
+admcon9,INT64,"Other Test (Wonderlic, WISC-III, etc.)",,no,,,no,,admcon9
+admcon10,FLOAT64,Work experience,,no,,,no,,admcon10
+admcon11,FLOAT64,Personal statement or essay,,no,,,no,,admcon11
+admcon12,FLOAT64,Legacy status,,no,,,no,,admcon12
+xapplcn,STRING,Imputation field for APPLCN - Applicants total,,no,,,no,,xapplcn
+applicants_total,INT64,Applicants total,,no,,,no,,applcn
+xapplcnm,STRING,Imputation field for APPLCNM - Applicants men,,no,,,no,,xapplcnm
+applicants_men,FLOAT64,Applicants men,,no,,,no,,applcnm
+xapplcnw,STRING,Imputation field for APPLCNW - Applicants women,,no,,,no,,xapplcnw
+applicants_women,FLOAT64,Applicants women,,no,,,no,,applcnw
+xapplcnan,STRING,Imputation field for APPLCNAN - Applicants another gender,,no,,,no,,xapplcnan
+applcnan,FLOAT64,Applicants another gender,,no,,,no,,applcnan
+xapplcnun,STRING,Imputation field for APPLCNUN - Applicants gender unknown,,no,,,no,,xapplcnun
+applcnun,FLOAT64,Applicants gender unknown,,no,,,no,,applcnun
+xadmssn,STRING,Imputation field for ADMSSN - Admissions total,,no,,,no,,xadmssn
+admissions_total,FLOAT64,Admissions total,,no,,,no,,admssn
+xadmssnm,STRING,Imputation field for ADMSSNM - Admissions men,,no,,,no,,xadmssnm
+admissions_men,FLOAT64,Admissions men,,no,,,no,,admssnm
+xadmssnw,STRING,Imputation field for ADMSSNW - Admissions women,,no,,,no,,xadmssnw
+admissions_women,FLOAT64,Admissions women,,no,,,no,,admssnw
+xadmssnan,STRING,Imputation field for ADMSSNAN - Admissions another gender,,no,,,no,,xadmssnan
+admssnan,FLOAT64,Admissions another gender,,no,,,no,,admssnan
+xadmssnun,STRING,Imputation field for ADMSSNUN - Admissions gender unknown,,no,,,no,,xadmssnun
+admssnun,FLOAT64,Admissions gender unknown,,no,,,no,,admssnun
+xenrlt,STRING,Imputation field for ENRLT - Enrolled total,,no,,,no,,xenrlt
+enrolled_total,FLOAT64,Enrolled total,,no,,,no,,enrlt
+xenrlm,STRING,Imputation field for ENRLM - Enrolled  men,,no,,,no,,xenrlm
+enrolled_men,FLOAT64,Enrolled  men,,no,,,no,,enrlm
+xenrlw,STRING,Imputation field for ENRLW - Enrolled  women,,no,,,no,,xenrlw
+enrolled_women,FLOAT64,Enrolled  women,,no,,,no,,enrlw
+xenrlan,STRING,Imputation field for ENRLAN - Enrolled another gender,,no,,,no,,xenrlan
+enrlan,FLOAT64,Enrolled another gender,,no,,,no,,enrlan
+xenrlun,STRING,Imputation field for ENRLUN - Enrolled gender unknown,,no,,,no,,xenrlun
+enrlun,FLOAT64,Enrolled gender unknown,,no,,,no,,enrlun
+xenrlft,STRING,Imputation field for ENRLFT - Enrolled full time total,,no,,,no,,xenrlft
+enrlft,FLOAT64,Enrolled full time total,,no,,,no,,enrlft
+xenrlftm,STRING,Imputation field for ENRLFTM - Enrolled full time men,,no,,,no,,xenrlftm
+enrlftm,FLOAT64,Enrolled full time men,,no,,,no,,enrlftm
+xenrlftw,STRING,Imputation field for ENRLFTW - Enrolled full time women,,no,,,no,,xenrlftw
+enrlftw,FLOAT64,Enrolled full time women,,no,,,no,,enrlftw
+xenrlftan,STRING,Imputation field for ENRLFTAN - Enrolled full time another gender,,no,,,no,,xenrlftan
+enrlftan,FLOAT64,Enrolled full time another gender,,no,,,no,,enrlftan
+xenrlftun,STRING,Imputation field for ENRLFTUN - Enrolled full time gender unknown,,no,,,no,,xenrlftun
+enrlftun,FLOAT64,Enrolled full time gender unknown,,no,,,no,,enrlftun
+xenrlpt,STRING,Imputation field for ENRLPT - Enrolled part time total,,no,,,no,,xenrlpt
+enrlpt,FLOAT64,Enrolled part time total,,no,,,no,,enrlpt
+xenrlptm,STRING,Imputation field for ENRLPTM - Enrolled part time men,,no,,,no,,xenrlptm
+enrlptm,FLOAT64,Enrolled part time men,,no,,,no,,enrlptm
+xenrlptw,STRING,Imputation field for ENRLPTW - Enrolled part time women,,no,,,no,,xenrlptw
+enrlptw,FLOAT64,Enrolled part time women,,no,,,no,,enrlptw
+xenrlptan,STRING,Imputation field for ENRLPTAN - Enrolled part time another gender,,no,,,no,,xenrlptan
+enrlptan,FLOAT64,Enrolled part time another gender,,no,,,no,,enrlptan
+xenrlptun,STRING,Imputation field for ENRLPTUN - Enrolled part time gender unknown,,no,,,no,,xenrlptun
+enrlptun,FLOAT64,Enrolled part time gender unknown,,no,,,no,,enrlptun
+xsatnum,STRING,Imputation field for SATNUM - Number of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,xsatnum
+satnum,FLOAT64,Number of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,satnum
+xsatpct,STRING,Imputation field for SATPCT - Percent of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,xsatpct
+satpct,FLOAT64,Percent of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,satpct
+xactnum,STRING,Imputation field for ACTNUM - Number of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,xactnum
+actnum,FLOAT64,Number of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,actnum
+xactpct,STRING,Imputation field for ACTPCT - Percent of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,xactpct
+actpct,FLOAT64,Percent of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,actpct
+xsatvr25,STRING,Imputation field for SATVR25 - SAT Evidence-Based Reading and Writing 25th percentile score,,no,,,no,,xsatvr25
+sat_verbal_25th,FLOAT64,SAT Evidence-Based Reading and Writing 25th percentile score,,no,,,no,,satvr25
+xsatvr50,STRING,Imputation field for SATVR50 - SAT Evidence-Based Reading and Writing 50th percentile score,,no,,,no,,xsatvr50
+satvr50,FLOAT64,SAT Evidence-Based Reading and Writing 50th percentile score,,no,,,no,,satvr50
+xsatvr75,STRING,Imputation field for SATVR75 - SAT Evidence-Based Reading and Writing 75th percentile score,,no,,,no,,xsatvr75
+sat_verbal_75th,FLOAT64,SAT Evidence-Based Reading and Writing 75th percentile score,,no,,,no,,satvr75
+xsatmt25,STRING,Imputation field for SATMT25 - SAT Math 25th percentile score,,no,,,no,,xsatmt25
+sat_math_25th,FLOAT64,SAT Math 25th percentile score,,no,,,no,,satmt25
+xsatmt50,STRING,Imputation field for SATMT50 - SAT Math 50th percentile score,,no,,,no,,xsatmt50
+satmt50,FLOAT64,SAT Math 50th percentile score,,no,,,no,,satmt50
+xsatmt75,STRING,Imputation field for SATMT75 - SAT Math 75th percentile score,,no,,,no,,xsatmt75
+sat_math_75th,FLOAT64,SAT Math 75th percentile score,,no,,,no,,satmt75
+xactcm25,STRING,Imputation field for ACTCM25 - ACT Composite 25th percentile score,,no,,,no,,xactcm25
+act_composite_25th,FLOAT64,ACT Composite 25th percentile score,,no,,,no,,actcm25
+xactcm50,STRING,Imputation field for ACTCM50 - ACT Composite 50th percentile score,,no,,,no,,xactcm50
+actcm50,FLOAT64,ACT Composite 50th percentile score,,no,,,no,,actcm50
+xactcm75,STRING,Imputation field for ACTCM75 - ACT Composite 75th percentile score,,no,,,no,,xactcm75
+act_composite_75th,FLOAT64,ACT Composite 75th percentile score,,no,,,no,,actcm75
+xacten25,STRING,Imputation field for ACTEN25 - ACT English 25th percentile score,,no,,,no,,xacten25
+act_english_25th,FLOAT64,ACT English 25th percentile score,,no,,,no,,acten25
+xacten50,STRING,Imputation field for ACTEN50 - ACT English 50th percentile score,,no,,,no,,xacten50
+acten50,FLOAT64,ACT English 50th percentile score,,no,,,no,,acten50
+xacten75,STRING,Imputation field for ACTEN75 - ACT English 75th percentile score,,no,,,no,,xacten75
+act_english_75th,FLOAT64,ACT English 75th percentile score,,no,,,no,,acten75
+xactmt25,STRING,Imputation field for ACTMT25 - ACT Math 25th percentile score,,no,,,no,,xactmt25
+act_math_25th,FLOAT64,ACT Math 25th percentile score,,no,,,no,,actmt25
+xactmt50,STRING,Imputation field for ACTMT50 - ACT Math 50th percentile score,,no,,,no,,xactmt50
+actmt50,FLOAT64,ACT Math 50th percentile score,,no,,,no,,actmt50
+xactmt75,STRING,Imputation field for ACTMT75 - ACT Math 75th percentile score,,no,,,no,,xactmt75
+act_math_75th,FLOAT64,ACT Math 75th percentile score,,no,,,no,,actmt75
+xsatwr25,STRING,Imputation field for SATWR25 - SAT Writing 25th percentile score,,no,,,no,,xsatwr25
+sat_writing_25th,FLOAT64,SAT Writing 25th percentile score,,no,,,no,,satwr25
+xsatwr75,STRING,Imputation field for SATWR75 - SAT Writing 75th percentile score,,no,,,no,,xsatwr75
+sat_writing_75th,FLOAT64,SAT Writing 75th percentile score,,no,,,no,,satwr75
+xactwr25,STRING,Imputation field for ACTWR25 - ACT Writing 25th percentile score,,no,,,no,,xactwr25
+act_writing_25th,FLOAT64,ACT Writing 25th percentile score,,no,,,no,,actwr25
+xactwr75,STRING,Imputation field for ACTWR75 - ACT Writing 75th percentile score,,no,,,no,,xactwr75
+act_writing_75th,FLOAT64,ACT Writing 75th percentile score,,no,,,no,,actwr75

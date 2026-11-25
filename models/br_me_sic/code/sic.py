@@ -69,11 +69,14 @@ for ano in [str(x) for x in list(range(2015, todays_year + 1))]:
                 first_time_flag = False
             else:
                 transferencia = pd.concat(
-                    [transferencia, transferencia_esp], axis=0
+                    # pyrefly: ignore [unbound-name]
+                    [transferencia, transferencia_esp],
+                    axis=0,
                 )
 
 # Remover 0s iniciais
 
+# pyrefly: ignore [unbound-name]
 id_idx = [col.startswith("id") for col in list(transferencia.columns.values)]
 
 transferencia.loc[:, id_idx] = (

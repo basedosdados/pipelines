@@ -1,0 +1,5 @@
+# Validation artifacts ignored temporarily to clean up git tracking
+leiame_cache/
+layouts/
+tier1/
+findings.json

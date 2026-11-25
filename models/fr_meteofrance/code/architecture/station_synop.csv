@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+indicatif_omm,STRING,"Indicativo OMM da estação, de cinco dígitos",,no,,,no,"As estações do arquivo SYNOP passaram de 60 para 190 a partir de 2025, quando a Météo-France ampliou a rede publicada.",geo_id_wmo
+indicatif_wigos,STRING,"Indicativo WIGOS da estação, no formato bloco-emissor-tipo-número",,no,,,no,,geo_id_wigos
+nom_station,STRING,Nome usual da estação,,no,,,no,,name
+latitude,FLOAT64,"Latitude da estação, negativa ao sul do equador",,no,,degree,no,,lat
+longitude,FLOAT64,"Longitude da estação, negativa a oeste de Greenwich",,no,,degree,no,,lon
+altitude,FLOAT64,Altitude da estação,,no,,meter,no,,Altitude
+date_ouverture,DATE,Data de abertura da estação,,no,,,no,,Date_ouverture
+annee_debut_observation,INT64,Primeiro ano em que a estação aparece no arquivo SYNOP,,no,,year,no,,
+annee_fin_observation,INT64,Último ano em que a estação aparece no arquivo SYNOP,,no,,year,no,,
+geolocalisation,GEOGRAPHY,"Ponto geográfico da estação, em WGS 84",,no,,,no,,

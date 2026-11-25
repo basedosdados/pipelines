@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_politician,STRING,Identificador único do político,,no,,,no,,uniqueID
+party_abbreviation,STRING,Sigla do partido conforme o Parliamentary Handbook,,no,,,no,,partyAbbrev
+party_name,STRING,Nome do partido conforme o Parliamentary Handbook,,no,,,no,,partyName
+party_simplified_name,STRING,"Nome simplificado do partido, agregando mudanças de nome ao longo do tempo",,no,,,no,,partySimplifiedName
+date_start,DATE,Data de início da filiação partidária no mandato,,no,,,no,Vazia quando a filiação vigora desde o início do primeiro mandato do político,partyFrom
+date_end,DATE,Data de término da filiação partidária no mandato,,no,,,no,,partyTo
+indicator_party_changed_name,BOOLEAN,"Indica se a mudança de registro decorre de mudança de nome do partido, e não de troca de partido",,no,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",partyChangedName
+indicator_specific_date_inputted,BOOLEAN,"Indica se a data foi inputada especificamente, e não herdada do mandato",,no,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",partySpecificDateInputted
+comments,STRING,Comentários sobre a filiação partidária,,no,,,no,,partyComments

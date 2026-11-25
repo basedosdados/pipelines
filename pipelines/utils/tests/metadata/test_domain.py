@@ -17,9 +17,11 @@ from pipelines.utils.metadata.domain import (
     FreeLag,
     NonHistorical,
     PartBdpro,
+    YearBimester,
     YearMonth,
     YearOnly,
     YearQuarter,
+    date_column_to_legacy_dict,
 )
 
 
@@ -36,10 +38,22 @@ def test_date_column_variants_construct():
     assert YearOnly(col="ano").kind == "year"
     assert YearMonth(year="ano", month="mes").kind == "year_month"
     assert YearQuarter(year="ano", quarter="trimestre").kind == "year_quarter"
+    assert (
+        YearBimester(year="ano", bimester="bimestre").kind == "year_bimester"
+    )
+
+
+def test_year_bimester_maps_to_legacy_dict():
+    """A chave `bimester` é o que `format_date_column` usa para montar
+    `DATE(ano,bimestre*2,1)` — o último mês do bimestre."""
+    assert date_column_to_legacy_dict(
+        YearBimester(year="ano", bimester="bimestre")
+    ) == {"year": "ano", "bimester": "bimestre"}
 
 
 def test_year_month_requires_both_fields():
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [missing-argument]
         YearMonth(year="ano")  # falta month
 
 
@@ -51,10 +65,16 @@ def test_year_month_requires_both_fields():
         (YearOnly(col="ano"), DateFormat.YEAR, True),
         (YearMonth(year="ano", month="mes"), DateFormat.YEAR_MONTH, True),
         (YearQuarter(year="ano", quarter="tri"), DateFormat.YEAR_MONTH, True),
+        (
+            YearBimester(year="ano", bimester="bim"),
+            DateFormat.YEAR_MONTH,
+            True,
+        ),
         # incompatíveis — hoje passam silenciosamente; aqui são recusados (R4):
         (YearOnly(col="ano"), DateFormat.YEAR_MD, False),
         (DateOnly(col="data"), DateFormat.YEAR, False),
         (YearMonth(year="ano", month="mes"), DateFormat.YEAR_MD, False),
+        (YearBimester(year="ano", bimester="bim"), DateFormat.YEAR, False),
     ],
 )
 def test_coverage_column_format_crosscheck(column, fmt, ok):
@@ -84,6 +104,7 @@ def test_free_lag_default_on_part_bdpro():
 
 def test_free_lag_value_must_be_positive():
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [bad-argument-type]
         FreeLag(unit="months", value=0)
 
 
@@ -103,6 +124,7 @@ def test_non_historical_is_frozen():
     spec = NonHistorical()
     assert spec.tier == "non_historical"
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [read-only]
         spec.tier = "all_free"  # frozen → imutável
 
 
@@ -123,6 +145,7 @@ def test_coverage_spec_dispatches_by_tier():
         }
     )
     assert isinstance(spec, PartBdpro)
+    # pyrefly: ignore [missing-attribute]
     assert spec.date_column.col == "data"
 
 

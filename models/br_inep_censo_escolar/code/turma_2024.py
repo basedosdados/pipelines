@@ -42,6 +42,7 @@ arch = pd.read_csv(
 
 renames = {
     i["original_name_2023"]: i["name"]
+    # pyrefly: ignore [bad-index]
     for i in arch.loc[
         (arch["name"] != "(deletado)") & (arch["original_name_2023"].notna()),
     ][["original_name_2023", "name"]].to_dict("records")  # type: ignore
@@ -51,6 +52,7 @@ missing_cols = [i for i in renames if i not in df_turma_2024.columns]
 
 df_turma_2024[missing_cols] = None
 
+# pyrefly: ignore [bad-index]
 arch_cols = arch.loc[
     (arch["name"] != "(deletado)") & (arch["original_name_2023"].notna()),
 ]["name"].to_list()  # type: ignore

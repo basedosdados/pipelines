@@ -11,8 +11,11 @@ from basedosdados import Backend
 
 from pipelines.constants import constants
 from pipelines.utils.metadata.utils import (
+    # pyrefly: ignore [missing-module-attribute]
     get_credentials_utils,
+    # pyrefly: ignore [missing-module-attribute]
     get_id,
+    # pyrefly: ignore [missing-module-attribute]
     get_token,
 )
 from pipelines.utils.utils import log

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Slug da tabela de us_hhs_nppes que a entrada do dicionário descreve,,no,,,no,,
+nome_coluna,STRING,Nome da coluna que a entrada do dicionário descreve,,no,,,no,,
+chave,STRING,Valor codificado (chave) exatamente como armazenado nos dados,,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal da entrada do dicionário,,no,,,no,,
+valor,STRING,Descrição legível do valor codificado,,no,,,no,,

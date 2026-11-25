@@ -1,0 +1,47 @@
+[
+ {
+  "name": "patent_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Número da patente no banco de patentes concedidas do escritório de patentes e marcas dos Estados Unidos",
+  "description_en": "Patent number in the United States Patent and Trademark Office database of issued patents",
+  "description_es": "Número de la patente en el banco de patentes concedidas de la oficina de patentes y marcas de los Estados Unidos",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Predominantemente numérico, com sete ou oito dígitos; também ocorrem os prefixos RE, para reemissões, D, para patentes de desenho, H, para invenções estatutárias, e PP, para patentes de plantas.",
+  "observations_en": "Predominantly numeric, with seven or eight digits; the prefixes RE for reissues, D for design patents, H for statutory inventions and PP for plant patents also occur.",
+  "observations_es": "Predominantemente numérico, con siete u ocho dígitos; también ocurren los prefijos RE, para reemisiones, D, para patentes de diseño, H, para invenciones estatutarias, y PP, para patentes de plantas."
+ },
+ {
+  "name": "core_project_num",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador do projeto de pesquisa reconhecido como apoio ao desenvolvimento da patente",
+  "description_en": "Identifier of the research project acknowledged as supporting development of the patent",
+  "description_es": "Identificador del proyecto de investigación reconocido como apoyo al desarrollo de la patente",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Liga esta tabela a project pela coluna core_project_num. A associação vem do sistema iEdison, em que as organizações beneficiárias reportam invenções, e não identifica um ano do projeto nem um ano fiscal de financiamento.",
+  "observations_en": "Joins this table to project on the core_project_num column. The association comes from the iEdison system, through which recipient organisations report inventions, and identifies neither a year of the project nor a fiscal year of funding.",
+  "observations_es": "Une esta tabla con project por la columna core_project_num. La asociación proviene del sistema iEdison, en que las organizaciones beneficiarias reportan invenciones, y no identifica un año del proyecto ni un año fiscal de financiamiento."
+ },
+ {
+  "name": "patent_title",
+  "bigquery_type": "STRING",
+  "description_pt": "Título da patente",
+  "description_en": "Title of the patent",
+  "description_es": "Título de la patente",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "patent_org_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome da organização ou pessoa titular da patente",
+  "description_en": "Name of the organisation or person that owns the patent",
+  "description_es": "Nombre de la organización o persona titular de la patente",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Pode diferir da organização que recebeu a concessão ou o contrato. Vazio em 2.343 das 92.936 linhas publicadas. Faz parte da chave da tabela: 36 pares de patente e projeto aparecem duas vezes, sempre com o mesmo título e dois titulares diferentes, e a tripla (patent_id, core_project_num, patent_org_name) é única em todas as 92.936 linhas.",
+  "observations_en": "May differ from the organisation that received the grant or contract. Blank on 2,343 of the 92,936 published rows. It is part of the table's key: 36 patent-project pairs appear twice, always with the same title and two different owners, and the triple (patent_id, core_project_num, patent_org_name) is unique on all 92,936 rows.",
+  "observations_es": "Puede diferir de la organización que recibió la subvención o el contrato. Vacío en 2.343 de las 92.936 filas publicadas. Forma parte de la clave de la tabla: 36 pares de patente y proyecto aparecen dos veces, siempre con el mismo título y dos titulares diferentes, y la tripla (patent_id, core_project_num, patent_org_name) es única en las 92.936 filas."
+ }
+]

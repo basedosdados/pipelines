@@ -1,0 +1,1224 @@
+{
+ "descriptions": {
+  "...aguinaldo de alguna jubilación o pensión de \"ama de casa\" o por moratoria previsional?": {
+   "pt": "...decimo terceiro de alguma aposentadoria ou pensao de \"dona de casa\" ou por moratoria previdenciaria?",
+   "en": "...an annual bonus from a \"homemaker\" pension or one granted under a pension moratorium?"
+  },
+  "...aguinaldo de alguna jubilación o pensión obtenida por los aportes del trabajo?": {
+   "pt": "...decimo terceiro de alguma aposentadoria ou pensao obtida pelas contribuicoes do trabalho?",
+   "en": "...an annual bonus from a pension earned through work contributions?"
+  },
+  "...aguinaldo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?": {
+   "pt": "...decimo terceiro de outras pensoes, como por deficiencia, Mae de 7 filhos, PUAM, velhice, etc.?",
+   "en": "...an annual bonus from other pensions, such as disability, Mother of 7 children, PUAM or old age?"
+  },
+  "...con mercaderías, ropa, alimentos de familiares, vecinos u otras personas que": {
+   "pt": "...com mercadorias, roupas ou alimentos de familiares, vizinhos ou outras pessoas que",
+   "en": "...on goods, clothing or food from relatives, neighbours or other people who"
+  },
+  "...con mercaderías, ropa, alimentos del gobierno, iglesias, escuelas, etc.?": {
+   "pt": "...com mercadorias, roupas ou alimentos do governo, igrejas, escolas, etc.?",
+   "en": "...on goods, clothing or food from the government, churches, schools, etc.?"
+  },
+  "...de aguinaldo de alguna jubilación o pensión cobrada el mes anterior?": {
+   "pt": "...de decimo terceiro de alguma aposentadoria ou pensao recebida no mes anterior?",
+   "en": "...on the annual bonus of a pension received the previous month?"
+  },
+  "...de alguna jubilación o pensión?": {
+   "pt": "...de alguma aposentadoria ou pensao?",
+   "en": "...on a pension?"
+  },
+  "...de algún alquiler (por una vivienda, terreno, oficina, etc.) de su propiedad?": {
+   "pt": "...de algum aluguel (de moradia, terreno, escritorio, etc.) de sua propriedade?",
+   "en": "...on rent from a property they own (dwelling, land, office, etc.)?"
+  },
+  "...de cuotas de alimentos o ayuda (en dinero) de personas que no viven en el hog": {
+   "pt": "...de pensao alimenticia ou ajuda em dinheiro de pessoas que nao moram no domicilio",
+   "en": "...on maintenance payments or cash help from people who do not live in the household"
+  },
+  "...de ganancias de algún negocio en el que no trabajan?": {
+   "pt": "...de lucros de algum negocio no qual nao trabalham?",
+   "en": "...on profits from a business they do not work in?"
+  },
+  "...de gastar lo que tenían ahorrado?": {
+   "pt": "...de gastar o que tinham poupado?",
+   "en": "...by spending what they had saved?"
+  },
+  "...de indemnización por despido?": {
+   "pt": "...de indenizacao por demissao?",
+   "en": "...on severance pay?"
+  },
+  "...de intereses o rentas por plazos fijos/inversiones?": {
+   "pt": "...de juros ou rendimentos de aplicacoes/investimentos?",
+   "en": "...on interest or income from term deposits or investments?"
+  },
+  "...de lo que ganan en el trabajo?": {
+   "pt": "...do que ganham no trabalho?",
+   "en": "...on what they earn from work?"
+  },
+  "...de otra beca (en dinero) de instituciones no gubernamentales?": {
+   "pt": "...de outra bolsa em dinheiro de instituicoes nao governamentais?",
+   "en": "...on another cash scholarship from a non-governmental institution?"
+  },
+  "...de pedir préstamos a bancos, financieras, etc.?": {
+   "pt": "...de pedir emprestimos a bancos, financeiras, etc.?",
+   "en": "...by borrowing from banks, finance companies, etc.?"
+  },
+  "...de pedir préstamos a familiares/amigos?": {
+   "pt": "...de pedir emprestimos a familiares ou amigos?",
+   "en": "...by borrowing from relatives or friends?"
+  },
+  "...de retroactivo de alguna jubilación o pensión que cobró el mes anterior?": {
+   "pt": "...de retroativo de alguma aposentadoria ou pensao recebida no mes anterior?",
+   "en": "...on back payments of a pension received the previous month?"
+  },
+  "...de seguro de desempleo?": {
+   "pt": "...de seguro-desemprego?",
+   "en": "...on unemployment insurance?"
+  },
+  "...de subsidio o ayuda social (en dinero) del gobierno, iglesias, etc.?": {
+   "pt": "...de auxilio ou ajuda social em dinheiro do governo, igrejas, etc.?",
+   "en": "...on a cash benefit or social assistance from the government, churches, etc.?"
+  },
+  "...de una beca de estudio?": {
+   "pt": "...de uma bolsa de estudo?",
+   "en": "...on a study scholarship?"
+  },
+  "...retroactivo de alguna jubilación o pensión de \"ama de casa\" o por moratoria previsional?": {
+   "pt": "...retroativo de alguma aposentadoria ou pensao de \"dona de casa\" ou por moratoria previdenciaria?",
+   "en": "...back payments of a \"homemaker\" pension or one granted under a pension moratorium?"
+  },
+  "...retroactivo de alguna jubilación o pensión obtenida por los aportes del trabajo?": {
+   "pt": "...retroativo de alguma aposentadoria ou pensao obtida pelas contribuicoes do trabalho?",
+   "en": "...back payments of a pension earned through work contributions?"
+  },
+  "...retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?": {
+   "pt": "...retroativo de outras pensoes, como por deficiencia, Mae de 7 filhos, PUAM, velhice, etc.?",
+   "en": "...back payments of other pensions, such as disability, Mother of 7 children, PUAM or old age?"
+  },
+  "Aglomerado": {
+   "pt": "Aglomerado urbano",
+   "en": "Urban agglomerate"
+  },
+  "Aglomerados según tamaño": {
+   "pt": "Aglomerados por tamanho",
+   "en": "Agglomerates by size"
+  },
+  "Antigüedad en  años": {
+   "pt": "Tempo de servico em anos",
+   "en": "Tenure in years"
+  },
+  "Antigüedad en años": {
+   "pt": "Tempo de servico em anos",
+   "en": "Tenure in years"
+  },
+  "Antigüedad en días": {
+   "pt": "Tempo de servico em dias",
+   "en": "Tenure in days"
+  },
+  "Antigüedad en meses": {
+   "pt": "Tempo de servico em meses",
+   "en": "Tenure in months"
+  },
+  "Aparte de este/os trabajo/s, ¿estuvo buscando algún empleo/ocupación/actividad?": {
+   "pt": "Alem deste ou destes trabalhos, procurou algum emprego, ocupacao ou atividade?",
+   "en": "Besides this job or jobs, were they looking for any employment, occupation or activity?"
+  },
+  "Aproximadamente, ¿qué parte de su sueldo no está en el recibo?": {
+   "pt": "Aproximadamente, que parte do seu salario nao consta no recibo?",
+   "en": "Roughly what share of their pay is not on the payslip?"
+  },
+  "Año de relevamiento": {
+   "pt": "Ano do levantamento",
+   "en": "Survey year"
+  },
+  "Baño (tenencia y uso)": {
+   "pt": "Banheiro (posse e uso)",
+   "en": "Toilet (availability and use)"
+  },
+  "Buscó trabajo de otra forma forma activa": {
+   "pt": "Procurou trabalho de outra forma ativa",
+   "en": "Looked for work in some other active way"
+  },
+  "Cantidad de miembros del Hogar": {
+   "pt": "Quantidade de membros do domicilio",
+   "en": "Number of household members"
+  },
+  "Cantidad de miembros del Hogar de 10 y más años": {
+   "pt": "Quantidade de membros do domicilio de 10 anos ou mais",
+   "en": "Number of household members aged 10 or over"
+  },
+  "Cantidad de miembros del Hogar menores de 10 años": {
+   "pt": "Quantidade de membros do domicilio menores de 10 anos",
+   "en": "Number of household members under 10"
+  },
+  "Cantidad de ocupaciones": {
+   "pt": "Quantidade de ocupacoes",
+   "en": "Number of occupations"
+  },
+  "Categoría de inactividad": {
+   "pt": "Categoria de inatividade",
+   "en": "Category of inactivity"
+  },
+  "Categoría ocupacional (para ocupados y desocupados con ocupación anterior)": {
+   "pt": "Categoria ocupacional (para ocupados e desocupados com ocupacao anterior)",
+   "en": "Occupational category (for the employed and for the unemployed with a previous job)"
+  },
+  "Combustible utilizado para cocinar": {
+   "pt": "Combustivel utilizado para cozinhar",
+   "en": "Fuel used for cooking"
+  },
+  "Condición de actividad": {
+   "pt": "Condicao de atividade",
+   "en": "Labour force status"
+  },
+  "Condición de formalidad del empleo en la ocupación principal": {
+   "pt": "Condicao de formalidade do emprego na ocupacao principal",
+   "en": "Formality of employment in the main occupation"
+  },
+  "Consultó a parientes, amigos": {
+   "pt": "Consultou parentes ou amigos",
+   "en": "Asked relatives or friends"
+  },
+  "Código de Actividad para desocupados con ocupación anterior": {
+   "pt": "Codigo de atividade para desocupados com ocupacao anterior",
+   "en": "Activity code for the unemployed with a previous job"
+  },
+  "Código de Actividad para desocupados con ocupación anterior (CAES-1.0)": {
+   "pt": "Codigo de atividade para desocupados com ocupacao anterior (CAES-1.0)",
+   "en": "Activity code for the unemployed with a previous job (CAES-1.0)"
+  },
+  "Código de Actividad para ocupados": {
+   "pt": "Codigo de atividade para ocupados",
+   "en": "Activity code for the employed"
+  },
+  "Código de Actividad para ocupados (CAES-1.0)": {
+   "pt": "Codigo de atividade para ocupados (CAES-1.0)",
+   "en": "Activity code for the employed (CAES-1.0)"
+  },
+  "Código de Ocupación para ocupados": {
+   "pt": "Codigo de ocupacao para ocupados",
+   "en": "Occupation code for the employed"
+  },
+  "Código de Región": {
+   "pt": "Codigo de regiao",
+   "en": "Region code"
+  },
+  "Código de la Ocupación anterior de los desocupados": {
+   "pt": "Codigo da ocupacao anterior dos desocupados",
+   "en": "Code of the unemployed person's previous occupation"
+  },
+  "Código para distinguir hogares": {
+   "pt": "Codigo para distinguir domicilios",
+   "en": "Code distinguishing households"
+  },
+  "Código para distinguir viviendas": {
+   "pt": "Codigo para distinguir moradias",
+   "en": "Code distinguishing dwellings"
+  },
+  "De esos (los si de preg. 4), ¿utiliza alguno de éstos exclusivamente como lugar": {
+   "pt": "Desses (os sim da pergunta 4), utiliza algum exclusivamente como local",
+   "en": "Of those (the yes answers to question 4), is any used exclusively as a place"
+  },
+  "De esos (los sí de preg. 4), ¿usan alguno para dormir?": {
+   "pt": "Desses (os sim da pergunta 4), usam algum para dormir?",
+   "en": "Of those (the yes answers to question 4), is any used for sleeping?"
+  },
+  "De esos, ¿cuántos usan habitualmente para dormir?": {
+   "pt": "Desses, quantos usam habitualmente para dormir?",
+   "en": "Of those, how many are habitually used for sleeping?"
+  },
+  "Desconoce por qué no encuentra trabajo (solo autoinformante)": {
+   "pt": "Nao sabe por que nao encontra trabalho (apenas autoinformante)",
+   "en": "Does not know why they cannot find work (self-respondents only)"
+  },
+  "Descripción de otro lugar (según pregunta pp09c)": {
+   "pt": "Descricao de outro local (conforme a pergunta pp09c)",
+   "en": "Description of another location (per question pp09c)"
+  },
+  "Desocupados e inactivos con plan jefas jefes de hogar": {
+   "pt": "Desocupados e inativos com o plano Jefas y Jefes de Hogar",
+   "en": "Unemployed and inactive people on the Jefas y Jefes de Hogar programme"
+  },
+  "Durante esos 30 días, no buscó trabajo porque": {
+   "pt": "Durante esses 30 dias, nao procurou trabalho porque",
+   "en": "During those 30 days they did not look for work because"
+  },
+  "Edad en años cumplidos": {
+   "pt": "Idade em anos completos",
+   "en": "Age in completed years"
+  },
+  "El agua es de": {
+   "pt": "A agua provem de",
+   "en": "The water comes from"
+  },
+  "El baño o letrina está": {
+   "pt": "O banheiro ou latrina esta",
+   "en": "The toilet or latrine is"
+  },
+  "El baño tiene": {
+   "pt": "O banheiro tem",
+   "en": "The toilet has"
+  },
+  "El desagüe del baño es": {
+   "pt": "O esgotamento do banheiro e",
+   "en": "The toilet drains to"
+  },
+  "El negocio/empresa/institución que le paga, ¿cuenta con los servicios de un contador/oficina contable?": {
+   "pt": "O negocio, empresa ou instituicao que lhe paga conta com os servicos de um contador ou escritorio contabil?",
+   "en": "Does the business or institution that pays them use an accountant or accounting office?"
+  },
+  "El negocio/empresa/institución que le paga, ¿emite facturas?": {
+   "pt": "O negocio, empresa ou instituicao que lhe paga emite notas fiscais?",
+   "en": "Does the business or institution that pays them issue invoices?"
+  },
+  "El negocio/empresa/institución que le paga, ¿le hace el descuento jubilatorio a alguno de sus empleados?": {
+   "pt": "O negocio, empresa ou instituicao que lhe paga faz o desconto previdenciario de algum de seus empregados?",
+   "en": "Does the business or institution that pays them withhold pension contributions for any of its employees?"
+  },
+  "El negocio/empresa/institución/actividad en la que trabaja es (se refiere al que": {
+   "pt": "O negocio, empresa, instituicao ou atividade em que trabalha e (refere-se ao que",
+   "en": "The business, institution or activity they work in is (referring to the one that"
+  },
+  "El recibo abarca…": {
+   "pt": "O recibo abrange...",
+   "en": "The payslip covers..."
+  },
+  "En los últimos 12 meses ¿buscó trabajo en algún momento?": {
+   "pt": "Nos ultimos 12 meses procurou trabalho em algum momento?",
+   "en": "In the last 12 months, did they look for work at any point?"
+  },
+  "En los últimos 12 meses ¿trabajó en algún momento?": {
+   "pt": "Nos ultimos 12 meses trabalhou em algum momento?",
+   "en": "In the last 12 months, did they work at any point?"
+  },
+  "En los últimos 3 meses, por este trabajo, ¿realizó aportes como…": {
+   "pt": "Nos ultimos 3 meses, por este trabalho, fez contribuicoes como...",
+   "en": "In the last 3 months, for this job, did they contribute as..."
+  },
+  "En los últimos 30 días, ¿buscó trabajar más horas?": {
+   "pt": "Nos ultimos 30 dias procurou trabalhar mais horas?",
+   "en": "In the last 30 days, did they look for more hours of work?"
+  },
+  "Entrevista individual realizada": {
+   "pt": "Entrevista individual realizada",
+   "en": "Individual interview completed"
+  },
+  "Entrevista realizada": {
+   "pt": "Entrevista realizada",
+   "en": "Interview completed"
+  },
+  "Ese cobro (o arreglo) corresponde a su trabajo de…": {
+   "pt": "Esse recebimento (ou acordo) corresponde ao seu trabalho de...",
+   "en": "That payment (or arrangement) corresponds to their work of..."
+  },
+  "Ese establecimiento es": {
+   "pt": "Esse estabelecimento e",
+   "en": "That establishment is"
+  },
+  "Ese negocio/empresas/actividad, trabaja habitualmente para": {
+   "pt": "Esse negocio, empresa ou atividade trabalha habitualmente para",
+   "en": "That business or activity habitually works for"
+  },
+  "Especificar: contiene la descripción de otro lugar": {
+   "pt": "Especificar: contem a descricao de outro local",
+   "en": "Specify: holds the description of another location"
+  },
+  "Este negocio/empresa/actividad, ¿puede emitir facturas?": {
+   "pt": "Este negocio, empresa ou atividade pode emitir notas fiscais?",
+   "en": "Can this business or activity issue invoices?"
+  },
+  "Este negocio/empresa/actividad, ¿recurre a los servicios de un contador/tiene oficina contable?": {
+   "pt": "Este negocio, empresa ou atividade recorre aos servicos de um contador ou tem escritorio contabil?",
+   "en": "Does this business or activity use an accountant or have an accounting office?"
+  },
+  "Falta de trabajo en su especialidad": {
+   "pt": "Falta de trabalho em sua especialidade",
+   "en": "No work available in their field"
+  },
+  "Fecha de nacimiento (día, mes y año)": {
+   "pt": "Data de nascimento (dia, mes e ano)",
+   "en": "Date of birth (day, month and year)"
+  },
+  "Grupo decílico de IPCF de la REGION": {
+   "pt": "Grupo decilico do IPCF da REGIAO",
+   "en": "Decile group of per capita family income within the REGION"
+  },
+  "Grupo decílico de IPCF del AGLOMERADO": {
+   "pt": "Grupo decilico do IPCF do AGLOMERADO",
+   "en": "Decile group of per capita family income within the AGGLOMERATE"
+  },
+  "Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES": {
+   "pt": "Grupo decilico do IPCF do CONJUNTO DE AGLOMERADOS DE 500 MIL OU MAIS HABITANTES",
+   "en": "Decile group of per capita family income across AGGLOMERATES OF 500,000 OR MORE INHABITANTS"
+  },
+  "Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE": {
+   "pt": "Grupo decilico do IPCF do CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES",
+   "en": "Decile group of per capita family income across AGGLOMERATES OF UNDER 500,000 INHABITANTS"
+  },
+  "Grupo decílico de IPCF del INTERIOR EPH": {
+   "pt": "Grupo decilico do IPCF do INTERIOR EPH",
+   "en": "Decile group of per capita family income in the EPH INTERIOR"
+  },
+  "Grupo decílico de IPCF del TOTAL EPH": {
+   "pt": "Grupo decilico do IPCF do TOTAL EPH",
+   "en": "Decile group of per capita family income across the EPH TOTAL"
+  },
+  "Grupo decílico de ITF de la REGION": {
+   "pt": "Grupo decilico do ITF da REGIAO",
+   "en": "Decile group of total family income within the REGION"
+  },
+  "Grupo decílico de ITF del AGLOMERADO": {
+   "pt": "Grupo decilico do ITF do AGLOMERADO",
+   "en": "Decile group of total family income within the AGGLOMERATE"
+  },
+  "Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES": {
+   "pt": "Grupo decilico do ITF do CONJUNTO DE AGLOMERADOS DE 500 MIL OU MAIS HABITANTES",
+   "en": "Decile group of total family income across AGGLOMERATES OF 500,000 OR MORE INHABITANTS"
+  },
+  "Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES": {
+   "pt": "Grupo decilico do ITF do CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES",
+   "en": "Decile group of total family income across AGGLOMERATES OF UNDER 500,000 INHABITANTS"
+  },
+  "Grupo decílico de ITF del INTERIOR EPH": {
+   "pt": "Grupo decilico do ITF do INTERIOR EPH",
+   "en": "Decile group of total family income in the EPH INTERIOR"
+  },
+  "Grupo decílico de ITF del TOTAL EPH": {
+   "pt": "Grupo decilico do ITF do TOTAL EPH",
+   "en": "Decile group of total family income across the EPH TOTAL"
+  },
+  "Grupo decílico de P21 de la REGION": {
+   "pt": "Grupo decilico de P21 da REGIAO",
+   "en": "Decile group of main-occupation income within the REGION"
+  },
+  "Grupo decílico de P21 del AGLOMERADO": {
+   "pt": "Grupo decilico de P21 do AGLOMERADO",
+   "en": "Decile group of main-occupation income within the AGGLOMERATE"
+  },
+  "Grupo decílico de P21 del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES": {
+   "pt": "Grupo decilico de P21 do CONJUNTO DE AGLOMERADOS DE 500 MIL OU MAIS HABITANTES",
+   "en": "Decile group of main-occupation income across AGGLOMERATES OF 500,000 OR MORE INHABITANTS"
+  },
+  "Grupo decílico de P21 del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES": {
+   "pt": "Grupo decilico de P21 do CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES",
+   "en": "Decile group of main-occupation income across AGGLOMERATES OF UNDER 500,000 INHABITANTS"
+  },
+  "Grupo decílico de P21 del INTERIOR EPH": {
+   "pt": "Grupo decilico de P21 do INTERIOR EPH",
+   "en": "Decile group of main-occupation income in the EPH INTERIOR"
+  },
+  "Grupo decílico de P21 del TOTAL EPH": {
+   "pt": "Grupo decilico de P21 do TOTAL EPH",
+   "en": "Decile group of main-occupation income across the EPH TOTAL"
+  },
+  "Grupo decílico de P47T de la REGION": {
+   "pt": "Grupo decilico de P47T da REGIAO",
+   "en": "Decile group of total individual income within the REGION"
+  },
+  "Grupo decílico de P47T del AGLOMERADO": {
+   "pt": "Grupo decilico de P47T do AGLOMERADO",
+   "en": "Decile group of total individual income within the AGGLOMERATE"
+  },
+  "Grupo decílico de P47T del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES": {
+   "pt": "Grupo decilico de P47T do CONJUNTO DE AGLOMERADOS DE 500 MIL OU MAIS HABITANTES",
+   "en": "Decile group of total individual income across AGGLOMERATES OF 500,000 OR MORE INHABITANTS"
+  },
+  "Grupo decílico de P47T del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE": {
+   "pt": "Grupo decilico de P47T do CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES",
+   "en": "Decile group of total individual income across AGGLOMERATES OF UNDER 500,000 INHABITANTS"
+  },
+  "Grupo decílico de P47T del INTERIOR EPH": {
+   "pt": "Grupo decilico de P47T do INTERIOR EPH",
+   "en": "Decile group of total individual income in the EPH INTERIOR"
+  },
+  "Grupo decílico de P47T del TOTAL EPH": {
+   "pt": "Grupo decilico de P47T do TOTAL EPH",
+   "en": "Decile group of total individual income across the EPH TOTAL"
+  },
+  "Hizo algo para ponerse por su cuenta": {
+   "pt": "Fez algo para trabalhar por conta propria",
+   "en": "Took steps to become self-employed"
+  },
+  "Identificador de casos imputados en monto de ingreso": {
+   "pt": "Identificador de casos imputados no valor do rendimento",
+   "en": "Flag for cases whose income amount was imputed"
+  },
+  "Indica los casos que han sido imputados": {
+   "pt": "Indica os casos que foram imputados",
+   "en": "Marks the cases that were imputed"
+  },
+  "Intensidad de la ocupación: clasifica a los ocupados en subocupados, ocupados plenos y sobreocupados según las horas trabajadas y su disposición a trabajar más": {
+   "pt": "Intensidade da ocupacao: classifica os ocupados em subocupados, plenamente ocupados e sobreocupados conforme as horas trabalhadas e sua disposicao para trabalhar mais",
+   "en": "Intensity of employment: classifies the employed as underemployed, fully employed or overemployed according to hours worked and willingness to work more"
+  },
+  "La cubierta exterior del techo es de": {
+   "pt": "A cobertura externa do telhado e de",
+   "en": "The outer roof covering is made of"
+  },
+  "La semana pasada, ¿quería trabajar más horas?": {
+   "pt": "Na semana passada, queria trabalhar mais horas?",
+   "en": "Last week, did they want to work more hours?"
+  },
+  "La semana pasada, ¿tenía": {
+   "pt": "Na semana passada, tinha",
+   "en": "Last week, did they have"
+  },
+  "Le faltan vinculaciones para conseguir trabajo": {
+   "pt": "Faltam-lhe contatos para conseguir trabalho",
+   "en": "Lacks the connections to find work"
+  },
+  "Lo ganado corresponde a su trabajo de…": {
+   "pt": "O que ganhou corresponde ao seu trabalho de...",
+   "en": "What they earned corresponds to their work of..."
+  },
+  "Los pisos interiores son principalmente de": {
+   "pt": "Os pisos internos sao principalmente de",
+   "en": "The interior floors are mainly made of"
+  },
+  "Lugar de nacimiento. Código": {
+   "pt": "Local de nascimento. Codigo",
+   "en": "Place of birth. Code"
+  },
+  "Mandó currículum, puso o contestó avisos (diarios, internet)": {
+   "pt": "Enviou curriculo, publicou ou respondeu anuncios (jornais, internet)",
+   "en": "Sent a CV, placed or answered advertisements (newspapers, internet)"
+  },
+  "Monto de ingreso de la ocupación principal percibido en ese mes": {
+   "pt": "Valor do rendimento da ocupacao principal recebido naquele mes",
+   "en": "Income from the main occupation received that month"
+  },
+  "Monto de ingreso per cápita familiar percibido en ese mes": {
+   "pt": "Valor do rendimento per capita familiar recebido naquele mes",
+   "en": "Per capita family income received that month"
+  },
+  "Monto de patrones y cuenta propia con socios percibido en ese mes": {
+   "pt": "Valor recebido naquele mes por empregadores e autonomos com socios",
+   "en": "Amount received that month by employers and own-account workers with partners"
+  },
+  "Monto de patrones y cuenta propia sin socios percibido en ese mes": {
+   "pt": "Valor recebido naquele mes por empregadores e autonomos sem socios",
+   "en": "Amount received that month by employers and own-account workers without partners"
+  },
+  "Monto del ingreso por aguinaldo de jubilación o pensión de \"ama de casa\" o por moratoria previsional": {
+   "pt": "Valor do rendimento pelo decimo terceiro de aposentadoria ou pensao de \"dona de casa\" ou por moratoria previdenciaria",
+   "en": "Income from the annual bonus of a \"homemaker\" pension or one granted under a pension moratorium"
+  },
+  "Monto del ingreso por aguinaldo de jubilación o pensión obtenida por los aportes del trabajo": {
+   "pt": "Valor do rendimento pelo decimo terceiro de aposentadoria ou pensao obtida pelas contribuicoes do trabalho",
+   "en": "Income from the annual bonus of a pension earned through work contributions"
+  },
+  "Monto del ingreso por aguinaldo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?": {
+   "pt": "Valor do rendimento pelo decimo terceiro de outras pensoes, como por deficiencia, Mae de 7 filhos, PUAM, velhice, etc.",
+   "en": "Income from the annual bonus of other pensions, such as disability, Mother of 7 children, PUAM or old age"
+  },
+  "Monto del ingreso por ayuda en dinero a través de iglesias, parroquias, organizaciones no gubernamentales": {
+   "pt": "Valor do rendimento por ajuda em dinheiro de igrejas, paroquias ou organizacoes nao governamentais",
+   "en": "Income from cash help through churches, parishes or non-governmental organisations"
+  },
+  "Monto del ingreso por jubilación o pensión de \"ama de casa\" o por moratoria previsional": {
+   "pt": "Valor do rendimento por aposentadoria ou pensao de \"dona de casa\" ou por moratoria previdenciaria",
+   "en": "Income from a \"homemaker\" pension or one granted under a pension moratorium"
+  },
+  "Monto del ingreso por jubilación o pensión obtenida por los aportes del trabajo": {
+   "pt": "Valor do rendimento por aposentadoria ou pensao obtida pelas contribuicoes do trabalho",
+   "en": "Income from a pension earned through work contributions"
+  },
+  "Monto del ingreso por la Asignación Universal por Hijo (AUH) y/o Asignación por Embarazo (incluye Tarjeta Alimentar)": {
+   "pt": "Valor do rendimento pela Asignacion Universal por Hijo (AUH) e/ou Asignacion por Embarazo (inclui Tarjeta Alimentar)",
+   "en": "Income from the Universal Child Allowance (AUH) and/or Pregnancy Allowance (includes the Tarjeta Alimentar)"
+  },
+  "Monto del ingreso por otra beca de estudio (en dinero) de instituciones no gubernamentales": {
+   "pt": "Valor do rendimento por outra bolsa de estudo em dinheiro de instituicoes nao governamentais",
+   "en": "Income from another cash study scholarship from non-governmental institutions"
+  },
+  "Monto del ingreso por otras pensiones, como por ejemplo discapacidad, Madre de 7 hijos, PUAM, vejez, etc": {
+   "pt": "Valor do rendimento por outras pensoes, como deficiencia, Mae de 7 filhos, PUAM, velhice, etc.",
+   "en": "Income from other pensions, such as disability, Mother of 7 children, PUAM or old age"
+  },
+  "Monto del ingreso por otro plan social/subsidio en dinero otorgado por el gobierno": {
+   "pt": "Valor do rendimento por outro programa social ou auxilio em dinheiro concedido pelo governo",
+   "en": "Income from another cash social programme or benefit granted by the government"
+  },
+  "Monto del ingreso por retroactivo de jubilación o pensión de \"ama de casa\" o por moratoria previsional": {
+   "pt": "Valor do rendimento pelo retroativo de aposentadoria ou pensao de \"dona de casa\" ou por moratoria previdenciaria",
+   "en": "Income from back payments of a \"homemaker\" pension or one granted under a pension moratorium"
+  },
+  "Monto del ingreso por retroactivo de jubilación o pensión obtenida por los aportes del trabajo": {
+   "pt": "Valor do rendimento pelo retroativo de aposentadoria ou pensao obtida pelas contribuicoes do trabalho",
+   "en": "Income from back payments of a pension earned through work contributions"
+  },
+  "Monto del ingreso por retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?": {
+   "pt": "Valor do rendimento pelo retroativo de outras pensoes, como por deficiencia, Mae de 7 filhos, PUAM, velhice, etc.",
+   "en": "Income from back payments of other pensions, such as disability, Mother of 7 children, PUAM or old age"
+  },
+  "Monto del ingreso por una beca de estudio (en dinero) del gobierno para continuar estudios o finalizarlos (Ej.: Beca Progresar u otras)": {
+   "pt": "Valor do rendimento por uma bolsa de estudo em dinheiro do governo para continuar ou concluir os estudos (ex.: Beca Progresar)",
+   "en": "Income from a government cash study scholarship to continue or complete studies (e.g. Beca Progresar)"
+  },
+  "Monto en pesos por comisión por venta/producción percibido en ese mes": {
+   "pt": "Valor em pesos por comissao de venda ou producao recebido naquele mes",
+   "en": "Amount in pesos from sales or production commission received that month"
+  },
+  "Monto en pesos por propinas percibido en ese mes": {
+   "pt": "Valor em pesos por gorjetas recebido naquele mes",
+   "en": "Amount in pesos from tips received that month"
+  },
+  "Monto en tickets percibido en ese mes": {
+   "pt": "Valor em tiquetes recebido naquele mes",
+   "en": "Amount in vouchers received that month"
+  },
+  "Monto por aguinaldo de la jubilación percibido en ese mes": {
+   "pt": "Valor do decimo terceiro da aposentadoria recebido naquele mes",
+   "en": "Pension annual bonus received that month"
+  },
+  "Monto por aguinaldo percibido en ese mes": {
+   "pt": "Valor do decimo terceiro recebido naquele mes",
+   "en": "Annual bonus received that month"
+  },
+  "Monto por alquiler de su propiedad percibido en ese mes": {
+   "pt": "Valor do aluguel de sua propriedade recebido naquele mes",
+   "en": "Rent from their property received that month"
+  },
+  "Monto por beca de estudio percibido en ese mes": {
+   "pt": "Valor da bolsa de estudo recebido naquele mes",
+   "en": "Study scholarship received that month"
+  },
+  "Monto por cuota de alimentos/ayuda (en dinero) de personas que no viven en el ho": {
+   "pt": "Valor de pensao alimenticia ou ajuda em dinheiro de pessoas que nao moram no domicilio",
+   "en": "Maintenance payments or cash help from people who do not live in the household"
+  },
+  "Monto por ganancias de algún negocio en el que no trabajó percibido en ese mes": {
+   "pt": "Valor de lucros de algum negocio no qual nao trabalhou recebido naquele mes",
+   "en": "Profits from a business they did not work in, received that month"
+  },
+  "Monto por indemnización o despido percibido en ese mes": {
+   "pt": "Valor de indenizacao ou demissao recebido naquele mes",
+   "en": "Severance or redundancy pay received that month"
+  },
+  "Monto por intereses o rentas por plazos fijos/inversiones percibido en ese mes": {
+   "pt": "Valor de juros ou rendimentos de aplicacoes e investimentos recebido naquele mes",
+   "en": "Interest or income from term deposits and investments received that month"
+  },
+  "Monto por jubilación o pensión percibido en ese mes": {
+   "pt": "Valor de aposentadoria ou pensao recebido naquele mes",
+   "en": "Pension received that month"
+  },
+  "Monto por otras bonificaciones no habituales percibido en ese mes": {
+   "pt": "Valor de outras gratificacoes nao habituais recebido naquele mes",
+   "en": "Other non-recurring bonuses received that month"
+  },
+  "Monto por otros ingresos en efectivo percibido en ese mes": {
+   "pt": "Valor de outros rendimentos em dinheiro recebido naquele mes",
+   "en": "Other cash income received that month"
+  },
+  "Monto por retroactivos percibido en ese mes": {
+   "pt": "Valor de retroativos recebido naquele mes",
+   "en": "Back payments received that month"
+  },
+  "Monto por seguro de desempleo percibido en ese mes": {
+   "pt": "Valor do seguro-desemprego recebido naquele mes",
+   "en": "Unemployment insurance received that month"
+  },
+  "Monto por subsidio o ayuda social (en dinero) percibido en ese mes": {
+   "pt": "Valor de auxilio ou ajuda social em dinheiro recebido naquele mes",
+   "en": "Cash benefit or social assistance received that month"
+  },
+  "Monto por sueldos/jornales, salario familiar, horas extras, otras bonificaciones": {
+   "pt": "Valor de salarios ou dianas, salario familia, horas extras e outras gratificacoes",
+   "en": "Wages or daily pay, family allowance, overtime and other bonuses"
+  },
+  "Monto por trabajo de menores de 10 años percibido en ese mes": {
+   "pt": "Valor do trabalho de menores de 10 anos recebido naquele mes",
+   "en": "Earnings from the work of children under 10, received that month"
+  },
+  "Monto total de ingreso familiar percibido en ese mes": {
+   "pt": "Valor total do rendimento familiar recebido naquele mes",
+   "en": "Total family income received that month"
+  },
+  "Monto total de ingreso individual percibido en ese mes (sumatoria ingresos labor": {
+   "pt": "Valor total do rendimento individual recebido naquele mes (soma dos rendimentos do trabalho",
+   "en": "Total individual income received that month (sum of labour income"
+  },
+  "Monto total de ingreso no laboral percibido en ese mes": {
+   "pt": "Valor total do rendimento nao proveniente do trabalho recebido naquele mes",
+   "en": "Total non-labour income received that month"
+  },
+  "Monto total de ingreso por otras ocupaciones percibido en ese mes": {
+   "pt": "Valor total do rendimento de outras ocupacoes recebido naquele mes",
+   "en": "Total income from other occupations received that month"
+  },
+  "Nivel educativo": {
+   "pt": "Nivel educacional",
+   "en": "Education level"
+  },
+  "No hay trabajo": {
+   "pt": "Nao ha trabalho",
+   "en": "There is no work"
+  },
+  "No le alcanza la plata para salir a buscar": {
+   "pt": "O dinheiro nao lhe basta para sair a procurar",
+   "en": "Cannot afford to go out looking"
+  },
+  "No recibe ninguno": {
+   "pt": "Nao recebe nenhum",
+   "en": "Receives none"
+  },
+  "No tiene experiencia/capacitación": {
+   "pt": "Nao tem experiencia ou qualificacao",
+   "en": "Has no experience or training"
+  },
+  "No tiene ninguno": {
+   "pt": "Nao tem nenhum",
+   "en": "Has none"
+  },
+  "N° de decil de ingreso per cápita familiar de las personas de la región (ver Anexo I)": {
+   "pt": "Numero do decil de rendimento per capita familiar das pessoas da regiao (ver Anexo I)",
+   "en": "Decile number of per capita family income among people in the region (see Annex I)"
+  },
+  "N° de decil de ingreso per cápita familiar de las personas del Total EPH (ver Anexo I)": {
+   "pt": "Numero do decil de rendimento per capita familiar das pessoas do Total EPH (ver Anexo I)",
+   "en": "Decile number of per capita family income among people in the EPH total (see Annex I)"
+  },
+  "N° de decil de ingreso per cápita familiar de las personas del aglomerado (ver Anexo I)": {
+   "pt": "Numero do decil de rendimento per capita familiar das pessoas do aglomerado (ver Anexo I)",
+   "en": "Decile number of per capita family income among people in the agglomerate (see Annex I)"
+  },
+  "N° de decil de ingreso per cápita familiar de las personas del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I)": {
+   "pt": "Numero do decil de rendimento per capita familiar das pessoas do conjunto de aglomerados de 500.000 ou mais habitantes (ver Anexo I)",
+   "en": "Decile number of per capita family income among people in agglomerates of 500,000 or more inhabitants (see Annex I)"
+  },
+  "N° de decil de ingreso per cápita familiar de las personas del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)": {
+   "pt": "Numero do decil de rendimento per capita familiar das pessoas do conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I)",
+   "en": "Decile number of per capita family income among people in agglomerates of under 500,000 inhabitants (see Annex I)"
+  },
+  "N° de decil de ingreso per cápita familiar de las personas del interior EPH (ver Anexo I)": {
+   "pt": "Numero do decil de rendimento per capita familiar das pessoas do interior EPH (ver Anexo I)",
+   "en": "Decile number of per capita family income among people in the EPH interior (see Annex I)"
+  },
+  "Número de componente": {
+   "pt": "Numero do componente",
+   "en": "Member number"
+  },
+  "Número de trimestre": {
+   "pt": "Numero do trimestre",
+   "en": "Quarter number"
+  },
+  "Ocupados con plan jefas jefes de hogar en su ocupación principal": {
+   "pt": "Ocupados com o plano Jefas y Jefes de Hogar em sua ocupacao principal",
+   "en": "People employed on the Jefas y Jefes de Hogar programme in their main occupation"
+  },
+  "Otra fuente especificar": {
+   "pt": "Outra fonte, especificar",
+   "en": "Other source, specify"
+  },
+  "Otra situación de régimen de tenencia. Especificar": {
+   "pt": "Outra situacao de regime de posse. Especificar",
+   "en": "Other tenure arrangement. Specify"
+  },
+  "Otras personas que ayudan en las tareas de la casa. Número de componente del hog": {
+   "pt": "Outras pessoas que ajudam nas tarefas domesticas. Numero do componente do domicilio",
+   "en": "Other people who help with housework. Household member number"
+  },
+  "Otras razones": {
+   "pt": "Outras razoes",
+   "en": "Other reasons"
+  },
+  "Otro combustible utilizado para cocinar. Especificar": {
+   "pt": "Outro combustivel utilizado para cozinhar. Especificar",
+   "en": "Other cooking fuel. Specify"
+  },
+  "Otro material de pisos interiores. Especificar": {
+   "pt": "Outro material dos pisos internos. Especificar",
+   "en": "Other interior floor material. Specify"
+  },
+  "Otro tipo de vivienda. Especificar": {
+   "pt": "Outro tipo de moradia. Especificar",
+   "en": "Other dwelling type. Specify"
+  },
+  "Ponderación": {
+   "pt": "Ponderacao",
+   "en": "Sampling weight"
+  },
+  "Ponderador del ingreso de la ocupación principal (ver Anexo I)": {
+   "pt": "Ponderador do rendimento da ocupacao principal (ver Anexo I)",
+   "en": "Weight for main-occupation income (see Annex I)"
+  },
+  "Ponderador del ingreso total familiar y del ingreso per cápita familiar (ver Anexo I)": {
+   "pt": "Ponderador do rendimento total familiar e do rendimento per capita familiar (ver Anexo I)",
+   "en": "Weight for total family income and per capita family income (see Annex I)"
+  },
+  "Ponderador del ingreso total familiar y del ingreso per cápita familiar, para hogares (ver Anexo I)": {
+   "pt": "Ponderador do rendimento total familiar e do rendimento per capita familiar, para domicilios (ver Anexo I)",
+   "en": "Weight for total family income and per capita family income, for households (see Annex I)"
+  },
+  "Ponderador para ingreso total individual (ver Anexo I)": {
+   "pt": "Ponderador para o rendimento total individual (ver Anexo I)",
+   "en": "Weight for total individual income (see Annex I)"
+  },
+  "Por este trabajo, ¿cobra algún plan? (como el Potenciar u otro similar)": {
+   "pt": "Por este trabalho, recebe algum programa? (como o Potenciar ou similar)",
+   "en": "For this job, do they receive any programme payment? (such as Potenciar or similar)"
+  },
+  "Por la edad": {
+   "pt": "Pela idade",
+   "en": "Because of their age"
+  },
+  "Puso carteles en negocios, preguntó en el barrio": {
+   "pt": "Colocou cartazes em comercios, perguntou no bairro",
+   "en": "Put up notices in shops, asked around the neighbourhood"
+  },
+  "Realización de las tareas de la casa. Número de componente del hogar": {
+   "pt": "Realizacao das tarefas domesticas. Numero do componente do domicilio",
+   "en": "Who does the housework. Household member number"
+  },
+  "Relación de parentesco": {
+   "pt": "Relacao de parentesco",
+   "en": "Relationship to the household head"
+  },
+  "Residencia anterior. Código": {
+   "pt": "Residencia anterior. Codigo",
+   "en": "Previous residence. Code"
+  },
+  "Resto de ocupados con plan jefas jefes de hogar": {
+   "pt": "Demais ocupados com o plano Jefas y Jefes de Hogar",
+   "en": "Other employed people on the Jefas y Jefes de Hogar programme"
+  },
+  "Régimen de tenencia": {
+   "pt": "Regime de posse",
+   "en": "Tenure arrangement"
+  },
+  "Se anotó en bolsas, listas, planes de empleo, agencias, contratistas, o alguien": {
+   "pt": "Inscreveu-se em bolsas de emprego, listas, programas de emprego, agencias, empreiteiras, ou alguem",
+   "en": "Registered with job pools, lists, employment programmes, agencies, contractors, or someone"
+  },
+  "Se presentó en establecimientos": {
+   "pt": "Apresentou-se em estabelecimentos",
+   "en": "Applied in person at establishments"
+  },
+  "Sector de la ocupación principal según formalidad": {
+   "pt": "Setor da ocupacao principal conforme a formalidade",
+   "en": "Sector of the main occupation by formality"
+  },
+  "Sexo": {
+   "pt": "Sexo",
+   "en": "Sex"
+  },
+  "Si hubiera conseguido más horas": {
+   "pt": "Se tivesse conseguido mais horas",
+   "en": "Had they obtained more hours"
+  },
+  "Si la semana pasada conseguía un trabajo, ¿podía empezar a trabajar ya? (o a más tardar en dos semanas)": {
+   "pt": "Se na semana passada conseguisse um trabalho, poderia comecar a trabalhar imediatamente? (ou no maximo em duas semanas)",
+   "en": "If they had found a job last week, could they have started right away? (or within two weeks at the latest)"
+  },
+  "Si presta servicio doméstico en hogares particulares": {
+   "pt": "Se presta servico domestico em domicilios particulares",
+   "en": "If they do domestic work in private households"
+  },
+  "Si prestaba servicios doméstico en hogares particulares": {
+   "pt": "Se prestava servico domestico em domicilios particulares",
+   "en": "If they did domestic work in private households"
+  },
+  "Si utiliza alguno exclusivamente como lugar de trabajo, ¿cuántos?": {
+   "pt": "Se utiliza algum exclusivamente como local de trabalho, quantos?",
+   "en": "If any is used exclusively as a workplace, how many?"
+  },
+  "Si utiliza alguno para dormir, ¿cuántos?": {
+   "pt": "Se utiliza algum para dormir, quantos?",
+   "en": "If any is used for sleeping, how many?"
+  },
+  "Situación conyugal": {
+   "pt": "Situacao conjugal",
+   "en": "Marital status"
+  },
+  "Suspendido": {
+   "pt": "Suspenso",
+   "en": "Laid off"
+  },
+  "Sólo ocupados de: Ciudad de Buenos Aires - Partidos del GBA, en su ocupación (o": {
+   "pt": "Apenas ocupados da Cidade de Buenos Aires e municipios da Grande Buenos Aires, em sua ocupacao (o",
+   "en": "Only people employed in the City of Buenos Aires and Greater Buenos Aires districts, in their occupation (o"
+  },
+  "Tamaño del establecimiento": {
+   "pt": "Tamanho do estabelecimento",
+   "en": "Establishment size"
+  },
+  "Tiene agua": {
+   "pt": "Tem agua",
+   "en": "Has water"
+  },
+  "Tipo de cobertura médica": {
+   "pt": "Tipo de cobertura medica",
+   "en": "Type of health coverage"
+  },
+  "Tipo de vivienda": {
+   "pt": "Tipo de moradia",
+   "en": "Dwelling type"
+  },
+  "Total de horas que trabajó en la semana en la ocupación principal": {
+   "pt": "Total de horas trabalhadas na semana na ocupacao principal",
+   "en": "Total hours worked in the week in the main occupation"
+  },
+  "Total de horas que trabajó en la semana en otras ocupaciones": {
+   "pt": "Total de horas trabalhadas na semana em outras ocupacoes",
+   "en": "Total hours worked in the week in other occupations"
+  },
+  "¿A cuántas horas por día corresponde? (en un día promedio)": {
+   "pt": "A quantas horas por dia corresponde? (em um dia medio)",
+   "en": "How many hours a day does that correspond to? (on an average day)"
+  },
+  "¿Aporta por sí mismo a algún sistema jubilatorio?": {
+   "pt": "Contribui por conta propria para algum sistema previdenciario?",
+   "en": "Do they contribute to a pension scheme on their own behalf?"
+  },
+  "¿Asiste o asistió a algún establecimiento educativo?": {
+   "pt": "Frequenta ou frequentou algum estabelecimento de ensino?",
+   "en": "Do they attend, or did they attend, an educational establishment?"
+  },
+  "¿Cerró la empresa?(para quienes responden en pp11o=1)": {
+   "pt": "A empresa fechou? (para quem responde pp11o=1)",
+   "en": "Did the firm close? (for those answering pp11o=1)"
+  },
+  "¿Compran en cuotas o al fiado con tarjeta de crédito o libreta?": {
+   "pt": "Compram a prazo ou a credito com cartao de credito ou caderneta?",
+   "en": "Do they buy in instalments or on credit with a credit card or store book?"
+  },
+  "¿Cuando cobra": {
+   "pt": "Quando recebe",
+   "en": "When they are paid"
+  },
+  "¿Cuál es el nivel más alto que cursa o cursó?": {
+   "pt": "Qual e o nivel mais alto que cursa ou cursou?",
+   "en": "What is the highest level they are attending or attended?"
+  },
+  "¿Cuál fue el último año que aprobó?": {
+   "pt": "Qual foi o ultimo ano que concluiu?",
+   "en": "What was the last year they passed?"
+  },
+  "¿Cuál fue la razón principal por la que dejó esa actividad?": {
+   "pt": "Qual foi a razao principal para deixar essa atividade?",
+   "en": "What was the main reason they left that activity?"
+  },
+  "¿Cuál fue la razón principal por la que dejó ese trabajo?": {
+   "pt": "Qual foi a razao principal para deixar esse trabalho?",
+   "en": "What was the main reason they left that job?"
+  },
+  "¿Cuántas personas, incluido... trabajaban allí en total?": {
+   "pt": "Quantas pessoas, incluindo..., trabalhavam ali no total?",
+   "en": "How many people, including..., worked there in total?"
+  },
+  "¿Cuántas personas, incluido...trabajan allí en total?": {
+   "pt": "Quantas pessoas, incluindo..., trabalham ali no total?",
+   "en": "How many people, including..., work there in total?"
+  },
+  "¿Cuánto hace que está buscando trabajo": {
+   "pt": "Ha quanto tempo esta procurando trabalho",
+   "en": "How long have they been looking for work"
+  },
+  "¿Cuánto tiempo hace que está trabajando en ese empleo en forma continua?": {
+   "pt": "Ha quanto tempo esta trabalhando nesse emprego de forma continua?",
+   "en": "How long have they been working continuously in that job?"
+  },
+  "¿Cuánto tiempo hace que terminó su último trabajo/changa": {
+   "pt": "Ha quanto tempo terminou seu ultimo trabalho ou bico",
+   "en": "How long ago did their last job or casual work end"
+  },
+  "¿Cuántos ambientes/habitaciones tiene este hogar para su uso exclusivo?": {
+   "pt": "Quantos ambientes ou comodos este domicilio tem para seu uso exclusivo?",
+   "en": "How many rooms does this household have for its exclusive use?"
+  },
+  "¿Cuántos ambientes/habitaciones tiene la vivienda en total?": {
+   "pt": "Quantos ambientes ou comodos a moradia tem no total?",
+   "en": "How many rooms does the dwelling have in total?"
+  },
+  "¿Cuántos días en el mes?": {
+   "pt": "Quantos dias no mes?",
+   "en": "How many days in the month?"
+  },
+  "¿Cuántos días por semana?": {
+   "pt": "Quantos dias por semana?",
+   "en": "How many days per week?"
+  },
+  "¿De qué manera estuvo buscando trabajo? Hizo contactos, entrevistas": {
+   "pt": "De que maneira procurou trabalho? Fez contatos, entrevistas",
+   "en": "How were they looking for work? Made contacts, had interviews"
+  },
+  "¿Durante cuánto tiempo ha estado trabajando en ese empleo de forma continua?": {
+   "pt": "Durante quanto tempo esteve trabalhando nesse emprego de forma continua?",
+   "en": "For how long have they been working continuously in that job?"
+  },
+  "¿Durante ese tiempo hizo algún trabajo/changa?": {
+   "pt": "Durante esse tempo fez algum trabalho ou bico?",
+   "en": "During that time did they do any job or casual work?"
+  },
+  "¿Durante esos 30 días, consultó amigos/parientes, puso carteles, hizo algo para ponerse por su cuenta?": {
+   "pt": "Durante esses 30 dias, consultou amigos ou parentes, colocou cartazes, fez algo para trabalhar por conta propria?",
+   "en": "During those 30 days, did they ask friends or relatives, put up notices, or take steps to become self-employed?"
+  },
+  "¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?": {
+   "pt": "Durante os ultimos 30 dias, procurou trabalho de alguma maneira?",
+   "en": "During the last 30 days, were they looking for work in any way?"
+  },
+  "¿Dónde nació?": {
+   "pt": "Onde nasceu?",
+   "en": "Where were they born?"
+  },
+  "¿Dónde realiza principalmente sus tareas?": {
+   "pt": "Onde realiza principalmente suas tarefas?",
+   "en": "Where do they mainly carry out their work?"
+  },
+  "¿Dónde trabaja?": {
+   "pt": "Onde trabalha?",
+   "en": "Where do they work?"
+  },
+  "¿Dónde vivía hace 5 años?": {
+   "pt": "Onde morava ha 5 anos?",
+   "en": "Where were they living 5 years ago?"
+  },
+  "¿El negocio/empresa/actividad donde trabaja o ayuda, puede emitir facturas?": {
+   "pt": "O negocio, empresa ou atividade onde trabalha ou ajuda pode emitir notas fiscais?",
+   "en": "Can the business or activity where they work or help issue invoices?"
+  },
+  "¿El negocio/empresa/institucion/actividad en la que trabajaba era": {
+   "pt": "O negocio, empresa, instituicao ou atividade em que trabalhava era",
+   "en": "The business, institution or activity they worked in was"
+  },
+  "¿El techo tiene cielorraso/revestimiento interior?": {
+   "pt": "O telhado tem forro ou revestimento interno?",
+   "en": "Does the roof have an interior ceiling or lining?"
+  },
+  "¿El turno habitual de trabajo es": {
+   "pt": "O turno habitual de trabalho e",
+   "en": "Their usual work shift is"
+  },
+  "¿En cuántas casas trabaja? (cantidad)": {
+   "pt": "Em quantas casas trabalha? (quantidade)",
+   "en": "In how many homes do they work? (count)"
+  },
+  "¿En ese negocio/empresa/actividad ¿tiene socios o familiares asociados?": {
+   "pt": "Nesse negocio, empresa ou atividade tem socios ou familiares associados?",
+   "en": "In that business or activity, do they have partners or family members as associates?"
+  },
+  "¿En ese negocio/empresa/actividad, tiene local (incluye kiosco/puesto fijo)?": {
+   "pt": "Nesse negocio, empresa ou atividade tem local (inclui quiosque ou ponto fixo)?",
+   "en": "In that business or activity, do they have premises (including a kiosk or fixed stall)?"
+  },
+  "¿En ese negocio/empresa/actividad, tiene maquinarias/equipos?": {
+   "pt": "Nesse negocio, empresa ou atividade tem maquinas ou equipamentos?",
+   "en": "In that business or activity, do they have machinery or equipment?"
+  },
+  "¿En ese negocio/empresa/actividad, tiene vehículo?": {
+   "pt": "Nesse negocio, empresa ou atividade tem veiculo?",
+   "en": "In that business or activity, do they have a vehicle?"
+  },
+  "¿En ese trabajo le hacían descuento jubilatorio?": {
+   "pt": "Nesse trabalho faziam o desconto previdenciario?",
+   "en": "In that job, were pension contributions withheld?"
+  },
+  "¿En este trabajo le dan algún otro beneficio? (automóvil, teléfono celular, pasa": {
+   "pt": "Neste trabalho recebe algum outro beneficio? (automovel, telefone celular, passa",
+   "en": "In this job do they receive any other benefit? (car, mobile phone, trave"
+  },
+  "¿En este trabajo le dan algún producto o mercadería?": {
+   "pt": "Neste trabalho recebe algum produto ou mercadoria?",
+   "en": "In this job do they receive any goods or produce?"
+  },
+  "¿En este trabajo le dan de comer gratis en el lugar de trabajo?": {
+   "pt": "Neste trabalho recebe alimentacao gratuita no local de trabalho?",
+   "en": "In this job are they given free meals at the workplace?"
+  },
+  "¿En este trabajo le dan vivienda?": {
+   "pt": "Neste trabalho recebe moradia?",
+   "en": "In this job are they given housing?"
+  },
+  "¿En este trabajo tiene aguinaldo?": {
+   "pt": "Neste trabalho tem decimo terceiro?",
+   "en": "In this job do they get an annual bonus?"
+  },
+  "¿En este trabajo tiene días pagos por enfermedad?": {
+   "pt": "Neste trabalho tem dias pagos por doenca?",
+   "en": "In this job do they get paid sick days?"
+  },
+  "¿En este trabajo tiene obra social?": {
+   "pt": "Neste trabalho tem plano de saude sindical?",
+   "en": "In this job do they have union health coverage?"
+  },
+  "¿En este trabajo tiene vacaciones pagas?": {
+   "pt": "Neste trabalho tem ferias remuneradas?",
+   "en": "In this job do they get paid holidays?"
+  },
+  "¿Es de nivel…": {
+   "pt": "E de nivel...",
+   "en": "Is it at the level of..."
+  },
+  "¿Es una actividad familiar? (solo códigos 2 y 3 de pp06e)": {
+   "pt": "E uma atividade familiar? (apenas codigos 2 e 3 de pp06e)",
+   "en": "Is it a family activity? (only codes 2 and 3 of pp06e)"
+  },
+  "¿Ese empleo tiene tiempo de finalización?": {
+   "pt": "Esse emprego tem prazo de termino?",
+   "en": "Does that job have an end date?"
+  },
+  "¿Ese negocio/empresa/actividad": {
+   "pt": "Esse negocio, empresa ou atividade",
+   "en": "That business or activity"
+  },
+  "¿Ese trabajo era": {
+   "pt": "Esse trabalho era",
+   "en": "That job was"
+  },
+  "¿Ese trabajo es": {
+   "pt": "Esse trabalho e",
+   "en": "That job is"
+  },
+  "¿Estuvo buscando porque": {
+   "pt": "Estava procurando porque",
+   "en": "They were looking because"
+  },
+  "¿Está cobrando seguro de desempleo?": {
+   "pt": "Esta recebendo seguro-desemprego?",
+   "en": "Are they receiving unemployment insurance?"
+  },
+  "¿Finalizó ese nivel?": {
+   "pt": "Concluiu esse nivel?",
+   "en": "Did they complete that level?"
+  },
+  "¿Fue la única persona que quedó sin trabajo?": {
+   "pt": "Foi a unica pessoa que ficou sem trabalho?",
+   "en": "Were they the only person who lost their job?"
+  },
+  "¿Ha trabajado alguna vez?": {
+   "pt": "Ja trabalhou alguma vez?",
+   "en": "Have they ever worked?"
+  },
+  "¿Han tenido que vender alguna de sus pertenencias?": {
+   "pt": "Tiveram que vender algum de seus bens?",
+   "en": "Have they had to sell any of their belongings?"
+  },
+  "¿Jubilación o pensión de \"ama de casa\" o por moratoria previsional?": {
+   "pt": "Aposentadoria ou pensao de \"dona de casa\" ou por moratoria previdenciaria?",
+   "en": "A \"homemaker\" pension or one granted under a pension moratorium?"
+  },
+  "¿Jubilación o pensión obtenida por los aportes del trabajo?": {
+   "pt": "Aposentadoria ou pensao obtida pelas contribuicoes do trabalho?",
+   "en": "A pension earned through work contributions?"
+  },
+  "¿La vivienda está ubicada cerca de basural/es (3 cuadras o menos)?": {
+   "pt": "A moradia esta localizada perto de lixao (a tres quadras ou menos)?",
+   "en": "Is the dwelling near a rubbish dump (three blocks or less)?"
+  },
+  "¿La vivienda está ubicada en villa de emergencia?": {
+   "pt": "A moradia esta localizada em assentamento precario?",
+   "en": "Is the dwelling in a shanty settlement?"
+  },
+  "¿La vivienda está ubicada en zona inundable (en los últimos 12 meses)?": {
+   "pt": "A moradia esta localizada em zona inundavel (nos ultimos 12 meses)?",
+   "en": "Is the dwelling in a flood-prone area (in the last 12 months)?"
+  },
+  "¿Le enviaron telegrama?": {
+   "pt": "Enviaram-lhe telegrama de demissao?",
+   "en": "Were they sent a dismissal telegram?"
+  },
+  "¿Le pagaron indemnización?": {
+   "pt": "Pagaram-lhe indenizacao?",
+   "en": "Were they paid severance?"
+  },
+  "¿Menores de 10 años ayudan con algún dinero pidiendo?": {
+   "pt": "Menores de 10 anos ajudam com algum dinheiro pedindo?",
+   "en": "Do children under 10 bring in money by begging?"
+  },
+  "¿Menores de 10 años ayudan con algún dinero trabajando?": {
+   "pt": "Menores de 10 anos ajudam com algum dinheiro trabalhando?",
+   "en": "Do children under 10 bring in money by working?"
+  },
+  "¿No los realizó porque…": {
+   "pt": "Nao os realizou porque...",
+   "en": "They did not make them because..."
+  },
+  "¿Otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?": {
+   "pt": "Outras pensoes, como por deficiencia, Mae de 7 filhos, PUAM, velhice, etc.?",
+   "en": "Other pensions, such as disability, Mother of 7 children, PUAM or old age?"
+  },
+  "¿Para la actividad del negocio, en los últimos 3 meses, tuvo que gastar en la co": {
+   "pt": "Para a atividade do negocio, nos ultimos 3 meses, teve que gastar na co",
+   "en": "For the business activity, in the last 3 months, did they have to spend on the pu"
+  },
+  "¿Para realizar su trabajo tiene que utilizar… …sus propias maquinarias/equipos?": {
+   "pt": "Para realizar seu trabalho tem que utilizar... suas proprias maquinas ou equipamentos?",
+   "en": "To do their work must they use... their own machinery or equipment?"
+  },
+  "¿Por cuánto tiempo es ese trabajo? (para los que tienen en pp07c=1)": {
+   "pt": "Por quanto tempo e esse trabalho? (para os que tem pp07c=1)",
+   "en": "For how long is that job? (for those with pp07c=1)"
+  },
+  "¿Por ese trabajo tiene descuento jubilatorio?": {
+   "pt": "Por esse trabalho tem desconto previdenciario?",
+   "en": "For that job, are pension contributions withheld?"
+  },
+  "¿Por qué razones no encuentra? Recién empezó a buscar": {
+   "pt": "Por que razoes nao encontra? Comecou a procurar recentemente",
+   "en": "Why can they not find work? They only just started looking"
+  },
+  "¿Puede ................... empezar a trabajar ya? (o a más tardar en dos semanas)": {
+   "pt": "Pode ................... comecar a trabalhar imediatamente? (ou no maximo em duas semanas)",
+   "en": "Could ................... start working right away? (or within two weeks at the latest)"
+  },
+  "¿Sabe leer y escribir?": {
+   "pt": "Sabe ler e escrever?",
+   "en": "Can they read and write?"
+  },
+  "¿Tiene baño/letrina?": {
+   "pt": "Tem banheiro ou latrina?",
+   "en": "Do they have a toilet or latrine?"
+  },
+  "¿Tiene cuarto de cocina?": {
+   "pt": "Tem cozinha?",
+   "en": "Do they have a kitchen room?"
+  },
+  "¿Tiene garage?": {
+   "pt": "Tem garagem?",
+   "en": "Do they have a garage?"
+  },
+  "¿Tiene lavadero?": {
+   "pt": "Tem lavanderia?",
+   "en": "Do they have a laundry room?"
+  },
+  "¿Trabaja en esta ciudad?-Sólo ocupados de: Posadas, Formosa, Corrientes, Resiste": {
+   "pt": "Trabalha nesta cidade? Apenas ocupados de Posadas, Formosa, Corrientes, Resiste",
+   "en": "Do they work in this city? Only people employed in Posadas, Formosa, Corrientes, Resiste"
+  },
+  "¿Tuvieron otros ingresos en efectivo (limosnas, juegos de azar, etc.)?": {
+   "pt": "Tiveram outros rendimentos em dinheiro (esmolas, jogos de azar, etc.)?",
+   "en": "Did they have other cash income (alms, gambling, etc.)?"
+  },
+  "¿Utiliza alguno exclusivamente como lugar de trabajo?": {
+   "pt": "Utiliza algum exclusivamente como local de trabalho?",
+   "en": "Is any used exclusively as a workplace?"
+  },
+  "…de ayuda en dinero a través de iglesias, parroquias, organizaciones no gubernamentales?": {
+   "pt": "...de ajuda em dinheiro de igrejas, paroquias ou organizacoes nao governamentais?",
+   "en": "...on cash help through churches, parishes or non-governmental organisations?"
+  },
+  "…de la Asignación Universal por Hijo (AUH) y/o Asignación por Embarazo? (incluye Tarjeta Alimentar)": {
+   "pt": "...da Asignacion Universal por Hijo (AUH) e/ou Asignacion por Embarazo? (inclui Tarjeta Alimentar)",
+   "en": "...on the Universal Child Allowance (AUH) and/or Pregnancy Allowance? (includes the Tarjeta Alimentar)"
+  },
+  "…de otro plan social/subsidio en dinero otorgado por el gobierno?": {
+   "pt": "...de outro programa social ou auxilio em dinheiro concedido pelo governo?",
+   "en": "...on another cash social programme or benefit granted by the government?"
+  },
+  "…de una beca (en dinero) del gobierno para continuar estudios o finalizarlos? (Ej.: Beca Progresar u otras)": {
+   "pt": "...de uma bolsa em dinheiro do governo para continuar ou concluir os estudos? (ex.: Beca Progresar)",
+   "en": "...on a government cash scholarship to continue or complete studies? (e.g. Beca Progresar)"
+  },
+  "…local propio?": {
+   "pt": "...local proprio?",
+   "en": "...their own premises?"
+  },
+  "…vehículo propio?": {
+   "pt": "...veiculo proprio?",
+   "en": "...their own vehicle?"
+  }
+ }
+}

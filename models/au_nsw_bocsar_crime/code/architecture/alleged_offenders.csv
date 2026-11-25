@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+financial_year,STRING,"Australian financial year of reference, 1 July to 30 June, e.g. 2010-11",,no,,,no,,
+offence_category,STRING,"BOCSAR offence category, the top level of the offence classification",,no,,,no,,Offence type - main category
+offence_subcategory,STRING,"BOCSAR offence subcategory, the detailed offence type within the category",,no,,,no,,Offence type - subcategory
+age_group,STRING,"Age group of the person of interest (10 to 17 years, or Adult)",,no,,,no,,POIs Age
+legal_proceeding,STRING,Method of legal proceeding (court diversion or proceeded against to court),,no,,,no,,Method of legal proceeding
+detailed_legal_proceeding,STRING,Detailed method of legal proceeding within the broader method,,no,,,no,,Detailed method of legal proceeding
+poi_count,INT64,Number of persons of interest legally proceeded against by the NSW Police Force,,no,,person,no,,

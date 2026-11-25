@@ -1,0 +1,81 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação",
+    "description_en": "Reference year of the observation",
+    "description_es": "Año de referencia de la observación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "month",
+    "bigquery_type": "INT64",
+    "description_pt": "Mês de referência da observação, de 1 a 12",
+    "description_en": "Reference month of the observation, from 1 to 12",
+    "description_es": "Mes de referencia de la observación, de 1 a 12",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.mes:mes",
+    "measurement_unit": "month"
+  },
+  {
+    "name": "geography",
+    "bigquery_type": "STRING",
+    "description_pt": "Área geográfica: Austrália (nacional) ou um dos oito estados e territórios",
+    "description_en": "Geographic area: Australia (national) or one of the eight states and territories",
+    "description_es": "Área geográfica: Australia (nacional) o uno de los ocho estados y territorios",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "sex",
+    "bigquery_type": "STRING",
+    "description_pt": "Sexo: pessoas (total), homens ou mulheres",
+    "description_en": "Sex: persons (all), males or females",
+    "description_es": "Sexo: personas (total), hombres o mujeres",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "hours_band",
+    "bigquery_type": "STRING",
+    "description_pt": "Faixa de horas efetivamente trabalhadas em todos os empregos na semana de referência",
+    "description_en": "Range of hours actually worked in all jobs during the reference week",
+    "description_es": "Rango de horas efectivamente trabajadas en todos los empleos en la semana de referencia",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "employed_persons",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas na faixa de horas trabalhadas",
+    "description_en": "Number of employed persons in the hours-worked band",
+    "description_es": "Número de personas ocupadas en el rango de horas trabajadas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "hours_worked",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de horas efetivamente trabalhadas em todos os empregos",
+    "description_en": "Total hours actually worked in all jobs",
+    "description_es": "Total de horas efectivamente trabajadas en todos los empleos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "hour"
+  },
+  {
+    "name": "hours_per_person",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Média de horas efetivamente trabalhadas por pessoa ocupada",
+    "description_en": "Average hours actually worked per employed person",
+    "description_es": "Promedio de horas efectivamente trabajadas por persona ocupada",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "hour"
+  }
+]

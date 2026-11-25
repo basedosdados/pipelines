@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Slug da tabela de au_rba_statistical_tables descrita pela entrada do dicionário,,no,,,no,,
+nome_coluna,STRING,Nome da coluna descrita pela entrada do dicionário,,no,,,no,,
+chave,STRING,Valor codificado exatamente como armazenado nos dados,,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal da chave,,no,,,no,,
+valor,STRING,Rótulo legível correspondente ao valor codificado,,no,,,no,,

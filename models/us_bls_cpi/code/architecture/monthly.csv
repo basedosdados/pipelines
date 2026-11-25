@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the index observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+month,INT64,"Reference month of the index observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from the BLS period code M01-M12,period
+survey,STRING,CPI survey population: CPI-U for all urban consumers or CPI-W for urban wage earners and clerical workers,,yes,,,no,Derived from the series_id prefix (CU or CW),series_id
+seasonal_adjustment,STRING,Whether the series is seasonally adjusted (S) or not seasonally adjusted (U),,yes,,,no,,seasonal
+area_id,STRING,BLS CPI area code identifying the geographic coverage of the series,,yes,,,no,"Codes are CPI-specific (national, regions, size classes, metros); could map to a US geography directory in the future",area_code
+item_id,STRING,BLS CPI item code identifying the expenditure category of the series,,yes,,,no,Codes follow the CPI item hierarchy (item.display_level not yet loaded),item_code
+base_period,STRING,"Index reference base period at which the index equals 100, which varies by series",,no,,,no,,base_period
+index_value,FLOAT64,"Monthly Consumer Price Index level for the item, area, and period, relative to the base period",,no,,index,no,,value
+monthly_change,FLOAT64,Percent change in the index relative to the previous month,,no,,percent,no,Computed by Data Basis from the index series; not published by BLS,value
+twelve_month_change,FLOAT64,Percent change in the index relative to the same month of the previous year,,no,,percent,no,Computed by Data Basis from the index series; not published by BLS,value

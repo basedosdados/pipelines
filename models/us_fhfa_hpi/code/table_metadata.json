@@ -1,0 +1,103 @@
+{
+  "_note": "Trilingual display names registered in the Data Basis backend, in PT/EN/ES order. Table names avoid em dashes by house convention; the geography goes in parentheses, singular, matching the table's observation level. Descriptions live in ../schema.yml (PT) and in the backend (PT/EN/ES).",
+  "dataset_slug": "house_price_index",
+  "organization_slug": "fhfa",
+  "tables": {
+    "monthly_national": {
+      "name": [
+        "Índice mensal (país e divisão censitária)",
+        "Monthly index (nation and census division)",
+        "Índice mensual (país y división censal)"
+      ],
+      "raw_source": "master"
+    },
+    "quarterly_national": {
+      "name": [
+        "Índice trimestral (país e divisão censitária)",
+        "Quarterly index (nation and census division)",
+        "Índice trimestral (país y división censal)"
+      ],
+      "raw_source": "master"
+    },
+    "quarterly_state": {
+      "name": [
+        "Índice trimestral (estado)",
+        "Quarterly index (state)",
+        "Índice trimestral (estado)"
+      ],
+      "raw_source": "master"
+    },
+    "quarterly_metro": {
+      "name": [
+        "Índice trimestral (área metropolitana)",
+        "Quarterly index (metropolitan area)",
+        "Índice trimestral (área metropolitana)"
+      ],
+      "raw_source": "master"
+    },
+    "annual_national": {
+      "name": [
+        "Índice anual (país)",
+        "Annual index (nation)",
+        "Índice anual (país)"
+      ],
+      "raw_source": "annual"
+    },
+    "annual_state": {
+      "name": [
+        "Índice anual (estado)",
+        "Annual index (state)",
+        "Índice anual (estado)"
+      ],
+      "raw_source": "annual"
+    },
+    "annual_cbsa": {
+      "name": [
+        "Índice anual (CBSA)",
+        "Annual index (CBSA)",
+        "Índice anual (CBSA)"
+      ],
+      "raw_source": "annual"
+    },
+    "annual_county": {
+      "name": [
+        "Índice anual (condado)",
+        "Annual index (county)",
+        "Índice anual (condado)"
+      ],
+      "raw_source": "annual"
+    },
+    "annual_zip3": {
+      "name": [
+        "Índice anual (ZIP Code de três dígitos)",
+        "Annual index (three-digit ZIP code)",
+        "Índice anual (código ZIP de tres dígitos)"
+      ],
+      "raw_source": "annual"
+    },
+    "annual_zip5": {
+      "name": [
+        "Índice anual (ZIP Code de cinco dígitos)",
+        "Annual index (five-digit ZIP code)",
+        "Índice anual (código ZIP de cinco dígitos)"
+      ],
+      "raw_source": "annual"
+    },
+    "annual_tract": {
+      "name": [
+        "Índice anual (setor censitário)",
+        "Annual index (census tract)",
+        "Índice anual (sector censal)"
+      ],
+      "raw_source": "annual"
+    },
+    "dicionario": {
+      "name": [
+        "Dicionário",
+        "Dictionary",
+        "Diccionario"
+      ],
+      "raw_source": "master"
+    }
+  }
+}

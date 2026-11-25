@@ -112,9 +112,11 @@ df_updated = df_updated.loc[df_updated.ano.isin(range(2018, 2022))]
 
 df_updated.escolaridade.unique()
 
+# pyrefly: ignore [missing-attribute]
 df_updated.escolaridade = df_updated.escolaridade.str.lower().replace(
     {"com superior": "superior"}
 )
+# pyrefly: ignore [missing-attribute]
 df_updated.rede = df_updated.rede.str.lower().replace({"pública": "publica"})
 
 df_bd = bd.read_sql(

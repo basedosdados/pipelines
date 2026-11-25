@@ -6,13 +6,29 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2000, "end": 2025, "interval": 1},
+            "range": {"start": 2000, "end": 2026, "interval": 1},
         },
         cluster_by=["sigla_uf_notificacao", "sigla_uf_residencia"],
         labels={"tema": "saude"},
     )
 }}
 {%- set columns = adapter.get_columns_in_relation(this) -%}
+{%- set existing_names = columns | map(attribute="name") | list -%}
+{%- set output_columns = [] -%}
+{%- for col in columns -%}
+    {%- if col.name == "idade_paciente" and "tipo_idade" not in existing_names -%}
+        {%- do output_columns.append({"name": "tipo_idade", "data_type": "STRING"}) -%}
+        {%- do output_columns.append(
+            {"name": "idade_paciente", "data_type": "INT64"}
+        ) -%}
+    {%- elif col.name == "valor_idade" -%}
+        {%- do output_columns.append(
+            {"name": "idade_paciente", "data_type": "INT64"}
+        ) -%}
+    {%- else -%}
+        {%- do output_columns.append({"name": col.name, "data_type": col.data_type}) -%}
+    {%- endif -%}
+{%- endfor -%}
 with
     sql as (
         select
@@ -392,6 +408,10 @@ with
                 then 'GO'
                 when uf = '53'
                 then 'DF'
+                when safe_cast(uf as int64) = 0
+                then null
+                when trim(safe_cast(uf as string)) in ('0', '')
+                then null
                 when uf = '`'
                 then null
                 when uf = ' `'
@@ -722,6 +742,10 @@ with
                 then 'GO'
                 when coufinf = '53'
                 then 'DF'
+                when safe_cast(coufinf as int64) = 0
+                then null
+                when trim(safe_cast(coufinf as string)) in ('0', '')
+                then null
                 else coufinf
             end sigla_uf_infeccao,
             case
@@ -866,11 +890,16 @@ with
             novo_id_municipio_residencia as id_municipio_residencia,
             ano_nascimento_paciente,
             data_nascimento_paciente,
-            concat(
-                left(cast(idade_paciente as string), 1),
-                "-",
-                right(cast(idade_paciente as string), 3)
-            ) as idade_paciente,
+            case
+                when idade_paciente is null
+                then null
+                else left(cast(idade_paciente as string), 1)
+            end as tipo_idade,
+            case
+                when idade_paciente is null
+                then null
+                else safe_cast(mod(idade_paciente, 1000) as int64)
+            end as idade_paciente,
             case
                 when sexo_paciente = 'O' then null else sexo_paciente
             end sexo_paciente,
@@ -911,6 +940,8 @@ with
                 then null
                 when apresenta_epistaxe = '4'
                 then null
+                when apresenta_epistaxe = '0'
+                then null
                 else apresenta_epistaxe
             end apresenta_epistaxe,
             case
@@ -922,11 +953,19 @@ with
                 then null
                 when apresenta_metrorragia = '3'
                 then null
+                when apresenta_metrorragia = '0'
+                then null
                 else apresenta_metrorragia
             end as apresenta_metrorragia,
-            apresenta_hematuria,
             case
-                when apresenta_sangramento = '4' then null else apresenta_sangramento
+                when apresenta_hematuria = '0' then null else apresenta_hematuria
+            end as apresenta_hematuria,
+            case
+                when apresenta_sangramento = '4'
+                then null
+                when apresenta_sangramento = '0'
+                then null
+                else apresenta_sangramento
             end as apresenta_sangramento,
             apresenta_complicacao,
             apresenta_ascite,
@@ -946,9 +985,15 @@ with
                 then null
                 else data_choque
             end data_choque,
-            internacao,
+            case when internacao = '0' then null else internacao end as internacao,
             data_internacao,
-            sigla_uf_internacao,
+            case
+                when safe_cast(sigla_uf_internacao as int64) = 0
+                then null
+                when trim(safe_cast(sigla_uf_internacao as string)) in ('0', '')
+                then null
+                else sigla_uf_internacao
+            end as sigla_uf_internacao,
             novo_id_municipio_internacao as id_municipio_internacao,
             alarme_hipotensao,
             alarme_plaqueta,
@@ -1009,6 +1054,8 @@ with
             case
                 when resultado_sorologia1_chikungunya = "9"
                 then null
+                when resultado_sorologia1_chikungunya = '0'
+                then null
                 else resultado_sorologia1_chikungunya
             end resultado_sorologia1_chikungunya,
             sorologia1_igm,
@@ -1032,20 +1079,30 @@ with
             sorologia2_igm,
             sorologia2_igg,
             sorologia2_tit1,
-            resultado_prnt,
+            case
+                when resultado_prnt = '0' then null else resultado_prnt
+            end as resultado_prnt,
             case
                 when extract(year from data_prnt) > extract(year from current_date)
                 then null
                 else data_prnt
             end data_prnt,
             data_ns1,
-            resultado_ns1,
+            case
+                when resultado_ns1 = '0' then null else resultado_ns1
+            end as resultado_ns1,
             data_viral,
             case
-                when resultado_viral = '5' then null else resultado_viral
+                when resultado_viral = '5'
+                then null
+                when resultado_viral = '0'
+                then null
+                else resultado_viral
             end resultado_viral,
             data_pcr,
-            resultado_pcr,
+            case
+                when resultado_pcr = '0' then null else resultado_pcr
+            end as resultado_pcr,
             amostra_pcr,
             amostra_outra,
             tecnica,
@@ -1054,20 +1111,36 @@ with
             case
                 when resultado_sorologia_dengue = '"'
                 then null
+                when resultado_sorologia_dengue = '0'
+                then null
                 else resultado_sorologia_dengue
             end resultado_sorologia_dengue,
-            sorotipo,
-            histopatologia,
-            imunohistoquimica,
+            case when sorotipo = '0' then null else sorotipo end as sorotipo,
+            case
+                when histopatologia = '0' then null else histopatologia
+            end as histopatologia,
+            case
+                when imunohistoquimica = '0' then null else imunohistoquimica
+            end as imunohistoquimica,
             manifestacao_hemorragica,
             classificacao_final,
             case
-                when criterio_confirmacao = 'r' then null else criterio_confirmacao
+                when criterio_confirmacao = 'r'
+                then null
+                when criterio_confirmacao = '0'
+                then null
+                else criterio_confirmacao
             end criterio_confirmacao,
             caso_fhd,
             caso_autoctone,
             pais_infeccao,
-            sigla_uf_infeccao,
+            case
+                when safe_cast(sigla_uf_infeccao as int64) = 0
+                then null
+                when trim(safe_cast(sigla_uf_infeccao as string)) in ('0', '')
+                then null
+                else sigla_uf_infeccao
+            end as sigla_uf_infeccao,
             novo_id_municipio_infeccao as id_municipio_infeccao,
             doenca_trabalho,
             apresentacao_clinica,
@@ -1093,7 +1166,7 @@ with
         from tabelas_join
     )
 select
-    {% for col in columns %}
+    {% for col in output_columns %}
         {% if col.data_type == "STRING" %}
             case
                 when trim({{ col.name }}) = '' then null else {{ col.name }}

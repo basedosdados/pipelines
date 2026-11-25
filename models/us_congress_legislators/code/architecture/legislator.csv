@@ -1,0 +1,26 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_bioguide,STRING,Identificador do legislador no Biographical Directory of the United States Congress (Bioguide). Chave primária.,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,id.bioguide
+id_thomas,STRING,Identificador numérico do legislador no sistema THOMAS.,,no,,,no,,id.thomas
+id_lis,STRING,Identificador do legislador no Legislative Information System do Senado.,,no,,,no,,id.lis
+id_govtrack,STRING,Identificador do legislador no GovTrack.us.,,no,,,no,,id.govtrack
+id_icpsr,STRING,Identificador do legislador no ICPSR/VoteView.,,no,,,no,,id.icpsr
+id_opensecrets,STRING,Identificador do legislador no OpenSecrets.org.,,no,,,no,,id.opensecrets
+id_votesmart,STRING,Identificador do legislador no VoteSmart.org.,,no,,,no,,id.votesmart
+id_fec,STRING,"Identificadores do legislador na Federal Election Commission, separados por vírgula.",,no,,,no,,id.fec
+id_cspan,STRING,Identificador de vídeo do legislador no C-SPAN.,,no,,,no,,id.cspan
+id_maplight,STRING,Identificador do legislador no MapLight.org.,,no,,,no,,id.maplight
+id_house_history,STRING,"Identificador do legislador no site History, Art & Archives da Câmara.",,no,,,no,,id.house_history
+id_pictorial,STRING,Identificador do legislador no Pictorial Directory do GPO.,,no,,,no,,id.pictorial
+id_wikidata,STRING,Identificador do legislador no Wikidata.,,no,,,no,,id.wikidata
+id_google_entity,STRING,Identificador da entidade do legislador no Google Knowledge Graph.,,no,,,no,,id.google_entity_id
+name_wikipedia,STRING,Título da página do legislador na Wikipédia.,,no,,,no,,id.wikipedia
+name_ballotpedia,STRING,Título da página do legislador na Ballotpedia.org.,,no,,,no,,id.ballotpedia
+first_name,STRING,Primeiro nome do legislador.,,no,,,no,,name.first
+middle_name,STRING,Nome do meio ou inicial do legislador.,,no,,,no,,name.middle
+last_name,STRING,Sobrenome do legislador.,,no,,,no,,name.last
+suffix,STRING,"Sufixo do nome (por exemplo, Jr., III).",,no,,,no,,name.suffix
+nickname,STRING,Apelido ou nome alternativo pelo qual o legislador é conhecido.,,no,,,no,,name.nickname
+full_name,STRING,Nome completo oficial conforme registros da Câmara e do Senado.,,no,,,no,,name.official_full
+birthday,DATE,Data de nascimento do legislador.,,no,,,no,,bio.birthday
+gender,STRING,Sexo do legislador (M ou F).,,no,,,no,,bio.gender
+is_current,BOOLEAN,Indica se o legislador está atualmente em exercício.,,no,,,no,,(derived)

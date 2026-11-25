@@ -3,8 +3,9 @@
         alias="area_imovel",
         schema="br_sfb_sicar",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
-            "field": "data_atualizacao_car",
+            "field": "data_extracao",
             "data_type": "date",
             "granularity": "day",
         },
@@ -12,28 +13,20 @@
     )
 }}
 
-with
-    area_imovel as (
-        select
-            safe_cast(data_extracao as date) data_extracao,
-            safe_cast(data_atualizacao_car as date) data_atualizacao_car,
-            safe_cast(cod_estado as string) sigla_uf,
-            safe_cast(split(cod_imovel, '-')[offset(1)] as string) as id_municipio,
-            safe_cast(cod_imovel as string) id_imovel,
-            safe_cast(mod_fiscal as string) modulos_fiscais,
-            safe_cast(num_area as float64) area,
-            safe_cast(ind_status as string) status,
-            safe_cast(ind_tipo as string) tipo,
-            safe_cast(des_condic as string) condicao,
-            safe_cast(
-                safe.st_geogfromtext(geometry, make_valid => true) as geography
-            ) geometria,
-        from {{ set_datalake_project("br_sfb_sicar_staging.area_imovel") }} as car
-
-    )
-
-select *
-from area_imovel
+select
+    safe_cast(data as date) data_extracao,
+    safe_cast(sigla_uf as string) sigla_uf,
+    safe_cast(id_municipio as string) id_municipio,
+    safe_cast(id_imovel as string) id_imovel,
+    safe_cast(tipo as string) tipo,
+    safe_cast(status as string) status,
+    safe_cast(condicao as string) condicao,
+    safe_cast(area as float64) area,
+    safe_cast(modulos_fiscais as float64) modulos_fiscais,
+    safe_cast(data_criacao as date) data_criacao,
+    safe_cast(data_atualizacao as date) data_atualizacao,
+    safe.st_geogfromtext(geometria, make_valid => true) geometria,
+from {{ set_datalake_project("br_sfb_sicar_staging.area_imovel") }} as t
 {% if is_incremental() %}
-    where data_extracao > (select max(data_extracao) from {{ this }})
+    where safe_cast(data as date) > (select max(data_extracao) from {{ this }})
 {% endif %}

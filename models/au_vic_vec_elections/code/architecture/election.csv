@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos eleitorais podem compartilhar o mesmo ano.,,Year of the electoral event,Año del evento electoral
+election_id,STRING,Identificador do evento eleitoral,,no,,,no,"Chave da tabela. Assume valores como state2002, state2006, state2010, state2014, state2018, state2022, prahran_by2025 e nepean_by2026.",,Identifier of the electoral event,Identificador del evento electoral
+election_name,STRING,Nome do evento eleitoral,,no,,,no,"Assume valores como ""State Election 2022"".",,Name of the electoral event,Nombre del evento electoral
+election_type,STRING,Tipo do evento eleitoral,,yes,,,no,Assume os valores state_general e state_by_election.,,Type of the electoral event,Tipo del evento electoral
+government_level,STRING,Esfera de governo do evento eleitoral,,yes,,,no,Assume o valor state.,,Level of government of the electoral event,Nivel de gobierno del evento electoral
+election_date,DATE,Data da votação,,no,,,no,,,Date of the poll,Fecha de la votación
+source_url,STRING,Endereço da página de resultados publicada pela VEC para o evento,,no,,,no,,,URL of the results page published by the VEC for the event,Dirección de la página de resultados publicada por la VEC para el evento

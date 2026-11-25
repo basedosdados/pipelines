@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano do lançamento do recebimento,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de partição, derivada de 'Ano e mês do lançamento' (formato MM/AAAA)",Ano e mês do lançamento
+mes,INT64,Mês do lançamento do recebimento,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,"Coluna de partição, derivada de 'Ano e mês do lançamento' (formato MM/AAAA)",Ano e mês do lançamento
+id_favorecido,STRING,"Código do favorecido: CNPJ para pessoa jurídica, CPF parcialmente mascarado para pessoa física",,no,,,yes,"A fonte publica o CPF de pessoas físicas mascarado no formato ***.123.456-**, expondo apenas os seis dígitos centrais. Códigos de favorecidos no exterior e de unidades gestoras seguem outros formatos e não têm 14 caracteres",Código Favorecido
+nome_favorecido,STRING,Nome ou razão social do favorecido do pagamento,,no,,,yes,"Publicado por extenso pela fonte, inclusive para pessoas físicas",Nome Favorecido
+sigla_uf,STRING,Sigla da unidade da federação do favorecido,,no,br_bd_diretorios_brasil.uf:sigla,,no,"Assume os sentinelas 'EX' para favorecidos no exterior e '-1' quando a UF não é informada, que juntos somam cerca de 0,6% das linhas e não constam do diretório de UFs",Sigla UF
+nome_municipio,STRING,Nome do município do favorecido,,no,,,no,"A fonte publica o nome, não o código IBGE, então a coluna não é ligada ao diretório de municípios. Assume 'Exterior' quando a UF é 'EX' e 'Sem informação' quando a UF é '-1'",Nome Município
+id_orgao_superior,STRING,"Código do órgão superior pagador, em geral um ministério",,no,,,no,,Código Órgão Superior
+nome_orgao_superior,STRING,Nome do órgão superior pagador,,no,,,no,,Nome Órgão Superior
+id_orgao,STRING,Código do órgão pagador,,no,,,no,,Código Órgão
+nome_orgao,STRING,Nome do órgão pagador,,no,,,no,,Nome Órgão
+id_unidade_gestora,STRING,Código da unidade gestora que efetuou o pagamento,,no,,,no,,Código Unidade Gestora
+nome_unidade_gestora,STRING,Nome da unidade gestora que efetuou o pagamento,,no,,,no,,Nome Unidade Gestora
+valor_recebido,FLOAT64,"Valor recebido pelo favorecido no mês, em reais correntes",,no,,brl,no,"A fonte publica quatro casas decimais e admite valores negativos, que correspondem a estornos e devoluções",Valor Recebido

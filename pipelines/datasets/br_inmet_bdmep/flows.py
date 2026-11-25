@@ -1,109 +1,71 @@
 """
-Flows for br_inmet_bdmep — Prefect 3.
+Flows de br_inmet_bdmep: check_update e extract_and_load de cada tabela.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.inmet_bdmep.tasks import (
-    extract_last_date_from_source,
-    get_base_inmet,
+from pipelines.datasets.br_inmet_bdmep.constants import (
+    DATASET_ID,
+    ESTACAO_TABLE_ID,
+    MICRODADOS_TABLE_ID,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
+from pipelines.datasets.br_inmet_bdmep.tasks import make_pipeline
+from pipelines.utils.flow import flow
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
+
+_microdados_pipeline = make_pipeline(MICRODADOS_TABLE_ID)
+
+
+@flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
+def br_inmet_bdmep_microdados_check_update() -> None:
+    _microdados_pipeline.run_check_update()
+
+
+br_inmet_bdmep_microdados_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
 )
-from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
-
-
-@flow(
-    name="br_inmet_bdmep__microdados",
-    log_prints=True,
-)
-def br_inmet_bdmep__microdados(
-    dataset_id: str = "br_inmet_bdmep",
-    table_id: str = "microdados",
-    materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    source_last_date = extract_last_date_from_source()
-
-    if not force_run:
-        is_outdated = register_source_poll_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_last_date,
-            env="prod",
-            date_format="%Y-%m",
-        )
-        if not is_outdated:
-            return
-
-    output_filepath = get_base_inmet()
-
-    upload_to_gcs(
-        data_path=output_filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=output_filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data"),
-                date_format=DateFormat.YEAR_MD,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
-
-
-br_inmet_bdmep__microdados.deploy_schedules = [
-    {"cron": "0 22 * * 1-5", "timezone": "America/Sao_Paulo"},
+br_inmet_bdmep_microdados_check_update.deploy_schedules = [
+    Cron("0 22 * * 1-5", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_microdados_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_inmet_bdmep_microdados_download(download_params: dict) -> None:
+    _microdados_pipeline.run_extract_and_load(download_params)
+
+
+br_inmet_bdmep_microdados_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
+)
+_microdados_pipeline.extract_load_deployment = (
+    br_inmet_bdmep_microdados_download.fn.__name__
+)
+
+
+_estacao_pipeline = make_pipeline(ESTACAO_TABLE_ID)
+
+
+@flow(name=_estacao_pipeline.check_update_flow_name, log_prints=True)
+def br_inmet_bdmep_estacao_check_update() -> None:
+    _estacao_pipeline.run_check_update()
+
+
+br_inmet_bdmep_estacao_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, ESTACAO_TABLE_ID
+)
+br_inmet_bdmep_estacao_check_update.deploy_schedules = [
+    Cron("5 18 * * 1-5", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_estacao_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_inmet_bdmep_estacao_download(download_params: dict) -> None:
+    _estacao_pipeline.run_extract_and_load(download_params)
+
+
+br_inmet_bdmep_estacao_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTACAO_TABLE_ID
+)
+_estacao_pipeline.extract_load_deployment = (
+    br_inmet_bdmep_estacao_download.fn.__name__
+)

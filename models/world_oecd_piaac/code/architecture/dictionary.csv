@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_id,STRING,Table the covered column belongs to,,no,,,no,,
+column_name,STRING,Name of the column covered by the dictionary,,no,,,no,,
+key,STRING,Coded value stored in the data table,,no,,,no,,
+temporal_coverage,STRING,Years the mapping applies to,,no,,,no,,
+value,STRING,Meaning of the coded value,,no,,,no,,

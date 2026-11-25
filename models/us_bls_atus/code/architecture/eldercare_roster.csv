@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the first four digits of tucaseid.,TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+teage_ec,INT64,Age of the eldercare recipient in years (topcoded at 85).,,no,,year,no,,TEAGE_EC
+teeldur,STRING,How long have you provided care to [NAME]?,,yes,,,no,,TEELDUR
+teelwho,STRING,Who did you give this care to?,,yes,,,no,,TEELWHO
+teelyrs,INT64,How many years have you provided care (to this person)?,,no,,person,no,,TEELYRS
+trelhh,STRING,Eldercare recipient is a household member,,yes,,,no,,TRELHH
+tueclno,STRING,Line number of eldercare recipient,,no,,,no,,TUECLNO
+tulineno,STRING,ATUS person line number identifying each individual within the household.,,no,,,no,,TULINENO

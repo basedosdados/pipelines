@@ -1,0 +1,17 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+qtr,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,,qtr
+area_fips,STRING,National area code (U.S. total and special U.S.-wide aggregates),,yes,,,no,,area_fips
+own_code,STRING,"Ownership code identifying the sector (private, federal, state, local government)",,yes,,,no,,own_code
+industry_code,STRING,"SIC industry code, carrying the SIC_ prefix",,yes,,,no,SIC-prefixed code (up to 10 characters),industry_code
+agglvl_code,STRING,Aggregation-level code indicating the geographic and industry summarization of the row,,yes,,,no,,agglvl_code
+size_code,STRING,"Establishment size-class code, 0 for all sizes",,yes,,,no,,size_code
+disclosure_code,STRING,"Disclosure flag: N when the figure is not disclosable, blank otherwise",,no,,,no,,disclosure_code
+qtrly_estabs,INT64,Count of establishments in the quarter,,no,,establishment,no,,qtrly_estabs
+month1_emplvl,INT64,Employment level in the first month of the quarter,,no,,worker,no,,month1_emplvl
+month2_emplvl,INT64,Employment level in the second month of the quarter,,no,,worker,no,,month2_emplvl
+month3_emplvl,INT64,Employment level in the third month of the quarter,,no,,worker,no,,month3_emplvl
+total_qtrly_wages,FLOAT64,Total wages paid in the quarter,,no,,dollar,no,,total_qtrly_wages
+taxable_qtrly_wages,FLOAT64,Wages subject to unemployment-insurance taxation in the quarter,,no,,dollar,no,,taxable_qtrly_wages
+qtrly_contributions,FLOAT64,Unemployment-insurance contributions in the quarter,,no,,dollar,no,,qtrly_contributions
+avg_wkly_wage,FLOAT64,Average weekly wage in the quarter,,no,,dollar,no,,avg_wkly_wage

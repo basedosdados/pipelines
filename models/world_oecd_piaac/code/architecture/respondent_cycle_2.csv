@@ -1,0 +1,789 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Reference year of data collection, derived from the survey cycle and round",,no,,year,no,"PIAAC carries no year-of-collection variable. Cycle 1 Round 1 was collected Aug 2011-Mar 2012 (2012), Round 2 Apr 2014-Mar 2015 (2015), Round 3 Jul-Dec 2017 (2017); Cycle 2 Round 1 was collected Sep 2022-Aug 2023 (2023)",
+cycle,STRING,Survey cycle of the Survey of Adult Skills (1 or 2),,no,,,no,,
+round,STRING,Round of data collection within the cycle,,no,,,no,Cycle 1 ran three rounds; Cycle 2 has run one so far,
+country_id_iso_3,STRING,ISO 3166-1 alpha-3 code of the participating country,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
+country_id_m49,STRING,UN M49 numeric code of the participating country,,no,br_bd_diretorios_mundo.pais:id_m49,,no,,CNTRYID
+country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,yes,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
+respondent_id,STRING,Randomly derived sequential identifier of the respondent,,no,,,no,"Unique within a country and cycle only, never across them; combine with year and country_id_iso_3 for a unique key",SEQID
+age_r,INT64,Person age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",AGE_R
+gender_r,STRING,Person gender,,yes,,,no,,GENDER_R
+disp_ds,STRING,Final disposition code for the Doorstep Interview,,yes,,,no,,DISP_DS
+disp_cibq,STRING,Final disposition code for person – combining CI and BQ,,yes,,,no,,DISP_CIBQ
+disp_main,STRING,Final derived disposition code for person for Assessment,,yes,,,no,,DISP_MAIN
+disp_main_c,STRING,Final derived disposition code for person for Assessment (categorized),,yes,,,no,,DISP_MAIN_C
+di_q02,STRING,Doorstep - Gender,,yes,,,no,,DI_Q02
+di_q03,STRING,Doorstep - Age,,yes,,,no,,DI_Q03
+di_q04,STRING,Doorstep - Education,,yes,,,no,,DI_Q04
+di_q05,STRING,Doorstep - Current employment status,,yes,,,no,,DI_Q05
+di_q06a,STRING,Doorstep - Country of birth,,yes,,,no,,DI_Q06a
+di_q06b,STRING,Doorstep - Time living in country,,yes,,,no,,DI_Q06b
+a2_n02,STRING,General - Gender of respondent,,yes,,,no,,A2_N02
+a2_n02_t,STRING,Gender (Trend-IALS/ALL),,yes,,,no,,A2_N02_T
+a2_q03a,STRING,Background - Born in country,,yes,,,no,,A2_Q03a
+a2_q03a_t,STRING,Born in country (Trend-IALS/ALL),,yes,,,no,,A2_Q03a_T
+a2_q03c1,INT64,Background - Age of immigration,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",A2_Q03c1
+a2_q03c1_c,STRING,"Background - Age of immigration (categorized, 9 categories)",,yes,,,no,,A2_Q03c1_C
+a2_q03c2,INT64,Background - Year of immigration,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",A2_Q03c2
+a2_q03c2_t,INT64,Year of immigration to country (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",A2_Q03c2_T
+a2_q03c2_t1,STRING,Year of immigration to country - range of years (Trend-IALS/ALL),,yes,,,no,,A2_Q03c2_T1
+a2_q03d,STRING,Background - Mother - Whether born in #CountryName,,yes,,,no,,A2_Q03d
+a2_q03e,STRING,Background - Father - Whether born in #CountryName,,yes,,,no,,A2_Q03e
+b2_d01d,INT64,Months elapsed since completing highest level of qualification (only for those who finished less than two years ago),,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_D01d
+b2_d01d_c,STRING,"Time elapsed since finished highest qualification less than two years ago (categorized, 2 categories)",,yes,,,no,,B2_D01d_C
+b2_d03d,INT64,Uncompleted qualification - Months elapsed since dropout (only for those who left education less than two years ago),,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_D03d
+b2_d03d_c,STRING,"Time elapsed since leaving education without completing program less than two years ago (categorized, 2 categories)",,yes,,,no,,B2_D03d_C
+b2_q01,STRING,Education - Highest qualification,,yes,,,no,,B2_Q01
+b2_q01_tc1,STRING,"Highest level of education (Trend PIAAC 1/2, ISCED 97)",,yes,,,no,,B2_Q01_TC1
+b2_q01c1_t,INT64,Age at completion of highest level of schooling (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q01c1_T
+b2_q02b02,STRING,Education - Other qualifications - ISCED 2 comp/nfs,,yes,,,no,,B2_Q02b02
+b2_q02b03,STRING,Education - Other qualifications - ISCED 2 pre/voc,,yes,,,no,,B2_Q02b03
+b2_q02b04,STRING,Education - Other qualifications - ISCED 2 acad,,yes,,,no,,B2_Q02b04
+b2_q02b05,STRING,Education - Other qualifications - voc ISCED 3 short,,yes,,,no,,B2_Q02b05
+b2_q02b06,STRING,Education - Other qualifications - gen ISCED 3 short,,yes,,,no,,B2_Q02b06
+b2_q02b07,STRING,Education - Other qualifications - ISCED 3 nfs,,yes,,,no,,B2_Q02b07
+b2_q02b08,STRING,Education - Other qualifications - voc ISCED 3 access 3,,yes,,,no,,B2_Q02b08
+b2_q02b09,STRING,Education - Other qualifications - gen ISCED 3 access 3,,yes,,,no,,B2_Q02b09
+b2_q02b10,STRING,Education - Other qualifications - voc ISCED 3 access 3/4,,yes,,,no,,B2_Q02b10
+b2_q02b11,STRING,Education - Other qualifications - gen ISCED 3 access 3/4,,yes,,,no,,B2_Q02b11
+b2_q02b12,STRING,Education - Other qualifications - voc ISCED 3 access 5/6/7,,yes,,,no,,B2_Q02b12
+b2_q02b13,STRING,Education - Other qualifications - gen ISCED 3 access 5/6/7,,yes,,,no,,B2_Q02b13
+b2_q02b14,STRING,Education - Other qualifications - ISCED 4 nfs,,yes,,,no,,B2_Q02b14
+b2_q02b15,STRING,Education - Other qualifications - voc ISCED 4 access 4,,yes,,,no,,B2_Q02b15
+b2_q02b16,STRING,Education - Other qualifications - gen ISCED 4 access 4,,yes,,,no,,B2_Q02b16
+b2_q02b17,STRING,Education - Other qualifications - voc ISCED 4 access 5/6/7,,yes,,,no,,B2_Q02b17
+b2_q02b18,STRING,Education - Other qualifications - gen ISCED 4 access 5/6/7,,yes,,,no,,B2_Q02b18
+b2_q02b19,STRING,Education - Other qualifications - ISCED 5 nfs,,yes,,,no,,B2_Q02b19
+b2_q02b20,STRING,Education - Other qualifications - voc ISCED 5,,yes,,,no,,B2_Q02b20
+b2_q02b21,STRING,Education - Other qualifications - gen ISCED 5,,yes,,,no,,B2_Q02b21
+b2_q02b22,STRING,Education - Other qualifications - ISCED 6 nfs,,yes,,,no,,B2_Q02b22
+b2_q02b23,STRING,Education - Other qualifications - appl ISCED 6,,yes,,,no,,B2_Q02b23
+b2_q02b24,STRING,Education - Other qualifications - trad ISCED 6,,yes,,,no,,B2_Q02b24
+b2_q02b25,STRING,Education - Other qualifications - ISCED 7 nfs,,yes,,,no,,B2_Q02b25
+b2_q02b26,STRING,Education - Other qualifications - appl ISCED 7,,yes,,,no,,B2_Q02b26
+b2_q02b27,STRING,Education - Other qualifications - trad ISCED 7,,yes,,,no,,B2_Q02b27
+b2_q02b28,STRING,Education - Other qualifications - ISCED 8,,yes,,,no,,B2_Q02b28
+b2_q02b29,STRING,Education - Other qualification - voc ISCED 6,,yes,,,no,,B2_Q02b29
+b2_q02b30,STRING,Education - Other qualification - voc ISCED 7,,yes,,,no,,B2_Q02b30
+b2_q02bdk,STRING,Education - Other qualification - Don´t know,,yes,,,no,,B2_Q02bDK
+b2_q02brf,STRING,Education - Other qualification - Refused,,yes,,,no,,B2_Q02bRF
+b2_q03a,STRING,Education - Highest qualification - Obtained in #CountryName,,yes,,,no,,B2_Q03a
+b2_q04a,STRING,Education - Highest qualification - Area of study,,yes,,,no,,B2_Q04a
+b2_q04b1,INT64,Education - Highest qualification - Age of finish,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q04b1
+b2_q04b1_c,STRING,"Education - Highest qualification - Age of finish (categorized, 6 categories)",,yes,,,no,,B2_Q04b1_C
+b2_q04b2,INT64,Education - Highest qualification - Year of finish,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q04b2
+b2_q04c,STRING,Education - Highest qualification - Month of finish,,yes,,,no,,B2_Q04c
+b2_q05a,STRING,Education - Current qualification,,yes,,,no,,B2_Q05a
+b2_q05b,STRING,Education - Current qualification,,yes,,,no,,B2_Q05b
+b2_q05b_tc1,STRING,"Level of current education (Trend PIAAC 1/2, ISCED 97)",,yes,,,no,,B2_Q05b_TC1
+b2_q05c,STRING,Education - Current qualification - Area of study,,yes,,,no,,B2_Q05c
+b2_q06a,STRING,Education - Uncompleted qualification,,yes,,,no,,B2_Q06a
+b2_q06b,STRING,Education - Uncompleted qualification,,yes,,,no,,B2_Q06b
+b2_q06b_tc1,STRING,"Level of incomplete education (Trend PIAAC 1/2, ISCED 97)",,yes,,,no,,B2_Q06b_TC1
+b2_q06c1,INT64,Education - Uncompleted qualification - Age of dropout,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q06c1
+b2_q06c1_c,STRING,"Education - Uncompleted qualification - Age of dropout (categorized, 6 categories)",,yes,,,no,,B2_Q06c1_C
+b2_q06c2,INT64,Education - Uncompleted qualification - Year of dropout,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q06c2
+b2_q06d,STRING,Education - Uncompleted qualification - Month of dropout,,yes,,,no,,B2_Q06d
+b2_q08a,STRING,Training - Last year - Training activity,,yes,,,no,,B2_Q08a
+b2_q08b,INT64,Training - Last year - Number of training activities,,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q08b
+b2_q08b_c,INT64,Training - Last year - Number of training activities (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q08b_C
+b2_q09,STRING,Training - At any point in life - Training activity,,yes,,,no,,B2_Q09
+b2_q10,STRING,Training - Main focus of training activity,,yes,,,no,,B2_Q10
+b2_q11,STRING,Trainingr - Job related,,yes,,,no,,B2_Q11
+b2_q12,STRING,Training - Reason for participating,,yes,,,no,,B2_Q12
+b2_q13a,STRING,Training - Last year - Organization of training activity,,yes,,,no,,B2_Q13a
+b2_q13d,STRING,Training - Sessions of training activity,,yes,,,no,,B2_Q13d
+b2_q15,STRING,Training - Employment status,,yes,,,no,,B2_Q15
+b2_q16a,STRING,Training - In normal work environment,,yes,,,no,,B2_Q16a
+b2_q16b,STRING,Training - During working hours,,yes,,,no,,B2_Q16b
+b2_q16c,STRING,Training - Better carry out work,,yes,,,no,,B2_Q16c
+b2_q17,STRING,Training - Useful for job,,yes,,,no,,B2_Q17
+b2_q18,STRING,Training - Training certificate,,yes,,,no,,B2_Q18
+b2_q2001,STRING,Activities - Payment of training activity - You personally,,yes,,,no,,B2_Q2001
+b2_q2002,STRING,Activities - Payment of training activity - Your employer,,yes,,,no,,B2_Q2002
+b2_q2003,STRING,Activities - Payment of training activity - Public employment agency,,yes,,,no,,B2_Q2003
+b2_q2004,STRING,Activities - Payment of training activity - Other public sources (e.g. trade unions),,yes,,,no,,B2_Q2004
+b2_q2005,STRING,Activities - Payment of training activity - Other private sources (e.g. family members),,yes,,,no,,B2_Q2005
+b2_q2006,STRING,Activities - Payment of training activity - Others,,yes,,,no,,B2_Q2006
+b2_q2007,STRING,Activities - At any point in life - Payment of training activity - There were no such costs,,yes,,,no,,B2_Q2007
+b2_q20dk,STRING,Activities - At any point in life - Payment of training activity - Don´t know,,yes,,,no,,B2_Q20DK
+b2_q20rf,STRING,Activities - At any point in life - Payment of training activity - Refused,,yes,,,no,,B2_Q20RF
+b2_q21,INT64,Training - Hours spend for activities,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B2_Q21
+b2_q22,STRING,Training - Wanted but didn't start,,yes,,,no,,B2_Q22
+b2_q23,STRING,Training - Wanted but didn't start - Reason,,yes,,,no,,B2_Q23
+c2_d05,STRING,Current status/work history - Employment status (DERIVED BY CAPI),,yes,,,no,,C2_D05
+c2_d06,STRING,Current status/work history - Current - Paid job or family business (DERIVED BY CAPI),,yes,,,no,,C2_D06
+c2_d09c,STRING,Current status/work history - Left work in past 5 years (DERIVED BY CAPI),,yes,,,no,,C2_D09c
+c2_d10,STRING,Current status/work history - Work experience (DERIVED BY CAPI),,yes,,,no,,C2_D10
+c2_d10_t,STRING,Worked at job or business in last 12 months (any number of hours) (Trend-IALS/ALL),,yes,,,no,,C2_D10_T
+c2_q01a,STRING,Current status/work history - Last week - Paid work,,yes,,,no,,C2_Q01a
+c2_q01b,STRING,Current status/work history - Last week - Away from job but will return,,yes,,,no,,C2_Q01b
+c2_q01c,STRING,Current status/work history - Last week - Unpaid work for own business,,yes,,,no,,C2_Q01c
+c2_q02a,STRING,Current status/work history - Last month - Actively looking for paid work,,yes,,,no,,C2_Q02a
+c2_q02b,STRING,Current status/work history - Last month - Waiting to start job,,yes,,,no,,C2_Q02b
+c2_q0301,STRING,Current status/work history - Last month - Reason not looking for work - Waiting for result of application,,yes,,,no,,C2_Q0301
+c2_q0302,STRING,Current status/work history - Last month - Reason not looking for work - Being a student,,yes,,,no,,C2_Q0302
+c2_q0303,STRING,Current status/work history - Last month - Reason not looking for work - Looking after the family,,yes,,,no,,C2_Q0303
+c2_q0304,STRING,Current status/work history - Last month - Reason not looking for work - Temp sick,,yes,,,no,,C2_Q0304
+c2_q0305,STRING,Current status/work history - Last month - Reason not looking for work - Long-term illness,,yes,,,no,,C2_Q0305
+c2_q0306,STRING,Current status/work history - Last month - Reason not looking for work - Nothing available,,yes,,,no,,C2_Q0306
+c2_q0307,STRING,Current status/work history - Last month - Reason not looking for work - Did not get around,,yes,,,no,,C2_Q0307
+c2_q0308,STRING,Current status/work history - Last month - Reason not looking for work - No need,,yes,,,no,,C2_Q0308
+c2_q0309,STRING,Current status/work history - Last month - Reason not looking for work - Retired,,yes,,,no,,C2_Q0309
+c2_q0310,STRING,Current status/work history - Last month - Reason not looking for work - Other,,yes,,,no,,C2_Q0310
+c2_q03dk,STRING,Current status/work history - Last month - Reason not looking for work - Don´t know,,yes,,,no,,C2_Q03DK
+c2_q03rf,STRING,Current status/work history - Last month - Reason not looking for work - Refused,,yes,,,no,,C2_Q03RF
+c2_q04,INT64,Current status/work history - Last month - Months looking for paid work,,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q04
+c2_q05,STRING,Current status/work history - Ability to start job within 2 weeks,,yes,,,no,,C2_Q05
+c2_q06,STRING,Current status/work history - Last week - Number of jobs,,yes,,,no,,C2_Q06
+c2_q07,STRING,Current status/work history - Subjective status,,yes,,,no,,C2_Q07
+c2_q07_t,STRING,Current work situation (Trend-IALS/ALL),,yes,,,no,,C2_Q07_T
+c2_q08a,STRING,Current status/work history - Last 5 years - Out of work for 3 months or longer,,yes,,,no,,C2_Q08a
+c2_q08b,STRING,Current status/work history - Last 5 years - Total time out of work,,yes,,,no,,C2_Q08b
+c2_q09a,STRING,Current status/work history - Ever paid work,,yes,,,no,,C2_Q09a
+c2_q09b,STRING,Current status/work history - Last year - Paid work,,yes,,,no,,C2_Q09b
+c2_q09c1,INT64,Current status/work history - Age when stopped working in last job,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q09c1
+c2_q09c1_c,STRING,"Current status/work history - Age when stopped working in last job (categorized, 10 categories)",,yes,,,no,,C2_Q09c1_C
+c2_q09c2,INT64,Current status/work history - Year when stopped working in last job,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q09c2
+c2_q10,INT64,Current status/work history - Years of paid work during lifetime,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q10
+c2_q10_c,INT64,Current status/work history - Years of paid work during lifetime (top-coded at 47),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q10_C
+c2_q11,STRING,Current status/work history - Last year - Received benefits,,yes,,,no,,C2_Q11
+c2_q12,INT64,Current status/work history - Last 5 years - How many diff firms or organisations,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q12
+c2_q12_c,INT64,Current status/work history - Last 5 years - How many diff firms or organisations (top-coded at 7),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C2_Q12_C
+d2_d14a,INT64,Current work - Earnings - Salary interval per hour (DERIVED BY CAPI),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_D14a
+d2_q03,STRING,Current work - Economic sector,,yes,,,no,,D2_Q03
+d2_q04,STRING,Current work - Employee or self-employed,,yes,,,no,,D2_Q04
+d2_q05a1,INT64,Current work - Start of work for employer - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q05a1
+d2_q05a1_c,STRING,"Current work - Start of work for employer - Age (categorized, 9 categories)",,yes,,,no,,D2_Q05a1_C
+d2_q05a2,INT64,Current work - Start of work for employer - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q05a2
+d2_q05a3,STRING,Current work - Start of work for employer - Month,,yes,,,no,,D2_Q05a3
+d2_q05b1,INT64,Current work - Start of work for business - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q05b1
+d2_q05b1_c,STRING,"Current work - Start of work for business - Age (categorized, 9 categories)",,yes,,,no,,D2_Q05b1_C
+d2_q05b2,INT64,Current work - Start of work for business - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q05b2
+d2_q05b3,STRING,Current work - Start of work for business - Month,,yes,,,no,,D2_Q05b3
+d2_q06a,STRING,Current work - Moved to a different position,,yes,,,no,,D2_Q06a
+d2_q06b,STRING,Current work - Changed tasks and responsibilities,,yes,,,no,,D2_Q06b
+d2_q06c,STRING,Current work - Moved to a different unit or department,,yes,,,no,,D2_Q06c
+d2_q07a,STRING,Current work - Amount of people working for employer,,yes,,,no,,D2_Q07a
+d2_q07b,STRING,Current work - Amount of people working for employer increased,,yes,,,no,,D2_Q07b
+d2_q07c,STRING,Current work - Part of a larger organization,,yes,,,no,,D2_Q07c
+d2_q08a,STRING,Current work - Employees working for you,,yes,,,no,,D2_Q08a
+d2_q08b,STRING,Current work - Employees working for you - Amount,,yes,,,no,,D2_Q08b
+d2_q08b_c,STRING,"Current work - Employees working for you - Amount (collapsed, 2 categories)",,yes,,,no,,D2_Q08b_C
+d2_q09a,STRING,Current work - Managing other employees,,yes,,,no,,D2_Q09a
+d2_q09b,STRING,Current work - Managing other employees - Amount,,yes,,,no,,D2_Q09b
+d2_q10,STRING,Current work - Type of contract,,yes,,,no,,D2_Q10
+d2_q10_c,STRING,Current work - Type of contract (3 categories),,yes,,,no,,D2_Q10_C
+d2_q11,INT64,Current work - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q11
+d2_q11_c,INT64,Current work - hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q11_C
+d2_q11_t,INT64,Hours per week at this job or business - number of hours (Trend-IALS/ALL),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q11_T
+d2_q11_t1,STRING,Hours per week at this job or business - range of hours (Trend-IALS/ALL),,yes,,,no,,D2_Q11_T1
+d2_q12a,STRING,Current work - Requirements - Education,,yes,,,no,,D2_Q12a
+d2_q12a_tc1,STRING,Qualification required to GET the respondent's CURRENT job (Trend PIAAC 1/2),,yes,,,no,,D2_Q12a_TC1
+d2_q12d,STRING,Current work - Requirements - Related work experience,,yes,,,no,,D2_Q12d
+d2_q13,STRING,Current work - Job satisfaction,,yes,,,no,,D2_Q13
+d2_q14a,STRING,Current work - Earnings - Salary interval,,yes,,,no,,D2_Q14a
+d2_q14b,FLOAT64,Current work - Earnings - Gross pay,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q14b
+d2_q14c,STRING,Current work - Earnings - Gross pay in broad categories,,yes,,,no,,D2_Q14c
+d2_q14d1,STRING,Current work - Earnings - Broad categories - Gross pay per hour,,yes,,,no,,D2_Q14d1
+d2_q14d2,STRING,Current work - Earnings - Broad categories - Gross pay per day,,yes,,,no,,D2_Q14d2
+d2_q14d3,STRING,Current work - Earnings - Broad categories - Gross pay per week,,yes,,,no,,D2_Q14d3
+d2_q14d4,STRING,Current work - Earnings - Broad categories - Gross pay per 2 weeks,,yes,,,no,,D2_Q14d4
+d2_q14d5,STRING,Current work - Earnings - Broad categories - Gross pay per month,,yes,,,no,,D2_Q14d5
+d2_q14d6,STRING,Current work - Earnings - Broad categories - Gross pay per year,,yes,,,no,,D2_Q14d6
+d2_q15a,STRING,Current work - Earnings - Additional payments,,yes,,,no,,D2_Q15a
+d2_q15b,INT64,Current work - Earnings - Additional payments amount last year,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q15b
+d2_q15c,STRING,Current work - Earnings - Additional payments in broad categories,,yes,,,no,,D2_Q15c
+d2_q15d,STRING,Current work - Earnings - Additional payments - Broad - Last year,,yes,,,no,,D2_Q15d
+d2_q16a,INT64,Current work - Earnings - Total earnings last month,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_Q16a
+d2_q16a_t,STRING,Annual net income before taxes and deductions (Trend-IALS/ALL),,yes,,,no,,D2_Q16a_T
+d2_q16b,STRING,Current work - Earnings - Total earnings broad categories,,yes,,,no,,D2_Q16b
+d2_q16c1,STRING,Current work - Earnings - Broad categories - Total earnings last month,,yes,,,no,,D2_Q16c1
+d2_q16c2,STRING,Current work - Earnings - Broad categories - Total earnings last year,,yes,,,no,,D2_Q16c2
+d2_s14a,FLOAT64,Current work - Earnings - Hours per piece,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D2_S14a
+e2_q03,STRING,Last job - Economic sector,,yes,,,no,,E2_Q03
+e2_q04,STRING,Last job - Employee or self-employed,,yes,,,no,,E2_Q04
+e2_q05a1,INT64,Last job - Start of work for employer - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E2_Q05a1
+e2_q05a1_c,STRING,"Last job - Start of work for employer - Age (categorized, 9 categories)",,yes,,,no,,E2_Q05a1_C
+e2_q05a2,INT64,Last job - Start of work for employer - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E2_Q05a2
+e2_q05b1,INT64,Last job - Start of work for business - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E2_Q05b1
+e2_q05b1_c,STRING,"Last job - Start of work for business - Age (categorized, 9 categories)",,yes,,,no,,E2_Q05b1_C
+e2_q05b2,INT64,Last job - Start of work for business - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E2_Q05b2
+e2_q06,STRING,Last job - Amount of people working for employer,,yes,,,no,,E2_Q06
+e2_q06_c,STRING,Last job - Amount of people working for employer (4 categories),,yes,,,no,,E2_Q06_C
+e2_q07a,STRING,Last job - Employees working for you,,yes,,,no,,E2_Q07a
+e2_q07b,STRING,Last job - Employees working for you - Amount,,yes,,,no,,E2_Q07b
+e2_q08,STRING,Last job - Type of contract,,yes,,,no,,E2_Q08
+e2_q08_c,STRING,Last job - Type of contract (3 categories),,yes,,,no,,E2_Q08_C
+e2_q09,INT64,Last job - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E2_Q09
+e2_q09_c,INT64,Last job - Hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E2_Q09_C
+e2_q10a,STRING,Last job - Requirements - Education,,yes,,,no,,E2_Q10a
+e2_q10d,STRING,Last job - Requirements - Related work experience,,yes,,,no,,E2_Q10d
+e2_q11a,STRING,Last job - Voluntarily/involuntarily stopped working,,yes,,,no,,E2_Q11a
+e2_q11b,STRING,Last job - Reason for stopped working,,yes,,,no,,E2_Q11b
+edlevel3,STRING,Educational levels,,yes,,,no,,EDLEVEL3
+f2_q01a,STRING,Skill use work - Literacy - Read directions or instructions,,yes,,,no,,F2_Q01a
+f2_q01a_t,STRING,"As part of job, read or use directions or instructions (Trend-IALS/ALL)",,yes,,,no,,F2_Q01a_T
+f2_q01a_t1,STRING,"As part of job, read or use directions or instructions - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,F2_Q01a_T1
+f2_q01b,STRING,"Skill use work - Literacy - Read letters, memos or e-mails",,yes,,,no,,F2_Q01b
+f2_q01b_t,STRING,"As part of job, read or use letters, memos, e-mails (Trend-IALS/ALL)",,yes,,,no,,F2_Q01b_T
+f2_q01b_t1,STRING,"As part of job, read or use letters, memos, e-mails - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,F2_Q01b_T1
+f2_q01c,STRING,Skill use work - Literacy - Read newspapers or magazines,,yes,,,no,,F2_Q01c
+f2_q01c_t,STRING,"As part of job, read or use reports, articles, magazines, journals (Trend-IALS/ALL)",,yes,,,no,,F2_Q01c_T
+f2_q01c_t1,STRING,"As part of job, read or use reports, articles, magazines, journals - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,F2_Q01c_T1
+f2_q01d,STRING,"Skill use work - Literacy - Read books, scholarly publications or professional journals",,yes,,,no,,F2_Q01d
+f2_q01e,STRING,Skill use work - Literacy - Read manuals or reference materials,,yes,,,no,,F2_Q01e
+f2_q01e_t,STRING,"As part of job, read or use manuals, reference books, catalogues (Trend-IALS/ALL)",,yes,,,no,,F2_Q01e_T
+f2_q01e_t1,STRING,"As part of job, read or use manuals, reference books, catalogues - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,F2_Q01e_T1
+f2_q01f,STRING,Skill use work - Literacy - Read financial statements,,yes,,,no,,F2_Q01f
+f2_q01f_t,STRING,"As part of job, read or use bills, invoices, spreadsheets, budget tables (Trend-IALS/ALL)",,yes,,,no,,F2_Q01f_T
+f2_q01f_t1,STRING,"As part of job, read or use bills, invoices, spreadsheets, budget tables - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,F2_Q01f_T1
+f2_q02a,STRING,"Skill use work - Literacy - Write letters, memos or e-mails",,yes,,,no,,F2_Q02a
+f2_q02b,STRING,Skill use work - Literacy - Write reports or articles,,yes,,,no,,F2_Q02b
+f2_q02c,STRING,Skill use work - Literacy - Fill in forms,,yes,,,no,,F2_Q02c
+f2_q03a,STRING,Skill use work - Numeracy - How often - Undertake calculations,,yes,,,no,,F2_Q03a
+f2_q03b,STRING,"Skill use work - Numeracy - How often - Use maps, plans or GPS",,yes,,,no,,F2_Q03b
+f2_q03c,STRING,Skill use work - Numeracy - How often - Undertake measurements,,yes,,,no,,F2_Q03c
+f2_q03d,STRING,Skill use work - Numeracy - How often - Read and prepare charts graphs or tables,,yes,,,no,,F2_Q03d
+f2_q03e,STRING,Skill use work - Numeracy - How often - Use advanced math or statistics,,yes,,,no,,F2_Q03e
+f2_q04,STRING,Skill use work - ICT - Experience with computer in job,,yes,,,no,,F2_Q04
+f2_q05a,STRING,Skill use work - ICT - Internet - How often - Communicate with others,,yes,,,no,,F2_Q05a
+f2_q05c,STRING,Skill use work - ICT - Internet - How often - Access information,,yes,,,no,,F2_Q05c
+f2_q05d,STRING,"Skill use work - ICT - Internet - How often - Create electronic documents, spreadsheets or presentations",,yes,,,no,,F2_Q05d
+f2_q05e,STRING,Skill use work - ICT - Internet - How often - Use specialized software,,yes,,,no,,F2_Q05e
+f2_q05f,STRING,Skill use work - ICT - Computer - How often - Programming language,,yes,,,no,,F2_Q05f
+g2_q01a,STRING,Skill use in everyday life - Literacy - Read directions or instructions,,yes,,,no,,G2_Q01a
+g2_q01b,STRING,"Skill use in everyday life - Literacy - Read letters, memos or e-mails",,yes,,,no,,G2_Q01b
+g2_q01b_t,STRING,"In daily life, read or use letters, notes, e-mails (Trend-IALS/ALL)",,yes,,,no,,G2_Q01b_T
+g2_q01c,STRING,Skill use in everyday life - Literacy - Read newspapers or magazines,,yes,,,no,,G2_Q01c
+g2_q01c_t,STRING,"In daily life, read or use newspapers, magazines, articles (Trend-IALS/ALL)",,yes,,,no,,G2_Q01c_T
+g2_q01d,STRING,Skill use in everyday life - Literacy - Read books,,yes,,,no,,G2_Q01d
+g2_q01d_t,STRING,"In daily life, read or use books (fiction or nonfiction; not for job or school) (Trend-IALS/ALL)",,yes,,,no,,G2_Q01d_T
+g2_q01e,STRING,Skill use in everyday life - Literacy - Read manuals or reference materials,,yes,,,no,,G2_Q01e
+g2_q01f,STRING,Skill use in everyday life - Literacy - Read financial statements,,yes,,,no,,G2_Q01f
+g2_q02a,STRING,"Skill use in everyday life - Literacy - Write letters, memos or e-mails",,yes,,,no,,G2_Q02a
+g2_q02b,STRING,Skill use in everyday life - Literacy - Write reports or articles,,yes,,,no,,G2_Q02b
+g2_q02c,STRING,Skill use in everyday life - Literacy - Fill in forms,,yes,,,no,,G2_Q02c
+g2_q03a,STRING,Skill use in everyday life - Numeracy - How often - Undertake calculations,,yes,,,no,,G2_Q03a
+g2_q03b,STRING,Skill use in everyday life - Numeracy - How often - Use information to make financial decisions,,yes,,,no,,G2_Q03b
+g2_q03c,STRING,Skill use in everyday life - Numeracy - How often - Undertake measurements,,yes,,,no,,G2_Q03c
+g2_q03d,STRING,Skill use in everyday life - Numeracy - How often - Read and prepare charts graphs or tables,,yes,,,no,,G2_Q03d
+g2_q03e,STRING,Skill use in everyday life - Numeracy - Use mathematics,,yes,,,no,,G2_Q03e
+g2_q04,STRING,"Ever used a smartphone, tablet, laptop or desktop computer",,yes,,,no,,G2_Q04
+g2_q05a,STRING,Use of devices in everyday life - How often - A smartphone,,yes,,,no,,G2_Q05a
+g2_q05b,STRING,Use of devices in everyday life - How often - A tablet,,yes,,,no,,G2_Q05b
+g2_q05c,STRING,Use of devices in everyday life - How often - A laptop or desktop computer,,yes,,,no,,G2_Q05c
+g2_q06a,STRING,Use of computer or digital device in everyday life - How often - Communicate with others,,yes,,,no,,G2_Q06a
+g2_q06b,STRING,Use of computer or digital device in everyday life - How often - Access information,,yes,,,no,,G2_Q06b
+g2_q06c,STRING,Use of computer or digital device in everyday life - How often - Entertainment or leisure,,yes,,,no,,G2_Q06c
+g2_q06d,STRING,Use of computer or digital device in everyday life - How often - Online banking or e-commerce,,yes,,,no,,G2_Q06d
+g2_q06e,STRING,Use of computer or digital device in everyday life - How often - Manage personal life,,yes,,,no,,G2_Q06e
+h2_q01,STRING,Skill use work - Time cooperating with co-workers,,yes,,,no,,H2_Q01
+h2_q02a,STRING,Current work - Work in a team,,yes,,,no,,H2_Q02a
+h2_q02b,STRING,Current work - Work in a team - Team leader,,yes,,,no,,H2_Q02b
+h2_q02c,STRING,Current work - Work in a team - Influence of team members - Team leader selection,,yes,,,no,,H2_Q02c
+h2_q02d,STRING,Current work - Work in a team - Influence of team members - Work targets,,yes,,,no,,H2_Q02d
+h2_q02e,STRING,Current work - Work in a team - Influence of team members - Tasks,,yes,,,no,,H2_Q02e
+h2_q03a,STRING,Skill use work - How often - Sharing work-related info,,yes,,,no,,H2_Q03a
+h2_q03b,STRING,Skill use work - How often - Teaching people,,yes,,,no,,H2_Q03b
+h2_q03c,STRING,Skill use work - How often - Presentations,,yes,,,no,,H2_Q03c
+h2_q03d,STRING,Skill use work - How often - Dealing with people who are not employees,,yes,,,no,,H2_Q03d
+h2_q04a,STRING,Skill use work - How often - Planning own activities,,yes,,,no,,H2_Q04a
+h2_q04b,STRING,Skill use work - How often - Organising own time,,yes,,,no,,H2_Q04b
+h2_q05a,STRING,Skill use work - How often - Influencing people,,yes,,,no,,H2_Q05a
+h2_q05b,STRING,Skill use work - How often - Negotiating with people,,yes,,,no,,H2_Q05b
+h2_q06a,STRING,Skill use work - Problem solving - Simple problems,,yes,,,no,,H2_Q06a
+h2_q06b,STRING,Skill use work - Problem solving - Complex problems,,yes,,,no,,H2_Q06b
+h2_q07a,STRING,Skill use work - How often - Working physically for long period,,yes,,,no,,H2_Q07a
+h2_q07b,STRING,Skill use work - How often - Using hands or fingers,,yes,,,no,,H2_Q07b
+h2_q08a,STRING,Work flexibility - Sequence of tasks,,yes,,,no,,H2_Q08a
+h2_q08b,STRING,Work flexibility - How you do your work,,yes,,,no,,H2_Q08b
+h2_q08c,STRING,Work flexibility - Speed of work,,yes,,,no,,H2_Q08c
+h2_q08d,STRING,Work flexibility - Working hours,,yes,,,no,,H2_Q08d
+h2_q09a,STRING,Learning - Learning new things,,yes,,,no,,H2_Q09a
+h2_q09b,STRING,Learning - Learning-by-doing,,yes,,,no,,H2_Q09b
+h2_q09c,STRING,Learning - Keeping up to date,,yes,,,no,,H2_Q09c
+h2_q10,STRING,Helping co-workers to learn new things,,yes,,,no,,H2_Q10
+h2_q12,STRING,Working to tight deadlines or at very high speed,,yes,,,no,,H2_Q12
+h2_q13a,STRING,Assistance with a workload or difficult situation,,yes,,,no,,H2_Q13a
+h2_q13b,STRING,How often - Receive assistance from supervisor or manager,,yes,,,no,,H2_Q13b
+h2_q13c,STRING,How often - Receive assistance from co-workers,,yes,,,no,,H2_Q13c
+h2_q14a,STRING,Involved in improving the work organisation or work processes,,yes,,,no,,H2_Q14a
+h2_q14b,STRING,Able to apply own ideas in work,,yes,,,no,,H2_Q14b
+h2_q17,STRING,Short repetitive tasks,,yes,,,no,,H2_Q17
+h2_q18a01,STRING,Changed working environment in areas - Machinery,,yes,,,no,,H2_Q18a01
+h2_q18a02,STRING,Changed working environment in areas - Information and communication technologies,,yes,,,no,,H2_Q18a02
+h2_q18a03,STRING,Changed working environment in areas - Working methods and practices,,yes,,,no,,H2_Q18a03
+h2_q18a04,STRING,Changed working environment in areas - Outsourcing and relocation practices,,yes,,,no,,H2_Q18a04
+h2_q18a05,STRING,Changed working environment in areas - Products or services,,yes,,,no,,H2_Q18a05
+h2_q18a06,STRING,Changed working environment in areas - The amount of contact you have with clients or customers,,yes,,,no,,H2_Q18a06
+h2_q18a07,STRING,Changed working environment in areas - None of the above changes,,yes,,,no,,H2_Q18a07
+h2_q18adk,STRING,Changed working environment in areas - Don´t know,,yes,,,no,,H2_Q18aDK
+h2_q18arf,STRING,Changed working environment in areas - Refused,,yes,,,no,,H2_Q18aRF
+h2_q18b,STRING,Changes supported by training activities,,yes,,,no,,H2_Q18b
+h2_q19a,STRING,Skills in relation to what is required,,yes,,,no,,H2_Q19a
+h2_q19b01,STRING,Skills in relation to what is required - Computer or software skills,,yes,,,no,,H2_Q19b01
+h2_q19b02,STRING,Skills in relation to what is required - Skills in operating machinery/equipment,,yes,,,no,,H2_Q19b02
+h2_q19b03,STRING,Skills in relation to what is required - Project management or organizational skills,,yes,,,no,,H2_Q19b03
+h2_q19b04,STRING,Skills in relation to what is required - Team-working or leadership skills,,yes,,,no,,H2_Q19b04
+h2_q19b05,STRING,"Skills in relation to what is required - Skills in handling customers/clients, patients or students",,yes,,,no,,H2_Q19b05
+h2_q19b06,STRING,Skills in relation to what is required - Communication and presentation skills,,yes,,,no,,H2_Q19b06
+h2_q19b07,STRING,Skills in relation to what is required - Foreign language skills,,yes,,,no,,H2_Q19b07
+h2_q19b08,STRING,Skills in relation to what is required - Reading and writing skills,,yes,,,no,,H2_Q19b08
+h2_q19b09,STRING,"Skills in relation to what is required - Skills involving numbers, calculating skills",,yes,,,no,,H2_Q19b09
+h2_q19b10,STRING,Skills in relation to what is required - Other skills,,yes,,,no,,H2_Q19b10
+h2_q19bdk,STRING,Skills in relation to what is required - Don´t know,,yes,,,no,,H2_Q19bDK
+h2_q19brf,STRING,Skills in relation to what is required - Refused,,yes,,,no,,H2_Q19bRF
+i2_q01a,STRING,About yourself - Political efficacy - No influence on the government,,yes,,,no,,I2_Q01a
+i2_q01b,STRING,About yourself - Social trust,,yes,,,no,,I2_Q01b
+i2_q02,STRING,About yourself - Cultural engagement - Voluntary work for non-profit organisations,,yes,,,no,,I2_Q02
+i2_q03,STRING,About yourself - Health - State,,yes,,,no,,I2_Q03
+i2_q03_t,STRING,General health (Trend-IALS/ALL),,yes,,,no,,I2_Q03_T
+i2_q04,STRING,About yourself - Willing to give up something for future benefit,,yes,,,no,,I2_Q04
+i2_q05,STRING,About yourself - Satisfaction with life,,yes,,,no,,I2_Q05
+j2_q01,INT64,Background - People in household,,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q01
+j2_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q01_C
+j2_q01_t,INT64,Number living in household (Trend-IALS/ALL),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q01_T
+j2_q01_t1,STRING,Number living in household (from 1 to 7) (Trend-IALS/ALL),,yes,,,no,,J2_Q01_T1
+j2_q02a,STRING,Background - Living with spouse or partner,,yes,,,no,,J2_Q02a
+j2_q02b,STRING,Background - Work situation of spouse or partner,,yes,,,no,,J2_Q02b
+j2_q03a,STRING,Background - Children,,yes,,,no,,J2_Q03a
+j2_q03b,INT64,Background - Number of children,,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q03b
+j2_q03b_c,INT64,Background - Number of children (top-coded at 4),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q03b_C
+j2_q03c,INT64,Background - Age of the child,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q03c
+j2_q03c_c,STRING,"Background - Age of the child (categorized, 4 categories)",,yes,,,no,,J2_Q03c_C
+j2_q03d1,INT64,Background - Age of the youngest child,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q03d1
+j2_q03d1_c,STRING,"Background - Age of the youngest child (categorized, 4 categories)",,yes,,,no,,J2_Q03d1_C
+j2_q03d2,INT64,Background - Age of the oldest child,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q03d2
+j2_q03d2_c,STRING,"Background - Age of the oldest child (categorized, 4 categories)",,yes,,,no,,J2_Q03d2_C
+j2_q04c,STRING,Background - Mother/female guardian - Highest level of education,,yes,,,no,,J2_Q04c
+j2_q04d,STRING,Background - At age 14 - Mother/female guardian with a paying job,,yes,,,no,,J2_Q04d
+j2_q05c,STRING,Background - Father/male guardian - Highest level of education,,yes,,,no,,J2_Q05c
+j2_q05d,STRING,Background - At age 14 - Father/male guardian with a paying job,,yes,,,no,,J2_Q05d
+j2_q06,STRING,Background - At age 14 - Number of books at home,,yes,,,no,,J2_Q06
+j2_q07,STRING,Background - At age 14 - Place where you lived,,yes,,,no,,J2_Q07
+j2_q07_c,STRING,Background - At age 14 - Place where you lived (4 categories),,yes,,,no,,J2_Q07_C
+j2_q0801,STRING,Background - At age 14 - People you lived with - Biological mother,,yes,,,no,,J2_Q0801
+j2_q0802,STRING,Background - At age 14 - People you lived with - Biological father,,yes,,,no,,J2_Q0802
+j2_q0803,STRING,"Background - At age 14 - People you lived with - Adoptive, step or foster mother",,yes,,,no,,J2_Q0803
+j2_q0804,STRING,"Background - At age 14 - People you lived with - Adoptive, step or foster father",,yes,,,no,,J2_Q0804
+j2_q0805,STRING,Background - At age 14 - People you lived with - Siblings,,yes,,,no,,J2_Q0805
+j2_q0806,STRING,Background - At age 14 - People you lived with - Grandparent(s),,yes,,,no,,J2_Q0806
+j2_q0807,STRING,Background - At age 14 - People you lived with - Other relative(s),,yes,,,no,,J2_Q0807
+j2_q0808,STRING,Background - At age 14 - People you lived with - Other non relative(s),,yes,,,no,,J2_Q0808
+j2_q08dk,STRING,Background - At age 14 - People you lived with - Don´t know,,yes,,,no,,J2_Q08DK
+j2_q08rf,STRING,Background - At age 14 - People you lived with - Refused,,yes,,,no,,J2_Q08RF
+j2_q09a,INT64,Background - At age 14 - Number of siblings,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q09a
+j2_q09a_c,INT64,Background - At age 14 - Number of siblings (top-coded at 4),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J2_Q09a_C
+j2_q09b,STRING,Background - At age 14 - Oldest or youngest,,yes,,,no,,J2_Q09b
+j2_q09c,STRING,"Background - At age 14 - Oldest, youngest or in-between",,yes,,,no,,J2_Q09c
+zz1a_01,STRING,Observation module: No one else was present during the interview,,yes,,,no,,ZZ1a_01
+zz1a_02,STRING,Observation module: Someone else was present during the background questionnaire,,yes,,,no,,ZZ1a_02
+zz1a_03,STRING,Observation module: Someone else was present during the Exercise,,yes,,,no,,ZZ1a_03
+zz1b_01,STRING,Observation module: No one assisted the respondent,,yes,,,no,,ZZ1b_01
+zz1b_02,STRING,Observation module: A translator or interpreter helped with the background questionnaire,,yes,,,no,,ZZ1b_02
+zz1b_03,STRING,Observation module: Someone assisted during the Exercise,,yes,,,no,,ZZ1b_03
+zz2,STRING,Observation module: Respondent understood the questions,,yes,,,no,,ZZ2
+zz3,STRING,Observation module: Assisted the respondent with the Exercise,,yes,,,no,,ZZ3
+zz4,STRING,Observation module: Respondent asked for assistance in using the features of the tablet,,yes,,,no,,ZZ4
+zz5,STRING,Observation module: Respondent asked for assistance while completing the Exercise,,yes,,,no,,ZZ5
+zz6_01,STRING,"Observation module: Air traffic, rail traffic, road traffic including emergency vehicles",,yes,,,no,,ZZ6_01
+zz6_02,STRING,Observation module: Loud noises outside the house,,yes,,,no,,ZZ6_02
+zz6_03,STRING,Observation module: Household appliances in use,,yes,,,no,,ZZ6_03
+zz6_04,STRING,"Observation module: Television, radio, game console or music player in use",,yes,,,no,,ZZ6_04
+zz6_05,STRING,"Observation module: People talking loudly, crying babies or children, pets",,yes,,,no,,ZZ6_05
+zz6_06,STRING,Observation module: Other background noise during the Exercise,,yes,,,no,,ZZ6_06
+zz6_07,STRING,Observation module: not applicable,,yes,,,no,,ZZ6_07
+zz7,STRING,Observation module: Respondent stopped working on the Exercise,,yes,,,no,,ZZ7
+zz8,STRING,Observation module: Exercise taking too long for respondent,,yes,,,no,,ZZ8
+zz9,STRING,Observation module: Place of the Exercise,,yes,,,no,,ZZ9
+wf_scorelocnum,STRING,Recorded score for Numeracy locator,,no,,,no,,WF_ScoreLOCNUM
+wf_scoreloclit,STRING,Recorded score for Literacy locator,,no,,,no,,WF_ScoreLOCLIT
+wf_scorestg2num,STRING,Recorded score for Numeracy Stage 2,,no,,,no,,WF_ScoreSTG2NUM
+wf_scorestg2lit,STRING,Recorded score for Literacy Stage 2,,no,,,no,,WF_ScoreSTG2LIT
+wf_compform,STRING,Selected form for Components,,no,,,no,,WF_COMPFORM
+wf_dapath,STRING,"Selected DA path based on locator scores (1, 2 or 3)",,no,,,no,,WF_DAPATH
+wf_domainsel1,STRING,"Selected first domain (LIT, NUM, APS)",,no,,,no,,WF_DOMAINSEL1
+wf_domainsel2,STRING,"Selected second domain (LIT, NUM, APS)",,no,,,no,,WF_DOMAINSEL2
+wf_testlet11,STRING,Selected first testlet in first domain,,no,,,no,,WF_TESTLET11
+wf_testlet12,STRING,Selected second testlet in first domain,,no,,,no,,WF_TESTLET12
+wf_testlet21,STRING,Selected first testlet in second domain,,no,,,no,,WF_TESTLET21
+wf_testlet22,STRING,Selected second testlet in second domain,,no,,,no,,WF_TESTLET22
+wf_sentpairs,STRING,Selected pair of blocks for Reading Compnents sentences (comma separated digits 1-4),,no,,,no,,WF_SENTPAIRS
+wf_hmpairs,FLOAT64,Selected pair of blocks for Numeracy Components How Many items (comma separated digits 1-4),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",WF_HMPAIRS
+wf_bigpairs,STRING,Selected pair of blocks for Numeracy Components Biggest items (comma separated digits 1-4),,no,,,no,,WF_BIGPAIRS
+isco08_c,STRING,Current Job Occupation - Respondent (ISCO 2008),,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO08_C
+isco08_l,STRING,Last Job Occupation - Respondent (ISCO 2008),,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO08_L
+isic4_c,STRING,Current Job Industry - Respondent (ISIC Rev 4),,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC4_C
+isic4_l,STRING,Last Job Industry - Respondent (ISIC Rev 4),,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC4_L
+isco08_m,STRING,Job Occupation Mother When Respondent Aged 14,,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO08_M
+isco08_f,STRING,Job Occupation Father When Respondent Aged 14,,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO08_F
+lng_home,STRING,Language most often spoken at home - Respondent (ISO 639-2/T),,yes,,,no,,LNG_HOME
+lng_l1,STRING,First language learned at home in childhood and still understood - Respondent (IS0 639-2/T),,yes,,,no,,LNG_L1
+lng_l2,STRING,Second language learned at home in childhood and still understood - Respondent (IS0 639-2/T),,yes,,,no,,LNG_L2
+cnt_brth,STRING,Country of birth - Respondent (UN M49 numerical),,yes,,,no,,CNT_BRTH
+cnt_h,STRING,Country in which highest qualification was gained - Respondent (UN M49 numerical),,yes,,,no,,CNT_H
+reg_tl2,STRING,Geographical region - Respondent (OECD TL2),,yes,,,no,,REG_TL2
+doorstep,STRING,Doorstep Interview administered to respondent,,yes,,,no,,DOORSTEP
+ageg10lfs,STRING,Age in 10 year bands (derived),,yes,,,no,,AGEG10LFS
+ageg5lfs,STRING,Age groups in 5-year intervals based on LFS groupings (derived),,yes,,,no,,AGEG5LFS
+isco1c,STRING,"Occupational classification of respondent's job at 1-digit level (ISCO 2008), current job (derived)",,yes,,,no,,ISCO1C
+isco2c,STRING,"Occupational classification of respondent's job at 2-digit level (ISCO 2008), current job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2C
+isco1l,STRING,"Occupational classification of respondent's job at 1-digit level (ISCO 2008), last job (derived)",,yes,,,no,,ISCO1L
+isco2l,STRING,"Occupational classification of respondent's job at 2-digit level (ISCO 2008), last job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2L
+isic1c,STRING,"Industry classification of respondent's job at 1-digit level (ISIC rev 4), current job (derived)",,yes,,,no,,ISIC1C
+isic2c,STRING,"Industry classification of respondent's job at 2-digit level (ISIC rev 4), current job (derived)",,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC2C
+isic1l,STRING,"Industry classification of respondent's job at 1-digit level(ISIC rev 4), last job (derived)",,yes,,,no,,ISIC1L
+isic2l,STRING,"Industry classification of respondent's job at 2-digit level (ISIC rev 4), last job (derived)",,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC2L
+isco1_moth,STRING,Occupational classification of respondent's mother's or female guardian's job when respondents was 14 at 1-digit level,,yes,,,no,,ISCO1_MOTH
+isco2_moth,STRING,Occupational classification of respondent's mother's or female guardian's job when respondents was 14 at 2-digit level,,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2_MOTH
+isco1_fath,STRING,Occupational classification of respondent's father's or male guardian's job when respondents was 14 at 1-digit level,,yes,,,no,,ISCO1_FATH
+isco2_fath,STRING,Occupational classification of respondent's father's or male guardian's job when respondents was 14 at 2-digit level,,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2_FATH
+iscoskil4,STRING,"Occupational classification of respondent's job (4 skill based categories), last or current (derived)",,yes,,,no,,ISCOSKIL4
+iscoskil4_moth,STRING,Occupational classification of respondent's mother's or female guardian's job (4 skill categories) at respondent age 14,,yes,,,no,,ISCOSKIL4_MOTH
+iscoskil4_fath,STRING,Occupational classification of respondent's father's or male guardian's job (4 skill categories) at respondent age 14,,yes,,,no,,ISCOSKIL4_FATH
+paredc2,STRING,Highest of mother or father’s level of education (derived),,yes,,,no,,PAREDC2
+lng_ds,STRING,Language in which Doorstep Interview administered,,yes,,,no,,LNG_DS
+lng_bq,STRING,"Language for background questionnaire (derived, ISO 639-2/T)",,yes,,,no,,LNG_BQ
+lng_ci,STRING,"Language for exercise (derived, ISO 639-2/T)",,yes,,,no,,LNG_CI
+nativelang,STRING,Test language same as native language (derived),,yes,,,no,,NATIVELANG
+homlang,STRING,Test language same as language spoken most often at home (derived),,yes,,,no,,HOMLANG
+bornlang,STRING,Interactions between place of birth and language status (derived),,yes,,,no,,BORNLANG
+forbornlang,STRING,Interactions between foreign-born and language status (2 categories) (derived),,yes,,,no,,FORBORNLANG
+forbilang,STRING,Has learned as a child and still understands at least two languages not including test language (derived),,yes,,,no,,FORBILANG
+natbilang,STRING,Has learned as a child and still understands at least two languages including test language (derived),,yes,,,no,,NATBILANG
+birthrgn,STRING,Country of birth (9 regions - derived),,yes,,,no,,BIRTHRGN
+ctryrgn,STRING,Country region (9 regions),,yes,,,no,,CTRYRGN
+homlgrgn,STRING,Source region of language spoken most often at home (9 regions) (derived),,yes,,,no,,HOMLGRGN
+firlgrgn,STRING,Source region of first language learned at home in childhood and still understand (9 regions) (derived),,yes,,,no,,FIRLGRGN
+seclgrgn,STRING,Source region of second language learned at home in childhood and still understand (9 regions) (derived),,yes,,,no,,SECLGRGN
+brgn_un,STRING,Country of birth (UN geographical regions) (derived),,yes,,,no,,BRGN_UN
+crgn_un,STRING,Country region (UN geographical regions) (derived),,yes,,,no,,CRGN_UN
+flgrgn_un,STRING,Source geographical region of first language learned at home in childhood and still understand (UN classification),,yes,,,no,,FLGRGN_UN
+slgrgn_un,STRING,Source geographical region of second language learned at home in childhood and still understand (UN classification),,yes,,,no,,SLGRGN_UN
+hlgrgn_un,STRING,Source geographical region of language spoken most often at home (UN classification) (derived),,yes,,,no,,HLGRGN_UN
+cqrgn_un,STRING,Country where highest qualification obtained (region according to UN classification) (derived),,yes,,,no,,CQRGN_UN
+reg_tl2_new,STRING,Geographical region - Respondent (OECD TL2 new),,yes,,,no,,REG_TL2_new
+reg_macro,STRING,Geographical region - Respondent (MACRO),,yes,,,no,,REG_MACRO
+imgenc2,STRING,First and second generation immigrants (derived),,yes,,,no,,IMGENC2
+imparc2,STRING,Parents’ immigration status (derived),,yes,,,no,,IMPARC2
+imyrs,INT64,Years in country (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Native born, Not stated or inferred, Refused, Valid skip",IMYRS
+imyrcat,STRING,Years in country (2-category) (derived),,yes,,,no,,IMYRCAT
+imyrs_c,STRING,"Years in country (categorized, 4 categories)",,yes,,,no,,IMYRS_C
+imyrs_bqdi,STRING,Years in country (combining BQ and DI),,yes,,,no,,IMYRS_BQDI
+subjstatus_bqdi,STRING,Subjective status (combining BQ and DI),,yes,,,no,,SUBJSTATUS_BQDI
+birthcntry_bqdi,STRING,Country of birth (combining BQ and DI),,yes,,,no,,BIRTHCNTRY_BQDI
+edu_bqdi,STRING,Educational attainment in broad categories matching BQ and DI,,yes,,,no,,EDU_BQDI
+edu_bqdi_c,STRING,Educational attainment in broad categories matching BQ and DI (4 categories),,yes,,,no,,EDU_BQDI_C
+fe12c2,STRING,Participated in formal education in 12 months preceding survey (derived),,yes,,,no,,FE12C2
+faet12c2,STRING,Participated in formal AET in 12 mths preceding survey (see AETPOP) (derived),,yes,,,no,,FAET12C2
+nfe12c2,STRING,Participated in non-formal education in 12 mths preceding survey (derived),,yes,,,no,,NFE12C2
+nfe12nr,INT64,Number of training activities in the past 12 months (derived),,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",NFE12NR
+nfe12jrc2,STRING,Participated in non-formal education for job-related reasons in 12 mths,,yes,,,no,,NFE12JRC2
+nfe12njrc2,STRING,Participated in non-formal education for non job-related reasons in 12 mths preceding survey (derived),,yes,,,no,,NFE12NJRC2
+neetc2,STRING,Adults not employed at time of survey and not in education or training in 12 months preceding the survey (derived),,yes,,,no,,NEETC2
+nfeever,STRING,Ever participated in training (derived),,yes,,,no,,NFEEVER
+nfecosts,STRING,Training costs,,yes,,,no,,NFECOSTS
+nfejrwh,STRING,Training was job-related & during working hours (derived),,yes,,,no,,NFEJRWH
+nfejref,STRING,Training was job-related & financed by employer (derived),,yes,,,no,,NFEJREF
+aetpopc2,STRING,Adult education/training population (AET) – excludes youths 16-24 in initial cycle of studies (derived),,yes,,,no,,AETPOPC2
+edworkc2,STRING,Interaction between adults’ work and education status (derived),,yes,,,no,,EDWORKC2
+leavedu,INT64,Respondent’s age when leaving formal education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Still in education, Valid skip",LEAVEDU
+leaver1624c2,STRING,Youth aged 16 to 24 who have left education without completing ISCED 3 or higher (derived),,yes,,,no,,LEAVER1624C2
+ep_tisc2,STRING,Edupath: track completed in ISCED 2 before highest qualification,,yes,,,no,,EP_TISC2
+ep_vet,STRING,Edu pathway: VET at any level before highest qualification,,yes,,,no,,EP_VET
+ep_isc4,STRING,Edu pathway: ISCED 4 completed before highest qualification,,yes,,,no,,EP_ISC4
+ep_acad,STRING,Edu pathway: academic pathway at ISCED 2-3 before highest qualification,,yes,,,no,,EP_ACAD
+ctryqual,STRING,Country where highest qualification obtained (9 regions),,yes,,,no,,CTRYQUAL
+vetc2,STRING,Respondent’s highest level of education is vocationally oriented (derived),,yes,,,no,,VETC2
+vet_tc1,STRING,"Respondent’s upper secondary/post-secondary education is vocationally oriented (derived, Trend PIAAC 1/2)",,yes,,,no,,VET_TC1
+yrsgetc2,INT64,Years of formal education needed to GET the CURRENT job (derived from self-reported qualification needed),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSGETC2
+yrsgetlast,INT64,Years of formal education needed to GET the LAST job (derived from self-reported qualification needed),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSGETLAST
+yrsqualc2,INT64,Years of formal education (derived from highest level of education completed),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSQUALC2
+yrsqualc2_c,INT64,"Years of formal education (derived from highest level of education completed, categorized)",,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSQUALC2_C
+edcat6_tc1,STRING,"Highest level of formal education obtained (6 categories, ISCED 97) (derived)",,yes,,,no,,EDCAT6_TC1
+edcat7_tc1,STRING,"Highest level of formal education obtained (7 categories, ISCED 97) (derived)",,yes,,,no,,EDCAT7_TC1
+edcat8_tc1,STRING,"Highest level of formal education obtained (8 categories, ISCED 97) (derived)",,yes,,,no,,EDCAT8_TC1
+eda_pisced,STRING,"Educational attainment, most detailed PIAAC-A variable (derived)",,yes,,,no,,EDA_PISCED
+eda_isced123,STRING,"Educational attainment, coded to ISCED-A 2011 3 digits (level, orientation, access) (derived)",,yes,,,no,,EDA_ISCED123
+eda_isced1,STRING,"Educational attainment, coded to ISCED-A 2011 digit 1 (level) (derived)",,yes,,,no,,EDA_ISCED1
+eda_isced1_c,STRING,"Educational attainment, coded to ISCED-A 2011 digit 1 (level) (derived, 7 categories)",,yes,,,no,,EDA_ISCED1_C
+ede_pisced,STRING,"Educational enrolment, most detailed PIAAC-P variable (derived)",,yes,,,no,,EDE_PISCED
+ede_isced123,STRING,"Educational enrolment, coded to ISCED-P 2011 3 digits (level, orientation, access) (derived)",,yes,,,no,,EDE_ISCED123
+ede_isced1,STRING,"Educational enrolment, coded to ISCED-P 2011 digit 1 (level) (derived)",,yes,,,no,,EDE_ISCED1
+ede_isced1_c,STRING,"Educational enrolment, coded to ISCED-P 2011 digit 1 (level) (derived, 7 categories)",,yes,,,no,,EDE_ISCED1_C
+ep_tisc3,STRING,Edupath: type of education completed in ISCED 3 before highest qualification,,yes,,,no,,EP_TISC3
+edi_pisced,STRING,"Last incomplete educational qualification, most detailed PIAAC-A variable (derived)",,yes,,,no,,EDI_PISCED
+edi_isced123,STRING,"Last incomplete education, coded to ISCED-A 2011 3 digits (level, orientation, access) (derived)",,yes,,,no,,EDI_ISCED123
+edi_isced1,STRING,"Last incomplete education, coded to ISCED-A 2011 digit 1 (level) (derived)",,yes,,,no,,EDI_ISCED1
+edi_isced1_c,STRING,"Last incomplete education, coded to ISCED-A 2011 digit 1 (level) (derived, 7 categories)",,yes,,,no,,EDI_ISCED1_C
+egc_pisced,STRING,"Qualification needed to GET respondent's CURRENT job, most detailed PIAAC-A variable (derived)",,yes,,,no,,EGC_PISCED
+egc_isced123,STRING,"Qualification needed to GET respondent's CURRENT job, coded to ISCED-A 2011 3 digits (level, orientation, access)",,yes,,,no,,EGC_ISCED123
+egc_isced1,STRING,"Qualification needed to GET respondent's CURRENT job, coded to ISCED-A 2011 digit 1 (level) (derived)",,yes,,,no,,EGC_ISCED1
+egl_pisced,STRING,"Qualification needed to GET respondent's LAST job, most detailed PIAAC-A variable (derived)",,yes,,,no,,EGL_PISCED
+egl_isced123,STRING,"Qualification needed to GET respondent's LAST job, coded to ISCED-A 2011 3 digits (level, orientation, access) (derived)",,yes,,,no,,EGL_ISCED123
+egl_isced1,STRING,"Qualification needed to GET respondent's LAST job, coded to ISCED-A 2011 digit 1 (level) (derived)",,yes,,,no,,EGL_ISCED1
+ep_pisced_1200,STRING,Edupath: ISCED 2 comp/nfs,,yes,,,no,,EP_PISCED_1200
+ep_pisced_1204,STRING,Edupath: ISCED 2 pre/voc,,yes,,,no,,EP_PISCED_1204
+ep_pisced_1245,STRING,Edupath: ISCED 2 acad,,yes,,,no,,EP_PISCED_1245
+ep_pisced_1294,STRING,Edupath: voc ISCED 3 short,,yes,,,no,,EP_PISCED_1294
+ep_pisced_1295,STRING,Edupath: gen ISCED 3 short,,yes,,,no,,EP_PISCED_1295
+ep_pisced_2300,STRING,Edupath: ISCED 3 nfs,,yes,,,no,,EP_PISCED_2300
+ep_pisced_2324,STRING,Edupath: voc ISCED 3 access 3,,yes,,,no,,EP_PISCED_2324
+ep_pisced_2325,STRING,Edupath: gen ISCED 3 access 3,,yes,,,no,,EP_PISCED_2325
+ep_pisced_2334,STRING,Edupath: voc ISCED 3 access 3/4,,yes,,,no,,EP_PISCED_2334
+ep_pisced_2335,STRING,Edupath: gen ISCED 3 access 3/4,,yes,,,no,,EP_PISCED_2335
+ep_pisced_2344,STRING,Edupath: voc ISCED 3 access 5/6/7,,yes,,,no,,EP_PISCED_2344
+ep_pisced_2345,STRING,Edupath: gen ISCED 3 access 5/6/7,,yes,,,no,,EP_PISCED_2345
+ep_pisced_2400,STRING,Edupath: ISCED 4 nfs,,yes,,,no,,EP_PISCED_2400
+ep_pisced_2434,STRING,Edupath: voc ISCED 4 access 4,,yes,,,no,,EP_PISCED_2434
+ep_pisced_2435,STRING,Edupath: gen ISCED 4 access 4,,yes,,,no,,EP_PISCED_2435
+ep_pisced_2444,STRING,Edupath: voc ISCED 4 access 5/6/7,,yes,,,no,,EP_PISCED_2444
+ep_pisced_2445,STRING,Edupath: gen ISCED 4 access 5/6/7,,yes,,,no,,EP_PISCED_2445
+ep_pisced_3500,STRING,Edupath: ISCED 5 nfs,,yes,,,no,,EP_PISCED_3500
+ep_pisced_3504,STRING,Edupath: voc ISCED 5,,yes,,,no,,EP_PISCED_3504
+ep_pisced_3505,STRING,Edupath: gen ISCED 5,,yes,,,no,,EP_PISCED_3505
+ep_pisced_3600,STRING,Edupath: ISCED 6 nfs,,yes,,,no,,EP_PISCED_3600
+ep_pisced_3603,STRING,Edupath: voc ISCED 6,,yes,,,no,,EP_PISCED_3603
+ep_pisced_3604,STRING,Edupath: appl ISCED 6,,yes,,,no,,EP_PISCED_3604
+ep_pisced_3605,STRING,Edupath: trad ISCED 6,,yes,,,no,,EP_PISCED_3605
+ep_pisced_3700,STRING,Edupath: ISCED 7 nfs,,yes,,,no,,EP_PISCED_3700
+ep_pisced_3703,STRING,Edupath: voc ISCED 7,,yes,,,no,,EP_PISCED_3703
+ep_pisced_3704,STRING,Edupath: appl ISCED 7,,yes,,,no,,EP_PISCED_3704
+ep_pisced_3705,STRING,Edupath: trad ISCED 7,,yes,,,no,,EP_PISCED_3705
+ep_pisced_3800,STRING,Edupath: ISCED 8,,yes,,,no,,EP_PISCED_3800
+ep_pisced_dk,STRING,EDUPATH: PISCED Don't Know,,yes,,,no,,EP_PISCED_DK
+ep_pisced_rf,STRING,EDUPATH: PISCED Refused,,yes,,,no,,EP_PISCED_RF
+ep_isced123_200,STRING,Edupath: ISCED 2,,yes,,,no,,EP_ISCED123_200
+ep_isced123_244,STRING,Edupath: gen ISCED 3 short,,yes,,,no,,EP_ISCED123_244
+ep_isced123_254,STRING,Edupath: voc ISCED 3 short,,yes,,,no,,EP_ISCED123_254
+ep_isced123_300,STRING,Edupath: ISCED 3 nfs,,yes,,,no,,EP_ISCED123_300
+ep_isced123_342,STRING,Edupath: gen ISCED 3 access 3,,yes,,,no,,EP_ISCED123_342
+ep_isced123_343,STRING,Edupath: gen ISCED 3 access 3/4,,yes,,,no,,EP_ISCED123_343
+ep_isced123_344,STRING,Edupath: gen ISCED 3 access 5/6/7,,yes,,,no,,EP_ISCED123_344
+ep_isced123_352,STRING,Edupath: voc ISCED 3 access 3,,yes,,,no,,EP_ISCED123_352
+ep_isced123_353,STRING,Edupath: voc ISCED 3 access 3/4,,yes,,,no,,EP_ISCED123_353
+ep_isced123_354,STRING,Edupath: voc ISCED 3 access 5/6/7,,yes,,,no,,EP_ISCED123_354
+ep_isced123_400,STRING,Edupath: ISCED 4 nfs,,yes,,,no,,EP_ISCED123_400
+ep_isced123_443,STRING,Edupath: gen ISCED 4 access 4,,yes,,,no,,EP_ISCED123_443
+ep_isced123_444,STRING,Edupath: gen ISCED 4 access 5/6/7,,yes,,,no,,EP_ISCED123_444
+ep_isced123_453,STRING,Edupath: voc ISCED 4 access 4,,yes,,,no,,EP_ISCED123_453
+ep_isced123_454,STRING,Edupath: voc ISCED 4 access 5/6/7,,yes,,,no,,EP_ISCED123_454
+ep_isced123_500,STRING,Edupath: ISCED 5 nfs,,yes,,,no,,EP_ISCED123_500
+ep_isced123_540,STRING,Edupath: gen ISCED 5,,yes,,,no,,EP_ISCED123_540
+ep_isced123_550,STRING,Edupath: voc ISCED 5,,yes,,,no,,EP_ISCED123_550
+ep_isced123_600,STRING,Edupath: ISCED 6,,yes,,,no,,EP_ISCED123_600
+ep_isced123_700,STRING,Edupath: ISCED 7,,yes,,,no,,EP_ISCED123_700
+ep_isced123_800,STRING,Edupath: ISCED 8,,yes,,,no,,EP_ISCED123_800
+ep_isced123_dk,STRING,EDUPATH: ISCED123 Don't Know,,yes,,,no,,EP_ISCED123_DK
+ep_isced123_rf,STRING,EDUPATH: ISCED123 Refused,,yes,,,no,,EP_ISCED123_RF
+agre,FLOAT64,Agreeableness dimension z-score based on 3 items/BFI-2-XS (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",AGRE
+agre_6,FLOAT64,Agreeableness dimension z-score based on 6 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",AGRE_6
+agre_comp,FLOAT64,Compassion facet in agreeableness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",AGRE_COMP
+agre_resp,FLOAT64,Respectfulness facet in agreeableness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",AGRE_RESP
+agre_trus,FLOAT64,Trust facet in agreeableness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",AGRE_TRUS
+cons,FLOAT64,Conscientiousness dimension z-score based on 3 items/BFI-2-XS (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",CONS
+cons_6,FLOAT64,Conscientiousness dimension z-score based on 6 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",CONS_6
+cons_orga,FLOAT64,Organization facet in conscientiousness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",CONS_ORGA
+cons_prod,FLOAT64,Productiveness facet in conscientiousness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",CONS_PROD
+cons_resp,FLOAT64,Responsibility facet in conscientiousness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",CONS_RESP
+emos,FLOAT64,Emotional stability dimension z-score based on 3 items/BFI-2-XS (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EMOS
+emos_6,FLOAT64,Emotional stability dimension z-score based on 6 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EMOS_6
+emos_anxi,FLOAT64,Anxiety facet in emotional stability dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EMOS_ANXI
+emos_depr,FLOAT64,Depression facet in emotional stability dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EMOS_DEPR
+emos_vola,FLOAT64,Emotional volatility facet in emotional stability dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EMOS_VOLA
+extr,FLOAT64,Extraversion dimension z-score based on 3 items/BFI-2-XS (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EXTR
+extr_6,FLOAT64,Extraversion dimension z-score based on 6 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EXTR_6
+extr_asse,FLOAT64,Assertiveness facet in extraversion dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EXTR_ASSE
+extr_ener,FLOAT64,Energy level facet in extraversion dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EXTR_ENER
+extr_soci,FLOAT64,Sociability facet in extraversion dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",EXTR_SOCI
+opem,FLOAT64,Open-mindedness dimension z-score based on 3 items/BFI-2-XS (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",OPEM
+opem_6,FLOAT64,Open-mindedness z-score based on 6 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",OPEM_6
+opem_aest,FLOAT64,Aesthetic sensitivity facet in open-mindedness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",OPEM_AEST
+opem_curi,FLOAT64,Intellectual curiosity facet in open-mindedness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",OPEM_CURI
+opem_imag,FLOAT64,Creative imagination facet in open-mindedness dimension z-score based on 2 items/BFI-2-S (derived),,no,,,no,"Dimensionless standardised score (mean 0, standard deviation 1) on a BFI-2 personality inventory dimension or facet. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip, Variable not derived because of item nonresponse",OPEM_IMAG
+edfield,STRING,Field (Area) of study of  highest qualification (derived),,yes,,,no,,EDFIELD
+edcurfield,STRING,Field (Area) of study of current qualification (derived),,yes,,,no,,EDCURFIELD
+ictever,STRING,"Ever used a digital device like a computer, smartphone, tablet (derived)",,yes,,,no,,ICTEVER
+compfreq,STRING,Frequency of use of a computer/laptop in everyday life (derived),,yes,,,no,,COMPFREQ
+smartphonefreq,STRING,Frequency of use of a smartphone in everyday life (derived),,yes,,,no,,SMARTPHONEFREQ
+tabletfreq,STRING,Frequency of use of a tablet in everyday life (derived),,yes,,,no,,TABLETFREQ
+partner,STRING,Living with spouse or partner (derived),,yes,,,no,,PARTNER
+childnr,INT64,Number of children (derived),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",CHILDNR
+paidwork5,STRING,Adults who have had paid work in last 5 years (derived),,yes,,,no,,PAIDWORK5
+paidwork12,STRING,Adults who have had paid work during the 12 months preceding the survey (derived),,yes,,,no,,PAIDWORK12
+nopaidworkever,STRING,Adults who never had paid work including self-employment in past (derived),,yes,,,no,,NOPAIDWORKEVER
+monthlyincpr,STRING,Monthly income percentile rank category (derived),,yes,,,no,,MONTHLYINCPR
+yearlyincpr,STRING,Yearly income percentile rank category (derived),,yes,,,no,,YEARLYINCPR
+earnflagc2,STRING,Earnings including bonuses reporting method (derived),,yes,,,no,,EARNFLAGC2
+earnhrbonusc2,FLOAT64,Hourly earnings including bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNHRBONUSC2
+earnhrbonusdclc2,STRING,"Hourly earnings including bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRBONUSDCLC2
+earnhrbonuspppc2,FLOAT64,"Hourly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNHRBONUSPPPC2
+earnhrc2,FLOAT64,Hourly earnings excluding bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNHRC2
+earnhrdclc2,STRING,"Hourly earnings excluding bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRDCLC2
+earnhrpppc2,FLOAT64,"Hourly earnings excluding bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNHRPPPC2
+earnmthallc2,FLOAT64,Monthly earnings including bonuses for wage and salary earners and self-employed (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHALLC2
+earnmthalldclc2,STRING,"Monthly earnings including bonuses for wage and salary earners and self-employed, in deciles (derived)",,yes,,,no,,EARNMTHALLDCLC2
+earnmthallpppc2,FLOAT64,"Monthly earnings including bonuses for wage and salary earners and self-employed, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHALLPPPC2
+earnmthbonusc2,FLOAT64,Monthly earnings including bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHBONUSC2
+earnmthbonuspppc2,FLOAT64,"Monthly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHBONUSPPPC2
+earnmthc2,FLOAT64,Monthly earnings excluding bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHC2
+earnmthpppc2,FLOAT64,"Monthly earnings excluding bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHPPPC2
+earnmthselfc2,FLOAT64,Monthly earnings including bonuses for wage and salary earners and self-employed (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHSELFC2
+earnmthselfpppc2,FLOAT64,"Monthly earnings for self-employed, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",EARNMTHSELFPPPC2
+dapath,STRING,MS Design Path,,yes,,,no,,DAPATH
+designmode_lit,STRING,Literacy Routing Path,,yes,,,no,,DESIGNMODE_Lit
+designmode_num,STRING,Numeracy Routing Path,,yes,,,no,,DESIGNMODE_Num
+designmode_aps,STRING,APS Routing Path,,yes,,,no,,DESIGNMODE_APS
+etsageg5,STRING,Age groups in equal 5-year intervals of PIAAC base population ranging from 16 to 65,,yes,,,no,,ETSAGEG5
+etsageg10,STRING,Age groups in equal 10-year intervals of PIAAC base population ranging from 16 to 65,,yes,,,no,,ETSAGEG10
+icthomec2,FLOAT64,Index of use of ICT skills at home (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",ICTHOMEC2
+icthomec2_se,FLOAT64,"Index of use of ICT skills at home, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",ICTHOMEC2_SE
+icthomec2_wle_ca,STRING,"Index of use of ICT skills at home, categorised WLE (derived)",,yes,,,no,,ICTHOMEC2_WLE_CA
+ictworkc2,FLOAT64,Index of use of ICT skills at work (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",ICTWORKC2
+ictworkc2_se,FLOAT64,"Index of use of ICT skills at work, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",ICTWORKC2_SE
+ictworkc2_wle_ca,STRING,"Index of use of ICT skills at work, categorised WLE (derived)",,yes,,,no,,ICTWORKC2_WLE_CA
+influencec2_t1,FLOAT64,Index of use of influencing skills at work (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",INFLUENCEC2_T1
+influencec2_se_t1,FLOAT64,"Index of use of influencing skills at work, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",INFLUENCEC2_SE_T1
+influencec2_wle_ca_t1,STRING,"Index of use of influencing skills at work, categorised WLE (derived)",,yes,,,no,,INFLUENCEC2_WLE_CA_T1
+learnatworkc2,FLOAT64,Index of learning at work (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",LEARNATWORKC2
+learnatworkc2_se,FLOAT64,"Index of learning at work, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",LEARNATWORKC2_SE
+learnatworkc2_wle_ca,STRING,"Index of learning at work, categorised WLE (derived)",,yes,,,no,,LEARNATWORKC2_WLE_CA
+numhomec2,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",NUMHOMEC2
+numhomec2_se,FLOAT64,"Index of use of numeracy skills at home (basic and advanced), standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",NUMHOMEC2_SE
+numhomec2_wle_ca,STRING,"Index of use of numeracy skills at home (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMHOMEC2_WLE_CA
+numworkc2,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",NUMWORKC2
+numworkc2_se,FLOAT64,"Index of use of numeracy skills at work (basic and advanced), standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",NUMWORKC2_SE
+numworkc2_wle_ca,STRING,"Index of use of numeracy skills at work (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMWORKC2_WLE_CA
+readhomec2_t1,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",READHOMEC2_T1
+readhomec2_se_t1,FLOAT64,"Index of use of reading skills at home (prose and document texts), standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",READHOMEC2_SE_T1
+readhomec2_wle_ca_t1,STRING,"Index of use of reading skills at home (prose and document texts), categorised WLE (derived)",,yes,,,no,,READHOMEC2_WLE_CA_T1
+readworkc2_t1,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",READWORKC2_T1
+readworkc2_se_t1,FLOAT64,"Index of use of reading skills at work (prose and document texts), standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",READWORKC2_SE_T1
+readworkc2_wle_ca_t1,STRING,"Index of use of reading skills at work (prose and document texts), categorised WLE (derived)",,yes,,,no,,READWORKC2_WLE_CA_T1
+taskdiscc2_t1,FLOAT64,Index of use of task discretion at work (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",TASKDISCC2_T1
+taskdiscc2_se_t1,FLOAT64,"Index of use of task discretion at work, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",TASKDISCC2_SE_T1
+taskdiscc2_wle_ca_t1,STRING,"Index of use of task discretion at work, categorised WLE (derived)",,yes,,,no,,TASKDISCC2_WLE_CA_T1
+writhomec2,FLOAT64,Index of use of writing skills at home (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",WRITHOMEC2
+writhomec2_se,FLOAT64,"Index of use of writing skills at home, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",WRITHOMEC2_SE
+writhomec2_wle_ca,STRING,"Index of use of writing skills at home, categorised WLE (derived)",,yes,,,no,,WRITHOMEC2_WLE_CA
+writworkc2,FLOAT64,Index of use of writing skills at work (derived),,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",WRITWORKC2
+writworkc2_se,FLOAT64,"Index of use of writing skills at work, standard error (derived)",,no,,score_point,no,"Derived index of skill use. Cycle 2 only, and not comparable with the Cycle 1 scale of the same name. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",WRITWORKC2_SE
+writworkc2_wle_ca,STRING,"Index of use of writing skills at work, categorised WLE (derived)",,yes,,,no,,WRITWORKC2_WLE_CA
+pvlit1,FLOAT64,Literacy scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT1
+pvlit2,FLOAT64,Literacy scale score - Plausible value 2,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT2
+pvlit3,FLOAT64,Literacy scale score - Plausible value 3,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT3
+pvlit4,FLOAT64,Literacy scale score - Plausible value 4,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT4
+pvlit5,FLOAT64,Literacy scale score - Plausible value 5,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT5
+pvlit6,FLOAT64,Literacy scale score - Plausible value 6,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT6
+pvlit7,FLOAT64,Literacy scale score - Plausible value 7,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT7
+pvlit8,FLOAT64,Literacy scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT8
+pvlit9,FLOAT64,Literacy scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT9
+pvlit10,FLOAT64,Literacy scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT10
+pvnum1,FLOAT64,Numeracy scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM1
+pvnum2,FLOAT64,Numeracy scale score - Plausible value 2,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM2
+pvnum3,FLOAT64,Numeracy scale score - Plausible value 3,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM3
+pvnum4,FLOAT64,Numeracy scale score - Plausible value 4,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM4
+pvnum5,FLOAT64,Numeracy scale score - Plausible value 5,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM5
+pvnum6,FLOAT64,Numeracy scale score - Plausible value 6,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM6
+pvnum7,FLOAT64,Numeracy scale score - Plausible value 7,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM7
+pvnum8,FLOAT64,Numeracy scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM8
+pvnum9,FLOAT64,Numeracy scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM9
+pvnum10,FLOAT64,Numeracy scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM10
+pvaps1,FLOAT64,Adaptive Problem Solving scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS1
+pvaps2,FLOAT64,Adaptive Problem Solving scale score - Plausible value 2,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS2
+pvaps3,FLOAT64,Adaptive Problem Solving scale score - Plausible value 3,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS3
+pvaps4,FLOAT64,Adaptive Problem Solving scale score - Plausible value 4,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS4
+pvaps5,FLOAT64,Adaptive Problem Solving scale score - Plausible value 5,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS5
+pvaps6,FLOAT64,Adaptive Problem Solving scale score - Plausible value 6,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS6
+pvaps7,FLOAT64,Adaptive Problem Solving scale score - Plausible value 7,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS7
+pvaps8,FLOAT64,Adaptive Problem Solving scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS8
+pvaps9,FLOAT64,Adaptive Problem Solving scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS9
+pvaps10,FLOAT64,Adaptive Problem Solving scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVAPS10
+vemethod,STRING,Replication approach (string),,yes,,,no,,VEMETHOD
+vemethodn,STRING,Replication approach (numeric),,yes,,,no,,VEMETHODN
+vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,"Dimensionless Fay factor used in replicate-weight variance estimation. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",VEFAYFAC
+venreps,STRING,Number of replicate weights used,,no,,,no,,VENREPS
+varstrat,STRING,Variance stratum,,no,,,no,,VARSTRAT
+varunit,STRING,Variance unit,,no,,,no,,VARUNIT
+spfwt0,FLOAT64,Final full sample weight,,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT0
+spfwt1,FLOAT64,Final replicate weight (1),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT1
+spfwt2,FLOAT64,Final replicate weight (2),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT2
+spfwt3,FLOAT64,Final replicate weight (3),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT3
+spfwt4,FLOAT64,Final replicate weight (4),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT4
+spfwt5,FLOAT64,Final replicate weight (5),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT5
+spfwt6,FLOAT64,Final replicate weight (6),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT6
+spfwt7,FLOAT64,Final replicate weight (7),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT7
+spfwt8,FLOAT64,Final replicate weight (8),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT8
+spfwt9,FLOAT64,Final replicate weight (9),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT9
+spfwt10,FLOAT64,Final replicate weight (10),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT10
+spfwt11,FLOAT64,Final replicate weight (11),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT11
+spfwt12,FLOAT64,Final replicate weight (12),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT12
+spfwt13,FLOAT64,Final replicate weight (13),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT13
+spfwt14,FLOAT64,Final replicate weight (14),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT14
+spfwt15,FLOAT64,Final replicate weight (15),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT15
+spfwt16,FLOAT64,Final replicate weight (16),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT16
+spfwt17,FLOAT64,Final replicate weight (17),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT17
+spfwt18,FLOAT64,Final replicate weight (18),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT18
+spfwt19,FLOAT64,Final replicate weight (19),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT19
+spfwt20,FLOAT64,Final replicate weight (20),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT20
+spfwt21,FLOAT64,Final replicate weight (21),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT21
+spfwt22,FLOAT64,Final replicate weight (22),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT22
+spfwt23,FLOAT64,Final replicate weight (23),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT23
+spfwt24,FLOAT64,Final replicate weight (24),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT24
+spfwt25,FLOAT64,Final replicate weight (25),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT25
+spfwt26,FLOAT64,Final replicate weight (26),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT26
+spfwt27,FLOAT64,Final replicate weight (27),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT27
+spfwt28,FLOAT64,Final replicate weight (28),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT28
+spfwt29,FLOAT64,Final replicate weight (29),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT29
+spfwt30,FLOAT64,Final replicate weight (30),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT30
+spfwt31,FLOAT64,Final replicate weight (31),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT31
+spfwt32,FLOAT64,Final replicate weight (32),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT32
+spfwt33,FLOAT64,Final replicate weight (33),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT33
+spfwt34,FLOAT64,Final replicate weight (34),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT34
+spfwt35,FLOAT64,Final replicate weight (35),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT35
+spfwt36,FLOAT64,Final replicate weight (36),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT36
+spfwt37,FLOAT64,Final replicate weight (37),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT37
+spfwt38,FLOAT64,Final replicate weight (38),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT38
+spfwt39,FLOAT64,Final replicate weight (39),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT39
+spfwt40,FLOAT64,Final replicate weight (40),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT40
+spfwt41,FLOAT64,Final replicate weight (41),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT41
+spfwt42,FLOAT64,Final replicate weight (42),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT42
+spfwt43,FLOAT64,Final replicate weight (43),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT43
+spfwt44,FLOAT64,Final replicate weight (44),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT44
+spfwt45,FLOAT64,Final replicate weight (45),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT45
+spfwt46,FLOAT64,Final replicate weight (46),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT46
+spfwt47,FLOAT64,Final replicate weight (47),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT47
+spfwt48,FLOAT64,Final replicate weight (48),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT48
+spfwt49,FLOAT64,Final replicate weight (49),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT49
+spfwt50,FLOAT64,Final replicate weight (50),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT50
+spfwt51,FLOAT64,Final replicate weight (51),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT51
+spfwt52,FLOAT64,Final replicate weight (52),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT52
+spfwt53,FLOAT64,Final replicate weight (53),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT53
+spfwt54,FLOAT64,Final replicate weight (54),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT54
+spfwt55,FLOAT64,Final replicate weight (55),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT55
+spfwt56,FLOAT64,Final replicate weight (56),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT56
+spfwt57,FLOAT64,Final replicate weight (57),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT57
+spfwt58,FLOAT64,Final replicate weight (58),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT58
+spfwt59,FLOAT64,Final replicate weight (59),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT59
+spfwt60,FLOAT64,Final replicate weight (60),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT60
+spfwt61,FLOAT64,Final replicate weight (61),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT61
+spfwt62,FLOAT64,Final replicate weight (62),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT62
+spfwt63,FLOAT64,Final replicate weight (63),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT63
+spfwt64,FLOAT64,Final replicate weight (64),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT64
+spfwt65,FLOAT64,Final replicate weight (65),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT65
+spfwt66,FLOAT64,Final replicate weight (66),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT66
+spfwt67,FLOAT64,Final replicate weight (67),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT67
+spfwt68,FLOAT64,Final replicate weight (68),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT68
+spfwt69,FLOAT64,Final replicate weight (69),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT69
+spfwt70,FLOAT64,Final replicate weight (70),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT70
+spfwt71,FLOAT64,Final replicate weight (71),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT71
+spfwt72,FLOAT64,Final replicate weight (72),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT72
+spfwt73,FLOAT64,Final replicate weight (73),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT73
+spfwt74,FLOAT64,Final replicate weight (74),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT74
+spfwt75,FLOAT64,Final replicate weight (75),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT75
+spfwt76,FLOAT64,Final replicate weight (76),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT76
+spfwt77,FLOAT64,Final replicate weight (77),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT77
+spfwt78,FLOAT64,Final replicate weight (78),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT78
+spfwt79,FLOAT64,Final replicate weight (79),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT79
+spfwt80,FLOAT64,Final replicate weight (80),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT80

@@ -1,0 +1,31 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the first four digits of tucaseid.,TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+tuactivity_n,STRING,Activity line number sequencing the activities reported on the diary day.,,no,,,no,,TUACTIVITY_N
+tuactdur24,INT64,Duration of activity in minutes (last activity truncated at 4:00 a.m.),,no,,minute,no,,TUACTDUR24
+tucc5,STRING,Was at least one of your own household children < 13 in your care during this activity?,,yes,,,no,,TUCC5
+tucc5b,STRING,Was at least one of your non-own household children < 13 in your care during this activity?,,yes,,,no,,TUCC5B
+trtcctot_ln,INT64,Total time spent during activity providing secondary childcare for all children < 13 (in minutes),,no,,minute,no,,TRTCCTOT_LN
+trtcc_ln,INT64,Total time spent during activity providing secondary child care for household and own nonhousehold children < 13 (in minutes),,no,,minute,no,,TRTCC_LN
+trtcoc_ln,INT64,"Total time spent during activity providing secondary child care for nonown, nonhousehold children <13 (in minutes)",,no,,minute,no,,TRTCOC_LN
+tustarttim,STRING,Activity start time,,no,,,no,"Time of day, formatted HH:MM:SS.",TUSTARTTIM
+tustoptime,STRING,Activity stop time,,no,,,no,"Time of day, formatted HH:MM:SS.",TUSTOPTIME
+trcodep,STRING,Pooled six-digit activity code,,yes,,,no,,TRCODEP
+trtier1p,STRING,Pooled lexicon tier 1: 1st and 2nd digits of 6-digit activity code,,yes,,,no,,TRTIER1P
+trtier2p,STRING,Pooled lexicon tiers 1 and 2: 1st four digits of 6-digit activity code,,yes,,,no,,TRTIER2P
+tucc8,STRING,"Other than household or own non-household children < 13, was there a child 0-12 in your care during this activity?",,yes,,,no,,TUCC8
+tucumdur,INT64,Cumulative duration of activity lengths in minutes; last activity not truncated at 4:00am or 1440 minutes (cumulative total of TUACTDUR for each TUCASEID),,no,,minute,no,,TUCUMDUR
+tucumdur24,INT64,Cumulative duration of activity lengths in minutes; last activity truncated at 4:00am or 1440 minutes (cumulative total of TUACTDUR24 for each TUCASEID),,no,,minute,no,,TUCUMDUR24
+tuactdur,INT64,Duration of activity in minutes (last activity not truncated at 4:00 a.m.),,no,,minute,no,,TUACTDUR
+tr_03cc57,STRING,Was a household or own non-household child < 13 in your care during this activity?,,yes,,,no,,TR_03CC57
+trto_ln,INT64,Total time spent during activity providing secondary childcare for own children < 13 (in minutes),,no,,minute,no,,TRTO_LN
+trtonhh_ln,INT64,Total time spent during activity providing secondary childcare for own nonhousehold children < 13 (in minutes),,no,,minute,no,,TRTONHH_LN
+trtohh_ln,INT64,Total time spent during activity providing secondary childcare for own household children < 13 (in minutes),,no,,minute,no,,TRTOHH_LN
+trthh_ln,INT64,Total time spent during activity providing secondary childcare for household children < 13 (in minutes),,no,,minute,no,,TRTHH_LN
+trtnohh_ln,INT64,Total time spent during activity providing secondary childcare for nonown household children < 13 (in minutes),,no,,minute,no,,TRTNOHH_LN
+tewhere,STRING,Location or mode of transportation where the activity took place.,,yes,,,no,,TEWHERE
+tucc7,STRING,Was at least one of your own non-household children < 13 in your care during this activity?,,yes,,,no,,TUCC7
+trwbelig,STRING,Flag indicating whether the case was eligible for the Well-Being Module.,,yes,,,no,,TRWBELIG
+trtec_ln,INT64,Time (in minutes) spent providing eldercare by activity,,no,,minute,no,,TRTEC_LN
+tuec24,STRING,At which times or during which activities did you provide that care or assistance yesterday?,,yes,,,no,,TUEC24
+tudurstop,STRING,Method for reporting activity duration,,yes,,,no,,TUDURSTOP

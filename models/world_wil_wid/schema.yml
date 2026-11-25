@@ -1,0 +1,212 @@
+---
+version: 2
+models:
+  - name: world_wil_wid__indicator
+    description: >
+      Séries de desigualdade de renda e riqueza da World Inequality Database
+      (WID.world) em formato longo: uma linha por área geográfica, variável,
+      percentil e ano. Cobre 1800 a 2025 e reúne agregados macroeconômicos e
+      medidas distribucionais (participações, limiares, médias por percentil,
+      índices de Gini) para países, unidades subnacionais e agregados regionais,
+      inclusive o mundo. A unidade de value varia por série e está registrada na
+      coluna unit da tabela series.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_code, variable, percentile]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_wil_wid__dicionario')
+          columns_covered_by_dictionary: [series_type, pop, age]
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_code
+        description: Código da área geográfica na notação da WID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('world_wil_wid__country')
+              field: country_code
+      - name: variable
+        description: >
+          Código completo da variável na notação da WID, concatenando tipo de
+          série, conceito, unidade populacional e faixa etária
+        tests: [not_null]
+      - name: series_type
+        description: >
+          Código do tipo de série, primeiro caractere de variable (a para média,
+          s para participação, t para limiar, g para índice de Gini)
+      - name: concept
+        description: >
+          Código do conceito econômico medido, caracteres 2 a 6 de variable
+          (ptinc para renda antes de impostos, hweal para riqueza dos domicílios)
+      - name: pop
+        description: Código da unidade populacional
+      - name: age
+        description: Código da faixa etária da população de referência
+      - name: percentile
+        description: >
+          Percentil ou intervalo de percentis a que a observação se refere, na
+          notação pXpY
+        tests: [not_null]
+      - name: value
+        description: >
+          Valor da observação; a unidade depende da série e está na coluna unit
+          da tabela series
+      - name: data_quality
+        description: >
+          Índice de qualidade do dado atribuído pela WID, com valores inteiros
+          de 0 a 5. Nulo em todos os agregados regionais, cuja coluna não é
+          publicada pelo arquivo de origem
+  - name: world_wil_wid__series
+    description: >
+      Catálogo de metadados da WID.world, com uma linha por combinação de área
+      geográfica e variável. Traz o nome e a descrição do conceito medido, o
+      tipo de série, a unidade populacional, a faixa etária, a unidade de medida
+      dos valores, a fonte primária e o método de construção da série. É a
+      tabela que define a unidade da coluna value em indicator.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [country_code, variable]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [extrapolation, data_points, data_quality_score]
+    columns:
+      - name: country_code
+        description: Código da área geográfica na notação da WID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('world_wil_wid__country')
+              field: country_code
+      - name: variable
+        description: Código completo da variável na notação da WID
+        tests: [not_null]
+      - name: series_type
+        description: Código do tipo de série
+      - name: concept
+        description: Código do conceito econômico medido
+      - name: pop
+        description: Código da unidade populacional
+      - name: age
+        description: Código da faixa etária da população de referência
+      - name: country_name
+        description: Nome da área geográfica conforme publicado pela WID
+      - name: name
+        description: Nome do conceito econômico medido pela série
+      - name: simple_description
+        description: Descrição não técnica do conceito medido
+      - name: technical_description
+        description: Descrição técnica do conceito medido
+      - name: type_name
+        description: Nome do tipo de série
+      - name: type_description
+        description: Descrição do tipo de série
+      - name: pop_name
+        description: Nome da unidade populacional
+      - name: pop_description
+        description: Descrição da unidade populacional
+      - name: age_name
+        description: Nome da faixa etária
+      - name: age_description
+        description: Descrição da faixa etária
+      - name: unit
+        description: Unidade de medida dos valores da série
+      - name: source
+        description: >
+          Fonte primária dos dados da série, segmentada por intervalo de anos.
+          A marcação de hiperlinks do arquivo de origem foi convertida em texto
+          corrido seguido da URL entre parênteses
+      - name: method
+        description: >
+          Método de construção da série, segmentado por intervalo de anos
+      - name: extrapolation
+        description: Intervalos de anos em que os valores foram extrapolados
+      - name: data_points
+        description: Anos com observação primária disponível
+      - name: data_quality_score
+        description: >
+          Índice médio de qualidade dos dados da série, de 0 a 5. Nulo na maior
+          parte das séries, inclusive em todos os agregados regionais
+  - name: world_wil_wid__country
+    description: >
+      Dimensão geográfica da WID.world, com uma linha por área presente nas
+      tabelas indicator e series. Cobre países, unidades subnacionais (estados
+      norte-americanos, estados alemães históricos, China urbana e rural) e os
+      agregados regionais da própria WID, inclusive o mundo. Os nomes dos
+      agregados são recuperados dos arquivos de metadados, já que o arquivo
+      WID_countries.csv da fonte cobre apenas parte das áreas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [country_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: country_code
+        description: Código da área geográfica na notação da WID
+        tests: [not_null]
+      - name: base_code
+        description: Código da área geográfica sem o sufixo de conversão
+        tests: [not_null]
+      - name: country_iso2
+        description: >
+          Código de duas letras do país, preenchido apenas quando
+          geography_type é country
+      - name: title_name
+        description: Nome da área geográfica em posição de complemento
+      - name: short_name
+        description: Nome curto da área geográfica
+      - name: region
+        description: Região continental atribuída pela WID
+      - name: region2
+        description: >
+          Sub-região atribuída pela WID. A fonte publica grafias inconsistentes
+          para a mesma sub-região, preservadas como vêm
+      - name: geography_type
+        description: >
+          Tipo de área geográfica: country, subnational ou region
+        tests: [not_null]
+      - name: conversion
+        description: >
+          Método de conversão cambial do agregado regional, MER ou PPP; nulo
+          quando o código não traz sufixo
+  - name: world_wil_wid__dicionario
+    description: >
+      Dicionário das colunas codificadas das tabelas indicator e series. Os
+      rótulos são extraídos dos próprios arquivos de metadados da WID, e não
+      transcritos da documentação do site, de modo que não podem divergir dos
+      dados. A coluna data_quality não consta: a WID não publica um codebook
+      para ela.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Valor codificado
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal do mapeamento
+      - name: valor
+        description: Rótulo legível correspondente à chave
+        tests: [not_null]

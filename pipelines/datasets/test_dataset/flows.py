@@ -1,107 +1,232 @@
 """
-test flow for basedosdados
+Flows for test_dataset. Vários pilotos/testes convivem aqui — ver
+comentário no topo de `constants.py`.
 """
 
-###############################################################################
-#
-# Aqui é onde devem ser definidos os flows do projeto.
-# Cada flow representa uma sequência de passos que serão executados
-# em ordem.
-#
-# Mais informações sobre flows podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/flows.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
-# Existem diversas maneiras de declarar flows. No entanto, a maneira mais
-# conveniente e recomendada pela documentação é usar a API funcional.
-# Em essência, isso implica simplesmente na chamada de funções, passando
-# os parâmetros necessários para a execução em cada uma delas.
-#
-# Também, após a definição de um flow, para o adequado funcionamento, é
-# mandatório configurar alguns parâmetros dele, os quais são:
-# - storage: onde esse flow está armazenado. No caso, o storage é o
-#   próprio módulo Python que contém o flow. Sendo assim, deve-se
-#   configurar o storage como o pipelines.basedosdados
-# - run_config: para o caso de execução em cluster Kubernetes, que é
-#   provavelmente o caso, é necessário configurar o run_config com a
-#   imagem Docker que será usada para executar o flow. Assim sendo,
-#   basta usar constants.DOCKER_IMAGE.value, que é automaticamente
-#   gerado.
-# - schedule (opcional): para o caso de execução em intervalos regulares,
-#   deve-se utilizar algum dos schedules definidos em schedules.py
-#
-# Um exemplo de flow, considerando todos os pontos acima, é o seguinte:
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-# from prefect import Flow
-# from prefect.run_configs import KubernetesRun
-# from prefect.storage import GCS
-# from pipelines.constants import constants
-# from my_tasks import my_task, another_task
-# from my_schedules import some_schedule
-#
-# with Flow("my_flow") as flow:
-#     a = my_task(param1=1, param2=2)
-#     b = another_task(a, param3=3)
-#
-# flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-# flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# flow.schedule = some_schedule
-# -----------------------------------------------------------------------------
-#
-# Abaixo segue um código para exemplificação, que pode ser removido.
-#
-###############################################################################
+from pipelines.datasets.test_dataset.constants import (
+    BACKEND_ENV,
+    DATASET_ID,
+    EVENT_PIPELINE_JOB_VARIABLES,
+    EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES,
+    EVENT_PIPELINE_PARTITIONED_TABLE_ID,
+    EVENT_PIPELINE_TABLE_ID,
+)
+from pipelines.datasets.test_dataset.tasks import (
+    event_pipeline_check_update,
+    event_pipeline_download,
+    event_pipeline_partitioned_check_update,
+    event_pipeline_partitioned_download,
+)
+from pipelines.utils.flow import flow
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
+)
+from pipelines.utils.tasks import run_dbt
 
-from prefect import Parameter
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+# ──────────────────────────────────────────────────────────────────────────────
+# Testes de download_data_to_gcs — um flow por condição de tamanho
+#
+# Cada flow chama run_dbt com target="prod", que ao final dispara
+# download_data_to_gcs automaticamente. Os modelos dbt usam FARM_FINGERPRINT
+# para gerar dados sintéticos com tamanhos previsíveis.
+#
+# Caso 1 — ate 100 MB, sem bdpro_filter  → exporta open
+# Caso 2 — ate 100 MB, com bdpro_filter  → exporta open + BDPro (post-hook no .sql)
+# Caso 3 — 100 MB-1 GB                 → exporta apenas BDPro
+# Caso 4 — acima 1 GB                      → sem export (retorna cedo)
+# ──────────────────────────────────────────────────────────────────────────────
 
-from pipelines.constants import constants
-from pipelines.datasets.test_dataset.tasks import get_data_path
-from pipelines.utils.decorators import Flow
-from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    run_dbt,
+
+@flow(
+    name="test_dataset: download_data_to_gcs (ate 100 MB sem bdpro)",
+    flow_run_name="test download_data_to_gcs: open only",
+    log_prints=True,
+)
+def test_download_data_to_gcs_open_only_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_pequena",
+        dbt_command="run",
+        target="prod",
+    )
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (ate 100 MB com bdpro)",
+    flow_run_name="test download_data_to_gcs: open and bdpro",
+    log_prints=True,
+)
+def test_download_data_to_gcs_open_and_bdpro_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_pequena_bdpro",
+        dbt_command="run",
+        target="prod",
+    )
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (100 MB-1 GB)",
+    flow_run_name="test download_data_to_gcs: bdpro only",
+    log_prints=True,
+)
+def test_download_data_to_gcs_bdpro_only_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_media",
+        dbt_command="run",
+        target="prod",
+    )
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (acima 1 GB)",
+    flow_run_name="test download_data_to_gcs: skip large",
+    log_prints=True,
+)
+def test_download_data_to_gcs_skip_large_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_grande",
+        dbt_command="run",
+        target="prod",
+    )
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (suite)",
+    flow_run_name="test download_data_to_gcs: all cases",
+    log_prints=True,
+)
+def test_download_data_to_gcs_all_cases_flow() -> None:
+    test_download_data_to_gcs_open_only_flow()
+    test_download_data_to_gcs_open_and_bdpro_flow()
+    test_download_data_to_gcs_bdpro_only_flow()
+    test_download_data_to_gcs_skip_large_flow()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# event_pipeline — piloto da arquitetura em estágios (staged pipeline)
+#
+# check_update_flow compara a data de hoje contra a coverage registrada no
+# backend pra test_dataset.test_event_pipeline. download_flow simula
+# um download (CSV pequeno) e sobe pro staging. A materialização de
+# verdade (dbt run/test em dev e prod + atualização da coverage) é feita
+# pelo build_and_promote genérico (pipelines/utils/metadata/flows.py).
+#
+# Cadeia: check_update -> (run_deployment) -> extract_and_load -> (run_deployment) -> build_and_promote.
+#
+# Nomes de variável com prefixo `event_pipeline_` de propósito: esse
+# módulo tem várias pipelines, e `deploy_flows.py` descobre flows pelo
+# nome da variável — duas pipelines aqui não podem, as duas, se chamar
+# `check_update_flow` (a segunda sobrescreveria a primeira no namespace
+# do módulo). Por isso `_event_pipeline.extract_load_deployment` é
+# setado logo depois de `event_pipeline_download_flow` existir, a
+# partir do `__name__` da própria função — não repetido como string solta
+# no construtor (evita o mesmo tipo de risco que o `Etapa(StrEnum)`
+# elimina: duas grafias do mesmo nome que podem divergir silenciosamente).
+# ──────────────────────────────────────────────────────────────────────────────
+
+_event_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=EVENT_PIPELINE_TABLE_ID,
+    env=BACKEND_ENV,
+    get_latest_update=event_pipeline_check_update,
+    extract_load_data=event_pipeline_download,
 )
 
-# from pipelines.datasets.test_pipeline.schedules import every_five_minutes
+
+@flow(name=_event_pipeline.check_update_flow_name, log_prints=True)
+def event_pipeline_check_update_flow() -> None:
+    """Disparado pelo schedule. Todo o corpo mora em `_event_pipeline` —
+    ver `CheckThenExtractLoadPipeline` em `pipelines/utils/stage_dispatch.py`."""
+    _event_pipeline.run_check_update()
 
 
-with Flow(name="test_flow") as test_flow:
-    # BigQuery parameters
-    dataset_id = Parameter("dataset_id", default="test_dataset")
-    table_id = Parameter("table_id", default="test_table")
+event_pipeline_check_update_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, EVENT_PIPELINE_TABLE_ID
+)
+event_pipeline_check_update_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
+    Etapa.CHECK_UPDATE
+]
 
-    path = get_data_path()
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="overwrite",
-        upstream_tasks=[path],
-    )
+@flow(name=_event_pipeline.extract_and_load_flow_name, log_prints=True)
+def event_pipeline_download_flow(download_params: dict) -> None:
+    """
+    Disparado por `event_pipeline_check_update_flow` via `run_deployment()`,
+    ou manualmente (rerun/debug) passando `download_params` à mão.
+    """
+    _event_pipeline.run_extract_and_load(download_params)
 
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        upstream_tasks=[wait_upload_table],
-    )
 
-    create_table_prod_gcs_and_run_dbt(
-        data_path=path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="overwrite",
-        upstream_tasks=[wait_for_materialization],
-    )
+event_pipeline_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EVENT_PIPELINE_TABLE_ID
+)
+event_pipeline_download_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
+    Etapa.EXTRACT_AND_LOAD
+]
+_event_pipeline.extract_load_deployment = (
+    event_pipeline_download_flow.fn.__name__
+)
 
-test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# test_flow.schedule = every_five_minutes
+
+# ──────────────────────────────────────────────────────────────────────────────
+# event_pipeline_partitioned — variante do event_pipeline testando dados
+# particionados (ano=/mes=) de ponta a ponta — o event_pipeline usa um
+# único arquivo sem partição, então nunca exercitou
+# ExtractAndLoad.partition_folders nem o caminho de
+# transfer_files_to_prod_flow que promove só a fatia particionada, não o
+# staging inteiro.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_event_pipeline_partitioned = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=EVENT_PIPELINE_PARTITIONED_TABLE_ID,
+    env=BACKEND_ENV,
+    get_latest_update=event_pipeline_partitioned_check_update,
+    extract_load_data=event_pipeline_partitioned_download,
+)
+
+
+@flow(name=_event_pipeline_partitioned.check_update_flow_name, log_prints=True)
+def event_pipeline_partitioned_check_update_flow() -> None:
+    """Disparado manualmente pro teste. Todo o corpo mora em
+    `_event_pipeline_partitioned`."""
+    _event_pipeline_partitioned.run_check_update()
+
+
+event_pipeline_partitioned_check_update_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, EVENT_PIPELINE_PARTITIONED_TABLE_ID
+)
+event_pipeline_partitioned_check_update_flow.job_variables = (
+    EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.CHECK_UPDATE]
+)
+
+
+@flow(
+    name=_event_pipeline_partitioned.extract_and_load_flow_name,
+    log_prints=True,
+)
+def event_pipeline_partitioned_download_flow(
+    download_params: dict,
+) -> None:
+    """
+    Disparado por `event_pipeline_partitioned_check_update_flow` via
+    `run_deployment()`, ou manualmente (rerun/debug) passando
+    `download_params` à mão.
+    """
+    _event_pipeline_partitioned.run_extract_and_load(download_params)
+
+
+event_pipeline_partitioned_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EVENT_PIPELINE_PARTITIONED_TABLE_ID
+)
+event_pipeline_partitioned_download_flow.job_variables = (
+    EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.EXTRACT_AND_LOAD]
+)
+_event_pipeline_partitioned.extract_load_deployment = (
+    event_pipeline_partitioned_download_flow.fn.__name__
+)

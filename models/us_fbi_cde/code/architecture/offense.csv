@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+offense_id,STRING,"Identificador da ofensa atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,offense_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
+offense_code,STRING,"Código NIBRS da ofensa, por exemplo 13B para agressão simples",,yes,,,no,,offense_code
+attempt_complete_flag,STRING,Indica se a ofensa foi consumada ou apenas tentada,,yes,,,no,,attempt_complete_flag
+location_code,STRING,Código do tipo de local em que a ofensa ocorreu,,yes,,,no,O tipo reflete o uso do local no momento da ofensa. The type reflects how the location was being used at the time of the offense.,location_id
+premises_entered_count,INT64,"Número de unidades invadidas, informado apenas para arrombamento em edificações com várias unidades",,no,,premise,no,,num_premises_entered
+method_entry_code,STRING,"Indica se houve arrombamento com ou sem uso de força, informado apenas para ofensas de invasão",,yes,,,no,,method_entry_code
+weapon_code,STRING,Código da arma ou força usada na ofensa,,yes,,,no,O NIBRS admite até três armas por ofensa; guarda-se aqui o menor código e 'weapon_count' informa quantas foram registradas. NIBRS allows up to three weapons per offense; the lowest code is kept here and 'weapon_count' reports how many were recorded.,weapon_id
+weapon_count,INT64,Número de armas registradas para a ofensa,,no,,weapon,no,,nibrs_weapon
+bias_motivation_code,STRING,Código da motivação por preconceito atribuída à ofensa,,yes,,,no,O código 88 significa nenhuma motivação por preconceito e é o valor da grande maioria das ofensas; até cinco motivações são admitidas desde 2013 e 'bias_motivation_count' informa quantas foram registradas. Code 88 means no bias motivation and is the value for the large majority of offenses; up to five motivations are allowed since 2013 and 'bias_motivation_count' reports how many were recorded.,bias_id
+bias_motivation_count,INT64,Número de motivações por preconceito registradas para a ofensa,,no,,bias_motivation,no,,nibrs_bias_motivation

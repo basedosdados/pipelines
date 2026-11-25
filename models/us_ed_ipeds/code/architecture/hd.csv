@@ -1,0 +1,209 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+institution_name,STRING,Institution (entity) name,,no,,,no,,instnm
+ialias,STRING,Institution name alias,,no,,,no,,ialias
+addr,STRING,Street address or post office box,,no,,,no,,addr
+city,STRING,City location of institution,,no,,,no,,city
+state,STRING,State abbreviation,,no,,,no,,stabbr
+zip_code,STRING,ZIP code,,no,,,no,,zip
+fips_state,INT64,FIPS state code,,no,,,no,,fips
+region,INT64,Bureau of Economic Analysis (BEA) regions,,no,,,no,,obereg
+chfnm,STRING,Name of chief administrator,,no,,,no,,chfnm
+chftitle,STRING,Title of chief administrator,,no,,,no,,chftitle
+gentele,FLOAT64,General information telephone number,,no,,,no,,gentele
+ein,FLOAT64,Employer Identification Number,,no,,,no,,ein
+ueis,STRING,Unique Entity Identifier (UEI) Numbers,,no,,,no,,ueis
+opeid,FLOAT64,Office of Postsecondary Education (OPE) ID Number,,no,,,no,,opeid
+opeflag,INT64,OPE Title IV eligibility indicator code,,no,,,no,,opeflag
+website,STRING,Institution's internet website address,,no,,,no,,webaddr
+adminurl,STRING,Admissions office web address,,no,,,no,,adminurl
+faidurl,STRING,Financial aid office web address,,no,,,no,,faidurl
+applurl,STRING,Online application web address,,no,,,no,,applurl
+npricurl,STRING,Net price calculator web address,,no,,,no,,npricurl
+veturl,STRING,Veterans and Military Servicemembers tuition policies web address,,no,,,no,,veturl
+athurl,STRING,Student-Right-to-Know student athlete graduation rate web address,,no,,,no,,athurl
+disaurl,STRING,Disability Services Web Address,,no,,,no,,disaurl
+sector,INT64,Sector of institution,,no,,,no,,sector
+level,INT64,Level of institution,,no,,,no,,iclevel
+control,INT64,Control of institution,,no,,,no,,control
+hloffer,INT64,Highest level of offering,,no,,,no,,hloffer
+ugoffer,INT64,Undergraduate offering,,no,,,no,,ugoffer
+groffer,INT64,Graduate offering,,no,,,no,,groffer
+hdegofr1,FLOAT64,Highest degree offered,,no,,,no,,hdegofr1
+degree_granting,INT64,Degree-granting status,,no,,,no,,deggrant
+hbcu,INT64,Historically Black College or University,,no,,,no,,hbcu
+hospital,INT64,Institution has hospital,,no,,,no,,hospital
+medical,INT64,Institution grants a medical degree,,no,,,no,,medical
+tribal,INT64,Tribal college,,no,,,no,,tribal
+locale_code,INT64,Degree of urbanization (Urban-centric locale),,no,,,no,,locale
+openpubl,INT64,Institution open to the general public,,no,,,no,,openpubl
+act,STRING,Status of institution,,no,,,no,,act
+newid,FLOAT64,UNITID for merged schools,,no,,,no,,newid
+deathyr,INT64,Year institution was deleted from IPEDS,,no,,,no,,deathyr
+close_date,FLOAT64,Date institution closed,,no,,,no,,closedat
+currently_active,INT64,Institution is active in current year,,no,,,no,,cyactive
+postsec,INT64,Primarily postsecondary indicator,,no,,,no,,postsec
+pseflag,INT64,Postsecondary institution indicator,,no,,,no,,pseflag
+pset4flg,INT64,Postsecondary and Title IV institution indicator,,no,,,no,,pset4flg
+rptmth,FLOAT64,"Reporting method for student charges, graduation rates, retention rates and student financial aid",,no,,,no,,rptmth
+instcat,FLOAT64,Institutional category,,no,,,no,,instcat
+c00carnegie,FLOAT64,2000 Carnegie Classification (historical - not updated),,no,,,no,,c00carnegie
+carnegie_basic,INT64,Carnegie Classification 2021: Basic,,no,,,no,,c21basic
+carnegieic,FLOAT64,Carnegie Classification 2025: Institutional Classification,,no,,,no,,carnegieic
+carnegiesaec,FLOAT64,Carnegie Classification 2025: Student Access and Earnings,,no,,,no,,carnegiesaec
+carnegiersch,FLOAT64,Carnegie Classification 2025:  Research Activity Designation,,no,,,no,,carnegiersch
+carnegiesize,FLOAT64,Carnegie Classification 2025: Institutional Size,,no,,,no,,carnegiesize
+carnegiealf,FLOAT64,Carnegie Classification 2025: Award Level Focus,,no,,,no,,carnegiealf
+carnegieapm,FLOAT64,Carnegie Classification 2025: Undergraduate Academic Program Mix,,no,,,no,,carnegieapm
+carnegiegpm,FLOAT64,Carnegie Classification 2025: Graduate Academic Program Mix,,no,,,no,,carnegiegpm
+land_grant,FLOAT64,Land Grant Institution,,no,,,no,,landgrnt
+size_category,FLOAT64,Institution size category,,no,,,no,,instsize
+f1systyp,FLOAT64,Multi-institution or multi-campus organization,,no,,,no,,f1systyp
+f1sysnam,STRING,Name of multi-institution or multi-campus organization,,no,,,no,,f1sysnam
+f1syscod,FLOAT64,Identification number of multi-institution or multi-campus organization,,no,,,no,,f1syscod
+cbsa,FLOAT64,Core Based Statistical Area (CBSA),,no,,,no,,cbsa
+cbsatype,FLOAT64,CBSA Type Metropolitan or Micropolitan,,no,,,no,,cbsatype
+csa,FLOAT64,Combined Statistical Area (CSA),,no,,,no,,csa
+county_fips,FLOAT64,Fips County code,,no,,,no,,countycd
+county_name,STRING,County name,,no,,,no,,countynm
+cngdstcd,FLOAT64,State and 118TH Congressional District ID,,no,,,no,,cngdstcd
+longitude,FLOAT64,Longitude location of institution,,no,,,no,,longitud
+latitude,FLOAT64,Latitude location of institution,,no,,,no,,latitude
+dfrcgid,FLOAT64,Data Feedback Report comparison group created by NCES,,no,,,no,,dfrcgid
+dfrcuscg,FLOAT64,Data Feedback Report - Institution submitted a custom comparison group,,no,,,no,,dfrcuscg
+c21ipug,FLOAT64,Carnegie Classification 2021: Undergraduate Instructional Program,,no,,,no,,c21ipug
+c21ipgrd,FLOAT64,Carnegie Classification 2021: Graduate Instructional Program,,no,,,no,,c21ipgrd
+c21ugprf,FLOAT64,Carnegie Classification 2021: Undergraduate Profile,,no,,,no,,c21ugprf
+c21enprf,FLOAT64,Carnegie Classification 2021: Enrollment Profile,,no,,,no,,c21enprf
+c21szset,FLOAT64,Carnegie Classification 2021: Size and Setting,,no,,,no,,c21szset
+c18basic,FLOAT64,Carnegie Classification 2018: Basic,,no,,,no,,c18basic
+c15basic,FLOAT64,Carnegie Classification 2015: Basic,,no,,,no,,c15basic
+ccbasic,FLOAT64,Carnegie Classification 2005/2010: Basic,,no,,,no,,ccbasic
+carnegie,FLOAT64,Carnegie Classification 2000,,no,,,no,,carnegie
+duns,FLOAT64,Dun and Bradstreet numbers,,no,,,no,,duns
+necta,FLOAT64,New England City and Town Area (NECTA),,no,,,no,,necta
+c18ipug,FLOAT64,Carnegie Classification 2018: Undergraduate Instructional Program,,no,,,no,,c18ipug
+c18ipgrd,FLOAT64,Carnegie Classification 2018: Graduate Instructional Program,,no,,,no,,c18ipgrd
+c18ugprf,FLOAT64,Carnegie Classification 2018: Undergraduate Profile,,no,,,no,,c18ugprf
+c18enprf,FLOAT64,Carnegie Classification 2018: Enrollment Profile,,no,,,no,,c18enprf
+c18szset,FLOAT64,Carnegie Classification 2018: Size and Setting,,no,,,no,,c18szset
+c15ipug,FLOAT64,Carnegie Classification 2015: Undergraduate Instructional Program,,no,,,no,,c15ipug
+c15ipgrd,FLOAT64,Carnegie Classification 2015: Graduate Instructional Program,,no,,,no,,c15ipgrd
+c15ugprf,FLOAT64,Carnegie Classification 2015: Undergraduate Profile,,no,,,no,,c15ugprf
+c15enprf,FLOAT64,Carnegie Classification 2015: Enrollment Profile,,no,,,no,,c15enprf
+c15szset,FLOAT64,Carnegie Classification 2015: Size and Setting,,no,,,no,,c15szset
+ccipug,FLOAT64,Carnegie Classification 2010: Undergraduate Instructional Program,,no,,,no,,ccipug
+ccipgrad,FLOAT64,Carnegie Classification 2010: Graduate Instructional Program,,no,,,no,,ccipgrad
+ccugprof,FLOAT64,Carnegie Classification 2010: Undergraduate Profile,,no,,,no,,ccugprof
+ccenrprf,FLOAT64,Carnegie Classification 2010: Enrollment Profile,,no,,,no,,ccenrprf
+ccsizset,FLOAT64,Carnegie Classification 2010: Size and Setting,,no,,,no,,ccsizset
+faxtele,FLOAT64,Fax number,,no,,,no,,faxtele
+tenursys,FLOAT64,Does institution have a tenure system,,no,,,no,,tenursys
+fpoffer,FLOAT64,First-professional offering,,no,,,no,,fpoffer
+hdegoffr,FLOAT64,Highest degree offered,,no,,,no,,hdegoffr
+fintele,FLOAT64,Financial aid office telephone number,,no,,,no,,fintele
+admtele,FLOAT64,Admissions office telephone number,,no,,,no,,admtele
+stat_fa,FLOAT64,Response status of institution for any of the Fall components,,no,,,no,,stat_fa
+stat_ic,FLOAT64,Response status -  Institutional characteristics component,,no,,,no,,stat_ic
+lock_ic,FLOAT64,Status of IC component when institution was migrated,,no,,,no,,lock_ic
+stat_c,FLOAT64,Response status -  Completions component,,no,,,no,,stat_c
+lock_c,FLOAT64,Status of completions component when institution was migrated,,no,,,no,,lock_c
+prch_c,FLOAT64,Parent/child indicator for completions,,no,,,no,,prch_c
+idx_c,FLOAT64,UnitID of Parent institution,,no,,,no,,idx_c
+imp_c,FLOAT64,Imputation status of the institution completions,,no,,,no,,imp_c
+stat_wi,FLOAT64,Response status of institution for any of the Winter components,,no,,,no,,stat_wi
+stat_ef,FLOAT64,Response status - Enrollment component,,no,,,no,,stat_ef
+lock_ef,FLOAT64,Status of Fall Enrollment survey when data collection closed,,no,,,no,,lock_ef
+prch_ef,FLOAT64,Parent/child indicator for Fall enrollment,,no,,,no,,prch_ef
+idx_ef,FLOAT64,ID number of parent institution Fall enrollment,,no,,,no,,idx_ef
+imp_ef,FLOAT64,Imputation method Fall enrollment,,no,,,no,,imp_ef
+pta99_ef,FLOAT64,Status enrollment by race/ethnicity (99.0000 CIP),,no,,,no,,pta99_ef
+ptb_ef,FLOAT64,Status enrollment summary by age,,no,,,no,,ptb_ef
+ptc_ef,FLOAT64,Status residence of first-time first-year students,,no,,,no,,ptc_ef
+ptd_ef,FLOAT64,Status total entering class and retention rates,,no,,,no,,ptd_ef
+pteeffy,FLOAT64,Status full year enrollment Headcount,,no,,,no,,pteeffy
+pteefia,FLOAT64,Status full year instructional activity,,no,,,no,,pteefia
+fyrpyear,FLOAT64,12-month reporting period  for enrollment and instructional activity,,no,,,no,,fyrpyear
+stat_sa,FLOAT64,Response status - Salary component,,no,,USD,no,,stat_sa
+lock_sa,FLOAT64,Status of Faculty Salary survey when data collection closed,,no,,USD,no,,lock_sa
+prch_sa,FLOAT64,Parent/child  indicator SA,,no,,,no,,prch_sa
+idx_sa,FLOAT64,ID of institution where data are reported SA,,no,,,no,,idx_sa
+imp_sa,FLOAT64,Type of Imputation method SA,,no,,,no,,imp_sa
+stat_s,FLOAT64,Response status -  Fall Staff component,,no,,,no,,stat_s
+lock_s,FLOAT64,Status of Fall Staff survey when data collection closed,,no,,,no,,lock_s
+prch_s,FLOAT64,Parent/child indicator Fall Staff,,no,,,no,,prch_s
+idx_s,FLOAT64,ID number of parent institution Fall Staff,,no,,,no,,idx_s
+imp_s,FLOAT64,Type of Imputation method Fall Staff,,no,,,no,,imp_s
+stat_eap,FLOAT64,Response status - EAP component,,no,,,no,,stat_eap
+lock_eap,FLOAT64,Status of EAP survey when data collection closed,,no,,,no,,lock_eap
+prch_eap,FLOAT64,Parent/child indicator EAP,,no,,,no,,prch_eap
+idx_eap,FLOAT64,ID number of parent institution EAP,,no,,,no,,idx_eap
+imp_eap,FLOAT64,Type of Imputation method EAP,,no,,,no,,imp_eap
+ftemp15,FLOAT64,Does institution have 15 or more full-time employees,,no,,,no,,ftemp15
+sa_excl,FLOAT64,Salary exclusion,,no,,USD,no,,sa_excl
+stat_sp,FLOAT64,Response status of institution for any of the Spring components,,no,,,no,,stat_sp
+form_f,FLOAT64,Reporting standards used to report finance data,,no,,,no,,form_f
+stat_f,FLOAT64,Response status -  Finance component,,no,,,no,,stat_f
+lock_f,FLOAT64,Status of Finance survey when data collection closed,,no,,,no,,lock_f
+prch_f,FLOAT64,Parent/child indicator for Finance survey,,no,,,no,,prch_f
+idx_f,FLOAT64,ID number of parent institution for Finance survey,,no,,,no,,idx_f
+imp_f,FLOAT64,Type of imputation method used for Finance survey,,no,,,no,,imp_f
+fybeg,FLOAT64,Beginning date of fiscal year covered (all finance),,no,,,no,,fybeg
+fyend,FLOAT64,End date of fiscal year covered  (all finance),,no,,,no,,fyend
+gpfs,FLOAT64,Clean Opinion GPFS from auditor (all finance),,no,,,no,,gpfs
+f1gasbcr,FLOAT64,GASB current accounting model,,no,,,no,,f1gasbcr
+f1gasbal,FLOAT64,GASB alternative accounting model,,no,,,no,,f1gasbal
+stat_sfa,FLOAT64,Response status -  Student Financial Aid component,,no,,,no,,stat_sfa
+lock_sfa,FLOAT64,Status of Student Financial Aid Survey when data collection closed,,no,,,no,,lock_sfa
+prch_sfa,FLOAT64,Parent/child indicator Student Financial Aid survey,,no,,,no,,prch_sfa
+idx_sfa,FLOAT64,ID number of parent institution Student Financial Aid,,no,,,no,,idx_sfa
+imp_sfa,FLOAT64,Type of imputation method used for Student Financial Aid,,no,,,no,,imp_sfa
+stat_gr,FLOAT64,Response status - Graduation Rate component,,no,,,no,,stat_gr
+lock_gr,FLOAT64,Status of Survey when data collection closed,,no,,,no,,lock_gr
+prch_gr,FLOAT64,Parent/child indicator (GRS),,no,,,no,,prch_gr
+idx_gr,FLOAT64,UNITID of parent institution reporting Graduation Rates,,no,,,no,,idx_gr
+imp_gr,FLOAT64,Imputation method,,no,,,no,,imp_gr
+cohrtstu,FLOAT64,Enrolled any full-time first-time students,,no,,,no,,cohrtstu
+pyaid,FLOAT64,Institution offered  athletic aid 2002-2003,,no,,,no,,pyaid
+cohrtaid,FLOAT64,Institution offered  athletic aid in cohort year,,no,,,no,,cohrtaid
+sport1,FLOAT64,Athletic aid for football  in cohort year,,no,,,no,,sport1
+sport2,FLOAT64,Athletic aid for basketball  in cohort year,,no,,,no,,sport2
+sport3,FLOAT64,Athletic aid for baseball  in cohort year,,no,,,no,,sport3
+sport4,FLOAT64,Athletic aid  cross-country and  track  in cohort year,,no,,,no,,sport4
+sport5,FLOAT64,Athletic aid  all other sports combined in cohort year,,no,,,no,,sport5
+longpgm,FLOAT64,Institution has 5-year or 3-year programs,,no,,,no,,longpgm
+cohrtmt,FLOAT64,Cohort method,,no,,,no,,cohrtmt
+tpr,FLOAT64,Fringe Benefit Tuition Plan Restricted,,no,,,no,,tpr
+hpr,FLOAT64,Fringe Benefit Housing Plan Restricted,,no,,,no,,hpr
+cufasb,FLOAT64,Number of component unit columns on GPFS using FASB standards,,no,,,no,,cufasb
+cugasb,FLOAT64,Number of component unit columns of GPFS using GASB standards,,no,,,no,,cugasb
+fte,FLOAT64,Full-time equivalent enrollment: Fall 2003,,no,,,no,,fte
+ocrmsi,FLOAT64,Minority Serving Institution,,no,,,no,,ocrmsi
+ocrhsi,FLOAT64,Hispanic Serving Institution,,no,,,no,,ocrhsi
+twoyrcat,FLOAT64,Classification for 2-year postsecondary  institutions,,no,,,no,,twoyrcat
+rev_c,FLOAT64,Revision status - Completions component,,no,,,no,,rev_c
+rev_ef,FLOAT64,Revision status - Enrollment component,,no,,,no,,rev_ef
+rev_sa,FLOAT64,Revision status - Salary component,,no,,USD,no,,rev_sa
+rev_s,FLOAT64,Revision status - Fall Staff component,,no,,,no,,rev_s
+rev_eap,FLOAT64,Revision status - EAP component,,no,,,no,,rev_eap
+r_form_f,FLOAT64,Reporting standards used to report revised finance data,,no,,,no,,r_form_f
+rev_f,FLOAT64,Revision status - Finance component,,no,,,no,,rev_f
+rev_sfa,FLOAT64,Revision status - Student Financial Aid component,,no,,,no,,rev_sfa
+rev_gr,FLOAT64,Revision status - Graduation Rate component,,no,,,no,,rev_gr
+affil,FLOAT64,Affiliation of institution,,no,,,no,,affil
+pctmin1,FLOAT64,"Percent Black, non-Hispanic",,no,,,no,,pctmin1
+pctmin2,FLOAT64,Percent American Indian/Alaska Native,,no,,,no,,pctmin2
+pctmin3,FLOAT64,Percent Asian/Pacific Islander,,no,,,no,,pctmin3
+pctmin4,FLOAT64,Percent Hispanic,,no,,,no,,pctmin4
+ptacipef,FLOAT64,Status enrollment by race/ethnicity (Major field),,no,,,no,,ptacipef
+transver,FLOAT64,Institution has transfer mission,,no,,,no,,transver
+cindon,FLOAT64,Total price for in-district students living on campus  2002-2003,,no,,,no,,cindon
+cinson,FLOAT64,Total price for in-state students living on campus 2002-2003,,no,,,no,,cinson
+cotson,FLOAT64,Total price out-of-state students living on campus 2002-2003,,no,,,no,,cotson
+cindoff,FLOAT64,Total price for in-district students living off-campus (not with family)  2002-2003,,no,,,no,,cindoff
+cinsoff,FLOAT64,Total price for in-state students living off campus (not with family)  2002-2003,,no,,,no,,cinsoff
+cotsoff,FLOAT64,Total price for out-of-state students living off campus (not with family)  2002-2003,,no,,,no,,cotsoff
+cindfam,FLOAT64,Total price for in-district students living off campus (with family)  2002-2003,,no,,,no,,cindfam
+cinsfam,FLOAT64,Total price for in-state students living off campus (with family)  2002-2003,,no,,,no,,cinsfam
+cotsfam,FLOAT64,Total price for out-of-state students living off campus (with family)  2002-2003,,no,,,no,,cotsfam

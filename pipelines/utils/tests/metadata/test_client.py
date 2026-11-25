@@ -14,13 +14,17 @@ Tudo offline: o `RecordingBackend` substitui o `bd.Backend`.
 import datetime
 
 import pytest
-from conftest import RecordingBackend, mutation_response, node_response
 
 from pipelines.utils.metadata.client import (
     BackendMutationError,
     MetadataClient,
 )
 from pipelines.utils.metadata.dto import DateTimeRangeInput
+from pipelines.utils.tests.metadata.conftest import (
+    RecordingBackend,
+    mutation_response,
+    node_response,
+)
 
 UUID = "00000000-0000-4000-8000-000000000000"
 DAY_ENTITY = "00000000-0000-4000-8000-0000000000d1"
@@ -128,6 +132,44 @@ def test_upsert_coverage_datetime_range_passes_dto_fields(client, backend):
     assert v["endYear"] == 2026 and v["endMonth"] == 6 and v["endDay"] == 1
 
 
+def test_upsert_coverage_datetime_range_create_sets_interval(client, backend):
+    backend.set_response(
+        "allDatetimerange", node_response("allDatetimerange", None)
+    )
+    backend.set_response(
+        "CreateUpdateDateTimeRange",
+        mutation_response("CreateUpdateDateTimeRange"),
+    )
+
+    dto = DateTimeRangeInput(
+        coverage=UUID, startYear=2014, startMonth=1, endYear=2026, endMonth=4
+    )
+    client.upsert_coverage_datetime_range(dto)
+
+    v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
+    assert v["interval"] == 1
+    assert "id" not in v
+
+
+def test_upsert_coverage_datetime_range_update_keeps_stored_interval(
+    client, backend
+):
+    backend.set_response(
+        "allDatetimerange", node_response("allDatetimerange", "dtr-1")
+    )
+    backend.set_response(
+        "CreateUpdateDateTimeRange",
+        mutation_response("CreateUpdateDateTimeRange"),
+    )
+
+    dto = DateTimeRangeInput(coverage=UUID, endYear=2026, endMonth=6)
+    client.upsert_coverage_datetime_range(dto)
+
+    v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
+    assert v["id"] == "dtr-1"
+    assert "interval" not in v
+
+
 def test_write_carries_auth_header(client, backend):
     backend.set_response(
         "allRawdatasource", node_response("allRawdatasource", RDS)
@@ -143,6 +185,72 @@ def test_write_carries_auth_header(client, backend):
     assert backend.mutation_for("CreateUpdatePoll")["headers"] == {
         "Authorization": "Bearer tok-fake"
     }
+
+
+# ================================================= seletor por url (multi-fonte)
+API_URL = "https://api.example/data"
+HIST_URL = "https://hist.example/frozen"
+RDS_API = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+RDS_HIST = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+
+
+def _two_sources() -> dict:
+    """Duas fontes ligadas à mesma tabela (uma de API, um histórico congelado)."""
+    return {
+        "allRawdatasource": {
+            "items": [
+                {"_id": RDS_API, "url": API_URL},
+                {"_id": RDS_HIST, "url": HIST_URL},
+            ]
+        }
+    }
+
+
+def test_raw_source_id_by_url_selects_matching_source(client, backend):
+    # Tabela com 2 fontes; url seleciona exatamente a que casa (não aborta).
+    backend.set_response("allRawdatasource", _two_sources())
+    assert client._raw_source_id("br_x", "tab", url=HIST_URL) == RDS_HIST
+    assert client._raw_source_id("br_x", "tab", url=API_URL) == RDS_API
+
+
+def test_raw_source_id_by_url_raises_when_no_match(client, backend):
+    backend.set_response("allRawdatasource", _two_sources())
+    with pytest.raises(ValueError, match="exatamente uma fonte com url"):
+        client._raw_source_id("br_x", "tab", url="https://nao.existe/aqui")
+
+
+def test_raw_source_id_by_url_raises_when_multiple_match(client, backend):
+    # Duas fontes com a MESMA url → ambíguo → aborta (mirror de R19).
+    backend.set_response(
+        "allRawdatasource",
+        {
+            "allRawdatasource": {
+                "items": [
+                    {"_id": RDS_API, "url": HIST_URL},
+                    {"_id": RDS_HIST, "url": HIST_URL},
+                ]
+            }
+        },
+    )
+    with pytest.raises(ValueError, match="exatamente uma fonte com url"):
+        client._raw_source_id("br_x", "tab", url=HIST_URL)
+
+
+def test_upsert_poll_by_url_targets_the_matching_source(client, backend):
+    # A ponta a ponta: a url resolve a fonte histórica e esse id vai para a
+    # mutation Poll, mesmo com 2 fontes ligadas (url=None abortaria — vide R19).
+    backend.set_response("allRawdatasource", _two_sources())
+    backend.set_response("allPoll", node_response("allPoll", None))  # create
+    backend.set_response(
+        "CreateUpdatePoll", mutation_response("CreateUpdatePoll")
+    )
+
+    client.upsert_raw_source_poll(
+        "br_x", "tab", latest=datetime.date(2026, 6, 1), url=HIST_URL
+    )
+
+    v = _input(backend.mutation_for("CreateUpdatePoll"))
+    assert v["rawDataSource"] == RDS_HIST  # a fonte histórica, não a de API
 
 
 # ============================================================ TIPO 2 — response
@@ -174,6 +282,97 @@ def test_update_latest_parsed_to_date(client, backend):
     )
     assert client.get_table_update_latest("br_x", "tab") == datetime.date(
         2026, 6, 1
+    )
+
+
+def test_table_status_returns_slug(client, backend):
+    backend.set_response(
+        "allTable",
+        {"allTable": {"items": [{"status": {"slug": "published"}}]}},
+    )
+    assert client.get_table_status("br_x", "tab") == "published"
+
+
+def test_missing_table_status_returns_none(client, backend):
+    backend.set_response("allTable", {"allTable": {"items": []}})
+    assert client.get_table_status("br_x", "tab") is None
+
+
+def test_table_without_status_raises_clear_error(client, backend):
+    backend.set_response(
+        "allTable", {"allTable": {"items": [{"status": None}]}}
+    )
+    with pytest.raises(ValueError, match=r"br_x\.tab está sem status"):
+        client.get_table_status("br_x", "tab")
+
+
+def test_coverage_max_date_none_when_no_coverage(client, backend):
+    backend.set_response("allCoverage", {"allCoverage": {"items": []}})
+    assert client.get_coverage_max_date("br_x", "tab") is None
+
+
+def test_coverage_max_date_picks_max_across_ranges(client, backend):
+    # free termina em 2025-11, pro termina em 2026-05 — o maior dos dois vence.
+    backend.set_response(
+        "allCoverage",
+        {
+            "allCoverage": {
+                "items": [
+                    {
+                        "datetimeRanges": {
+                            "items": [
+                                {
+                                    "endYear": 2025,
+                                    "endMonth": 11,
+                                    "endDay": None,
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "datetimeRanges": {
+                            "items": [
+                                {
+                                    "endYear": 2026,
+                                    "endMonth": 5,
+                                    "endDay": None,
+                                }
+                            ]
+                        }
+                    },
+                ]
+            }
+        },
+    )
+    assert client.get_coverage_max_date("br_x", "tab") == datetime.date(
+        2026, 5, 1
+    )
+
+
+def test_coverage_max_date_defaults_missing_month_day_to_one(client, backend):
+    # Cobertura anual (só endYear) não deve quebrar — mês/dia default para 1.
+    backend.set_response(
+        "allCoverage",
+        {
+            "allCoverage": {
+                "items": [
+                    {
+                        "datetimeRanges": {
+                            "items": [
+                                {
+                                    "endYear": 2025,
+                                    "endMonth": None,
+                                    "endDay": None,
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+    )
+    assert client.get_coverage_max_date("br_x", "tab") == datetime.date(
+        2025, 1, 1
     )
 
 
@@ -215,6 +414,7 @@ def test_token_authenticated_once_per_instance(monkeypatch):
         "CreateUpdateUpdate", mutation_response("CreateUpdateUpdate")
     )
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env="dev", backend=backend)
     client.upsert_raw_source_poll(
         "br_x", "tab", latest=datetime.date(2026, 6, 1)
@@ -231,4 +431,5 @@ def test_token_authenticated_once_per_instance(monkeypatch):
 
 def test_invalid_env_rejected():
     with pytest.raises(ValueError, match="env inválido"):
+        # pyrefly: ignore [bad-argument-type]
         MetadataClient(env="production")

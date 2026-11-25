@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,
+indicateur,STRING,Código do indicador climatológico,,yes,,,no,,
+periode,STRING,"Período do indicador: mês de 01 a 12, ou annee para o valor anual",,yes,,,no,,
+valeur,FLOAT64,"Valor do indicador no período, na unidade registrada em unite",,no,,,no,,
+unite,STRING,Unidade de medida do valor,,yes,,,no,,
+libelle_indicateur,STRING,Rótulo do indicador tal como publicado na ficha climatológica,,no,,,no,,
+annee_debut_reference,INT64,Primeiro ano do período de referência sobre o qual a normal foi calculada,,no,,year,no,,
+annee_fin_reference,INT64,Último ano do período de referência sobre o qual a normal foi calculada,,no,,year,no,,
+date_debut_record,DATE,Primeira data do período sobre o qual o recorde foi estabelecido,,no,,,no,,
+date_fin_record,DATE,Última data do período sobre o qual o recorde foi estabelecido,,no,,,no,,
+jour_record,INT64,Dia do mês em que o recorde foi observado,,no,,day,no,,
+annee_record,INT64,Ano em que o recorde foi observado,,no,,year,no,,

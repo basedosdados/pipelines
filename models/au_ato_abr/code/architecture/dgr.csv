@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de extração do snapshot do registro (ABR); cada extração é uma fotografia completa do cadastro,,no,,,no,Partition column; snapshot date from the extract header,ExtractTime
+abn,STRING,Número de Empresa Australiano (ABN) da entidade endossada como DGR,,no,,,no,Foreign key to entity.abn,ABN
+dgr_status_from_date,DATE,Data a partir da qual a entidade foi endossada como beneficiária de doações dedutíveis (DGR),,no,,,no,Sentinel 19000101 mapped to null,DGR@DGRStatusFromDate
+dgr_name,STRING,"Nome do fundo ou instituição endossada como DGR, quando informado",,no,,,no,,DGR/NonIndividualName/NonIndividualNameText

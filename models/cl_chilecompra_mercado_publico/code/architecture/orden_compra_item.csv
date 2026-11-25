@@ -1,0 +1,85 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de envio da ordem de compra,,no,,year,no,"Coluna de particao, derivada de fecha_envio",
+mes,INT64,Mes de envio da ordem de compra,,no,,month,no,"Coluna de particao, derivada de fecha_envio",
+id_orden_compra,STRING,Identificador interno da ordem de compra no Mercado Publico,,no,,,no,,ID
+codigo_orden_compra,STRING,"Codigo publico da ordem de compra, no formato <unidade>-<correlativo>-<tipo><ano>",,no,,,no,Compoe a chave logica junto de id_item,Codigo
+url,STRING,Endereco da ficha da ordem de compra no Mercado Publico,,no,,,no,,Link
+nombre,STRING,Nome da ordem de compra,,no,,,no,,Nombre
+descripcion,STRING,Descricao e observacoes da ordem de compra,,no,,,no,Nome de origem contem erro de digitacao (Obervaciones),Descripcion/Obervaciones
+sigla_tipo,STRING,Sigla do tipo de ordem de compra,,yes,,,no,,Tipo
+procedencia,STRING,Procedimento de compra que originou a ordem,,no,,,no,,ProcedenciaOC
+indicador_trato_directo,STRING,Indica se a ordem foi emitida por trato direto,,no,,,no,,EsTratoDirecto
+indicador_compra_agil,STRING,Indica se a ordem foi emitida pela modalidade Compra Agil,,no,,,no,Modalidade criada em 2020,EsCompraAgil
+codigo_tipo,STRING,Codigo do tipo de ordem de compra,,yes,,,no,,CodigoTipo
+sigla_tipo_abreviada,STRING,Sigla abreviada do tipo de ordem de compra,,yes,,,no,,CodigoAbreviadoTipoOC
+descripcion_tipo,STRING,Descricao do tipo de ordem de compra,,no,,,no,,DescripcionTipoOC
+id_plan_compra,STRING,Identificador do plano de compras associado,,no,,,no,"Coluna presente no cabecalho de 2007 a 2020, exceto 2017, e ausente a partir de 2021. So e efetivamente preenchida a partir de 2019: nula em 100% das linhas em 2007-01 e 2010-06, em 10 de 505.159 linhas em 2015-06, e preenchida em cerca de 41% das linhas em 2019-06 e 2020-06",idPlanDeCompra
+codigo_estado,STRING,Codigo do estado da ordem de compra,,yes,,,no,,codigoEstado
+estado,STRING,Estado da ordem de compra,,no,,,no,,Estado
+codigo_estado_proveedor,STRING,Codigo do estado da ordem segundo o fornecedor,,no,,,no,"A fonte deixa os codigos 6 e 0 sem rotulo em estado_proveedor, em 14 linhas espalhadas por varios anos, portanto o dicionario nao cobre a coluna inteira; os 5 codigos restantes estao no dicionario",codigoEstadoProveedor
+estado_proveedor,STRING,Estado da ordem segundo o fornecedor,,no,,,no,,EstadoProveedor
+fecha_creacion,DATE,Data de criacao da ordem de compra,,no,,,no,Valor 1900-01-01 na origem indica ausencia e e convertido para nulo,FechaCreacion
+fecha_envio,DATE,Data de envio da ordem de compra ao fornecedor,,no,,,no,Define as particoes ano e mes,FechaEnvio
+fecha_solicitud_cancelacion,DATE,Data da solicitacao de cancelamento,,no,,,no,,FechaSolicitudCancelacion
+fecha_ultima_modificacion,DATE,Data da ultima modificacao da ordem de compra,,no,,,no,,fechaUltimaModificacion
+fecha_aceptacion,DATE,Data de aceitacao da ordem pelo fornecedor,,no,,,no,,FechaAceptacion
+fecha_cancelacion,DATE,Data de cancelamento da ordem de compra,,no,,,no,,FechaCancelacion
+indicador_items,STRING,Indica se a ordem de compra possui itens detalhados,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",tieneItems
+promedio_calificacion,FLOAT64,Nota media atribuida ao fornecedor nesta ordem de compra,,no,,score_point,no,,PromedioCalificacion
+cantidad_evaluacion,INT64,Quantidade de avaliacoes registradas para a ordem de compra,,no,,evaluation,no,,CantidadEvaluacion
+moneda,STRING,Moeda em que a ordem de compra foi emitida,,no,,,no,"Predominantemente CLP; CLF e UTM sao unidades indexadas a inflacao. Alem dos codigos de moeda validos a coluna traz 331 linhas com os valores '1' e '-1', que nao correspondem a moeda alguma, portanto o dicionario nao cobre a coluna inteira",TipoMonedaOC
+monto_total,FLOAT64,Valor total da ordem de compra na moeda de emissao,,no,,currency,no,A unidade e dada pela coluna moneda; use monto_total_clp para comparacoes,MontoTotalOC
+monto_total_clp,FLOAT64,Valor total da ordem de compra convertido para pesos chilenos,,no,,clp,no,Conversao feita pela propria fonte,MontoTotalOC_PesosChilenos
+monto_impuestos,FLOAT64,Valor dos impostos da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,Impuestos
+tipo_impuesto,STRING,Tipo de imposto aplicado a ordem de compra,,no,,,no,,TipoImpuesto
+monto_descuentos,FLOAT64,Valor dos descontos da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,Descuentos
+monto_cargos,FLOAT64,Valor dos encargos da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,Cargos
+monto_total_neto,FLOAT64,Valor total liquido da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,TotalNetoOC
+porcentaje_iva,FLOAT64,Aliquota de IVA aplicada a ordem de compra,,no,,percent,no,,PorcentajeIva
+codigo_unidad_compra,STRING,Codigo da unidade compradora,,no,,,no,,CodigoUnidadCompra
+rut_unidad_compra,STRING,RUT da unidade compradora,,no,,,no,Formato com pontos e digito verificador,RutUnidadCompra
+nombre_unidad_compra,STRING,Nome da unidade compradora,,no,,,no,,UnidadCompra
+codigo_organismo,STRING,Codigo do organismo publico comprador,,no,,,no,,CodigoOrganismoPublico
+nombre_organismo,STRING,Nome do organismo publico comprador,,no,,,no,,OrganismoPublico
+sector,STRING,Setor do Estado a que pertence o organismo comprador,,no,,,no,,sector
+actividad_comprador,STRING,Atividades economicas declaradas pela unidade compradora,,no,,,no,Multiplos valores separados por barra vertical,ActividadComprador
+ciudad_unidad_compra,STRING,Cidade da unidade compradora,,no,,,no,,CiudadUnidadCompra
+id_region_unidad_compra,STRING,Codigo unico territorial (CUT) da regiao da unidade compradora,,no,br_bd_diretorios_cl.region:id_region,,no,Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv. A geografia da unidade compradora vem controlada pelo sistema e resolve para um CUT em 100% das linhas nao nulas,
+region_unidad_compra,STRING,Regiao da unidade compradora,,no,,,no,Espacos finais removidos na limpeza,RegionUnidadCompra
+pais_unidad_compra,STRING,Pais da unidade compradora,,no,,,no,,PaisUnidadCompra
+codigo_proveedor,STRING,Codigo do fornecedor,,no,,,no,,CodigoProveedor
+rut_proveedor,STRING,RUT do fornecedor,,no,,,no,Formato com pontos e digito verificador,RutSucursal
+nombre_proveedor,STRING,Nome do fornecedor,,no,,,no,,NombreProveedor
+codigo_sucursal_proveedor,STRING,Codigo da filial do fornecedor,,no,,,no,,CodigoSucursal
+nombre_sucursal_proveedor,STRING,Nome da filial do fornecedor,,no,,,no,,Sucursal
+actividad_proveedor,STRING,Atividade economica declarada pelo fornecedor,,no,,,no,,ActividadProveedor
+id_comuna_proveedor,STRING,Codigo unico territorial (CUT) da comuna do fornecedor,,no,br_bd_diretorios_cl.comuna:id_comuna,,no,"Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv. A geografia do fornecedor e autodeclarada em texto livre, ao contrario da geografia da unidade compradora, que vem controlada pelo sistema. Cerca de 97% das linhas resolvem para um CUT; o restante traz variantes irredutiveis como 'CUARTA REGION', 'DECIMA LOS LAGOS', 'Santiago, Maipu' ou 'Extranjero'. Use a coluna de nome correspondente quando precisar do valor exatamente como publicado",
+comuna_proveedor,STRING,Comuna do fornecedor,,no,,,no,,ComunaProveedor
+id_region_proveedor,STRING,Codigo unico territorial (CUT) da regiao do fornecedor,,no,br_bd_diretorios_cl.region:id_region,,no,"Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv. A geografia do fornecedor e autodeclarada em texto livre, ao contrario da geografia da unidade compradora, que vem controlada pelo sistema. Cerca de 97% das linhas resolvem para um CUT; o restante traz variantes irredutiveis como 'CUARTA REGION', 'DECIMA LOS LAGOS', 'Santiago, Maipu' ou 'Extranjero'. Use a coluna de nome correspondente quando precisar do valor exatamente como publicado",
+region_proveedor,STRING,Regiao do fornecedor,,no,,,no,Espacos finais removidos na limpeza,RegionProveedor
+pais_proveedor,STRING,Pais do fornecedor,,no,,,no,,PaisProveedor
+financiamiento,STRING,Fonte de financiamento da compra,,no,,,no,,Financiamiento
+pais,STRING,Pais de origem do produto ou servico,,no,,,no,,Pais
+codigo_tipo_despacho,STRING,Codigo do tipo de despacho,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoDespacho
+codigo_forma_pago,STRING,Codigo da forma de pagamento,,no,,,no,"A fonte deixa os codigos 48 e 49 sem rotulo em forma_pago, em 3.452.648 linhas, portanto o dicionario nao cobre a coluna inteira; as demais 44 chaves estao no dicionario",FormaPago
+forma_pago,STRING,Descricao da forma de pagamento,,no,,,no,,Forma de Pago
+codigo_licitacion,STRING,Codigo da licitacao que originou a ordem de compra,,no,,,no,Chave de ligacao com as tabelas licitacion_item e licitacion_oferta,CodigoLicitacion
+codigo_convenio_marco,STRING,Codigo do convenio marco que originou a ordem de compra,,no,,,no,Presente apenas nos arquivos a partir de 2021,Codigo_ConvenioMarco
+id_item,STRING,Identificador da linha de item dentro da ordem de compra,,no,,,no,Compoe a chave logica junto de codigo_orden_compra,IDItem
+codigo_categoria,STRING,Codigo da categoria do item,,no,,,no,,codigoCategoria
+categoria,STRING,"Categoria do item, com a hierarquia completa de rubros",,no,,,no,,Categoria
+codigo_producto_onu,STRING,Codigo UNSPSC do produto ou servico,,no,,,no,"Classificacao ONU de produtos e servicos, nivel de produto",codigoProductoONU
+nombre_producto_generico,STRING,Nome generico do produto ou servico,,no,,,no,Nome de origem contem erro de digitacao (Nombreroducto),NombreroductoGenerico
+rubro_n1,STRING,Rubro UNSPSC de primeiro nivel,,no,,,no,,RubroN1
+rubro_n2,STRING,Rubro UNSPSC de segundo nivel,,no,,,no,,RubroN2
+rubro_n3,STRING,Rubro UNSPSC de terceiro nivel,,no,,,no,,RubroN3
+especificacion_comprador,STRING,Especificacao do item informada pelo comprador,,no,,,no,,EspecificacionComprador
+especificacion_proveedor,STRING,Especificacao do item informada pelo fornecedor,,no,,,no,,EspecificacionProveedor
+cantidad,FLOAT64,Quantidade contratada do item,,no,,unit,no,A unidade e dada pela coluna unidad_medida,cantidad
+unidad_medida,STRING,Unidade de medida do item,,no,,,no,,UnidadMedida
+moneda_item,STRING,Moeda da linha de item,,no,,,no,Mesmo caso de moeda: valores invalidos impedem a cobertura completa pelo dicionario,monedaItem
+precio_neto,FLOAT64,Preco unitario liquido do item,,no,,currency,no,A unidade e dada pela coluna moneda_item,precioNeto
+monto_cargos_item,FLOAT64,Valor dos encargos da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalCargos
+monto_descuentos_item,FLOAT64,Valor dos descontos da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalDescuentos
+monto_impuestos_item,FLOAT64,Valor dos impostos da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalImpuestos
+monto_linea_neto,FLOAT64,Valor total liquido da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalLineaNeto

@@ -1,0 +1,6 @@
+name,bigquery_type,description,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela que a entrada do dicionário descreve,Slug of the table the dictionary entry describes,Nombre de la tabla que describe la entrada del diccionario,,no,,,no,,
+nome_coluna,STRING,Nome da coluna codificada,Name of the coded column,Nombre de la columna codificada,,no,,,no,,
+chave,STRING,Valor codificado exatamente como armazenado na tabela,Coded value exactly as stored in the table,Valor codificado exactamente como se almacena en la tabla,,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal da chave,Temporal coverage of the key,Cobertura temporal de la clave,,no,,,no,,
+valor,STRING,Rótulo correspondente ao valor codificado,Label corresponding to the coded value,Etiqueta correspondiente al valor codificado,,no,,,no,,

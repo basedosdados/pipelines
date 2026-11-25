@@ -1,0 +1,113 @@
+---
+version: 2
+models:
+  - name: world_dasanaike_sage__election_returns
+    description: >
+      Retornos eleitorais geocodificados e padronizados no menor nível
+      publicado por cada autoridade eleitoral (tipicamente a seção eleitoral),
+      para eleições legislativas de câmara baixa e presidenciais em 110 países,
+      de 1948 a 2026, do conjunto Small-Area Global Elections (SAGE). Cada linha
+      corresponde ao resultado de um partido ou candidato em uma unidade
+      eleitoral, para uma eleição. Não há coluna única de identificação da
+      unidade: as unidades são identificadas pela hierarquia de nomes
+      (name_1 a name_7) e pelas coordenadas, e várias unidades podem compartilhar
+      o mesmo caminho de nomes, de modo que não existe chave primária única.
+      Contagens de votos podem apresentar valores negativos ocasionais (ajustes
+      da fonte); razões de comparecimento podem exceder 100 quando o denominador
+      é muito pequeno.
+    columns:
+      - name: year
+        description: Ano da eleição.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: Código ISO 3166-1 alfa-3 do país.
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              ignore_values: [XKX]
+      - name: match_confidence
+        description: >
+          Confiança da correspondência com o Party Facts (coberta pelo
+          dicionário).
+      - name: geometry_type
+        description: >
+          Método usado para derivar a geometria da unidade (coberto pelo
+          dicionário).
+  - name: world_dasanaike_sage__spatial_admin_crosswalk
+    description: >
+      Cruzamento espacial que mapeia cada coordenada geocodificada do SAGE (por
+      país e ano de eleição) para unidades administrativas padrão: GADM (níveis
+      1 a 3), ISO 3166-2, NUTS do Eurostat (níveis 1 a 3) e FIPS dos Estados
+      Unidos. Cada família de códigos é preenchida apenas nas regiões em que se
+      aplica. Cobre 1959 a 2025.
+    columns:
+      - name: year
+        description: Ano da eleição da coordenada.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >
+          Código ISO 3166-1 alfa-3 do país, derivado do nome do país.
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              ignore_values: [XKX]
+  - name: world_dasanaike_sage__netherlands_preference_votes
+    description: >
+      Votos preferenciais em nível de candidato por seção eleitoral
+      (stembureau) nas eleições para a câmara baixa dos Países Baixos (2017,
+      2021 e 2023). A linha com candidato em branco corresponde ao total da
+      lista partidária naquela seção.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - gemeente_code
+            - stembureau_id
+            - party_id
+            - candidate_id
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Ano da eleição.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+  - name: world_dasanaike_sage__germany_erststimme
+    description: >
+      Resultados de candidatos em nível de distrito (Wahlkreis) para o primeiro
+      voto (Erststimme) nas eleições federais alemãs (Bundestag), de 2005 a
+      2021.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, wahlkreis_nr, party, candidate]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [constituency_votes]
+    columns:
+      - name: year
+        description: Ano da eleição.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+  - name: world_dasanaike_sage__dicionario
+    description: >-
+      Dicionário de valores codificados do conjunto SAGE. Cobre as colunas
+      match_confidence e geometry_type da tabela election_returns.

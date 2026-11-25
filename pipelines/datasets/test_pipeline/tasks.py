@@ -15,6 +15,7 @@ from prefect import task
 from pipelines.utils.utils import log
 
 
+# pyrefly: ignore [no-matching-overload]
 @task(nout=2)
 def get_random_expression() -> pd.DataFrame:
     """
@@ -38,6 +39,7 @@ def get_random_expression() -> pd.DataFrame:
             np.nan,
         ]
         dataframe = pd.DataFrame(data, columns=cols)
+    # pyrefly: ignore [bad-return]
     return dataframe[cols], time_stamp
 
 
@@ -72,6 +74,7 @@ def upload_to_gcs(path: str | Path, dataset_id: str, table_id: str) -> None:
     # st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
 
     # TODO(aspeddro): this method dont exists
+    # pyrefly: ignore [missing-attribute]
     if tb.table_existime_stamp(mode="staging"):
         # Delete old data
         # st.delete_table(

@@ -1,3 +1,5 @@
+-- Dados de 2026 reprocessados em 2026-08-21 a partir dos arquivos do TSE
+-- gerados em 19/08/2026, apos o encerramento do registro de candidaturas.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -6,11 +8,11 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1994, "end": 2024, "interval": 2},
+            "range": {"start": 1994, "end": 2030, "interval": 2},
         },
     )
 }}
-
+-- Testado em 2026-08-21 com os arquivos do TSE
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_eleicao as string) id_eleicao,
@@ -40,4 +42,8 @@ select
     safe_cast(municipio_nascimento as string) municipio_nascimento,
     safe_cast(email as string) email,
     safe_cast(raca as string) raca
-from {{ set_datalake_project("br_tse_eleicoes_staging.candidatos") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.candidatos") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    -- Staging re-synced: id_municipio filled for Boa Esperança do Norte (TSE 73709).

@@ -1,0 +1,25 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+efbage,FLOAT64,Age category,,no,,,no,,efbage
+line,INT64,Original line number on survey form,,no,,,no,,line
+lstudy,FLOAT64,Level of student,,no,,,no,,lstudy
+xefage01,STRING,Imputation field for EFAGE01 - Full time men,,no,,,no,,xefage01
+efage01,FLOAT64,Full time men,,no,,,no,,efage01
+xefage02,STRING,Imputation field for EFAGE02 - Full time women,,no,,,no,,xefage02
+efage02,FLOAT64,Full time women,,no,,,no,,efage02
+xefage03,STRING,Imputation field for EFAGE03 - Part time men,,no,,,no,,xefage03
+efage03,FLOAT64,Part time men,,no,,,no,,efage03
+xefage04,STRING,Imputation field for EFAGE04 - Part time women,,no,,,no,,xefage04
+efage04,FLOAT64,Part time women,,no,,,no,,efage04
+xefage05,STRING,Imputation field for EFAGE05 - Full time total,,no,,,no,,xefage05
+efage05,FLOAT64,Full time total,,no,,,no,,efage05
+xefage06,STRING,Imputation field for EFAGE06 - Part time total,,no,,,no,,xefage06
+efage06,FLOAT64,Part time total,,no,,,no,,efage06
+xefage07,STRING,Imputation field for EFAGE07 - Total men,,no,,,no,,xefage07
+efage07,FLOAT64,Total men,,no,,,no,,efage07
+xefage08,STRING,Imputation field for EFAGE08 - Total women,,no,,,no,,xefage08
+efage08,FLOAT64,Total women,,no,,,no,,efage08
+xefage09,STRING,Imputation field for EFAGE09 - Grand total,,no,,,no,,xefage09
+efage09,FLOAT64,Grand total,,no,,,no,,efage09
+section,FLOAT64,Attendance status,,no,,,no,,section

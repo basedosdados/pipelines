@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+census_year,INT64,"Ano do Censo (2011, 2016 ou 2021)",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento. EN: Census year (2011, 2016 or 2021). ES: Año del Censo (2011, 2016 o 2021)",census_year
+id_lga,STRING,Código identificador da unidade geográfica (local government areas),,no,br_bd_diretorios_au.lga_2021:id_lga,,no,FK à edição 2021 do diretório; para census_year 2011/2016 refere-se à edição daquele ano (teste dbt por ano). EN: local government areas code. ES: código de áreas de gobierno local (LGA),id_lga
+profile,STRING,Perfil do Censo de origem (GCP = General Community Profile; TSP = Time Series Profile),,no,,,no,EN: Source Census profile (GCP/TSP). ES: Perfil del Censo de origen (GCP/TSP),profile
+table_code,STRING,"Código da tabela do perfil (por exemplo G01, B01, T01); nome e população em auxiliary_info",,no,,,no,EN: Profile table code (e.g. G01/B01/T01). ES: Código de la tabla del perfil,table_code
+cell_code,STRING,"Código da célula (variável) do perfil; descrição, estatística e unidade em auxiliary_info",,no,,,no,EN: Profile cell (variable) code; see auxiliary_info. ES: Código de la celda del perfil,cell_code
+value,FLOAT64,"Valor da célula; a unidade de medida varia por célula (contagem, mediana ou média — ver auxiliary_info)",,no,,,no,Unidade por célula em auxiliary_info (measurement_unit); mistura contagens e medianas/médias. EN/ES idem,value

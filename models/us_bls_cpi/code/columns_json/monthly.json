@@ -1,0 +1,99 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação do índice",
+    "description_en": "Reference year of the index observation",
+    "description_es": "Año de referencia de la observación del índice",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "month",
+    "bigquery_type": "INT64",
+    "description_pt": "Mês de referência da observação do índice, de 1 a 12",
+    "description_en": "Reference month of the index observation, from 1 to 12",
+    "description_es": "Mes de referencia de la observación del índice, de 1 a 12",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.mes:mes",
+    "measurement_unit": "month"
+  },
+  {
+    "name": "survey",
+    "bigquery_type": "STRING",
+    "description_pt": "População da pesquisa do IPC: CPI-U para todos os consumidores urbanos ou CPI-W para assalariados urbanos e trabalhadores administrativos",
+    "description_en": "CPI survey population: CPI-U for all urban consumers or CPI-W for urban wage earners and clerical workers",
+    "description_es": "Población de la encuesta del IPC: CPI-U para todos los consumidores urbanos o CPI-W para asalariados urbanos y trabajadores administrativos",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "seasonal_adjustment",
+    "bigquery_type": "STRING",
+    "description_pt": "Indica se a série é ajustada sazonalmente (S) ou não ajustada sazonalmente (U)",
+    "description_en": "Whether the series is seasonally adjusted (S) or not seasonally adjusted (U)",
+    "description_es": "Indica si la serie está ajustada estacionalmente (S) o no ajustada estacionalmente (U)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "area_id",
+    "bigquery_type": "STRING",
+    "description_pt": "Código de área do IPC do BLS que identifica a cobertura geográfica da série",
+    "description_en": "BLS CPI area code identifying the geographic coverage of the series",
+    "description_es": "Código de área del IPC del BLS que identifica la cobertura geográfica de la serie",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "item_id",
+    "bigquery_type": "STRING",
+    "description_pt": "Código de item do IPC do BLS que identifica a categoria de despesa da série",
+    "description_en": "BLS CPI item code identifying the expenditure category of the series",
+    "description_es": "Código de ítem del IPC del BLS que identifica la categoría de gasto de la serie",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "base_period",
+    "bigquery_type": "STRING",
+    "description_pt": "Período base de referência do índice no qual o índice é igual a 100, que varia por série",
+    "description_en": "Index reference base period at which the index equals 100, which varies by series",
+    "description_es": "Período base de referencia del índice en el que el índice es igual a 100, que varía según la serie",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "index_value",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Nível mensal do Índice de Preços ao Consumidor para o item, área e período, relativo ao período base",
+    "description_en": "Monthly Consumer Price Index level for the item, area, and period, relative to the base period",
+    "description_es": "Nivel mensual del Índice de Precios al Consumidor para el ítem, área y período, relativo al período base",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "index"
+  },
+  {
+    "name": "monthly_change",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Variação percentual do índice em relação ao mês anterior, calculada pela Data Basis",
+    "description_en": "Percent change in the index relative to the previous month",
+    "description_es": "Variación porcentual del índice respecto al mes anterior, calculada por Data Basis",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  },
+  {
+    "name": "twelve_month_change",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Variação percentual do índice em relação ao mesmo mês do ano anterior, calculada pela Data Basis",
+    "description_en": "Percent change in the index relative to the same month of the previous year",
+    "description_es": "Variación porcentual del índice respecto al mismo mes del año anterior, calculada por Data Basis",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  }
+]

@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano de referência,,no,,year,no,,TimePeriod,Reference year,Año de referencia
+geo_fips,STRING,Código FIPS do condado,,no,,,no,Cinco dígitos.,GeoFips,County FIPS code,Código FIPS del condado
+id_county,STRING,Código FIPS do condado,,no,br_bd_diretorios_us.county:id_county,,no,Cinco dígitos.,GeoFips,County FIPS code,Código FIPS del condado
+id_state,STRING,Código FIPS do estado,,no,br_bd_diretorios_us.state:id_state,,no,Dois dígitos.,GeoFips,State FIPS code,Código FIPS del estado
+geo_name,STRING,Nome da área geográfica,,no,,,no,,GeoName,Name of the geographic area,Nombre del área geográfica
+table_id,STRING,Identificador da tabela BEA,,yes,,,no,"Por exemplo, CAGDP2.",TableName,BEA table identifier,Identificador de la tabla BEA
+line_code,STRING,Código da linha dentro da tabela BEA,,no,,,no,,LineCode,Line code within the BEA table,Código de línea dentro de la tabla BEA
+series_id,STRING,Código da série BEA da observação,,no,,,no,,Code,BEA series code of the observation,Código de serie BEA de la observación
+line_description,STRING,Descrição da linha da tabela,,no,,,no,,LineDescription,Description of the table line,Descripción de la línea de la tabla
+unit,STRING,Unidade de medida da série,,no,,,no,Rótulo BEA CL_UNIT.,CL_UNIT,Unit of measure of the series,Unidad de medida de la serie
+unit_mult,STRING,Multiplicador de base 10 aplicado ao valor,,no,,,no,"Expoente; por exemplo, 6 = milhões, 9 = bilhões.",UNIT_MULT,Base-10 multiplier applied to the value,Multiplicador de base 10 aplicado al valor
+value,FLOAT64,Valor observado,,no,,,no,"Na unidade indicada em unit e unit_mult; a unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem), por isso measurement_unit fica em branco.",DataValue,Observed value,Valor observado
+note_ref,STRING,Referência de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference for the observation,Referencia de nota al pie de la BEA para la observación

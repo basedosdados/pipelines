@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+person_id,STRING,Identificador da pessoa nomeada,,no,,,no,References us_harvard_cbdb.person.person_id,c_personid
+office_code,STRING,Código do cargo ocupado,,no,,,no,References sibling table us_harvard_cbdb.office_code,c_office_id
+posting_id,STRING,Identificador da nomeação (posting),,no,,,no,,c_posting_id
+sequence,STRING,Número de ordem da nomeação na carreira da pessoa,,no,,,no,,c_sequence
+first_year,INT64,Primeiro ano no cargo (calendário ocidental),,no,,year,no,,c_firstyear
+last_year,INT64,Último ano no cargo (calendário ocidental),,no,,year,no,,c_lastyear
+appointment_code,STRING,Código do tipo de nomeação (como o cargo foi assumido),,yes,,,no,,c_appt_code
+assume_office_code,STRING,Código indicando se a pessoa efetivamente assumiu o cargo,,yes,,,no,,c_assume_office_code
+dynasty_code,STRING,Código da dinastia da nomeação,,yes,,,no,,c_dy
+source_id,STRING,Identificador da fonte histórica que documenta o registro,,no,,,no,,c_source
+source_pages,STRING,Páginas ou localização na fonte histórica citada,,no,,,no,,c_pages
+notes,STRING,"Notas textuais livres sobre o registro, conforme o CBDB",,no,,,no,,c_notes

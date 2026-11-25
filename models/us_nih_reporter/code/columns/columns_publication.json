@@ -1,0 +1,176 @@
+[
+ {
+  "name": "year",
+  "bigquery_type": "INT64",
+  "description_pt": "Ano-calendário do arquivo de publicações de que o registro provém",
+  "description_en": "Calendar year of the publication file the record comes from",
+  "description_es": "Año calendario del archivo de publicaciones del que proviene el registro",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+  "measurement_unit": "year",
+  "observations_pt": "Ano-CALENDÁRIO de divulgação do arquivo de publicações de que o registro provém, e não o ano fiscal usado nas tabelas project e project_abstract. Coluna de particionamento.",
+  "observations_en": "CALENDAR year of release of the publication file the record comes from, not the fiscal year used in the project and project_abstract tables. Partition column.",
+  "observations_es": "Año CALENDARIO de divulgación del archivo de publicaciones del que proviene el registro, y no el año fiscal usado en las tablas project y project_abstract. Columna de particionamiento."
+ },
+ {
+  "name": "pmid",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador único da publicação no PubMed",
+  "description_en": "Unique identifier of the publication in PubMed",
+  "description_es": "Identificador único de la publicación en PubMed",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Número de acesso de um a oito dígitos, sem zeros à esquerda. Liga esta tabela a publication_link.",
+  "observations_en": "One- to eight-digit accession number with no leading zeros. Joins this table to publication_link.",
+  "observations_es": "Número de acceso de uno a ocho dígitos, sin ceros a la izquierda. Une esta tabla con publication_link."
+ },
+ {
+  "name": "pmc_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador único do artigo no PubMed Central",
+  "description_en": "Unique identifier of the article in PubMed Central",
+  "description_es": "Identificador único del artículo en PubMed Central",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "issn",
+  "bigquery_type": "STRING",
+  "description_pt": "Número internacional normalizado que identifica o periódico",
+  "description_en": "International standard serial number identifying the journal",
+  "description_es": "Número internacional normalizado que identifica la revista",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "publication_title",
+  "bigquery_type": "STRING",
+  "description_pt": "Título do artigo",
+  "description_en": "Title of the journal article",
+  "description_es": "Título del artículo",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Sempre em inglês; títulos originalmente publicados em outra língua e traduzidos aparecem entre colchetes.",
+  "observations_en": "Always in English; titles originally published in another language and translated appear in square brackets.",
+  "observations_es": "Siempre en inglés; los títulos publicados originalmente en otra lengua y traducidos aparecen entre corchetes."
+ },
+ {
+  "name": "journal_title",
+  "bigquery_type": "STRING",
+  "description_pt": "Título completo do periódico",
+  "description_en": "Full title of the journal",
+  "description_es": "Título completo de la revista",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "journal_title_abbreviation",
+  "bigquery_type": "STRING",
+  "description_pt": "Abreviatura padronizada do título do periódico",
+  "description_en": "Standard abbreviation of the journal title",
+  "description_es": "Abreviatura estandarizada del título de la revista",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "journal_volume",
+  "bigquery_type": "STRING",
+  "description_pt": "Volume do periódico em que o artigo foi publicado",
+  "description_en": "Volume of the journal in which the article was published",
+  "description_es": "Volumen de la revista en que se publicó el artículo",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "journal_issue",
+  "bigquery_type": "STRING",
+  "description_pt": "Número, parte ou suplemento do periódico em que o artigo foi publicado",
+  "description_en": "Issue, part or supplement of the journal in which the article was published",
+  "description_es": "Número, parte o suplemento de la revista en que se publicó el artículo",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "page_number",
+  "bigquery_type": "STRING",
+  "description_pt": "Páginas do artigo no periódico",
+  "description_en": "Pages of the article in the journal",
+  "description_es": "Páginas del artículo en la revista",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "A paginação pode não ser numérica; artigos eletrônicos trazem aqui o número do documento.",
+  "observations_en": "The pagination need not be numeric; electronic articles carry the document number here.",
+  "observations_es": "La paginación puede no ser numérica; los artículos electrónicos traen aquí el número del documento."
+ },
+ {
+  "name": "publication_date",
+  "bigquery_type": "STRING",
+  "description_pt": "Data de publicação do fascículo, conforme impressa no periódico",
+  "description_en": "Publication date of the journal issue, as printed in the journal",
+  "description_es": "Fecha de publicación del fascículo, tal como está impresa en la revista",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Mantida como texto porque a fonte a publica como os elementos que constam do fascículo, que nem sempre incluem mês e dia.",
+  "observations_en": "Kept as text because the source publishes whichever elements the issue carries, which do not always include a month and a day.",
+  "observations_es": "Mantenida como texto porque la fuente la publica con los elementos que constan en el fascículo, que no siempre incluyen mes y día."
+ },
+ {
+  "name": "publication_year",
+  "bigquery_type": "INT64",
+  "description_pt": "Ano de publicação do artigo",
+  "description_en": "Year the article was published",
+  "description_es": "Año de publicación del artículo",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "measurement_unit": "year",
+  "observations_pt": "Extraído pela fonte de publication_date. Pode diferir do ano da coluna year, que é o do arquivo de divulgação.",
+  "observations_en": "Extracted by the source from publication_date. It can differ from the year in the year column, which is that of the release file.",
+  "observations_es": "Extraído por la fuente de publication_date. Puede diferir del año de la columna year, que es el del archivo de divulgación."
+ },
+ {
+  "name": "author_list",
+  "bigquery_type": "STRING",
+  "description_pt": "Autores do artigo, separados por ponto e vírgula",
+  "description_en": "Authors of the article, separated by semicolons",
+  "description_es": "Autores del artículo, separados por punto y coma",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Cada autor aparece como sobrenome seguido de até duas iniciais e, quando aplicável, de uma abreviatura de sufixo.",
+  "observations_en": "Each author appears as a surname followed by up to two initials and, where applicable, a suffix abbreviation.",
+  "observations_es": "Cada autor aparece como apellido seguido de hasta dos iniciales y, cuando corresponde, de una abreviatura de sufijo."
+ },
+ {
+  "name": "affiliation",
+  "bigquery_type": "STRING",
+  "description_pt": "Vínculo institucional do primeiro autor",
+  "description_en": "Institutional affiliation of the first author",
+  "description_es": "Vinculación institucional del primer autor",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "country",
+  "bigquery_type": "STRING",
+  "description_pt": "País de publicação do periódico",
+  "description_en": "Country of publication of the journal",
+  "description_es": "País de publicación de la revista",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Usa os nomes de país da categoria Z do vocabulário MeSH da Biblioteca Nacional de Medicina dos Estados Unidos.",
+  "observations_en": "Uses the country names in category Z of the United States National Library of Medicine's MeSH vocabulary.",
+  "observations_es": "Usa los nombres de país de la categoría Z del vocabulario MeSH de la Biblioteca Nacional de Medicina de los Estados Unidos."
+ },
+ {
+  "name": "language",
+  "bigquery_type": "STRING",
+  "description_pt": "Língua em que o artigo foi publicado",
+  "description_en": "Language in which the article was published",
+  "description_es": "Lengua en que se publicó el artículo",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Abreviaturas de três letras em caixa baixa, como eng, fre e ger.",
+  "observations_en": "Lower-case three-letter abbreviations, such as eng, fre and ger.",
+  "observations_es": "Abreviaturas de tres letras en minúsculas, como eng, fre y ger."
+ }
+]

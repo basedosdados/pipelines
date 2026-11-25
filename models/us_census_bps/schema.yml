@@ -1,0 +1,919 @@
+---
+version: 2
+models:
+  - name: us_census_bps__permit_place_monthly
+    description: >-
+      Monthly counts of new privately-owned residential buildings, housing
+      units and construction valuation authorized by building permits, for each
+      permit-issuing place, from January 1988. One row per place, month and
+      structure type. Figures include imputed values for non-responding permit
+      offices; source_code marks how each office's month was obtained, and the
+      monthly place file carries no separate reported-only block. The monthly
+      universe was a sample of roughly 9,000 permit offices until it was
+      widened to the full universe of about 20,000 in 2024, so counts of
+      offices are not comparable across that break; the annual table covers the
+      full universe throughout. Exception: the county_id referential test
+      allows up to 2 percent unmatched because the survey reports historical
+      counties that the current FIPS directory no longer lists, chiefly
+      Connecticut's eight counties replaced by planning regions in 2022 and the
+      Alaska census areas that have since been split. Exception: the place_id
+      referential test allows up to 2 percent unmatched because place FIPS
+      codes drift between decennial vintages while the directory holds the 2020
+      vintage. Measured unmatched share is 0.3 percent. Exception: the cbsa_id
+      referential test allows up to 5 percent unmatched because CBSA
+      delineations are revised every few years while the directory holds the
+      2023 vintage; areas such as Los Angeles-Long Beach-Santa Ana (31100) were
+      redelineated. Measured unmatched share is 2.7 percent.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - state_id
+            - permit_office_id
+            - structure_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [central_city]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the survey period, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit FIPS county code, state code followed by county code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: ['']
+              proportion_allowed_failures: 0.02
+      - name: place_id
+        description: >-
+          Seven-digit FIPS place code, state code followed by place code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__place')
+              field: id_place
+              ignore_values: ['']
+              proportion_allowed_failures: 0.02
+      - name: mcd_id
+        description: >-
+          Seven-digit FIPS minor civil division code, state code followed by
+          MCD code
+      - name: cbsa_id
+        description: >-
+          Five-digit Core Based Statistical Area code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+              ignore_values: ['']
+              proportion_allowed_failures: 0.05
+      - name: csa_id
+        description: >-
+          Three-digit Combined Statistical Area code
+      - name: msa_cmsa_id
+        description: >-
+          Four-digit Metropolitan or Consolidated Metropolitan Statistical Area
+          code
+      - name: pmsa_id
+        description: >-
+          Four-digit Primary Metropolitan Statistical Area code
+      - name: permit_office_id
+        description: >-
+          Six-digit Building Permit Survey identifier of the permit-issuing
+          office, unique within a state and survey period
+        tests: [not_null]
+      - name: census_place_id
+        description: >-
+          Four-digit Census place code
+      - name: region_id
+        description: >-
+          Census region code, from 1 to 4
+      - name: division_id
+        description: >-
+          Census division code, from 1 to 9
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: place_name
+        description: >-
+          Name of the permit-issuing place or office, as published
+      - name: central_city
+        description: >-
+          Whether the place is a central city of a metropolitan area
+      - name: footnote_code
+        description: >-
+          Whether the place carries an explanatory footnote in the source
+          release
+      - name: zip_code
+        description: >-
+          ZIP code of the permit office or official
+      - name: population
+        description: >-
+          Population of the place as carried in the source file
+      - name: source_code
+        description: >-
+          How the data for the permit office was obtained for the month
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+  - name: us_census_bps__permit_place_annual
+    description: >-
+      Annual counts of new privately-owned residential buildings, housing units
+      and construction valuation authorized by building permits, for each
+      permit-issuing place, from 1980. One row per place, year and structure
+      type, for the full universe of about 20,000 permit offices. Both the
+      estimate including imputation for non-responding offices and the
+      reported-only figures are given; use the former by default. Exception:
+      the county_id referential test allows up to 2 percent unmatched because
+      the survey reports historical counties that the current FIPS directory no
+      longer lists, chiefly Connecticut's eight counties replaced by planning
+      regions in 2022 and the Alaska census areas that have since been split.
+      Exception: the place_id referential test allows up to 2 percent unmatched
+      because place FIPS codes drift between decennial vintages while the
+      directory holds the 2020 vintage. Measured unmatched share is 0.3
+      percent. Exception: the cbsa_id referential test allows up to 5 percent
+      unmatched because CBSA delineations are revised every few years while the
+      directory holds the 2023 vintage; areas such as Los Angeles-Long
+      Beach-Santa Ana (31100) were redelineated. Measured unmatched share is
+      2.7 percent.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_id
+            - permit_office_id
+            - structure_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [central_city]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit FIPS county code, state code followed by county code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: ['']
+              proportion_allowed_failures: 0.02
+      - name: place_id
+        description: >-
+          Seven-digit FIPS place code, state code followed by place code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__place')
+              field: id_place
+              ignore_values: ['']
+              proportion_allowed_failures: 0.02
+      - name: mcd_id
+        description: >-
+          Seven-digit FIPS minor civil division code, state code followed by
+          MCD code
+      - name: cbsa_id
+        description: >-
+          Five-digit Core Based Statistical Area code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+              ignore_values: ['']
+              proportion_allowed_failures: 0.05
+      - name: csa_id
+        description: >-
+          Three-digit Combined Statistical Area code
+      - name: msa_cmsa_id
+        description: >-
+          Four-digit Metropolitan or Consolidated Metropolitan Statistical Area
+          code
+      - name: pmsa_id
+        description: >-
+          Four-digit Primary Metropolitan Statistical Area code
+      - name: permit_office_id
+        description: >-
+          Six-digit Building Permit Survey identifier of the permit-issuing
+          office, unique within a state and survey period
+        tests: [not_null]
+      - name: census_place_id
+        description: >-
+          Four-digit Census place code
+      - name: region_id
+        description: >-
+          Census region code, from 1 to 4
+      - name: division_id
+        description: >-
+          Census division code, from 1 to 9
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: place_name
+        description: >-
+          Name of the permit-issuing place or office, as published
+      - name: central_city
+        description: >-
+          Whether the place is a central city of a metropolitan area
+      - name: footnote_code
+        description: >-
+          Whether the place carries an explanatory footnote in the source
+          release
+      - name: zip_code
+        description: >-
+          ZIP code of the permit office or official
+      - name: population
+        description: >-
+          Population of the place as carried in the source file
+      - name: months_reported
+        description: >-
+          Number of months of the year for which the permit office reported
+          residential data
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_county_monthly
+    description: >-
+      Monthly counts of new privately-owned residential buildings, housing
+      units and construction valuation authorized by building permits, by
+      county, from January 2000. One row per county, month and structure type.
+      Both the estimate including imputation for non-responding permit offices
+      and the reported-only figures are given; use the former by default.
+      Exception: the county_id referential test allows up to 2 percent
+      unmatched because the survey reports historical counties that the current
+      FIPS directory no longer lists, chiefly Connecticut's eight counties
+      replaced by planning regions in 2022 and the Alaska census areas that
+      have since been split.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - state_id
+            - county_id
+            - structure_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the survey period, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: county_id
+        description: >-
+          Five-digit FIPS county code, state code followed by county code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: ['']
+              proportion_allowed_failures: 0.02
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: region_id
+        description: >-
+          Census region code, from 1 to 4
+      - name: division_id
+        description: >-
+          Census division code, from 1 to 9
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: county_name
+        description: >-
+          Name of the county, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_county_annual
+    description: >-
+      Annual counts of new privately-owned residential buildings, housing units
+      and construction valuation authorized by building permits, by county,
+      from 1990. One row per county, year and structure type. Both the estimate
+      including imputation for non-responding permit offices and the
+      reported-only figures are given; use the former by default. Exception:
+      the county_id referential test allows up to 2 percent unmatched because
+      the survey reports historical counties that the current FIPS directory no
+      longer lists, chiefly Connecticut's eight counties replaced by planning
+      regions in 2022 and the Alaska census areas that have since been split.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, county_id, structure_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: county_id
+        description: >-
+          Five-digit FIPS county code, state code followed by county code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: ['']
+              proportion_allowed_failures: 0.02
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: region_id
+        description: >-
+          Census region code, from 1 to 4
+      - name: division_id
+        description: >-
+          Census division code, from 1 to 9
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: county_name
+        description: >-
+          Name of the county, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_cbsa_monthly
+    description: >-
+      Monthly counts of new privately-owned residential buildings, housing
+      units and construction valuation authorized by building permits, by Core
+      Based Statistical Area, from January 2004. One row per area, month and
+      structure type. Micropolitan areas were added to the series in January
+      2024. For 1988 to 2003 the survey used the older MSA and PMSA
+      definitions, which are a different geography and are held in
+      permit_msa_monthly. Exception: the cbsa_id referential test allows up to
+      5 percent unmatched because CBSA delineations are revised every few years
+      while the directory holds the 2023 vintage; areas such as Los
+      Angeles-Long Beach-Santa Ana (31100) were redelineated. Measured
+      unmatched share is 2.7 percent.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, month, cbsa_id, structure_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the survey period, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: cbsa_id
+        description: >-
+          Five-digit Core Based Statistical Area code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+              ignore_values: ['']
+              proportion_allowed_failures: 0.05
+      - name: csa_id
+        description: >-
+          Three-digit Combined Statistical Area code the CBSA belongs to
+      - name: cbsa_type
+        description: >-
+          Header code distinguishing metropolitan from micropolitan areas
+      - name: full_monthly_coverage
+        description: >-
+          Whether the area is completely covered by monthly reporting
+          permit-issuing places
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: cbsa_name
+        description: >-
+          Name of the Core Based Statistical Area, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_cbsa_annual
+    description: >-
+      Annual counts of new privately-owned residential buildings, housing units
+      and construction valuation authorized by building permits, by Core Based
+      Statistical Area, from 2003. One row per area, year and structure type.
+      Micropolitan areas were added to the series in 2024. For 1980 to 2002 the
+      survey used the older MSA and PMSA definitions, which are a different
+      geography and are held in permit_msa_annual. Exception: the cbsa_id
+      referential test allows up to 5 percent unmatched because CBSA
+      delineations are revised every few years while the directory holds the
+      2023 vintage; areas such as Los Angeles-Long Beach-Santa Ana (31100) were
+      redelineated. Measured unmatched share is 2.7 percent.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, cbsa_id, structure_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cbsa_id
+        description: >-
+          Five-digit Core Based Statistical Area code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+              ignore_values: ['']
+              proportion_allowed_failures: 0.05
+      - name: csa_id
+        description: >-
+          Three-digit Combined Statistical Area code the CBSA belongs to
+      - name: cbsa_type
+        description: >-
+          Header code distinguishing metropolitan from micropolitan areas
+      - name: full_monthly_coverage
+        description: >-
+          Whether the area is completely covered by monthly reporting
+          permit-issuing places
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: cbsa_name
+        description: >-
+          Name of the Core Based Statistical Area, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_msa_monthly
+    description: >-
+      Monthly counts of new privately-owned residential buildings, housing
+      units and construction valuation authorized by building permits, by
+      Metropolitan Statistical Area, from January 1988 to December 2003. One
+      row per area, month and structure type. This table uses the pre-2004 MSA
+      and PMSA code system, which was superseded by CBSA codes rather than
+      renamed, so it does not join to permit_cbsa_monthly or to the CBSA
+      directory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - msa_cmsa_id
+            - pmsa_id
+            - structure_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the survey period, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: msa_cmsa_id
+        description: >-
+          Four-digit Metropolitan or Consolidated Metropolitan Statistical Area
+          code
+        tests: [not_null]
+      - name: pmsa_id
+        description: >-
+          Four-digit Primary Metropolitan Statistical Area code
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: msa_name
+        description: >-
+          Name of the metropolitan area, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_msa_annual
+    description: >-
+      Annual counts of new privately-owned residential buildings, housing units
+      and construction valuation authorized by building permits, by
+      Metropolitan Statistical Area, from 1980 to 2002. One row per area, year
+      and structure type. This table uses the pre-2004 MSA and PMSA code
+      system, which was superseded by CBSA codes rather than renamed, so it
+      does not join to permit_cbsa_annual or to the CBSA directory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, msa_cmsa_id, pmsa_id, structure_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: msa_cmsa_id
+        description: >-
+          Four-digit Metropolitan or Consolidated Metropolitan Statistical Area
+          code
+        tests: [not_null]
+      - name: pmsa_id
+        description: >-
+          Four-digit Primary Metropolitan Statistical Area code
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: msa_name
+        description: >-
+          Name of the metropolitan area, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_state_monthly
+    description: >-
+      Monthly counts of new privately-owned residential buildings, housing
+      units and construction valuation authorized by building permits, by
+      state, from January 1988. The published file also carries the national,
+      regional and divisional totals, so filter on geography_level before
+      aggregating or the same permits are counted several times. One row per
+      geography, month and structure type.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, month, geography_id, structure_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the survey period, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: geography_level
+        description: >-
+          Level of the geography the row describes
+        tests: [not_null]
+      - name: geography_id
+        description: >-
+          Code identifying the geography, as published
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: region_id
+        description: >-
+          Census region code, from 1 to 4
+      - name: division_id
+        description: >-
+          Census division code, from 1 to 9
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: geography_name
+        description: >-
+          Name of the geography, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__permit_state_annual
+    description: >-
+      Annual counts of new privately-owned residential buildings, housing units
+      and construction valuation authorized by building permits, by state, from
+      1980. The published file also carries the national, regional and
+      divisional totals, so filter on geography_level before aggregating or the
+      same permits are counted several times. One row per geography, year and
+      structure type.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, geography_id, structure_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the survey period
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: geography_level
+        description: >-
+          Level of the geography the row describes
+        tests: [not_null]
+      - name: geography_id
+        description: >-
+          Code identifying the geography, as published
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Two-digit FIPS state code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: region_id
+        description: >-
+          Census region code, from 1 to 4
+      - name: division_id
+        description: >-
+          Census division code, from 1 to 9
+      - name: structure_type
+        description: >-
+          Type of residential structure, by the number of housing units in the
+          building
+      - name: geography_name
+        description: >-
+          Name of the geography, as published
+      - name: buildings
+        description: >-
+          Number of buildings authorized by building permits
+      - name: units
+        description: >-
+          Number of housing units authorized by building permits
+      - name: valuation
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars
+      - name: buildings_reported
+        description: >-
+          Number of buildings authorized, counting reporting permit offices
+          only
+      - name: units_reported
+        description: >-
+          Number of housing units authorized, counting reporting permit offices
+          only
+      - name: valuation_reported
+        description: >-
+          Construction valuation of the buildings authorized, in US dollars,
+          counting reporting permit offices only
+  - name: us_census_bps__dicionario
+    description: >-
+      Dictionary of the coded values used across the us_census_bps tables, one
+      row per table, column and key.
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the us_census_bps table the dictionary entry describes
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+      - name: chave
+        description: >-
+          Coded value (key) exactly as stored in the data
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the key
+      - name: valor
+        description: >-
+          Human-readable label corresponding to the coded value

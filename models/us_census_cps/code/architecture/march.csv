@@ -1,0 +1,479 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year,Survey year,Año
+month,INT64,Mês,,no,br_bd_diretorios_data_tempo.mes:mes,,no,,month,Month,Mes
+id_state,STRING,"Código FIPS do estado (2 dígitos, com zero à esquerda)",,no,br_bd_diretorios_us.state:id_state,,no,"Coluna derivada: obtida de `state` (código censitário do CPS) pelo cruzamento com br_bd_diretorios_us.state.id_census, que cobre os 51 códigos do CEPR de forma exata. Materializada no modelo dbt.",state,"State FIPS code (2-digit, zero-padded)","Código FIPS del estado (2 dígitos, con cero a la izquierda)"
+mis,STRING,Mês na amostra,,yes,,,no,,mis,Month in sample,Mes en la muestra
+hhid,STRING,Identificador do domicílio,,no,,,no,,hhid,"Household ID long, (part 1)",Identificador del hogar
+hhid2,STRING,"Identificador do domicílio, parte 2",,no,,,no,,hhid2,"Household ID long, (part 2)","Identificador del hogar, parte 2"
+hhseq,STRING,Identificador do domicílio no arquivo,,no,,,no,,hhseq,Household ID within file,Identificador del hogar en el archivo
+pppos,STRING,Parte final do identificador único do domicílio,,no,,,no,,pppos,Trailer portion of unique HH ID,Parte final del identificador único del hogar
+perno,STRING,Número da pessoa,,no,,,no,,perno,Person number,Número de la persona
+id,STRING,Identificador único da pessoa,,no,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",id,Unique person id,Identificador único de la persona
+parno,STRING,Número de linha do pai/mãe no domicílio,,no,,,no,,parno,Parent line number w/in HH,Número de línea del padre/madre en el hogar
+spouseno,STRING,Número de linha do cônjuge no domicílio,,no,,,no,,spouseno,Spouse line number w/in HH,Número de línea del cónyuge en el hogar
+famno,STRING,Número de linha da família no domicílio,,no,,,no,,famno,Family line number w/in HH,Número de línea de la familia en el hogar
+hjrid,STRING,Identificador HJR,,no,,,no,,hjrid,HJR ID,Identificador HJR
+peridh,STRING,Identificador único da pessoa no domicílio,,no,,,no,,peridh,Unique person ID w/in HH,Identificador único de la persona en el hogar
+parid,STRING,Identificador único do pai/mãe,,no,,,no,,parid,Unique parent ID,Identificador único del padre/madre
+spouseid,STRING,Identificador único do cônjuge,,no,,,no,,spouseid,Unique spouse ID,Identificador único del cónyuge
+fnlwgt,FLOAT64,Peso amostral básico final,,no,,,no,Peso amostral (adimensional),fnlwgt,Final weight,Peso muestral básico final
+wgt,FLOAT64,"Peso da pessoa, março",,no,,,no,Peso amostral (adimensional),wgt,"Person weight, March","Peso de la persona, marzo"
+wgtalt,FLOAT64,"Peso alternativo da pessoa, março",,no,,,no,"Peso amostral (adimensional). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",wgtalt,"Alternate person weight, March","Peso alternativo de la persona, marzo"
+famwgt,FLOAT64,Peso familiar,,no,,,no,Peso amostral (adimensional),famwgt,Family weight,Peso familiar
+fmwgtalt,FLOAT64,Peso familiar alternativo,,no,,,no,"Peso amostral (adimensional). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",fmwgtalt,Alternate family weight,Peso familiar alternativo
+hhwgt,FLOAT64,Peso do domicílio,,no,,,no,Peso amostral (adimensional),hhwgt,Household weight,Peso del hogar
+hhwgtalt,FLOAT64,Peso alternativo do domicílio,,no,,,no,"Peso amostral (adimensional). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",hhwgtalt,Alternate HH weight,Peso alternativo del hogar
+research,STRING,Na subamostra de pesquisa 3/8 (2014),2014(1)2014,yes,,,no,,research,In 3/8 research sample (2014),En la submuestra de investigación 3/8 (2014)
+age,INT64,Idade em anos,,no,,anos,no,,age,Age,Edad en años
+popstat,STRING,Situação populacional (adulto/criança),,yes,,,no,,popstat,Population status,Situación poblacional (adulto/niño)
+female,STRING,Sexo feminino,,yes,,,no,,female,Female,Sexo femenino
+wbho,STRING,"Raça/etnia (branca, negra, hispânica, outra)",,yes,,,no,,wbho,Race/ethnicity,"Raza/etnia (blanca, negra, hispana, otra)"
+wbhao,STRING,"Raça/etnia, incluindo asiática",,yes,,,no,,wbhao,"Race/ethnicity, inc. Asian","Raza/etnia, incluida asiática"
+wbhaom,STRING,"Raça/etnia, incluindo asiática e mista",,yes,,,no,,wbhaom,"Race, inc. Asian and Mixed","Raza/etnia, incluida asiática y mixta"
+ethasian,STRING,Detalhe de origem asiática,,yes,,,no,,ethasian,Asian Detail,Detalle de origen asiático
+ethhisp03,STRING,Detalhe de origem hispânica (esquema 2003),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ethhisp03,Hispanic Detail,Detalle de origen hispano (esquema 2003)
+ethhisp14,STRING,Detalhe de origem hispânica (esquema 2014),,yes,,,no,,ethhisp14,Hispanic Detail,Detalle de origen hispano (esquema 2014)
+racehpia,STRING,Havaiano nativo/ilhéu do Pacífico (incl. combinações),,yes,,,no,,racehpia,Hawaiian/Pacific Islanders,Nativo de Hawái/isleño del Pacífico (incl. combinaciones)
+racehpi,STRING,Havaiano nativo/ilhéu do Pacífico apenas,,yes,,,no,,racehpi,Hawaiian/Pacific Islanders Only,Nativo de Hawái/isleño del Pacífico solamente
+forborn,STRING,Nascido no exterior,,yes,,,no,,forborn,Foreign born,Nacido en el extranjero
+citizen,STRING,Cidadão dos EUA,,yes,,,no,,citizen,US citizen,Ciudadano de EE. UU.
+citstat,STRING,Situação de cidadania,,yes,,,no,,citstat,Citizenship status,Situación de ciudadanía
+arrived,STRING,Período de chegada aos EUA,,yes,,,no,,arrived,Year moved to US permanently,Período de llegada a EE. UU.
+peinusyr,STRING,Ano de mudança definitiva para os EUA,,yes,,,no,,peinusyr,Year moved to US permanently,Año de traslado definitivo a EE. UU.
+penatvty,STRING,País de nascimento,,yes,,,no,,penatvty,Country of birth,País de nacimiento
+pemntvty,STRING,País de nascimento da mãe,,yes,,,no,,pemntvty,"Country birth, mother",País de nacimiento de la madre
+pefntvty,STRING,País de nascimento do pai,,yes,,,no,,pefntvty,"Country birth, father",País de nacimiento del padre
+veteran,STRING,Veterano,,yes,,,no,,veteran,Veteran,Veterano
+hprsmort,STRING,Presença de hipoteca no domicílio,,yes,,,no,,hprsmort,Presence of home mortgage,Presencia de hipoteca en el hogar
+married,STRING,Casado,,yes,,,no,,married,Married,Casado
+marstat,STRING,Estado civil,,yes,,,no,,marstat,Marital Status,Estado civil
+hhrel,STRING,Relação no domicílio,,yes,,,no,,hhrel,Household relationships,Relación en el hogar
+hhrel8088,STRING,Relação no domicílio (1980-1988),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",hhrel8088,Household relationships,Relación en el hogar (1980-1988)
+hhrel2,STRING,Relação no domicílio (curta),,yes,,,no,,hhrel2,"Household relationships, short",Relación en el hogar (corta)
+hhrel3,STRING,Relação no domicílio (curta-média),,yes,,,no,,hhrel3,"Household relationships, short-med",Relación en el hogar (corta-media)
+relhdh,STRING,Relação com o chefe do domicílio,,yes,,,no,,relhdh,Relationship to HH head,Relación con el jefe del hogar
+relhdh8088,STRING,Relação com o chefe do domicílio (1980-1988),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",relhdh8088,Relationship to HH head,Relación con el jefe del hogar (1980-1988)
+exphhr,STRING,Relação ampliada com o chefe do domicílio,,yes,,,no,,exphhr,Expanded relationship to HH head,Relación ampliada con el jefe del hogar
+perhh,INT64,Número de pessoas no domicílio,,no,,pessoas,no,,perhh,Number of persons in household,Número de personas en el hogar
+famhh,INT64,Número de famílias no domicílio,,no,,pessoas,no,,famhh,Number of family in HH,Número de familias en el hogar
+nhhchild,INT64,Número de membros do domicílio com menos de 18 anos,,no,,pessoas,no,,nhhchild,Number of HH members under 18,Número de miembros del hogar menores de 18 años
+hhchild,STRING,Membros do domicílio com menos de 18 anos,,yes,,,no,,hhchild,HH members under 18,Miembros del hogar menores de 18 años
+pfrel,STRING,Relação com a família primária,,yes,,,no,,pfrel,Primary family relationship,Relación con la familia primaria
+pftype,STRING,Composição da família primária,,yes,,,no,,pftype,Primary family composition,Composición de la familia primaria
+famrel,STRING,Relação familiar,,yes,,,no,,famrel,Family relationship,Relación familiar
+famrel8088,STRING,Relação familiar (1980-1988),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",famrel8088,Family relationship,Relación familiar (1980-1988)
+famtyp,STRING,Tipo de família,,yes,,,no,,famtyp,Family type,Tipo de familia
+hjrnum,STRING,Número HJR,,no,,,no,,hjrnum,HJR number,Número HJR
+nfchild,INT64,Número de membros da família com menos de 18 anos,,no,,pessoas,no,,nfchild,Number of family members under 18,Número de miembros de la familia menores de 18 años
+fchild,STRING,Membros da família com menos de 18 anos,,yes,,,no,,fchild,Family members under 18,Miembros de la familia menores de 18 años
+child,STRING,Indicador de criança,,yes,,,no,,child,Child indicator,Indicador de niño
+careval,FLOAT64,Gasto do domicílio com creche/cuidado infantil,,no,,USD,no,,careval,HH $ spent on child care,Gasto del hogar en cuidado infantil
+chspval,FLOAT64,Valor pago de pensão alimentícia para filhos,,no,,USD,no,,chspval,Amount paid for child support,Monto pagado de manutención de hijos
+chspyn,STRING,Obrigado a pagar pensão alimentícia,,yes,,,no,,chspyn,Required to pay child support,Obligado a pagar manutención de hijos
+wkslyr,INT64,Semanas trabalhadas no ano anterior,,no,,semanas,no,,wkslyr,Weeks worked last year,Semanas trabajadas el año anterior
+hrslyr,INT64,Horas trabalhadas por semana no ano anterior,,no,,horas,no,,hrslyr,Hours worked per week last year,Horas trabajadas por semana el año anterior
+clslyr,STRING,Posição na ocupação no ano anterior,,yes,,,no,,clslyr,Job class last year,Categoría ocupacional el año anterior
+ftptlyr,STRING,Tempo integral/parcial e situação no ano anterior,,yes,,,no,,ftptlyr,Full/part-time & year,Tiempo completo/parcial y situación el año anterior
+wksrec,INT64,Semanas trabalhadas no ano anterior (recodificação),,no,,semanas,no,,wksrec,"Weeks worked last year, recode",Semanas trabajadas el año anterior (recodificación)
+firmsz89,STRING,Tamanho da empresa (esquema 1989),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",firmsz89,Firm Size,Tamaño de la empresa (esquema 1989)
+firmsz11,STRING,Tamanho da empresa (esquema 2011),,yes,,,no,,firmsz11,Firm Size,Tamaño de la empresa (esquema 2011)
+firmsz,STRING,Tamanho da empresa,,yes,,,no,,firmsz,Firm Size,Tamaño de la empresa
+unmem,STRING,Membro de sindicato,,yes,,,no,,unmem,"Union member, current job",Miembro de sindicato
+uncov,STRING,Coberto por contrato sindical,,yes,,,no,,uncov,"Union coverage, current job",Cubierto por contrato sindical
+union,STRING,Sindicalizado ou coberto,,yes,,,no,,union,"Union, current job",Sindicalizado o cubierto
+wrk,STRING,Situação de trabalho no ano anterior,,yes,,,no,,wrk,Work situation last year,Situación laboral el año anterior
+lkwrklyr,STRING,Não trabalhadores que procuraram trabalho no ano anterior,,yes,,,no,,lkwrklyr,Nonworkers who looked for work last year,No trabajadores que buscaron trabajo el año anterior
+lkwrk_wk,INT64,Semanas procurando trabalho no ano anterior,,no,,semanas,no,,lkwrk_wk,Nonworkers in LF: weeks spent looking for work last year,Semanas buscando trabajo el año anterior
+rsnpt,STRING,Motivo de <35 horas por semana no ano anterior,,yes,,,no,,rsnpt,Why <35 hours a week last year,Motivo de <35 horas por semana el año anterior
+rsnnowrk,STRING,Motivo de não ter trabalhado no ano anterior,,yes,,,no,,rsnnowrk,Why not worked last year,Motivo de no haber trabajado el año anterior
+lfstat,STRING,Situação na força de trabalho,,yes,,,no,,lfstat,Labor-force status,Situación en la fuerza de trabajo
+empl,STRING,Ocupado,,yes,,,no,,empl,Employed,Ocupado
+unem,STRING,Desempregado,,yes,,,no,,unem,Unemployed,Desempleado
+nilf,STRING,Fora da força de trabalho,,yes,,,no,,nilf,Not in labor force,Fuera de la fuerza de trabajo
+selfemp,STRING,"Autônomo (não constituído), trabalho principal",,yes,,,no,,selfemp,Self-employed last year,"Autónomo (no constituido), empleo principal"
+selfinc,STRING,"Autônomo (constituído), trabalho principal",,yes,,,no,,selfinc,Incorporated self-employed last year,"Autónomo (constituido), empleo principal"
+pubsect,STRING,"Trabalhador do setor público, trabalho principal",,yes,,,no,,pubsect,Public sector last year,"Trabajador del sector público, empleo principal"
+pubfed,STRING,"Trabalhador do governo federal, trabalho principal",,yes,,,no,,pubfed,Federal employee last year,"Trabajador del gobierno federal, empleo principal"
+pubst,STRING,"Trabalhador do governo estadual, trabalho principal",,yes,,,no,,pubst,State employee last year,"Trabajador del gobierno estatal, empleo principal"
+publoc,STRING,"Trabalhador do governo local, trabalho principal",,yes,,,no,,publoc,Local employee last year,"Trabajador del gobierno local, empleo principal"
+schenrl,STRING,Matriculado no ensino médio ou superior na semana anterior,,yes,,,no,,schenrl,Enrolled in HS or College last week,Matriculado en secundaria o universidad la semana anterior
+schhs,STRING,Matriculado no ensino médio,,yes,,,no,,schhs,Enrolled in HS,Matriculado en secundaria
+schcol,STRING,Matriculado no ensino superior,,yes,,,no,,schcol,Enrolled in College,Matriculado en universidad
+schft,STRING,Estudante em tempo integral,,yes,,,no,,schft,Full-time Student,Estudiante a tiempo completo
+schpt,STRING,Estudante em tempo parcial,,yes,,,no,,schpt,Part-time student,Estudiante a tiempo parcial
+cert,STRING,Possui certificação ou licença profissional,2017(1)2018,yes,,,no,,cert,Professional Certification,Posee certificación o licencia profesional
+certgov,STRING,Certificação emitida pelo governo,2017(1)2018,yes,,,no,,certgov,Certification was government issued,Certificación emitida por el gobierno
+state,STRING,Código censitário do estado no CPS (não é o código FIPS),,yes,,,no,"Códigos do Census/CPS (11-95), distintos do FIPS. Use id_state para juntar com br_bd_diretorios_us.state.",state,CPS census state code (not the FIPS code),Código censal del estado en la CPS (no es el código FIPS)
+csr,STRING,Situação da cidade,,yes,,,no,,csr,City status,Situación de la ciudad
+centcity,STRING,Residência em cidade central,,yes,,,no,,centcity,Central/Principal city,Residencia en ciudad central
+suburb,STRING,Residência em subúrbio,,yes,,,no,,suburb,Suburbs,Residencia en suburbio
+rural,STRING,Residência não metropolitana (rural),,yes,,,no,,rural,Rural,Residencia no metropolitana (rural)
+educ,STRING,Escolaridade,,yes,,,no,,educ,Education level,Nivel educativo
+educ2,STRING,Nível de escolaridade (alternativo),,yes,,,no,,educ2,Education level,Nivel educativo (alternativo)
+educ92,STRING,Escolaridade (codificação pós-1991),,yes,,,no,,educ92,"Education level, post-1991",Nivel educativo (codificación post-1991)
+indly2d_80,STRING,"Indústria, 2 dígitos (esquema 1980), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly2d_80,"2-digit industry, last year","Industria, 2 dígitos (esquema 1980), del año anterior"
+indly2d_83,STRING,"Indústria, 2 dígitos (esquema 1983), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly2d_83,"2-digit industry, last year","Industria, 2 dígitos (esquema 1983), del año anterior"
+indly2d_03,STRING,"Indústria, 2 dígitos (esquema 2003), no ano anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,indly2d_03,"2-digit industry, last year","Industria, 2 dígitos (esquema 2003), del año anterior"
+ind2d_80,STRING,"Indústria, 2 dígitos (esquema 1980), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind2d_80,"2-digit industry, last week","Industria, 2 dígitos (esquema 1980), de la semana anterior"
+ind2d_83,STRING,"Indústria, 2 dígitos (esquema 1983), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind2d_83,"2-digit industry, last week","Industria, 2 dígitos (esquema 1983), de la semana anterior"
+ind2d_89,STRING,"Indústria, 2 dígitos (esquema 1989), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind2d_89,"2-digit industry, last week","Industria, 2 dígitos (esquema 1989), de la semana anterior"
+ind2d_03,STRING,"Indústria, 2 dígitos (esquema 2003), na semana anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind2d_03,"2-digit industry, last week","Industria, 2 dígitos (esquema 2003), de la semana anterior"
+indly3d_80,STRING,"Indústria, 3 dígitos (esquema 1980), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly3d_80,"3-digit industry, last year","Industria, 3 dígitos (esquema 1980), del año anterior"
+indly3d_83,STRING,"Indústria, 3 dígitos (esquema 1983), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly3d_83,"3-digit industry, last year","Industria, 3 dígitos (esquema 1983), del año anterior"
+indly3d_92,STRING,"Indústria, 3 dígitos (esquema 1992), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly3d_92,"3-digit industry, last year","Industria, 3 dígitos (esquema 1992), del año anterior"
+indly3d_03,STRING,"Indústria, 3 dígitos (esquema 2003), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly3d_03,"3-digit industry, last year","Industria, 3 dígitos (esquema 2003), del año anterior"
+indly3d_13,STRING,"Indústria, 3 dígitos (esquema 2013), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",indly3d_13,"3-digit industry, last year","Industria, 3 dígitos (esquema 2013), del año anterior"
+indly3d_14,STRING,"Indústria, 3 dígitos (esquema 2014), no ano anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,indly3d_14,"3-digit industry, last year","Industria, 3 dígitos (esquema 2014), del año anterior"
+ind3d_80,STRING,"Indústria, 3 dígitos (esquema 1980), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind3d_80,"3-digit industry, last week","Industria, 3 dígitos (esquema 1980), de la semana anterior"
+ind3d_83,STRING,"Indústria, 3 dígitos (esquema 1983), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind3d_83,"3-digit industry, last week","Industria, 3 dígitos (esquema 1983), de la semana anterior"
+ind3d_92,STRING,"Indústria, 3 dígitos (esquema 1992), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind3d_92,"3-digit industry, last week","Industria, 3 dígitos (esquema 1992), de la semana anterior"
+ind3d_03,STRING,"Indústria, 3 dígitos (esquema 2003), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind3d_03,"3-digit industry, last week","Industria, 3 dígitos (esquema 2003), de la semana anterior"
+ind3d_13,STRING,"Indústria, 3 dígitos (esquema 2013), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind3d_13,"3-digit industry, last week","Industria, 3 dígitos (esquema 2013), de la semana anterior"
+ind3d_14,STRING,"Indústria, 3 dígitos (esquema 2014), na semana anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind3d_14,"3-digit industry, last week","Industria, 3 dígitos (esquema 2014), de la semana anterior"
+occ2d_80,STRING,"Ocupação, 2 dígitos (esquema 1980), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ2d_80,"2-digit occupation, last week","Ocupación, 2 dígitos (esquema 1980), de la semana anterior"
+occ2d_83,STRING,"Ocupação, 2 dígitos (esquema 1983), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ2d_83,"2-digit occupation, last week","Ocupación, 2 dígitos (esquema 1983), de la semana anterior"
+occ2d_89,STRING,"Ocupação, 2 dígitos (esquema 1989), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ2d_89,"2-digit occupation, last week","Ocupación, 2 dígitos (esquema 1989), de la semana anterior"
+occ2d_03,STRING,"Ocupação, 2 dígitos (esquema 2003), na semana anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ2d_03,"2-digit occupation, last week","Ocupación, 2 dígitos (esquema 2003), de la semana anterior"
+occly2d_80,STRING,"Ocupação, 2 dígitos (esquema 1980), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly2d_80,"2-digit occupation, last year","Ocupación, 2 dígitos (esquema 1980), del año anterior"
+occly2d_83,STRING,"Ocupação, 2 dígitos (esquema 1983), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly2d_83,"2-digit occupation, last year","Ocupación, 2 dígitos (esquema 1983), del año anterior"
+occly2d_03,STRING,"Ocupação, 2 dígitos (esquema 2003), no ano anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occly2d_03,"2-digit occupation, last year","Ocupación, 2 dígitos (esquema 2003), del año anterior"
+occ3d_80,STRING,"Ocupação, 3 dígitos (esquema 1980), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ3d_80,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 1980), de la semana anterior"
+occ3d_83,STRING,"Ocupação, 3 dígitos (esquema 1983), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ3d_83,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 1983), de la semana anterior"
+occ3d_92,STRING,"Ocupação, 3 dígitos (esquema 1992), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ3d_92,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 1992), de la semana anterior"
+occ3d_95,STRING,"Ocupação, 3 dígitos (esquema 1995), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ3d_95,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 1995), de la semana anterior"
+occ3d_03,STRING,"Ocupação, 3 dígitos (esquema 2003), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ3d_03,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 2003), de la semana anterior"
+occ3d_11,STRING,"Ocupação, 3 dígitos (esquema 2011), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ3d_11,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 2011), de la semana anterior"
+occ3d_13,STRING,"Ocupação, 3 dígitos (esquema 2013), na semana anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ3d_13,"3-digit occupation, last week","Ocupación, 3 dígitos (esquema 2013), de la semana anterior"
+occly3d_80,STRING,"Ocupação, 3 dígitos (esquema 1980), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly3d_80,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 1980), del año anterior"
+occly3d_83,STRING,"Ocupação, 3 dígitos (esquema 1983), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly3d_83,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 1983), del año anterior"
+occly3d_92,STRING,"Ocupação, 3 dígitos (esquema 1992), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly3d_92,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 1992), del año anterior"
+occly3d_95,STRING,"Ocupação, 3 dígitos (esquema 1995), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly3d_95,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 1995), del año anterior"
+occly3d_03,STRING,"Ocupação, 3 dígitos (esquema 2003), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly3d_03,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 2003), del año anterior"
+occly3d_11,STRING,"Ocupação, 3 dígitos (esquema 2011), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occly3d_11,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 2011), del año anterior"
+occly3d_13,STRING,"Ocupação, 3 dígitos (esquema 2013), no ano anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occly3d_13,"3-digit occupation, last year","Ocupación, 3 dígitos (esquema 2013), del año anterior"
+manag83,STRING,"Gerente (esquema 1983), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",manag83,"Manager, last week","Gerente (esquema 1983), de la semana anterior"
+manag89,STRING,"Gerente (esquema 1989), na semana anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",manag89,"Manager, last week","Gerente (esquema 1989), de la semana anterior"
+manag03,STRING,"Gerente (esquema 2003), na semana anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,manag03,"Manager, last week","Gerente (esquema 2003), de la semana anterior"
+managly83,STRING,"Gerente (esquema 1983), no ano anterior",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",managly83,"Manager, last year","Gerente (esquema 1983), del año anterior"
+managly03,STRING,"Gerente (esquema 2003), no ano anterior",,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,managly03,"Manager, last year","Gerente (esquema 2003), del año anterior"
+weeks,INT64,Semanas trabalhadas no ano anterior,,no,,semanas,no,,weeks,Weeks worked last year,Semanas trabajadas el año anterior
+uhours,INT64,"Horas habituais por semana, trabalho principal",,no,,horas,no,,uhours,"Usual hours per week, last year","Horas habituales por semana, empleo principal"
+hours,INT64,Horas trabalhadas na semana anterior,,no,,horas,no,,hours,Hours worked last week,Horas trabajadas la semana anterior
+fulltimely,STRING,Jornada de tempo integral no ano anterior,,yes,,,no,,fulltimely,Full-time schedule last year,Jornada de tiempo completo el año anterior
+fulltimelw,STRING,Jornada de tempo integral na semana anterior,,yes,,,no,,fulltimelw,Full-time schedule last week,Jornada de tiempo completo la semana anterior
+payabslw,STRING,Remunerado pelo tempo ausente na semana anterior,,yes,,,no,,payabslw,Paid for time off last week,Remunerado por el tiempo ausente la semana anterior
+incp_all,FLOAT64,Renda total (nominal),,no,,USD,no,,incp_all,Total income (nominal),Ingreso total (nominal)
+incp_all_tc,STRING,Indicador de topo (topcode): renda total,,yes,,,no,,incp_all_tc,Topcode flag: Total income,Indicador de tope (topcode): ingreso total
+incp_ern,FLOAT64,Renda do trabalho (nominal),,no,,USD,no,,incp_ern,Total earned income (nominal),Ingreso laboral (nominal)
+incp_ern_tc,STRING,Indicador de topo (topcode): renda do trabalho,,yes,,,no,,incp_ern_tc,"Topcode flag: Total earned income, excluding unearned",Indicador de tope (topcode): ingreso laboral
+incp_wag,FLOAT64,Renda de salários (nominal),,no,,USD,no,,incp_wag,Income from wage and salary (nominal),Ingreso por salarios (nominal)
+incp_wag_tc,STRING,Indicador de topo (topcode): renda de salários,,yes,,,no,,incp_wag_tc,Topcode flag: Income from wage and salary,Indicador de tope (topcode): ingreso por salarios
+hrearn,FLOAT64,Rendimento por hora (nominal),,no,,USD,no,,hrearn,Hourly earnings (nominal),Ingreso por hora (nominal)
+hrwage,FLOAT64,Salário por hora (nominal),,no,,USD,no,,hrwage,Hourly wage (nominal),Salario por hora (nominal)
+incp_sefrm,FLOAT64,Renda de trabalho autônomo agrícola (nominal),,no,,USD,no,,incp_sefrm,Income from farm or noninc self-employment (nominal),Ingreso por autoempleo agrícola (nominal)
+incp_sefrm_tc,STRING,Indicador de topo (topcode): renda de trabalho autônomo agrícola,,yes,,,no,,incp_sefrm_tc,Topcode flag: Income from farm or noninc self-employment,Indicador de tope (topcode): ingreso por autoempleo agrícola
+incp_senf,FLOAT64,Renda de trabalho autônomo não agrícola (nominal),,no,,USD,no,,incp_senf,Income from nonfarm self-employment (nominal),Ingreso por autoempleo no agrícola (nominal)
+incp_senf_tc,STRING,Indicador de topo (topcode): renda de trabalho autônomo não agrícola,,yes,,,no,,incp_senf_tc,Topcode flag: Income from nonfarm self-employment,Indicador de tope (topcode): ingreso por autoempleo no agrícola
+incp_se,FLOAT64,Renda de trabalho autônomo (nominal),,no,,USD,no,,incp_se,Income from self-employment (nominal),Ingreso por autoempleo (nominal)
+incp_se_tc,STRING,Indicador de topo (topcode): renda de trabalho autônomo,,yes,,,no,,incp_se_tc,Topcode flag: Income from self-employment,Indicador de tope (topcode): ingreso por autoempleo
+incp_uer,FLOAT64,Renda de fontes não laborais (nominal),,no,,USD,no,,incp_uer,Income from all unearned sources (nominal),Ingreso por fuentes no laborales (nominal)
+incp_uer_tc,STRING,Indicador de topo (topcode): renda de fontes não laborais,,yes,,,no,,incp_uer_tc,Topcode flag: Income from unearned sources,Indicador de tope (topcode): ingreso por fuentes no laborales
+incp_paw,FLOAT64,Renda de assistência social (nominal),,no,,USD,no,,incp_paw,Income from public assistance and welfare (nominal),Ingreso por asistencia social (nominal)
+incp_paw_tc,STRING,Indicador de topo (topcode): renda de assistência social,,yes,,,no,,incp_paw_tc,Topcode flag: Income from public assistance and welfare,Indicador de tope (topcode): ingreso por asistencia social
+inc_paw_mnt,INT64,Meses de recebimento de assistência social,,no,,meses,no,,inc_paw_mnt,Months of public assistance received,Meses de recepción de asistencia social
+incp_cs,FLOAT64,Renda de pensão alimentícia para filhos (nominal),,no,,USD,no,,incp_cs,Income from child support (nominal),Ingreso por manutención de hijos (nominal)
+incp_alm,FLOAT64,Renda de pensão ao ex-cônjuge (nominal),2014(1)2014,no,,USD,no,,incp_alm,Income from alimony (nominal),Ingreso por pensión conyugal (nominal)
+incp_csalm,FLOAT64,Renda de pensão alimentícia e ao ex-cônjuge (nominal),2014(1)2014,no,,USD,no,,incp_csalm,Income from alimony and child support (nominal),Ingreso por manutención de hijos y pensión conyugal (nominal)
+incp_cs_tc,STRING,Indicador de topo (topcode): renda de pensão alimentícia para filhos,,yes,,,no,,incp_cs_tc,Topcode flag: Income from alimony and child support,Indicador de tope (topcode): ingreso por manutención de hijos
+incp_ss,FLOAT64,Renda de previdência social ou aposentadoria ferroviária (nominal),,no,,USD,no,,incp_ss,Income from social security or railroad retirement (nominal),Ingreso por seguridad social o jubilación ferroviaria (nominal)
+incp_ss_tc,STRING,Indicador de topo (topcode): renda de previdência social ou aposentadoria ferroviária,,yes,,,no,,incp_ss_tc,"Topcode flag: Income from SS/RR retirement, US Gov't",Indicador de tope (topcode): ingreso por seguridad social o jubilación ferroviaria
+incp_ssi,FLOAT64,Renda de seguridade suplementar (SSI) (nominal),,no,,USD,no,,incp_ssi,Income from supplm. security (nominal),Ingreso por seguridad suplementaria (SSI) (nominal)
+incp_ssi_tc,STRING,Indicador de topo (topcode): renda de seguridade suplementar (SSI),,yes,,,no,,incp_ssi_tc,Topcode flag: Income from supplm. security,Indicador de tope (topcode): ingreso por seguridad suplementaria (SSI)
+incp_ssres1,STRING,Motivo do recebimento de previdência social 1,,yes,,,no,,incp_ssres1,Reasons for social security income 1,Motivo de recepción de seguridad social 1
+incp_ssres2,STRING,Motivo do recebimento de previdência social 2,,yes,,,no,,incp_ssres2,Reasons for social security income 2,Motivo de recepción de seguridad social 2
+incp_ssires1,STRING,Motivo do recebimento de seguridade suplementar 1,,yes,,,no,,incp_ssires1,Reasons for social security income 1,Motivo de recepción de seguridad suplementaria 1
+incp_ssires2,STRING,Motivo do recebimento de seguridade suplementar 2,,yes,,,no,,incp_ssires2,Reasons for social security income 2,Motivo de recepción de seguridad suplementaria 2
+incp_comp,FLOAT64,"Renda de seguro-desemprego, indenização, veteranos e pensões públicas (nominal)",,no,,USD,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incp_comp,Income from unemp/worker's comp/vet pay/govt pensions (nominal),"Ingreso por desempleo, indemnización, veteranos y pensiones públicas (nominal)"
+incp_comp_tc,STRING,"Indicador de topo (topcode): renda de seguro-desemprego, indenização, veteranos e pensões públicas",,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incp_comp_tc,Topcode flag: Income from unemp/worker's comp/vet pay/govt pensions,"Indicador de tope (topcode): ingreso por desempleo, indemnización, veteranos y pensiones públicas"
+incp_uc,FLOAT64,Renda de seguro-desemprego (nominal),,no,,USD,no,,incp_uc,Income from unemployment compensation (nominal),Ingreso por seguro de desempleo (nominal)
+incp_wcp,FLOAT64,Renda de indenização trabalhista (nominal),,no,,USD,no,,incp_wcp,Income from worker's compensation (nominal),Ingreso por indemnización laboral (nominal)
+incp_vet,FLOAT64,Renda de pagamentos a veteranos (nominal),,no,,USD,no,,incp_vet,Income from veteran payments (nominal),Ingreso por pagos a veteranos (nominal)
+incp_srv,FLOAT64,Renda de pensão por morte (nominal),,no,,USD,no,,incp_srv,Income from survivors benefits (nominal),Ingreso por pensión de sobrevivientes (nominal)
+incp_dis,FLOAT64,Renda de invalidez (nominal),,no,,USD,no,,incp_dis,Income from disability (nominal),Ingreso por discapacidad (nominal)
+incp_ret,FLOAT64,Renda de aposentadoria (nominal),,no,,USD,no,,incp_ret,Income from retirement funds (nominal),Ingreso por jubilación (nominal)
+incp_ret_tc,STRING,Indicador de topo (topcode): renda de aposentadoria,,yes,,,no,,incp_ret_tc,Topcode flag: Income from retirement funds,Indicador de tope (topcode): ingreso por jubilación
+incp_ed,FLOAT64,Renda de auxílio educacional (nominal),,no,,USD,no,,incp_ed,Income from education assistance (nominal),Ingreso por ayuda educativa (nominal)
+incp_ed_tc,STRING,Indicador de topo (topcode): renda de auxílio educacional,,yes,,,no,,incp_ed_tc,Topcode flag: Income from educ assistance,Indicador de tope (topcode): ingreso por ayuda educativa
+incp_rnt,FLOAT64,Renda de aluguéis (nominal),,no,,USD,no,,incp_rnt,Income from rent (nominal),Ingreso por alquileres (nominal)
+incp_rnt_tc,STRING,Indicador de topo (topcode): renda de aluguéis,,yes,,,no,,incp_rnt_tc,Topcode flag: Income from rent,Indicador de tope (topcode): ingreso por alquileres
+incp_int,FLOAT64,"Renda de juros, dividendos e aluguéis líquidos (nominal)",,no,,USD,no,,incp_int,"Income from int, div, net rentals (nominal)","Ingreso por intereses, dividendos y alquileres netos (nominal)"
+incp_int_tc,STRING,"Indicador de topo (topcode): renda de juros, dividendos e aluguéis líquidos",,yes,,,no,,incp_int_tc,"Topcode flag: Income from int, div, net rentals","Indicador de tope (topcode): ingreso por intereses, dividendos y alquileres netos"
+incp_fin,FLOAT64,Renda de auxílio financeiro de terceiros (nominal),,no,,USD,no,,incp_fin,"Income from cont, financial assist. from friends (nominal)",Ingreso por ayuda financiera de terceros (nominal)
+incp_fin_tc,STRING,Indicador de topo (topcode): renda de auxílio financeiro de terceiros,,yes,,,no,,incp_fin_tc,Topcode flag: Income from financial assistance from friends,Indicador de tope (topcode): ingreso por ayuda financiera de terceros
+incp_divo,FLOAT64,"Renda de dividendos, aluguéis e fundos (nominal)",,no,,USD,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incp_divo,"Income from dividends, rents and trusts (nominal)","Ingreso por dividendos, alquileres y fideicomisos (nominal)"
+incp_div,FLOAT64,Renda de dividendos (nominal),,no,,USD,no,,incp_div,Income from dividends (nominal),Ingreso por dividendos (nominal)
+incp_div_tc,STRING,Indicador de topo (topcode): renda de dividendos,,yes,,,no,,incp_div_tc,Topcode flag: Income from dividends,Indicador de tope (topcode): ingreso por dividendos
+incp_oth,FLOAT64,Renda de outras fontes (nominal),,no,,USD,no,,incp_oth,Income from other sources(nominal),Ingreso por otras fuentes (nominal)
+incp_oth_tc,STRING,Indicador de topo (topcode): renda de outras fontes,,yes,,,no,,incp_oth_tc,Topcode flag: Income from other sources,Indicador de tope (topcode): ingreso por otras fuentes
+incf_pct,INT64,Percentil nacional de renda familiar,,no,,,no,Percentil de renda (ranking nacional),incf_pct,National family income percentile ranking,Percentil nacional de ingreso familiar
+incf_all,FLOAT64,Renda familiar total (nominal),,no,,USD,no,,incf_all,Total family income (nominal),Ingreso familiar total (nominal)
+incf_all_tc,STRING,Indicador de topo (topcode): renda familiar total,,yes,,,no,,incf_all_tc,Topcode flag: total family income,Indicador de tope (topcode): ingreso familiar total
+incf_ern,FLOAT64,Renda familiar do trabalho (nominal),,no,,USD,no,,incf_ern,Total family earnings (nominal),Ingreso familiar laboral (nominal)
+incf_ern_tc,STRING,Indicador de topo (topcode): renda familiar do trabalho,,yes,,,no,,incf_ern_tc,"Topcode flag: total family income, excluding unearned",Indicador de tope (topcode): ingreso familiar laboral
+incf_wag,FLOAT64,Renda familiar de salários (nominal),,no,,USD,no,,incf_wag,Family income from wage and salary (nominal),Ingreso familiar por salarios (nominal)
+incf_wag_tc,STRING,Indicador de topo (topcode): renda familiar de salários,,yes,,,no,,incf_wag_tc,Topcode flag: Family income from wage and salary,Indicador de tope (topcode): ingreso familiar por salarios
+incf_sefrm,FLOAT64,Renda familiar de trabalho autônomo agrícola (nominal),,no,,USD,no,,incf_sefrm,Family income from farm (nominal),Ingreso familiar por autoempleo agrícola (nominal)
+incf_sefrm_tc,STRING,Indicador de topo (topcode): renda familiar de trabalho autônomo agrícola,,yes,,,no,,incf_sefrm_tc,Topcode flag: family income from farm,Indicador de tope (topcode): ingreso familiar por autoempleo agrícola
+incf_senf,FLOAT64,Renda familiar de trabalho autônomo não agrícola (nominal),,no,,USD,no,,incf_senf,Family income from nonfarm self-employment (nominal),Ingreso familiar por autoempleo no agrícola (nominal)
+incf_senf_tc,STRING,Indicador de topo (topcode): renda familiar de trabalho autônomo não agrícola,,yes,,,no,,incf_senf_tc,Topcode flag: family income from nonfarm self-employment,Indicador de tope (topcode): ingreso familiar por autoempleo no agrícola
+incf_se,FLOAT64,Renda familiar de trabalho autônomo (nominal),,no,,USD,no,,incf_se,Family income from self-employment (nominal),Ingreso familiar por autoempleo (nominal)
+incf_se_tc,STRING,Indicador de topo (topcode): renda familiar de trabalho autônomo,,yes,,,no,,incf_se_tc,Topcode flag: family income from self-employment,Indicador de tope (topcode): ingreso familiar por autoempleo
+incf_uer,FLOAT64,Renda familiar de fontes não laborais (nominal),,no,,USD,no,,incf_uer,Family income from unearned sources (nominal),Ingreso familiar por fuentes no laborales (nominal)
+incf_uer_tc,STRING,Indicador de topo (topcode): renda familiar de fontes não laborais,,yes,,,no,,incf_uer_tc,Topcode flag: family income from unearned sources,Indicador de tope (topcode): ingreso familiar por fuentes no laborales
+incf_paw,FLOAT64,Renda familiar de assistência social (nominal),,no,,USD,no,,incf_paw,Family income from public assistance and welfare (nominal),Ingreso familiar por asistencia social (nominal)
+incf_paw_tc,STRING,Indicador de topo (topcode): renda familiar de assistência social,,yes,,,no,,incf_paw_tc,Topcode flag: Family income from public assistance and welfare,Indicador de tope (topcode): ingreso familiar por asistencia social
+incf_cs,FLOAT64,Renda familiar de pensão alimentícia para filhos (nominal),,no,,USD,no,,incf_cs,Family income from child support (nominal),Ingreso familiar por manutención de hijos (nominal)
+incf_alm,FLOAT64,Renda familiar de pensão ao ex-cônjuge (nominal),2014(1)2014,no,,USD,no,,incf_alm,Family income from alimony (nominal),Ingreso familiar por pensión conyugal (nominal)
+incf_csalm,FLOAT64,Renda familiar de pensão alimentícia e ao ex-cônjuge (nominal),2014(1)2014,no,,USD,no,,incf_csalm,Family income from alimony and child support (nominal),Ingreso familiar por manutención de hijos y pensión conyugal (nominal)
+incf_ss,FLOAT64,Renda familiar de previdência social ou aposentadoria ferroviária (nominal),,no,,USD,no,,incf_ss,"Family income, social security/railroad retirement (nominal)",Ingreso familiar por seguridad social o jubilación ferroviaria (nominal)
+incf_ss_tc,STRING,Indicador de topo (topcode): renda familiar de previdência social ou aposentadoria ferroviária,,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incf_ss_tc,Topcode flag: Family income from US govt,Indicador de tope (topcode): ingreso familiar por seguridad social o jubilación ferroviaria
+incf_ssi,FLOAT64,Renda familiar de seguridade suplementar (SSI) (nominal),,no,,USD,no,,incf_ssi,Family income from supplm. security (nominal),Ingreso familiar por seguridad suplementaria (SSI) (nominal)
+incf_ssi_tc,STRING,Indicador de topo (topcode): renda familiar de seguridade suplementar (SSI),,yes,,,no,,incf_ssi_tc,Topcode flag: Family income from supplm. security,Indicador de tope (topcode): ingreso familiar por seguridad suplementaria (SSI)
+incf_comp,FLOAT64,"Renda familiar de seguro-desemprego, indenização, veteranos e pensões públicas (nominal)",,no,,USD,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incf_comp,Family income from unemp/worker's comp/vet pay/govt pensions (nominal),"Ingreso familiar por desempleo, indemnización, veteranos y pensiones públicas (nominal)"
+incf_comp_tc,STRING,"Indicador de topo (topcode): renda familiar de seguro-desemprego, indenização, veteranos e pensões públicas",,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incf_comp_tc,Topcode flag: family income from unemp/worker's comp/vet pay/govt pensions,"Indicador de tope (topcode): ingreso familiar por desempleo, indemnización, veteranos y pensiones públicas"
+incf_uc,FLOAT64,Renda familiar de seguro-desemprego (nominal),,no,,USD,no,,incf_uc,Family income from unemployment compensation (nominal),Ingreso familiar por seguro de desempleo (nominal)
+incf_wcp,FLOAT64,Renda familiar de indenização trabalhista (nominal),,no,,USD,no,,incf_wcp,Family income from worker's compensation (nominal),Ingreso familiar por indemnización laboral (nominal)
+incf_vet,FLOAT64,Renda familiar de pagamentos a veteranos (nominal),,no,,USD,no,,incf_vet,Family income from veteran payments (nominal),Ingreso familiar por pagos a veteranos (nominal)
+incf_srv,FLOAT64,Renda familiar de pensão por morte (nominal),,no,,USD,no,,incf_srv,Family income from survivors benefits (nominal),Ingreso familiar por pensión de sobrevivientes (nominal)
+incf_dis,FLOAT64,Renda familiar de invalidez (nominal),,no,,USD,no,,incf_dis,Family income from disability (nominal),Ingreso familiar por discapacidad (nominal)
+incf_ret,FLOAT64,Renda familiar de aposentadoria (nominal),,no,,USD,no,,incf_ret,Family income from retirement funds (nominal),Ingreso familiar por jubilación (nominal)
+incf_ret_tc,STRING,Indicador de topo (topcode): renda familiar de aposentadoria,,yes,,,no,,incf_ret_tc,Topcode flag: family income from retirement funds,Indicador de tope (topcode): ingreso familiar por jubilación
+incf_ed,FLOAT64,Renda familiar de auxílio educacional (nominal),,no,,USD,no,,incf_ed,Family income from education assis. (nominal),Ingreso familiar por ayuda educativa (nominal)
+incf_rnt,FLOAT64,Renda familiar de aluguéis (nominal),,no,,USD,no,,incf_rnt,Family income from rent (nominal),Ingreso familiar por alquileres (nominal)
+incf_int,FLOAT64,"Renda familiar de juros, dividendos e aluguéis líquidos (nominal)",,no,,USD,no,,incf_int,"Family income from int, div, net rentals (nominal)","Ingreso familiar por intereses, dividendos y alquileres netos (nominal)"
+incf_int_tc,STRING,"Indicador de topo (topcode): renda familiar de juros, dividendos e aluguéis líquidos",,yes,,,no,,incf_int_tc,Topcode flag: family income from interest,"Indicador de tope (topcode): ingreso familiar por intereses, dividendos y alquileres netos"
+incf_fin,FLOAT64,Renda familiar de auxílio financeiro de terceiros (nominal),,no,,USD,no,,incf_fin,Family income from financial assis.(nominal),Ingreso familiar por ayuda financiera de terceros (nominal)
+incf_divo,FLOAT64,"Renda familiar de dividendos, aluguéis e fundos (nominal)",,no,,USD,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incf_divo,"Family income from dividends, rents and trusts (nominal)","Ingreso familiar por dividendos, alquileres y fideicomisos (nominal)"
+incf_div,FLOAT64,Renda familiar de dividendos (nominal),,no,,USD,no,,incf_div,Family income from dividends (nominal),Ingreso familiar por dividendos (nominal)
+incf_divo_tc,STRING,"Indicador de topo (topcode): renda familiar de dividendos, aluguéis e fundos",,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",incf_divo_tc,"Topcode flag: family income from div, rents, and trusts","Indicador de tope (topcode): ingreso familiar por dividendos, alquileres y fideicomisos"
+incf_oth,FLOAT64,Renda familiar de outras fontes (nominal),,no,,USD,no,,incf_oth,Family income from other sources(nominal),Ingreso familiar por otras fuentes (nominal)
+inch_pct,INT64,Percentil nacional de renda domiciliar,,no,,,no,Percentil de renda (ranking nacional),inch_pct,National HH income percentile ranking,Percentil nacional de ingreso del hogar
+inch_5pct,INT64,Percentil nacional de renda domiciliar (variante),,no,,,no,Percentil de renda (ranking nacional),inch_5pct,National HH income percentile ranking-2,Percentil nacional de ingreso del hogar (variante)
+inch_all,FLOAT64,Renda domiciliar total (nominal),,no,,USD,no,,inch_all,Total HH income (nominal),Ingreso del hogar total (nominal)
+inch_ern,FLOAT64,Renda domiciliar do trabalho (nominal),,no,,USD,no,,inch_ern,"Total HH income, excluding unearned (nominal)",Ingreso del hogar laboral (nominal)
+inch_wag,FLOAT64,Renda domiciliar de salários (nominal),,no,,USD,no,,inch_wag,HH income from wage and salary (nominal),Ingreso del hogar por salarios (nominal)
+inch_sefrm,FLOAT64,Renda domiciliar de trabalho autônomo agrícola (nominal),,no,,USD,no,,inch_sefrm,HH income from farm (nominal),Ingreso del hogar por autoempleo agrícola (nominal)
+inch_senf,FLOAT64,Renda domiciliar de trabalho autônomo não agrícola (nominal),,no,,USD,no,,inch_senf,HH income from nonfarm self-employment (nominal),Ingreso del hogar por autoempleo no agrícola (nominal)
+inch_se,FLOAT64,Renda domiciliar de trabalho autônomo (nominal),,no,,USD,no,,inch_se,HH income from self-employment (nominal),Ingreso del hogar por autoempleo (nominal)
+inch_uer,FLOAT64,Renda domiciliar de fontes não laborais (nominal),,no,,USD,no,,inch_uer,HH income from unearned sources (nominal),Ingreso del hogar por fuentes no laborales (nominal)
+inch_paw,FLOAT64,Renda domiciliar de assistência social (nominal),,no,,USD,no,,inch_paw,HH income from public assistance and welfare (nominal),Ingreso del hogar por asistencia social (nominal)
+inch_cs,FLOAT64,Renda domiciliar de pensão alimentícia para filhos (nominal),,no,,USD,no,,inch_cs,HH income from child support (nominal),Ingreso del hogar por manutención de hijos (nominal)
+inch_alm,FLOAT64,Renda domiciliar de pensão ao ex-cônjuge (nominal),2014(1)2014,no,,USD,no,,inch_alm,HH income from alimony (nominal),Ingreso del hogar por pensión conyugal (nominal)
+inch_ss,FLOAT64,Renda domiciliar de previdência social ou aposentadoria ferroviária (nominal),,no,,USD,no,,inch_ss,"HH income, social security/railroad retirement (nominal)",Ingreso del hogar por seguridad social o jubilación ferroviaria (nominal)
+inch_ssi,FLOAT64,Renda domiciliar de seguridade suplementar (SSI) (nominal),,no,,USD,no,,inch_ssi,HH income from supplm. security (nominal),Ingreso del hogar por seguridad suplementaria (SSI) (nominal)
+inch_uc,FLOAT64,Renda domiciliar de seguro-desemprego (nominal),,no,,USD,no,,inch_uc,HH income from unemployment compensation (nominal),Ingreso del hogar por seguro de desempleo (nominal)
+inch_wcp,FLOAT64,Renda domiciliar de indenização trabalhista (nominal),,no,,USD,no,,inch_wcp,HH income from worker's compensation (nominal),Ingreso del hogar por indemnización laboral (nominal)
+inch_vet,FLOAT64,Renda domiciliar de pagamentos a veteranos (nominal),,no,,USD,no,,inch_vet,HH income from veteran payments (nominal),Ingreso del hogar por pagos a veteranos (nominal)
+inch_srv,FLOAT64,Renda domiciliar de pensão por morte (nominal),,no,,USD,no,,inch_srv,HH income from survivors benefits (nominal),Ingreso del hogar por pensión de sobrevivientes (nominal)
+inch_dis,FLOAT64,Renda domiciliar de invalidez (nominal),,no,,USD,no,,inch_dis,HH income from disability (nominal),Ingreso del hogar por discapacidad (nominal)
+inch_ret,FLOAT64,Renda domiciliar de aposentadoria (nominal),,no,,USD,no,,inch_ret,HH income from retirement funds (nominal),Ingreso del hogar por jubilación (nominal)
+inch_ed,FLOAT64,Renda domiciliar de auxílio educacional (nominal),,no,,USD,no,,inch_ed,HH income from education assis. (nominal),Ingreso del hogar por ayuda educativa (nominal)
+inch_rnt,FLOAT64,Renda domiciliar de aluguéis (nominal),,no,,USD,no,,inch_rnt,HH income from rent (nominal),Ingreso del hogar por alquileres (nominal)
+inch_int,FLOAT64,"Renda domiciliar de juros, dividendos e aluguéis líquidos (nominal)",,no,,USD,no,,inch_int,"HH income from int, div, net rentals (nominal)","Ingreso del hogar por intereses, dividendos y alquileres netos (nominal)"
+inch_fin,FLOAT64,Renda domiciliar de auxílio financeiro de terceiros (nominal),,no,,USD,no,,inch_fin,HH income from financial assis.(nominal),Ingreso del hogar por ayuda financiera de terceros (nominal)
+inch_div,FLOAT64,Renda domiciliar de dividendos (nominal),,no,,USD,no,,inch_div,HH ncome from dividends (nominal),Ingreso del hogar por dividendos (nominal)
+inch_oth,FLOAT64,Renda domiciliar de outras fontes (nominal),,no,,USD,no,,inch_oth,HH income from other sources(nominal),Ingreso del hogar por otras fuentes (nominal)
+rincp_all,FLOAT64,Renda total (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_all,Person's total income,Ingreso total (real)
+rincp_ern,FLOAT64,Renda do trabalho (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_ern,"Person's total income, excluding unearned",Ingreso laboral (real)
+rincp_wag,FLOAT64,Renda de salários (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_wag,Income from wage and salary,Ingreso por salarios (real)
+rincp_sefrm,FLOAT64,Renda de trabalho autônomo agrícola (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_sefrm,Income from farm or noninc self-employment,Ingreso por autoempleo agrícola (real)
+rincp_senf,FLOAT64,Renda de trabalho autônomo não agrícola (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_senf,Income from nonfarm self-employment,Ingreso por autoempleo no agrícola (real)
+rincp_se,FLOAT64,Renda de trabalho autônomo (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_se,Income from self-employment,Ingreso por autoempleo (real)
+rincp_uer,FLOAT64,Renda de fontes não laborais (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_uer,Income from all unearned sources,Ingreso por fuentes no laborales (real)
+rincp_paw,FLOAT64,Renda de assistência social (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_paw,Income from public assistance and welfare,Ingreso por asistencia social (real)
+rincp_cs,FLOAT64,Renda de pensão alimentícia para filhos (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_cs,Income from child support,Ingreso por manutención de hijos (real)
+rincp_alm,FLOAT64,Renda de pensão ao ex-cônjuge (real),2014(1)2014,no,,USD,no,Valores em dólares reais (constantes),rincp_alm,Income from alimony,Ingreso por pensión conyugal (real)
+rincp_csalm,FLOAT64,Renda de pensão alimentícia e ao ex-cônjuge (real),2014(1)2014,no,,USD,no,Valores em dólares reais (constantes),rincp_csalm,Income from alimony and child support,Ingreso por manutención de hijos y pensión conyugal (real)
+rincp_ss,FLOAT64,Renda de previdência social ou aposentadoria ferroviária (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_ss,Income from social security or railroad retirement,Ingreso por seguridad social o jubilación ferroviaria (real)
+rincp_ssi,FLOAT64,Renda de seguridade suplementar (SSI) (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_ssi,Income from supplm. security,Ingreso por seguridad suplementaria (SSI) (real)
+rincp_comp,FLOAT64,"Renda de seguro-desemprego, indenização, veteranos e pensões públicas (real)",,no,,USD,no,"Valores em dólares reais (constantes). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",rincp_comp,Income from unemp/worker's comp/vet pay/govt pensions,"Ingreso por desempleo, indemnización, veteranos y pensiones públicas (real)"
+rincp_uc,FLOAT64,Renda de seguro-desemprego (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_uc,Income from unemployment compensation,Ingreso por seguro de desempleo (real)
+rincp_wcp,FLOAT64,Renda de indenização trabalhista (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_wcp,Income from worker's compensation,Ingreso por indemnización laboral (real)
+rincp_vet,FLOAT64,Renda de pagamentos a veteranos (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_vet,Income from veteran payments,Ingreso por pagos a veteranos (real)
+rincp_srv,FLOAT64,Renda de pensão por morte (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_srv,Income from survivors benefits,Ingreso por pensión de sobrevivientes (real)
+rincp_dis,FLOAT64,Renda de invalidez (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_dis,Income from disability,Ingreso por discapacidad (real)
+rincp_ret,FLOAT64,Renda de aposentadoria (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_ret,Income from retirement funds,Ingreso por jubilación (real)
+rincp_ed,FLOAT64,Renda de auxílio educacional (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_ed,Income from educational assistance,Ingreso por ayuda educativa (real)
+rincp_rnt,FLOAT64,Renda de aluguéis (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_rnt,Income from rent,Ingreso por alquileres (real)
+rincp_int,FLOAT64,"Renda de juros, dividendos e aluguéis líquidos (real)",,no,,USD,no,Valores em dólares reais (constantes),rincp_int,"Income from int, div, net rentals","Ingreso por intereses, dividendos y alquileres netos (real)"
+rincp_fin,FLOAT64,Renda de auxílio financeiro de terceiros (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_fin,"Income from cont, financial assist. from friends",Ingreso por ayuda financiera de terceros (real)
+rincp_divo,FLOAT64,"Renda de dividendos, aluguéis e fundos (real)",,no,,USD,no,"Valores em dólares reais (constantes). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",rincp_divo,"Income from dividends, rents and trusts","Ingreso por dividendos, alquileres y fideicomisos (real)"
+rincp_div,FLOAT64,Renda de dividendos (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_div,Income from dividends,Ingreso por dividendos (real)
+rincp_oth,FLOAT64,Renda de outras fontes (real),,no,,USD,no,Valores em dólares reais (constantes),rincp_oth,Income from other sources,Ingreso por otras fuentes (real)
+rincf_all,FLOAT64,Renda familiar total (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_all,Total family income,Ingreso familiar total (real)
+rincf_ern,FLOAT64,Renda familiar do trabalho (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_ern,"Total family income, excluding unearned",Ingreso familiar laboral (real)
+rincf_wag,FLOAT64,Renda familiar de salários (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_wag,Family income from wage and salary,Ingreso familiar por salarios (real)
+rincf_sefrm,FLOAT64,Renda familiar de trabalho autônomo agrícola (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_sefrm,Family income from farm or noninc self-employment,Ingreso familiar por autoempleo agrícola (real)
+rincf_senf,FLOAT64,Renda familiar de trabalho autônomo não agrícola (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_senf,Family income from nonfarm self-employment,Ingreso familiar por autoempleo no agrícola (real)
+rincf_se,FLOAT64,Renda familiar de trabalho autônomo (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_se,Family income from self-employment,Ingreso familiar por autoempleo (real)
+rincf_uer,FLOAT64,Renda familiar de fontes não laborais (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_uer,Family income from all unearned sources,Ingreso familiar por fuentes no laborales (real)
+rincf_paw,FLOAT64,Renda familiar de assistência social (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_paw,Family income from public assistance and welfare,Ingreso familiar por asistencia social (real)
+rincf_cs,FLOAT64,Renda familiar de pensão alimentícia para filhos (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_cs,Family income from child support,Ingreso familiar por manutención de hijos (real)
+rincf_alm,FLOAT64,Renda familiar de pensão ao ex-cônjuge (real),2014(1)2014,no,,USD,no,Valores em dólares reais (constantes),rincf_alm,Family income from alimony,Ingreso familiar por pensión conyugal (real)
+rincf_csalm,FLOAT64,Renda familiar de pensão alimentícia e ao ex-cônjuge (real),2014(1)2014,no,,USD,no,Valores em dólares reais (constantes),rincf_csalm,Family income from alimony and child support,Ingreso familiar por manutención de hijos y pensión conyugal (real)
+rincf_ss,FLOAT64,Renda familiar de previdência social ou aposentadoria ferroviária (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_ss,Family income from social security or railroad retirement,Ingreso familiar por seguridad social o jubilación ferroviaria (real)
+rincf_ssi,FLOAT64,Renda familiar de seguridade suplementar (SSI) (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_ssi,Family income from supplm. security,Ingreso familiar por seguridad suplementaria (SSI) (real)
+rincf_comp,FLOAT64,"Renda familiar de seguro-desemprego, indenização, veteranos e pensões públicas (real)",,no,,USD,no,"Valores em dólares reais (constantes). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",rincf_comp,Family income from unemp/worker's comp/vet pay/govt pensions,"Ingreso familiar por desempleo, indemnización, veteranos y pensiones públicas (real)"
+rincf_uc,FLOAT64,Renda familiar de seguro-desemprego (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_uc,Family income from unemployment compensation,Ingreso familiar por seguro de desempleo (real)
+rincf_wcp,FLOAT64,Renda familiar de indenização trabalhista (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_wcp,Family income from worker's compensation,Ingreso familiar por indemnización laboral (real)
+rincf_vet,FLOAT64,Renda familiar de pagamentos a veteranos (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_vet,Family income from veteran payments,Ingreso familiar por pagos a veteranos (real)
+rincf_srv,FLOAT64,Renda familiar de pensão por morte (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_srv,Family income from survivors benefits,Ingreso familiar por pensión de sobrevivientes (real)
+rincf_dis,FLOAT64,Renda familiar de invalidez (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_dis,Family income from disability,Ingreso familiar por discapacidad (real)
+rincf_ret,FLOAT64,Renda familiar de aposentadoria (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_ret,Family income from retirement funds,Ingreso familiar por jubilación (real)
+rincf_ed,FLOAT64,Renda familiar de auxílio educacional (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_ed,Family income from educational assistance,Ingreso familiar por ayuda educativa (real)
+rincf_rnt,FLOAT64,Renda familiar de aluguéis (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_rnt,Family income from rent,Ingreso familiar por alquileres (real)
+rincf_int,FLOAT64,"Renda familiar de juros, dividendos e aluguéis líquidos (real)",,no,,USD,no,Valores em dólares reais (constantes),rincf_int,"Family income from int, div, net rentals","Ingreso familiar por intereses, dividendos y alquileres netos (real)"
+rincf_fin,FLOAT64,Renda familiar de auxílio financeiro de terceiros (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_fin,"Family income from cont, financial assist. from friends",Ingreso familiar por ayuda financiera de terceros (real)
+rincf_divo,FLOAT64,"Renda familiar de dividendos, aluguéis e fundos (real)",,no,,USD,no,"Valores em dólares reais (constantes). Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",rincf_divo,"Family income from dividends, rents and trusts","Ingreso familiar por dividendos, alquileres y fideicomisos (real)"
+rincf_div,FLOAT64,Renda familiar de dividendos (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_div,Family income from dividends,Ingreso familiar por dividendos (real)
+rincf_oth,FLOAT64,Renda familiar de outras fontes (real),,no,,USD,no,Valores em dólares reais (constantes),rincf_oth,Family income from other sources,Ingreso familiar por otras fuentes (real)
+rinch_all,FLOAT64,Renda domiciliar total (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_all,Total household income,Ingreso del hogar total (real)
+rinch_ern,FLOAT64,Renda domiciliar do trabalho (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_ern,"Total household income, excluding unearned",Ingreso del hogar laboral (real)
+rinch_wag,FLOAT64,Renda domiciliar de salários (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_wag,HH income from wage and salary,Ingreso del hogar por salarios (real)
+rinch_sefrm,FLOAT64,Renda domiciliar de trabalho autônomo agrícola (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_sefrm,HH income from farm or noninc self-employment,Ingreso del hogar por autoempleo agrícola (real)
+rinch_senf,FLOAT64,Renda domiciliar de trabalho autônomo não agrícola (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_senf,HH income from nonfarm self-employment,Ingreso del hogar por autoempleo no agrícola (real)
+rinch_se,FLOAT64,Renda domiciliar de trabalho autônomo (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_se,HH income from self-employment,Ingreso del hogar por autoempleo (real)
+rinch_uer,FLOAT64,Renda domiciliar de fontes não laborais (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_uer,HH income from all unearned sources,Ingreso del hogar por fuentes no laborales (real)
+rinch_paw,FLOAT64,Renda domiciliar de assistência social (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_paw,HH income from public assistance and welfare,Ingreso del hogar por asistencia social (real)
+rinch_cs,FLOAT64,Renda domiciliar de pensão alimentícia para filhos (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_cs,HH income from child support,Ingreso del hogar por manutención de hijos (real)
+rinch_alm,FLOAT64,Renda domiciliar de pensão ao ex-cônjuge (real),2014(1)2014,no,,USD,no,Valores em dólares reais (constantes),rinch_alm,HH income from alimony,Ingreso del hogar por pensión conyugal (real)
+rinch_ss,FLOAT64,Renda domiciliar de previdência social ou aposentadoria ferroviária (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_ss,HH income from social security or railroad retirement,Ingreso del hogar por seguridad social o jubilación ferroviaria (real)
+rinch_ssi,FLOAT64,Renda domiciliar de seguridade suplementar (SSI) (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_ssi,HH income from supplm. security,Ingreso del hogar por seguridad suplementaria (SSI) (real)
+rinch_uc,FLOAT64,Renda domiciliar de seguro-desemprego (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_uc,HH income from unemployment compensation,Ingreso del hogar por seguro de desempleo (real)
+rinch_wcp,FLOAT64,Renda domiciliar de indenização trabalhista (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_wcp,HH income from worker's compensation,Ingreso del hogar por indemnización laboral (real)
+rinch_vet,FLOAT64,Renda domiciliar de pagamentos a veteranos (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_vet,HH income from veteran payments,Ingreso del hogar por pagos a veteranos (real)
+rinch_srv,FLOAT64,Renda domiciliar de pensão por morte (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_srv,HH income from survivors benefits,Ingreso del hogar por pensión de sobrevivientes (real)
+rinch_dis,FLOAT64,Renda domiciliar de invalidez (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_dis,HH income from disability,Ingreso del hogar por discapacidad (real)
+rinch_ret,FLOAT64,Renda domiciliar de aposentadoria (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_ret,HH income from retirement funds,Ingreso del hogar por jubilación (real)
+rinch_ed,FLOAT64,Renda domiciliar de auxílio educacional (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_ed,HH income from educational assistance,Ingreso del hogar por ayuda educativa (real)
+rinch_rnt,FLOAT64,Renda domiciliar de aluguéis (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_rnt,HH income from rent,Ingreso del hogar por alquileres (real)
+rinch_int,FLOAT64,"Renda domiciliar de juros, dividendos e aluguéis líquidos (real)",,no,,USD,no,Valores em dólares reais (constantes),rinch_int,"HH income from int, div, net rentals","Ingreso del hogar por intereses, dividendos y alquileres netos (real)"
+rinch_fin,FLOAT64,Renda domiciliar de auxílio financeiro de terceiros (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_fin,"HH income from cont, financial assist. from friends",Ingreso del hogar por ayuda financiera de terceros (real)
+rinch_div,FLOAT64,Renda domiciliar de dividendos (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_div,HH income from dividends,Ingreso del hogar por dividendos (real)
+rinch_oth,FLOAT64,Renda domiciliar de outras fontes (real),,no,,USD,no,Valores em dólares reais (constantes),rinch_oth,HH income from other sources,Ingreso del hogar por otras fuentes (real)
+rhrearn,FLOAT64,Rendimento por hora (real),,no,,USD,no,Valores em dólares reais (constantes),rhrearn,Hourly earnings,Ingreso por hora (real)
+rhrwage,FLOAT64,Salário por hora (real),,no,,USD,no,Valores em dólares reais (constantes),rhrwage,Hourly wage,Salario por hora (real)
+fshh,STRING,Alguém no domicílio recebe vale-alimentação (food stamps),,yes,,,no,,fshh,Anyone in HH receiving food stamps,Alguien en el hogar recibe cupones de alimentos
+fshh_val,FLOAT64,Valor de vale-alimentação recebido pelo domicílio,,no,,USD,no,,fshh_val,Food stamps received by HH,Valor de cupones de alimentos recibido por el hogar
+fshh_num,INT64,Número de pessoas no domicílio recebendo vale-alimentação,,no,,pessoas,no,,fshh_num,Number of persons in HH receiving food stamps,Número de personas en el hogar que reciben cupones de alimentos
+fshh_mon,INT64,Número de meses com vale-alimentação no domicílio,,no,,meses,no,,fshh_mon,Number of months HH covered by food stamps,Número de meses con cupones de alimentos en el hogar
+flhh,STRING,Crianças no domicílio com merenda gratuita ou subsidiada,,yes,,,no,,flhh,Children in HH receiving free or reduced price lunch,Niños en el hogar con almuerzo gratuito o subsidiado
+flhh_num,INT64,Número de crianças no domicílio com merenda gratuita ou subsidiada,,no,,pessoas,no,,flhh_num,Number of children in HH receiving free or reduced price lunch,Número de niños en el hogar con almuerzo gratuito o subsidiado
+public,STRING,Domicílio em habitação pública,,yes,,,no,,public,Public Housing Project,Hogar en vivienda pública
+rentsub,STRING,Subsídio de aluguel para o domicílio,,yes,,,no,,rentsub,Rent subsidy for household,Subsidio de alquiler para el hogar
+energy,STRING,Domicílio recebeu auxílio energia,,yes,,,no,,energy,Household received energy assistance,Hogar recibió asistencia de energía
+energy_val,FLOAT64,Valor do auxílio energia recebido pelo domicílio,,no,,USD,no,,energy_val,Value of energy assistance received by hh,Valor de la asistencia de energía recibida por el hogar
+wichh,STRING,Alguém no domicílio recebeu assistência WIC,,yes,,,no,,wichh,Anyone in HH received WIC assistance,Alguien en el hogar recibió asistencia WIC
+wichh_num,INT64,Número de pessoas no domicílio recebendo WIC,,no,,pessoas,no,,wichh_num,Number of people in HH receiving WIC,Número de personas en el hogar que reciben WIC
+wicp,STRING,Pessoa recebeu assistência WIC,,yes,,,no,,wicp,Person received WIC assistance,Persona recibió asistencia WIC
+ccs,STRING,Recebeu serviços de creche/cuidado infantil,,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ccs,Received child care services,Recibió servicios de cuidado infantil
+ccshh,STRING,Alguém no domicílio recebeu serviços de creche,,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ccshh,Anyone in HH received child care services,Alguien en el hogar recibió servicios de cuidado infantil
+ccshh_num,INT64,Número de pessoas no domicílio que receberam creche,,no,,pessoas,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ccshh_num,Number of people in HH received child care serv.,Número de personas en el hogar que recibieron cuidado infantil
+ccspaid,STRING,Alguém no domicílio pagou por creche no ano anterior,,yes,,,no,,ccspaid,Anyone in HH paid for child care serv last yr,Alguien en el hogar pagó por cuidado infantil el año anterior
+tanf,STRING,Assistência pública (TANF/AFDC),,yes,,,no,,tanf,Public Assitance (TANF/AFDC),Asistencia pública (TANF/AFDC)
+taxinc,FLOAT64,Renda tributável estimada,,no,,USD,no,,taxinc,Est. Taxable income amount,Ingreso imponible estimado
+filestat,STRING,Situação do declarante de imposto,,yes,,,no,,filestat,Tax Filer Status,Situación del declarante de impuestos
+margtax,FLOAT64,Alíquota marginal de imposto,,no,,%,no,,margtax,Marginal Tax Rate,Tasa impositiva marginal
+agi,FLOAT64,Renda bruta ajustada estimada,,no,,USD,no,,agi,Est. Adjusted Gross Income,Ingreso bruto ajustado estimado
+fedret,FLOAT64,Contribuição federal de aposentadoria estimada,,no,,USD,no,,fedret,Est. Federal Retirement Payroll Deduction,Deducción federal de jubilación estimada
+fica,FLOAT64,Contribuição previdenciária (FICA) estimada,,no,,USD,no,,fica,Est. Soc. Sec. Retirement Payroll Deduction,Deducción de seguridad social (FICA) estimada
+fedtaxbc,FLOAT64,Imposto federal devido antes de créditos (estimado),,no,,USD,no,,fedtaxbc,Est. Fed tax liability b/f credits,Impuesto federal antes de créditos (estimado)
+fedtaxac,FLOAT64,Imposto federal devido após créditos (estimado),,no,,USD,no,,fedtaxac,Est. Fed tax liability after credits,Impuesto federal después de créditos (estimado)
+sttaxbc,FLOAT64,Imposto estadual devido antes de créditos (estimado),,no,,USD,no,,sttaxbc,Est. State tax liability b/f credits,Impuesto estatal antes de créditos (estimado)
+sttaxac,FLOAT64,Imposto estadual devido após créditos (estimado),,no,,USD,no,,sttaxac,Est. State tax liability after credits,Impuesto estatal después de créditos (estimado)
+child_tc,FLOAT64,Crédito tributário por filho estimado,,no,,USD,no,,child_tc,Est. Child Tax Credit,Crédito tributario por hijo estimado
+achild_tc,FLOAT64,Crédito tributário adicional por filho estimado,,no,,USD,no,,achild_tc,Est. Add'l Child Tax Credit,Crédito tributario adicional por hijo estimado
+eitc,FLOAT64,Crédito por renda do trabalho (EITC) estimado,,no,,USD,no,,eitc,Est. EITC amount,Crédito por ingreso del trabajo (EITC) estimado
+prptax,FLOAT64,Imposto anual sobre a propriedade,,no,,USD,no,,prptax,Annual Property Taxes,Impuesto anual sobre la propiedad
+povfam,STRING,Família em situação de pobreza,,yes,,,no,,povfam,Family in poverty,Familia en situación de pobreza
+povuniv,STRING,Pessoa no universo de pobreza,,yes,,,no,,povuniv,Person in poverty universe,Persona en el universo de pobreza
+povpp,STRING,Pessoa em situação de pobreza,,yes,,,no,,povpp,Person in poverty,Persona en situación de pobreza
+pvlfam,FLOAT64,Linha de pobreza da família,,no,,USD,no,,pvlfam,Family poverty level,Línea de pobreza de la familia
+pvlpp,FLOAT64,Linha de pobreza da pessoa,,no,,USD,no,,pvlpp,Person poverty level,Línea de pobreza de la persona
+pvcfam,FLOAT64,Limiar da linha de pobreza da família,,no,,USD,no,,pvcfam,Family poverty level cutoff,Umbral de la línea de pobreza de la familia
+pvcrsf,FLOAT64,Limiar da linha de pobreza da subfamília relacionada,,no,,USD,no,,pvcrsf,Poverty level cutoff for related subfamily,Umbral de la línea de pobreza de la subfamilia relacionada
+pvratio_fam,FLOAT64,Razão entre renda familiar e a linha de baixa renda,,no,,,no,Razão renda/linha de pobreza (adimensional),pvratio_fam,Ratio of family income to low-income level,Razón entre ingreso familiar y la línea de bajos ingresos
+pvratio_sf,FLOAT64,Razão entre renda da subfamília e a linha de baixa renda,,no,,,no,Razão renda/linha de pobreza (adimensional),pvratio_sf,Ratio of related subfamily income to low-income level,Razón entre ingreso de la subfamilia y la línea de bajos ingresos
+hins,STRING,Plano de saúde,,yes,,,no,,hins,Health Insurance,Seguro de salud
+hipriv,STRING,"Plano de saúde, privado",,yes,,,no,,hipriv,"Health Insurance, private","Seguro de salud, privado"
+hiep,STRING,"Plano de saúde, fornecido pelo empregador (privado)",,yes,,,no,,hiep,"Health Insurance, employer-provided (private)","Seguro de salud, provisto por el empleador (privado)"
+hipind,STRING,"Plano de saúde, adquirido individualmente",,yes,,,no,,hipind,"Health Insurance, privately purchased","Seguro de salud, adquirido individualmente"
+himcaid,STRING,"Plano de saúde, Medicaid",,yes,,,no,,himcaid,"Health Insurance, Medicaid","Seguro de salud, Medicaid"
+himcare,STRING,"Plano de saúde, Medicare",,yes,,,no,,himcare,"Health Insurance, Medicare","Seguro de salud, Medicare"
+hiothpub,STRING,"Plano de saúde, CHAMPUS ou saúde militar",,yes,,,no,,hiothpub,"Health Insurance, provided by CHAMPUS or military hc","Seguro de salud, CHAMPUS o sanidad militar"
+hipub,STRING,"Plano de saúde, público",,yes,,,no,,hipub,"Health Insurance, Public","Seguro de salud, público"
+hiprivc,STRING,Criança coberta por plano privado,,yes,,,no,,hiprivc,Child under private HI,Niño cubierto por plan privado
+hiepc,STRING,Criança coberta por plano do empregador,,yes,,,no,,hiepc,Child under HI provided by employers,Niño cubierto por plan del empleador
+hipindc,STRING,Criança coberta por plano privado individual,,yes,,,no,,hipindc,Child under individually purchased private HI,Niño cubierto por plan privado individual
+hiprivc_none,STRING,Criança não coberta por plano privado,,yes,,,no,,hiprivc_none,Child not covered under private HI,Niño no cubierto por plan privado
+himcc,STRING,Criança coberta por Medicaid,,yes,,,no,,himcc,Child covered by Medicaid,Niño cubierto por Medicaid
+hischip,STRING,"Criança coberta por S-CHIP, sem Medicaid",,yes,,,no,,hischip,"Child covered by S-CHIP, no Medicaid","Niño cubierto por S-CHIP, sin Medicaid"
+hiepdep,STRING,Coberto como dependente em plano do empregador,,yes,,,no,,hiepdep,Covered as dependent on employer-sponsored plan,Cubierto como dependiente en plan del empleador
+hipindep,STRING,Coberto como dependente em plano privado individual,,yes,,,no,,hipindep,Covered as dependent on privately-purchased plan,Cubierto como dependiente en plan privado individual
+hiprivdep,STRING,Dependente coberto por plano do empregador ou privado,,yes,,,no,,hiprivdep,Dependent covered through employer or private HI,Dependiente cubierto por plan del empleador o privado
+hiepsp,STRING,Coberto pelo plano do empregador do cônjuge,,yes,,,no,,hiepsp,Health Insurance through spouse's employer,Cubierto por el plan del empleador del cónyuge
+hipindsp,STRING,Coberto pelo plano privado individual do cônjuge,,yes,,,no,,hipindsp,Covered through spouse's privately purchased HI,Cubierto por el plan privado individual del cónyuge
+hiprivsp,STRING,Coberto pelo plano privado do cônjuge,,yes,,,no,,hiprivsp,Covered through spouse's private HI,Cubierto por el plan privado del cónyuge
+hi_emp,STRING,Coberto por plano do próprio empregador/sindicato,,yes,,,no,,hi_emp,Covered by own employer/union provided HI,Cubierto por plan del propio empleador/sindicato
+higj_all,STRING,"Plano do próprio empregador/sindicato, totalmente pago pelo empregador",,yes,,,no,,higj_all,"Covered by own employer/union provided HI, all paid","Plan del propio empleador/sindicato, pagado totalmente por el empleador"
+higj_part,STRING,"Plano do próprio empregador/sindicato, parcialmente pago",,yes,,,no,,higj_part,"Covered by own employer/union provided HI, part paid","Plan del propio empleador/sindicato, pagado parcialmente"
+higj_none,STRING,"Plano do próprio empregador/sindicato, sem pagamento do empregador",,yes,,,no,,higj_none,"Covered by own employer/union provided HI, none paid","Plan del propio empleador/sindicato, sin pago del empleador"
+higj_allprt,STRING,"Plano do próprio empregador/sindicato, total ou parcialmente pago",,yes,,,no,,higj_allprt,"Covered by own employer/union provided HI, all/part paid","Plan del propio empleador/sindicato, pagado total o parcialmente"
+higj_pind,STRING,Coberto por plano privado próprio adquirido individualmente,,yes,,,no,,higj_pind,Covered by own privately purchased plan,Cubierto por plan privado propio adquirido individualmente
+higj_priv,STRING,Coberto por plano privado próprio,,yes,,,no,,higj_priv,Covered by own private plan,Cubierto por plan privado propio
+fhipval,FLOAT64,Gasto da família com prêmios de plano de saúde,,no,,USD,no,,fhipval,Family payments for HI premiums,Gasto de la familia en primas de seguro de salud
+fmoop,FLOAT64,Gasto direto da família com saúde,,no,,USD,no,,fmoop,Family medical out of pocket payments,Gasto directo de la familia en salud
+fotcval,FLOAT64,Gasto da família com produtos de saúde de venda livre,,no,,USD,no,,fotcval,Family spending on over-the-counter health related products,Gasto de la familia en productos de salud de venta libre
+fmedval,FLOAT64,Gasto da família com cuidados e equipamentos médicos,,no,,USD,no,,fmedval,Family spending on med care & med equip,Gasto de la familia en atención y equipos médicos
+pmoop,FLOAT64,Gasto direto anual da pessoa com saúde,,no,,USD,no,,pmoop,Total annual med out of pocket expenditures,Gasto directo anual de la persona en salud
+phipval,FLOAT64,Gasto anual da pessoa com prêmios de plano de saúde,,no,,USD,no,,phipval,Total annual amount paid for HI premiums,Gasto anual de la persona en primas de seguro de salud
+potcval,FLOAT64,Gasto da pessoa com produtos de saúde de venda livre,,no,,USD,no,,potcval,Amount paid for over-the-counter health related items,Gasto de la persona en productos de salud de venta libre
+pmedval,FLOAT64,Gasto da pessoa com cuidados e equipamentos médicos,,no,,USD,no,,pmedval,Amount paid for med care & med equip,Gasto de la persona en atención y equipos médicos
+dis_work,STRING,Limitação de trabalho por deficiência,,yes,,,no,,dis_work,Disability limit kind/amount work,Limitación laboral por discapacidad
+dis_drs,STRING,Dificuldade para vestir-se ou tomar banho,,yes,,,no,,dis_drs,Disability dressing or bathing,Dificultad para vestirse o bañarse
+dis_ear,STRING,Dificuldade auditiva,,yes,,,no,,dis_ear,Disability hearing,Dificultad auditiva
+dis_eye,STRING,Dificuldade visual (cegueira),,yes,,,no,,dis_eye,Disability blindness,Dificultad visual (ceguera)
+dis_out,STRING,Dificuldade para fazer tarefas fora de casa,,yes,,,no,,dis_out,Disability doing errands,Dificultad para hacer diligencias fuera de casa
+dis_phy,STRING,Dificuldade para subir escadas,,yes,,,no,,dis_phy,Disability climbing stairs,Dificultad para subir escaleras
+dis_rem,STRING,Dificuldade para lembrar-se,,yes,,,no,,dis_rem,Disability remembering,Dificultad para recordar
+dis_flg,STRING,Uma ou mais deficiências,,yes,,,no,,dis_flg,1+ Disabilities,Una o más discapacidades
+pension,STRING,"Pensão, participação do empregado",,yes,,,no,,pension,"Pension, Employee Participates","Pensión, participación del empleado"
+pensemp,STRING,"Pensão, patrocínio do empregador",,yes,,,no,,pensemp,"Pension, Employer Sponsors","Pensión, patrocinio del empleador"
+mig,STRING,Migração,,yes,,,no,,mig,Migration,Migración
+mig_flag,STRING,"Migração, indicador de imputação",,yes,,,no,,mig_flag,"Migration, imputation flag","Migración, indicador de imputación"
+mstatei,STRING,"Migração, imputação no nível estadual ou inferior",,yes,,,no,,mstatei,"Migration, imputation flag, state and below assigned","Migración, imputación a nivel estatal o inferior"
+mcountyi,STRING,"Migração, imputação no nível de condado ou inferior",,yes,,,no,,mcountyi,"Migration, imputation flag, county and below assigned","Migración, imputación a nivel de condado o inferior"
+mmcdi,STRING,"Migração, imputação no nível de MCD ou inferior",,yes,,,no,,mmcdi,"Migration, imputation flag, mcd and below assigned","Migración, imputación a nivel de MCD o inferior"
+mplacei,STRING,"Migração, imputação apenas no nível de localidade",,yes,,,no,,mplacei,"Migration, imputation flag, place only","Migración, imputación solo a nivel de localidad"
+mnyci,STRING,"Migração, imputação para condado em NYC",,yes,,,no,,mnyci,"Migration, imputation flag, county in NYC assigned","Migración, imputación para condado en NYC"
+mig5,STRING,Migração há 5 anos,2015(1)2015,yes,,,no,,mig5,"Migration, 5 years ago-1",Migración hace 5 años
+mig5_flag,STRING,"Migração há 5 anos, indicador de imputação",2015(1)2015,yes,,,no,,mig5_flag,"Migration, 5 years ago, imputation flag","Migración hace 5 años, indicador de imputación"
+m5statei,STRING,"Migração há 5 anos, imputação no nível estadual ou inferior",,yes,,,no,,m5statei,"Migration, 5 years ago, imputation flag, state and below assigned","Migración hace 5 años, imputación a nivel estatal o inferior"
+m5countyi,STRING,"Migração há 5 anos, imputação no nível de condado ou inferior",,yes,,,no,,m5countyi,"Migration, 5 years ago, imputation flag, county and below assigned","Migración hace 5 años, imputación a nivel de condado o inferior"
+m5mcdi,STRING,"Migração há 5 anos, imputação no nível de MCD ou inferior",,yes,,,no,,m5mcdi,"Migration, 5 years ago, imputation flag, mcd and below assigned","Migración hace 5 años, imputación a nivel de MCD o inferior"
+m5placei,STRING,"Migração há 5 anos, imputação apenas no nível de localidade",,yes,,,no,,m5placei,"Migration, 5 years ago, imputation flag, place only","Migración hace 5 años, imputación solo a nivel de localidad"
+m5nyci,STRING,"Migração há 5 anos, imputação para condado em NYC",,yes,,,no,,m5nyci,"Migration, 5 years ago, imputation flag, county in NYC assigned","Migración hace 5 años, imputación para condado en NYC"
+mig_m,STRING,"Migração, áreas metropolitanas",,yes,,,no,,mig_m,"Migration, Metro areas","Migración, áreas metropolitanas"
+mig5_m,STRING,"Migração há 5 anos, áreas metropolitanas",2015(1)2015,yes,,,no,,mig5_m,"Migration, 5 years ago, Metro areas","Migración hace 5 años, áreas metropolitanas"
+mig_r,STRING,"Migração, região",,yes,,,no,,mig_r,"Migration, Region","Migración, región"
+mig5_r,STRING,"Migração há 5 anos, região",2015(1)2015,yes,,,no,,mig5_r,"Migration, 5 years ago, region","Migración hace 5 años, región"
+mig_mr,STRING,Situação metropolitana da residência no ano anterior,,yes,,,no,,mig_mr,Metro status of residence last year,Situación metropolitana de la residencia el año anterior
+mig5_mr,STRING,Situação metropolitana da residência há 5 anos,2015(1)2015,yes,,,no,,mig5_mr,Metro status of residence 5 years ago,Situación metropolitana de la residencia hace 5 años
+mig_rr,STRING,Região de residência no ano anterior,,yes,,,no,,mig_rr,Region of residence last year,Región de residencia el año anterior
+mig5_rr,STRING,Região de residência há 5 anos,2015(1)2015,yes,,,no,,mig5_rr,Region of residence 5 years ago,Región de residencia hace 5 años
+mig_sh,STRING,Não migrante,,yes,,,no,,mig_sh,Nonmover,No migrante
+mig5_sh,STRING,Não migrante há 5 anos,2015(1)2015,yes,,,no,,mig5_sh,Nonmover 5 years ago,No migrante hace 5 años
+st_lyr,STRING,Estado de residência em março do ano anterior,,yes,,,no,,st_lyr,State residence in March last year,Estado de residencia en marzo del año anterior
+st_5yr,STRING,Estado de residência em março de cinco anos atrás,2015(1)2015,yes,,,no,,st_5yr,State residence in March five years ago,Estado de residencia en marzo de hace cinco años
+resmove,STRING,Principais motivos da mudança,,yes,,,no,,resmove,Main reasons for moving,Principales motivos de la mudanza
+resmove11,STRING,Principais motivos da mudança (esquema 2011),,yes,,,no,,resmove11,Main reasons for moving,Principales motivos de la mudanza (esquema 2011)

@@ -1,5 +1,6 @@
 import pandas as pd
-from dictionaries import temas, ufs
+
+from models.br_fbsp_absp.code.violencia_escola.dictionaries import temas, ufs
 
 
 def addition_df(xls, iloc_slice: list, table_n: int, abas: list, tema: str):
@@ -97,7 +98,7 @@ def get_clean_data() -> None:
             for tema, number_table in temas.items()
         ]
     )
-    df = df.replace(ufs.keys(), ufs.values())
+    df = df.replace(list(ufs.keys()), list(ufs.values()))
 
     df = df.drop(df[df["uf"] == "Brasil"].index)
 

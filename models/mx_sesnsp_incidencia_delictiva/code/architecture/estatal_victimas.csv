@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Año de referencia del registro,2026(1),no,br_bd_diretorios_data_tempo.ano:ano,,no,Columna de partición,Año
+mes,INT64,"Mes de referencia del registro, de 1 a 12",,no,br_bd_diretorios_data_tempo.mes:mes,,no,Derivada de las columnas mensuales de la base ancha,Enero..Diciembre
+id_entidad,STRING,"Clave de la entidad federativa según INEGI, de dos dígitos",,no,br_bd_diretorios_mx.estado:id_estado,,no,,Clave_Ent
+bien_juridico_afectado,STRING,Bien jurídico afectado por el delito según la clasificación del SESNSP,,no,,,no,,Bien jurídico afectado
+tipo_delito,STRING,Tipo de delito según la clasificación del SESNSP,,no,,,no,,Tipo de delito
+subtipo_delito,STRING,Subtipo de delito según la clasificación del SESNSP,,no,,,no,,Subtipo de delito
+modalidad,STRING,Modalidad del delito según la clasificación del SESNSP,,no,,,no,,Modalidad
+sexo,STRING,Sexo de la víctima,,no,,,no,,Sexo
+rango_edad,STRING,Rango de edad de la víctima,,no,,,no,,Rango de edad
+cantidad,INT64,Cantidad de víctimas registradas en el mes para la combinación de clasificación y geografía,,no,,víctima,no,Se conservan los ceros reportados; se descartan los meses aún sin publicar (celdas vacías),(valor de la columna mensual)

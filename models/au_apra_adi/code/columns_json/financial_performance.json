@@ -1,0 +1,322 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "institution_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de instituição autorizada a receber depósitos (ADI) ou agrupamento",
+    "description_en": "Authorised deposit-taking institution type or grouping",
+    "description_es": "Tipo de institución autorizada para recibir depósitos (ADI) o agrupamiento",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "interest_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita de juros",
+    "description_en": "Interest income",
+    "description_es": "Ingresos por intereses",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "cash_and_liquid_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Caixa e ativos líquidos",
+    "description_en": "Cash and liquid assets",
+    "description_es": "Efectivo y activos líquidos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos e adiantamentos",
+    "description_en": "Loans and advances",
+    "description_es": "Préstamos y anticipos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "housing_loans",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos habitacionais",
+    "description_en": "Housing loans",
+    "description_es": "Préstamos para vivienda",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "term_loans",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos a prazo",
+    "description_en": "Term loans",
+    "description_es": "Préstamos a plazo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "interest_income__other",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (receita de juros)",
+    "description_en": "Other",
+    "description_es": "Otros (ingresos por intereses)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_interest_earning_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros ativos remunerados por juros",
+    "description_en": "Other interest earning assets",
+    "description_es": "Otros activos que devengan intereses",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "interest_expense",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesa de juros",
+    "description_en": "Interest expense",
+    "description_es": "Gastos por intereses",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "deposits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Depósitos",
+    "description_en": "Deposits",
+    "description_es": "Depósitos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "borrowings",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos tomados",
+    "description_en": "Borrowings",
+    "description_es": "Préstamos obtenidos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_interest_bearing_liabilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros passivos remunerados por juros",
+    "description_en": "Other interest bearing liabilities",
+    "description_es": "Otros pasivos que devengan intereses",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_interest_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita líquida de juros",
+    "description_en": "Net interest income",
+    "description_es": "Ingresos netos por intereses",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outras receitas operacionais",
+    "description_en": "Other operating income",
+    "description_es": "Otros ingresos operativos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "fee_and_commission",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Tarifas e comissões",
+    "description_en": "Fee and commission",
+    "description_es": "Comisiones y tarifas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "lending",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Concessão de crédito",
+    "description_en": "Lending",
+    "description_es": "Concesión de crédito",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "transaction_deposit_account_service_fee",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Tarifa de serviço de conta transacional/de depósito",
+    "description_en": "Transaction/deposit account service fee",
+    "description_es": "Tarifa de servicio de cuenta transaccional/de depósito",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_fee_based_activities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outras atividades baseadas em tarifas",
+    "description_en": "Other fee based activities",
+    "description_es": "Otras actividades basadas en comisiones",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_operating_income__other",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (outras receitas operacionais)",
+    "description_en": "Other",
+    "description_es": "Otros (otros ingresos operativos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita operacional total",
+    "description_en": "Total operating income",
+    "description_es": "Ingresos operativos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "charge_for_bad_or_doubtful_debts",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Provisão para créditos incobráveis ou de liquidação duvidosa",
+    "description_en": "Charge for bad or doubtful debts",
+    "description_es": "Cargo por créditos incobrables o de dudosa recuperación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_operating_expenses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas operacionais totais",
+    "description_en": "Total operating expenses",
+    "description_es": "Gastos operativos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "personnel",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Pessoal",
+    "description_en": "Personnel",
+    "description_es": "Personal",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "fees_and_commissions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Tarifas e comissões",
+    "description_en": "Fees and commissions",
+    "description_es": "Comisiones y tarifas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_operating_expenses__other",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (despesas operacionais)",
+    "description_en": "Other",
+    "description_es": "Otros (gastos operativos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "profit_before_tax",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Lucro antes de impostos",
+    "description_en": "Profit before tax",
+    "description_es": "Beneficio antes de impuestos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "income_tax",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Imposto de renda",
+    "description_en": "Income tax",
+    "description_es": "Impuesto a la renta",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_profit_after_taxa",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Lucro (prejuízo) líquido após impostos",
+    "description_en": "Net profit (loss) after taxa",
+    "description_es": "Beneficio (pérdida) neto después de impuestos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "number_of_entities",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de entidades",
+    "description_en": "Number of entities",
+    "description_es": "Número de entidades",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "unit"
+  },
+  {
+    "name": "operating_expenses__other",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros (despesas operacionais)",
+    "description_en": "Other",
+    "description_es": "Otros (gastos operativos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  }
+]

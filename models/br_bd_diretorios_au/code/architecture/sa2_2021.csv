@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_sa2,STRING,"Código da Statistical Area Level 2 (SA2), 9 dígitos",,no,,,no,,SA2_CODE_2021
+name,STRING,Nome da Statistical Area Level 2 (SA2),,no,,,no,,SA2_NAME_2021
+id_sa3,STRING,Código da Statistical Area Level 3 (SA3),,no,,,no,,SA3_CODE_2021
+name_sa3,STRING,Nome da Statistical Area Level 3 (SA3),,no,,,no,,SA3_NAME_2021
+id_sa4,STRING,Código da Statistical Area Level 4 (SA4),,no,,,no,,SA4_CODE_2021
+name_sa4,STRING,Nome da Statistical Area Level 4 (SA4),,no,,,no,,SA4_NAME_2021
+id_gccsa,STRING,Código da Greater Capital City Statistical Area (GCCSA),,no,,,no,,GCCSA_CODE_2021
+name_gccsa,STRING,Nome da Greater Capital City Statistical Area (GCCSA),,no,,,no,,GCCSA_NAME_2021
+id_state,STRING,Código do estado ou território australiano (1 a 9),,no,,,no,,STATE_CODE_2021
+abbreviation_state,STRING,Sigla do estado ou território australiano,,no,,,no,Derivada do código do estado,(derivada)
+name_state,STRING,Nome do estado ou território australiano,,no,,,no,,STATE_NAME_2021
+area_albers_sqkm,FLOAT64,"Área em quilômetros quadrados, calculada na projeção Albers de áreas iguais",,no,,km2,no,,AREA_ALBERS_SQKM

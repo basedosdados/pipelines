@@ -4,9 +4,10 @@ import re
 import basedosdados as bd
 import pandas as pd
 import requests
-from constants import constants
 from tqdm import tqdm
 from unidecode import unidecode
+
+from models.br_ibge_censo_2022.code.constants import constants
 
 
 def municipalities_as_chunks(chunk_size: int = 50):
@@ -91,6 +92,7 @@ if __name__ == "__main__":
                 df = prepare_columns_for_bigquery(df)
                 df_final = pd.concat([df_final, df])
                 break
+            # pyrefly: ignore [unbound-name]
             df.to_parquet(path=f"{table_id}.parquet", compression="gzip")
             print(df.columns)
 

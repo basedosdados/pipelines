@@ -1,0 +1,178 @@
+---
+version: 2
+models:
+  - name: au_dcceew_greenhouse__inventory_unfccc
+    description: >-
+      Australia's National Greenhouse Gas Inventory on the UNFCCC/Paris basis
+      (AR5 100-year GWP), from DCCEEW's Australian National Greenhouse Accounts.
+      One row per financial year (ending), jurisdiction, UNFCCC category (the
+      IPCC hierarchy: Energy, Agriculture, Industrial Processes, LULUCF, Waste
+      and their sub-categories) and gas, in gigagrams. Rows are leaf-level and
+      mutually exclusive, so category totals are obtained by summing. The gas
+      dimension holds either a physical gas (mass of that gas) or the aggregate
+      'CO2-e - AR5' broken down by contributing gas. Do not sum across the
+      inventory_anzsic or inventory_scope2 tables, which reclassify or add
+      indirect emissions for the same underlying inventory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - geography
+            - unfccc_level_1
+            - unfccc_level_2
+            - unfccc_level_3
+            - unfccc_level_4
+            - unfccc_level_5
+            - unfccc_level_6
+            - unfccc_level_7
+            - unfccc_level_8
+            - unfccc_level_9
+            - unfccc_level_10
+            - gas_level_0
+            - gas_level_1
+            - gas_level_2
+            - gas_level_3
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - unfccc_level_8
+            - unfccc_level_9
+            - unfccc_level_10
+            - gas_level_2
+            - gas_level_3
+    columns:
+      - name: year
+        description: Reference year of the inventory (Australian financial year ending;
+          1990 = 1989-90)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: geography
+        description: Geographic area — 'australia' (national) or a state/territory,
+          plus 'et'
+        tests: [not_null]
+      - name: unfccc_level_1
+        description: UNFCCC/Paris top IPCC sector
+        tests: [not_null]
+      - name: unfccc_level_2
+        description: UNFCCC/Paris category, level 2
+      - name: unfccc_level_3
+        description: UNFCCC/Paris category, level 3
+      - name: unfccc_level_4
+        description: UNFCCC/Paris category, level 4
+      - name: unfccc_level_5
+        description: UNFCCC/Paris category, level 5
+      - name: unfccc_level_6
+        description: UNFCCC/Paris category, level 6
+      - name: unfccc_level_7
+        description: UNFCCC/Paris category, level 7
+      - name: unfccc_level_8
+        description: UNFCCC/Paris category, level 8
+      - name: unfccc_level_9
+        description: UNFCCC/Paris category, level 9
+      - name: unfccc_level_10
+        description: UNFCCC/Paris category, level 10
+      - name: gas_level_0
+        description: Gas or metric — a physical gas/pollutant or the 'CO2-e - AR5'
+          aggregate
+        tests: [not_null]
+      - name: gas_level_1
+        description: For 'CO2-e - AR5' rows, the contributing gas
+      - name: gas_level_2
+        description: Sub-group of the CO2-e 'Other' contribution (HFC, PFC, SF6)
+      - name: gas_level_3
+        description: Specific species within the CO2-e sub-group
+      - name: emissions_gg
+        description: Emissions in gigagrams (Gg CO2-e when gas is 'CO2-e - AR5')
+  - name: au_dcceew_greenhouse__inventory_anzsic
+    description: >-
+      Australia's National Greenhouse Gas Inventory reclassified by ANZSIC
+      economic sector (AR5 100-year GWP), from DCCEEW's Australian National
+      Greenhouse Accounts. One row per financial year (ending), jurisdiction,
+      ANZSIC sector (division, subdivision, group) and gas, in gigagrams. This
+      is the same underlying inventory as inventory_unfccc, reallocated to the
+      industry that produced the emissions — do not sum the two tables together.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - geography
+            - anzsic_level_1
+            - anzsic_level_2
+            - anzsic_level_3
+            - gas_level_0
+            - gas_level_1
+            - gas_level_2
+            - gas_level_3
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the inventory (Australian financial year ending;
+          1990 = 1989-90)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: geography
+        description: Geographic area — 'australia' (national) or a state/territory,
+          plus 'et'
+        tests: [not_null]
+      - name: anzsic_level_1
+        description: ANZSIC division (top economic sector)
+        tests: [not_null]
+      - name: anzsic_level_2
+        description: ANZSIC subdivision
+      - name: anzsic_level_3
+        description: ANZSIC group
+      - name: gas_level_0
+        description: Gas or metric — a physical gas/pollutant or the 'CO2-e - AR5'
+          aggregate
+        tests: [not_null]
+      - name: gas_level_1
+        description: For 'CO2-e - AR5' rows, the contributing gas
+      - name: gas_level_2
+        description: Sub-group of the CO2-e 'Other' contribution (HFC, PFC, SF6)
+      - name: gas_level_3
+        description: Specific species within the CO2-e sub-group
+      - name: emissions_gg
+        description: Emissions in gigagrams (Gg CO2-e when gas is 'CO2-e - AR5')
+  - name: au_dcceew_greenhouse__inventory_scope2
+    description: >-
+      Indirect (Scope 2, purchased-electricity) greenhouse gas emissions for
+      Australia by ANZSIC economic sector (AR5 100-year GWP, in Gg CO2-e), from
+      DCCEEW's Australian National Greenhouse Accounts. One row per financial
+      year (ending), jurisdiction and ANZSIC sector. Scope 2 emissions are the
+      indirect counterpart to the direct emissions in the other tables and must
+      not be added to them (that would double-count electricity emissions).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - geography
+            - scopetwo_level_1
+            - scopetwo_level_2
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the inventory (Australian financial year ending;
+          1990 = 1989-90)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: geography
+        description: Geographic area — 'australia' (national) or a state/territory
+        tests: [not_null]
+      - name: scopetwo_level_1
+        description: ANZSIC division of the electricity-consuming sector
+        tests: [not_null]
+      - name: scopetwo_level_2
+        description: ANZSIC subdivision of the electricity-consuming sector
+      - name: emissions_gg
+        description: Scope 2 (indirect) emissions in gigagrams of CO2-e (AR5)

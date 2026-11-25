@@ -1,0 +1,430 @@
+---
+version: 2
+models:
+  - name: au_nsw_bocsar_crime__criminal_incidents
+    description: >-
+      Monthly counts of criminal incidents recorded by the NSW Police Force for the
+      whole state, by offence category and subcategory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - offence_category
+            - offence_subcategory
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: offence_category
+        description: BOCSAR offence category, the top level of the offence classification
+      - name: offence_subcategory
+        description: BOCSAR offence subcategory, the detailed offence type within
+          the category
+      - name: incidents
+        description: Number of criminal incidents recorded by the NSW Police Force
+  - name: au_nsw_bocsar_crime__criminal_incidents_sa4
+    description: >-
+      Monthly counts of criminal incidents recorded by the NSW Police Force by Statistical
+      Area Level 4 (ASGS), offence category and subcategory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - sa4_name
+            - offence_category
+            - offence_subcategory
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: sa4_name
+        description: Name of the Statistical Area Level 4 (ASGS) in New South Wales
+      - name: offence_category
+        description: BOCSAR offence category, the top level of the offence classification
+      - name: offence_subcategory
+        description: BOCSAR offence subcategory, the detailed offence type within
+          the category
+      - name: incidents
+        description: Number of criminal incidents recorded by the NSW Police Force
+  - name: au_nsw_bocsar_crime__criminal_incidents_lga
+    description: >-
+      Monthly counts of criminal incidents recorded by the NSW Police Force by Local
+      Government Area, offence category and subcategory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - lga_name
+            - offence_category
+            - offence_subcategory
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: lga_name
+        description: Name of the Local Government Area in New South Wales
+      - name: offence_category
+        description: BOCSAR offence category, the top level of the offence classification
+      - name: offence_subcategory
+        description: BOCSAR offence subcategory, the detailed offence type within
+          the category
+      - name: incidents
+        description: Number of criminal incidents recorded by the NSW Police Force
+  - name: au_nsw_bocsar_crime__criminal_incidents_postcode
+    description: >-
+      Monthly counts of criminal incidents recorded by the NSW Police Force by postcode,
+      offence category and subcategory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - postcode
+            - offence_category
+            - offence_subcategory
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: postcode
+        description: Australian postcode of the recorded incidents
+      - name: offence_category
+        description: BOCSAR offence category, the top level of the offence classification
+      - name: offence_subcategory
+        description: BOCSAR offence subcategory, the detailed offence type within
+          the category
+      - name: incidents
+        description: Number of criminal incidents recorded by the NSW Police Force
+  - name: au_nsw_bocsar_crime__criminal_incidents_suburb
+    description: >-
+      Monthly counts of criminal incidents recorded by the NSW Police Force by suburb,
+      offence category and subcategory.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - suburb
+            - offence_category
+            - offence_subcategory
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: suburb
+        description: Suburb name in New South Wales
+      - name: offence_category
+        description: BOCSAR offence category, the top level of the offence classification
+      - name: offence_subcategory
+        description: BOCSAR offence subcategory, the detailed offence type within
+          the category
+      - name: incidents
+        description: Number of criminal incidents recorded by the NSW Police Force
+  - name: au_nsw_bocsar_crime__criminal_incidents_daily
+    description: >-
+      Daily counts of criminal incidents recorded by the NSW Police Force for all
+      of New South Wales, by offence type.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date, offence_subcategory]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: date
+        description: Calendar date of the recorded incidents
+        tests: [not_null]
+      - name: offence_category
+        description: BOCSAR offence category mapped from the published offence label
+      - name: offence_subcategory
+        description: Offence label as published in the daily file (leaf of the offence
+          hierarchy)
+      - name: incidents
+        description: Number of criminal incidents recorded by the NSW Police Force
+  - name: au_nsw_bocsar_crime__alleged_offenders
+    description: >-
+      Number of persons of interest legally proceeded against by the NSW Police Force
+      per financial year, by offence type, age group and method of legal proceeding.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - financial_year
+            - offence_category
+            - offence_subcategory
+            - age_group
+            - legal_proceeding
+            - detailed_legal_proceeding
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: financial_year
+        description: Australian financial year of reference, 1 July to 30 June, e.g.
+          2010-11
+      - name: offence_category
+        description: BOCSAR offence category, the top level of the offence classification
+      - name: offence_subcategory
+        description: BOCSAR offence subcategory, the detailed offence type within
+          the category
+      - name: age_group
+        description: Age group of the person of interest (10 to 17 years, or Adult)
+      - name: legal_proceeding
+        description: Method of legal proceeding (court diversion or proceeded against
+          to court)
+      - name: detailed_legal_proceeding
+        description: Detailed method of legal proceeding within the broader method
+      - name: poi_count
+        description: Number of persons of interest legally proceeded against by the
+          NSW Police Force
+  - name: au_nsw_bocsar_crime__custody_population
+    description: >-
+      Monthly custody population (people in custody on the last day of the month)
+      in NSW adult and youth custody, by legal status, Aboriginality, sex and most
+      serious offence.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - custody_system
+            - legal_status
+            - aboriginality
+            - sex
+            - most_serious_offence
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: custody_system
+        description: Custody system the record refers to (adult or youth)
+      - name: legal_status
+        description: Legal status of the person in custody (remand or sentenced)
+      - name: aboriginality
+        description: Aboriginal status of the person (Aboriginal, Non-Aboriginal or
+          Unknown)
+      - name: sex
+        description: Sex of the person (Female or Male)
+      - name: most_serious_offence
+        description: Most serious offence associated with the person in custody
+      - name: people
+        description: Number of people in custody on the last day of the month
+  - name: au_nsw_bocsar_crime__custody_receptions
+    description: >-
+      Monthly receptions into NSW adult and youth custody, by reception status, Aboriginality
+      and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - custody_system
+            - reception_status
+            - aboriginality
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: custody_system
+        description: Custody system the record refers to (adult or youth)
+      - name: reception_status
+        description: Legal status at reception into custody (remand, sentenced or
+          unknown)
+      - name: aboriginality
+        description: Aboriginal status of the person (Aboriginal, Non-Aboriginal or
+          Unknown)
+      - name: sex
+        description: Sex of the person (Female or Male)
+      - name: receptions
+        description: Number of receptions into custody during the month
+  - name: au_nsw_bocsar_crime__custody_discharges
+    description: >-
+      Monthly discharges from NSW adult and youth custody, by discharge type and destination,
+      Aboriginality and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - custody_system
+            - discharge_type
+            - discharge_type_breakdown
+            - aboriginality
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: custody_system
+        description: Custody system the record refers to (adult or youth)
+      - name: discharge_type
+        description: Type of custody the person was discharged from (remand or sentenced)
+      - name: discharge_type_breakdown
+        description: Detailed discharge destination or reason
+      - name: aboriginality
+        description: Aboriginal status of the person (Aboriginal, Non-Aboriginal or
+          Unknown)
+      - name: sex
+        description: Sex of the person (Female or Male)
+      - name: discharges
+        description: Number of discharges from custody during the month
+  - name: au_nsw_bocsar_crime__custody_remand_to_sentenced
+    description: >-
+      Monthly count of people who transitioned from remand to sentenced status within
+      NSW adult and youth custody, by Aboriginality and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - custody_system
+            - aboriginality
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: custody_system
+        description: Custody system the record refers to (adult or youth)
+      - name: discharge_type
+        description: Transition recorded, remand to sentenced custody
+      - name: aboriginality
+        description: Aboriginal status of the person (Aboriginal, Non-Aboriginal or
+          Unknown)
+      - name: sex
+        description: Sex of the person (Female or Male)
+      - name: transitions
+        description: Number of people who transitioned from remand to sentenced custody
+          during the month

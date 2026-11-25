@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela,,no,,,no,,
+nome_coluna,STRING,Nome da coluna,,no,,,no,,
+chave,STRING,"Chave, isto é, o valor codificado na coluna",,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal da chave,,no,,,no,,
+valor,STRING,"Valor, isto é, o significado da chave",,no,,,no,,

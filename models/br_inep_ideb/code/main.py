@@ -20,6 +20,7 @@ URLS = {
 
 
 for _, url in URLS.items():
+    # pyrefly: ignore [deprecated]
     os.system(f"cd {INPUT}; curl -O -k {url}")
 
 for file in os.listdir(INPUT):
@@ -45,6 +46,7 @@ def to_float(value) -> float:
 def sanitize_dataframe(df: pd.DataFrame, table_escolas: bool) -> pd.DataFrame:
     df = df[cols_escolas if table_escolas else cols_municipio]  # type: ignore
 
+    # pyrefly: ignore [bad-index]
     df = df.loc[df["CO_MUNICIPIO"].notna(),]
 
     df["CO_MUNICIPIO"] = df["CO_MUNICIPIO"].astype("Int64").astype("string")

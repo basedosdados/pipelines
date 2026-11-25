@@ -5,79 +5,14 @@ Flow de transferência de arquivos do bucket basedosdados-dev para basedosdados
 
 from __future__ import annotations
 
-from prefect import flow
-
+from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.tasks import (
-    download_files_from_bucket_folders,
+    copy_staging_to_prod,
+    sync_prod_staging_table,
 )
-from pipelines.utils.metadata.domain import (
-    AllBdpro,
-    AllFree,
-    CoverageSpec,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    NonHistorical,
-    PartBdpro,
-    YearMonth,
-    YearOnly,
-    YearQuarter,
-)
+from pipelines.utils.metadata.coverage import CoverageSpec
 from pipelines.utils.metadata.tasks import register_table_materialization_task
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
-
-
-def _build_coverage(
-    coverage_tier: str,
-    date_column_kind: str,
-    date_col: str | None,
-    year_col: str,
-    month_col: str,
-    quarter_col: str | None,
-    free_lag_unit: str,
-    free_lag_value: int,
-) -> CoverageSpec:
-    """Constrói um `CoverageSpec` a partir de parâmetros primitivos do flow.
-
-    Espelha `_sicor_coverage` (crawler/bcb): traduz a combinação
-    (tier, tipo de coluna de data) numa das variantes da união discriminada.
-    Os validadores Pydantic garantem a compatibilidade coluna/formato.
-    """
-    if coverage_tier == "non_historical":
-        return NonHistorical()
-
-    if date_column_kind == "date":
-        date_column = DateOnly(col=date_col)
-        date_format = DateFormat.YEAR_MD
-    elif date_column_kind == "year":
-        date_column = YearOnly(col=date_col)
-        date_format = DateFormat.YEAR
-    elif date_column_kind == "year_month":
-        date_column = YearMonth(year=year_col, month=month_col)
-        date_format = DateFormat.YEAR_MONTH
-    elif date_column_kind == "year_quarter":
-        date_column = YearQuarter(year=year_col, quarter=quarter_col)
-        date_format = DateFormat.YEAR_MONTH
-    else:
-        raise ValueError(
-            f"date_column_kind não suportado: {date_column_kind!r}"
-        )
-
-    if coverage_tier == "all_free":
-        return AllFree(date_column=date_column, date_format=date_format)
-    if coverage_tier == "all_bdpro":
-        return AllBdpro(date_column=date_column, date_format=date_format)
-    if coverage_tier == "part_bdpro":
-        return PartBdpro(
-            date_column=date_column,
-            date_format=date_format,
-            free_lag=FreeLag(unit=free_lag_unit, value=free_lag_value),
-        )
-    raise ValueError(f"coverage_tier não suportado: {coverage_tier!r}")
+from pipelines.utils.tasks import rename_flow_run_dataset_table, run_dbt
 
 
 @flow(
@@ -91,30 +26,57 @@ def transfer_files_to_prod_flow(
     source_bucket: str = "basedosdados-dev",
     download_billing_project: str = "basedosdados",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
-    # Interface de metadados — opt-in (desligada por padrão).
-    update_metadata: bool = False,
-    coverage_tier: str = "all_free",  # all_free|all_bdpro|part_bdpro|non_historical
-    date_column_kind: str = "year_month",  # date|year|year_month|year_quarter
-    date_col: str | None = None,  # usado em date/year
-    year_col: str = "ano",
-    month_col: str = "mes",
-    quarter_col: str | None = None,
-    free_lag_unit: str = "months",
-    free_lag_value: int = 6,
+    dbt_command: str = "run",
+    coverage: CoverageSpec | None = None,
     env: str = "prod",
     bq_project: str = "basedosdados",
+    prefect_mode: str = "prod",
+    dump_mode: str = "append",
 ) -> None:
-    if folders is None:
-        folders = ["mes_competencia=202306", "mes_competencia=202305"]
+    """Copia o staging de dev pro staging de prod (cópia server-side, sem
+    baixar/subir pelo worker), materializa, testa e registra a
+    materialização de uma tabela.
 
+    Chamada por `build_and_promote` como subflow, depois do `dbt run/test`
+    em dev.
+
+    Args:
+        dataset_id: ID do dataset no backend/BigQuery.
+        table_id: ID da tabela no backend/BigQuery.
+        folders: pastas de partição estilo Hive a promover (ex.
+            `["ano=2026/mes=09"]`). `None` promove a tabela inteira —
+            inclui backup do staging de prod atual e recriação completa da
+            definição da tabela, igual ao comportamento atual do
+            `table-approve` (que nunca usa `folders` parcial). Com
+            `folders`, só os blobs indicados são copiados e só colunas
+            novas são sincronizadas ao schema.
+        source_bucket: bucket de origem (requester-pays).
+        download_billing_project: projeto cobrado pelo acesso
+            requester-pays ao `source_bucket`.
+        materialize_after_dump: quando `False`, só copia os arquivos e
+            encerra — não roda dbt, não registra metadado.
+        dbt_command: comando dbt a rodar em prod (`"run"`, `"test"`,
+            `"run/test"`, ...).
+        coverage: `CoverageSpec` já validado, se disponível — útil pra
+            disparo manual sobrescrevendo o que está no backend. Quando
+            `None` (padrão), busca do próprio backend (`coverageSpec`, ver
+            `pipelines.utils.metadata.coverage`).
+        env: backend de destino.
+        bq_project: projeto BigQuery onde a tabela vive.
+        prefect_mode: resolve o projeto de billing.
+        dump_mode: vestigial — a cópia server-side não depende mais do
+            modo de escrita declarado (`copy_staging_to_prod`/
+            `sync_prod_staging_table` decidem o comportamento a partir de
+            `folders`). Mantido só pra não quebrar o caller atual
+            (`build_and_promote`).
+    """
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
         dataset_id=dataset_id,
         table_id=table_id,
     )
 
-    output_filepath = download_files_from_bucket_folders(
+    sample_path = copy_staging_to_prod(
         dataset_id=dataset_id,
         table_id=table_id,
         folders=folders,
@@ -125,44 +87,38 @@ def transfer_files_to_prod_flow(
     if not materialize_after_dump:
         return
 
+    # Sem folders: promoção completa (backup + recriação da tabela, igual
+    # ao table-approve atual). Com folders: promoção parcial (só sincroniza
+    # colunas novas ao schema existente).
+    is_full_promotion = folders is None
+
     # Chamadas diretas (síncronas e bloqueantes): garantem a ordem
-    # upload → dbt → register e propagam falhas para o flow run. Usar
+    # sync → dbt → register e propagam falhas para o flow run. Usar
     # .submit() aqui faria o flow retornar antes das tasks terminarem e o
     # task runner cancelaria as pendentes ("cancelled by the runtime").
-    upload_to_gcs(
-        data_path=output_filepath,
+    sync_prod_staging_table(
         dataset_id=dataset_id,
         table_id=table_id,
+        sample_path=sample_path,
         bucket_name="basedosdados",
-        dump_mode="append",
+        recreate=is_full_promotion,
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_command="run",
-        dbt_alias=dbt_alias,
+        dbt_command=dbt_command,
         target="prod",
     )
 
-    if update_metadata:
-        coverage = _build_coverage(
-            coverage_tier=coverage_tier,
-            date_column_kind=date_column_kind,
-            date_col=date_col,
-            year_col=year_col,
-            month_col=month_col,
-            quarter_col=quarter_col,
-            free_lag_unit=free_lag_unit,
-            free_lag_value=free_lag_value,
-        )
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=coverage,
-            env=env,
-            bq_project=bq_project,
-        )
+    register_table_materialization_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        coverage=coverage,
+        env=env,
+        bq_project=bq_project,
+        prefect_mode=prefect_mode,
+    )
 
 
 transfer_files_to_prod_flow.deploy_schedules = []  # utilitário, disparo manual

@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year in which the financial year of the observation ends,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column; the financial year 2024-25 ends in 2025 so is stored as 2025,Series End
+financial_year,STRING,Australian financial year of the observation in YYYY-YY format,,no,,,no,Runs 1 July to 30 June such as 2024-25,derived
+series_id,STRING,ABS series identifier linking the observation to the series table,,no,,,no,Foreign key to the au_abs_national_accounts series table,Series ID
+value,FLOAT64,Observed value of the series for the financial year,,no,,,no,Unit varies by series and is given in the series table so no fixed measurement unit is set here,value

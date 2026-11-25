@@ -27,7 +27,7 @@ def select_selection_download(website):
         sleep(2)
         website.execute_script("arguments[0].click();", aba)
 
-        for n in range(abas_dic[aba_n][1]):
+        for n in range(int(abas_dic[aba_n][1])):
             try:
                 click(
                     website,

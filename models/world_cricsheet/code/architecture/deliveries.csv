@@ -1,0 +1,29 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano da partida, derivado da data de início",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de start_date,start_date
+match_id,STRING,Identificador único da partida,,no,,,no,,match_id
+season,STRING,Temporada da partida no formato de ano ou intervalo de anos,,no,,,no,Ex.: 2011/12,season
+start_date,DATE,Data de início da partida,,no,,,no,,start_date
+venue,STRING,Nome do estádio ou local onde a partida foi disputada,,no,,,no,,venue
+innings,STRING,Número do turno de rebatidas na partida,,no,,,no,Ordinal de 1 a 4; não deve ser somado,innings
+ball,STRING,Identificador da bola no formato over.bola,,no,,,no,"Ex.: 0.1 corresponde ao over 0, bola 1",ball
+actual_delivery,STRING,Número da entrega efetivamente disputada no over,,no,,,no,,actual_delivery
+batting_team,STRING,Nome da equipe que está rebatendo,,no,,,no,,batting_team
+bowling_team,STRING,Nome da equipe que está arremessando,,no,,,no,,bowling_team
+striker,STRING,Nome do rebatedor que enfrenta a bola,,no,,,no,,striker
+non_striker,STRING,Nome do rebatedor na outra extremidade do campo,,no,,,no,,non_striker
+bowler,STRING,Nome do arremessador que entrega a bola,,no,,,no,,bowler
+runs_off_bat,INT64,Corridas marcadas pela rebatida do batedor nesta bola,,no,,run,no,,runs_off_bat
+extras,INT64,Total de corridas extras concedidas nesta bola,,no,,run,no,,extras
+wides,INT64,Corridas concedidas por bola larga (wide) nesta bola,,no,,run,no,,wides
+noballs,INT64,Corridas concedidas por bola inválida (no-ball) nesta bola,,no,,run,no,,noballs
+byes,INT64,Corridas concedidas por byes nesta bola,,no,,run,no,,byes
+legbyes,INT64,Corridas concedidas por leg byes nesta bola,,no,,run,no,,legbyes
+penalty,INT64,Corridas de penalidade concedidas nesta bola,,no,,run,no,,penalty
+non_boundary,STRING,Indicador de que as corridas não vieram de uma fronteira,,no,,,no,Flag 0/1; rótulos documentados em cricsheet.org,non_boundary
+wicket_type,STRING,Tipo de eliminação (wicket) registrada nesta bola,,no,,,no,Rótulos documentados em cricsheet.org,wicket_type
+player_dismissed,STRING,Nome do jogador eliminado nesta bola,,no,,,no,,player_dismissed
+other_wicket_type,STRING,Tipo da segunda eliminação registrada na mesma bola,,no,,,no,Rótulos documentados em cricsheet.org,other_wicket_type
+other_player_dismissed,STRING,Nome do segundo jogador eliminado na mesma bola,,no,,,no,,other_player_dismissed
+fielder_1,STRING,Nome do primeiro defensor envolvido na eliminação,,no,,,no,,fielder_1
+fielder_2,STRING,Nome do segundo defensor envolvido na eliminação,,no,,,no,,fielder_2
+fielder_3,STRING,Nome do terceiro defensor envolvido na eliminação,,no,,,no,,fielder_3

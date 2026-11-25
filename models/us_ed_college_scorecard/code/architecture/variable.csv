@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+variable_name,STRING,Nome da variável conforme publicado pela fonte,,no,,,no,,
+source_file,STRING,Arquivo de origem da variável: institution ou field_of_study,,no,,,no,,
+table_name,STRING,Tabela deste conjunto em que a variável foi carregada,,no,,,no,,
+api_name,STRING,Nome hierárquico da variável na API do College Scorecard,,no,,,no,,
+data_type,STRING,Tipo declarado pela fonte para a variável,,no,,,no,,
+label,STRING,"Definição da variável no dicionário de dados oficial, incluindo os rótulos dos códigos quando existem",,no,,,no,,

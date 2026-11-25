@@ -1,0 +1,34 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano da partida, derivado da data de início",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de start_date,start_date
+match_id,STRING,Identificador único da partida,,no,,,no,Chave lógica da tabela,match_id
+season,STRING,Temporada da partida no formato de ano ou intervalo de anos,,no,,,no,Ex.: 2011/12,season
+start_date,DATE,Data de início da partida,,no,,,no,Data mínima entre as datas registradas,date
+end_date,DATE,Data de encerramento da partida,,no,,,no,Data máxima entre as datas registradas,date
+match_type,STRING,Tipo de partida,,no,,,no,"T20, ODI, Test, IT20, ODM, MDM",match_type
+team_type,STRING,Tipo de equipe,,no,,,no,Internacional ou clube,team_type
+gender,STRING,Gênero das equipes participantes,,no,,,no,,gender
+event,STRING,Nome do torneio ou evento da partida,,no,,,no,,event
+match_number,STRING,Número da partida dentro do evento,,no,,,no,"Identificador, não quantidade",match_number
+balls_per_over,INT64,Número de bolas por over,,no,,ball,no,,balls_per_over
+overs,INT64,Número máximo de overs por turno,,no,,over,no,Vazio para partidas do tipo Test,overs
+venue,STRING,Nome do estádio ou local da partida,,no,,,no,,venue
+city,STRING,Cidade onde a partida foi disputada,,no,,,no,,city
+team1,STRING,Nome da primeira equipe,,no,,,no,,team
+team2,STRING,Nome da segunda equipe,,no,,,no,,team
+toss_winner,STRING,Nome da equipe que venceu o sorteio inicial,,no,,,no,,toss_winner
+toss_decision,STRING,Decisão da equipe vencedora do sorteio,,no,,,no,Rebater ou arremessar,toss_decision
+player_of_match,STRING,Nome do jogador eleito melhor da partida,,no,,,no,,player_of_match
+winner,STRING,Nome da equipe vencedora,,no,,,no,,winner
+outcome,STRING,Resultado da partida sem vencedor definido,,no,,,no,"Empate (draw), empate técnico (tie) ou sem resultado (no result)",outcome
+winner_runs,INT64,Margem de vitória em corridas,,no,,run,no,,winner_runs
+winner_wickets,INT64,Margem de vitória em wickets,,no,,wicket,no,,winner_wickets
+winner_innings,STRING,Indicador de vitória por turno (innings),,no,,,no,Flag 0/1,winner_innings
+method,STRING,Método aplicado para definir o resultado,,no,,,no,Ex.: D/L (Duckworth-Lewis),method
+target_runs,INT64,Meta de corridas para a equipe que rebate por último,,no,,run,no,,target_runs
+target_overs,INT64,Número de overs disponíveis para atingir a meta,,no,,over,no,,target_overs
+neutral_venue,STRING,Indicador de local neutro,,no,,,no,Flag 0/1,neutral_venue
+umpire1,STRING,Nome do primeiro árbitro,,no,,,no,,umpire
+umpire2,STRING,Nome do segundo árbitro,,no,,,no,,umpire
+tv_umpire,STRING,Nome do árbitro de vídeo,,no,,,no,,tv_umpire
+reserve_umpire,STRING,Nome do árbitro reserva,,no,,,no,,reserve_umpire
+match_referee,STRING,Nome do juiz da partida,,no,,,no,,match_referee

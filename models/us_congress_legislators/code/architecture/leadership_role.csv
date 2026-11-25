@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_bioguide,STRING,Identificador Bioguide do legislador.,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,id.bioguide
+title,STRING,Nome do cargo de liderança.,,no,,,no,,leadership_roles[].title
+chamber,STRING,Câmara em que o cargo foi exercido (house ou senate).,,no,,,no,,leadership_roles[].chamber
+role_start,DATE,Data de início do exercício do cargo.,,no,,,no,,leadership_roles[].start
+role_end,DATE,Data de término do exercício do cargo.,,no,,,no,,leadership_roles[].end

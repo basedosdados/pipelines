@@ -1,0 +1,1220 @@
+---
+version: 2
+models:
+  - name: us_fema_openfema__disaster_declaration
+    description: >
+      Declarações de desastre emitidas sob o Stafford Act desde 1953, com uma
+      linha por área designada (condado ou equivalente) dentro de cada
+      declaração. Traz o tipo de declaração, o tipo de incidente, as datas do
+      incidente e quais programas de assistência foram declarados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, disaster_number, place_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary: [declaration_type]
+    columns:
+      - name: year
+        description: >
+          Ano de referência, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >
+          Código FIPS de duas posições do estado, distrito ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >
+          Código FIPS de cinco posições do condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '02201'
+                - '02232'
+                - '02261'
+                - '02270'
+                - '02280'
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '51515'
+                - '32073'
+                - '34055'
+                - '34085'
+                - '35101'
+                - '38109'
+                - '38141'
+                - '46155'
+                - '55161'
+                - '64002'
+                - '64005'
+                - '64040'
+                - '64060'
+                - '68010'
+                - '68030'
+                - '68040'
+                - '68070'
+                - '68080'
+                - '68090'
+                - '68110'
+                - '68120'
+                - '68140'
+                - '68150'
+                - '68160'
+                - '68170'
+                - '68180'
+                - '68190'
+                - '68300'
+                - '68310'
+                - '68320'
+                - '68330'
+                - '68340'
+                - '68390'
+                - '68400'
+                - '68410'
+                - '68420'
+                - '68430'
+                - '69010'
+      - name: disaster_number
+        description: >
+          Número sequencial que designa o evento declarado como desastre
+        tests: [not_null]
+      - name: place_code
+        description: >
+          Código interno da FEMA para a localidade designada, formado por
+          '99' seguido do código FIPS de três posições do condado
+        tests: [not_null]
+      - name: fema_declaration_string
+        description: >
+          Identificador padrão da declaração sob o Stafford Act, formado
+          pela concatenação do tipo de declaração, do número do desastre e
+          da sigla do estado
+      - name: incident_id
+        description: >
+          Identificador único do incidente; incidentes podem ou não se
+          tornar desastres declarados
+      - name: state_abbreviation
+        description: >
+          Sigla de duas letras do estado, distrito ou território
+      - name: declaration_type
+        description: >
+          Código de duas letras que distingue desastre de grande porte,
+          emergência e gestão de incêndio
+      - name: declaration_date
+        description: >
+          Data em que o desastre foi declarado
+      - name: fy_declared
+        description: >
+          Ano fiscal federal em que o desastre foi declarado
+      - name: incident_type
+        description: >
+          Tipo primário do incidente, como incêndio ou inundação
+      - name: declaration_title
+        description: >
+          Título atribuído ao desastre
+      - name: ih_program_declared
+        description: >
+          Indica se o programa Individuals and Households foi declarado para
+          este desastre
+      - name: ia_program_declared
+        description: >
+          Indica se o programa Individual Assistance foi declarado para este
+          desastre
+      - name: pa_program_declared
+        description: >
+          Indica se o programa Public Assistance foi declarado para este
+          desastre
+      - name: hm_program_declared
+        description: >
+          Indica se o programa Hazard Mitigation foi declarado para este
+          desastre
+      - name: incident_begin_date
+        description: >
+          Data de início do incidente
+      - name: incident_end_date
+        description: >
+          Data de término do incidente
+      - name: disaster_closeout_date
+        description: >
+          Data em que todas as transações financeiras de todos os programas
+          foram concluídas
+      - name: tribal_request
+        description: >
+          Indica que o pedido de declaração foi submetido diretamente ao
+          Presidente por uma nação tribal, independentemente de um estado
+      - name: fips_county_code
+        description: >
+          Código FIPS de três posições do condado dentro do estado
+      - name: designated_area
+        description: >
+          Nome da área geográfica incluída na declaração
+      - name: declaration_request_number
+        description: >
+          Número atribuído ao pedido de declaração
+      - name: declaration_request_date
+        description: >
+          Data em que o pedido de declaração foi feito
+      - name: last_ia_filing_date
+        description: >
+          Último dia para protocolar pedidos de Individual Assistance;
+          disponível apenas a partir de 1998 e somente quando o programa foi
+          aprovado
+      - name: region
+        description: >
+          Número de 1 a 10 que identifica a região da FEMA em que o desastre
+          ocorreu
+      - name: designated_incident_types
+        description: >
+          Lista separada por vírgulas dos tipos de incidente designados para
+          o desastre
+      - name: record_id
+        description: >
+          Identificador único do registro atribuído pela OpenFEMA
+  - name: us_fema_openfema__public_assistance_project
+    description: >
+      Projetos financiados pelo programa Public Assistance da FEMA desde 1998,
+      com uma linha por projeto. Traz a categoria de dano, a situação e a
+      etapa do projeto, o custo estimado e os valores federais obrigados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, gm_project_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary: [damage_category_code]
+    columns:
+      - name: year
+        description: >
+          Ano de referência, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >
+          Código FIPS de duas posições do estado, distrito ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >
+          Código FIPS de cinco posições do condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '02201'
+                - '02232'
+                - '02261'
+                - '02270'
+                - '02280'
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '51515'
+                - '32073'
+                - '34055'
+                - '34085'
+                - '35101'
+                - '38109'
+                - '38141'
+                - '46155'
+                - '55161'
+                - '64002'
+                - '64005'
+                - '64040'
+                - '64060'
+                - '68010'
+                - '68030'
+                - '68040'
+                - '68070'
+                - '68080'
+                - '68090'
+                - '68110'
+                - '68120'
+                - '68140'
+                - '68150'
+                - '68160'
+                - '68170'
+                - '68180'
+                - '68190'
+                - '68300'
+                - '68310'
+                - '68320'
+                - '68330'
+                - '68340'
+                - '68390'
+                - '68400'
+                - '68410'
+                - '68420'
+                - '68430'
+                - '69010'
+      - name: gm_project_id
+        description: >
+          Identificador numérico do projeto no sistema Grants Manager
+        tests: [not_null]
+      - name: disaster_number
+        description: >
+          Número sequencial que designa o evento declarado como desastre
+      - name: pw_number
+        description: >
+          Número sequencial que identifica o Project Worksheet
+      - name: applicant_id
+        description: >
+          Identificador do requerente do programa Public Assistance
+      - name: gm_applicant_id
+        description: >
+          Identificador numérico do requerente no sistema Grants Manager
+      - name: declaration_date
+        description: >
+          Data em que o desastre foi declarado
+      - name: incident_type
+        description: >
+          Tipo primário do incidente, como incêndio ou inundação
+      - name: application_title
+        description: >
+          Título da aplicação, em texto livre e não único
+      - name: damage_category_code
+        description: >
+          Código da categoria de trabalho elegível a reembolso pelo Public
+          Assistance
+      - name: damage_category_descrip
+        description: >
+          Descrição da categoria de dano correspondente ao código de
+          categoria
+      - name: project_status
+        description: >
+          Situação do projeto quanto à sua elegibilidade
+      - name: project_process_step
+        description: >
+          Etapa atual do projeto, da formulação ao encerramento, incluindo
+          estágios pendentes e descontinuados
+      - name: project_size
+        description: >
+          Porte do projeto, grande ou pequeno, definido por um limiar
+          monetário que afeta a gestão do caso
+      - name: county
+        description: >
+          Nome do condado, paróquia, borough ou cidade independente
+      - name: county_code
+        description: >
+          Código FIPS do condado tal como publicado na fonte
+      - name: state_abbreviation
+        description: >
+          Sigla de duas letras do estado, distrito ou território
+      - name: project_amount
+        description: >
+          Custo total estimado do projeto em dólares, sem custos
+          administrativos
+      - name: federal_share_obligated
+        description: >
+          Parcela federal do financiamento disponibilizada ao estado, em
+          dólares
+      - name: total_obligated
+        description: >
+          Parcela federal do valor elegível somada às contrapartidas
+          estadual e local e aos custos administrativos, em dólares
+      - name: last_obligation_date
+        description: >
+          Data da última obrigação de recursos do projeto
+      - name: first_obligation_date
+        description: >
+          Data da primeira obrigação de recursos do projeto
+      - name: mitigation_amount
+        description: >
+          Valor proposto aplicável à mitigação prevista na seção 406, em
+          dólares
+  - name: us_fema_openfema__nfip_claim
+    description: >
+      Sinistros redigidos do National Flood Insurance Program desde 1970, com
+      uma linha por sinistro. Traz a data da perda, a cobertura contratada, os
+      valores pagos separados por edificação, conteúdo e Increased Cost of
+      Compliance, a zona de inundação, o tipo de ocupação e a localização
+      aproximada. A FEMA publica este arquivo já redigido: latitude e
+      longitude vêm arredondadas a uma casa decimal e o endereço é reduzido a
+      cidade, código postal e grupo de quadras censitário.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, claim_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - flood_characteristics_indicator
+            - most_recent_recovery_date
+            - total_bldg_claim_pmt_recovery
+            - total_contents_claim_pmt_recovery
+            - total_icc_claim_pmt_recovery
+            - total_salvage_recovery
+            - total_subrogation_recovery
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary:
+            - basement_enclosure_crawlspace_type
+            - crs_class_code
+            - elevation_certificate_indicator
+            - rated_flood_zone
+            - location_of_contents
+            - number_of_floors_in_insured_building
+            - obstruction_type
+            - occupancy_type
+            - rate_method
+            - building_deductible_code
+            - cause_of_damage
+            - condominium_coverage_type_code
+            - contents_deductible_code
+            - disaster_assistance_coverage_required
+            - flood_characteristics_indicator
+            - non_payment_reason_contents
+            - non_payment_reason_building
+            - replacement_cost_basis
+            - flood_zone_current
+            - building_description_code
+            - foundation_type
+    columns:
+      - name: year
+        description: >
+          Ano de referência, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbreviation
+        description: >
+          Sigla de duas letras do estado, distrito ou território
+      - name: county_id
+        description: >
+          Código FIPS de cinco posições do condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '02201'
+                - '02232'
+                - '02261'
+                - '02270'
+                - '02280'
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '51515'
+                - '32073'
+                - '34055'
+                - '34085'
+                - '35101'
+                - '38109'
+                - '38141'
+                - '46155'
+                - '55161'
+                - '64002'
+                - '64005'
+                - '64040'
+                - '64060'
+                - '68010'
+                - '68030'
+                - '68040'
+                - '68070'
+                - '68080'
+                - '68090'
+                - '68110'
+                - '68120'
+                - '68140'
+                - '68150'
+                - '68160'
+                - '68170'
+                - '68180'
+                - '68190'
+                - '68300'
+                - '68310'
+                - '68320'
+                - '68330'
+                - '68340'
+                - '68390'
+                - '68400'
+                - '68410'
+                - '68420'
+                - '68430'
+                - '69010'
+      - name: census_tract_id
+        description: >
+          Código de onze posições do setor censitário (census tract)
+      - name: census_block_group_id
+        description: >
+          Código de doze posições do grupo de quadras censitário (block
+          group)
+      - name: claim_id
+        description: >
+          Identificador único do sinistro atribuído pela OpenFEMA
+        tests: [not_null]
+      - name: date_of_loss
+        description: >
+          Data em que a água entrou pela primeira vez na edificação segurada
+      - name: agriculture_structure_indicator
+        description: >
+          Indica se o imóvel foi declarado como estrutura agrícola na
+          proposta
+      - name: as_of_date
+        description: >
+          Data de vigência dos dados no arquivo: quando o registro foi
+          criado ou atualizado pela última vez no sistema de origem
+      - name: basement_enclosure_crawlspace_type
+        description: >
+          Tipo de porão, área fechada ou vão sanitário do imóvel segurado
+      - name: policy_count
+        description: >
+          Número de unidades seguradas em situação ativa
+      - name: crs_class_code
+        description: >
+          Classificação do Community Rating System usada para tarifar a
+          apólice, que determina o desconto no prêmio
+      - name: elevated_building_indicator
+        description: >
+          Indica se o imóvel atende à definição de edificação elevada do
+          NFIP
+      - name: elevation_certificate_indicator
+        description: >
+          Indica se a apólice foi tarifada com Elevation Certificate
+      - name: elevation_difference
+        description: >
+          Diferença em pés entre a elevação do piso mais baixo usado na
+          tarifação e a cota de inundação base
+      - name: base_flood_elevation
+        description: >
+          Cota de inundação base em pés, elevação com 1% de chance anual de
+          ser atingida ou superada
+      - name: rated_flood_zone
+        description: >
+          Zona de inundação do FIRM usada para tarifar o imóvel segurado
+      - name: house_of_worship_indicator
+        description: >
+          Indica se o imóvel foi declarado como templo religioso na proposta
+      - name: location_of_contents
+        description: >
+          Código que indica onde o conteúdo segurado está situado dentro da
+          edificação
+      - name: lowest_adjacent_grade
+        description: >
+          Cota natural mais baixa adjacente à estrutura segurada antes de
+          escavação ou aterro, em pés
+      - name: lowest_floor_elevation
+        description: >
+          Elevação em pés do piso mais baixo da edificação, incluindo porão,
+          área fechada ou vão sanitário
+      - name: number_of_floors_in_insured_building
+        description: >
+          Código que indica o número de pavimentos da edificação segurada
+      - name: non_profit_indicator
+        description: >
+          Indica se o imóvel foi declarado como pertencente a entidade sem
+          fins lucrativos na proposta
+      - name: obstruction_type
+        description: >
+          Código que descreve o tipo de obstrução presente sob uma
+          edificação elevada
+      - name: occupancy_type
+        description: >
+          Código que indica o uso e o tipo de ocupação da estrutura segurada
+      - name: original_construction_date
+        description: >
+          Data original de construção da edificação
+      - name: original_nb_date
+        description: >
+          Data original de emissão da apólice de inundação
+      - name: amount_paid_on_building_claim
+        description: >
+          Valor pago pelo sinistro da edificação, em dólares
+      - name: amount_paid_on_contents_claim
+        description: >
+          Valor pago pelo sinistro do conteúdo, em dólares
+      - name: amount_paid_on_increased_cost_of_compliance_claim
+        description: >
+          Valor pago pela cobertura Increased Cost of Compliance, em dólares
+      - name: post_firm_construction_indicator
+        description: >
+          Indica se a construção começou após a publicação do FIRM
+      - name: rate_method
+        description: >
+          Código do método de tarifação aplicado à apólice
+      - name: small_business_indicator_building
+        description: >
+          Indica se o segurado é uma pequena empresa
+      - name: total_building_insurance_coverage
+        description: >
+          Importância segurada da edificação, em dólares inteiros
+      - name: total_contents_insurance_coverage
+        description: >
+          Importância segurada do conteúdo, em dólares inteiros
+      - name: primary_residence_indicator
+        description: >
+          Indica se a edificação é residência principal do segurado
+      - name: building_damage_amount
+        description: >
+          Valor em dinheiro do dano à edificação principal, em dólares
+          inteiros
+      - name: building_deductible_code
+        description: >
+          Código da franquia aplicável à edificação principal e às
+          acessórias
+      - name: net_building_payment_amount
+        description: >
+          Valor líquido pago ao segurado pela edificação, descontadas as
+          recuperações, em dólares
+      - name: building_property_value
+        description: >
+          Valor em dinheiro da edificação principal antes da inundação,
+          estimado por regulador, em dólares inteiros
+      - name: cause_of_damage
+        description: >
+          Código do modo pelo qual o imóvel e o conteúdo foram danificados
+      - name: condominium_coverage_type_code
+        description: >
+          Código do tipo de cobertura de condomínio contratada para a
+          edificação
+      - name: contents_damage_amount
+        description: >
+          Valor em dinheiro do dano ao conteúdo, em dólares inteiros
+      - name: contents_deductible_code
+        description: >
+          Código da franquia aplicável ao conteúdo
+      - name: net_contents_payment_amount
+        description: >
+          Valor líquido pago ao segurado pelo conteúdo, descontadas as
+          recuperações, em dólares
+      - name: contents_property_value
+        description: >
+          Valor em dinheiro do conteúdo antes da inundação, estimado por
+          regulador, em dólares inteiros
+      - name: disaster_assistance_coverage_required
+        description: >
+          Código da agência federal que exigiu a contratação do seguro de
+          inundação como condição de auxílio em desastre
+      - name: event_designation_number
+        description: >
+          Identificador único do evento catastrófico de inundação, que
+          substituiu o FICO number
+      - name: fico_number
+        description: >
+          Número atribuído no momento de um evento significativo de
+          inundação para identificar cada estado afetado
+      - name: flood_characteristics_indicator
+        description: >
+          Código das características das águas da inundação
+      - name: flood_water_duration
+        description: >
+          Número de horas em que a água permaneceu na edificação segurada
+      - name: floodproofed_indicator
+        description: >
+          Indica se a estrutura segurada é à prova de inundação
+      - name: flood_event
+        description: >
+          Nome atribuído à catástrofe de inundação
+      - name: icc_coverage
+        description: >
+          Importância segurada da cobertura Increased Cost of Compliance da
+          edificação, em dólares inteiros
+      - name: net_icc_payment_amount
+        description: >
+          Valor líquido pago ao segurado pela cobertura Increased Cost of
+          Compliance, em dólares
+      - name: nfip_rated_community_number
+        description: >
+          Código de seis posições da comunidade NFIP usada na tarifação
+      - name: nfip_community_number_current
+        description: >
+          Código de seis posições da comunidade NFIP atual do imóvel
+      - name: nfip_community_name
+        description: >
+          Nome da entidade político-administrativa responsável por adotar e
+          fazer cumprir as normas de planície de inundação
+      - name: non_payment_reason_contents
+        description: >
+          Código do motivo pelo qual o sinistro do conteúdo não foi pago
+      - name: non_payment_reason_building
+        description: >
+          Código do motivo pelo qual o sinistro da edificação não foi pago
+      - name: number_of_units
+        description: >
+          Número de unidades residenciais e não residenciais cobertas pela
+          apólice coletiva de condomínio
+      - name: building_replacement_cost
+        description: >
+          Custo estimado de reposição da edificação em dólares inteiros,
+          conforme informado pela seguradora
+      - name: contents_replacement_cost
+        description: >
+          Custo estimado de reposição do conteúdo em dólares inteiros,
+          conforme informado pela seguradora
+      - name: replacement_cost_basis
+        description: >
+          Indica se o sinistro da edificação foi liquidado com base no custo
+          de reposição
+      - name: state_owned_indicator
+        description: >
+          Indica se o imóvel segurado pertence ao estado
+      - name: water_depth
+        description: >
+          Profundidade da água da inundação, em polegadas
+      - name: flood_zone_current
+        description: >
+          Zona de inundação do FIRM em que o imóvel segurado se situa
+          atualmente
+      - name: building_description_code
+        description: >
+          Código que descreve o uso da edificação segurada
+      - name: rental_property_indicator
+        description: >
+          Indica se o imóvel é destinado a locação
+      - name: reported_city
+        description: >
+          Cidade do imóvel segurado conforme informada pelas seguradoras
+          parceiras Write Your Own
+      - name: reported_zip_code
+        description: >
+          Código postal de cinco dígitos do imóvel segurado conforme
+          informado pelas seguradoras parceiras
+      - name: latitude
+        description: >
+          Latitude aproximada da edificação segurada, arredondada a uma casa
+          decimal pela FEMA
+      - name: longitude
+        description: >
+          Longitude aproximada da edificação segurada, arredondada a uma
+          casa decimal pela FEMA
+      - name: foundation_type
+        description: >
+          Código do tipo de fundação da edificação
+      - name: open_date
+        description: >
+          Data de abertura do sinistro no sistema
+      - name: most_recent_recovery_date
+        description: >
+          Data em que um pagamento a maior foi recuperado do segurado
+      - name: exterior_water_depth
+        description: >
+          Profundidade da água em polegadas medida por marcas externas, em
+          relação à cota adjacente mais baixa
+      - name: interior_water_depth
+        description: >
+          Profundidade da água em polegadas medida por marcas internas, em
+          relação à cota adjacente mais baixa
+      - name: most_recent_payment_date
+        description: >
+          Data do pagamento mais recente emitido ao segurado
+      - name: pre_firm_construction_indicator
+        description: >
+          Indica se a construção começou antes da publicação do FIRM
+      - name: total_salvage_recovery
+        description: >
+          Valor recuperado com a venda ou destinação de bens danificados
+          considerados aproveitáveis, em dólares
+      - name: total_bldg_claim_pmt_recovery
+        description: >
+          Valor recuperado do valor residual de materiais ou componentes
+          danificados da edificação, em dólares
+      - name: total_contents_claim_pmt_recovery
+        description: >
+          Valor recuperado do valor residual de bens do conteúdo
+          danificados, em dólares
+      - name: total_icc_claim_pmt_recovery
+        description: >
+          Valor recuperado de pagamento indevido da cobertura Increased Cost
+          of Compliance, em dólares
+      - name: total_subrogation_recovery
+        description: >
+          Valor recuperado pelo NFIP junto a terceiro responsável pelo
+          sinistro, em dólares
+  - name: us_fema_openfema__nfip_policy
+    description: >
+      Apólices redigidas do National Flood Insurance Program em vigor desde
+      2009, com uma linha por apólice. Traz as datas de vigência, a
+      importância segurada de edificação e conteúdo, o prêmio e suas
+      componentes, a base de tarifação, a zona de inundação e a localização
+      aproximada. A FEMA publica este arquivo já redigido, nos mesmos termos
+      do arquivo de sinistros.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, policy_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - additional_building_rate
+            - additional_contents_rate
+            - basic_building_rate
+            - basic_contents_rate
+            - community_probation_surcharge
+            - insurance_to_value_code
+            - subsidized_rate_type
+            - cancellation_date_of_flood_policy
+            - cancellation_voidance_reason_code
+          config:
+            where: year = 2024
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary:
+            - basement_enclosure_crawlspace_type
+            - condominium_coverage_type_code
+            - crs_class_code
+            - building_deductible_code
+            - contents_deductible_code
+            - elevation_certificate_indicator
+            - rated_flood_zone
+            - location_of_contents
+            - number_of_floors_in_insured_building
+            - obstruction_type
+            - occupancy_type
+            - policy_term_indicator
+            - rate_method
+            - regular_emergency_program_indicator
+            - cancellation_voidance_reason_code
+            - subsidized_rate_type
+            - premium_payment_indicator
+            - enclosure_type_code
+            - building_description_code
+            - insurance_to_value_code
+            - waiting_period_type
+            - rollover_transfer_code
+            - disaster_assistance_coverage_required
+            - grandfathering_type_code
+            - flood_zone_current
+            - building_purpose
+            - building_over_water_type
+            - foundation_type
+          config:
+            where: year = 2024
+    columns:
+      - name: year
+        description: >
+          Ano de referência, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbreviation
+        description: >
+          Sigla de duas letras do estado, distrito ou território
+      - name: county_id
+        description: >
+          Código FIPS de cinco posições do condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '02201'
+                - '02232'
+                - '02261'
+                - '02270'
+                - '02280'
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '51515'
+                - '32073'
+                - '34055'
+                - '34085'
+                - '35101'
+                - '38109'
+                - '38141'
+                - '46155'
+                - '55161'
+                - '64002'
+                - '64005'
+                - '64040'
+                - '64060'
+                - '68010'
+                - '68030'
+                - '68040'
+                - '68070'
+                - '68080'
+                - '68090'
+                - '68110'
+                - '68120'
+                - '68140'
+                - '68150'
+                - '68160'
+                - '68170'
+                - '68180'
+                - '68190'
+                - '68300'
+                - '68310'
+                - '68320'
+                - '68330'
+                - '68340'
+                - '68390'
+                - '68400'
+                - '68410'
+                - '68420'
+                - '68430'
+                - '69010'
+      - name: census_tract_id
+        description: >
+          Código de onze posições do setor censitário (census tract)
+      - name: census_block_group_id
+        description: >
+          Código de doze posições do grupo de quadras censitário (block
+          group)
+      - name: policy_id
+        description: >
+          Identificador único da apólice atribuído pela OpenFEMA
+        tests: [not_null]
+      - name: policy_effective_date
+        description: >
+          Data de início de vigência da apólice de inundação
+      - name: agriculture_structure_indicator
+        description: >
+          Indica se o imóvel foi declarado como estrutura agrícola na
+          proposta
+      - name: as_of_date
+        description: >
+          Data de vigência dos dados no arquivo: quando o registro foi
+          criado ou atualizado pela última vez no sistema de origem
+      - name: base_flood_elevation
+        description: >
+          Cota de inundação base em pés, elevação com 1% de chance anual de
+          ser atingida ou superada
+      - name: basement_enclosure_crawlspace_type
+        description: >
+          Tipo de porão, área fechada ou vão sanitário do imóvel segurado
+      - name: cancellation_date_of_flood_policy
+        description: >
+          Data de cancelamento da apólice de inundação, quando houver
+      - name: condominium_coverage_type_code
+        description: >
+          Código do tipo de cobertura de condomínio contratada para a
+          edificação
+      - name: construction
+        description: >
+          Indica se a edificação está em obras
+      - name: crs_class_code
+        description: >
+          Classificação do Community Rating System usada para tarifar a
+          apólice, que determina o desconto no prêmio
+      - name: building_deductible_code
+        description: >
+          Código da franquia aplicável à edificação principal e às
+          acessórias
+      - name: contents_deductible_code
+        description: >
+          Código da franquia aplicável ao conteúdo
+      - name: elevated_building_indicator
+        description: >
+          Indica se o imóvel atende à definição de edificação elevada do
+          NFIP
+      - name: elevation_certificate_indicator
+        description: >
+          Indica se a apólice foi tarifada com Elevation Certificate
+      - name: elevation_difference
+        description: >
+          Diferença em pés entre a elevação do piso mais baixo usado na
+          tarifação e a cota de inundação base
+      - name: federal_policy_fee
+        description: >
+          Valor da taxa federal da apólice, em dólares
+      - name: rated_flood_zone
+        description: >
+          Zona de inundação do FIRM usada para tarifar o imóvel segurado
+      - name: hfiaa_surcharge
+        description: >
+          Sobretaxa anual instituída pelo HFIAA, obrigatória em apólices
+          novas e renovadas a partir de 1 de abril de 2015, em dólares
+      - name: house_of_worship_indicator
+        description: >
+          Indica se o imóvel foi declarado como templo religioso na proposta
+      - name: location_of_contents
+        description: >
+          Código que indica onde o conteúdo segurado está situado dentro da
+          edificação
+      - name: lowest_adjacent_grade
+        description: >
+          Cota natural mais baixa adjacente à estrutura segurada antes de
+          escavação ou aterro, em pés
+      - name: lowest_floor_elevation
+        description: >
+          Elevação em pés do piso mais baixo da edificação, incluindo porão,
+          área fechada ou vão sanitário
+      - name: non_profit_indicator
+        description: >
+          Indica se o imóvel foi declarado como pertencente a entidade sem
+          fins lucrativos na proposta
+      - name: number_of_floors_in_insured_building
+        description: >
+          Código que indica o número de pavimentos da edificação segurada
+      - name: obstruction_type
+        description: >
+          Código que descreve o tipo de obstrução presente sob uma
+          edificação elevada
+      - name: occupancy_type
+        description: >
+          Código que indica o uso e o tipo de ocupação da estrutura segurada
+      - name: original_construction_date
+        description: >
+          Data original de construção da edificação
+      - name: original_nb_date
+        description: >
+          Data original de emissão da apólice de inundação
+      - name: policy_cost
+        description: >
+          Custo total da apólice em dólares, somando prêmio calculado,
+          contribuição ao fundo de reserva, taxa federal e sobretaxa HFIAA
+      - name: policy_count
+        description: >
+          Número de unidades seguradas em situação ativa
+      - name: policy_termination_date
+        description: >
+          Data em que a apólice deixou de vigorar, por cancelamento ou por
+          decurso do prazo
+      - name: policy_term_indicator
+        description: >
+          Código do prazo de vigência da apólice
+      - name: post_firm_construction_indicator
+        description: >
+          Indica se a construção começou após a publicação do FIRM
+      - name: primary_residence_indicator
+        description: >
+          Indica se a edificação é residência principal do segurado
+      - name: rate_method
+        description: >
+          Código do método de tarifação aplicado à apólice
+      - name: regular_emergency_program_indicator
+        description: >
+          Código da fase do NFIP em que a comunidade participa, que
+          determina a cobertura disponível
+      - name: small_business_indicator_building
+        description: >
+          Indica se o segurado é uma pequena empresa
+      - name: total_building_insurance_coverage
+        description: >
+          Importância segurada da edificação, em dólares inteiros
+      - name: total_contents_insurance_coverage
+        description: >
+          Importância segurada do conteúdo, em dólares inteiros
+      - name: total_insurance_premium_of_the_policy
+        description: >
+          Prêmio total da apólice em dólares inteiros; valores negativos
+          indicam restituição
+      - name: cancellation_voidance_reason_code
+        description: >
+          Código do motivo de cancelamento ou anulação da apólice
+      - name: subsidized_rate_type
+        description: >
+          Código que indica se a apólice foi tarifada com subsídio e de que
+          tipo
+      - name: icc_premium
+        description: >
+          Prêmio da cobertura Increased Cost of Compliance antes de
+          descontos, em dólares inteiros
+      - name: reserve_fund_assessment
+        description: >
+          Contribuição ao fundo de reserva informada pela seguradora, em
+          dólares
+      - name: community_probation_surcharge
+        description: >
+          Sobretaxa de probation calculada pela seguradora para tarifar a
+          apólice, em dólares inteiros
+      - name: premium_payment_indicator
+        description: >
+          Código do meio de pagamento usado para contratar a apólice
+      - name: building_replacement_cost
+        description: >
+          Custo estimado de reposição da edificação em dólares inteiros,
+          conforme informado pela seguradora
+      - name: basic_building_rate
+        description: >
+          Taxa básica da edificação escolhida pela seguradora
+      - name: additional_building_rate
+        description: >
+          Taxa adicional da edificação escolhida pela seguradora
+      - name: basic_contents_rate
+        description: >
+          Taxa básica do conteúdo escolhida pela seguradora
+      - name: additional_contents_rate
+        description: >
+          Taxa adicional do conteúdo escolhida pela seguradora
+      - name: enclosure_type_code
+        description: >
+          Código que indica a existência e o tipo de área fechada abaixo do
+          piso elevado mais baixo
+      - name: building_description_code
+        description: >
+          Código que descreve o uso da edificação segurada
+      - name: insurance_to_value_code
+        description: >
+          Código da razão entre a cobertura contratada para a edificação e
+          seu custo de reposição
+      - name: post_firm_vzone_indicator
+        description: >
+          Indica, para a tarifação de zona V pós-FIRM de 1981, se foi
+          apresentada certificação nos termos da seção 60.3(e)(4)
+      - name: floodproofed_indicator
+        description: >
+          Indica se a estrutura segurada é à prova de inundação
+      - name: waiting_period_type
+        description: >
+          Código do tipo de carência aplicado à emissão da apólice
+      - name: rollover_transfer_code
+        description: >
+          Código do tipo de novo negócio informado pela seguradora
+      - name: endorsement_effective_date
+        description: >
+          Data em que um endosso da apólice entra em vigor
+      - name: property_purchase_date
+        description: >
+          Data em que o imóvel segurado foi adquirido
+      - name: rental_property_indicator
+        description: >
+          Indica se o imóvel é destinado a locação
+      - name: tenant_indicator
+        description: >
+          Indica que o segurado é locatário e não proprietário do imóvel
+      - name: state_owned_indicator
+        description: >
+          Indica se o imóvel segurado pertence ao estado
+      - name: disaster_assistance_coverage_required
+        description: >
+          Código da agência federal que exigiu a contratação do seguro de
+          inundação como condição de auxílio em desastre
+      - name: mandatory_purchase_flag
+        description: >
+          Indica se a apólice é exigida pelo credor hipotecário
+      - name: grandfathering_type_code
+        description: >
+          Código do tipo de grandfathering aplicado à tarifação, quando
+          houver
+      - name: nfip_rated_community_number
+        description: >
+          Código de seis posições da comunidade NFIP usada na tarifação
+      - name: nfip_community_number_current
+        description: >
+          Código de seis posições da comunidade NFIP atual do imóvel
+      - name: nfip_community_name
+        description: >
+          Nome da entidade político-administrativa responsável por adotar e
+          fazer cumprir as normas de planície de inundação
+      - name: program_type_indicator
+        description: >
+          Indica se o imóvel se qualifica para a cobertura do programa de
+          emergência em vez da cobertura regular
+      - name: map_panel_number
+        description: >
+          Número do painel do FIRM do imóvel, corrente ou usado na tarifação
+      - name: map_panel_suffix
+        description: >
+          Sufixo do painel do FIRM do imóvel, corrente ou usado na tarifação
+      - name: flood_zone_current
+        description: >
+          Zona de inundação do FIRM em que o imóvel segurado se situa
+          atualmente
+      - name: fema_region
+        description: >
+          Número da região da FEMA em que o imóvel segurado se situa
+      - name: reported_city
+        description: >
+          Cidade do imóvel segurado conforme informada pelas seguradoras
+          parceiras Write Your Own
+      - name: reported_zip_code
+        description: >
+          Código postal de cinco dígitos do imóvel segurado conforme
+          informado pelas seguradoras parceiras
+      - name: latitude
+        description: >
+          Latitude aproximada da edificação segurada, arredondada a uma casa
+          decimal pela FEMA
+      - name: longitude
+        description: >
+          Longitude aproximada da edificação segurada, arredondada a uma
+          casa decimal pela FEMA
+      - name: building_on_federal_land
+        description: >
+          Indica se a edificação atende à definição do NFIP de estar situada
+          em terra federal
+      - name: building_purpose
+        description: >
+          Código que indica se a edificação é residencial, não residencial
+          ou de uso misto
+      - name: seasonally_occupied
+        description: >
+          Indica se a edificação atende à definição de ocupação sazonal do
+          NFIP
+      - name: full_risk_premium
+        description: >
+          Prêmio devido pelo imóvel com base no risco de inundação apurado e
+          no custo integral das perdas previstas, em dólares
+      - name: building_over_water_type
+        description: >
+          Código que indica se a edificação segurada está total, parcial ou
+          nada sobre a água
+      - name: foundation_type
+        description: >
+          Código do tipo de fundação da edificação
+      - name: pre_firm_construction_indicator
+        description: >
+          Indica se a construção começou antes da publicação do FIRM
+  - name: us_fema_openfema__dicionario
+    description: >
+      Dicionário de códigos das colunas categóricas do conjunto, com uma linha
+      por par tabela-coluna-código. Os rótulos estão em inglês, a língua da
+      fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela a que o código se aplica
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna a que o código se aplica
+        tests: [not_null]
+      - name: chave
+        description: >
+          Código, tal como armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal do código
+      - name: valor
+        description: >-
+          Rótulo do código, em inglês, a língua da fonte

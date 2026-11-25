@@ -41,11 +41,13 @@ arch = pd.read_csv(
 
 renames = {
     i["original_name_2020"]: i["name"]
+    # pyrefly: ignore [bad-index]
     for i in arch.loc[
         (arch["name"] != "(deletado)") & (arch["original_name_2020"].notna()),
     ][["original_name_2020", "name"]].to_dict("records")
 }
 
+# pyrefly: ignore [bad-index]
 arch_cols = arch.loc[
     (arch["name"] != "(deletado)") & (arch["original_name_2020"].notna()),
 ]["name"].to_list()
@@ -68,6 +70,7 @@ df = pd.concat([i for _, i in dfs.items()])
 
 del dfs  # need memory
 
+# pyrefly: ignore [bad-index]
 all_cols = arch.loc[(arch["name"] != "(deletado)"),]["name"].to_list()
 
 cols_missing = list(set(all_cols) - set(df.columns))

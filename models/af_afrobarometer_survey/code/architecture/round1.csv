@@ -1,0 +1,145 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+country_iso3_code,STRING,Country ISO3 code (derived from COUNTRY).,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
+refnumb,INT64,Reference number,,no,,,no,,refnumb
+casenumb,STRING,Respondent number,,no,,,no,,casenumb
+identity,INT64,Identity,,yes,,,no,,identity
+supdem,INT64,suppdemo/Support for democracy,,yes,,,no,,supdem
+supold,FLOAT64,prevsyst/Previous System,,yes,,,no,,supold
+supnow,FLOAT64,elecsyst/Elections and parties/Rating of current government,,yes,,,no,,supnow
+supfut,FLOAT64,futsyst/Future system,,yes,,,no,,supfut
+rejone,INT64,oneprule/One political party,,yes,,,no,,rejone
+rejtrd,INT64,tradrule/Traditional system of gov. by kings and chiefs,,yes,,,no,,rejtrd
+rejmil,INT64,milirule/Army come in,,yes,,,no,,rejmil
+rejdic,INT64,presdeci/President could decide everything?,,yes,,,no,,rejdic
+rejexp,INT64,exptrule/Government by experts,,yes,,,no,,rejexp
+dmpext,INT64,extndemo/Is this country a democracy?,,yes,,,no,,dmpext
+dmpsat,INT64,satisdem/Satisfaction with democracy,,yes,,,no,,dmpsat
+dmpvot,INT64,votematt/Not get any better if vote?,,yes,,,no,,dmpvot
+dmpsay,INT64,caresay/Have to be careful what you do and say with regards to polit,,yes,,,no,,dmpsay
+defnew,INT64,donews/Shut newspapers,,yes,,,no,,defnew
+defjug,INT64,dojudges/Dismiss judges,,yes,,,no,,defjug
+defele,INT64,doelecs/Cancel elections/and suspend the parliament,,yes,,,no,,defele
+spamar,INT64,markpric/Market pricing?,,yes,,,no,,spamar
+spafee,INT64,schlfees/School fees?/Health fees?,,yes,,,no,,spafee
+sparet,INT64,csjobs/Civil servants jobs?,,yes,,,no,,sparet
+spaprv,INT64,privatiz/Privatize government enterprises?,,yes,,,no,,spaprv
+sapknw,INT64,knowsap/Heard about SAP?,,yes,,,no,,sapknw
+sapmin,INT64,helphurt/Minority have suffered?,,yes,,,no,,sapmin
+sapsat,INT64,satissap/Satisfied SAP/SAP's effect on your life,,yes,,,no,,sapsat
+occup,INT64,Occupation,,yes,,,no,,occup
+gender,INT64,Gender,,yes,,,no,,gender
+age,INT64,Age,,yes,,,no,,age
+educ,INT64,Education,,yes,,,no,,educ
+unemp,INT64,Unemployed,,yes,,,no,,unemp
+urbrur,INT64,Urban or Rural,,yes,,,no,,urbrur
+medrad,INT64,radnews/Radio news,,yes,,,no,,medrad
+medtv,INT64,tvnews/TV news,,yes,,,no,,medtv
+mednew,INT64,newspap/Newspapers,,yes,,,no,,mednew
+povfoo,INT64,wofood/Without food,,yes,,,no,,povfoo
+povwat,INT64,wowater/Without Water,,yes,,,no,,povwat
+povhth,INT64,wohealth/Without healthcare,,yes,,,no,,povhth
+povelc,INT64,woelecty/how often have you gone without electricity in your home?,,yes,,,no,,povelc
+povinc,INT64,wocash/How often have you gone without a cash income?,,yes,,,no,,povinc
+hltmen,INT64,tired/Routine affected by tired,,yes,,,no,,hltmen
+aidexp,INT64,knowaids/do you know of a close friend or relative who died of AIDS?,,yes,,,no,,aidexp
+demoe1,INT64,meandemo/Meaning of democracy,,yes,,,no,,demoe1
+demoe2,INT64,meandem2/Meaning of democracy,,yes,,,no,,demoe2
+demoe3,INT64,meandem3/Meaning of democracy,,yes,,,no,,demoe3
+demmaj,INT64,meanmaj/democratic society and majority rule?,,yes,,,no,,demmaj
+demspc,INT64,meanfree/Democratic society and freedom to criticise the govt?,,yes,,,no,,demspc
+demele,INT64,meanelec/democratic society and regular elections?,,yes,,,no,,demele
+demmpd,INT64,meanprty/Democratic society and at least 2 parties competing?,,yes,,,no,,demmpd
+demnec,INT64,meanbasc/democratic society and basic necessities?,,yes,,,no,,demnec
+dememp,INT64,meanjobs/Democratic society and jobs for everyone?,,yes,,,no,,dememp
+demedu,INT64,meaneduc/democratic society and equal education?,,yes,,,no,,demedu
+demgap,INT64,meaneqal/Democratic society and small income gap between rich and poo,,yes,,,no,,demgap
+marsuc,INT64,respwell/Responsible for well being?,,yes,,,no,,marsuc
+marjob,INT64,respjob/Responsible providing employment?,,yes,,,no,,marjob
+marear,INT64,freeearn/Free to earn?,,yes,,,no,,marear
+marrsk,INT64,startbus/Start new business?,,yes,,,no,,marrsk
+marhse,INT64,resphous/Building house,,yes,,,no,,marhse
+marcdt,INT64,respcrdt/Agricultural credit,,yes,,,no,,marcdt
+marcom,INT64,respprim/Producing and marketing primary commodity,,yes,,,no,,marcom
+marsch,INT64,respscho/Providing school/clinics,,yes,,,no,,marsch
+maremp,INT64,respjobs/Creating jobs,,yes,,,no,,maremp
+marcrm,INT64,respcrim/Reducing crime,,yes,,,no,,marcrm
+sctrust,INT64,trustgen/Trust generally,,yes,,,no,,sctrust
+scint,INT64,intrpols/Interested in politics/follow what happens in govt and public affairs,,yes,,,no,,scint
+scdsc,INT64,dscspols/Discuss politics,,yes,,,no,,scdsc
+scund,INT64,undergov/Understand government?,,yes,,,no,,scund
+sckloc,INT64,nmcllr/Name local government representative,,yes,,,no,,sckloc
+sckmp,INT64,nmmp/Name Legislative representative,,yes,,,no,,sckmp
+sckfin,INT64,nmminfin/Name Finance Minister,,yes,,,no,,sckfin
+sckvp,INT64,nmvpres/Name Vice-President,,yes,,,no,,sckvp
+nidprd,INT64,citproud/Proud of country citizenship,,yes,,,no,,nidprd
+nidchl,INT64,citchild/Children should think of themselves as national citizens,,yes,,,no,,nidchl
+gidprd,INT64,ideproud/Feel proud to be part of identity group,,yes,,,no,,gidprd
+gidchl,INT64,idechild/Want children to think of themselves as part of identity group,,yes,,,no,,gidchl
+gidbes,INT64,idebest/People belonging to this identity group are the best,,yes,,,no,,gidbes
+gidstr,INT64,ideties/Stronger ties to group than to other national citizens,,yes,,,no,,gidstr
+pfesol,INT64,adeqliv/Adequate living standard,,yes,,,no,,pfesol
+pfeemp,INT64,handjobs/Handling jobs,,yes,,,no,,pfeemp
+pfeprc,INT64,handpric/Handling prices,,yes,,,no,,pfeprc
+pfegap,INT64,handgap/Handling gaps,,yes,,,no,,pfegap
+pfenow,INT64,econcond/Satisfied national economy,,yes,,,no,,pfenow
+pfepas,INT64,"satpast/Past economic satisfaction, since 1 year ago (EW egocentric, SAB sociotropic)",,yes,,,no,,pfepas
+pfefut,INT64,satfut/life's prospects/country economic conditions in one year,,yes,,,no,,pfefut
+pfeerd,INT64,livecond/Conditions better/worse,,yes,,,no,,pfeerd
+pfegrp,INT64,ideconds/Identity group economic conditions compared to others,,yes,,,no,,pfegrp
+pfrsay,INT64,freesay/Free to say,,yes,,,no,,pfrsay
+pfrass,INT64,freejoin/Join any organization,,yes,,,no,,pfrass
+pfrvot,INT64,freechse/Free to choose,,yes,,,no,,pfrvot
+pfreql,INT64,equaltrt/Treated equally,,yes,,,no,,pfreql
+pfrele,INT64,elhonest/Elections honest,,yes,,,no,,pfrele
+pfrgpt,INT64,citequal/All treated as equal citizens,,yes,,,no,,pfrgpt
+pfrfai,INT64,idenfair/Identity treated fairly,,yes,,,no,,pfrfai
+pfrall,INT64,allgrps/Govt represents interests of all citizens or of just one group?,,yes,,,no,,pfrall
+pfrgpr,INT64,whchgrp/Which group's interest is mostly represented by govt.?,,yes,,,no,,pfrgpr
+pfpcrm,INT64,handcrim/Handling crime,,yes,,,no,,pfpcrm
+pfpsaf,INT64,safepast/Safety five years ago,,yes,,,no,,pfpsaf
+pfpcr1,INT64,handcorr/Handling corruption,,yes,,,no,,pfpcr1
+pfpcr2,INT64,corrupti/Bribery not common/How many involved in corruption?,,yes,,,no,,pfpcr2
+pfpcr3,INT64,correlec/corruption among elected leaders,,yes,,,no,,pfpcr3
+pfpcr4,INT64,corrserv/corruption among civil servants,,yes,,,no,,pfpcr4
+pfpcr5,INT64,corrwrse/Corruption worse under old military gov.,,yes,,,no,,pfpcr5
+trspre,INT64,trpres/Trust the president to do what is right?,,yes,,,no,,trspre
+trspol,INT64,trpolice/Trust police,,yes,,,no,,trspol
+trscts,INT64,trcourts/Trust courts of law,,yes,,,no,,trscts
+trsarm,INT64,trarmy/Trust army,,yes,,,no,,trsarm
+trsnec,INT64,trelcco/Trust electoral commission,,yes,,,no,,trsnec
+trsbrd,INT64,trbroad/Trust national broadcasting,,yes,,,no,,trsbrd
+pfgpre,INT64,presperf/Performance of President,,yes,,,no,,pfgpre
+pfgmp,INT64,mpperf/Legislative representative performance,,yes,,,no,,pfgmp
+pfgloc,INT64,cllrperf/Local government representative performance,,yes,,,no,,pfgloc
+pfgedu,INT64,handeduc/Handling education,,yes,,,no,,pfgedu
+pfghlt,INT64,handheal/Handling basic health,,yes,,,no,,pfghlt
+pfghiv,INT64,handaids/Handling AIDS,,yes,,,no,,pfghiv
+mip1,INT64,probctry/Most important problems #1 (condensed),,yes,,,no,,mip1
+mip2,INT64,probctr2/Most important problems #2 (condensed),,yes,,,no,,mip2
+legcon,INT64,convals/Constitution expresses values and aspirations of citizens,,yes,,,no,,legcon
+leggov,INT64,abidegov/Govt should have the ultimate decision,,yes,,,no,,leggov
+memrel,INT64,memrelig/Are you a member/attend meetings of a religious association?,,yes,,,no,,memrel
+memdev,INT64,memdevel/Member Devel. assoc./Attend development association,,yes,,,no,,memdev
+membus,INT64,membus/Member Prof./business org./Attend local commercial organisation,,yes,,,no,,membus
+memlab,INT64,memunion/Member Trade/farmer org./Attend trade union,,yes,,,no,,memlab
+pidcls,INT64,clseprty/Close to party,,yes,,,no,,pidcls
+pidwin,INT64,winlose/Close to winner/ruling party or loser/opposition?,,yes,,,no,,pidwin
+parvot,INT64,votelast/Voted last elections,,yes,,,no,,parvot
+parcom,INT64,parcomm/Attend community meeting,,yes,,,no,,parcom
+pariss,INT64,parissue/Raise an issue,,yes,,,no,,pariss
+parral,INT64,parrally/Attend election rally,,yes,,,no,,parral
+parcam,INT64,parcand/Work for candidate,,yes,,,no,,parcam
+parlet,INT64,parnews/Write newspaper,,yes,,,no,,parlet
+pardem,INT64,pardemo/Attend demonstration,,yes,,,no,,pardem
+parctg,INT64,conoffic/Contact government official/or political party official,,yes,,,no,,parctg
+parcti,INT64,coninflu/Contact influential person,,yes,,,no,,parcti
+xstronld,INT64,Strong leader could decide everything?/or Democracy always best,,yes,,,no,,xstronld
+withinwt,FLOAT64,Within country weight,,no,,,no,,withinwt
+acrosswt,FLOAT64,Country weight,,no,,,no,,acrosswt
+combinwt,FLOAT64,Country weight x within country weight,,no,,,no,,combinwt
+africawt,FLOAT64,Africa weight (countries weighted according to relative population size),,no,,,no,,africawt
+afcombwt,FLOAT64,Africa weight x Within country weight,,no,,,no,,afcombwt
+race,INT64,Respondent's race?,,yes,,,no,,race
+language,INT64,What is your home language?,,yes,,,no,,language
+party,INT64,actual party affiliation,,yes,,,no,,party
+area,INT64,District,,yes,,,no,,area

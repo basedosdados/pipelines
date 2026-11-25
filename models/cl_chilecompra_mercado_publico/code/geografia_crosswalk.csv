@@ -1,0 +1,380 @@
+tipo,nombre_normalizado,id,nombre_directorio
+region,tarapaca,01,Tarapacá
+region,antofagasta,02,Antofagasta
+region,atacama,03,Atacama
+region,coquimbo,04,Coquimbo
+region,valparaiso,05,Valparaíso
+region,libertador general bernardo o'higgins,06,Libertador General Bernardo O'Higgins
+region,maule,07,Maule
+region,biobio,08,Biobío
+region,la araucania,09,La Araucanía
+region,los lagos,10,Los Lagos
+region,aysen del general carlos ibanez del campo,11,Aysén del General Carlos Ibáñez del Campo
+region,magallanes y de la antartica chilena,12,Magallanes y de la Antártica Chilena
+region,metropolitana de santiago,13,Metropolitana de Santiago
+region,los rios,14,Los Ríos
+region,arica y parinacota,15,Arica y Parinacota
+region,nuble,16,Ñuble
+region,aysen del general carlos iba,11,Aysén del General Carlos Ibáñez del Campo
+region,libertador general berna,06,Libertador General Bernardo O'Higgins
+region,magallanes y de la antart,12,Magallanes y de la Antártica Chilena
+region,magallanes y de la antartica,12,Magallanes y de la Antártica Chilena
+comuna,iquique,01101,Iquique
+comuna,alto hospicio,01107,Alto Hospicio
+comuna,pozo almonte,01401,Pozo Almonte
+comuna,camina,01402,Camiña
+comuna,colchane,01403,Colchane
+comuna,huara,01404,Huara
+comuna,pica,01405,Pica
+comuna,antofagasta,02101,Antofagasta
+comuna,mejillones,02102,Mejillones
+comuna,sierra gorda,02103,Sierra Gorda
+comuna,taltal,02104,Taltal
+comuna,calama,02201,Calama
+comuna,ollague,02202,Ollagüe
+comuna,san pedro de atacama,02203,San Pedro de Atacama
+comuna,tocopilla,02301,Tocopilla
+comuna,maria elena,02302,María Elena
+comuna,copiapo,03101,Copiapó
+comuna,caldera,03102,Caldera
+comuna,tierra amarilla,03103,Tierra Amarilla
+comuna,chanaral,03201,Chañaral
+comuna,diego de almagro,03202,Diego de Almagro
+comuna,vallenar,03301,Vallenar
+comuna,alto del carmen,03302,Alto del Carmen
+comuna,freirina,03303,Freirina
+comuna,huasco,03304,Huasco
+comuna,la serena,04101,La Serena
+comuna,coquimbo,04102,Coquimbo
+comuna,andacollo,04103,Andacollo
+comuna,la higuera,04104,La Higuera
+comuna,paihuano,04105,Paihuano
+comuna,vicuna,04106,Vicuña
+comuna,illapel,04201,Illapel
+comuna,canela,04202,Canela
+comuna,los vilos,04203,Los Vilos
+comuna,salamanca,04204,Salamanca
+comuna,ovalle,04301,Ovalle
+comuna,combarbala,04302,Combarbalá
+comuna,monte patria,04303,Monte Patria
+comuna,punitaqui,04304,Punitaqui
+comuna,rio hurtado,04305,Río Hurtado
+comuna,valparaiso,05101,Valparaíso
+comuna,casablanca,05102,Casablanca
+comuna,concon,05103,Concón
+comuna,juan fernandez,05104,Juan Fernández
+comuna,puchuncavi,05105,Puchuncaví
+comuna,quintero,05107,Quintero
+comuna,vina del mar,05109,Viña del Mar
+comuna,isla de pascua,05201,Isla de Pascua
+comuna,los andes,05301,Los Andes
+comuna,calle larga,05302,Calle Larga
+comuna,rinconada,05303,Rinconada
+comuna,san esteban,05304,San Esteban
+comuna,la ligua,05401,La Ligua
+comuna,cabildo,05402,Cabildo
+comuna,papudo,05403,Papudo
+comuna,petorca,05404,Petorca
+comuna,zapallar,05405,Zapallar
+comuna,quillota,05501,Quillota
+comuna,calera,05502,Calera
+comuna,hijuelas,05503,Hijuelas
+comuna,la cruz,05504,La Cruz
+comuna,nogales,05506,Nogales
+comuna,san antonio,05601,San Antonio
+comuna,algarrobo,05602,Algarrobo
+comuna,cartagena,05603,Cartagena
+comuna,el quisco,05604,El Quisco
+comuna,el tabo,05605,El Tabo
+comuna,santo domingo,05606,Santo Domingo
+comuna,san felipe,05701,San Felipe
+comuna,catemu,05702,Catemu
+comuna,llaillay,05703,Llaillay
+comuna,panquehue,05704,Panquehue
+comuna,putaendo,05705,Putaendo
+comuna,santa maria,05706,Santa María
+comuna,quilpue,05801,Quilpué
+comuna,limache,05802,Limache
+comuna,olmue,05803,Olmué
+comuna,villa alemana,05804,Villa Alemana
+comuna,rancagua,06101,Rancagua
+comuna,codegua,06102,Codegua
+comuna,coinco,06103,Coinco
+comuna,coltauco,06104,Coltauco
+comuna,donihue,06105,Doñihue
+comuna,graneros,06106,Graneros
+comuna,las cabras,06107,Las Cabras
+comuna,machali,06108,Machalí
+comuna,malloa,06109,Malloa
+comuna,mostazal,06110,Mostazal
+comuna,olivar,06111,Olivar
+comuna,peumo,06112,Peumo
+comuna,pichidegua,06113,Pichidegua
+comuna,quinta de tilcoco,06114,Quinta de Tilcoco
+comuna,rengo,06115,Rengo
+comuna,requinoa,06116,Requínoa
+comuna,san vicente,06117,San Vicente
+comuna,pichilemu,06201,Pichilemu
+comuna,la estrella,06202,La Estrella
+comuna,litueche,06203,Litueche
+comuna,marchihue,06204,Marchihue
+comuna,navidad,06205,Navidad
+comuna,paredones,06206,Paredones
+comuna,san fernando,06301,San Fernando
+comuna,chepica,06302,Chépica
+comuna,chimbarongo,06303,Chimbarongo
+comuna,lolol,06304,Lolol
+comuna,nancagua,06305,Nancagua
+comuna,palmilla,06306,Palmilla
+comuna,peralillo,06307,Peralillo
+comuna,placilla,06308,Placilla
+comuna,pumanque,06309,Pumanque
+comuna,santa cruz,06310,Santa Cruz
+comuna,talca,07101,Talca
+comuna,constitucion,07102,Constitución
+comuna,curepto,07103,Curepto
+comuna,empedrado,07104,Empedrado
+comuna,maule,07105,Maule
+comuna,pelarco,07106,Pelarco
+comuna,pencahue,07107,Pencahue
+comuna,rio claro,07108,Río Claro
+comuna,san clemente,07109,San Clemente
+comuna,san rafael,07110,San Rafael
+comuna,cauquenes,07201,Cauquenes
+comuna,chanco,07202,Chanco
+comuna,pelluhue,07203,Pelluhue
+comuna,curico,07301,Curicó
+comuna,hualane,07302,Hualañé
+comuna,licanten,07303,Licantén
+comuna,molina,07304,Molina
+comuna,rauco,07305,Rauco
+comuna,romeral,07306,Romeral
+comuna,sagrada familia,07307,Sagrada Familia
+comuna,teno,07308,Teno
+comuna,vichuquen,07309,Vichuquén
+comuna,linares,07401,Linares
+comuna,colbun,07402,Colbún
+comuna,longavi,07403,Longaví
+comuna,parral,07404,Parral
+comuna,retiro,07405,Retiro
+comuna,san javier,07406,San Javier
+comuna,villa alegre,07407,Villa Alegre
+comuna,yerbas buenas,07408,Yerbas Buenas
+comuna,concepcion,08101,Concepción
+comuna,coronel,08102,Coronel
+comuna,chiguayante,08103,Chiguayante
+comuna,florida,08104,Florida
+comuna,hualqui,08105,Hualqui
+comuna,lota,08106,Lota
+comuna,penco,08107,Penco
+comuna,san pedro de la paz,08108,San Pedro de la Paz
+comuna,santa juana,08109,Santa Juana
+comuna,talcahuano,08110,Talcahuano
+comuna,tome,08111,Tomé
+comuna,hualpen,08112,Hualpén
+comuna,lebu,08201,Lebu
+comuna,arauco,08202,Arauco
+comuna,canete,08203,Cañete
+comuna,contulmo,08204,Contulmo
+comuna,curanilahue,08205,Curanilahue
+comuna,los alamos,08206,Los Álamos
+comuna,tirua,08207,Tirúa
+comuna,los angeles,08301,Los Ángeles
+comuna,antuco,08302,Antuco
+comuna,cabrero,08303,Cabrero
+comuna,laja,08304,Laja
+comuna,mulchen,08305,Mulchén
+comuna,nacimiento,08306,Nacimiento
+comuna,negrete,08307,Negrete
+comuna,quilaco,08308,Quilaco
+comuna,quilleco,08309,Quilleco
+comuna,san rosendo,08310,San Rosendo
+comuna,santa barbara,08311,Santa Bárbara
+comuna,tucapel,08312,Tucapel
+comuna,yumbel,08313,Yumbel
+comuna,alto biobio,08314,Alto Biobío
+comuna,temuco,09101,Temuco
+comuna,carahue,09102,Carahue
+comuna,cunco,09103,Cunco
+comuna,curarrehue,09104,Curarrehue
+comuna,freire,09105,Freire
+comuna,galvarino,09106,Galvarino
+comuna,gorbea,09107,Gorbea
+comuna,lautaro,09108,Lautaro
+comuna,loncoche,09109,Loncoche
+comuna,melipeuco,09110,Melipeuco
+comuna,nueva imperial,09111,Nueva Imperial
+comuna,padre las casas,09112,Padre las Casas
+comuna,perquenco,09113,Perquenco
+comuna,pitrufquen,09114,Pitrufquén
+comuna,pucon,09115,Pucón
+comuna,saavedra,09116,Saavedra
+comuna,teodoro schmidt,09117,Teodoro Schmidt
+comuna,tolten,09118,Toltén
+comuna,vilcun,09119,Vilcún
+comuna,villarrica,09120,Villarrica
+comuna,cholchol,09121,Cholchol
+comuna,angol,09201,Angol
+comuna,collipulli,09202,Collipulli
+comuna,curacautin,09203,Curacautín
+comuna,ercilla,09204,Ercilla
+comuna,lonquimay,09205,Lonquimay
+comuna,los sauces,09206,Los Sauces
+comuna,lumaco,09207,Lumaco
+comuna,puren,09208,Purén
+comuna,renaico,09209,Renaico
+comuna,traiguen,09210,Traiguén
+comuna,victoria,09211,Victoria
+comuna,puerto montt,10101,Puerto Montt
+comuna,calbuco,10102,Calbuco
+comuna,cochamo,10103,Cochamó
+comuna,fresia,10104,Fresia
+comuna,frutillar,10105,Frutillar
+comuna,los muermos,10106,Los Muermos
+comuna,llanquihue,10107,Llanquihue
+comuna,maullin,10108,Maullín
+comuna,puerto varas,10109,Puerto Varas
+comuna,castro,10201,Castro
+comuna,ancud,10202,Ancud
+comuna,chonchi,10203,Chonchi
+comuna,curaco de velez,10204,Curaco de Vélez
+comuna,dalcahue,10205,Dalcahue
+comuna,puqueldon,10206,Puqueldón
+comuna,queilen,10207,Queilén
+comuna,quellon,10208,Quellón
+comuna,quemchi,10209,Quemchi
+comuna,quinchao,10210,Quinchao
+comuna,osorno,10301,Osorno
+comuna,puerto octay,10302,Puerto Octay
+comuna,purranque,10303,Purranque
+comuna,puyehue,10304,Puyehue
+comuna,rio negro,10305,Río Negro
+comuna,san juan de la costa,10306,San Juan de la Costa
+comuna,san pablo,10307,San Pablo
+comuna,chaiten,10401,Chaitén
+comuna,futaleufu,10402,Futaleufú
+comuna,hualaihue,10403,Hualaihué
+comuna,palena,10404,Palena
+comuna,coyhaique,11101,Coyhaique
+comuna,lago verde,11102,Lago Verde
+comuna,aysen,11201,Aysén
+comuna,cisnes,11202,Cisnes
+comuna,guaitecas,11203,Guaitecas
+comuna,cochrane,11301,Cochrane
+comuna,o'higgins,11302,O'Higgins
+comuna,tortel,11303,Tortel
+comuna,chile chico,11401,Chile Chico
+comuna,rio ibanez,11402,Río Ibáñez
+comuna,punta arenas,12101,Punta Arenas
+comuna,laguna blanca,12102,Laguna Blanca
+comuna,rio verde,12103,Río Verde
+comuna,san gregorio,12104,San Gregorio
+comuna,cabo de hornos,12201,Cabo de Hornos
+comuna,antartica,12202,Antártica
+comuna,porvenir,12301,Porvenir
+comuna,primavera,12302,Primavera
+comuna,timaukel,12303,Timaukel
+comuna,natales,12401,Natales
+comuna,torres del paine,12402,Torres del Paine
+comuna,santiago,13101,Santiago
+comuna,cerrillos,13102,Cerrillos
+comuna,cerro navia,13103,Cerro Navia
+comuna,conchali,13104,Conchalí
+comuna,el bosque,13105,El Bosque
+comuna,estacion central,13106,Estación Central
+comuna,huechuraba,13107,Huechuraba
+comuna,independencia,13108,Independencia
+comuna,la cisterna,13109,La Cisterna
+comuna,la florida,13110,La Florida
+comuna,la granja,13111,La Granja
+comuna,la pintana,13112,La Pintana
+comuna,la reina,13113,La Reina
+comuna,las condes,13114,Las Condes
+comuna,lo barnechea,13115,Lo Barnechea
+comuna,lo espejo,13116,Lo Espejo
+comuna,lo prado,13117,Lo Prado
+comuna,macul,13118,Macul
+comuna,maipu,13119,Maipú
+comuna,nunoa,13120,Ñuñoa
+comuna,pedro aguirre cerda,13121,Pedro Aguirre Cerda
+comuna,penalolen,13122,Peñalolén
+comuna,providencia,13123,Providencia
+comuna,pudahuel,13124,Pudahuel
+comuna,quilicura,13125,Quilicura
+comuna,quinta normal,13126,Quinta Normal
+comuna,recoleta,13127,Recoleta
+comuna,renca,13128,Renca
+comuna,san joaquin,13129,San Joaquín
+comuna,san miguel,13130,San Miguel
+comuna,san ramon,13131,San Ramón
+comuna,vitacura,13132,Vitacura
+comuna,puente alto,13201,Puente Alto
+comuna,pirque,13202,Pirque
+comuna,san jose de maipo,13203,San José de Maipo
+comuna,colina,13301,Colina
+comuna,lampa,13302,Lampa
+comuna,tiltil,13303,Tiltil
+comuna,san bernardo,13401,San Bernardo
+comuna,buin,13402,Buin
+comuna,calera de tango,13403,Calera de Tango
+comuna,paine,13404,Paine
+comuna,melipilla,13501,Melipilla
+comuna,alhue,13502,Alhué
+comuna,curacavi,13503,Curacaví
+comuna,maria pinto,13504,María Pinto
+comuna,san pedro,13505,San Pedro
+comuna,talagante,13601,Talagante
+comuna,el monte,13602,El Monte
+comuna,isla de maipo,13603,Isla de Maipo
+comuna,padre hurtado,13604,Padre Hurtado
+comuna,penaflor,13605,Peñaflor
+comuna,valdivia,14101,Valdivia
+comuna,corral,14102,Corral
+comuna,lanco,14103,Lanco
+comuna,los lagos,14104,Los Lagos
+comuna,mafil,14105,Máfil
+comuna,mariquina,14106,Mariquina
+comuna,paillaco,14107,Paillaco
+comuna,panguipulli,14108,Panguipulli
+comuna,la union,14201,La Unión
+comuna,futrono,14202,Futrono
+comuna,lago ranco,14203,Lago Ranco
+comuna,rio bueno,14204,Río Bueno
+comuna,arica,15101,Arica
+comuna,camarones,15102,Camarones
+comuna,putre,15201,Putre
+comuna,general lagos,15202,General Lagos
+comuna,chillan,16101,Chillán
+comuna,bulnes,16102,Bulnes
+comuna,chillan viejo,16103,Chillán Viejo
+comuna,el carmen,16104,El Carmen
+comuna,pemuco,16105,Pemuco
+comuna,pinto,16106,Pinto
+comuna,quillon,16107,Quillón
+comuna,san ignacio,16108,San Ignacio
+comuna,yungay,16109,Yungay
+comuna,quirihue,16201,Quirihue
+comuna,cobquecura,16202,Cobquecura
+comuna,coelemu,16203,Coelemu
+comuna,ninhue,16204,Ninhue
+comuna,portezuelo,16205,Portezuelo
+comuna,ranquil,16206,Ránquil
+comuna,trehuaco,16207,Trehuaco
+comuna,san carlos,16301,San Carlos
+comuna,coihueco,16302,Coihueco
+comuna,niquen,16303,Ñiquén
+comuna,san fabian,16304,San Fabián
+comuna,san nicolas,16305,San Nicolás
+comuna,alto bio bio,08314,Alto Biobío
+comuna,chol chol,09121,Cholchol
+comuna,la calera,05502,Calera
+comuna,las guaitecas,11203,Guaitecas
+comuna,llay-llay,05703,Llaillay
+comuna,marchigue,06204,Marchihue
+comuna,o higgins,11302,O'Higgins
+comuna,puerto natales,12401,Natales
+comuna,puerto saavedra,09116,Saavedra
+comuna,san vicente de tagua tagua,06117,San Vicente
+comuna,santiago centro,13101,Santiago
+comuna,til til,13303,Tiltil
+comuna,torres del payne,12402,Torres del Paine

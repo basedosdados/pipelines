@@ -5,7 +5,10 @@ models:
     description: Cadastro de imóveis rurais
     columns:
       - name: data_referencia
-        description: Data de divulgação dos dados pela Receita Federal (RF)
+        description: Data da competência dos dados da Receita Federal (RF)
+      - name: data_modificacao
+        description: Data de divulgação/modificação dos dados pela Receita Federal
+          (RF)
       - name: data_inscricao
         description: Data de inscrição do imóvel no cadastro de imóveis rurais da
           Receita Federal (RF)

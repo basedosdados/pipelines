@@ -1,0 +1,26 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+fund_type,STRING,"Superannuation fund type: all (whole industry), corporate, industry, public sector or retail funds",,yes,,,no,APRA regulates only these fund types; self-managed super funds (SMSFs) are regulated by the ATO and are not covered,
+receivables,FLOAT64,Receivables held at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Receivables
+investments,FLOAT64,Total investments held at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Investments
+securities_purchased_under_resale_agreements,FLOAT64,"Securities purchased under agreements to resell and securities borrowed, at the end of the quarter",,no,,AUD million,no,Values in millions of Australian dollars,Securities purchased under agreements to resell and securities borrowed
+tax_assets,FLOAT64,Tax assets held at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Tax assets
+other_assets,FLOAT64,Other assets held at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Other assets
+total_assets,FLOAT64,Total assets held at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Total assets
+securities_sold_under_repurchase_agreements,FLOAT64,"Securities sold under agreements to repurchase and securities loaned, at the end of the quarter",,no,,AUD million,no,Values in millions of Australian dollars,Securities sold under agreements to repurchase and securities loaned
+tax_liabilities,FLOAT64,Tax liabilities at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Tax liabilities
+other_liabilities,FLOAT64,Other liabilities at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Other liabilities
+total_liabilities,FLOAT64,Total liabilities at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Total liabilities
+liability_for_allocated_accrued_benefits,FLOAT64,Liability for allocated accrued benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Liability for allocated accrued benefits
+liability_for_members_benefits,FLOAT64,Liability for members' benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Liability for members' benefits
+defined_contribution_members_benefits,FLOAT64,Defined contribution members' benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Defined contribution members' benefits
+defined_benefit_members_benefits,FLOAT64,Defined benefit members' benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Defined benefit members' benefits
+unallocated_benefits,FLOAT64,Unallocated benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Unallocated benefits
+reserves_including_unallocated_benefits,FLOAT64,Reserves including unallocated benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Reserves including unallocated benefits
+reserves,FLOAT64,Reserves at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Reserves
+excess_deficiency_of_assets,FLOAT64,Excess or deficiency of assets at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Excess/deficiency of assets
+surplus_deficit_in_net_assets,FLOAT64,Surplus or deficit in net assets at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Surplus/deficit in net assets
+net_assets_available_to_pay_benefits,FLOAT64,Net assets available to pay members' benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net assets available to pay members' benefits
+defined_benefit_interests,FLOAT64,Net assets attributable to defined benefit interests at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,of which: defined benefit interests
+number_of_entities,INT64,Number of superannuation entities in the fund type,,no,,unit,no,,Number of entities

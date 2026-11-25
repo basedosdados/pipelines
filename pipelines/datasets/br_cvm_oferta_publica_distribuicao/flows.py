@@ -2,17 +2,13 @@
 Flows for br_cvm_oferta_publica_distribuicao — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.cvm_oferta_publica_distribuicao.tasks import (
+from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
-)
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -31,7 +27,6 @@ def br_cvm_oferta_publica_distribuicao__dia(
     dataset_id: str = "br_cvm_oferta_publica_distribuicao",
     table_id: str = "dia",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -58,7 +53,6 @@ def br_cvm_oferta_publica_distribuicao__dia(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -77,7 +71,6 @@ def br_cvm_oferta_publica_distribuicao__dia(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -85,15 +78,11 @@ def br_cvm_oferta_publica_distribuicao__dia(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data_comunicado"),
-                date_format=DateFormat.YEAR_MD,
-            ),
             env="prod",
             bq_project="basedosdados",
         )
 
 
 br_cvm_oferta_publica_distribuicao__dia.deploy_schedules = [
-    {"cron": "45 6 * * 1-5", "timezone": "America/Sao_Paulo"}
+    Cron("45 6 * * 1-5", timezone="America/Sao_Paulo")
 ]

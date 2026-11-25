@@ -1,0 +1,72 @@
+ssa_state_code,cms_state_name,state_id,state_abbreviation
+00,UNKNOWN,,
+01,Alabama,01,AL
+02,Alaska,02,AK
+03,Arizona,04,AZ
+04,Arkansas,05,AR
+05,California,06,CA
+06,Colorado,08,CO
+07,Connecticut,09,CT
+08,Delaware,10,DE
+09,Washington D.C.,11,DC
+10,Florida,12,FL
+11,Georgia,13,GA
+12,Hawaii,15,HI
+13,Idaho,16,ID
+14,Illinois,17,IL
+15,Indiana,18,IN
+16,Iowa,19,IA
+17,Kansas,20,KS
+18,Kentucky,21,KY
+19,Louisiana,22,LA
+20,Maine,23,ME
+21,Maryland,24,MD
+22,Massachusetts,25,MA
+23,Michigan,26,MI
+24,Minnesota,27,MN
+25,Mississippi,28,MS
+26,Missouri,29,MO
+27,Montana,30,MT
+28,Nebraska,31,NE
+29,Nevada,32,NV
+30,New Hampshire,33,NH
+31,New Jersey,34,NJ
+32,New Mexico,35,NM
+33,New York,36,NY
+34,North Carolina,37,NC
+35,North Dakota,38,ND
+36,Ohio,39,OH
+37,Oklahoma,40,OK
+38,Oregon,41,OR
+39,Pennsylvania,42,PA
+40,Puerto Rico,72,PR
+41,Rhode Island,44,RI
+42,South Carolina,45,SC
+43,South Dakota,46,SD
+44,Tennessee,47,TN
+45,Texas,48,TX
+46,Utah,49,UT
+47,Vermont,50,VT
+48,Virgin Islands,78,VI
+49,Virginia,51,VA
+50,Washington,53,WA
+51,West Virginia,54,WV
+52,Wisconsin,55,WI
+53,Wyoming,56,WY
+55,California,06,CA
+64,American Samoa,60,AS
+65,Guam,66,GU
+67,Texas,48,TX
+68,Florida,12,FL
+69,Florida,12,FL
+70,Kansas,20,KS
+71,Louisiana,22,LA
+72,Ohio,39,OH
+73,Pennsylvania,42,PA
+74,Texas,48,TX
+75,California,06,CA
+76,Iowa,19,IA
+77,Minnesota,27,MN
+78,Illinois,17,IL
+80,Maryland,24,MD
+99,Other,,

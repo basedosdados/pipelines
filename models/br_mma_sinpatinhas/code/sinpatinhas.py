@@ -9,7 +9,9 @@ Original file is located at
 # pip install cacimbao
 
 import basedosdados as bd
-import cacimbao  # type: ignore
+
+# pyrefly: ignore [missing-import]
+import cacimbao
 import polars as pl
 
 dados = cacimbao.download_dataset("sinpatinhas")

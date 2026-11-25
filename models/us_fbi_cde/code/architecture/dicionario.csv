@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela a que o código se aplica,,no,,,no,,
+nome_coluna,STRING,Nome da coluna a que o código se aplica,,no,,,no,,
+chave,STRING,"Código, tal como armazenado na coluna",,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal do código,,no,,,no,,
+valor,STRING,"Rótulo do código, em inglês, a língua da fonte",,no,,,no,,

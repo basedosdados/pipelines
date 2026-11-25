@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+country_id,STRING,Código do país ou agregado regional,,no,,,no,,CountryCode
+indicator_id,STRING,Código do indicador WDI,,no,,,no,,SeriesCode
+description,STRING,Observação sobre a série do indicador para o país,,no,,,no,,DESCRIPTION

@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência do Censo; para estimativas de 5 anos, é o último ano do período de 5 anos",,no,br_bd_diretorios_data_tempo.ano:ano,,no,Coluna de partição (caminho hive 'ano=' no staging).,ano
+period,STRING,Período da estimativa da ACS: 1-year (1 ano) ou 5-year (5 anos),,no,,,no,"Valores: 1-year, 5-year. Parte da chave lógica.",
+id_state,STRING,Código FIPS de 2 dígitos do estado,,no,br_bd_diretorios_us.state:id_state,,no,,
+puma,STRING,Código da Public Use Microdata Area (PUMA),,no,,,no,Sem FK de diretório: a vintage da PUMA varia por ano (ver D6).,
+variable_code,STRING,"Código da variável do perfil de dados da ACS (ex.: DP05_0001E), decodificado na tabela variables",,no,,,no,Relacionamento com a tabela variables. Sufixo E = estimativa; PE = percentual.,
+estimate,FLOAT64,Valor estimado da variável; a unidade de medida varia conforme variable_code (ver variables.unit),,no,,,no,Sem unidade de medida a nível de coluna (varia por linha). Sentinelas da ACS convertidas para nulo.,
+margin_of_error,FLOAT64,Margem de erro (90% de confiança) da estimativa; mesma unidade da estimativa,,no,,,no,Sem unidade de medida a nível de coluna (varia por linha).,

@@ -1,0 +1,40 @@
+[
+ {
+  "name": "year",
+  "bigquery_type": "INT64",
+  "description_pt": "Ano fiscal do arquivo de resumos de que o registro provém",
+  "description_en": "Fiscal year of the abstract file the record comes from",
+  "description_es": "Año fiscal del archivo de resúmenes del que proviene el registro",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+  "measurement_unit": "year",
+  "observations_pt": "Ano FISCAL federal dos Estados Unidos, que vai de 1 de outubro a 30 de setembro e é nomeado pelo ano em que termina. Não é o ano-calendário. Coluna de particionamento.",
+  "observations_en": "United States federal FISCAL year, running from 1 October to 30 September and named for the year in which it ends. It is not the calendar year. Partition column.",
+  "observations_es": "Año FISCAL federal de los Estados Unidos, que va del 1 de octubre al 30 de septiembre y se nombra por el año en que termina. No es el año calendario. Columna de particionamiento."
+ },
+ {
+  "name": "application_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador único do registro do projeto na base RePORTER",
+  "description_en": "Unique identifier of the project record in the RePORTER database",
+  "description_es": "Identificador único del registro del proyecto en la base RePORTER",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Liga esta tabela a project pelo par (year, application_id). A correspondência é quase completa: 943 das 2.599.720 linhas de resumo (0,04%) não têm registro correspondente em project no mesmo ano fiscal, uma inconsistência entre os dois arquivos da própria fonte, mantida como publicada.",
+  "observations_en": "Joins this table to project on the pair (year, application_id). The match is all but complete: 943 of the 2,599,720 abstract rows (0.04%) have no matching project record in the same fiscal year, an inconsistency between the source's own two files, kept as published.",
+  "observations_es": "Une esta tabla con project por el par (year, application_id). La correspondencia es casi completa: 943 de las 2.599.720 filas de resumen (0,04%) no tienen registro correspondiente en project en el mismo año fiscal, una inconsistencia entre los dos archivos de la propia fuente, mantenida como se publica."
+ },
+ {
+  "name": "abstract_text",
+  "bigquery_type": "STRING",
+  "description_pt": "Resumo da pesquisa realizada no projeto",
+  "description_en": "Abstract of the research carried out in the project",
+  "description_es": "Resumen de la investigación realizada en el proyecto",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Nas concessões o resumo é fornecido ao NIH pelo beneficiário. Nem todo projeto tem resumo publicado.",
+  "observations_en": "For grants the abstract is supplied to NIH by the recipient. Not every project has a published abstract.",
+  "observations_es": "En las subvenciones el resumen es proporcionado al NIH por el beneficiario. No todo proyecto tiene resumen publicado."
+ }
+]

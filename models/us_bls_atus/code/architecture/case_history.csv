@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the first four digits of tucaseid.,TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+tr1intst,STRING,Interview status 1,,yes,,,no,,TR1INTST
+tr2intst,STRING,Interview status 2,,yes,,,no,,TR2INTST
+trfnlout,STRING,Final outcome code,,yes,,,no,,TRFNLOUT
+trincen2,STRING,Incentive expansion case,,yes,,,no,,TRINCEN2
+tuavgdur,FLOAT64,Average duration of all reported diary activities (in minutes),,no,,minute,no,,TUAVGDUR
+tua_id,STRING,Unique anonymous adjudicator ID,,no,,,no,,TUA_ID
+tucpsdp,STRING,Is the ATUS designated person the same as the CPS respondent?,,yes,,,no,,TUCPSDP
+tuc_id,STRING,Unique anonymous coder ID,,no,,,no,,TUC_ID
+tudqual2,STRING,Collected from interviewer after interview: why do you think the data should not be used?,,yes,,,no,,TUDQUAL2
+tuincent,STRING,Incentive/non-incentive case,,yes,,,no,,TUINCENT
+tuintdqual,STRING,Collected from interviewer after interview: is there any reason this interview should not be used?,,yes,,,no,,TUINTDQUAL
+tuintid,STRING,Unique anonymous ATUS interviewer ID,,no,,,no,,TUINTID
+tuintrodate,STRING,Day of month in which the case was introduced (panel day),,no,,,no,,TUINTRODATE
+tuintropanmonth,INT64,Month in which the case was introduced (panel month),,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,TUINTROPANMONTH
+tuintropanyear,INT64,Year in which the case was introduced (panel year),,no,,year,no,,TUINTROPANYEAR
+tulngskl,STRING,Non-English language,,yes,,,no,,TULNGSKL
+tutotactno,INT64,Total number of activities reported in diary,,no,,activity,no,,TUTOTACTNO
+tuv_id,STRING,Unique anonymous verifier ID,,no,,,no,,TUV_ID
