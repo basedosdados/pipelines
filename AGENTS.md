@@ -109,13 +109,19 @@ Flows reach Prefect 3 through CI only — never register storage or run-config b
 | | Staging | Production |
 |---|---|---|
 | Workflow | `cd-prefect3-staging.yaml` | `cd-prefect3.yaml` |
-| Trigger | PR to `main` carrying the **`deploy-flow`** label | push to `main` |
-| Scope | changed `pipelines/**/*.py` only | `--all` |
+| Trigger | PR to `main` carrying the **`deploy-flow`** label | push to `main`, but only when the triggering PR carries the **`deploy-flow`** label too (found via the commit's associated PR) |
+| Scope | changed `pipelines/**/*.py` only (within that PR) | changed `pipelines/**/*.py` only (within the PR that triggered the push) |
 | Pool | `basedosdados-dev` — schedules stripped, manual runs only | `basedosdados` — schedules active |
 
 Both deploy with `paused=True`; production deployments are activated by the backend sync
-step (`admin-tools/sync-deployments/`), which is soft-failed with `|| echo` and can leave
-a deployment paused without failing the job.
+step (`admin-tools/sync-deployments/`), which POSTs the list of names just (re-)deployed
+and is soft-failed with `|| echo`, so it can leave a deployment paused without failing the
+job.
+
+Production also takes a manual `workflow_dispatch` with no inputs, which always runs
+`--all` (bootstrap/disaster recovery only) — this activates every deployment in the repo,
+including ones someone paused on purpose for an unrelated reason, so only run it when
+that's actually intended.
 
 To exercise a flow before merging: add the **`deploy-flow`** label to the PR (the workflow
 triggers on the `labeled` event), then start a run from the Prefect UI with any

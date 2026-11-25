@@ -6,8 +6,7 @@ Uso:
   uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --files pipelines/datasets/meu_dataset/flows.py
 
   # Deploy a partir de uma lista de arquivos alterados (CI, dev e prod) —
-  # expande pra pasta inteira do dataset e escala pra --all quando a
-  # mudança é em infra compartilhada (ver expand_changed_files)
+  # expande pra pasta inteira do dataset (ver expand_changed_files)
   uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --changed pipelines/datasets/meu_dataset/tasks.py
 
   # Deploy de todos os flows (recuperação manual, ex. depois de um drift)
@@ -30,6 +29,7 @@ movendo-o pro pool dev.
 import argparse
 import glob
 import importlib.util
+import json
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -47,13 +47,6 @@ LOCAL_POOL_NAME = "local-dev"
 
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
-# Pastas cuja mudança pode afetar deploy de flows em mais de um dataset
-# (lógica compartilhada, ex. CheckThenExtractLoadPipeline em stage_dispatch.py,
-# ou um módulo usado por vários datasets como pipelines/shared/datasus) —
-# não dá pra saber quais datasets são afetados sem reprocessar tudo, então
-# escala pra --all nesse caso, em vez de arriscar deixar algo desatualizado.
-SHARED_PREFIXES = ("pipelines/utils/", "pipelines/shared/")
-
 # Perfil de recursos padrão pra qualquer flow com a tag "check_update"
 # (issue #1867, pendência da revisão #1932) que não sobrescreva
 # `job_variables` no próprio flow — ver `deploy_flow()`. Datasets cujo
@@ -67,8 +60,7 @@ CHECK_UPDATE_JOB_VARIABLES = {"memory_limit": "1Gi", "memory_request": "1Gi"}
 def all_python_files() -> list[str]:
     """Lista todo arquivo `.py` de `pipelines/`, exceto `__init__.py`.
 
-    Usado tanto por `--all` quanto como fallback de
-    `expand_changed_files()` quando a mudança exige redeploy completo.
+    Usado por `--all` (bootstrap/disaster recovery, ver docstring do módulo).
 
     Returns:
         Caminhos relativos à raiz do repo de todo `.py` em `pipelines/`,
@@ -82,7 +74,7 @@ def all_python_files() -> list[str]:
     return files
 
 
-def expand_changed_files(changed: list[str]) -> list[str] | None:
+def expand_changed_files(changed: list[str]) -> list[str]:
     """Expande uma lista de arquivos alterados pra decidir o que deployar.
 
     `deploy_flow()` só registra um flow se o arquivo processado contém
@@ -104,18 +96,20 @@ def expand_changed_files(changed: list[str]) -> list[str] | None:
     Returns:
         Lista ordenada e sem duplicatas de arquivos a passar pro deploy,
         com cada mudança em `pipelines/datasets/<dataset>/` expandida pra
-        todos os `.py` daquele dataset. `None` se algum arquivo alterado
-        estiver em `SHARED_PREFIXES` — sinal pra quem chamar escalar pra
-        `--all`, já que o impacto não é computável sem reprocessar tudo.
+        todos os `.py` daquele dataset. Um arquivo de lógica compartilhada
+        (ex. `pipelines/utils/`, `pipelines/shared/`) passa por aqui sem
+        expansão, mas nunca gera deploy: `load_flows_from_file()` não acha
+        nenhum objeto `Flow` nele e o pula — o mesmo caminho que já existe
+        pra `tasks.py`/`constants.py` de qualquer dataset. Mudar esse tipo
+        de módulo não exige redeploy de quem o usa: o Prefect 3 lê o código
+        do Git em runtime (GitRepository), a cada execução, não no momento
+        do deploy, então a próxima run de qualquer flow já pega a versão
+        nova automaticamente.
     """
     expanded: set[str] = set()
 
     for file_path in changed:
         normalized = file_path.replace(os.sep, "/")
-
-        if normalized.startswith(SHARED_PREFIXES):
-            return None
-
         parts = normalized.split("/")
         if parts[:2] == ["pipelines", "datasets"] and len(parts) > 2:
             dataset_dir = "/".join(parts[:3])
@@ -187,7 +181,7 @@ def deploy_flow(
     pool_name: str,
     branch_name: str,
     local: bool = False,
-) -> tuple[bool, str]:
+) -> tuple[bool, str, str]:
     """Registra um flow no Prefect 3.
 
     Não imprime nada diretamente — devolve a mensagem pronta pra quem
@@ -209,7 +203,9 @@ def deploy_flow(
             uma mudança ainda não commitada.
 
     Returns:
-        Tupla `(sucesso, mensagem)` pronta pra impressão.
+        Tupla `(sucesso, mensagem, deployment_name)` — `mensagem` pronta
+        pra impressão, `deployment_name` usado por quem chamar pra montar
+        a lista de deployments registrados com sucesso nesta run.
     """
     entrypoint = f"{file_path}:{flow_name}"
     pool_name = LOCAL_POOL_NAME if local else pool_name
@@ -287,9 +283,17 @@ def deploy_flow(
             if not schedules
             else f"com schedules: {schedules}"
         )
-        return True, f"  ✓ {deployment_name} registrado {status}, tags={tags}"
+        return (
+            True,
+            f"  ✓ {deployment_name} registrado {status}, tags={tags}",
+            deployment_name,
+        )
     except Exception as e:
-        return False, f"  ✗ Falha ao registrar {deployment_name}: {e}"
+        return (
+            False,
+            f"  ✗ Falha ao registrar {deployment_name}: {e}",
+            deployment_name,
+        )
 
 
 def _positive_int(value: str) -> int:
@@ -355,8 +359,7 @@ def main() -> None:
         nargs="*",
         help=(
             "Arquivos alterados (ex. saída do tj-actions/changed-files) — "
-            "expandido por dataset e escalado pra --all quando necessário, "
-            "ver expand_changed_files()"
+            "expandido por dataset, ver expand_changed_files()"
         ),
     )
     parser.add_argument(
@@ -368,6 +371,14 @@ def main() -> None:
         default=8,
         help="Quantos flows registrar em paralelo (default: 8)",
     )
+    parser.add_argument(
+        "--output",
+        help=(
+            "Caminho de um arquivo JSON onde salvar a lista de deployment "
+            "names registrados com sucesso nesta run (usado pelo CI pra "
+            "ativá-los no backend). Opcional."
+        ),
+    )
     args = parser.parse_args()
 
     if not args.local and (not args.pool or not args.branch):
@@ -378,15 +389,7 @@ def main() -> None:
     if args.all:
         files_to_process = all_python_files()
     elif args.changed is not None:
-        expanded = expand_changed_files(args.changed)
-        if expanded is None:
-            print(
-                "Mudança em infra compartilhada "
-                f"({', '.join(SHARED_PREFIXES)}) — escalando para --all.\n"
-            )
-            files_to_process = all_python_files()
-        else:
-            files_to_process = expanded
+        files_to_process = expand_changed_files(args.changed)
     elif args.files:
         files_to_process = args.files
     else:
@@ -424,6 +427,7 @@ def main() -> None:
     )
 
     success, failed = 0, 0
+    deployed_names: list[str] = []
 
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
         futures = {
@@ -439,16 +443,21 @@ def main() -> None:
             for flow_obj, name, file_path in to_deploy
         }
         for future in as_completed(futures):
-            ok, message = future.result()
+            ok, message, deployment_name = future.result()
             print(message)
             if ok:
                 success += 1
+                deployed_names.append(deployment_name)
             else:
                 failed += 1
 
     print(
         f"\nResultado: {success} registrados, {skipped} pulados, {failed} com erro"
     )
+
+    if args.output:
+        with open(args.output, "w") as f:
+            json.dump(sorted(deployed_names), f)
 
     if failed > 0:
         sys.exit(1)
