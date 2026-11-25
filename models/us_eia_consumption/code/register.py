@@ -299,7 +299,6 @@ def main() -> None:
             continue
 
         free_end_year, free_end_month = shift_months(
-            # pyrefly: ignore [bad-argument-type]
             end_year,
             # pyrefly: ignore [bad-argument-type]
             end_month,

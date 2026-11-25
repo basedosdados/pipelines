@@ -59,7 +59,6 @@ def column_ids(env: str, table_id: str) -> dict[str, str]:
 
 
 def main(env: str) -> None:
-    # pyrefly: ignore [not-callable]
     call(bd_mcp_metadata.auth)(env=env)
     cache: dict[str, dict[str, str]] = {}
     for table_id, name, ol_id, is_partition in LINKS:
@@ -68,7 +67,6 @@ def main(env: str) -> None:
         cid = cache[table_id].get(name)
         if cid is None:
             raise SystemExit(f"column {name} not found on table {table_id}")
-        # pyrefly: ignore [not-callable]
         call(bd_mcp_write.update_column)(
             column_id=cid,
             column_name=name,

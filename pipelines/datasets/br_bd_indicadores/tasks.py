@@ -232,7 +232,6 @@ def crawler_metricas(
     full_filepath = f"/tmp/data/{table_id}/upload_ts={int(datetime.now().timestamp())!s}/{table_id}.csv"
     folder = full_filepath.replace(table_id + ".csv", "")
     log(folder)
-    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     df.to_csv(full_filepath, index=False)
 
@@ -260,7 +259,6 @@ def crawler_real_time(
 
     filepath = f"/tmp/data/date={now}/pageviews.csv"
     partition_path = filepath.replace("pageviews.csv", "")
-    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
@@ -331,7 +329,6 @@ def crawler_report_ga(view_id: str, metrics: list | None = None) -> str:
 
     filepath = f"/tmp/data/reference_date={now}/users.csv"
     partition_path = filepath.replace("users.csv", "")
-    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
