@@ -498,7 +498,6 @@ def iter_concedido_csv(path: Path, chunk: int = 500_000):
 def iter_concedido_xlsx(path: Path, chunk: int = 500_000):
     """Stream a V3 workbook. Row 0 is a title banner, row 1 the real header,
     and ``Espécie``/``CID``/``Despacho`` each occupy a code+label column pair."""
-    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)

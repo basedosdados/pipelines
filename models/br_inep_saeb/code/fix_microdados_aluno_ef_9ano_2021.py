@@ -14,7 +14,6 @@ ZIP_URL = "https://download.inep.gov.br/microdados/microdados_saeb_2021_ensino_f
 
 ZIP_FILE = os.path.join(INPUT, os.path.basename(ZIP_URL))
 
-# pyrefly: ignore [deprecated]
 os.system(
     f"wget {ZIP_URL} --no-check-certificate -o {INPUT}/{os.path.basename(ZIP_URL)}"
 )
