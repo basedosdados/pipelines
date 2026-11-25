@@ -116,7 +116,6 @@ def download_file(
     built_urls = build_urls(
         dataset_id=dataset_id,
         table_id=table_id,
-        # pyrefly: ignore [bad-argument-type]
         url=value_constants["URL"],
         year=reference_date.year,
         month=reference_date.month,
@@ -127,7 +126,6 @@ def download_file(
         BENEFICIOS_CIDADAO_DATASET_ID,
     ]:
         destino = value_constants["INPUT"]
-        # pyrefly: ignore [bad-argument-type]
         os.makedirs(destino, exist_ok=True)
 
         if dataset_id == BENEFICIOS_CIDADAO_DATASET_ID and isinstance(
@@ -143,7 +141,6 @@ def download_file(
             download_and_unzip_file(
                 # pyrefly: ignore [bad-argument-type]
                 built_urls,
-                # pyrefly: ignore [bad-argument-type]
                 destino,
                 headers=headers,
             )
