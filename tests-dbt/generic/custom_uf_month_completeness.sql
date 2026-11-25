@@ -15,21 +15,30 @@
     e o completam depois, quando o pipeline recarrega os meses recentes. Um
     buraco que sobrevive à carência é falha de carga.
 
+    O teste lê só os `window_months + baseline_months` meses (24 com os
+    padrões) que terminam no mês mais recente da tabela. Antes da consulta,
+    ele busca a partição mais recente com linhas em
+    `INFORMATION_SCHEMA.PARTITIONS` e põe o início da leitura no `where` como
+    valor fixo, para o BigQuery podar as partições. Com `date_column` e
+    partição por mês ou dia, a leitura começa no primeiro mês necessário. Com
+    partição por ano, as partições só dizem o ano mais recente, e o teste
+    conta os meses a partir de janeiro desse ano: lê no máximo um ano a mais
+    do que precisa.
+
     Requisitos da tabela:
+    - partição pela coluna que o teste lê: `date_column` (por mês ou dia) ou
+      `year_column` (por ano). Uma tabela sem partição de ano, mês ou dia com
+      linhas faz o teste falhar com erro, em vez de passar sem conferir nada;
+    - nenhum `where` na configuração do teste, que consulta as partições da
+      própria tabela;
     - as 27 UFs aparecem todo mês; uma tabela com menos UFs reprova sempre;
     - `uf_column` traz a sigla em maiúscula. A grade de meses × UFs é montada
       à parte, com as 27 siglas, e não a partir dos dados: uma UF que não
       aparece num mês entra com zero linhas, e `pa` conta como `PA` ausente.
 
-    A leitura é limitada por `current_date()` às partições recentes, os
-    últimos `(window_months + baseline_months) // 12 + 2` anos. Uma tabela
-    sem dado nesse período passa sem conferir nada. Com `date_column`, a
-    competência e o filtro saem dessa coluna, para a leitura ser podada numa
-    tabela particionada por data.
-
     Parâmetros: `year_column` ("ano"), `month_column` ("mes") e `uf_column`
     ("sigla_uf") nomeiam as colunas; `date_column` (nenhuma) substitui ano e
-    mês; `window_months` (24), `baseline_months` (12), `min_share` (0.5) e
+    mês; `window_months` (12), `baseline_months` (12), `min_share` (0.5) e
     `grace_months` (2) seguem a descrição acima.
 
     Exemplo, conferindo só o mês mais recente:
@@ -44,7 +53,7 @@
     year_column="ano",
     month_column="mes",
     uf_column="sigla_uf",
-    window_months=24,
+    window_months=12,
     baseline_months=12,
     min_share=0.5,
     grace_months=2,
@@ -80,7 +89,56 @@
         "SP",
         "TO",
     ] -%}
-    {%- set lookback_years = ((window_months + baseline_months) // 12) + 2 -%}
+    {%- set months_read = window_months + baseline_months -%}
+    {%- set read_start = "1900-01-01" -%}
+
+    {%- if execute -%}
+        {%- if model.identifier is not defined -%}
+            {{
+                exceptions.raise_compiler_error(
+                    "custom_uf_month_completeness não aceita where: "
+                    ~ "o teste consulta as partições da própria tabela"
+                )
+            }}
+        {%- endif -%}
+        {%- set read_start_query -%}
+            select
+                format_date(
+                    '%Y-%m-%d',
+                    date_sub(
+                        case
+                            length(max(partition_id))
+                            when 4
+                            then parse_date('%Y', max(partition_id))
+                            when 6
+                            then parse_date('%Y%m', max(partition_id))
+                            else
+                                date_trunc(
+                                    parse_date('%Y%m%d', max(partition_id)),
+                                    month
+                                )
+                        end,
+                        interval {{ months_read - 1 }} month
+                    )
+                )
+            from
+                `{{ model.database }}`.`{{ model.schema }}`.INFORMATION_SCHEMA.PARTITIONS
+            where
+                table_name = '{{ model.identifier }}'
+                and total_rows > 0
+                and regexp_contains(partition_id, r'^[0-9]{4}([0-9]{2}){0,2}$')
+        {%- endset -%}
+        {%- set read_start = run_query(read_start_query).rows[0][0] -%}
+        {%- if read_start is none -%}
+            {{
+                exceptions.raise_compiler_error(
+                    "custom_uf_month_completeness: "
+                    ~ model
+                    ~ " não tem partição de ano, mês ou dia com linhas"
+                )
+            }}
+        {%- endif -%}
+    {%- endif -%}
 
     with
         counts as (
@@ -92,12 +150,8 @@
                 count(*) as n
             from {{ model }}
             where
-                {% if date_column %}
-                    {{ date_column }}
-                    >= date_sub(current_date(), interval {{ lookback_years }} year)
-                {% else %}
-                    {{ year_column }}
-                    >= extract(year from current_date()) - {{ lookback_years }}
+                {% if date_column %} {{ date_column }} >= '{{ read_start }}'
+                {% else %} {{ year_column }} >= {{ read_start[:4] | int }}
                 {% endif %}
             group by 1, 2
         ),
@@ -111,8 +165,7 @@
                 unnest(
                     generate_date_array(
                         date_sub(
-                            max_month.competencia,
-                            interval {{ window_months + baseline_months }} month
+                            max_month.competencia, interval {{ months_read - 1 }} month
                         ),
                         max_month.competencia,
                         interval 1 month
