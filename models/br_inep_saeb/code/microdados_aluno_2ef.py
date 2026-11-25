@@ -15,7 +15,6 @@ os.makedirs(OUTPUT, exist_ok=True)
 URL_ZIP = "https://download.inep.gov.br/microdados/microdados_saeb_2023.zip"
 
 os.chdir(INPUT)
-# pyrefly: ignore [deprecated]
 download = os.system(f"curl -O -k {URL_ZIP}")
 os.chdir(CWD)
 assert download == 0

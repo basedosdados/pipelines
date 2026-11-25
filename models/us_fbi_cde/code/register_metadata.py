@@ -597,7 +597,6 @@ def main():
             for c in registered["tables"][table].get("columns", [])
         }
         print(
-            # pyrefly: ignore [bad-argument-type]
             f"  columns registered: {len(by_name)} of {len(spec['columns'])}"
         )
 
@@ -609,7 +608,6 @@ def main():
             for entity, column in OBSERVATION_LEVELS.get(table, [])
             if entity in ol_ids
         }
-        # pyrefly: ignore [bad-argument-type]
         for name in sorted(set(spec["partitions"]) | set(ol_for_column)):
             if name not in by_name:
                 print(f"  [warn] column {name} missing, cannot flag")
@@ -618,7 +616,6 @@ def main():
                 column_id=by_name[name],
                 column_name=name,
                 table_id=table_id,
-                # pyrefly: ignore [not-iterable]
                 is_partition=name in spec["partitions"],
                 observation_level_id=ol_for_column.get(name),
                 env=env,
@@ -650,7 +647,6 @@ def main():
                 # pyrefly: ignore [bad-argument-type]
                 id=prior.get("datetime_range"),
                 coverage_id=coverage_id,
-                # pyrefly: ignore [bad-argument-type]
                 start_year=spec["first_year"],
                 # pyrefly: ignore [bad-argument-type]
                 end_year=spec["last_year"],

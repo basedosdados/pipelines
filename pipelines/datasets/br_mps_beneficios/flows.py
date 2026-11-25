@@ -95,7 +95,6 @@ def br_mps_beneficios_flow(
             reissue guard still applies, so forcing a run on a republished month
             stages nothing.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="beneficios"
     )

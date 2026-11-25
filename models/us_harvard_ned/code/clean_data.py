@@ -113,7 +113,6 @@ def clean_parliamentary_elections():
         df["flag_appointed_nb"] = df["flag_appointed_nb"].astype("Int64")
 
     # Clean string columns - strip whitespace and handle empty strings
-    # pyrefly: ignore [no-matching-overload]
     string_cols = df.select_dtypes(include=["object"]).columns
     for col in string_cols:
         df[col] = df[col].astype(str).str.strip()
@@ -250,7 +249,6 @@ def clean_presidential_elections():
             df[col] = df[col].astype("boolean")
 
     # Clean string columns - strip whitespace and handle empty strings
-    # pyrefly: ignore [no-matching-overload]
     string_cols = df.select_dtypes(include=["object"]).columns
     for col in string_cols:
         df[col] = df[col].astype(str).str.strip()

@@ -240,7 +240,6 @@ def clean_br_me_comex_stat(
 
 def br_me_comex_stat_get_latest_update() -> SourceInspection:
     last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-    # pyrefly: ignore [missing-attribute]
     year, month = last_date.split("-")
     return SourceInspection(reference_date=date(int(year), int(month), 1))
 
@@ -265,7 +264,7 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
 
         # `clean_br_me_comex_stat` está tipado (errado) como -> pd.DataFrame,
         # mas devolve `str` de verdade (mesma pendência do código original,
-        # já marcada lá com `# pyrefly: ignore [bad-return]`).
+        # já marcada lá com `
         return ExtractAndLoad(
             # pyrefly: ignore [bad-argument-type]
             data_path=filepath,
