@@ -113,9 +113,9 @@ jobs:
               --output deployed_names.json
           fi
       - name: Sync deployments with backend
-        # Also runs on 'failure': --output already has the flows that did
-        # succeed, and they'd be stuck paused otherwise.
-        if: steps.deploy.conclusion == 'success' || steps.deploy.conclusion == 'failure'
+        # !cancelled() avoids an implicit success() the condition would
+        # otherwise get, which'd skip this step whenever deploy failed.
+        if: ${{ !cancelled() && (steps.deploy.conclusion == 'success' || steps.deploy.conclusion == 'failure') }}
         env:
           PREFECT3_AUTH_TOKEN: ${{ secrets.PREFECT3_AUTH_TOKEN }}
         run: |-
