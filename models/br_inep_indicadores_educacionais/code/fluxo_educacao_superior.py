@@ -46,6 +46,7 @@ def main():
                         raise
                     print(f"  retry {attempt + 1}/5 ({e})")
             with open(os.path.join(input, url.split("/")[-1]), "wb") as f:
+                # pyrefly: ignore[unbound-name]
                 f.write(response.content)
 
         for file in os.listdir(input):

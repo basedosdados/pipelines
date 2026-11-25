@@ -69,6 +69,7 @@ def escola(ano: int) -> None:
                         raise
                     print(f"  retry {attempt + 1}/5 ({e})")
             with open(os.path.join(input, url.split("/")[-1]), "wb") as f:
+                # pyrefly: ignore[unbound-name]
                 f.write(response.content)
 
         for file in os.listdir(input):
@@ -147,7 +148,7 @@ def escola(ano: int) -> None:
         skiprows=8,
     )
 
-    tnr = tnr.rename(columns=renames_tnr(ano), errors="raise")
+    tnr = tnr.rename(columns=renames_tnr(), errors="raise")
 
     tx = pd.read_excel(
         os.path.join(
