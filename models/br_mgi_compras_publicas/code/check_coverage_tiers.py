@@ -152,7 +152,7 @@ def main() -> int:
     print("6. prune deduplicates within a tier, never across")
     recorder = Recorder()
     original_fn, original_write = rm.fn, rm.bd_mcp_write
-    rm.fn = recorder  # pyrefly: ignore [bad-assignment]
+    rm.fn = recorder
 
     class Stub:
         delete_record = staticmethod(lambda **_: None)
@@ -173,8 +173,8 @@ def main() -> int:
             "test",
         )
     finally:
-        rm.fn = original_fn  # pyrefly: ignore [bad-assignment]
-        rm.bd_mcp_write = original_write  # pyrefly: ignore [bad-assignment]
+        rm.fn = original_fn
+        rm.bd_mcp_write = original_write
     deleted = {c["record_id"] for c in recorder.of("delete_record")}
     check("duplicate free coverage deleted", "cov-free-dup" in deleted)
     check("pro coverage NOT deleted", "cov-pro" not in deleted)

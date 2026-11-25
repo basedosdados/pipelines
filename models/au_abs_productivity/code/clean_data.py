@@ -48,7 +48,6 @@ import re
 import shutil
 import sys
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa

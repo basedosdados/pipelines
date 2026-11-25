@@ -372,7 +372,7 @@ def clean_numeric_columns(df: pd.DataFrame, exclude_cols=None) -> pd.DataFrame:
                 continue
             # Try converting - IPEDS uses '.' for missing
             converted = pd.to_numeric(
-                # pyrefly: ignore [bad-argument-type]
+                # pyrefly: ignore[bad-assignment]
                 df[col].replace({".": None, "": None}),
                 errors="coerce",
             )
