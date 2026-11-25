@@ -114,9 +114,9 @@ Flows reach Prefect 3 through CI only — never register storage or run-config b
 | Pool | `basedosdados-dev` — schedules stripped, manual runs only | `basedosdados` — schedules active |
 
 Both deploy with `paused=True`; production deployments are activated by the backend sync
-step (`admin-tools/sync-deployments/`), which POSTs the list of names just (re-)deployed
-and is soft-failed with `|| echo`, so it can leave a deployment paused without failing the
-job.
+step (`admin-tools/sync-deployments/`), which POSTs the list of names just (re-)deployed —
+if that call fails, the job fails too, so a successfully (re-)deployed flow never silently
+stays paused.
 
 Production also takes a manual `workflow_dispatch` with no inputs, which always runs
 `--all` (bootstrap/disaster recovery only) — this activates every deployment in the repo,
