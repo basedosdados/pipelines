@@ -4,45 +4,85 @@ models:
   - name: br_bndes_fundos_garantidores__operacoes_fgi_tradicional
     description: >
       Operações de crédito com garantia do FGI Tradicional, uma linha por operação,
-      conforme publicadas pelo BNDES na Central de Downloads
+      conforme publicadas pelo BNDES na Central de Downloads. A fonte não traz
+      identificador da operação e publica linhas idênticas, mantidas como vieram;
+      por isso não há teste de unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: ano
         description: >
           Ano da solicitação de outorga da garantia
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: data_solicitacao_outorga
         description: >
           Data em que o agente financeiro solicitou a outorga da garantia do FGI para
           a operação
+        tests: [not_null]
       - name: sigla_uf
         description: >
           Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: >
           Código IBGE de 7 dígitos do município onde o investimento é realizado
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: sigla_uf_sede_cliente
         description: >
           Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio_sede_cliente
         description: >
           Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
       - name: cpf_cnpj_cliente
         description: >
           CPF ou CNPJ do cliente, mascarado pela fonte
+        tests: [not_null]
       - name: nome_cliente
         description: >
           Nome do cliente da operação
+        tests: [not_null]
       - name: porte_cliente
         description: >
           Porte do cliente (Micro, Pequena, Média ou Grande)
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
       - name: valor_operacao
         description: >
           Valor do crédito concedido na operação
+        tests: [not_null]
       - name: valor_garantido
         description: >
           Valor da operação coberto pela garantia do FGI
+        tests: [not_null]
       - name: valor_desembolsado
         description: >
           Valor já liberado ao cliente na operação
+        tests: [not_null]
       - name: instituicao_financeira_credenciada
         description: >-
           Nome do agente financeiro que contratou a operação e solicitou a garantia
+        tests: [not_null]
