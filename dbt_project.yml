@@ -807,6 +807,9 @@ models:
     us_nyuad_cora:
       +materialized: table
       +schema: us_nyuad_cora
+    us_oi_opportunity_atlas:
+      +materialized: table
+      +schema: us_oi_opportunity_atlas
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections

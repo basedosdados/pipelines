@@ -1,0 +1,1799 @@
+---
+version: 2
+models:
+  - name: us_oi_opportunity_atlas__tract_outcome
+    description: >-
+      Predicted adult outcomes for children who grew up in each of the US 2010
+      census tracts, by race, gender and parental income percentile (1, 10, 25,
+      50, 75 and 100, plus the mean). One row per census tract, race, gender and
+      percentile; each outcome has an estimate and a standard error column.
+      Children born 1978-1983, with income measured in 2014-2015. The source
+      adds a small amount of noise to each estimate to protect privacy, so some
+      fractions are slightly negative.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tract_id
+            - race
+            - gender
+            - parent_income_percentile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: state_id
+        description: >-
+          Two-digit state FIPS code (2010)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit county FIPS code (2010), state plus county
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '02270'
+                - '02261'
+                - '51515'
+      - name: tract_id
+        description: >-
+          Eleven-digit census tract FIPS code (2010), state, county and tract
+        tests: [not_null]
+      - name: commuting_zone_id
+        description: >-
+          Commuting zone identifier (1990 definition)
+      - name: race
+        description: >-
+          Child's race or ethnicity: pooled (all), white, black, hispanic,
+          asian, native_american or other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: gender
+        description: >-
+          Child's gender: pooled (both), male or female
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, male, female]
+      - name: parent_income_percentile
+        description: >-
+          Percentile of parental household income in the national distribution
+          at which the prediction is evaluated (1, 10, 25, 50, 75 or 100), or
+          mean for the average not conditioning on parental income
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['1', '10', '25', '50', '75', '100', mean]
+      - name: kfr
+        description: >-
+          Mean rank in the national household income distribution (own and
+          spouse's earnings), averaged over 2014-2015
+      - name: kfr_se
+        description: >-
+          Standard error of kfr
+      - name: kfr_top01
+        description: >-
+          Probability of reaching the top 1% of the national household income
+          distribution in 2014-2015
+      - name: kfr_top01_se
+        description: >-
+          Standard error of kfr_top01
+      - name: kfr_top20
+        description: >-
+          Probability of reaching the top quintile of the national household
+          income distribution in 2014-2015
+      - name: kfr_top20_se
+        description: >-
+          Standard error of kfr_top20
+      - name: kfr_stycz
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children who live in one of their childhood commuting zones in
+          adulthood
+      - name: kfr_stycz_se
+        description: >-
+          Standard error of kfr_stycz
+      - name: kfr_24
+        description: >-
+          Mean rank in the national household income distribution at age 24
+      - name: kfr_24_se
+        description: >-
+          Standard error of kfr_24
+      - name: kfr_26
+        description: >-
+          Mean rank in the national household income distribution at age 26
+      - name: kfr_26_se
+        description: >-
+          Standard error of kfr_26
+      - name: kfr_29
+        description: >-
+          Mean rank in the national household income distribution at age 29
+      - name: kfr_29_se
+        description: >-
+          Standard error of kfr_29
+      - name: kfi
+        description: >-
+          Predicted mean household income (own and spouse's earnings), computed
+          from kfr, kfr_top01 and kfr_top20
+      - name: kir
+        description: >-
+          Mean rank in the national individual income distribution (own earnings
+          only), averaged over 2014-2015
+      - name: kir_se
+        description: >-
+          Standard error of kir
+      - name: kir_top01
+        description: >-
+          Probability of reaching the top 1% of the national individual income
+          distribution in 2014-2015
+      - name: kir_top01_se
+        description: >-
+          Standard error of kir_top01
+      - name: kir_top20
+        description: >-
+          Probability of reaching the top quintile of the national individual
+          income distribution in 2014-2015
+      - name: kir_top20_se
+        description: >-
+          Standard error of kir_top20
+      - name: kir_stycz
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children who live in one of their childhood commuting zones in
+          adulthood
+      - name: kir_stycz_se
+        description: >-
+          Standard error of kir_stycz
+      - name: kir_24
+        description: >-
+          Mean rank in the national individual income distribution at age 24
+      - name: kir_24_se
+        description: >-
+          Standard error of kir_24
+      - name: kir_26
+        description: >-
+          Mean rank in the national individual income distribution at age 26
+      - name: kir_26_se
+        description: >-
+          Standard error of kir_26
+      - name: kir_29
+        description: >-
+          Mean rank in the national individual income distribution at age 29
+      - name: kir_29_se
+        description: >-
+          Standard error of kir_29
+      - name: kii
+        description: >-
+          Predicted mean individual income (own earnings only), computed from
+          kir, kir_top01 and kir_top20
+      - name: spouse_rk
+        description: >-
+          Mean individual income rank in 2014-2015 of the spouse, among children
+          married in 2015
+      - name: spouse_rk_se
+        description: >-
+          Standard error of spouse_rk
+      - name: working
+        description: >-
+          Fraction with positive W-2 earnings in 2015
+      - name: working_se
+        description: >-
+          Standard error of working
+      - name: work_24
+        description: >-
+          Fraction with positive W-2 earnings at age 24
+      - name: work_24_se
+        description: >-
+          Standard error of work_24
+      - name: work_26
+        description: >-
+          Fraction with positive W-2 earnings at age 26
+      - name: work_26_se
+        description: >-
+          Standard error of work_26
+      - name: work_29
+        description: >-
+          Fraction with positive W-2 earnings at age 29
+      - name: work_29_se
+        description: >-
+          Standard error of work_29
+      - name: work_32
+        description: >-
+          Fraction with positive W-2 earnings at age 32
+      - name: work_32_se
+        description: >-
+          Standard error of work_32
+      - name: jail
+        description: >-
+          Fraction incarcerated on April 1, 2010 (federal or state prison, local
+          jail, detention center, residential, military or juvenile correctional
+          facility)
+      - name: jail_se
+        description: >-
+          Standard error of jail
+      - name: teenbrth
+        description: >-
+          Fraction of women who ever claimed as a dependent a child born when
+          they were aged 13 to 19
+      - name: teenbrth_se
+        description: >-
+          Standard error of teenbrth
+      - name: married
+        description: >-
+          Fraction filing their 2015 federal income tax return as married
+          (jointly or separately)
+      - name: married_se
+        description: >-
+          Standard error of married
+      - name: marr_24
+        description: >-
+          Fraction filing their federal income tax return as married at age 24
+      - name: marr_24_se
+        description: >-
+          Standard error of marr_24
+      - name: marr_26
+        description: >-
+          Fraction filing their federal income tax return as married at age 26
+      - name: marr_26_se
+        description: >-
+          Standard error of marr_26
+      - name: marr_29
+        description: >-
+          Fraction filing their federal income tax return as married at age 29
+      - name: marr_29_se
+        description: >-
+          Standard error of marr_29
+      - name: marr_32
+        description: >-
+          Fraction filing their federal income tax return as married at age 32
+      - name: marr_32_se
+        description: >-
+          Standard error of marr_32
+      - name: has_dad
+        description: >-
+          Fraction with a male claimer in the year they are linked to parents
+      - name: has_dad_se
+        description: >-
+          Standard error of has_dad
+      - name: has_mom
+        description: >-
+          Fraction with a female claimer in the year they are linked to parents
+      - name: has_mom_se
+        description: >-
+          Standard error of has_mom
+      - name: two_par
+        description: >-
+          Fraction claimed by two people in the year they are linked to parents
+      - name: two_par_se
+        description: >-
+          Standard error of two_par
+      - name: lpov_nbh
+        description: >-
+          Fraction living in adulthood in a tract with a poverty rate below 10%
+          in the 2000 Census
+      - name: lpov_nbh_se
+        description: >-
+          Standard error of lpov_nbh
+      - name: staycz
+        description: >-
+          Fraction living in adulthood in one of their childhood commuting zones
+      - name: staycz_se
+        description: >-
+          Standard error of staycz
+      - name: staytract
+        description: >-
+          Fraction living in adulthood in one of their childhood census tracts
+      - name: staytract_se
+        description: >-
+          Standard error of staytract
+      - name: stayhome
+        description: >-
+          Fraction living at the same address as their parents in 2015
+      - name: stayhome_se
+        description: >-
+          Standard error of stayhome
+  - name: us_oi_opportunity_atlas__county_outcome
+    description: >-
+      Predicted adult outcomes for children who grew up in each of the US 2010
+      counties, by race, gender and parental income percentile (1, 10, 25, 50,
+      75 and 100, plus the mean). One row per county, race, gender and
+      percentile; each outcome has an estimate and a standard error column.
+      Children born 1978-1983, with income measured in 2014-2015. The source
+      adds a small amount of noise to each estimate to protect privacy, so some
+      fractions are slightly negative.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - county_id
+            - race
+            - gender
+            - parent_income_percentile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: state_id
+        description: >-
+          Two-digit state FIPS code (2010)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit county FIPS code (2010), state plus county
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '02270'
+                - '02261'
+                - '51515'
+      - name: commuting_zone_id
+        description: >-
+          Commuting zone identifier (1990 definition)
+      - name: race
+        description: >-
+          Child's race or ethnicity: pooled (all), white, black, hispanic,
+          asian, native_american or other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: gender
+        description: >-
+          Child's gender: pooled (both), male or female
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, male, female]
+      - name: parent_income_percentile
+        description: >-
+          Percentile of parental household income in the national distribution
+          at which the prediction is evaluated (1, 10, 25, 50, 75 or 100), or
+          mean for the average not conditioning on parental income
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['1', '10', '25', '50', '75', '100', mean]
+      - name: kfr
+        description: >-
+          Mean rank in the national household income distribution (own and
+          spouse's earnings), averaged over 2014-2015
+      - name: kfr_se
+        description: >-
+          Standard error of kfr
+      - name: kfr_top01
+        description: >-
+          Probability of reaching the top 1% of the national household income
+          distribution in 2014-2015
+      - name: kfr_top01_se
+        description: >-
+          Standard error of kfr_top01
+      - name: kfr_top20
+        description: >-
+          Probability of reaching the top quintile of the national household
+          income distribution in 2014-2015
+      - name: kfr_top20_se
+        description: >-
+          Standard error of kfr_top20
+      - name: kfr_stycz
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children who live in one of their childhood commuting zones in
+          adulthood
+      - name: kfr_stycz_se
+        description: >-
+          Standard error of kfr_stycz
+      - name: kfr_imm
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children whose mothers immigrated to the United States
+      - name: kfr_imm_se
+        description: >-
+          Standard error of kfr_imm
+      - name: kfr_native
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children whose mothers were born in the United States
+      - name: kfr_native_se
+        description: >-
+          Standard error of kfr_native
+      - name: kfr_24
+        description: >-
+          Mean rank in the national household income distribution at age 24
+      - name: kfr_24_se
+        description: >-
+          Standard error of kfr_24
+      - name: kfr_26
+        description: >-
+          Mean rank in the national household income distribution at age 26
+      - name: kfr_26_se
+        description: >-
+          Standard error of kfr_26
+      - name: kfr_29
+        description: >-
+          Mean rank in the national household income distribution at age 29
+      - name: kfr_29_se
+        description: >-
+          Standard error of kfr_29
+      - name: kir
+        description: >-
+          Mean rank in the national individual income distribution (own earnings
+          only), averaged over 2014-2015
+      - name: kir_se
+        description: >-
+          Standard error of kir
+      - name: kir_top01
+        description: >-
+          Probability of reaching the top 1% of the national individual income
+          distribution in 2014-2015
+      - name: kir_top01_se
+        description: >-
+          Standard error of kir_top01
+      - name: kir_top20
+        description: >-
+          Probability of reaching the top quintile of the national individual
+          income distribution in 2014-2015
+      - name: kir_top20_se
+        description: >-
+          Standard error of kir_top20
+      - name: kir_stycz
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children who live in one of their childhood commuting zones in
+          adulthood
+      - name: kir_stycz_se
+        description: >-
+          Standard error of kir_stycz
+      - name: kir_imm
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children whose mothers immigrated to the United States
+      - name: kir_imm_se
+        description: >-
+          Standard error of kir_imm
+      - name: kir_native
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children whose mothers were born in the United States
+      - name: kir_native_se
+        description: >-
+          Standard error of kir_native
+      - name: kir_24
+        description: >-
+          Mean rank in the national individual income distribution at age 24
+      - name: kir_24_se
+        description: >-
+          Standard error of kir_24
+      - name: kir_26
+        description: >-
+          Mean rank in the national individual income distribution at age 26
+      - name: kir_26_se
+        description: >-
+          Standard error of kir_26
+      - name: kir_29
+        description: >-
+          Mean rank in the national individual income distribution at age 29
+      - name: kir_29_se
+        description: >-
+          Standard error of kir_29
+      - name: spouse_rk
+        description: >-
+          Mean individual income rank in 2014-2015 of the spouse, among children
+          married in 2015
+      - name: spouse_rk_se
+        description: >-
+          Standard error of spouse_rk
+      - name: wgflx_rk
+        description: >-
+          Hourly wage rank, within birth year and ACS year, among children who
+          received the ACS at age 30 or older
+      - name: wgflx_rk_se
+        description: >-
+          Standard error of wgflx_rk
+      - name: hours_wk
+        description: >-
+          Mean weekly hours worked in the 12 months before the ACS, among
+          children who received the ACS at age 30 or older (zero for those not
+          working)
+      - name: hours_wk_se
+        description: >-
+          Standard error of hours_wk
+      - name: pos_hours
+        description: >-
+          Fraction with positive hours worked in the 12 months before the ACS,
+          among children who received the ACS at age 30 or older
+      - name: pos_hours_se
+        description: >-
+          Standard error of pos_hours
+      - name: working
+        description: >-
+          Fraction with positive W-2 earnings in 2015
+      - name: working_se
+        description: >-
+          Standard error of working
+      - name: work_24
+        description: >-
+          Fraction with positive W-2 earnings at age 24
+      - name: work_24_se
+        description: >-
+          Standard error of work_24
+      - name: work_26
+        description: >-
+          Fraction with positive W-2 earnings at age 26
+      - name: work_26_se
+        description: >-
+          Standard error of work_26
+      - name: work_29
+        description: >-
+          Fraction with positive W-2 earnings at age 29
+      - name: work_29_se
+        description: >-
+          Standard error of work_29
+      - name: work_32
+        description: >-
+          Fraction with positive W-2 earnings at age 32
+      - name: work_32_se
+        description: >-
+          Standard error of work_32
+      - name: proginc
+        description: >-
+          Fraction receiving public assistance income, among children who
+          received the ACS at age 30 or older
+      - name: proginc_se
+        description: >-
+          Standard error of proginc
+      - name: hs
+        description: >-
+          Fraction who completed high school or obtained a GED, among children
+          who received the ACS or the 2000 Census long form at age 19 or older
+      - name: hs_se
+        description: >-
+          Standard error of hs
+      - name: somecoll
+        description: >-
+          Fraction with at least some college, among children who received the
+          ACS or the 2000 Census long form at age 25 or older
+      - name: somecoll_se
+        description: >-
+          Standard error of somecoll
+      - name: comcoll
+        description: >-
+          Fraction with at least a community college degree, among children who
+          received the ACS or the 2000 Census long form at age 25 or older
+      - name: comcoll_se
+        description: >-
+          Standard error of comcoll
+      - name: coll
+        description: >-
+          Fraction with a four-year college degree, among children who received
+          the ACS or the 2000 Census long form at age 25 or older
+      - name: coll_se
+        description: >-
+          Standard error of coll
+      - name: grad
+        description: >-
+          Fraction with a graduate degree, among children who received the ACS
+          or the 2000 Census long form at age 30 or older
+      - name: grad_se
+        description: >-
+          Standard error of grad
+      - name: jail
+        description: >-
+          Fraction incarcerated on April 1, 2010 (federal or state prison, local
+          jail, detention center, residential, military or juvenile correctional
+          facility)
+      - name: jail_se
+        description: >-
+          Standard error of jail
+      - name: teenbrth
+        description: >-
+          Fraction of women who ever claimed as a dependent a child born when
+          they were aged 13 to 19
+      - name: teenbrth_se
+        description: >-
+          Standard error of teenbrth
+      - name: married
+        description: >-
+          Fraction filing their 2015 federal income tax return as married
+          (jointly or separately)
+      - name: married_se
+        description: >-
+          Standard error of married
+      - name: marr_24
+        description: >-
+          Fraction filing their federal income tax return as married at age 24
+      - name: marr_24_se
+        description: >-
+          Standard error of marr_24
+      - name: marr_26
+        description: >-
+          Fraction filing their federal income tax return as married at age 26
+      - name: marr_26_se
+        description: >-
+          Standard error of marr_26
+      - name: marr_29
+        description: >-
+          Fraction filing their federal income tax return as married at age 29
+      - name: marr_29_se
+        description: >-
+          Standard error of marr_29
+      - name: marr_32
+        description: >-
+          Fraction filing their federal income tax return as married at age 32
+      - name: marr_32_se
+        description: >-
+          Standard error of marr_32
+      - name: has_dad
+        description: >-
+          Fraction with a male claimer in the year they are linked to parents
+      - name: has_dad_se
+        description: >-
+          Standard error of has_dad
+      - name: has_mom
+        description: >-
+          Fraction with a female claimer in the year they are linked to parents
+      - name: has_mom_se
+        description: >-
+          Standard error of has_mom
+      - name: two_par
+        description: >-
+          Fraction claimed by two people in the year they are linked to parents
+      - name: two_par_se
+        description: >-
+          Standard error of two_par
+      - name: lpov_nbh
+        description: >-
+          Fraction living in adulthood in a tract with a poverty rate below 10%
+          in the 2000 Census
+      - name: lpov_nbh_se
+        description: >-
+          Standard error of lpov_nbh
+      - name: staycz
+        description: >-
+          Fraction living in adulthood in one of their childhood commuting zones
+      - name: staycz_se
+        description: >-
+          Standard error of staycz
+      - name: staytract
+        description: >-
+          Fraction living in adulthood in one of their childhood census tracts
+      - name: staytract_se
+        description: >-
+          Standard error of staytract
+      - name: stayhome
+        description: >-
+          Fraction living at the same address as their parents in 2015
+      - name: stayhome_se
+        description: >-
+          Standard error of stayhome
+  - name: us_oi_opportunity_atlas__commuting_zone_outcome
+    description: >-
+      Predicted adult outcomes for children who grew up in each of the US 1990
+      commuting zones, by race, gender and parental income percentile (1, 10,
+      25, 50, 75 and 100, plus the mean). One row per commuting zone, race,
+      gender and percentile; each outcome has an estimate and a standard error
+      column. Children born 1978-1983, with income measured in 2014-2015. The
+      source adds a small amount of noise to each estimate to protect privacy,
+      so some fractions are slightly negative.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - commuting_zone_id
+            - race
+            - gender
+            - parent_income_percentile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: commuting_zone_id
+        description: >-
+          Commuting zone identifier (1990 definition)
+        tests: [not_null]
+      - name: commuting_zone_name
+        description: >-
+          Commuting zone name
+      - name: race
+        description: >-
+          Child's race or ethnicity: pooled (all), white, black, hispanic,
+          asian, native_american or other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: gender
+        description: >-
+          Child's gender: pooled (both), male or female
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, male, female]
+      - name: parent_income_percentile
+        description: >-
+          Percentile of parental household income in the national distribution
+          at which the prediction is evaluated (1, 10, 25, 50, 75 or 100), or
+          mean for the average not conditioning on parental income
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['1', '10', '25', '50', '75', '100', mean]
+      - name: kfr
+        description: >-
+          Mean rank in the national household income distribution (own and
+          spouse's earnings), averaged over 2014-2015
+      - name: kfr_se
+        description: >-
+          Standard error of kfr
+      - name: kfr_top01
+        description: >-
+          Probability of reaching the top 1% of the national household income
+          distribution in 2014-2015
+      - name: kfr_top01_se
+        description: >-
+          Standard error of kfr_top01
+      - name: kfr_top20
+        description: >-
+          Probability of reaching the top quintile of the national household
+          income distribution in 2014-2015
+      - name: kfr_top20_se
+        description: >-
+          Standard error of kfr_top20
+      - name: kfr_stycz
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children who live in one of their childhood commuting zones in
+          adulthood
+      - name: kfr_stycz_se
+        description: >-
+          Standard error of kfr_stycz
+      - name: kfr_imm
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children whose mothers immigrated to the United States
+      - name: kfr_imm_se
+        description: >-
+          Standard error of kfr_imm
+      - name: kfr_native
+        description: >-
+          Mean rank in the national household income distribution in 2014-2015,
+          among children whose mothers were born in the United States
+      - name: kfr_native_se
+        description: >-
+          Standard error of kfr_native
+      - name: kfr_24
+        description: >-
+          Mean rank in the national household income distribution at age 24
+      - name: kfr_24_se
+        description: >-
+          Standard error of kfr_24
+      - name: kfr_26
+        description: >-
+          Mean rank in the national household income distribution at age 26
+      - name: kfr_26_se
+        description: >-
+          Standard error of kfr_26
+      - name: kfr_29
+        description: >-
+          Mean rank in the national household income distribution at age 29
+      - name: kfr_29_se
+        description: >-
+          Standard error of kfr_29
+      - name: kir
+        description: >-
+          Mean rank in the national individual income distribution (own earnings
+          only), averaged over 2014-2015
+      - name: kir_se
+        description: >-
+          Standard error of kir
+      - name: kir_top01
+        description: >-
+          Probability of reaching the top 1% of the national individual income
+          distribution in 2014-2015
+      - name: kir_top01_se
+        description: >-
+          Standard error of kir_top01
+      - name: kir_top20
+        description: >-
+          Probability of reaching the top quintile of the national individual
+          income distribution in 2014-2015
+      - name: kir_top20_se
+        description: >-
+          Standard error of kir_top20
+      - name: kir_stycz
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children who live in one of their childhood commuting zones in
+          adulthood
+      - name: kir_stycz_se
+        description: >-
+          Standard error of kir_stycz
+      - name: kir_imm
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children whose mothers immigrated to the United States
+      - name: kir_imm_se
+        description: >-
+          Standard error of kir_imm
+      - name: kir_native
+        description: >-
+          Mean rank in the national individual income distribution in 2014-2015,
+          among children whose mothers were born in the United States
+      - name: kir_native_se
+        description: >-
+          Standard error of kir_native
+      - name: kir_24
+        description: >-
+          Mean rank in the national individual income distribution at age 24
+      - name: kir_24_se
+        description: >-
+          Standard error of kir_24
+      - name: kir_26
+        description: >-
+          Mean rank in the national individual income distribution at age 26
+      - name: kir_26_se
+        description: >-
+          Standard error of kir_26
+      - name: kir_29
+        description: >-
+          Mean rank in the national individual income distribution at age 29
+      - name: kir_29_se
+        description: >-
+          Standard error of kir_29
+      - name: spouse_rk
+        description: >-
+          Mean individual income rank in 2014-2015 of the spouse, among children
+          married in 2015
+      - name: spouse_rk_se
+        description: >-
+          Standard error of spouse_rk
+      - name: wgflx_rk
+        description: >-
+          Hourly wage rank, within birth year and ACS year, among children who
+          received the ACS at age 30 or older
+      - name: wgflx_rk_se
+        description: >-
+          Standard error of wgflx_rk
+      - name: hours_wk
+        description: >-
+          Mean weekly hours worked in the 12 months before the ACS, among
+          children who received the ACS at age 30 or older (zero for those not
+          working)
+      - name: hours_wk_se
+        description: >-
+          Standard error of hours_wk
+      - name: pos_hours
+        description: >-
+          Fraction with positive hours worked in the 12 months before the ACS,
+          among children who received the ACS at age 30 or older
+      - name: pos_hours_se
+        description: >-
+          Standard error of pos_hours
+      - name: working
+        description: >-
+          Fraction with positive W-2 earnings in 2015
+      - name: working_se
+        description: >-
+          Standard error of working
+      - name: work_24
+        description: >-
+          Fraction with positive W-2 earnings at age 24
+      - name: work_24_se
+        description: >-
+          Standard error of work_24
+      - name: work_26
+        description: >-
+          Fraction with positive W-2 earnings at age 26
+      - name: work_26_se
+        description: >-
+          Standard error of work_26
+      - name: work_29
+        description: >-
+          Fraction with positive W-2 earnings at age 29
+      - name: work_29_se
+        description: >-
+          Standard error of work_29
+      - name: work_32
+        description: >-
+          Fraction with positive W-2 earnings at age 32
+      - name: work_32_se
+        description: >-
+          Standard error of work_32
+      - name: proginc
+        description: >-
+          Fraction receiving public assistance income, among children who
+          received the ACS at age 30 or older
+      - name: proginc_se
+        description: >-
+          Standard error of proginc
+      - name: hs
+        description: >-
+          Fraction who completed high school or obtained a GED, among children
+          who received the ACS or the 2000 Census long form at age 19 or older
+      - name: hs_se
+        description: >-
+          Standard error of hs
+      - name: somecoll
+        description: >-
+          Fraction with at least some college, among children who received the
+          ACS or the 2000 Census long form at age 25 or older
+      - name: somecoll_se
+        description: >-
+          Standard error of somecoll
+      - name: comcoll
+        description: >-
+          Fraction with at least a community college degree, among children who
+          received the ACS or the 2000 Census long form at age 25 or older
+      - name: comcoll_se
+        description: >-
+          Standard error of comcoll
+      - name: coll
+        description: >-
+          Fraction with a four-year college degree, among children who received
+          the ACS or the 2000 Census long form at age 25 or older
+      - name: coll_se
+        description: >-
+          Standard error of coll
+      - name: grad
+        description: >-
+          Fraction with a graduate degree, among children who received the ACS
+          or the 2000 Census long form at age 30 or older
+      - name: grad_se
+        description: >-
+          Standard error of grad
+      - name: jail
+        description: >-
+          Fraction incarcerated on April 1, 2010 (federal or state prison, local
+          jail, detention center, residential, military or juvenile correctional
+          facility)
+      - name: jail_se
+        description: >-
+          Standard error of jail
+      - name: teenbrth
+        description: >-
+          Fraction of women who ever claimed as a dependent a child born when
+          they were aged 13 to 19
+      - name: teenbrth_se
+        description: >-
+          Standard error of teenbrth
+      - name: married
+        description: >-
+          Fraction filing their 2015 federal income tax return as married
+          (jointly or separately)
+      - name: married_se
+        description: >-
+          Standard error of married
+      - name: marr_24
+        description: >-
+          Fraction filing their federal income tax return as married at age 24
+      - name: marr_24_se
+        description: >-
+          Standard error of marr_24
+      - name: marr_26
+        description: >-
+          Fraction filing their federal income tax return as married at age 26
+      - name: marr_26_se
+        description: >-
+          Standard error of marr_26
+      - name: marr_29
+        description: >-
+          Fraction filing their federal income tax return as married at age 29
+      - name: marr_29_se
+        description: >-
+          Standard error of marr_29
+      - name: marr_32
+        description: >-
+          Fraction filing their federal income tax return as married at age 32
+      - name: marr_32_se
+        description: >-
+          Standard error of marr_32
+      - name: has_dad
+        description: >-
+          Fraction with a male claimer in the year they are linked to parents
+      - name: has_dad_se
+        description: >-
+          Standard error of has_dad
+      - name: has_mom
+        description: >-
+          Fraction with a female claimer in the year they are linked to parents
+      - name: has_mom_se
+        description: >-
+          Standard error of has_mom
+      - name: two_par
+        description: >-
+          Fraction claimed by two people in the year they are linked to parents
+      - name: two_par_se
+        description: >-
+          Standard error of two_par
+      - name: lpov_nbh
+        description: >-
+          Fraction living in adulthood in a tract with a poverty rate below 10%
+          in the 2000 Census
+      - name: lpov_nbh_se
+        description: >-
+          Standard error of lpov_nbh
+      - name: staycz
+        description: >-
+          Fraction living in adulthood in one of their childhood commuting zones
+      - name: staycz_se
+        description: >-
+          Standard error of staycz
+      - name: staytract
+        description: >-
+          Fraction living in adulthood in one of their childhood census tracts
+      - name: staytract_se
+        description: >-
+          Standard error of staytract
+      - name: stayhome
+        description: >-
+          Fraction living at the same address as their parents in 2015
+      - name: stayhome_se
+        description: >-
+          Standard error of stayhome
+  - name: us_oi_opportunity_atlas__commuting_zone_migration
+    description: >-
+      Flows of young adults between the commuting zone where they lived at age
+      16 and the one where they live at age 26, for people born in the US in
+      1984-1992, by race and parental income quintile. One row per origin-
+      destination pair, race and quintile; pooled marks the total of the
+      dimension not split. The source adds or subtracts a few people from each
+      cell to satisfy differential privacy.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - origin_commuting_zone_id
+            - destination_commuting_zone_id
+            - race
+            - parent_income_quintile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: origin_commuting_zone_id
+        description: >-
+          Identifier of the commuting zone of origin (where the person lived at
+          age 16) (1990 definition)
+        tests: [not_null]
+      - name: origin_commuting_zone_name
+        description: >-
+          Name of the commuting zone of origin
+      - name: origin_state_name
+        description: >-
+          Name of the state of the commuting zone of origin
+      - name: destination_commuting_zone_id
+        description: >-
+          Identifier of the commuting zone of destination (where the person
+          lives at age 26) (1990 definition)
+        tests: [not_null]
+      - name: destination_commuting_zone_name
+        description: >-
+          Name of the commuting zone of destination
+      - name: destination_state_name
+        description: >-
+          Name of the state of the commuting zone of destination
+      - name: race
+        description: >-
+          Race or ethnicity: pooled (all), asian, black, hispanic, white or
+          other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: parent_income_quintile
+        description: >-
+          Parental income quintile in the national distribution, from 1
+          (poorest) to 5 (richest), or pooled (all)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, '1', '2', '3', '4', '5']
+      - name: individuals
+        description: >-
+          Number of people from the origin commuting zone living in the
+          destination commuting zone
+      - name: origin_individuals
+        description: >-
+          Total number of people from the origin commuting zone (individuals
+          summed over destinations)
+      - name: destination_individuals
+        description: >-
+          Total number of people living in the destination commuting zone
+          (individuals summed over origins)
+      - name: probability_destination_given_origin
+        description: >-
+          Probability of living in the destination given growing up in the
+          origin, Pr{D|O} = individuals / origin_individuals
+      - name: probability_origin_given_destination
+        description: >-
+          Probability of having grown up in the origin given living in the
+          destination, Pr{O|D} = individuals / destination_individuals
+  - name: us_oi_opportunity_atlas__tract_sample
+    description: >-
+      Sample sizes and child characteristics behind the estimates in
+      tract_outcome, by census tract, race and gender: the number of children
+      used for each outcome, the parents' mean income rank, the number of
+      children in the 2000 Census and the fraction with parents below the
+      national income median.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [tract_id, race, gender]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: state_id
+        description: >-
+          Two-digit state FIPS code (2010)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit county FIPS code (2010), state plus county
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '02270'
+                - '02261'
+                - '51515'
+      - name: tract_id
+        description: >-
+          Eleven-digit census tract FIPS code (2010), state, county and tract
+        tests: [not_null]
+      - name: commuting_zone_id
+        description: >-
+          Commuting zone identifier (1990 definition)
+      - name: race
+        description: >-
+          Child's race or ethnicity: pooled (all), white, black, hispanic,
+          asian, native_american or other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: gender
+        description: >-
+          Child's gender: pooled (both), male or female
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, male, female]
+      - name: parent_rank_mean
+        description: >-
+          Mean household income rank of the parents, relative to other parents
+          of children in the same birth cohort (averaged over 1994-1995 and
+          1998-2000)
+      - name: parent_rank_mean_se
+        description: >-
+          Standard error of parent_rank_mean
+      - name: child_count_2000
+        description: >-
+          Number of children under 18 in the place in 2000 (2000 Decennial
+          Census)
+      - name: child_below_median_count_2000
+        description: >-
+          Estimated number of children under 18 in the place in 2000 whose
+          parents' income is below the national median (child_count_2000 times
+          share_below_median)
+      - name: share_below_median
+        description: >-
+          Fraction of children whose parents' income is below the national
+          median for parents in the same birth cohort, weighted by childhood
+          years spent in the place
+      - name: share_childhood_years
+        description: >-
+          Mean fraction of possible childhood years (up to age 23) spent in the
+          place, among children who spent any time there
+      - name: kfr_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr
+      - name: kfr_top01_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_top01
+      - name: kfr_top20_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_top20
+      - name: kfr_stycz_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_stycz
+      - name: kfr_24_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_24
+      - name: kfr_26_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_26
+      - name: kfr_29_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_29
+      - name: kir_n
+        description: >-
+          Number of children with non-missing data used to estimate kir
+      - name: kir_top01_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_top01
+      - name: kir_top20_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_top20
+      - name: kir_stycz_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_stycz
+      - name: kir_24_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_24
+      - name: kir_26_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_26
+      - name: kir_29_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_29
+      - name: spouse_rk_n
+        description: >-
+          Number of children with non-missing data used to estimate spouse_rk
+      - name: working_n
+        description: >-
+          Number of children with non-missing data used to estimate working
+      - name: work_24_n
+        description: >-
+          Number of children with non-missing data used to estimate work_24
+      - name: work_26_n
+        description: >-
+          Number of children with non-missing data used to estimate work_26
+      - name: work_29_n
+        description: >-
+          Number of children with non-missing data used to estimate work_29
+      - name: work_32_n
+        description: >-
+          Number of children with non-missing data used to estimate work_32
+      - name: jail_n
+        description: >-
+          Number of children with non-missing data used to estimate jail
+      - name: teenbrth_n
+        description: >-
+          Number of children with non-missing data used to estimate teenbrth
+      - name: married_n
+        description: >-
+          Number of children with non-missing data used to estimate married
+      - name: marr_24_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_24
+      - name: marr_26_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_26
+      - name: marr_29_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_29
+      - name: marr_32_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_32
+      - name: has_dad_n
+        description: >-
+          Number of children with non-missing data used to estimate has_dad
+      - name: has_mom_n
+        description: >-
+          Number of children with non-missing data used to estimate has_mom
+      - name: two_par_n
+        description: >-
+          Number of children with non-missing data used to estimate two_par
+      - name: lpov_nbh_n
+        description: >-
+          Number of children with non-missing data used to estimate lpov_nbh
+      - name: staycz_n
+        description: >-
+          Number of children with non-missing data used to estimate staycz
+      - name: staytract_n
+        description: >-
+          Number of children with non-missing data used to estimate staytract
+      - name: stayhome_n
+        description: >-
+          Number of children with non-missing data used to estimate stayhome
+  - name: us_oi_opportunity_atlas__county_sample
+    description: >-
+      Sample sizes and child characteristics behind the estimates in
+      county_outcome, by county, race and gender: the number of children used
+      for each outcome, the parents' mean income rank, the number of children in
+      the 2000 Census and the fraction with parents below the national income
+      median.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [county_id, race, gender]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: state_id
+        description: >-
+          Two-digit state FIPS code (2010)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Five-digit county FIPS code (2010), state plus county
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '46113'
+                - '02270'
+                - '02261'
+                - '51515'
+      - name: commuting_zone_id
+        description: >-
+          Commuting zone identifier (1990 definition)
+      - name: race
+        description: >-
+          Child's race or ethnicity: pooled (all), white, black, hispanic,
+          asian, native_american or other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: gender
+        description: >-
+          Child's gender: pooled (both), male or female
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, male, female]
+      - name: parent_rank_mean
+        description: >-
+          Mean household income rank of the parents, relative to other parents
+          of children in the same birth cohort (averaged over 1994-1995 and
+          1998-2000)
+      - name: parent_rank_mean_se
+        description: >-
+          Standard error of parent_rank_mean
+      - name: child_count_2000
+        description: >-
+          Number of children under 18 in the place in 2000 (2000 Decennial
+          Census)
+      - name: child_below_median_count_2000
+        description: >-
+          Estimated number of children under 18 in the place in 2000 whose
+          parents' income is below the national median (child_count_2000 times
+          share_below_median)
+      - name: share_below_median
+        description: >-
+          Fraction of children whose parents' income is below the national
+          median for parents in the same birth cohort, weighted by childhood
+          years spent in the place
+      - name: share_childhood_years
+        description: >-
+          Mean fraction of possible childhood years (up to age 23) spent in the
+          place, among children who spent any time there
+      - name: kfr_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr
+      - name: kfr_top01_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_top01
+      - name: kfr_top20_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_top20
+      - name: kfr_stycz_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_stycz
+      - name: kfr_imm_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_imm
+      - name: kfr_native_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_native
+      - name: kfr_24_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_24
+      - name: kfr_26_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_26
+      - name: kfr_29_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_29
+      - name: kir_n
+        description: >-
+          Number of children with non-missing data used to estimate kir
+      - name: kir_top01_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_top01
+      - name: kir_top20_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_top20
+      - name: kir_stycz_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_stycz
+      - name: kir_imm_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_imm
+      - name: kir_native_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_native
+      - name: kir_24_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_24
+      - name: kir_26_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_26
+      - name: kir_29_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_29
+      - name: spouse_rk_n
+        description: >-
+          Number of children with non-missing data used to estimate spouse_rk
+      - name: wgflx_rk_n
+        description: >-
+          Number of children with non-missing data used to estimate wgflx_rk
+      - name: hours_wk_n
+        description: >-
+          Number of children with non-missing data used to estimate hours_wk
+      - name: pos_hours_n
+        description: >-
+          Number of children with non-missing data used to estimate pos_hours
+      - name: working_n
+        description: >-
+          Number of children with non-missing data used to estimate working
+      - name: work_24_n
+        description: >-
+          Number of children with non-missing data used to estimate work_24
+      - name: work_26_n
+        description: >-
+          Number of children with non-missing data used to estimate work_26
+      - name: work_29_n
+        description: >-
+          Number of children with non-missing data used to estimate work_29
+      - name: work_32_n
+        description: >-
+          Number of children with non-missing data used to estimate work_32
+      - name: proginc_n
+        description: >-
+          Number of children with non-missing data used to estimate proginc
+      - name: hs_n
+        description: >-
+          Number of children with non-missing data used to estimate hs
+      - name: somecoll_n
+        description: >-
+          Number of children with non-missing data used to estimate somecoll
+      - name: comcoll_n
+        description: >-
+          Number of children with non-missing data used to estimate comcoll
+      - name: coll_n
+        description: >-
+          Number of children with non-missing data used to estimate coll
+      - name: grad_n
+        description: >-
+          Number of children with non-missing data used to estimate grad
+      - name: jail_n
+        description: >-
+          Number of children with non-missing data used to estimate jail
+      - name: teenbrth_n
+        description: >-
+          Number of children with non-missing data used to estimate teenbrth
+      - name: married_n
+        description: >-
+          Number of children with non-missing data used to estimate married
+      - name: marr_24_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_24
+      - name: marr_26_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_26
+      - name: marr_29_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_29
+      - name: marr_32_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_32
+      - name: has_dad_n
+        description: >-
+          Number of children with non-missing data used to estimate has_dad
+      - name: has_mom_n
+        description: >-
+          Number of children with non-missing data used to estimate has_mom
+      - name: two_par_n
+        description: >-
+          Number of children with non-missing data used to estimate two_par
+      - name: lpov_nbh_n
+        description: >-
+          Number of children with non-missing data used to estimate lpov_nbh
+      - name: staycz_n
+        description: >-
+          Number of children with non-missing data used to estimate staycz
+      - name: staytract_n
+        description: >-
+          Number of children with non-missing data used to estimate staytract
+      - name: stayhome_n
+        description: >-
+          Number of children with non-missing data used to estimate stayhome
+  - name: us_oi_opportunity_atlas__commuting_zone_sample
+    description: >-
+      Sample sizes and child characteristics behind the estimates in
+      commuting_zone_outcome, by commuting zone, race and gender: the number of
+      children used for each outcome, the parents' mean income rank, the number
+      of children in the 2000 Census and the fraction with parents below the
+      national income median.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [commuting_zone_id, race, gender]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: commuting_zone_id
+        description: >-
+          Commuting zone identifier (1990 definition)
+        tests: [not_null]
+      - name: commuting_zone_name
+        description: >-
+          Commuting zone name
+      - name: race
+        description: >-
+          Child's race or ethnicity: pooled (all), white, black, hispanic,
+          asian, native_american or other
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - pooled
+                - white
+                - black
+                - hispanic
+                - asian
+                - native_american
+                - other
+      - name: gender
+        description: >-
+          Child's gender: pooled (both), male or female
+        tests:
+          - not_null
+          - accepted_values:
+              values: [pooled, male, female]
+      - name: parent_rank_mean
+        description: >-
+          Mean household income rank of the parents, relative to other parents
+          of children in the same birth cohort (averaged over 1994-1995 and
+          1998-2000)
+      - name: parent_rank_mean_se
+        description: >-
+          Standard error of parent_rank_mean
+      - name: child_count_2000
+        description: >-
+          Number of children under 18 in the place in 2000 (2000 Decennial
+          Census)
+      - name: child_below_median_count_2000
+        description: >-
+          Estimated number of children under 18 in the place in 2000 whose
+          parents' income is below the national median (child_count_2000 times
+          share_below_median)
+      - name: share_below_median
+        description: >-
+          Fraction of children whose parents' income is below the national
+          median for parents in the same birth cohort, weighted by childhood
+          years spent in the place
+      - name: share_childhood_years
+        description: >-
+          Mean fraction of possible childhood years (up to age 23) spent in the
+          place, among children who spent any time there
+      - name: kfr_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr
+      - name: kfr_top01_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_top01
+      - name: kfr_top20_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_top20
+      - name: kfr_stycz_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_stycz
+      - name: kfr_imm_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_imm
+      - name: kfr_native_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_native
+      - name: kfr_24_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_24
+      - name: kfr_26_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_26
+      - name: kfr_29_n
+        description: >-
+          Number of children with non-missing data used to estimate kfr_29
+      - name: kir_n
+        description: >-
+          Number of children with non-missing data used to estimate kir
+      - name: kir_top01_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_top01
+      - name: kir_top20_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_top20
+      - name: kir_stycz_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_stycz
+      - name: kir_imm_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_imm
+      - name: kir_native_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_native
+      - name: kir_24_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_24
+      - name: kir_26_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_26
+      - name: kir_29_n
+        description: >-
+          Number of children with non-missing data used to estimate kir_29
+      - name: spouse_rk_n
+        description: >-
+          Number of children with non-missing data used to estimate spouse_rk
+      - name: wgflx_rk_n
+        description: >-
+          Number of children with non-missing data used to estimate wgflx_rk
+      - name: hours_wk_n
+        description: >-
+          Number of children with non-missing data used to estimate hours_wk
+      - name: pos_hours_n
+        description: >-
+          Number of children with non-missing data used to estimate pos_hours
+      - name: working_n
+        description: >-
+          Number of children with non-missing data used to estimate working
+      - name: work_24_n
+        description: >-
+          Number of children with non-missing data used to estimate work_24
+      - name: work_26_n
+        description: >-
+          Number of children with non-missing data used to estimate work_26
+      - name: work_29_n
+        description: >-
+          Number of children with non-missing data used to estimate work_29
+      - name: work_32_n
+        description: >-
+          Number of children with non-missing data used to estimate work_32
+      - name: proginc_n
+        description: >-
+          Number of children with non-missing data used to estimate proginc
+      - name: hs_n
+        description: >-
+          Number of children with non-missing data used to estimate hs
+      - name: somecoll_n
+        description: >-
+          Number of children with non-missing data used to estimate somecoll
+      - name: comcoll_n
+        description: >-
+          Number of children with non-missing data used to estimate comcoll
+      - name: coll_n
+        description: >-
+          Number of children with non-missing data used to estimate coll
+      - name: grad_n
+        description: >-
+          Number of children with non-missing data used to estimate grad
+      - name: jail_n
+        description: >-
+          Number of children with non-missing data used to estimate jail
+      - name: teenbrth_n
+        description: >-
+          Number of children with non-missing data used to estimate teenbrth
+      - name: married_n
+        description: >-
+          Number of children with non-missing data used to estimate married
+      - name: marr_24_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_24
+      - name: marr_26_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_26
+      - name: marr_29_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_29
+      - name: marr_32_n
+        description: >-
+          Number of children with non-missing data used to estimate marr_32
+      - name: has_dad_n
+        description: >-
+          Number of children with non-missing data used to estimate has_dad
+      - name: has_mom_n
+        description: >-
+          Number of children with non-missing data used to estimate has_mom
+      - name: two_par_n
+        description: >-
+          Number of children with non-missing data used to estimate two_par
+      - name: lpov_nbh_n
+        description: >-
+          Number of children with non-missing data used to estimate lpov_nbh
+      - name: staycz_n
+        description: >-
+          Number of children with non-missing data used to estimate staycz
+      - name: staytract_n
+        description: >-
+          Number of children with non-missing data used to estimate staytract
+      - name: stayhome_n
+        description: >-
+          Number of children with non-missing data used to estimate stayhome
