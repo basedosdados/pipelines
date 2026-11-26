@@ -109,13 +109,31 @@ Flows reach Prefect 3 through CI only — never register storage or run-config b
 | | Staging | Production |
 |---|---|---|
 | Workflow | `cd-prefect3-staging.yaml` | `cd-prefect3.yaml` |
-| Trigger | PR to `main` carrying the **`deploy-flow`** label | push to `main` |
-| Scope | changed `pipelines/**/*.py` only | `--all` |
+| Trigger | PR to `main` carrying the **`deploy-flow`** label | push to `main`, but only when the triggering PR carries the **`deploy-flow`** label too (found via the commit's associated PR) |
+| Scope | changed files' dataset, expanded (within that PR) | changed files' dataset, expanded (within the PR that triggered the push) |
 | Pool | `basedosdados-dev` — schedules stripped, manual runs only | `basedosdados` — schedules active |
 
+"Expanded" means every `.py` in the changed file's dataset folder, not just the files the
+PR touched — a PR that only changes `tasks.py` also redeploys (and activates in prod)
+every flow in that dataset's `flows.py`, including ones someone paused on purpose for an
+unrelated reason.
+
 Both deploy with `paused=True`; production deployments are activated by the backend sync
-step (`admin-tools/sync-deployments/`), which is soft-failed with `|| echo` and can leave
-a deployment paused without failing the job.
+step (`admin-tools/sync-deployments/`), which POSTs the list of names just (re-)deployed —
+if that call fails, the job fails too, so a successfully (re-)deployed flow never silently
+stays paused.
+
+Known gap: `flow.deploy()` applies `paused=True` (`update_deployment`) before recreating
+triggers, non-atomically. If the trigger step fails on an already-active flow that's a
+dataset neighbor of what the PR actually touched, that flow ends up paused in Prefect but
+missing from the activation list — stuck until someone notices. Narrow in practice: the
+Prefect client already retries common transient network/HTTP errors internally, so this
+needs a non-retried failure (e.g. a real 500) right in that window. Accepted as-is for now.
+
+Production also takes a manual `workflow_dispatch` with no inputs, which always runs
+`--all` (bootstrap/disaster recovery only) — this activates every deployment in the repo,
+including ones someone paused on purpose for an unrelated reason, so only run it when
+that's actually intended.
 
 To exercise a flow before merging: add the **`deploy-flow`** label to the PR (the workflow
 triggers on the `labeled` event), then start a run from the Prefect UI with any

@@ -7,80 +7,121 @@ on:
       - pipelines/**/*.py
       - .github/workflows/cd-prefect3.yaml
       - .github/workflows/scripts/deploy_flows.py
+  workflow_dispatch:
 jobs:
   deploy-production:
     name: deploy flows (basedosdados)
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
+      pull-requests: read
+      issues: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # Same "find the PR, check its label" pattern as table-approve.yaml.
+      # workflow_dispatch has no PR — always --all (see Deploy flows below).
+      - name: Get PR that triggered the push
+        id: get_pr
+        if: github.event_name == 'push'
+        uses: actions/github-script@v8
         with:
-          fetch-depth: 0
-      - name: Find last successful deploy commit
-        id: last-success
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |-
-          if ! base_sha=$(gh api "repos/${{ github.repository }}/actions/workflows/cd-prefect3.yaml/runs?status=success&branch=main" \
-            --jq '.workflow_runs[0].head_sha // empty'); then
-            echo "Falha ao consultar o último deploy bem-sucedido — cai pro --all."
-            base_sha=""
-          fi
-          if [ -z "$base_sha" ]; then
-            echo "Nenhum deploy de prod anterior bem-sucedido encontrado — cai pro --all."
-          else
-            echo "Último deploy de prod bem-sucedido: $base_sha"
-          fi
-          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
-      - name: Get changed flow files since last successful deploy
+          script: |
+            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha
+            });
+            if (prs.data.length === 0) {
+              console.log("Nenhum PR associado a este commit — sem deploy.");
+              core.setOutput("pr_number", "");
+            } else {
+              const pr = prs.data.at(-1);
+              console.log("PR Number", pr.number);
+              core.setOutput("pr_number", pr.number);
+            }
+      - name: Get PR labels
+        id: check_label
+        if: github.event_name == 'push' && steps.get_pr.outputs.pr_number != ''
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr_number = '${{ steps.get_pr.outputs.pr_number }}';
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number
+            });
+            const shouldDeploy = labels.data.some(label => label.name === "deploy-flow");
+            console.log("deploy-flow label:", shouldDeploy);
+            core.setOutput("deploy-flow", shouldDeploy);
+      # Diff scoped to this PR's own files (PR Files API) — not "everything
+      # since the last deploy", which would leak unlabeled changes in.
+      - name: Get changed files in PR
         id: changed-files
-        if: steps.last-success.outputs.base_sha != ''
-        uses: tj-actions/changed-files@v47
+        if: github.event_name == 'push' && steps.check_label.outputs.deploy-flow ==
+          'true'
+        uses: actions/github-script@v8
         with:
-          base_sha: ${{ steps.last-success.outputs.base_sha }}
-          files: pipelines/**/*.py
-      - name: List changed files
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: echo "Flows alterados:${{ steps.changed-files.outputs.all_changed_files }}"
+          script: |
+            const pr_number = '${{ steps.get_pr.outputs.pr_number }}';
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr_number,
+              per_page: 100
+            });
+            const fileNames = files
+              .filter(file => file.status !== 'removed')
+              .map(f => f.filename)
+              .filter(f => f.startsWith('pipelines/') && f.endsWith('.py'));
+            console.log("Flows alterados:", fileNames.join(' ') || "(nenhum)");
+            core.setOutput("files", fileNames.join(' '));
+            core.setOutput("any_changed", fileNames.length > 0 ? 'true' : 'false');
+      # Runs on workflow_dispatch (always --all), or only if the PR had real changes.
+      - name: Checkout
+        if: github.event_name == 'workflow_dispatch' || steps.changed-files.outputs.any_changed
+          == 'true'
+        uses: actions/checkout@v4
       - name: Install uv
-        if: steps.changed-files.outputs.any_changed == 'true' || steps.last-success.outputs.base_sha
-          == ''
+        if: github.event_name == 'workflow_dispatch' || steps.changed-files.outputs.any_changed
+          == 'true'
         uses: astral-sh/setup-uv@v5
       - name: Install dependencies
-        if: steps.changed-files.outputs.any_changed == 'true' || steps.last-success.outputs.base_sha
-          == ''
+        if: github.event_name == 'workflow_dispatch' || steps.changed-files.outputs.any_changed
+          == 'true'
         run: uv sync --locked --no-dev
-      - name: Deploy changed flows to basedosdados
-        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: Deploy flows to basedosdados
+        id: deploy
+        if: github.event_name == 'workflow_dispatch' || steps.changed-files.outputs.any_changed
+          == 'true'
         env:
           PREFECT_API_URL: https://prefect3.basedosdados.org/api
           PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
         run: |-
-          uv run .github/workflows/scripts/deploy_flows.py \
-            --pool basedosdados \
-            --branch ${{ github.ref_name }} \
-            --changed ${{ steps.changed-files.outputs.all_changed_files }}
-      - name: Deploy all flows to basedosdados (fallback — sem deploy anterior pra
-          comparar)
-        if: steps.last-success.outputs.base_sha == ''
-        env:
-          PREFECT_API_URL: https://prefect3.basedosdados.org/api
-          PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
-        run: |-
-          uv run .github/workflows/scripts/deploy_flows.py \
-            --pool basedosdados \
-            --branch ${{ github.ref_name }} \
-            --all
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual only (bootstrap/disaster recovery) — reactivates every
+            # flow in the repo, including ones paused on purpose.
+            uv run .github/workflows/scripts/deploy_flows.py \
+              --pool basedosdados \
+              --branch ${{ github.ref_name }} \
+              --all \
+              --output deployed_names.json
+          else
+            uv run .github/workflows/scripts/deploy_flows.py \
+              --pool basedosdados \
+              --branch ${{ github.ref_name }} \
+              --changed ${{ steps.changed-files.outputs.files }} \
+              --output deployed_names.json
+          fi
       - name: Sync deployments with backend
-        if: always()
+        # !cancelled() avoids an implicit success() the condition would
+        # otherwise get, which'd skip this step whenever deploy failed.
+        if: ${{ !cancelled() && (steps.deploy.conclusion == 'success' || steps.deploy.conclusion == 'failure') }}
         env:
           PREFECT3_AUTH_TOKEN: ${{ secrets.PREFECT3_AUTH_TOKEN }}
         run: |-
+          body=$(jq -c '{activate: .}' deployed_names.json)
           curl -sf --connect-timeout 10 --max-time 60 \
             -X POST https://backend.basedosdados.org/admin-tools/sync-deployments/ \
             -H "Authorization: Bearer $PREFECT3_AUTH_TOKEN" \
             -H "Content-Type: application/json" \
-            || echo "⚠️ Backend sync failed — activate flows manually via Django admin"
+            -d "$body"

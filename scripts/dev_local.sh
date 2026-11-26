@@ -67,9 +67,9 @@ fi
 # deployados no modo padrão do `up`, mesmo sem mudança neles, porque sem
 # isso a cadeia check_update -> extract_and_load -> build_and_promote
 # quebra com "deployment não encontrado" assim que chega nesse estágio.
-# Via --files (não --changed): --changed escalaria pra --all sozinho,
-# já que esses caminhos começam com o prefixo compartilhado
-# pipelines/utils/ (ver SHARED_PREFIXES em deploy_flows.py).
+# Via --files (não --changed): numa sessão de dev que não mexeu neles,
+# esses arquivos nunca apareceriam no diff de qualquer forma, então
+# precisam ser listados explicitamente pra sempre entrar no deploy.
 ALWAYS_DEPLOY_FILES=(
     pipelines/utils/metadata/flows.py
     pipelines/utils/execute_dbt_model/flows.py
@@ -113,8 +113,7 @@ _run_deploy() {
 # ou ainda só no working tree (inclusive arquivo novo não rastreado). Base
 # pro deploy seletivo do `up`: reaproveita a mesma lógica de --changed que
 # o deploy de CI/prod já usa (expand_changed_files() em deploy_flows.py),
-# que expande pra pasta do dataset inteira e escala sozinho pra --all se a
-# mudança for em infra compartilhada (pipelines/utils/, pipelines/crawler/).
+# que expande pra pasta do dataset inteira.
 _changed_python_files() {
     git fetch origin main --quiet 2>/dev/null || true
 
