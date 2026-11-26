@@ -142,12 +142,6 @@ NEW_ROWS: list[dict[str, str]] = [
         "chave": "1",
         "valor": "Sim",
     },
-    {
-        "id_tabela": "leito",
-        "nome_coluna": "tipo_especialidade_leito",
-        "chave": "96",
-        "valor": "Suporte Ventilatório Pulmonar",
-    },
 ]
 
 # Rótulos do código de 4 dígitos do equipamento (2 do tipo + 2 do equipamento).
@@ -326,6 +320,17 @@ CODIGO_EQUIPAMENTO: dict[str, str] = {
     "0679": "veiculo pick-up cabine dupla 4x4 (diesel)",
 }
 
+# Rótulos com a grafia da Tabela Unificada do SIGTAP, competência 2026-10
+# (TabelaUnificada_202610_v2610271043.zip, em
+# ftp2.datasus.gov.br/pub/sistemas/tup/downloads/). Tabela de origem por
+# coluna:
+#
+#   tipo_habilitacao                  tb_habilitacao (CO_HABILITACAO, sem o
+#                                     zero à esquerda)
+#   tipo_servico_especializado e
+#   tipo_servico_especializado_unico  tb_servico (CO_SERVICO)
+#   subtipo_servico_especializado     tb_servico_classificacao (CO_SERVICO
+#                                     seguido de CO_CLASSIFICACAO)
 SIGTAP_LABELS: dict[tuple[str, str], dict[str, str]] = {
     ("habilitacao", "tipo_habilitacao"): {
         "406": "Serviço de Especialidade em Saúde Bucal",
@@ -499,47 +504,6 @@ NO_MEANING_LABEL = (
 )
 
 CODES_WITHOUT_MEANING: dict[tuple[str, str], list[str]] = {
-    ("estabelecimento", "tipo_unidade"): ["16"],
-    ("incentivos", "tipo_habilitacao"): [
-        "8116",
-        "8117",
-        "8119",
-        "8121",
-        "8122",
-        "8123",
-        "8124",
-        "8125",
-        "8126",
-        "8127",
-        "8256",
-        "8257",
-        "8258",
-        "8259",
-        "8260",
-        "8263",
-        "8264",
-        "8266",
-        "8267",
-        "8268",
-        "8269",
-        "8270",
-        "8271",
-        "8272",
-        "8273",
-        "8274",
-        "8275",
-        "8276",
-        "8277",
-        "8278",
-        "8279",
-        "8280",
-        "8285",
-        "8286",
-        "8287",
-        "8288",
-        "8290",
-        "8291",
-    ],
     ("servico_especializado", "subtipo_servico_especializado"): ["170002"],
 }
 
@@ -559,6 +523,28 @@ CODES_WITHOUT_MEANING: dict[tuple[str, str], list[str]] = {
 #
 # Os cinco códigos entram nos dados em 2025-11 (o 81 em 2025-12), ligados no
 # CNES na mesma leva apesar de portarias de anos diferentes.
+#
+# Os 38 incentivos abaixo entraram no staging de dev com o rótulo de
+# `NO_MEANING_LABEL`, antes de as portarias serem achadas. Os rótulos têm a
+# grafia do ato que criou cada código. Procedência:
+#
+#   8116, 8117           Portaria GM/MS nº 1.992, de 24/11/2023, Art. 1º
+#   8119                 Portaria SAES/MS nº 602, de 28/07/2023, Art. 1º
+#   8121 a 8124          Portaria SAES/MS nº 4.020, de 10/04/2026, Anexo II
+#   8125 a 8127          Portaria SAES/MS nº 4.288, de 22/06/2026, Anexo III
+#   8256 a 8260, 8263,
+#   8264, 8266 a 8270    Portaria SAS/MS nº 1.535, de 25/09/2017, Anexo
+#   8271 a 8280          Portaria SAES/MS nº 474, de 22/04/2021, Anexo I
+#   8285                 Portaria SAES/MS nº 216, de 01/07/2022, Anexo II;
+#                        excluído pela Portaria SAES/MS nº 2.902, de
+#                        26/06/2025, Art. 5º §2º
+#   8286 a 8288, 8290,
+#   8291                 Portaria SAES/MS nº 1.148, de 21/12/2023, Anexo IV
+#
+# Os números 81.16 a 81.39 já foram incentivos de equipes de saúde prisional
+# (Portaria SAS/MS nº 305/2014, Anexo II), desativados pelo Art. 10 da
+# Portaria SAES/MS nº 37, de 18/01/2021. Os rótulos acima são os dos números
+# reaproveitados a partir de 2023.
 REPLACE_ROWS: dict[tuple[str, str, str], str] = {
     ("equipe", "tipo_equipe", "77"): (
         "EMAP-R - Equipe Multiprofissional de Apoio para Reabilitação"
@@ -577,6 +563,119 @@ REPLACE_ROWS: dict[tuple[str, str, str], str] = {
         "EqAE - Equipe de Atenção Especializada"
     ),
     ("estabelecimento", "tipo_unidade", "16"): NO_MEANING_LABEL.format("16"),
+    ("incentivos", "tipo_habilitacao", "8116"): "DRC Categoria I",
+    ("incentivos", "tipo_habilitacao", "8117"): "DRC Categoria II",
+    ("incentivos", "tipo_habilitacao", "8119"): (
+        "Hospital Sem Fins Lucrativos 100% SUS"
+    ),
+    ("incentivos", "tipo_habilitacao", "8121"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8122"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8123"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT III"
+    ),
+    ("incentivos", "tipo_habilitacao", "8124"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8125"): (
+        "Equipes de Apoio Assistencial em Cuidados Paliativos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8126"): (
+        "Equipes Macrorregionais de Cuidados Paliativos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8127"): (
+        "Equipes Macrorregionais de Cuidados Paliativos com Pediatra"
+    ),
+    ("incentivos", "tipo_habilitacao", "8256"): (
+        "UPA 24h Nova - Qualificada Opção I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8257"): (
+        "UPA 24h Nova - Qualificada Opção II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8258"): (
+        "UPA 24h Nova - Qualificada Opção IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8259"): (
+        "UPA 24h Nova - Qualificada Opção VI"
+    ),
+    ("incentivos", "tipo_habilitacao", "8260"): (
+        "UPA 24h Nova - Qualificada Opção VII"
+    ),
+    ("incentivos", "tipo_habilitacao", "8263"): (
+        "UPA 24h Ampliada - Habilitada/Qualificada Opção IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8264"): (
+        "UPA 24h Ampliada - Habilitada/Qualificada Opção VI"
+    ),
+    ("incentivos", "tipo_habilitacao", "8266"): (
+        "UPA 24h Nova - Habilitada Opção I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8267"): (
+        "UPA 24h Nova - Habilitada Opção II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8268"): (
+        "UPA 24h Nova - Habilitada Opção IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8269"): (
+        "UPA 24h Nova - Habilitada Opção VI"
+    ),
+    ("incentivos", "tipo_habilitacao", "8270"): (
+        "UPA 24h Nova - Habilitada Opção VII"
+    ),
+    ("incentivos", "tipo_habilitacao", "8271"): (
+        "Enfermaria Clínica de Retaguarda - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8272"): (
+        "Enfermaria Clínica de Retaguarda - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8273"): (
+        "UTI Adulto RUE Tipo II - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8274"): (
+        "UTI Adulto RUE Tipo II - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8275"): (
+        "UTI Pediátrico RUE Tipo II - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8276"): (
+        "UTI Pediátrico RUE Tipo II - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8277"): (
+        "UTI Adulto RUE Tipo III - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8278"): (
+        "UTI Adulto RUE Tipo III - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8279"): (
+        "UTI Pediátrico RUE Tipo III - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8280"): (
+        "UTI Pediátrico RUE Tipo III - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8285"): (
+        "Atenção especializada ao seguimento do recém-nascido e crianças "
+        "egressos de unidades neonatais (ANEO)"
+    ),
+    ("incentivos", "tipo_habilitacao", "8286"): (
+        "Transporte Sanitário Adaptado I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8287"): (
+        "Transporte Sanitário Adaptado II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8288"): (
+        "Transporte Sanitário Adaptado III"
+    ),
+    ("incentivos", "tipo_habilitacao", "8290"): (
+        "Núcleo de Atenção à Criança e Adolescente com Transtorno do "
+        "Espectro Autista"
+    ),
+    ("incentivos", "tipo_habilitacao", "8291"): (
+        "Incentivo de 20% no custeio do CER habilitado com a modalidade de "
+        "reabilitação intelectual"
+    ),
 }
 
 
