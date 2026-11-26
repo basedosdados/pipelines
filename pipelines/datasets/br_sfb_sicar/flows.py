@@ -497,3 +497,4 @@ br_sfb_sicar_flow.job_variables = {
         {"name": "MALLOC_TRIM_THRESHOLD_", "value": "131072"},
     ],
 }
+# força o deploy-flow
