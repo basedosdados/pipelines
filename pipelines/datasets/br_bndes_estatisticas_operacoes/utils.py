@@ -257,4 +257,6 @@ def write_partitions(
         partition.mkdir(parents=True, exist_ok=True)
         group.drop(columns=partition_columns).map(
             lambda value: None if pd.isna(value) else str(value)
-        ).to_parquet(partition / "data.parquet", compression="snappy")
+        ).to_parquet(
+            partition / "data.parquet", compression="snappy", index=False
+        )
