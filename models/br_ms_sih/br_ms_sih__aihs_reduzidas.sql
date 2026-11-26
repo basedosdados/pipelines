@@ -3,21 +3,22 @@
         alias="aihs_reduzidas",
         schema="br_ms_sih",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
-            "field": "ano",
-            "data_type": "int64",
-            "range": {"start": 2008, "end": 2024, "interval": 1},
+            "field": "data_competencia",
+            "data_type": "date",
+            "granularity": "month",
         },
-        cluster_by=["mes", "sigla_uf"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+        cluster_by=["sigla_uf"],
     )
 }}
 
 
 select
+    date(safe_cast(ano as int64), safe_cast(mes as int64), 1) data_competencia,
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
-    safe_cast(sigla_uf as int64) sigla_uf,
+    safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(n_aih as string) id_aih,
     safe_cast(ident as string) tipo_aih,
     case
@@ -106,11 +107,11 @@ select
     case
         when etnia = '00' then '0' else cast(ltrim(etnia, '0') as string)
     end as etnia_paciente,
-    safe_cast(nacional as int64) codigo_nacionalidade_paciente,
+    safe_cast(safe_cast(nacional as int64) as string) codigo_nacionalidade_paciente,
     safe_cast(
         trim(case when trim(cbor) = '000000' then null else cbor end) as string
     ) cbo_2002_paciente,
-    safe_cast(homonimo as int64) indicador_paciente_homonimo,
+    safe_cast(safe_cast(homonimo as int64) as string) indicador_paciente_homonimo,
     safe_cast(instru as string) grau_instrucao_paciente,
     safe_cast(num_filhos as int64) quantidade_filhos_paciente,
     safe_cast(
@@ -122,7 +123,7 @@ select
             case when trim(insc_pn) = '0000000000' then null else insc_pn end
         ) as string
     ) id_gestante_pre_natal,
-    safe_cast(gestrisco as int64) indicador_gestante_risco,
+    safe_cast(safe_cast(gestrisco as int64) as string) indicador_gestante_risco,
     case
         when contracep1 = '00' then '0' else cast(ltrim(contracep1, '0') as string)
     end as tipo_contraceptivo_principal,
@@ -134,7 +135,7 @@ select
     ) sequencial_longa_permanencia,
     safe_cast(regexp_replace(proc_solic, r'^0', '') as string) procedimento_solicitado,
     safe_cast(regexp_replace(proc_rea, r'^0', '') as string) procedimento_realizado,
-    safe_cast(infehosp as int64) indicador_infeccao_hospitalar,
+    safe_cast(safe_cast(infehosp as int64) as string) indicador_infeccao_hospitalar,
     case
         when complex = '00' then '0' else cast(ltrim(complex, '0') as string)
     end as complexidade,
@@ -304,15 +305,15 @@ select
             end
         ) as string
     ) as cid_diagnostico_secundario_9_subcategoria,
-    safe_cast(tpdisec1 as int64) tipo_diagnostico_secundario_1,
-    safe_cast(tpdisec2 as int64) tipo_diagnostico_secundario_2,
-    safe_cast(tpdisec3 as int64) tipo_diagnostico_secundario_3,
-    safe_cast(tpdisec4 as int64) tipo_diagnostico_secundario_4,
-    safe_cast(tpdisec5 as int64) tipo_diagnostico_secundario_5,
-    safe_cast(tpdisec6 as int64) tipo_diagnostico_secundario_6,
-    safe_cast(tpdisec7 as int64) tipo_diagnostico_secundario_7,
-    safe_cast(tpdisec8 as int64) tipo_diagnostico_secundario_8,
-    safe_cast(tpdisec9 as int64) tipo_diagnostico_secundario_9,
+    safe_cast(safe_cast(tpdisec1 as int64) as string) tipo_diagnostico_secundario_1,
+    safe_cast(safe_cast(tpdisec2 as int64) as string) tipo_diagnostico_secundario_2,
+    safe_cast(safe_cast(tpdisec3 as int64) as string) tipo_diagnostico_secundario_3,
+    safe_cast(safe_cast(tpdisec4 as int64) as string) tipo_diagnostico_secundario_4,
+    safe_cast(safe_cast(tpdisec5 as int64) as string) tipo_diagnostico_secundario_5,
+    safe_cast(safe_cast(tpdisec6 as int64) as string) tipo_diagnostico_secundario_6,
+    safe_cast(safe_cast(tpdisec7 as int64) as string) tipo_diagnostico_secundario_7,
+    safe_cast(safe_cast(tpdisec8 as int64) as string) tipo_diagnostico_secundario_8,
+    safe_cast(safe_cast(tpdisec9 as int64) as string) tipo_diagnostico_secundario_9,
     safe_cast(
         trim(
             case when length(trim(cid_morte)) = 3 then cid_morte else null end
@@ -349,7 +350,45 @@ select
 from {{ set_datalake_project("br_ms_sih_staging.aihs_reduzidas") }}
 
 {% if is_incremental() %}
-    where
-        date(cast(ano as int64), cast(mes as int64), 1)
-        > (select max(date(cast(ano as int64), cast(mes as int64), 1)) from {{ this }})
+
+        {% set most_recent_competencia = var(
+            "br_ms_sih_most_recent_competencia", none
+        ) %}
+
+        {% if most_recent_competencia is none %}
+            {% set query_result = run_query(
+                "select format_date('%Y-%m',date_sub(                 max(                   parse_date('%Y%m', partition_id)                 ), interval 1 month               )             ) from `"
+                ~ this.database
+                ~ "`.`"
+                ~ this.schema
+                ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
+                ~ this.identifier
+                ~ "' and total_rows > 0"
+                ~ " and regexp_contains(partition_id, r'^[0-9]{6}$')"
+            ) %}
+
+            {% if execute %}
+                {% set most_recent_competencia = query_result.rows[0][0] %}
+            {% endif %}
+
+        {% endif %}
+
+    {% if most_recent_competencia is not none %}
+            {% set most_recent_competencia_year = most_recent_competencia[:4] %}
+            {% set most_recent_competencia_month = most_recent_competencia[5:7] | int %}
+
+        where
+            (
+                ano > '{{ most_recent_competencia_year }}'
+                or (
+                    ano = '{{ most_recent_competencia_year }}'
+                    and mes in (
+                        {% for mes in range(most_recent_competencia_month, 13) %}
+                            '{{ mes }}' {% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    )
+                )
+            )
+
+    {% endif %}
 {% endif %}

@@ -228,6 +228,34 @@
         {% endfor %}
         {% set where = ns.where %}
 
+        {% set placeholders = modules.re.findall(
+            "(__most_recent_months__\\(\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([0-9]+)\\s*\\))",
+            where,
+        ) %}
+        {% set ns = namespace(where=where) %}
+        {% for matched, column, n in placeholders %}
+            {% set max_query = (
+                "select format_date('%Y-%m-%d',date_sub(                 max(                   parse_date('%Y%m', partition_id)                 ), interval "
+                ~ ((n | int) - 1)
+                ~ " month               )             ) from `"
+                ~ relation.database
+                ~ "`.`"
+                ~ relation.schema
+                ~ "`.INFORMATION_SCHEMA.PARTITIONS where table_name = '"
+                ~ relation.identifier
+                ~ "' and total_rows > 0"
+                ~ " and regexp_contains(partition_id, r'^[0-9]{6}$')"
+            ) %}
+            {% set max_result = run_query(max_query) %}
+            {% if execute and max_result.rows[0][0] is not none %}
+                {% set max_value = max_result.rows[0][0] %}
+                {% set literal = column ~ " >= '" ~ max_value ~ "'" %}
+                {% set ns.where = ns.where | replace(matched, literal) %}
+                {% do log("The test will filter by: " ~ literal, info=True) %}
+            {% endif %}
+        {% endfor %}
+        {% set where = ns.where %}
+
         {# Return the filtered subquery #}
         {% set filtered = (
             "(select * from "

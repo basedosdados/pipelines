@@ -3,13 +3,25 @@ version: 2
 models:
   - name: br_ms_sih__servicos_profissionais
     description: Sistema de Informações Hospitalares do SUS (SIH/SUS)
+    tests:
+      - custom_uf_month_completeness:
+          date_column: data_competencia
+          uf_column: sigla_uf
     columns:
+      - name: data_competencia
+        description: >-
+          Data da competência, no primeiro dia do mês, montada a partir de
+          ano e mes
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_months__(data_competencia, 3)
       - name: ano
         description: Ano
         tests:
           - not_null:
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: mes
         description: Mês
       - name: ano_internacao
@@ -21,13 +33,13 @@ models:
       - name: data_saida_iternacao
         description: Data do final da internação
       - name: sigla_uf
-        description: Sigla unidade da fedaração
+        description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: id_municipio_estabelecimento_aih
         description: Município de localização do Estabelecimento Executante da AIH
         tests:
@@ -35,7 +47,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: id_municipio_paciente
         description: Município de residência do paciente
         tests:
@@ -43,7 +55,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_6
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: id_gestor
         description: Unidade de Federação + Código Município de Gestão ou UF0000 se
           o Estabelecimento Executante está sob Gestão Estadual.
@@ -55,7 +67,7 @@ models:
         tests:
           - not_null:
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: id_procedimento_principal
         description: Procedimento principal realizado na AIH.
       - name: tipo_servico
@@ -72,7 +84,7 @@ models:
         #       to: ref('br_bd_diretorios_brasil__cbo_2002')
         #       field: cbo_2002.cbo_2002
         #       config:
-        #         where: __most_recent_year_month__
+        #         where: __most_recent_months__(data_competencia, 3)
       - name: quantidade_procedimentos
         description: Quantidade de procedimentos realizados
       - name: id_cid_principal
@@ -102,7 +114,7 @@ models:
                 - N185
                 - U099
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: id_cid_secundario
         description: Identificador secundário da Classificação Internacional de Doenças
           e Problemas Relacionados com a Saúde (CID)
@@ -114,7 +126,7 @@ models:
               to: ref('br_bd_diretorios_brasil__cid_10')
               field: subcategoria
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: complexidade_ato_profissional
         description: Complexidade do ato profissional
       - name: quantidade_atos_profissionais
@@ -175,25 +187,57 @@ models:
         description: Valor
   - name: br_ms_sih__aihs_reduzidas
     description: Movimento de AIH - Arquivos Reduzidos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_aih
+            - tipo_aih
+            - sequencial_aih
+          config:
+            where: __most_recent_months__(data_competencia, 3)
+      - custom_uf_month_completeness:
+          date_column: data_competencia
+          uf_column: sigla_uf
     columns:
+      - name: data_competencia
+        description: >-
+          Data da competência, no primeiro dia do mês, montada a partir de
+          ano e mes
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_months__(data_competencia, 3)
       - name: ano
         description: Ano de processamento da AIH, no formato aaaa
         tests:
           - not_null:
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: mes
         description: Mês de processamento da AIH, no formato mm
         tests:
           - not_null:
               config:
-                where: __most_recent_year_month__
-      - name: id_aih
-        description: Número da AIH.
+                where: __most_recent_months__(data_competencia, 3)
+      - name: sigla_uf
+        description: Sigla da unidade da federação
         tests:
           - not_null:
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_months__(data_competencia, 3)
+      - name: id_aih
+        description: Número da AIH
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_months__(data_competencia, 3)
       - name: tipo_aih
         description: Identificação do tipo da AIH.
       - name: motivo_autorizacao_aih
@@ -221,7 +265,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_6
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: id_estabelecimento_cnes
         description: Código CNES do hospital.
       - name: natureza_juridica_estabelecimento
@@ -241,7 +285,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_6
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: tipo_gestor
         description: Tipo de gestor.
       - name: cpf_gestor
@@ -276,7 +320,7 @@ models:
                 - '530020'
                 - '530030'
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: cep_paciente
         description: CEP do paciente.
       - name: data_nascimento_paciente
@@ -301,7 +345,7 @@ models:
               to: ref('br_bd_diretorios_brasil__cbo_2002')
               field: cbo_2002.cbo_2002
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: indicador_paciente_homonimo
         description: Indicador se o paciente da AIH é homônimo do paciente de outra
           AIH.
@@ -349,7 +393,7 @@ models:
               field: subcategoria
               ignore_values: ['0000']
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: cid_causa_categoria
         description: Categoria do CID de causa.
       - name: cid_causa_subcategoria
@@ -364,7 +408,7 @@ models:
               field: subcategoria
               ignore_values: ['0000']
               config:
-                where: __most_recent_year_month__
+                where: __most_recent_months__(data_competencia, 3)
       - name: cid_secundario_categoria
         description: Código da categoria do diagnostico secundário (CID10). Preenchido
           com zeros a partir de 201501.
@@ -374,39 +418,39 @@ models:
       - name: cid_diagnostico_secundario_1_categoria
         description: Categoria do CID do Diagnóstico secundário 1.
       - name: cid_diagnostico_secundario_1_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 1.
+        description: Subcategoria do CID do Diagnóstico secundário 1.
       - name: cid_diagnostico_secundario_2_categoria
         description: Categoria do CID do Diagnóstico secundário 2.
       - name: cid_diagnostico_secundario_2_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 2.
+        description: Subcategoria do CID do Diagnóstico secundário 2.
       - name: cid_diagnostico_secundario_3_categoria
         description: Categoria do CID do Diagnóstico secundário 3.
       - name: cid_diagnostico_secundario_3_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 3.
+        description: Subcategoria do CID do Diagnóstico secundário 3.
       - name: cid_diagnostico_secundario_4_categoria
         description: Categoria do CID do Diagnóstico secundário 4.
       - name: cid_diagnostico_secundario_4_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 4.
+        description: Subcategoria do CID do Diagnóstico secundário 4.
       - name: cid_diagnostico_secundario_5_categoria
         description: Categoria do CID do Diagnóstico secundário 5.
       - name: cid_diagnostico_secundario_5_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 5.
+        description: Subcategoria do CID do Diagnóstico secundário 5.
       - name: cid_diagnostico_secundario_6_categoria
         description: Categoria do CID do Diagnóstico secundário 6.
       - name: cid_diagnostico_secundario_6_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 6.
+        description: Subcategoria do CID do Diagnóstico secundário 6.
       - name: cid_diagnostico_secundario_7_categoria
         description: Categoria do CID do Diagnóstico secundário 7.
       - name: cid_diagnostico_secundario_7_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 7.
+        description: Subcategoria do CID do Diagnóstico secundário 7.
       - name: cid_diagnostico_secundario_8_categoria
         description: Categoria do CID do Diagnóstico secundário 8.
       - name: cid_diagnostico_secundario_8_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 8.
+        description: Subcategoria do CID do Diagnóstico secundário 8.
       - name: cid_diagnostico_secundario_9_categoria
         description: Categoria do CID do Diagnóstico secundário 9.
       - name: cid_diagnostico_secundario_9_subcategoria
-        description: Categoria do CID do Diagnóstico secundário 9.
+        description: Subcategoria do CID do Diagnóstico secundário 9.
       - name: tipo_diagnostico_secundario_1
         description: Tipo de diagnóstico secundário 1.
       - name: tipo_diagnostico_secundario_2
