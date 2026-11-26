@@ -94,3 +94,82 @@ models:
       - name: valor_desembolsado
         description: >-
           Valor liberado, em reais
+  - name: br_bndes_desembolsos__mapeamento_bndes_cnae
+    description: >-
+      Correspondência entre os códigos da CNAE 2.2 do IBGE e as classificações
+      setoriais que o BNDES usa nas suas estatísticas (setor e subsetor CNAE
+      agrupado, setor e subsetor BNDES), com uma linha por código CNAE e regra
+      de produto. A classificação de alguns códigos muda conforme o produto do
+      BNDES.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - cnae_2_secao
+            - cnae_2_divisao
+            - cnae_2_grupo
+            - cnae_2_classe
+            - cnae_2_subclasse
+            - regra_produto
+            - subsetor_cnae_agrupado
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [cnae_2_grupo, cnae_2_classe, cnae_2_subclasse]
+    columns:
+      - name: cnae_2_secao
+        description: >-
+          Seção da CNAE 2.2
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: secao
+      - name: cnae_2_divisao
+        description: >-
+          Divisão da CNAE 2.2
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: divisao
+      - name: cnae_2_grupo
+        description: >-
+          Grupo da CNAE 2.2. Nulo quando a linha vale para a divisão inteira
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: grupo
+      - name: cnae_2_classe
+        description: >-
+          Classe da CNAE 2.2, com dígito verificador. Nulo quando a linha vale
+          para o grupo ou a divisão inteira
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+      - name: cnae_2_subclasse
+        description: >-
+          Subclasse da CNAE 2.2. Nulo quando a linha vale para a classe, o grupo
+          ou a divisão inteira
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+      - name: regra_produto
+        description: >-
+          Produtos do BNDES aos quais a linha se aplica (por exemplo, Todos,
+          Exceto bndes exim ou Somente bndes exim)
+        tests: [not_null]
+      - name: setor_cnae
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+      - name: subsetor_cnae_agrupado
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+      - name: setor_bndes
+        description: >-
+          Setor no agrupamento estatístico do BNDES baseado nos códigos CNAE e
+          nos produtos do BNDES
+      - name: subsetor_bndes
+        description: >-
+          Subsetor no agrupamento estatístico do BNDES baseado nos códigos CNAE
+          e nos produtos do BNDES
