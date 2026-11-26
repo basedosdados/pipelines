@@ -608,6 +608,7 @@ def fetch(session, token_file, item: Item, stop) -> tuple[str, dict]:
             requests.RequestException,
             ValueError,
             zipfile.BadZipFile,
+            # pyrefly: ignore[unreachable-except-clause]
             binascii.Error,
             OSError,
         ) as exc:
