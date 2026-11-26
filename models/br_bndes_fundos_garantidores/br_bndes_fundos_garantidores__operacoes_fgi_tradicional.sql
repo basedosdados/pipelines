@@ -30,9 +30,7 @@ with
             safe_cast(valor_operacao as float64) valor_operacao,
             safe_cast(valor_garantido as float64) valor_garantido,
             safe_cast(valor_desembolsado as float64) valor_desembolsado,
-            safe_cast(
-                instituicao_financeira_credenciada as string
-            ) instituicao_financeira_credenciada
+            safe_cast(nome_agente_financeiro as string) nome_agente_financeiro
         from
             {{
                 set_datalake_project(
@@ -126,7 +124,7 @@ select
     s.valor_operacao,
     s.valor_garantido,
     s.valor_desembolsado,
-    s.instituicao_financeira_credenciada
+    s.nome_agente_financeiro
 from staging_norm as s
 left join municipio as m on s.sigla_uf = m.sigla_uf and s.nome_norm = m.nome_norm
 left join correcao as c on s.sigla_uf = c.sigla_uf and s.nome_norm = c.nome_norm

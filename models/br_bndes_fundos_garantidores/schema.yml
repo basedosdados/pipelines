@@ -82,7 +82,7 @@ models:
         description: >
           Valor já liberado ao cliente na operação
         tests: [not_null]
-      - name: instituicao_financeira_credenciada
+      - name: nome_agente_financeiro
         description: >-
           Nome do agente financeiro que contratou a operação e solicitou a garantia
         tests: [not_null]

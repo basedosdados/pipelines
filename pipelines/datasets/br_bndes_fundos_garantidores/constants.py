@@ -20,9 +20,9 @@ class constants(Enum):
     NOME_CENTRAL = {
         "operacoes_fgi_tradicional": "operacoes-do-fgi-tradicional",
         "operacoes_fgi_peac_2022": "operacoes-do-peac-fgi-2022",
-        "operacoes_fg_bndes_sebrae": "operacoes-fundo-garantidor-bndes-sebrae",
+        "operacoes_fg_sebrae": "operacoes-fundo-garantidor-bndes-sebrae",
         "operacoes_fgi_peac_2020": "operacoes-do-fgi-peac-2020",
-        "operacoes_fgi_peac_credito_solidario_rs": "operacoes-do-peac-fgi-cs-rs-2023-2024-set24",
+        "operacoes_fgi_peac_cs_rs": "operacoes-do-peac-fgi-cs-rs-2023-2024-set24",
         "operacoes_fgenergia": "operacoes-do-fgenergia",
     }
 
@@ -30,7 +30,7 @@ class constants(Enum):
     CHECK_UPDATE_CRON = {
         "operacoes_fgi_tradicional": "40 2 * * 1",
         "operacoes_fgi_peac_2022": "45 2 * * 1",
-        "operacoes_fg_bndes_sebrae": "55 2 * * 1",
+        "operacoes_fg_sebrae": "55 2 * * 1",
     }
 
     # cabeçalho padrão (tradicional, peac 2022, sebrae, fgenergia)
@@ -75,10 +75,11 @@ class constants(Enum):
                 "município da sede do cliente": "municipio_sede_cliente",
                 "uf da sede do cliente": "uf_sede_cliente",
             },
+            # o arquivo não tem essa coluna, e a tabela também não
             "colunas_ausentes": ["valor_desembolsado"],
             "formato_data": "%d/%m/%Y",
         },
-        "operacoes_fgi_peac_credito_solidario_rs": {
+        "operacoes_fgi_peac_cs_rs": {
             "colunas": {"cnpj_cpf_cliente": "cnpj_cpf_cliente_mascarado"},
             "decimal": ".",
         },
@@ -93,7 +94,6 @@ class constants(Enum):
     }
 
     RENAME = {
-        "nome_agente_financeiro": "instituicao_financeira_credenciada",
         "cnpj_cpf_cliente_mascarado": "cpf_cnpj_cliente",
         "valor_credito": "valor_operacao",
         "uf_investimento": "sigla_uf",
@@ -104,7 +104,8 @@ class constants(Enum):
 
     COLUNAS_VALOR = ["valor_operacao", "valor_garantido", "valor_desembolsado"]
 
-    # staging: nomes de município ficam aqui só para o dbt achar o id_municipio
+    # staging: nomes de município ficam aqui só para o dbt achar o id_municipio;
+    # cpf_cnpj_cliente vira cnpj_cliente no dbt dos fundos sem cpf
     COLUNAS_STAGING = [
         "data_solicitacao_outorga",
         "sigla_uf",
@@ -117,5 +118,5 @@ class constants(Enum):
         "valor_operacao",
         "valor_garantido",
         "valor_desembolsado",
-        "instituicao_financeira_credenciada",
+        "nome_agente_financeiro",
     ]

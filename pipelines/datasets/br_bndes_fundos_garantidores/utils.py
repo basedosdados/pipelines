@@ -166,9 +166,10 @@ def ler_csv(csv_path: Path, encoding: str) -> pd.DataFrame:
 def transformar(df: pd.DataFrame, layout: dict) -> pd.DataFrame:
     """leva ao cabeçalho padrão, padroniza valores e deriva `ano`; não remove linhas."""
     df = df.rename(columns=layout["colunas"])
-    for coluna in layout["colunas_ausentes"]:
-        df[coluna] = ""
-    faltando = set(constants.COLUNAS_FONTE.value) - set(df.columns)
+    esperadas = set(constants.COLUNAS_FONTE.value) - set(
+        layout["colunas_ausentes"]
+    )
+    faltando = esperadas - set(df.columns)
     if faltando:
         raise ValueError(f"colunas ausentes na fonte: {sorted(faltando)}")
 
@@ -187,6 +188,8 @@ def transformar(df: pd.DataFrame, layout: dict) -> pd.DataFrame:
     # sem separador de milhar; decimal com vírgula, exceto cs-rs (ponto)
     numero = rf"\d+(?:{re.escape(layout['decimal'])}\d+)?"
     for coluna in constants.COLUNAS_VALOR.value:
+        if coluna not in df.columns:
+            continue
         fora = df[coluna].notna() & ~df[coluna].str.fullmatch(numero, na=True)
         if fora.any():
             raise ValueError(
@@ -219,7 +222,8 @@ def limpar(csv_path: Path, pasta_saida: Path, table_id: str) -> Path:
     linhas_fonte = len(df)
     df = transformar(df, layout)
 
-    colunas = constants.COLUNAS_STAGING.value
+    # sem as colunas que o fundo não publica
+    colunas = [c for c in constants.COLUNAS_STAGING.value if c in df.columns]
     schema = pa.schema([(c, pa.string()) for c in colunas])
     total = 0
     for ano, grupo in df.groupby("ano"):

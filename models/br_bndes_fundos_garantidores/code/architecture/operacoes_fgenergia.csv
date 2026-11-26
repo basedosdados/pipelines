@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano da solicitação de outorga da garantia,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partição. Derivada de data_solicitacao_outorga,
+data_solicitacao_outorga,DATE,Data em que o agente financeiro solicitou a outorga da garantia do FGEnergia para a operação,,no,,,no,Usada na cobertura temporal da tabela,data_solicitacao_outorga
+sigla_uf,STRING,Sigla da unidade da federação onde o investimento é realizado,,no,br_bd_diretorios_brasil.uf:sigla,,no,Mesmo nome de br_bndes_operacoes_contratadas,uf_investimento
+id_municipio,STRING,Código IBGE de 7 dígitos do município onde o investimento é realizado,,no,br_bd_diretorios_brasil.municipio:id_municipio,,no,"A fonte traz só o nome do município; o código é obtido pelo par nome e UF no diretório de municípios da BD, com dicionário de correção para grafias que não casam (ex.: PARATI → Paraty). O nome não é mantido, como em br_bndes_operacoes_contratadas",municipio_investimento
+sigla_uf_sede_cliente,STRING,Sigla da unidade da federação da sede do cliente,,no,br_bd_diretorios_brasil.uf:sigla,,no,Sufixo _sede_cliente distingue do local do investimento (sigla_uf),uf_sede_cliente
+id_municipio_sede_cliente,STRING,Código IBGE de 7 dígitos do município da sede do cliente,,no,br_bd_diretorios_brasil.municipio:id_municipio,,no,Mesmo tratamento de id_municipio,municipio_sede_cliente
+cnpj_cliente,STRING,"CNPJ do cliente, mascarado pela fonte",,no,,,no,Mascarado pelo BNDES (ex.: **.*97.640/0001-**). Mesmo nome de br_bndes_operacoes_contratadas,cnpj_cpf_cliente_mascarado
+nome_cliente,STRING,Nome do cliente da operação,,no,,,no,Mesmo nome de br_bndes_operacoes_contratadas,nome_cliente
+porte_cliente,STRING,"Porte do cliente (Micro, Pequena, Média ou Grande)",,no,,,no,Mesmo nome de br_bndes_operacoes_contratadas,porte_cliente
+valor_operacao,FLOAT64,Valor do crédito concedido na operação,,no,,BRL,no,Renomeada de valor_credito para padronizar com valor_operacao de br_bndes_operacoes_contratadas,valor_credito
+valor_garantido,FLOAT64,Valor da operação coberto pela garantia do FGEnergia,,no,,BRL,no,Coluna exclusiva dos fundos garantidores,valor_garantido
+valor_desembolsado,FLOAT64,Valor já liberado ao cliente na operação,,no,,BRL,no,Mesmo nome de br_bndes_operacoes_contratadas,valor_desembolsado
+nome_agente_financeiro,STRING,Nome do agente financeiro que contratou a operação e solicitou a garantia,,no,,,no,Equivale a nome_instituicao_financeira_credenciada de br_bndes_operacoes_contratadas,nome_agente_financeiro
