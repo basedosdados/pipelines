@@ -15,7 +15,7 @@ import pyarrow.parquet as pq
 from pipelines.datasets.br_bndes_fundos_garantidores.constants import (
     constants,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 MESES = {
     "jan": 1,
@@ -81,6 +81,7 @@ def buscar_item_central(nome: str) -> dict:
         headers=constants.HEADERS.value,
         timeout=constants.TIMEOUT.value,
         follow_redirects=True,
+        proxy=brasil_proxy_url(),
     )
     resposta.raise_for_status()
     itens = ler_itens_central(resposta.text)
@@ -129,6 +130,7 @@ def baixar_csv(url: str, destino: Path) -> Path:
         headers=constants.HEADERS.value,
         timeout=constants.TIMEOUT.value,
         follow_redirects=True,
+        proxy=brasil_proxy_url(),
     ) as resposta:
         resposta.raise_for_status()
         with open(destino, "wb") as f:
@@ -145,8 +147,14 @@ def transformar(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(f"colunas ausentes na fonte: {sorted(faltando)}")
 
     df = df.rename(columns=constants.RENAME.value)
+    # quebra de linha, nbsp e espaço duplo viram um espaço (ver README)
     for coluna in df.columns:
-        df[coluna] = df[coluna].str.strip().replace("", pd.NA)
+        df[coluna] = (
+            df[coluna]
+            .str.replace(r"\s+", " ", regex=True)
+            .str.strip()
+            .replace("", pd.NA)
+        )
 
     # decimal com vírgula, sem separador de milhar (ex.: 1153136,53)
     for coluna in constants.COLUNAS_VALOR.value:

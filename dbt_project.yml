@@ -366,6 +366,9 @@ models:
     br_bndes_desembolsos:
       +materialized: table
       +schema: br_bndes_desembolsos
+    br_bndes_fundos_garantidores:
+      +materialized: table
+      +schema: br_bndes_fundos_garantidores
     br_bndes_operacoes_contratadas:
       +materialized: table
       +schema: br_bndes_operacoes_contratadas
