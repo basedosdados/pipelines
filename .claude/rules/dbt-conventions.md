@@ -80,7 +80,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [<partition_col>, <primary_key_col>]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.99
     columns:
       - name: <col>
         description: <description in Portuguese>
@@ -102,15 +102,25 @@ models:
 | `not_null` | Partition columns and primary keys |
 | `relationships` | Any column with a `directory_column` in the architecture |
 | `dbt_utils.unique_combination_of_columns` | Every model (use partition + primary key) |
-| `not_null_proportion_multiple_columns` at `0.05` | Every model |
+| `not_null_proportion_multiple_columns` at `0.99` | Every model (see the threshold rule below) |
 
 ## Handling sparse columns
 
-Columns that are legitimately empty use `ignore_values` in the proportion test:
+The preferred `at_least` is **`0.99`**. When a column has more nulls than that,
+measure it (nulls, total and proportion, in the most recent partition) and act on
+the result:
+
+| Non-null proportion of the column | What to do |
+|---|---|
+| `0.9` or more | Lower `at_least` to the column's level, never below `0.9`, and document the reason and the measurement in the dataset README |
+| below `0.9` | Keep `at_least` and put the column in `ignore_values` |
+
+A single `at_least` applies to every column outside `ignore_values`, so lowering it
+loosens the test for the whole table.
 
 ```yaml
 - not_null_proportion_multiple_columns:
-    at_least: 0.05
+    at_least: 0.99
     ignore_values:
       - column_that_is_legitimately_empty
 ```

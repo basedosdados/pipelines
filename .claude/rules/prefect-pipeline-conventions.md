@@ -173,7 +173,6 @@ class ExtractAndLoad:
     data_path: str  # local file, or Hive-partitioned directory
     prefect_mode: str = "prod"
     dump_mode: str = "append"  # or "overwrite"
-    source_format: str = "csv"  # "parquet" must be declared — see below
     partition_folders: list[str] | None = field(
         init=False
     )  # NOT yours to fill
@@ -181,10 +180,11 @@ class ExtractAndLoad:
 
 - **Never call `upload_to_gcs` here.** `run_extract_and_load` uploads from
   `data_path` right after you return; calling it too uploads twice.
-- Declare `source_format="parquet"` for parquet. The default is `"csv"`, and an
-  undeclared parquet only fails later, at promotion (`FileNotFoundError`, it looks
-  for `.csv`). `dump_mode`/`source_format` travel in `ExtractAndLoad` so the dev
-  upload and the prod promotion use the same values.
+- **The file format is not declared.** Since #2278 `ExtractAndLoad` has no
+  `source_format`: `dump_header` (`pipelines/utils/gcs.py`) takes it from the
+  extension of the first `.csv` or `.parquet` it finds in `data_path`. Keep a
+  single format per `data_path`. `dump_mode` travels in `ExtractAndLoad` so the
+  dev upload and the prod promotion use the same value.
 - **Partitioned tables**: `data_path` must be a directory **already in the final
   Hive layout** (`data_path/ano=2026/mes=09/arquivo.csv`) holding **only the
   partitions that changed in this run**. `partition_folders` is discovered by
@@ -303,7 +303,7 @@ flag them.
 | `deploy_tags` (`utils.stage_dispatch`) | `dataset_id, etapa, table_id=None` | Tags for finding deployments (`staged-pipeline`, stage, dataset, `<ds>__<table>`) |
 | `build_and_promote` (`utils.metadata.flows`) | `dataset_id, table_id, env, bq_project, prefect_mode, promote_to_prod, partition_folders, dump_mode, …` | The shared flow; do not define one per dataset |
 | `rename_flow_run_dataset_table` (`utils.tasks`) | `prefix, dataset_id, table_id` | Names the run in the UI (done for you by the pipeline class) |
-| `upload_to_gcs` (`utils.tasks`) | `data_path, dataset_id, table_id, bucket_name, dump_mode="append", source_format="csv"` | Upload a file/partitioned dir to `<bucket>/staging/<ds>/<table>` + create staging BQ table (done for you; don't call from `extract_load_data`) |
+| `upload_to_gcs` (`utils.tasks`) | `data_path, dataset_id, table_id, bucket_name, dump_mode="append"` | Upload a file/partitioned dir to `<bucket>/staging/<ds>/<table>` + create staging BQ table; the format comes from the file extension (done for you; don't call from `extract_load_data`) |
 | `run_dbt` (`utils.tasks`) | `dataset_id, table_id=None, dbt_alias=True, dbt_command="run", target="dev", flags=None, _vars=None` | dbt run and/or test, then upload artifacts (done for you in `build_and_promote`) |
 | `poll_source_for_update_task` (`utils.metadata.tasks`) | `dataset_id, table_id, source_max_date, env, date_format, compare_against` → `bool` | Record a Poll; is source newer? |
 | `commit_source_update_task` (`utils.metadata.tasks`) | `dataset_id, table_id, source_max_date, env, date_format` | Write source `Update.latest` |
@@ -315,8 +315,9 @@ called by the pipeline class and `build_and_promote`.
 
 `dump_mode`: **`"append"`** (create staging table once, then append) or
 **`"overwrite"`** (drop + recreate — use for sources that ship the *full history*
-each release, like BLS flat files). No `"replace"`. `source_format="parquet"` is
-supported; `data_path` may be a hive-partitioned directory (`.../year=YYYY/data.parquet`).
+each release, like BLS flat files). No `"replace"`. Parquet is supported and
+detected from the extension; `data_path` may be a hive-partitioned directory
+(`.../year=YYYY/data.parquet`).
 
 ### Staging parquet must be all-STRING (current limitation)
 
@@ -794,7 +795,7 @@ of the two applies, plainly, rather than implying the pipeline is proven end-to-
 | "`get_latest_update` triggers nothing" | It only reports a date; `poll_source_for_update_task` decides. Compare the returned date to the **backend** (`Coverage.DateTimeRange` / `Table.Update.latest`), not to your code |
 | Data uploaded twice or never | `extract_load_data` calls `upload_to_gcs` — remove it |
 | Wrong/whole partition promoted | `data_path` isn't the final Hive layout, or holds more than this run's partitions |
-| `FileNotFoundError` promoting a parquet dataset | Missing `source_format="parquet"` in `ExtractAndLoad` |
+| `FileNotFoundError: Nenhum arquivo csv ou parquet encontrado` at upload | `data_path` has no `.csv`/`.parquet` file; the format is detected from the extension, never declared |
 | Old flow still runs beside the new one | Monolith still registered; remove manually after confirming the new one |
 | `poll_source_for_update` silently no-ops | Table has no `RawDataSource` registered |
 | Run is green but the coverage never moves / no paywall | Temporal columns lack `coverage_entity`, so the backend reports `tier=non_historical`. Mark them (see `metadata-schema`) |
