@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_pt,description_es,observations_pt,observations_es
+table_id,STRING,Slug of the us_census_bds table the dictionary entry describes,,no,,,no,,table_id,Slug da tabela de us_census_bds que a entrada do dicionário descreve,Slug de la tabla de us_census_bds que describe la entrada del diccionario,,
+column_name,STRING,Name of the column the dictionary entry describes,,no,,,no,,column_name,Nome da coluna que a entrada do dicionário descreve,Nombre de la columna que describe la entrada del diccionario,,
+key,STRING,Coded value (key) exactly as stored in the data,,no,,,no,,key,Valor codificado (chave) exatamente como armazenado nos dados,Valor codificado (clave) exactamente como se almacena en los datos,,
+temporal_coverage,STRING,Temporal coverage of the key,,no,,,no,,temporal_coverage,Cobertura temporal da chave,Cobertura temporal de la clave,,
+value,STRING,Human-readable label corresponding to the coded value,,no,,,no,,value,Rótulo legível correspondente ao valor codificado,Etiqueta legible correspondiente al valor codificado,,
