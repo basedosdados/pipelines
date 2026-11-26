@@ -39,85 +39,15 @@ with
             }} as t
     ),
 
-    municipio as (
-        select
-            id_municipio,
-            sigla_uf,
-            -- sem acento, apóstrofo ou hífen (ex.: Sant'Ana, Mogi-Guaçu)
-            replace(
-                replace(
-                    regexp_replace(normalize(upper(nome), nfd), r'\pM', ''), "'", ''
-                ),
-                '-',
-                ' '
-            ) nome_norm
-        from basedosdados.br_bd_diretorios_brasil.municipio
-    ),
-
-    -- grafias da fonte que não casam com o diretório
-    correcao as (
-        select *
-        from
-            unnest(
-                [
-                    struct(
-                        'RJ' as sigla_uf,
-                        'PARATI' as nome_norm,
-                        '3303807' as id_municipio
-                    ),
-                    ('SC', 'BALNEARIO DE PICARRAS', '4212809'),
-                    ('MG', 'ITABIRINHA DE MANTENA', '3131802'),
-                    ('CE', 'ITAPAJE', '2306306'),
-                    ('MA', 'LAGOA DOS RODRIGUES', '2105948'),
-                    ('BA', 'MUQUEM DO SAO FRANCISCO', '2922250'),
-                    ('PE', 'LAGOA DO ITAENGA', '2608503'),
-                    ('TO', 'SAO VALERIO DA NATIVIDADE', '1720499'),
-                    ('TO', 'COUTO DE MAGALHAES', '1706001'),
-                    ('PE', 'BELEM DE SAO FRANCISCO', '2601607'),
-                    ('MG', 'DONA EUZEBIA', '3122900'),
-                    ('MT', 'POXOREU', '5107008'),
-                    ('MG', 'AMPARO DA SERRA', '3102506'),
-                    ('PE', 'ITAMARACA', '2607604'),
-                    ('MG', 'BRASOPOLIS', '3108909'),
-                    ('SC', 'PRESIDENTE CASTELO BRANCO', '4213906'),
-                    ('SP', 'SAO LUIZ DO PARAITINGA', '3550001')
-                ]
-            )
-    ),
-
-    staging_norm as (
-        select
-            *,
-            replace(
-                replace(
-                    regexp_replace(normalize(upper(nome_municipio), nfd), r'\pM', ''),
-                    "'",
-                    ''
-                ),
-                '-',
-                ' '
-            ) nome_norm,
-            replace(
-                replace(
-                    regexp_replace(
-                        normalize(upper(nome_municipio_sede_cliente), nfd), r'\pM', ''
-                    ),
-                    "'",
-                    ''
-                ),
-                '-',
-                ' '
-            ) nome_norm_sede
-        from staging
-    )
+    municipio as ({{ fundos_garantidores_municipio() }})
 
 select
     s.ano,
     s.data_solicitacao_outorga,
     s.sigla_uf,
-    coalesce(m.id_municipio, c.id_municipio) id_municipio,
+    m.id_municipio,
     s.sigla_uf_sede_cliente,
-    coalesce(ms.id_municipio, cs.id_municipio) id_municipio_sede_cliente,
+    ms.id_municipio id_municipio_sede_cliente,
     s.cpf_cnpj_cliente,
     s.nome_cliente,
     s.porte_cliente,
@@ -125,14 +55,13 @@ select
     s.valor_garantido,
     s.valor_desembolsado,
     s.nome_agente_financeiro
-from staging_norm as s
-left join municipio as m on s.sigla_uf = m.sigla_uf and s.nome_norm = m.nome_norm
-left join correcao as c on s.sigla_uf = c.sigla_uf and s.nome_norm = c.nome_norm
+from staging as s
+left join
+    municipio as m
+    on s.sigla_uf = m.sigla_uf
+    and {{ fundos_garantidores_nome_norm("s.nome_municipio") }} = m.nome_norm
 left join
     municipio as ms
     on s.sigla_uf_sede_cliente = ms.sigla_uf
-    and s.nome_norm_sede = ms.nome_norm
-left join
-    correcao as cs
-    on s.sigla_uf_sede_cliente = cs.sigla_uf
-    and s.nome_norm_sede = cs.nome_norm
+    and {{ fundos_garantidores_nome_norm("s.nome_municipio_sede_cliente") }}
+    = ms.nome_norm

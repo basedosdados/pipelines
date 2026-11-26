@@ -1,6 +1,7 @@
 """sobe o parquet limpo para o staging de basedosdados-dev.
 
 uso: uv run models/br_bndes_fundos_garantidores/code/upload.py [tabela ...]
+(sem argumento, sobe as 6 tabelas)
 """
 
 import os
@@ -15,6 +16,10 @@ import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
+from pipelines.datasets.br_bndes_fundos_garantidores.constants import (  # noqa: E402
+    constants,
+)
+
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "br_bndes_fundos_garantidores"
 PASTA = Path(
@@ -23,7 +28,7 @@ PASTA = Path(
         Path.home() / "Downloads" / "br_bndes_fundos_garantidores_data",
     )
 )
-TABELAS = ["operacoes_fgi_tradicional"]
+TABELAS = list(constants.NOME_CENTRAL.value)
 
 # bucket requester-pays
 _bucket_original = gcs.Client.bucket
