@@ -1,6 +1,7 @@
 """Funções puras de br_bndes_fundos_garantidores, sem Prefect."""
 
 import html
+import io
 import json
 import re
 import shutil
@@ -140,58 +141,83 @@ def baixar_csv(url: str, destino: Path) -> Path:
     return destino
 
 
-def transformar(df: pd.DataFrame) -> pd.DataFrame:
-    """renomeia, padroniza valores e deriva `ano`; não remove linhas."""
+def layout_do_fundo(table_id: str) -> dict:
+    """formato do csv de `table_id`: o padrão com as diferenças do fundo."""
+    return {
+        **constants.LAYOUT_PADRAO.value,
+        **constants.LAYOUT.value.get(table_id, {}),
+    }
+
+
+def ler_csv(csv_path: Path, encoding: str) -> pd.DataFrame:
+    """lê o csv bruto como texto, sem converter vazios."""
+    if encoding == "latin-1+cp850":
+        # peac 2020: cabeçalho em latin-1 e dados em cp850
+        cabecalho, _, corpo = csv_path.read_bytes().partition(b"\n")
+        arquivo = io.StringIO(
+            cabecalho.decode("latin-1") + "\n" + corpo.decode("cp850")
+        )
+        return pd.read_csv(arquivo, sep=";", dtype=str, keep_default_na=False)
+    return pd.read_csv(
+        csv_path, sep=";", encoding=encoding, dtype=str, keep_default_na=False
+    )
+
+
+def transformar(df: pd.DataFrame, layout: dict) -> pd.DataFrame:
+    """leva ao cabeçalho padrão, padroniza valores e deriva `ano`; não remove linhas."""
+    df = df.rename(columns=layout["colunas"])
+    for coluna in layout["colunas_ausentes"]:
+        df[coluna] = ""
     faltando = set(constants.COLUNAS_FONTE.value) - set(df.columns)
     if faltando:
         raise ValueError(f"colunas ausentes na fonte: {sorted(faltando)}")
 
     df = df.rename(columns=constants.RENAME.value)
-    # quebra de linha, nbsp e espaço duplo viram um espaço (ver README)
+    # quebra de linha, nbsp, espaço duplo e &amp; (ver README)
     for coluna in df.columns:
         df[coluna] = (
             df[coluna]
             .str.replace(r"\s+", " ", regex=True)
+            .str.replace("&AMP;", "&", case=False, regex=False)
             .str.strip()
             .replace("", pd.NA)
         )
+    df["porte_cliente"] = df["porte_cliente"].replace(constants.PORTE.value)
 
-    # decimal com vírgula, sem separador de milhar (ex.: 1153136,53)
+    # sem separador de milhar; decimal com vírgula, exceto cs-rs (ponto)
+    numero = rf"\d+(?:{re.escape(layout['decimal'])}\d+)?"
     for coluna in constants.COLUNAS_VALOR.value:
-        df[coluna] = df[coluna].str.replace(",", ".", regex=False)
-        invalidos = (
-            df[coluna].notna()
-            & pd.to_numeric(df[coluna], errors="coerce").isna()
-        )
-        if invalidos.any():
+        fora = df[coluna].notna() & ~df[coluna].str.fullmatch(numero, na=True)
+        if fora.any():
             raise ValueError(
-                f"{coluna}: {invalidos.sum()} valores não numéricos, "
-                f"ex.: {df.loc[invalidos, coluna].head(3).tolist()}"
+                f"{coluna}: {fora.sum()} valores fora do formato, "
+                f"ex.: {df.loc[fora, coluna].head(3).tolist()}"
             )
+        df[coluna] = df[coluna].str.replace(
+            layout["decimal"], ".", regex=False
+        )
 
     datas = pd.to_datetime(
-        df["data_solicitacao_outorga"], format="%Y-%m-%d", errors="coerce"
+        df["data_solicitacao_outorga"],
+        format=layout["formato_data"],
+        errors="coerce",
     )
     if datas.isna().any():
         raise ValueError(
             f"data_solicitacao_outorga: {datas.isna().sum()} datas inválidas"
         )
+    df["data_solicitacao_outorga"] = datas.dt.strftime("%Y-%m-%d")
     df["ano"] = datas.dt.year.astype(str)
     return df
 
 
-def limpar(csv_path: Path, pasta_saida: Path) -> Path:
+def limpar(csv_path: Path, pasta_saida: Path, table_id: str) -> Path:
     """lê o csv bruto e grava parquet all-string em pasta_saida/ano=<ano>/."""
     shutil.rmtree(pasta_saida, ignore_errors=True)
-    df = pd.read_csv(
-        csv_path,
-        sep=";",
-        encoding="utf-8",
-        dtype=str,
-        keep_default_na=False,
-    )
+    layout = layout_do_fundo(table_id)
+    df = ler_csv(csv_path, layout["encoding"])
     linhas_fonte = len(df)
-    df = transformar(df)
+    df = transformar(df, layout)
 
     colunas = constants.COLUNAS_STAGING.value
     schema = pa.schema([(c, pa.string()) for c in colunas])

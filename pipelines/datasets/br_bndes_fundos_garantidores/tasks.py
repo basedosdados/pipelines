@@ -42,7 +42,7 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         pasta = Path(tempfile.mkdtemp(prefix=f"{table_id}_"))
         item = buscar_item_central(nome)
         csv = baixar_csv(item["url_csv"], pasta / "input" / f"{table_id}.csv")
-        saida = limpar(csv, pasta / "output" / table_id)
+        saida = limpar(csv, pasta / "output" / table_id, table_id)
         # a fonte publica o histórico completo a cada posição
         return ExtractAndLoad(
             data_path=str(saida),

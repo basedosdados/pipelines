@@ -49,6 +49,49 @@ class constants(Enum):
         "uf_sede_cliente",
     ]
 
+    # leitura do cabeçalho padrão; fundos fora dele sobrescrevem as chaves
+    LAYOUT_PADRAO = {
+        "encoding": "utf-8",
+        "colunas": {},
+        "colunas_ausentes": [],
+        "decimal": ",",
+        "formato_data": "%Y-%m-%d",
+    }
+
+    # o que muda em cada fundo fora do padrão (ver README)
+    LAYOUT = {
+        "operacoes_fgi_peac_2020": {
+            "encoding": "latin-1+cp850",
+            "colunas": {
+                "agente financeiro": "nome_agente_financeiro",
+                "razão social do cliente": "nome_cliente",
+                "cnpj do cliente": "cnpj_cpf_cliente_mascarado",
+                "porte": "porte_cliente",
+                "valor do crédito": "valor_credito",
+                "valor garantido": "valor_garantido",
+                "data da solicitação de outorga de garantia": "data_solicitacao_outorga",
+                "município de investimento": "municipio_investimento",
+                "uf de investimento": "uf_investimento",
+                "município da sede do cliente": "municipio_sede_cliente",
+                "uf da sede do cliente": "uf_sede_cliente",
+            },
+            "colunas_ausentes": ["valor_desembolsado"],
+            "formato_data": "%d/%m/%Y",
+        },
+        "operacoes_fgi_peac_credito_solidario_rs": {
+            "colunas": {"cnpj_cpf_cliente": "cnpj_cpf_cliente_mascarado"},
+            "decimal": ".",
+        },
+    }
+
+    # porte em maiúsculas sem acento (peac 2020) vira a grafia dos demais
+    PORTE = {
+        "MICRO": "Micro",
+        "PEQUENA": "Pequena",
+        "MEDIA": "Média",
+        "GRANDE": "Grande",
+    }
+
     RENAME = {
         "nome_agente_financeiro": "instituicao_financeira_credenciada",
         "cnpj_cpf_cliente_mascarado": "cpf_cnpj_cliente",
