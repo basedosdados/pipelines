@@ -1,0 +1,221 @@
+---
+version: 2
+models:
+  - name: br_bndes_renda_variavel__empresa_participacao_acionaria
+    description: >-
+      Participações acionárias da carteira de renda variável do BNDES ao fim de
+      cada ano, por empresa, desde 2006, com a participação do BNDES no capital
+      total e nas ações ordinárias e preferenciais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano a que se referem as informações da linha
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cnpj
+        description: >-
+          CNPJ da empresa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
+      - name: sigla
+        description: >-
+          Sigla atribuída internamente no Sistema de Mercado de Capitais do
+          BNDES
+        tests: [not_null]
+      - name: razao_social
+        description: >-
+          Razão social da empresa
+      - name: tipo_ativo
+        description: >-
+          Tipo do título ou valor mobiliário
+      - name: setor_atividade
+        description: >-
+          Setor de atividade predominante da empresa
+      - name: tipo_capital
+        description: >-
+          Indica se a empresa é aberta, podendo lançar ações e títulos
+          mobiliários no mercado, ou fechada
+      - name: indicador_acordo_acionistas
+        description: >-
+          Indica se há acordo de acionistas em vigor entre a BNDESPAR e a
+          empresa: 1 sim, 0 não
+      - name: indicador_conselho_administracao
+        description: >-
+          Indica se há algum indicado pela BNDESPAR para o conselho de
+          administração da empresa, com mandato em vigor: 1 sim, 0 não
+      - name: indicador_conselho_fiscal
+        description: >-
+          Indica se há algum indicado pela BNDESPAR para o conselho fiscal da
+          empresa, com mandato em vigor: 1 sim, 0 não
+      - name: proporcao_participacao_on
+        description: >-
+          Participação do BNDES nas ações ordinárias da empresa
+      - name: proporcao_participacao_pn
+        description: >-
+          Participação do BNDES nas ações preferenciais da empresa
+      - name: proporcao_participacao_total
+        description: >-
+          Participação total do BNDES no capital da empresa
+  - name: br_bndes_renda_variavel__fundo_participacao
+    description: >-
+      Fundos de investimento da carteira de renda variável do BNDES ao fim de
+      cada ano, desde 2006, com a participação total do BNDES no capital de
+      cada fundo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [setor_atividade]
+    columns:
+      - name: ano
+        description: >-
+          Ano a que se referem as informações da linha
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cnpj
+        description: >-
+          CNPJ do fundo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
+      - name: sigla
+        description: >-
+          Sigla atribuída internamente no Sistema de Mercado de Capitais do
+          BNDES
+        tests: [not_null]
+      - name: razao_social
+        description: >-
+          Razão social do fundo
+      - name: tipo_ativo
+        description: >-
+          Tipo do título ou valor mobiliário
+      - name: setor_atividade
+        description: >-
+          Setor de atividade predominante dos ativos do fundo, quando aplicável
+      - name: proporcao_participacao_total
+        description: >-
+          Participação total do BNDES no capital do fundo
+  - name: br_bndes_renda_variavel__empresa_debenture
+    description: >-
+      Debêntures da carteira de renda variável do BNDES ao fim de cada ano, por
+      empresa, desde 2006, com a quantidade de debêntures detidas. A tabela não
+      tem chave única, porque a fonte repete ano e CNPJ em algumas linhas.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano a que se referem as informações da linha
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cnpj
+        description: >-
+          CNPJ da empresa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
+      - name: sigla
+        description: >-
+          Sigla atribuída internamente no Sistema de Mercado de Capitais do
+          BNDES
+      - name: razao_social
+        description: >-
+          Razão social da empresa
+      - name: tipo_ativo
+        description: >-
+          Tipo do título ou valor mobiliário
+      - name: setor_atividade
+        description: >-
+          Setor de atividade predominante da empresa
+      - name: tipo_capital
+        description: >-
+          Indica se a empresa é aberta, podendo lançar ações e títulos
+          mobiliários no mercado, ou fechada
+      - name: indicador_acordo_acionistas
+        description: >-
+          Indica se há acordo de acionistas em vigor entre a BNDESPAR e a
+          empresa: 1 sim, 0 não
+      - name: indicador_conselho_administracao
+        description: >-
+          Indica se há algum indicado pela BNDESPAR para o conselho de
+          administração da empresa, com mandato em vigor: 1 sim, 0 não
+      - name: indicador_conselho_fiscal
+        description: >-
+          Indica se há algum indicado pela BNDESPAR para o conselho fiscal da
+          empresa, com mandato em vigor: 1 sim, 0 não
+      - name: quantidade_debentures
+        description: >-
+          Quantidade de debêntures detidas
+  - name: br_bndes_renda_variavel__desembolso
+    description: >-
+      Desembolsos do BNDES via renda variável, por operação, desde 2007:
+      participações acionárias, debêntures e cotas de fundos, em valores
+      nominais. A tabela não tem chave única, porque a fonte traz várias
+      operações por empresa e ano sem identificador da operação.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >-
+          Ano a que se referem as informações da linha
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cnpj
+        description: >-
+          CNPJ da empresa ou do fundo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
+      - name: sigla
+        description: >-
+          Sigla atribuída internamente no Sistema de Mercado de Capitais do
+          BNDES
+      - name: razao_social
+        description: >-
+          Razão social da empresa ou do fundo
+      - name: tipo_capital
+        description: >-
+          Indica se a empresa é aberta, podendo lançar ações e títulos
+          mobiliários no mercado, fechada, ou se é um fundo
+      - name: tipo_ativo
+        description: >-
+          Tipo do título ou valor mobiliário
+      - name: setor_atividade
+        description: >-
+          Setor de atividade predominante da empresa
+      - name: objetivo_predominante
+        description: >-
+          Principal objetivo do BNDES com o fomento, direto ou indireto (via
+          fundos)
+      - name: descricao_operacao
+        description: >-
+          Destinação dos recursos pela empresa; no caso de fundo, o seu foco e
+          modo de atuação
+      - name: valor_desembolsado
+        description: >-
+          Valor nominal desembolsado na época, em reais

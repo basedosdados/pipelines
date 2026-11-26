@@ -48,7 +48,7 @@ For each failing test:
 
 2. **`relationships` fails** (FK violation): Report failing values. Ask user: (a) remove test, (b) relax to proportion test with `custom_relationships`, or (c) fix the data.
 
-3. **`not_null_proportion_multiple_columns` fails** (below threshold): Report the actual proportion. Ask user to confirm whether the threshold is acceptable.
+3. **`not_null_proportion_multiple_columns` fails** (below threshold): Report the actual proportion of each failing column. The preferred `at_least` is `0.99`; a column at `0.9` or more may lower it, with the reason and the measurement documented in the dataset README; a column below `0.9` goes to `ignore_values`. Ask the user before changing the test.
 
 4. **`dbt_utils.unique_combination_of_columns` fails**: Report duplicate count. Ask user whether to switch to `custom_unique_combinations_of_columns` with a tolerance.
 

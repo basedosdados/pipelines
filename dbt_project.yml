@@ -366,9 +366,15 @@ models:
     br_bndes_desembolsos:
       +materialized: table
       +schema: br_bndes_desembolsos
+    br_bndes_estatisticas_operacoes:
+      +materialized: table
+      +schema: br_bndes_estatisticas_operacoes
     br_bndes_operacoes_contratadas:
       +materialized: table
       +schema: br_bndes_operacoes_contratadas
+    br_bndes_renda_variavel:
+      +materialized: table
+      +schema: br_bndes_renda_variavel
     br_camara_dados_abertos:
       +materialized: table
       +schema: br_camara_dados_abertos

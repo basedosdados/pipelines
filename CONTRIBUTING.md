@@ -463,6 +463,9 @@ models:
 
 ##### Não nulidade das colunas
 
+O `at_least` preferido é `0.99`. Ele pode descer até `0.9`, com o motivo e a medição
+documentados no README do conjunto; coluna abaixo de `0.9` vai para o `ignore_values`.
+
 ```yaml
 ---
 models:
@@ -470,7 +473,7 @@ models:
     description:
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
 ```
 
 ##### Conexão com diretórios customizada
