@@ -8,14 +8,13 @@
             "data_type": "int64",
             "range": {"start": 2005, "end": 2031, "interval": 1},
         },
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
     raw_cnes_profissional as (
         -- 1. Retirar linhas com id_estabelecimento_cnes nulo
         select *
-        from {{ set_datalake_project("br_ms_cnes_staging.profissional") }}
+        from {{ cnes_staging_nan_as_null("br_ms_cnes_staging.profissional") }}
         where cnes is not null and competen is not null
     ),
     profissional_x_estabelecimento as (
@@ -44,21 +43,13 @@ with
             -- replace de valores de linha com 6 zeros para null. 6 zeros é valor do
             -- campo
             -- UFMUNRES que indica null
-            safe_cast(
-                regexp_replace(ufmunres, '0{6}', '') as string
+            nullif(
+                safe_cast(regexp_replace(ufmunres, '0{6}', '') as string), ''
             ) id_municipio_6_residencia,
             safe_cast(nomeprof as string) nome,
+            regexp_replace(vinculac, r'^0+', '') as tipo_vinculo,
+            safe_cast(registro as string) as id_registro_conselho,
             case
-                when vinculac = 'nan'
-                then null
-                else regexp_replace(vinculac, r'^0+', '')
-            end as tipo_vinculo,
-            case
-                when registro = 'nan' then null else safe_cast(registro as string)
-            end as id_registro_conselho,
-            case
-                when conselho = 'nan'
-                then null
                 when conselho = '0'
                 then conselho
                 else regexp_replace(conselho, r'^0', '')

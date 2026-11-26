@@ -8,14 +8,13 @@
             "data_type": "int64",
             "range": {"start": 2005, "end": 2031, "interval": 1},
         },
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
     raw_cnes_estabelecimento as (
         -- 1. Retirar linhas com id_estabelecimento_cnes nulo
         select *
-        from {{ set_datalake_project("br_ms_cnes_staging.estabelecimento") }}
+        from {{ cnes_staging_nan_as_null("br_ms_cnes_staging.estabelecimento") }}
         where cnes is not null
     ),
     raw_cnes_estabelecimento_without_duplicates as (
@@ -52,52 +51,38 @@ select
     safe_cast({{ clean_cols("PF_PJ") }} as string) tipo_pessoa,
     -- fazer replace em valores de linha com 14 zeros para null. 14 zeros é o tamanho
     -- de um valor nulo na variável cpf/cnpj
-    safe_cast(regexp_replace(cpf_cnpj, '0{14}', '') as string) cpf_cnpj,
+    nullif(safe_cast(regexp_replace(cpf_cnpj, '0{14}', '') as string), '') cpf_cnpj,
     safe_cast({{ clean_cols("NIV_DEP") }} as string) tipo_grau_dependencia,
     -- fazer replace em valores de linha com 14 zeros para null. 14 zeros é o tamanho
     -- de um cpf/cnpj nulo
-    safe_cast(regexp_replace(cnpj_man, '0{14}', '') as string) cnpj_mantenedora,
-    case
-        when safe_cast({{ clean_cols("COD_IR") }} as string) = 'nan'
-        then null
-        else safe_cast({{ clean_cols("COD_IR") }} as string)
-    end as tipo_retencao_tributos_mantenedora,
+    nullif(
+        safe_cast(regexp_replace(cnpj_man, '0{14}', '') as string), ''
+    ) cnpj_mantenedora,
+    safe_cast(
+        {{ clean_cols("COD_IR") }} as string
+    ) as tipo_retencao_tributos_mantenedora,
     safe_cast(vinc_sus as int64) indicador_vinculo_sus,
     safe_cast(tpgestao as string) tipo_gestao,
-    case
-        when safe_cast({{ clean_cols("ESFERA_A") }} as string) = 'nan'
-        then null
-        else safe_cast({{ clean_cols("ESFERA_A") }} as string)
-    end as tipo_esfera_administrativa,
+    safe_cast({{ clean_cols("ESFERA_A") }} as string) as tipo_esfera_administrativa,
     case
         when regexp_replace(safe_cast(retencao as string), '^0+', '') = ''
         then '0'
-        when safe_cast(retencao as string) = 'nan'
-        then null
         else regexp_replace(safe_cast(retencao as string), '^0+', '')
     end as tipo_retencao_tributos,
     safe_cast({{ clean_cols("ATIVIDAD") }} as string) tipo_atividade_ensino_pesquisa,
     case
         when regexp_replace(safe_cast(natureza as string), '^0+', '') = ''
         then '0'
-        when safe_cast(natureza as string) = 'nan'
-        then null
         else regexp_replace(safe_cast(natureza as string), '^0+', '')
     end as tipo_natureza_administrativa,
     nullif(safe_cast(nat_jur as string), '') id_natureza_juridica,
     case
         when regexp_replace(safe_cast(clientel as string), '^0+', '') = ''
         then '0'
-        when safe_cast(clientel as string) = 'nan'
-        then null
         else regexp_replace(safe_cast(clientel as string), '^0+', '')
     end as tipo_fluxo_atendimento,
     safe_cast({{ clean_cols("TP_UNID") }} as string) tipo_unidade,
-    case
-        when safe_cast({{ clean_cols("TURNO_AT") }} as string) = 'nan'
-        then null
-        else safe_cast({{ clean_cols("TURNO_AT") }} as string)
-    end as tipo_turno,
+    safe_cast({{ clean_cols("TURNO_AT") }} as string) as tipo_turno,
     safe_cast({{ clean_cols("NIV_HIER") }} as string) tipo_nivel_hierarquia,
     safe_cast({{ clean_cols("TP_PREST") }} as string) tipo_prestador,
     safe_cast(co_banco as string) banco,
@@ -115,21 +100,13 @@ select
     safe_cast(
         safe.parse_date('%Y%m%d', cast(dt_exped as string)) as date
     ) data_expedicao_alvara,
-    case
-        when safe_cast({{ clean_cols("ORGEXPED") }} as string) = 'nan'
-        then null
-        else safe_cast({{ clean_cols("ORGEXPED") }} as string)
-    end as tipo_orgao_expedidor,
-    case
-        when safe_cast({{ clean_cols("AV_ACRED") }} as string) = 'nan'
-        then null
-        else safe_cast({{ clean_cols("AV_ACRED") }} as string)
-    end as tipo_avaliacao_acreditacao_hospitalar,
+    safe_cast({{ clean_cols("ORGEXPED") }} as string) as tipo_orgao_expedidor,
+    safe_cast(
+        {{ clean_cols("AV_ACRED") }} as string
+    ) as tipo_avaliacao_acreditacao_hospitalar,
     case
         when regexp_replace(safe_cast(clasaval as string), '^0+', '') = ''
         then '0'
-        when safe_cast(clasaval as string) = 'nan'
-        then null
         else regexp_replace(safe_cast(clasaval as string), '^0+', '')
     end as tipo_classificacao_acreditacao_hospitalar,
     safe_cast(substr(cast(dt_pnass as string), 1, 4) as int64) as ano_avaliacao_pnass,

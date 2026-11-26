@@ -8,14 +8,13 @@
             "data_type": "int64",
             "range": {"start": 2005, "end": 2031, "interval": 1},
         },
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
     raw_cnes_servico_especializado as (
         -- 1. Retirar linhas com id_estabelecimento_cnes nulo
         select *
-        from {{ set_datalake_project("br_ms_cnes_staging.servico_especializado") }}
+        from {{ cnes_staging_nan_as_null("br_ms_cnes_staging.servico_especializado") }}
         where cnes is not null
     ),
     raw_cnes_servico_especializado_without_duplicates as (
