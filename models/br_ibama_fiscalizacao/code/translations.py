@@ -75,6 +75,10 @@ COLUMNS: dict[str, tuple[str, str]] = {
         "Longitude of the embargoed site in decimal degrees",
         "Longitud del sitio embargado en grados decimales",
     ),
+    "Polígono da área embargada": (
+        "Polygon of the embargoed area",
+        "Polígono del área embargada",
+    ),
     "Indica se o ponto publicado cai dentro do polígono do município declarado": (
         "Indicates whether the published point falls inside the polygon of the declared municipality",
         "Indica si el punto publicado cae dentro del polígono del municipio declarado",

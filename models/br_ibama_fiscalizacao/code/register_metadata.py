@@ -22,9 +22,14 @@ from pathlib import Path
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write
+from databasis_mcp.gql import _gql, _strip_id
 
 from models.br_ibama_fiscalizacao.code import translations as tr
 from models.br_ibama_fiscalizacao.code.constants import DATASET_ID
+from pipelines.datasets.br_ibama_fiscalizacao.constants import (
+    COVERAGE as FLOW_COVERAGE,
+)
+from pipelines.utils.metadata.domain import PartBdpro
 
 # create_update_update.latest is a DateTime, not a Date.
 NOW = datetime.now().replace(microsecond=0).isoformat()
@@ -152,6 +157,41 @@ def ids(*_keys):
     return out
 
 
+def dataset_status(dataset_id: str) -> str | None:
+    """Current status slug of an existing dataset (get_dataset omits it)."""
+    q = "query($id: ID) { allDataset(id: $id) { edges { node { status { slug } } } } }"
+    edges = _gql(q, {"id": dataset_id}, env=ENV)["allDataset"]["edges"]
+    return edges[0]["node"]["status"]["slug"] if edges else None
+
+
+def coverages_by_tier(table_id: str) -> dict[bool, list[dict]]:
+    """A table's coverages grouped by is_closed (False = free, True = BD Pro).
+
+    get_dataset returns coverages as a bare list with no is_closed and no stable
+    order, and on prod a part_bdpro table may list its pro coverage first.
+    Picking by position would write the free range over the BD Pro window.
+    """
+    q = """
+    query($id: ID) { allTable(id: $id) { edges { node { coverages { edges {
+        node { id isClosed datetimeRanges { edges { node { id } } } }
+    } } } } } }
+    """
+    edges = _gql(q, {"id": table_id}, env=ENV)["allTable"]["edges"]
+    out: dict[bool, list[dict]] = {False: [], True: []}
+    for e in edges[0]["node"]["coverages"]["edges"] if edges else []:
+        n = e["node"]
+        out[bool(n["isClosed"])].append(
+            {
+                "id": _strip_id(n["id"]),
+                "ranges": [
+                    _strip_id(r["node"]["id"])
+                    for r in n["datetimeRanges"]["edges"]
+                ],
+            }
+        )
+    return out
+
+
 def arch_rows(table: str):
     return list(csv.DictReader(open(ARCH / f"{table}.csv", encoding="utf-8")))
 
@@ -210,7 +250,11 @@ def main() -> None:
         organization_ids=[ref["organization"]["ibama"]],
         theme_ids=[ref["theme"]["environment"]],
         tag_ids=TAGS,
-        status_id=ref["status"]["under_review"],
+        # A new dataset starts under_review; an existing one keeps its status, so
+        # a re-run after publication does not hide the dataset again.
+        status_id=ref["status"][
+            (dataset_id and dataset_status(dataset_id)) or "under_review"
+        ],
         env=ENV,
     )
     dataset_id = res["id"]
@@ -342,21 +386,40 @@ def main() -> None:
             if isinstance(area_id, dict)
             else json.loads(area_id)["id"]
         )
-        prior_cov = (was.get("coverages") or [{}])[0]
+        tiers = coverages_by_tier(table_id)
+        free = (tiers[False] or [{}])[0]
         cov = bd_mcp_write.create_update_coverage(
-            id=prior_cov.get("id"), table_id=table_id, area_id=area_id, env=ENV
-        )
-        start, end = COVERAGE[table]
-        prior_range = ((prior_cov.get("datetime_ranges") or [{}])[0]).get("id")
-        bd_mcp_write.create_update_datetime_range(
-            id=prior_range,
-            coverage_id=cov["id"],
-            start_year=start,
-            end_year=end,
-            interval=1,
+            id=free.get("id"),
+            table_id=table_id,
+            area_id=area_id,
+            is_closed=False,
             env=ENV,
         )
-        log(f"    coverage {start}-{end} -> {cov['id']}")
+        if isinstance(FLOW_COVERAGE.get(table), PartBdpro):
+            # The flow owns both ranges of a part_bdpro table: it recomputes the
+            # free/pro boundary from the data on every run. A static range here
+            # would move that boundary and release the paid window, so this only
+            # makes sure the pro Coverage exists, which assert_coverage_topology
+            # requires before the first run.
+            if not tiers[True]:
+                pro = bd_mcp_write.create_update_coverage(
+                    table_id=table_id, area_id=area_id, is_closed=True, env=ENV
+                )
+                log(f"    pro coverage created -> {pro['id']}")
+            log(
+                f"    coverage free {cov['id']} + pro; ranges left to the flow"
+            )
+        else:
+            start, end = COVERAGE[table]
+            bd_mcp_write.create_update_datetime_range(
+                id=(free.get("ranges") or [None])[0],
+                coverage_id=cov["id"],
+                start_year=start,
+                end_year=end,
+                interval=1,
+                env=ENV,
+            )
+            log(f"    coverage {start}-{end} -> {cov['id']}")
 
         # Table-anchored Update: `latest` is when WE last refreshed the table,
         # not the max date in the data. The source republishes daily.

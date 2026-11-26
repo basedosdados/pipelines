@@ -21,7 +21,14 @@ with
             safe_cast(id_embargo as string) id_embargo,
             safe_cast(numero_tad as string) numero_tad,
             safe_cast(serie_tad as string) serie_tad,
-            safe_cast(data_embargo as date) data_embargo,
+            -- A few embargo dates are typed centuries ahead (2925-09-25). They
+            -- are nulled because the BD Pro window is computed from
+            -- max(data_embargo), and one of them would paywall nothing.
+            if(
+                safe_cast(data_embargo as date) > safe_cast(data_extracao as date),
+                null,
+                safe_cast(data_embargo as date)
+            ) data_embargo,
             safe_cast(id_auto as string) id_auto,
             safe_cast(numero_auto_infracao as string) numero_auto_infracao,
             safe_cast(area_ha as float64) area_ha,
@@ -32,6 +39,9 @@ with
             safe_cast(nome_embargado as string) nome_embargado,
             safe_cast(latitude as float64) latitude,
             safe_cast(longitude as float64) longitude,
+            safe.st_geogfromtext(
+                safe_cast(geometria as string), make_valid => true
+            ) geometria,
             safe_cast(indicador_desembargado as string) indicador_desembargado,
             safe_cast(data_desembargo as date) data_desembargo,
             safe_cast(data_ultima_alteracao as date) data_ultima_alteracao,
@@ -72,6 +82,7 @@ select
         then 'sim'
         else 'nao'
     end indicador_coordenada_valida,
+    s.geometria,
     s.indicador_desembargado,
     s.data_desembargo,
     s.data_ultima_alteracao,

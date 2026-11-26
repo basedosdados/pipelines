@@ -5,7 +5,7 @@ id_municipio,STRING,Identificador IBGE de 7 dígitos do município onde a infra�
 id_auto,STRING,Identificador único do auto de infração no sistema do Ibama,,no,,,no,Chave primária lógica e chave estrangeira usada por area_embargada. Ausente em 6.651 autos originados no aplicativo AI-e Mob,SEQ_AUTO_INFRACAO
 numero_auto_infracao,STRING,Número impresso do auto de infração,,no,,,no,Não é único: números curtos legados foram reutilizados entre unidades e anos,NUM_AUTO_INFRACAO
 serie_auto_infracao,STRING,Série do formulário do auto de infração,,no,,,no,,SER_AUTO_INFRACAO
-data_auto,DATE,Data da lavratura do auto de infração,,no,,,no,,DAT_HORA_AUTO_INFRACAO
+data_auto,DATE,Data da lavratura do auto de infração,,no,,,no,Fica nula quando posterior a data_extracao. Nenhum registro estava nessa situação na carga inicial,DAT_HORA_AUTO_INFRACAO
 tipo_auto,STRING,Tipo de auto lavrado,,no,,,no,,TIPO_AUTO
 tipo_infracao,STRING,Bem tutelado atingido pela infração,,no,,,no,Vazio em 283.036 registros anteriores à classificação por bem tutelado,TIPO_INFRACAO
 gravidade,STRING,Gravidade atribuída à infração,,no,,,no,Preenchido apenas para autos do sistema AI-e; vazio em 94% dos registros,GRAVIDADE_INFRACAO
