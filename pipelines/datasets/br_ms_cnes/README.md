@@ -437,8 +437,263 @@ Digital", não ar-condicionado.
 O PDF oficial está no DOU de 18/05/2026, Edição 91, Seção 1, Página 174. O `WebFetch` não
 lê o PDF (devolve binário); `pdftotext -layout` resolve.
 
+### Mudanças no dicionário
+
+Códigos incluídos ou com rótulo trocado, um por linha. "Primeira competência" e "Linhas"
+contam a tabela publicada até a competência 2026-10.
+
+Os rótulos com nome oficial seguem a grafia da fonte. Os códigos sem significado nas fontes
+oficiais levam o rótulo `Código <chave>: sem significado nas fontes oficiais (nota da BD)` e
+estão no pedido via LAI descrito em "Pendências conhecidas do dicionário".
+
+#### `estabelecimento.tipo_unidade` (1)
+
+| Chave | Rótulo | Primeira competência | Linhas |
+|---|---|---|---|
+| `16` | Código 16: sem significado nas fontes oficiais (nota da BD) | 2025-09 | 2.139 |
+
+Fontes consultadas para o `16`, nenhuma com o significado do código:
+
+| Fonte | O que traz |
+|---|---|
+| `CNV/TP_ESTAB.CNV` do `TAB_CNES.zip`, versão de 15/10/2026 (`ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar`) | Lista oficial dos tipos de estabelecimento. Pula do `15` (`UNIDADE MISTA`) para o `20` (`PRONTO SOCORRO GERAL`) |
+| [CnesWeb, tipos de estabelecimento](https://cnes2.datasus.gov.br/Mod_Ind_Unidade.asp?VEstado=00) | A mesma lista, com a contagem por tipo, também sem o `16` |
+| Ficha do estabelecimento no CnesWeb: `https://cnes2.datasus.gov.br/Exibe_Ficha_Estabelecimento.asp?VCo_Unidade=<6 primeiros dígitos do id_municipio><id_estabelecimento_cnes>` | Em seis estabelecimentos com `16` em 2026-10, os campos "Tipo Estabelecimento" e "Sub Tipo Estabelecimento" estão vazios |
+| [Portaria GM/MS nº 2.022/2017](https://bvsms.saude.gov.br/bvs/saudelegis/gm/2017/prt2022_15_08_2017_rep.html) | Cria a nova classificação de tipos de estabelecimento, sem código numérico para os tipos |
+| [Wiki do CNES, nova classificação de tipos](https://wiki.saude.gov.br/cnes/index.php/Categoria:Nova_Classifica%C3%A7%C3%A3o_de_Tipos_de_Estabelecimento) | A tabela de códigos só aparece como imagem |
+| [Ofício Circular nº 14/2026/CGSI/DRAC/SAES/MS](https://www.conass.org.br/wp-content/uploads/2026/09/9.1-Oficio-Circular-no-14.2026-CGSI-DRAC-SAES-MS-1.pdf) | A partir da competência 10/2026, o campo "Tipo de Estabelecimento" é substituído pela "Classificação de Tipo de Estabelecimento" |
+| [Portaria SAES/MS nº 3.200/2025](https://ses.sp.bvs.br/wp-content/uploads/2025/09/U_PT-MS-SAES-3200_020925.pdf) | Exige a classificação "Ambulatório" com estrutura móvel para a habilitação 38.04, sem código numérico |
+
+#### `habilitacao.tipo_habilitacao` (72)
+
+Rótulos da `tb_habilitacao` da Tabela Unificada do SIGTAP, competência 2026-10
+(`TabelaUnificada_202610_v2610271043.zip`), com o código sem o zero à esquerda.
+
+| Chave | Rótulo | Primeira competência | Linhas |
+|---|---|---|---|
+| `406` | Serviço de Especialidade em Saúde Bucal | 2024-02 | 4.186 |
+| `638` | CENTRO DE CONVIVÊNCIA BÁSICO | 2026-07 | 4 |
+| `639` | CENTRO DE CONVIVÊNCIA INTERMEDIÁRIO | 2026-07 | 8 |
+| `640` | CENTRO DE CONVIVÊNCIA AMPLIADO | 2026-07 | 20 |
+| `815` | Implante Percutâneo de Válvula Aórtica (TAVI) | 2024-04 | 830 |
+| `1420` | Hospital de Referência à Gestação e ao Puerpério de Alto Risco -HGPAR | 2025-08 | 3.360 |
+| `1515` | Incremento financeiro à Terapia Renal Substitutiva - TRS | 2026-05 | 618 |
+| `1618` | Neurocirurgia Endovascular/Trombectomia Mecanica | 2023-12 | 556 |
+| `1722` | Tratamentos Integrados Sincrônicos em Oncologia | 2022-08 | 647 |
+| `2308` | Serviço de Referência em Tratamento da Pessoa com Falência Intestinal | 2024-11 | 120 |
+| `2436` | Incremento Financeiro SNT TMO Nível A | 2023-09 | 516 |
+| `2437` | Incremento Financeiro SNT TMO Nível B | 2023-09 | 76 |
+| `2438` | Incremento Financeiro SNT TMO Nível C | 2023-09 | 25 |
+| `2439` | Incremento Financeiro SNT TMO Nível D | 2023-09 | 190 |
+| `2440` | Incremento Financeiro SNT TMO Nível E | 2023-09 | 194 |
+| `2441` | Incremento Financeiro SNT Pâncreas Nível A | 2023-09 | 126 |
+| `2442` | Incremento Financeiro SNT Pâncreas Nível B | 2023-09 | 123 |
+| `2443` | Incremento Financeiro SNT Pâncreas Nível C | 2023-09 | 131 |
+| `2446` | Incremento Financeiro SNT Rim Nível A | 2023-09 | 1.624 |
+| `2447` | Incremento Financeiro SNT Rim Nível B | 2023-09 | 547 |
+| `2448` | Incremento Financeiro SNT Rim Nível C | 2023-09 | 635 |
+| `2449` | Incremento Financeiro SNT Rim Nível D | 2023-09 | 154 |
+| `2450` | Incremento Financeiro SNT Rim Nível E | 2023-09 | 111 |
+| `2451` | Incremento Financeiro SNT Fígado Nível A | 2023-09 | 816 |
+| `2452` | Incremento Financeiro SNT Fígado Nível B | 2023-09 | 307 |
+| `2453` | Incremento Financeiro SNT Fígado Nível C | 2023-09 | 274 |
+| `2454` | Incremento Financeiro SNT Fígado Nível D | 2023-09 | 215 |
+| `2455` | Incremento Financeiro SNT Fígado Nível E | 2023-09 | 193 |
+| `2456` | Incremento Financeiro SNT Pulmão Nível A | 2023-09 | 96 |
+| `2458` | Incremento Financeiro SNT Pulmão Nível C | 2023-09 | 32 |
+| `2461` | Incremento Financeiro SNT Coração Nível A | 2023-09 | 526 |
+| `2462` | Incremento Financeiro SNT Coração Nível B | 2023-09 | 106 |
+| `2463` | Incremento Financeiro SNT Coração Nível C | 2023-09 | 176 |
+| `2464` | Incremento Financeiro SNT Coração Nível D | 2026-08 | 3 |
+| `2465` | Incremento Financeiro SNT Coração Nível E | 2023-09 | 38 |
+| `2466` | Transplante de intestino delgado ou multivisceral | 2025-06 | 96 |
+| `2467` | Transplante de Membrana Amniótica | 2025-12 | 64 |
+| `2468` | Banco de Multitecidos | 2025-10 | 148 |
+| `2469` | Transplante Pediátrico Tipo I | 2025-10 | 307 |
+| `2470` | Transplante Pediátrico Tipo II | 2025-10 | 236 |
+| `2471` | Transplante de Células Progenitoras Hematopoéticas Alogênico Aparentado com HLA haploidêntico | 2026-01 | 58 |
+| `2472` | Transplante de Células Progenitoras Hematopoéticas Autólogo Pediátrico I | 2026-10 | 15 |
+| `2473` | Transplante de Células Progenitoras Hematopoéticas Autólogo Pediátrico II | 2026-10 | 9 |
+| `2474` | Transplante de Células Progenitoras Hematopoéticas Alogênico Aparentado c/ HLA Idêntico Pediátrico I | 2026-10 | 15 |
+| `2475` | Transplante de Células Progenitoras Hematopoéticas Alogênico Aparentado c/ HLA Idêntico Ped II | 2026-10 | 7 |
+| `2476` | Transplante de Células Progenitoras Hematopoéticas Alogênico Aparentado c/ HLA Haploidêntico - Ped I | 2026-10 | 3 |
+| `2477` | Transplante de Células Progenitoras Hematopoéticas Alogênico Aparentado c/ HLA Haploidêntico Ped II | 2026-10 | 2 |
+| `2478` | Transplante de Células Progenitoras Hematopoéticas Não Aparentado Pediátrico I | 2026-10 | 14 |
+| `2479` | Transplante de Células Progenitoras Hematopoéticas Não Aparentado Pediátrico II | 2026-10 | 7 |
+| `2482` | Transplante de Rim - Pediátrico Tipo I | 2026-10 | 13 |
+| `2483` | Transplante de Rim - Pediátrico Tipo II | 2026-10 | 15 |
+| `2484` | Transplante de Fígado - Pediátrico Tipo I | 2026-10 | 13 |
+| `2485` | Transplante de Fígado - Pediátrico Tipo II | 2026-10 | 9 |
+| `2486` | Transplante de Pulmão - Pediátrico Tipo I | 2026-10 | 2 |
+| `2487` | Transplante de Pulmão - Pediátrico Tipo II | 2026-10 | 2 |
+| `2488` | Transplante de Coração - Pediátrico Tipo I | 2026-10 | 2 |
+| `2489` | Transplante de Coração - Pediátrico Tipo II | 2026-10 | 4 |
+| `2490` | Transplante de Intestino Delgado ou Multivisceral - Pediátrico Tipo I | 2026-10 | 1 |
+| `2902` | Programa Mais Acesso a Especialistas - Componente Cirurgias | 2023-09 | 41.636 |
+| `3516` | Terapia Génica | 2025-10 | 103 |
+| `3801` | Programa Mais Acesso a Especialistas | 2024-06 | 68.695 |
+| `3803` | Agora Tem Especialistas Modalidade 2 Equipes Volantes | 2025-12 | 167 |
+| `3804` | Agora Tem Especialistas Modalidade 3 Unidades Móveis | 2025-09 | 1.044 |
+| `3805` | Agora Tem Especialistas - Componente Créditos Financeiro | 2025-10 | 1.470 |
+| `3806` | Agora Tem Especialistas - Componente Ressarcimento ao SUS | 2025-11 | 60 |
+| `3807` | Componente Acesso à Radioterapia do Programa Agora Tem Especialistas | 2025-11 | 2.520 |
+| `3808` | Agora Tem Especialistas - Teleatendimento em Saúde Mental | 2026-10 | 1 |
+| `3811` | Agora tem Especialistas 3 Unidade Móvel Exame de Imagem | 2026-10 | 56 |
+| `3812` | Agora tem Especialistas 3 Unidade Móvel Oftalmologia | 2026-10 | 19 |
+| `3813` | Agora tem Especialistas 3 Unidade Móvel Saúde da Mulher | 2026-10 | 66 |
+| `3814` | Agora tem Especialistas 3 Unidade Móvel Cardiologia | 2026-10 | 4 |
+| `3815` | Agora tem Especialistas 3 Unidade Móvel Saúde Bucal | 2026-10 | 3 |
+
+#### `incentivos.tipo_habilitacao` (38)
+
+Rótulos com o nome do ato que criou cada incentivo. Nenhum deles está no SIGTAP, cuja
+`tb_habilitacao` não tem código começando com 8.
+
+| Chave | Rótulo | Primeira competência | Linhas | Ato |
+|---|---|---|---|---|
+| `8116` | DRC Categoria I | 2023-12 | 10.062 | Portaria GM/MS nº 1.992/2023, Art. 1º |
+| `8117` | DRC Categoria II | 2023-12 | 7.015 | Portaria GM/MS nº 1.992/2023, Art. 1º |
+| `8119` | Hospital Sem Fins Lucrativos 100% SUS | 2023-08 | 4.541 | Portaria SAES/MS nº 602/2023, Art. 1º |
+| `8121` | Qualificação em Doação e Transplantes - IFQ-DOT I | 2026-06 | 49 | Portaria SAES/MS nº 4.020/2026, Anexo II |
+| `8122` | Qualificação em Doação e Transplantes - IFQ-DOT II | 2026-07 | 15 | Portaria SAES/MS nº 4.020/2026, Anexo II |
+| `8123` | Qualificação em Doação e Transplantes - IFQ-DOT III | 2026-06 | 25 | Portaria SAES/MS nº 4.020/2026, Anexo II |
+| `8124` | Qualificação em Doação e Transplantes - IFQ-DOT IV | 2026-06 | 29 | Portaria SAES/MS nº 4.020/2026, Anexo II |
+| `8125` | Equipes de Apoio Assistencial em Cuidados Paliativos | 2026-08 | 36 | Portaria SAES/MS nº 4.288/2026, Anexo III |
+| `8126` | Equipes Macrorregionais de Cuidados Paliativos | 2026-08 | 3 | Portaria SAES/MS nº 4.288/2026, Anexo III |
+| `8127` | Equipes Macrorregionais de Cuidados Paliativos com Pediatra | 2026-08 | 3 | Portaria SAES/MS nº 4.288/2026, Anexo III |
+| `8256` | UPA 24h Nova - Qualificada Opção I | 2023-10 | 59 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8257` | UPA 24h Nova - Qualificada Opção II | 2018-02 | 147 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8258` | UPA 24h Nova - Qualificada Opção IV | 2019-07 | 538 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8259` | UPA 24h Nova - Qualificada Opção VI | 2018-07 | 413 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8260` | UPA 24h Nova - Qualificada Opção VII | 2018-01 | 624 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8263` | UPA 24h Ampliada - Habilitada/Qualificada Opção IV | 2023-03 | 112 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8264` | UPA 24h Ampliada - Habilitada/Qualificada Opção VI | 2023-11 | 72 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8266` | UPA 24h Nova - Habilitada Opção I | 2017-12 | 791 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8267` | UPA 24h Nova - Habilitada Opção II | 2017-12 | 770 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8268` | UPA 24h Nova - Habilitada Opção IV | 2018-09 | 787 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8269` | UPA 24h Nova - Habilitada Opção VI | 2018-01 | 782 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8270` | UPA 24h Nova - Habilitada Opção VII | 2017-12 | 672 | Portaria SAS/MS nº 1.535/2017, Anexo |
+| `8271` | Enfermaria Clínica de Retaguarda - Novos | 2021-06 | 29.416 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8272` | Enfermaria Clínica de Retaguarda - Qualificados | 2021-06 | 26.188 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8273` | UTI Adulto RUE Tipo II - Novos | 2021-06 | 15.018 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8274` | UTI Adulto RUE Tipo II - Qualificados | 2021-06 | 36.920 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8275` | UTI Pediátrico RUE Tipo II - Novos | 2021-06 | 1.963 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8276` | UTI Pediátrico RUE Tipo II - Qualificados | 2021-06 | 9.832 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8277` | UTI Adulto RUE Tipo III - Novos | 2021-06 | 642 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8278` | UTI Adulto RUE Tipo III - Qualificados | 2021-06 | 2.690 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8279` | UTI Pediátrico RUE Tipo III - Novos | 2024-03 | 32 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8280` | UTI Pediátrico RUE Tipo III - Qualificados | 2021-06 | 1.974 | Portaria SAES/MS nº 474/2021, Anexo I |
+| `8285` | Atenção especializada ao seguimento do recém-nascido e crianças egressos de unidades neonatais (ANEO) | 2022-11 | 95 | Portaria SAES/MS nº 216/2022, Anexo II |
+| `8286` | Transporte Sanitário Adaptado I | 2024-04 | 238 | Portaria SAES/MS nº 1.148/2023, Anexo IV |
+| `8287` | Transporte Sanitário Adaptado II | 2024-09 | 105 | Portaria SAES/MS nº 1.148/2023, Anexo IV |
+| `8288` | Transporte Sanitário Adaptado III | 2025-09 | 14 | Portaria SAES/MS nº 1.148/2023, Anexo IV |
+| `8290` | Núcleo de Atenção à Criança e Adolescente com Transtorno do Espectro Autista | 2025-11 | 91 | Portaria SAES/MS nº 1.148/2023, Anexo IV |
+| `8291` | Incentivo de 20% no custeio do CER habilitado com a modalidade de reabilitação intelectual | 2024-09 | 777 | Portaria SAES/MS nº 1.148/2023, Anexo IV |
+
+- O `8285` foi excluído da tabela de incentivos pela Portaria SAES/MS nº 2.902/2025 (Art. 5º
+  §2º), mas continua nos dados até 2026-10.
+- Os números 81.16 a 81.39 já foram incentivos de equipes de saúde prisional (Portaria SAS/MS
+  nº 305/2014, Anexo II), desativados pela Portaria SAES/MS nº 37/2021 (Art. 10). Nos dados,
+  o `8116`, o `8117` e o `8119` só aparecem a partir de 2023, e os `8121` a `8127` a partir de
+  2026, depois de os números serem reaproveitados. Por isso o rótulo atual vale para todas as
+  linhas.
+
+#### `servico_especializado.tipo_servico_especializado` (3)
+
+Os rótulos das três colunas do `servico_especializado` vêm da Tabela Unificada do SIGTAP,
+competência 2026-10: da `tb_servico` para o serviço e da `tb_servico_classificacao` para o
+subtipo (código do serviço seguido do código da classificação). O `170002` não está no
+SIGTAP: lá, o serviço 170 (Comissões e Comitês) só tem a classificação 001 (Núcleo de
+Segurança do Paciente).
+
+| Chave | Rótulo | Primeira competência | Linhas |
+|---|---|---|---|
+| `171` | Cuidados Paliativos | 2024-10 | 6.939 |
+| `172` | Atenção ao Luto Materno e Parental | 2026-03 | 321 |
+| `175` | Cirúrgia Robótica | 2026-08 | 24 |
+
+#### `servico_especializado.tipo_servico_especializado_unico` (3)
+
+| Chave | Rótulo | Primeira competência | Linhas |
+|---|---|---|---|
+| `171` | Cuidados Paliativos | 2024-10 | 3.708 |
+| `172` | Atenção ao Luto Materno e Parental | 2026-03 | 321 |
+| `175` | Cirúrgia Robótica | 2026-08 | 24 |
+
+#### `servico_especializado.subtipo_servico_especializado` (36)
+
+| Chave | Rótulo | Primeira competência | Linhas |
+|---|---|---|---|
+| `112007` | Ambulatório de Seguimento do RN e Criança Egresso de Unidade Neonatal | 2022-08 | 911 |
+| `112008` | Ambulatório  de Gestação e Puerpério de Alto Risco | 2022-08 | 1.934 |
+| `114008` | Odontopediatria | 2024-10 | 4.447 |
+| `114009` | Disfunsão temporomandibular | 2024-10 | 459 |
+| `114010` | Estomatologia | 2024-10 | 1.529 |
+| `114011` | Implantodondia | 2024-10 | 4.249 |
+| `114012` | Odontogeriatria | 2024-10 | 363 |
+| `114013` | Ortodontia | 2024-10 | 4.826 |
+| `114014` | Prótese Dentária | 2024-10 | 3.804 |
+| `114015` | Radiologia Odontológica e Imaginologia | 2024-10 | 1.112 |
+| `114016` | Acupuntura na Odontologia | 2024-10 | 1.018 |
+| `114017` | Ortopedia funcional dos maxilares | 2024-10 | 673 |
+| `114018` | Odontologia hospitalar | 2024-10 | 800 |
+| `114019` | Patologia Oral e Máxilo Fácial | 2025-08 | 48 |
+| `114020` | Prótese Buco Maxilo Facial | 2025-08 | 48 |
+| `115010` | DESINST de Pessoas com Transtorno  Mental em Conflito com a Lei | 2024-10 | 811 |
+| `115011` | Promoção da Saúde Mental, Protagonismo e Cidadania | 2026-02 | 2.033 |
+| `125010` | Manipulação, Reconstituição e Diluição de Medicamentos | 2026-10 | 4 |
+| `141005` | Vigilância de Zoonoses | 2023-06 | 16.407 |
+| `154003` | Banco de Multitecidos | 2025-10 | 38 |
+| `160004` | TELEDIAGNOSTICO | 2023-12 | 94.148 |
+| `160005` | TELE-EDUCACAO | 2023-12 | 76.478 |
+| `160006` | TELECONSULTA | 2023-12 | 440.453 |
+| `160007` | TELEMONITORAMENTO | 2023-12 | 87.083 |
+| `160008` | TELEORIENTACAO | 2023-12 | 100.296 |
+| `160009` | TELEINTERCONSULTA | 2023-12 | 93.297 |
+| `160010` | TELETRIAGEM | 2023-12 | 75.042 |
+| `160011` | TELERREGULACAO | 2023-12 | 54.190 |
+| `164012` | Confecção de OPM Auxiliares de Locomoção e Ortopédicas | 2024-11 | 691 |
+| `168003` | Terapia Génica | 2025-11 | 47 |
+| `170002` | Código 170002: sem significado nas fontes oficiais (nota da BD) | 2024-06 | 54.931 |
+| `171001` | Abordagem Paliativa | 2024-10 | 3.637 |
+| `171002` | Apoio Matricial em Cuidados Paliativos | 2024-10 | 2.280 |
+| `171003` | Cuidados Paliativos Especializados | 2026-08 | 1.022 |
+| `172001` | Assistência Multiprofissional ao luto materno e parental | 2026-03 | 321 |
+| `175001` | Prostatectomia | 2026-08 | 24 |
+
+#### Fontes dos rótulos
+
+| Fonte | Códigos |
+|---|---|
+| Tabela Unificada do SIGTAP, competência 2026-10, em `ftp2.datasus.gov.br/pub/sistemas/tup/downloads/` | `habilitacao` e `servico_especializado` |
+| [Portaria GM/MS nº 1.992, de 24/11/2023](https://bvsms.saude.gov.br/bvs/saudelegis/gm/2023/prt1992_28_11_2023.html) | `8116`, `8117` |
+| [Portaria SAES/MS nº 602, de 28/07/2023](https://bvsms.saude.gov.br/bvs/saudelegis/Saes/2023/prt0602_02_08_2023.html) | `8119` |
+| Portaria SAES/MS nº 4.020, de 10/04/2026, DOU de 12/05/2026, edição 87, seção 1, p. 161 ([Conass Informa 84/2026](https://www.conass.org.br/conass-informa-n-84-2026-publicada-a-portaria-saes-n-4-020-que-estabelece-regras-para-registro-das-equipes-hospitalares-de-doacao-para-transplantes-no-cadastro-nacional-de-estabelecimentos/)) | `8121` a `8124` |
+| Portaria SAES/MS nº 4.288, de 22/06/2026, DOU de 23/07/2026, edição 137, seção 1, p. 339 ([Conass Informa 140/2026](https://www.conass.org.br/conass-informa-n-140-2026-publicada-a-portaria-saes-n-4-288-que-atualiza-o-cadastro-nacional-de-estabelecimentos-de-saude-cnes-e-a-tabela-de-procedimentos-medicamentos-orteses-pr/)) | `8125` a `8127` |
+| [Portaria SAS/MS nº 1.535, de 25/09/2017](https://bvsms.saude.gov.br/bvs/saudelegis/sas/2017/prt1535_09_10_2017.html) | `8256` a `8260`, `8263`, `8264`, `8266` a `8270` |
+| [Portaria SAES/MS nº 474, de 22/04/2021](https://bvsms.saude.gov.br/bvs/saudelegis/saes/2021/prt0474_27_04_2021.html) | `8271` a `8280` |
+| [Portaria SAES/MS nº 216, de 01/07/2022](https://bvsms.saude.gov.br/bvs/saudelegis/saes/2022/prt0216_01_07_2022.html) | `8285` |
+| [Portaria SAES/MS nº 2.902, de 26/06/2025](https://bvsms.saude.gov.br/bvs/saudelegis/Saes/2025/prt2902_02_07_2025.html) | exclusão do `8285` |
+| [Portaria SAES/MS nº 1.148, de 21/12/2023](https://bvsms.saude.gov.br/bvs/saudelegis/saes/2023/prt1148_22_12_2023.html) | `8286` a `8288`, `8290`, `8291` |
+| [Portaria SAS/MS nº 305, de 10/04/2014, Anexo II](https://bvsms.saude.gov.br/bvs/saudelegis/sas/2014/anexo/anexo_prt0305_10_04_2014.pdf) e [Portaria SAES/MS nº 37, de 18/01/2021](https://www.in.gov.br/en/web/dou/-/portaria-n-37-de-18-de-janeiro-de-2021-299987615) | significado anterior de 81.16 a 81.39 |
+
+Consultados sem os códigos desta seção: a `tb_habilitacao` e a `tb_grupo_habilitacao` do
+SIGTAP de 2023-01, 2023-12, 2024-06, 2025-06 e 2026-10; o `TAB_CNES.zip` de 15/10/2026, que
+não tem CNV de habilitação, serviço ou incentivo; as Portarias SAS/MS nº 461/2014, SAES/MS
+nº 1.187/2023, 2.151/2024, 2.747/2025, 3.033/2025, 3.511/2025, 3.695/2026 e 4.399/2026 e
+GM/MS nº 11.179/2026.
+
 ### Pendências conhecidas do dicionário
 
+- **Pedido via LAI ao Ministério da Saúde**, protocolo 25072.076527/2026-30
+  ([#2367](https://github.com/basedosdados/pipelines/issues/2367)), enviado em
+  23/11/2026 pelo Fala.BR (prazo de 20 dias, prorrogável por mais 10). Pergunta o
+  significado do `estabelecimento.tipo_unidade` `16` e do
+  `servico_especializado.subtipo_servico_especializado` `170002`, os dois com o rótulo
+  `Código <chave>: sem significado nas fontes oficiais (nota da BD)`. O pedido também
+  perguntava pelos 38 incentivos de `incentivos.tipo_habilitacao`, que depois foram
+  achados nas portarias listadas em "Mudanças no dicionário". Quando a resposta chegar,
+  trocar os dois rótulos pelo significado informado.
 - **66 códigos de 4 dígitos seguem sem rótulo**, 1.681 linhas em 2026-06. São os tipos
   11, 14, 15 e 16 (37 códigos, 340 linhas), que dependem da Portaria 4.109 — texto oficial
   nunca localizado, e ausente também do CNV —, mais 29 códigos antigos cujo tipo dominante
