@@ -38,7 +38,7 @@ from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
     constants_pre_embarque,
 )
 from pipelines.utils.metadata.domain import DateFormat
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 
 def get_source_last_modified(url: str, last_modified_format: str) -> date:
@@ -56,7 +56,7 @@ def get_source_last_modified(url: str, last_modified_format: str) -> date:
     Returns:
         date: Dia da ultima publicacao do CSV no portal.
     """
-    response = httpx.get(url, timeout=60)
+    response = httpx.get(url, timeout=60, proxy=brasil_proxy_url())
     response.raise_for_status()
     last_modified_date_iso = response.json()["result"]["last_modified"]
     last_modified_date = datetime.strptime(
@@ -84,6 +84,7 @@ def get_datastore_row_count(resource_id: str) -> int:
     response = httpx.get(
         "https://dadosabertos.bndes.gov.br/api/3/action/datastore_search",
         params={"resource_id": resource_id, "limit": 0},
+        proxy=brasil_proxy_url(),
     )
     response.raise_for_status()
 
@@ -123,7 +124,7 @@ def get_source_md5(url: str) -> str:
     Returns:
         str: MD5 do arquivo publicado.
     """
-    response = httpx.get(url, timeout=60)
+    response = httpx.get(url, timeout=60, proxy=brasil_proxy_url())
     response.raise_for_status()
 
     return response.json()["result"]["hash"]
@@ -218,7 +219,11 @@ def download_csv(
     )
 
     with httpx.stream(
-        method="GET", url=url, headers=headers, timeout=20
+        method="GET",
+        url=url,
+        headers=headers,
+        timeout=20,
+        proxy=brasil_proxy_url(),
     ) as response:
         if response.status_code == 200:
             mode = "wb"
@@ -547,6 +552,7 @@ def _transform_administracao_publica(df: pd.DataFrame) -> pd.DataFrame:
         df["data_nivel_atual"], format="%Y-%m-%d", errors="coerce"
     ).dt.year.astype("Int64")
 
+    # pyrefly: ignore[unnecessary-type-conversion]
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
         log(
@@ -732,6 +738,7 @@ def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
         df["data_contratacao"], format="%Y-%m-%d", errors="coerce"
     ).dt.year.astype("Int64")
 
+    # pyrefly: ignore[unnecessary-type-conversion]
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
         raise ValueError(
@@ -875,6 +882,7 @@ def _transform_exportacao_servicos(df: pd.DataFrame) -> pd.DataFrame:
         df["data_contratacao"], format="%Y-%m-%d", errors="coerce"
     ).dt.year.astype("Int64")
 
+    # pyrefly: ignore[unnecessary-type-conversion]
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
         raise ValueError(
@@ -967,7 +975,9 @@ def get_resource() -> dict[str, Any]:
         `hash`, entre outros.
     """
     response = httpx.get(
-        constants_pre_embarque.RESOURCE_SHOW_URL.value, timeout=60
+        constants_pre_embarque.RESOURCE_SHOW_URL.value,
+        timeout=60,
+        proxy=brasil_proxy_url(),
     )
     response.raise_for_status()
     return response.json()["result"]
@@ -1000,6 +1010,7 @@ def download_table() -> Path:
         url=resource["url"],
         timeout=5 * 60,
         follow_redirects=True,
+        proxy=brasil_proxy_url(),
     ) as response:
         response.raise_for_status()
         with open(csv_path, "wb") as file:

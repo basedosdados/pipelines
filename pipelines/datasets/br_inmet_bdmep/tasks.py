@@ -114,7 +114,6 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
             "table_update" if table_id == ESTACAO_TABLE_ID else "coverage"
         )
         return SourceInspection(
-            # pyrefly: ignore [bad-argument-type]
             reference_date=get_source_max_date(),
             compare_against=compare_against,
         )

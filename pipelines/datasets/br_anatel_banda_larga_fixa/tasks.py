@@ -46,7 +46,6 @@ def download_csv(table_id: str) -> str:
 
 @task(retries=5, retry_delay_seconds=10)
 def join_tables_in_function(table_id: str, csv_path: str) -> str:
-    # pyrefly: ignore [deprecated]
     os.system(
         f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
     )

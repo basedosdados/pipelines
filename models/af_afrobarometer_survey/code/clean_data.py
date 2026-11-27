@@ -323,7 +323,7 @@ def build_dicionario(rounds_meta: list[dict]) -> None:
             for code, label in mapping.items():
                 key = (
                     str(int(code))
-                    if isinstance(code, float) and float(code).is_integer()  # pyrefly: ignore [unnecessary-type-conversion]
+                    if isinstance(code, float) and float(code).is_integer()
                     else str(code)
                 )
                 rows.append(
