@@ -19,6 +19,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.constants import (
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     extract_load_data,
     get_latest_update,
+    verificar_lacuna,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import (
@@ -44,6 +45,8 @@ _microdados_pipeline = CheckThenExtractLoadPipeline(
 @flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
 def br_anp_precos_combustiveis_microdados_check_update() -> None:
     _microdados_pipeline.run_check_update()
+    # depois do disparo, para carregar o que o arquivo ainda tem
+    verificar_lacuna()
 
 
 br_anp_precos_combustiveis_microdados_check_update.deploy_tags = deploy_tags(

@@ -4,14 +4,14 @@
         alias="microdados",
         schema="br_anp_precos_combustiveis",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2004, "end": 2026, "interval": 1},
+            "range": {"start": 2004, "end": 2031, "interval": 1},
         },
-        cluster_by=["id_municipio", "sigla_uf"],
+        cluster_by=["sigla_uf"],
         labels={"project_id": "basedosdados-dev"},
-        pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
     )
 }}
 with
@@ -36,9 +36,17 @@ with
         from
             {{ set_datalake_project("br_anp_precos_combustiveis_staging.microdados") }}
             as t
+        {% if is_incremental() %}
+            -- regrava desde 1º de janeiro do ano de max(data_coleta) - 35 dias
+            where
+                t.data_coleta >= (
+                    select
+                        format_date(
+                            '%Y-01-01', date_sub(max(data_coleta), interval 35 day)
+                        )
+                    from {{ this }}
+                )
+        {% endif %}
     )
 select *
 from anp
-{% if is_incremental() %}
-    where data_coleta > (select max(data_coleta) from {{ this }})
-{% endif %}

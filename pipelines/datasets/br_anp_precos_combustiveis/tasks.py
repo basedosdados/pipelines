@@ -9,26 +9,21 @@ novo, de forma independente (`download_and_transform`) — a variante
 "check_and_download" que evitaria essa segunda chamada foi cancelada.
 """
 
-from datetime import date
+from datetime import date, timedelta
 
-import pandas as pd
 from prefect import task
 
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
-    creating_column_ano,
+    datas_coleta,
+    datas_coleta_tabela,
     download_files,
-    get_id_municipio,
-    lower_colunm_produto,
-    merge_table_id_municipio,
+    lacunas,
     open_csvs,
-    orderning_data_coleta,
     partition_data,
-    rename_and_reordening,
-    rename_and_to_create_endereco,
-    rename_columns,
+    tratar_precos,
 )
 from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
@@ -39,18 +34,27 @@ def get_data_source_anp_max_date() -> date:
     download_files(
         anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value
     )
-    df = pd.read_csv(anp_constants.URL_GLP.value, sep=";", encoding="utf-8")
-    data_obj = (
-        df["Data da Coleta"].str[6:10]
-        + "-"
-        + df["Data da Coleta"].str[3:5]
-        + "-"
-        + df["Data da Coleta"].str[0:2]
+    return datas_coleta(anp_constants.URL_GLP.value)[1]
+
+
+@task
+def verificar_lacuna() -> None:
+    """falha se faltam semanas na tabela ou entre ela e o arquivo da anp."""
+    primeira = datas_coleta(anp_constants.URL_GLP.value)[0]
+    desde = date.today() - timedelta(days=anp_constants.JANELA_LACUNA.value)
+    tabela = datas_coleta_tabela(desde)
+    if not tabela:
+        raise ValueError(f"Tabela sem datas de coleta desde {desde.year - 1}.")
+    encontradas = lacunas(
+        [*tabela, primeira],
+        da_fonte=anp_constants.LACUNAS_DA_FONTE.value,
     )
-    data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
-    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
-    data_obj = data_obj.max()
-    return data_obj
+    if encontradas:
+        lista = ", ".join(f"{a} a {b}" for a, b in encontradas)
+        raise ValueError(
+            f"Semanas sem coleta na tabela: {lista}. Recuperar pelos "
+            "arquivos semestrais (ver README)."
+        )
 
 
 @task(retries=5, retry_delay_seconds=10)
@@ -63,18 +67,7 @@ def download_and_transform():
         anp_constants.URL_GLP.value,
     )
 
-    df = get_id_municipio(id_municipio=precos_combustiveis)
-    df = merge_table_id_municipio(
-        id_municipio=df, pd_precos_combustiveis=precos_combustiveis
-    )
-    df = rename_and_to_create_endereco(precos_combustiveis=df)
-    df = orderning_data_coleta(precos_combustiveis=df)
-    df = lower_colunm_produto(precos_combustiveis=df)
-    df = creating_column_ano(precos_combustiveis=df)
-    df = rename_and_reordening(precos_combustiveis=df)
-    df = rename_columns(precos_combustiveis=df)
-
-    return df
+    return tratar_precos(precos_combustiveis)
 
 
 @task(retries=5, retry_delay_seconds=10)

@@ -2,8 +2,11 @@
 General purpose functions for the br_anp_precos_combustiveis project
 """
 
+import io
+import itertools
 import os
-from datetime import datetime
+from collections.abc import Hashable, Iterable, Mapping
+from datetime import date, datetime, timedelta
 
 import basedosdados as bd
 import numpy as np
@@ -77,18 +80,76 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     return id_municipio
 
 
+# cnpj só com dígitos viraria número e perderia o zero à esquerda
+TEXTO: Mapping[Hashable, str] = {"CNPJ da Revenda": "str"}
+
+
+def read_anp_file(path: str) -> pd.DataFrame:
+    """lê o arquivo da anp, que pode vir como csv ou como xlsx na mesma url."""
+    with open(path, "rb") as f:
+        is_xlsx = f.read(4) == b"PK\x03\x04"
+    if not is_xlsx:
+        return pd.read_csv(path, sep=";", encoding="utf-8-sig", dtype=TEXTO)
+
+    # no xlsx, cada célula guarda um pedaço da linha csv, cortada em cada vírgula
+    raw = pd.read_excel(path, header=None, dtype=str)
+
+    def _row_to_line(row: pd.Series) -> str:
+        last = row.last_valid_index()
+        if last is None:
+            return ""
+        return ",".join(row.loc[:last].fillna("").astype(str))
+
+    text = "\n".join(raw.apply(_row_to_line, axis=1).tolist())
+    return pd.read_csv(io.StringIO(text), sep=";", dtype=TEXTO)
+
+
+def datas_coleta(path: str) -> tuple[date, date]:
+    """devolve a primeira e a última data de coleta do arquivo da anp."""
+    datas = pd.to_datetime(
+        read_anp_file(path)["Data da Coleta"], format="%d/%m/%Y"
+    ).dt.date
+    return datas.min(), datas.max()
+
+
+def datas_coleta_tabela(desde: date) -> list[date]:
+    """devolve as datas de coleta da tabela de prod a partir de `desde`, mais a anterior."""
+    tabela = anp_constants.TABELA_PROD.value
+    df = bd.read_sql(
+        query=f"""
+        select distinct data_coleta from `{tabela}`
+        where ano >= {desde.year} and data_coleta >= '{desde.isoformat()}'
+        union distinct
+        select max(data_coleta) from `{tabela}`
+        where ano >= {desde.year - 1} and data_coleta < '{desde.isoformat()}'
+        """,
+        from_file=True,
+    )
+    return [pd.Timestamp(d).date() for d in df["data_coleta"].dropna()]
+
+
+def lacunas(
+    datas: Iterable[date],
+    dias: int = anp_constants.DIAS_SEM_COLETA.value,
+    da_fonte: Iterable[tuple[date, date]] = (),
+) -> list[tuple[date, date]]:
+    """devolve os pares de datas seguidas com mais de `dias` entre elas."""
+    ordenadas = sorted(set(datas))
+    conhecidas = set(da_fonte)
+    return [
+        (a, b)
+        for a, b in itertools.pairwise(ordenadas)
+        if b - a > timedelta(days=dias) and (a, b) not in conhecidas
+    ]
+
+
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
     data_frames = []
-    log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
-
+    log("Abrindo os arquivos da anp")
+    diesel = read_anp_file(url_diesel_gnv)
     log(diesel["Data da Coleta"].unique())
-    gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
-
-    log("Abrindo os arquivos csvs gasolina")
-
-    glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
-    log("Abrindo os arquivos csvs glp")
+    gasolina = read_anp_file(url_gasolina_etanol)
+    glp = read_anp_file(url_glp)
 
     # log(glp["Data da Coleta"].unique())
     data_frames.extend([diesel, gasolina, glp])
@@ -141,6 +202,16 @@ def merge_table_id_municipio(
         left_on=["nome", "sigla_uf"],
         right_on=["Municipio", "Estado - Sigla"],
     )
+
+    sem_id = precos_combustiveis.loc[
+        precos_combustiveis["id_municipio"].isna(),
+        ["Municipio", "Estado - Sigla"],
+    ].drop_duplicates()
+    if len(sem_id):
+        log(
+            f"Municípios sem id_municipio: {sem_id.to_numpy().tolist()}",
+            "warning",
+        )
 
     log("Dados mergeados")
 
@@ -205,11 +276,15 @@ def rename_columns(precos_combustiveis: pd.DataFrame):
     precos_combustiveis["cep_revenda"] = precos_combustiveis[
         "cep_revenda"
     ].apply(lambda x: str(x).replace("-", ""))
+    unidades = anp_constants.UNIDADES.value
+    desconhecidas = set(precos_combustiveis["unidade_medida"].dropna()) - set(
+        unidades
+    )
+    if desconhecidas:
+        raise ValueError(f"Unidade de medida desconhecida: {desconhecidas}")
     precos_combustiveis["unidade_medida"] = precos_combustiveis[
         "unidade_medida"
-    ].map(
-        {"R$ / litro": "R$/litro", "R$ / m³": "R$/m3", "R$ / 13 kg": "R$/13kg"}
-    )
+    ].map(unidades)
     precos_combustiveis["nome_estabelecimento"] = precos_combustiveis[
         "nome_estabelecimento"
     ].apply(lambda x: str(x).replace(",", ""))
@@ -228,3 +303,17 @@ def rename_columns(precos_combustiveis: pd.DataFrame):
     precos_combustiveis = precos_combustiveis.replace(np.nan, "")
 
     return precos_combustiveis
+
+
+def tratar_precos(precos_combustiveis: pd.DataFrame) -> pd.DataFrame:
+    """aplica o tratamento do flow aos dados lidos dos arquivos da anp."""
+    df = get_id_municipio(id_municipio=precos_combustiveis)
+    df = merge_table_id_municipio(
+        id_municipio=df, pd_precos_combustiveis=precos_combustiveis
+    )
+    df = rename_and_to_create_endereco(precos_combustiveis=df)
+    df = orderning_data_coleta(precos_combustiveis=df)
+    df = lower_colunm_produto(precos_combustiveis=df)
+    df = creating_column_ano(precos_combustiveis=df)
+    df = rename_and_reordening(precos_combustiveis=df)
+    return rename_columns(precos_combustiveis=df)
