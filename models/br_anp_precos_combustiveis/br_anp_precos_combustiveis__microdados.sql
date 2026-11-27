@@ -37,17 +37,15 @@ with
             {{ set_datalake_project("br_anp_precos_combustiveis_staging.microdados") }}
             as t
         {% if is_incremental() %}
-                -- regrava os anos da janela de 4 semanas do arquivo da anp
-                {% set query_inicio %}
-                select format_date("%Y-01-01", date_sub(max(data_coleta), interval 35 day))
-                from {{ this }}
-                {% endset %}
-                {% set inicio = (
-                    run_query(query_inicio).columns[0].values()[0]
-                    if execute
-                    else "2004-01-01"
-                ) %}
-            where t.data_coleta >= "{{ inicio }}"
+            -- regrava os anos que contêm a janela de 4 semanas do arquivo da anp
+            where
+                t.data_coleta >= (
+                    select
+                        format_date(
+                            '%Y-01-01', date_sub(max(data_coleta), interval 35 day)
+                        )
+                    from {{ this }}
+                )
         {% endif %}
     )
 select *

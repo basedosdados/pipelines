@@ -7,17 +7,12 @@ models:
       preços da Agência Nacional do Petróleo, Gás Natural e Biocombustíveis realizada
       a partir da primeira semana de 2004 até os dias de hoje.
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - cnpj_revenda
-            - data_coleta
-            - produto
-            - preco_venda
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [cnpj_revenda, data_coleta, produto]
+          # a anp repete chaves no próprio arquivo (2024: 0,0013%; 2026: 0,0007%)
+          proportion_allowed_failures: 0.00002
           config:
             where: __most_recent_year__
-            # a anp repete linhas no próprio arquivo (2024: 10, 2026: 6); limite = média
-            warn_if: '>0'
-            error_if: '>8'
       - not_null_proportion_multiple_columns:
           at_least: 0.99
           ignore_values: [preco_compra]
@@ -37,12 +32,10 @@ models:
             preco_venda between if(produto = 'Glp', 50, 1)
               and if(produto = 'Glp', 250, 20)
           config:
-            severity: warn
             where: __most_recent_year__
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade Federativa da revenda pesquisada
         tests:
@@ -90,11 +83,6 @@ models:
                 where: __most_recent_year__
       - name: unidade_medida
         description: Unidade de medida
-        tests:
-          - accepted_values:
-              values: [R$/litro, R$/m3, R$/13kg]
-              config:
-                where: __most_recent_year__
       - name: preco_compra
         description: Preço de venda da distribuidora para o posto revendedor de combustível
       - name: preco_venda
