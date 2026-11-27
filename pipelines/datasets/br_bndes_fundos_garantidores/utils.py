@@ -124,8 +124,9 @@ def buscar_item_central(nome: str) -> dict:
 
 
 def baixar_csv(url: str, destino: Path) -> Path:
-    """baixa o csv da central para `destino`."""
+    """baixa o csv da central para `destino`; só substitui o arquivo ao fim do download."""
     destino.parent.mkdir(parents=True, exist_ok=True)
+    parcial = destino.with_name(destino.name + ".part")
     with httpx.stream(
         "GET",
         url,
@@ -135,9 +136,10 @@ def baixar_csv(url: str, destino: Path) -> Path:
         proxy=brasil_proxy_url(),
     ) as resposta:
         resposta.raise_for_status()
-        with open(destino, "wb") as f:
+        with open(parcial, "wb") as f:
             for bloco in resposta.iter_bytes():
                 f.write(bloco)
+    parcial.replace(destino)
     log(f"baixado {url} -> {destino} ({destino.stat().st_size} bytes)")
     return destino
 

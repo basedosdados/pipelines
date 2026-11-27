@@ -20,10 +20,14 @@ PASTA = Path(
     )
 )
 
-if __name__ == "__main__":
-    for tabela in sys.argv[1:] or list(constants.NOME_CENTRAL.value):
+
+def main(tabelas: list[str]) -> None:
+    """baixa sempre o arquivo atual e limpa cada tabela."""
+    for tabela in tabelas:
         item = buscar_item_central(constants.NOME_CENTRAL.value[tabela])
-        csv = PASTA / "input" / f"{tabela}_{item['posicao']:%Y-%m}.csv"
-        if not csv.exists():
-            baixar_csv(item["url_csv"], csv)
+        csv = baixar_csv(item["url_csv"], PASTA / "input" / f"{tabela}.csv")
         limpar(csv, PASTA / "output" / tabela, tabela)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:] or list(constants.NOME_CENTRAL.value))

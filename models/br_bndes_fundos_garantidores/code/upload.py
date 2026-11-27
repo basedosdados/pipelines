@@ -6,17 +6,14 @@ uso: uv run models/br_bndes_fundos_garantidores/code/upload.py [tabela ...]
 
 import os
 import sys
-import warnings
 from pathlib import Path
 
-warnings.filterwarnings("ignore")
+import basedosdados as bd
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+from google.cloud import bigquery
 
-import basedosdados as bd  # noqa: E402
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
-
-from pipelines.datasets.br_bndes_fundos_garantidores.constants import (  # noqa: E402
+from pipelines.datasets.br_bndes_fundos_garantidores.constants import (
     constants,
 )
 
@@ -30,16 +27,6 @@ PASTA = Path(
 )
 TABELAS = list(constants.NOME_CENTRAL.value)
 
-# bucket requester-pays
-_bucket_original = gcs.Client.bucket
-
-
-def _bucket(self, bucket_name, user_project=None):
-    return _bucket_original(self, bucket_name, user_project=BILLING_PROJECT)
-
-
-gcs.Client.bucket = _bucket
-
 
 def subir(tabela: str) -> None:
     """recria o staging da tabela e confere a contagem de linhas."""
@@ -47,6 +34,14 @@ def subir(tabela: str) -> None:
     esperado = sum(
         pq.read_metadata(p).num_rows for p in pasta.glob("ano=*/*.parquet")
     )
+
+    # só apaga e recria se a configuração local apontar para o dev
+    destino = bd.Table(dataset_id=DATASET_ID, table_id=tabela)
+    projeto = destino.config.unwrap()["gcloud-projects"]["staging"]["name"]
+    if (destino.bucket_name, projeto) != (BILLING_PROJECT, BILLING_PROJECT):
+        raise ValueError(
+            f"config aponta para {destino.bucket_name}/{projeto}, não {BILLING_PROJECT}"
+        )
 
     bd.Storage(dataset_id=DATASET_ID, table_id=tabela).delete_table(
         mode="staging", not_found_ok=True
@@ -67,6 +62,20 @@ def subir(tabela: str) -> None:
         raise ValueError(f"{tabela}: {n} != {esperado}")
 
 
+def main(tabelas: list[str]) -> None:
+    """sobe as tabelas com o bucket requester-pays cobrado no dev."""
+    original = gcs.Client.bucket
+
+    def _bucket(self, bucket_name, user_project=None):
+        return original(self, bucket_name, user_project=BILLING_PROJECT)
+
+    gcs.Client.bucket = _bucket
+    try:
+        for tabela in tabelas:
+            subir(tabela)
+    finally:
+        gcs.Client.bucket = original
+
+
 if __name__ == "__main__":
-    for tabela in sys.argv[1:] or TABELAS:
-        subir(tabela)
+    main(sys.argv[1:] or TABELAS)
