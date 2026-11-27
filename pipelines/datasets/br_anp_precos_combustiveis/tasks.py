@@ -42,8 +42,11 @@ def verificar_lacuna() -> None:
     """falha se faltam semanas na tabela ou entre ela e o arquivo da anp."""
     primeira = datas_coleta(anp_constants.URL_GLP.value)[0]
     desde = date.today() - timedelta(days=anp_constants.JANELA_LACUNA.value)
+    tabela = datas_coleta_tabela(desde)
+    if not tabela:
+        raise ValueError(f"Tabela sem datas de coleta desde {desde.year - 1}.")
     encontradas = lacunas(
-        [*datas_coleta_tabela(desde), primeira],
+        [*tabela, primeira],
         da_fonte=anp_constants.LACUNAS_DA_FONTE.value,
     )
     if encontradas:

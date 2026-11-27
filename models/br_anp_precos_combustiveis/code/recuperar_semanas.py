@@ -199,6 +199,10 @@ def main() -> None:
     args = parser.parse_args()
     if args.fim < args.inicio:
         parser.error("--fim antes de --inicio")
+    if args.substituir and (args.substituir.rstrip("/") + "/").startswith(
+        PREFIXO
+    ):
+        parser.error("--substituir precisa ser um prefixo fora da staging")
 
     cred = service_account.Credentials.from_service_account_file(CREDENCIAIS)
     bucket = storage.Client(project=BUCKET, credentials=cred).bucket(
