@@ -71,3 +71,12 @@ class constants(Enum):
     URL_DIESEL_GNV = "/tmp/input/ultimas-4-semanas-diesel-gnv.csv"
     URL_GASOLINA_ETANOL = "/tmp/input/ultimas-4-semanas-gasolina-etanol.csv"
     URL_GLP = "/tmp/input/ultimas-4-semanas-glp.csv"
+
+    # tabela de prod olhada pelo verificar_lacuna
+    TABELA_PROD = "basedosdados.br_anp_precos_combustiveis.microdados"
+    # maior intervalo aceito entre duas datas de coleta seguidas
+    DIAS_SEM_COLETA = 7
+    # quantos dias para trás o verificar_lacuna olha
+    JANELA_LACUNA = 182
+    # lacunas que também faltam nos semestrais, como (última data, próxima data)
+    LACUNAS_DA_FONTE = []

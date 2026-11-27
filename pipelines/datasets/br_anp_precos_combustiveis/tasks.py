@@ -14,21 +14,18 @@ from datetime import date, timedelta
 from prefect import task
 
 from pipelines.datasets.br_anp_precos_combustiveis.constants import (
-    DATASET_ID,
-    MICRODADOS_TABLE_ID,
-)
-from pipelines.datasets.br_anp_precos_combustiveis.constants import (
     constants as anp_constants,
 )
 from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     datas_coleta,
+    datas_coleta_tabela,
     download_files,
+    lacunas,
     open_csvs,
     partition_data,
     tratar_precos,
 )
 from pipelines.utils.data_tests.rows import check_rows_written
-from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
@@ -42,16 +39,18 @@ def get_data_source_anp_max_date() -> date:
 
 @task
 def verificar_lacuna() -> None:
-    """falha se a tabela parou antes da primeira semana do arquivo da anp."""
+    """falha se faltam semanas na tabela ou entre ela e o arquivo da anp."""
     primeira = datas_coleta(anp_constants.URL_GLP.value)[0]
-    ultima_tabela = MetadataClient(env="prod").get_coverage_max_date(
-        DATASET_ID, MICRODADOS_TABLE_ID
+    desde = date.today() - timedelta(days=anp_constants.JANELA_LACUNA.value)
+    encontradas = lacunas(
+        [*datas_coleta_tabela(desde), primeira],
+        da_fonte=anp_constants.LACUNAS_DA_FONTE.value,
     )
-    if ultima_tabela and primeira - ultima_tabela > timedelta(days=7):
+    if encontradas:
+        lista = ", ".join(f"{a} a {b}" for a, b in encontradas)
         raise ValueError(
-            f"Lacuna entre {ultima_tabela} (última data da tabela) e {primeira} "
-            "(primeira data do arquivo da ANP): recuperar pelos arquivos "
-            "semestrais (ver README)."
+            f"Semanas sem coleta na tabela: {lista}. Recuperar pelos "
+            "arquivos semestrais (ver README)."
         )
 
 

@@ -3,9 +3,10 @@ General purpose functions for the br_anp_precos_combustiveis project
 """
 
 import io
+import itertools
 import os
-from collections.abc import Hashable, Mapping
-from datetime import date, datetime
+from collections.abc import Hashable, Iterable, Mapping
+from datetime import date, datetime, timedelta
 
 import basedosdados as bd
 import numpy as np
@@ -109,6 +110,37 @@ def datas_coleta(path: str) -> tuple[date, date]:
         read_anp_file(path)["Data da Coleta"], format="%d/%m/%Y"
     ).dt.date
     return datas.min(), datas.max()
+
+
+def datas_coleta_tabela(desde: date) -> list[date]:
+    """devolve as datas de coleta da tabela de prod a partir de `desde`, mais a anterior."""
+    tabela = anp_constants.TABELA_PROD.value
+    df = bd.read_sql(
+        query=f"""
+        select distinct data_coleta from `{tabela}`
+        where ano >= {desde.year} and data_coleta >= '{desde.isoformat()}'
+        union distinct
+        select max(data_coleta) from `{tabela}`
+        where ano >= {desde.year - 1} and data_coleta < '{desde.isoformat()}'
+        """,
+        from_file=True,
+    )
+    return [pd.Timestamp(d).date() for d in df["data_coleta"].dropna()]
+
+
+def lacunas(
+    datas: Iterable[date],
+    dias: int = anp_constants.DIAS_SEM_COLETA.value,
+    da_fonte: Iterable[tuple[date, date]] = (),
+) -> list[tuple[date, date]]:
+    """devolve os pares de datas seguidas com mais de `dias` entre elas."""
+    ordenadas = sorted(set(datas))
+    conhecidas = set(da_fonte)
+    return [
+        (a, b)
+        for a, b in itertools.pairwise(ordenadas)
+        if b - a > timedelta(days=dias) and (a, b) not in conhecidas
+    ]
 
 
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
