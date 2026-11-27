@@ -134,9 +134,10 @@ Ficam em `models/br_anp_precos_combustiveis/schema.yml`, rodam só no ano mais r
      `--substituir <prefixo>`;
   2. rodar `dbt run --full-refresh` e `dbt test` em dev;
   3. levar só as pastas novas para produção com `transfer_files_to_prod_flow`
-     (`folders`). Se as datas são do ano corrente, o próximo run já as inclui; se são de
-     anos anteriores, rodar o deployment "BD template: Executa DBT model" com
-     `target="prod"` e `flags="--full-refresh"` e, logo depois, o passo abaixo.
+     (`folders`). Se as datas são a partir de 1º de janeiro do ano de
+     `max(data_coleta) - 35 dias`, o próximo run já as inclui; se são anteriores, rodar o
+     deployment "BD template: Executa DBT model" com `target="prod"` e
+     `flags="--full-refresh"` e, logo depois, o passo abaixo.
 - **`--full-refresh` em produção** remove as regras de acesso do BD Pro, e esse
   deployment não registra a materialização (#2368). Para recriá-las, rodar em seguida o
   `transfer_files_to_prod_flow` com `folders` só da data mais recente e
