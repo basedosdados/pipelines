@@ -36,8 +36,12 @@ fundo.
 - **A publicação não tem dia fixo.** As posições recentes saíram entre os dias 3 e 15
   do mês seguinte.
 - **O site recusa os IPs do cluster.** As requisições passam por `brasil_proxy_url()`.
-- **Não há identificador da operação**, e há linhas idênticas, mantidas como
-  publicadas.
+- **Não há identificador da operação.** Com o CNPJ mascarado, operações do mesmo
+  cliente, no mesmo dia, com o mesmo valor e agente ficam idênticas. As linhas
+  idênticas (0,1% a 1,3% por tabela; nenhuma no FGEnergia) se concentram em bancos
+  de montadoras, como na compra de frota com um financiamento por veículo (87% das
+  da Tradicional), e em valores redondos repetidos para o mesmo cliente. São
+  mantidas como publicadas, e por isso não há teste de unicidade.
 
 Dois arquivos fogem do layout padrão (UTF-8, `;`, decimal em vírgula, datas
 `aaaa-mm-dd`):
@@ -82,8 +86,13 @@ linha é removida, e `limpar` para com erro se o total gravado diferir do arquiv
 O código IBGE do município é obtido no dbt pela macro `fundos_garantidores_municipio`
 (`macros/br_bndes_fundos_garantidores_municipio.sql`): o diretório de municípios da BD
 mais uma lista de grafias da fonte que não casam com ele (ex.: `AUGUSTO SEVERO` para
-Campo Grande/RN). Uma grafia nova faz o teste de `id_municipio` falhar; basta
-acrescentá-la à lista.
+Campo Grande/RN). Uma grafia nova deixa `id_municipio` vazio, e o teste só acusa
+quando isso passa de 1% das linhas; a correção é acrescentá-la à lista.
+
+Cada tabela tem o `not_null_proportion_multiple_columns` com `at_least: 0.99` e o
+`relationships` das colunas de diretório. Duas colunas ficam fora da proporção,
+porque a fonte publica vazios: `nome_cliente` na PEAC CS-RS (683 linhas, 10,6%) e
+`porte_cliente` no FG Sebrae (302 linhas, 1,25%).
 
 ## Como o flow funciona
 

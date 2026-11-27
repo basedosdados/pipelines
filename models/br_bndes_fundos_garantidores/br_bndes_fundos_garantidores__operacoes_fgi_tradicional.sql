@@ -8,7 +8,7 @@
             "data_type": "int64",
             "range": {"start": 2010, "end": 2031, "interval": 1},
         },
-        cluster_by=["sigla_uf", "id_municipio"],
+        cluster_by=["sigla_uf"],
         labels={"project_id": "basedosdados"},
     )
 }}

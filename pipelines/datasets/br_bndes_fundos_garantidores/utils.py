@@ -16,6 +16,7 @@ import pyarrow.parquet as pq
 from pipelines.datasets.br_bndes_fundos_garantidores.constants import (
     constants,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.utils import brasil_proxy_url, log
 
 MESES = {
@@ -225,7 +226,6 @@ def limpar(csv_path: Path, pasta_saida: Path, table_id: str) -> Path:
     # sem as colunas que o fundo não publica
     colunas = [c for c in constants.COLUNAS_STAGING.value if c in df.columns]
     schema = pa.schema([(c, pa.string()) for c in colunas])
-    total = 0
     for ano, grupo in df.groupby("ano"):
         tabela = pa.Table.from_pandas(
             grupo[colunas], schema=schema, preserve_index=False
@@ -233,14 +233,7 @@ def limpar(csv_path: Path, pasta_saida: Path, table_id: str) -> Path:
         pasta = pasta_saida / f"ano={ano}"
         pasta.mkdir(parents=True, exist_ok=True)
         pq.write_table(tabela, pasta / "data.parquet", compression="snappy")
-        total += tabela.num_rows
 
-    if total != linhas_fonte:
-        raise ValueError(
-            f"linhas gravadas {total} != linhas da fonte {linhas_fonte}"
-        )
-    log(
-        f"limpeza concluída: {total} linhas em {df['ano'].nunique()} "
-        f"partições -> {pasta_saida}"
-    )
+    check_rows_written(rows_read=linhas_fonte, output_dir=pasta_saida)
+    log(f"limpeza concluída: {df['ano'].nunique()} partições -> {pasta_saida}")
     return pasta_saida
