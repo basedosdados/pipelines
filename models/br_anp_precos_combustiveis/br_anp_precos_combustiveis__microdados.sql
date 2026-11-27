@@ -37,7 +37,7 @@ with
             {{ set_datalake_project("br_anp_precos_combustiveis_staging.microdados") }}
             as t
         {% if is_incremental() %}
-            -- regrava os anos que contêm a janela de 4 semanas do arquivo da anp
+            -- regrava desde 1º de janeiro do ano de max(data_coleta) - 35 dias
             where
                 t.data_coleta >= (
                     select

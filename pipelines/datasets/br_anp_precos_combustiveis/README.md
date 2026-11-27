@@ -40,10 +40,11 @@ check_update  ──▶  extract_and_load  ──▶  build_and_promote
   (`pipelines/utils/metadata/flows.py`). Roda o dbt e publica em produção.
 
 O modelo dbt é incremental com `insert_overwrite`: cada run regrava, a partir da
-staging, os anos que contêm a janela de 4 semanas (no começo de janeiro, também o ano
-anterior). Qualquer data desses anos que estiver na staging entra sozinha, inclusive
-uma semana que a ANP republicar com correção; datas de anos anteriores só entram com
-`--full-refresh`.
+staging, as datas desde 1º de janeiro do ano de `max(data_coleta) - 35 dias` (a maior
+data da tabela). Com a maior data em 01/02/2026, por exemplo, regrava desde
+01/01/2025. Qualquer data a partir desse limite que estiver na staging entra sozinha,
+inclusive uma semana que a ANP republicar com correção; datas anteriores só entram
+com `--full-refresh`.
 
 ### Verificação de lacunas
 
