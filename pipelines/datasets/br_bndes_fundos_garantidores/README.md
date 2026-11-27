@@ -86,13 +86,22 @@ linha é removida, e `limpar` para com erro se o total gravado diferir do arquiv
 O código IBGE do município é obtido no dbt pela macro `fundos_garantidores_municipio`
 (`macros/br_bndes_fundos_garantidores_municipio.sql`): o diretório de municípios da BD
 mais uma lista de grafias da fonte que não casam com ele (ex.: `AUGUSTO SEVERO` para
-Campo Grande/RN). Uma grafia nova deixa `id_municipio` vazio, e o teste só acusa
-quando isso passa de 1% das linhas; a correção é acrescentá-la à lista.
+Campo Grande/RN). Uma grafia nova deixa `id_municipio` vazio; a correção é
+acrescentá-la à lista.
 
-Cada tabela tem o `not_null_proportion_multiple_columns` com `at_least: 0.99` e o
-`relationships` das colunas de diretório. Duas colunas ficam fora da proporção,
-porque a fonte publica vazios: `nome_cliente` na PEAC CS-RS (683 linhas, 10,6%) e
-`porte_cliente` no FG Sebrae (302 linhas, 1,25%).
+## Testes
+
+Ficam em `models/br_bndes_fundos_garantidores/schema.yml`, rodam na tabela inteira, que
+é regravada a cada execução, e têm severidade `error`: uma falha no `build_and_promote`
+em dev impede a publicação em produção.
+
+| teste | o que verifica |
+|---|---|
+| `not_null_proportion_multiple_columns` | pelo menos 99% de preenchimento em cada coluna, exceto `nome_cliente` na PEAC CS-RS (683 vazios, 10,6%) e `porte_cliente` no FG Sebrae (302 vazios, 1,25%), que a fonte publica vazios. Em `id_municipio`, uma grafia nova de município só faz o teste falhar quando passa de 1% das linhas |
+| `relationships` | `ano`, as duas UFs e os dois municípios existem nos diretórios da BD |
+
+Não há teste de unicidade: a fonte não publica identificador da operação, e as linhas
+idênticas são operações mantidas como publicadas (ver "Particularidades da fonte").
 
 ## Como o flow funciona
 
