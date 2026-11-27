@@ -79,7 +79,7 @@ def _detect_header(row: list[str], path: Path) -> bool:
         return True
     digitless = len(row) >= 5 and not any(
         _DIGIT_RE.search(str(c))  # pyrefly: ignore [unnecessary-type-conversion]
-        for c in row  # pyrefly: ignore [unnecessary-type-conversion]
+        for c in row
     )
     if (cells & _HEADER_TELL_CELLS) or digitless:
         msg = (

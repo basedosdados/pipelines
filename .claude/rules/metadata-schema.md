@@ -19,7 +19,7 @@ Default: `dev`. Only switch to `prod` after explicit user approval.
 
 **Create a dataset with `status_id = status.under_review`** on registration. `under_review` hides the dataset from the **production** frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
 
-**On dev/staging, publish the dataset before the PR/prod-promotion step.** After the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `status.under_review → status.published` via `create_update_dataset(id=…, status_id=status.published, env=<dev|staging>)` (re-pass every required field). The dev/staging frontend is not the public production site, so this is safe and lets the reviewer see the dataset as it will appear. This is the only pre-merge publish, and only on dev/staging. When extending an already-published dataset, keep it published (and refresh its description if coverage changed).
+**On dev/staging, publish the dataset before the PR/prod-promotion step.** After the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `status.under_review → status.published` via `create_update_dataset(id=…, status_id=status.published, env=<dev|staging>)` (the wrapper takes every required field, so pass the current values — see "Updates are partial" below). The dev/staging frontend is not the public production site, so this is safe and lets the reviewer see the dataset as it will appear. This is the only pre-merge publish, and only on dev/staging. When extending an already-published dataset, keep it published (and refresh its description if coverage changed).
 
 Flip the **prod** dataset to `status.published` **only after all three hold**:
 
@@ -27,7 +27,7 @@ Flip the **prod** dataset to `status.published` **only after all three hold**:
 2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`);
 3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, `get_dataset(slug, env="prod")` shows the expected shape.
 
-The **prod** publish is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR (the dev/staging publish already happened pre-promotion). Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
+The **prod** publish is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (the wrapper takes every required field, so pass the current values — see "Updates are partial" below). Do this as a **separate post-merge action**, never inside the onboarding PR (the dev/staging publish already happened pre-promotion). Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
 
 ## ID resolution (always run first)
 
@@ -60,6 +60,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 8. `reorder_observation_levels(...)` — if human specifies order
 9. `upload_columns_from_sheet(...)` — bulk upload columns from architecture Google Sheet (or `bulk_upsert_columns` with `columns_json`, which needs no Google Sheet)
 10. `update_column(...)` — per-column follow-up for `is_partition`, `is_primary_key`, EN/ES descriptions, **and linking each identifying column to its observation level** (see "Observation-level column linking" below)
+10b. **Mark `coverage_entity` on the temporal columns** — `year` first, then `month`/`quarter`/`bimester` (or `date` alone). Required for every table with a time dimension; see "`coverage_entity`" below
 11. `create_update_cloud_table(...)` — link to BigQuery table
 12. `create_update_coverage(...)` — coverage for area "br" (see `is_closed` below)
 13. `create_update_datetime_range(...)` — temporal range
@@ -100,7 +101,7 @@ Every dataset must carry tags — several recent onboardings shipped with none, 
    - **Names are translated and lowercase** in all three languages (`name_pt`, `name_en`, `name_es`), except that **acronyms stay uppercase** (e.g. `name_en="tax"`, but `name_en="GDP"`, `name_pt="PIB"`).
 5. **Attach** all chosen ids via `tag_ids` on `create_update_dataset`, then verify with `get_dataset` (tags are M2M — see Known issues).
 
-Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any approved new tag) on prod before attaching there. When updating an already-published dataset to add tags, re-pass every required field plus the full `tag_ids` (the API does no partial updates).
+Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any approved new tag) on prod before attaching there. When updating an already-published dataset to add tags, pass the **full** `tag_ids` list (existing + new). Treat any M2M field you send as replacing the stored list — that it appends has never been verified.
 
 ## `create_update_table` fields
 
@@ -162,6 +163,101 @@ Link exactly the grain columns — the geographic id column to its geographic OL
 
 **Caveat:** `update_column`'s boolean args default to `False`, so a bare call **clobbers** `is_partition` / `is_primary_key`. When linking an OL on a column that is also a partition or primary key, re-pass those flags in the same call (e.g. `is_partition=True` on `year`, `is_primary_key=True` on a directory key column).
 
+## `coverage_entity` — mark the temporal columns (do not skip)
+
+The backend is the single source of truth for a table's coverage spec. Nothing in
+`pipelines` declares it any more: `register_table_materialization_task` calls
+`coverage_from_backend(dataset_id, table_id)`, which reads the `coverageSpec` GraphQL
+query. That query derives everything from records registered in this step sequence:
+
+| Field | Derived from |
+|---|---|
+| `coverageColumns` | the table's columns with `Column.coverage_entity` set |
+| `dateColumnKind` | the set of entities marked: `date`, `year`, `year_month`, `year_quarter`, `year_bimester` |
+| `tier` | the table's `Coverage` records (`is_closed`): `all_free` (free only), `part_bdpro` (free + pro), `all_bdpro` (pro only) |
+
+Both paths that register a materialization go through it: the recurring pipeline's
+`build_and_promote` **and** the `table-approve` action on merge (via
+`transfer_files_to_prod_flow`). So this applies to every new table with a time
+dimension, with or without a pipeline.
+
+### What to mark
+
+`Column.coverage_entity` is an FK to `Entity`, limited to the `datetime` category. Mark
+the column(s) that carry the table's temporal grain, and nothing else:
+
+| Table grain | Columns to mark (Portuguese / English names) |
+|---|---|
+| annual | `ano` / `year` → `year` |
+| monthly | `ano` → `year`, `mes` → `month` |
+| quarterly | `ano` → `year`, `trimestre` → `quarter` |
+| bimonthly | `ano` → `year`, `bimestre` → `bimester` |
+| daily | `data` / `date` → `date` |
+
+Only these combinations are valid: `date` alone, `year` alone, or `year` plus one of
+`month`/`quarter`/`bimester`. Each entity can be used once per table. A table with no
+time dimension (a `dicionario`, a snapshot directory) gets no mark.
+
+### What happens if you skip it
+
+| State | `tier` | Effect |
+|---|---|---|
+| temporal columns not marked | `non_historical` | the materialization only updates `Table.Update.latest` from the BigQuery last-modified time. The `DateTimeRange`s never move, and a table that should be `part_bdpro` never gets its Row Access Policies — **silently** |
+| marked, but no `Coverage` yet | `""` | `coverage_from_backend` raises (`tem coverage_entity marcado no backend, mas nenhuma Coverage cadastrada ainda`) |
+| no `CloudTable` with that `gcp_dataset_id`/`gcp_table_id` | — | `coverage_from_backend` raises (`Backend não tem coverageSpec`) |
+
+`register_table_materialization_task` no longer needs `coverage=`. The argument remains
+only as a manual override; do not pass a hand-built `CoverageSpec` from a flow.
+
+### How to mark it
+
+The databasis MCP `update_column` does not expose `coverage_entity` yet. Use one of:
+
+- **Django admin**: set **Coverage entity** on the column. The table's admin page then
+  lists the marked columns under its coverage columns field. Say in the report that you
+  did it through the admin.
+- **GraphQL**: the generic `CreateUpdateColumn` mutation already accepts `coverageEntity`,
+  an `Entity` id. Resolve it with `discover_ids(env=<env>, keys=["entity"])` (slugs
+  `year`, `month`, `quarter`, `bimester`, `date`); ids differ between dev and prod.
+
+  ```graphql
+  mutation($input: CreateUpdateColumnInput!) {
+    CreateUpdateColumn(input: $input) {
+      errors { field messages }
+      column { id name coverageEntity { slug } }
+    }
+  }
+  ```
+
+  with `input: {id: <column_id>, name: <column_name>, table: <table_id>, coverageEntity: <entity_id>}`.
+
+**Order matters for two-column tables.** The mutation saves one column at a time and
+`Column.clean()` validates the combination on every save. Mark **`year` first**, then
+`month`/`quarter`/`bimester`: `{year}` and `{year, month}` are valid, `{month}` alone is
+not, so marking `mes` before `ano` is rejected.
+
+Do it on **every backend the table is registered in** — dev in step 9, prod in step 10.
+The `table-approve` run on merge reads the **prod** backend.
+
+### Verify
+
+Query `coverageSpec` and check the result matches the table:
+
+```graphql
+query($datasetId: String!, $tableId: String!) {
+  coverageSpec(datasetId: $datasetId, tableId: $tableId) {
+    tier
+    dateColumnKind
+    coverageColumns { name entity }
+  }
+}
+```
+
+`datasetId`/`tableId` are the GCP ids (`br_ibge_ipca`, `mes_brasil`). Expected for a
+monthly paywalled table: `tier="part_bdpro"`, `dateColumnKind="year_month"`,
+`coverageColumns=[{ano, year}, {mes, month}]`. A temporal table returning
+`non_historical` has not been marked.
+
 ## `create_update_cloud_table` fields
 
 | Field | Notes |
@@ -195,10 +291,11 @@ Two things that are easy to miss:
   so pro starts the **next** period — free `1913-01..2025-12`, pro `2026-01..2026-06`,
   never `2025-12..2026-06`.
 
-For the pipeline side (`PartBdpro`, rolling windows, Row Access Policies), see the
-"BD Pro rolling window" section of `prefect-pipeline-conventions`. Both coverages
-must exist **before** a `part_bdpro` pipeline runs, or it hard-fails at
-`assert_coverage_topology`.
+**The Coverage records are the tier.** `coverageSpec.tier` is derived from which
+coverages exist — free only is `all_free`, free + pro is `part_bdpro`, pro only is
+`all_bdpro`. There is no tier to set anywhere else; to paywall a table, create the pro
+Coverage. For the pipeline side (rolling window, Row Access Policies), see the
+"BD Pro rolling window" section of `prefect-pipeline-conventions`.
 
 ## `create_update_datetime_range` fields
 
@@ -308,7 +405,15 @@ to your `first`, treat it as truncated until proven otherwise.
 
 **M2M fields (organizations, themes, tags, raw_data_source_ids):** These are Django ManyToManyFields. Pass them and verify with `get_dataset` after saving. If they appear empty despite being passed, it is a backend deployment issue — note and continue; do not retry indefinitely.
 
-**Deferred raw_data_source linking:** Always link raw data sources in a second `create_update_table` call (step 15), after all raw sources exist. Pass ALL required fields again — the API does not support partial updates.
+**Deferred raw_data_source linking:** Always link raw data sources in a second `create_update_table` call (step 15), after all raw sources exist. The wrapper takes every required field, so pass the current values; `raw_data_source_ids` is M2M, so pass the full list.
+
+**Updates are partial.** A `CreateUpdate<Model>` mutation with an `id` only writes the fields in its input; fields you leave out are not touched (verified in prod on 2026-11-23: `CreateUpdateTable` and `CreateUpdateDataset` with only `{id, status}`, and `CreateUpdateUpdate` without `lag`, kept every other field, M2M included). What does overwrite data:
+
+- a field sent explicitly as `null`/empty;
+- an M2M field you send (tags, themes, organizations, `publishedBy`, `rawDataSource`) — treat it as replacing the stored list and send the full list (not verified either way; omitting it leaves it untouched);
+- the MCP **wrappers**, which send every argument they take, defaults included (`update_column`'s booleans default to `False`; `create_update_table`/`create_update_dataset` always send name, slug, status and the M2M lists). That is a property of the wrapper, not of the API.
+
+For a one-field change (a status flip, nulling an `Update`'s entity), call the mutation directly with only that field — `_mut("CreateUpdateTable", {"id": <id>, "status": <status_id>}, "table { status { slug } }", env=…)` from `databasis_mcp.gql` — and check the returned value. No need to re-read and diff every other field.
 
 ## Description writing guidelines
 
@@ -325,6 +430,6 @@ After completing all dev steps, output:
 ```text
 === METADATA REGISTRATION COMPLETE (env=dev) ===
 Dataset: <slug> (id=<id>)
-Tables: ✓ <table_slug> — N OLs, N columns, cloud table, coverage, update
+Tables: ✓ <table_slug> — N OLs, N columns, coverage_entity (<dateColumnKind> / <tier> from coverageSpec), cloud table, coverage, update
 Next: verify at https://development.basedosdados.org/dataset/<slug>
 ```

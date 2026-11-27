@@ -52,6 +52,12 @@ COBERTURA = "(1)"
 #           Portaria SAES/MS nº 4.109/2026, citada por terceiros; não
 #           localizamos o texto oficial (ver issue #1714)
 #   82      CNES 4.8.40, divulgado por terceiros; idem
+#   83      Portaria SAES/MS nº 4.288, de 22/06/2026 (DOU de 23/07/2026),
+#           Anexo II — "Tabela de Equipes do CNES". Lido na reprodução do
+#           Conass Informa 140/2026; o link do DOU é
+#           in.gov.br/web/dou/-/portaria-saes/ms-n-4.288-de-22-de-junho-de-2026-720815464
+#           Aparece nos dados em 2026-09 (uma equipe em 3505500, "CUIDADOS
+#           PALIA PEDIATRIA"), e derrubava o `custom_dictionary_coverage`.
 #
 # As tabelas auxiliares oficiais (TAB_CNES.zip, regeradas em 21/07/2026) ainda
 # trazem só 10 tipos de equipamento e param no 76 em EQUIPE.dbf — não servem.
@@ -97,6 +103,15 @@ NEW_ROWS: list[dict[str, str]] = [
         "nome_coluna": "tipo_equipe",
         "chave": "82",
         "valor": "E-DOT - Equipe Hospitalar de Doação para Transplantes",
+    },
+    {
+        "id_tabela": "equipe",
+        "nome_coluna": "tipo_equipe",
+        "chave": "83",
+        "valor": (
+            "EMCP-Ped - Equipe Macrorregional de Cuidados Paliativos com "
+            "Pediatra"
+        ),
     },
     # Os dois indicadores do equipamento passam a ser STRING cobertos por
     # dicionário (issue #1722). O Equipamento.def do TAB_CNES documenta: "o campo
@@ -305,6 +320,193 @@ CODIGO_EQUIPAMENTO: dict[str, str] = {
     "0679": "veiculo pick-up cabine dupla 4x4 (diesel)",
 }
 
+# Rótulos com a grafia da Tabela Unificada do SIGTAP, competência 2026-10
+# (TabelaUnificada_202610_v2610271043.zip, em
+# ftp2.datasus.gov.br/pub/sistemas/tup/downloads/). Tabela de origem por
+# coluna:
+#
+#   tipo_habilitacao                  tb_habilitacao (CO_HABILITACAO, sem o
+#                                     zero à esquerda)
+#   tipo_servico_especializado e
+#   tipo_servico_especializado_unico  tb_servico (CO_SERVICO)
+#   subtipo_servico_especializado     tb_servico_classificacao (CO_SERVICO
+#                                     seguido de CO_CLASSIFICACAO)
+SIGTAP_LABELS: dict[tuple[str, str], dict[str, str]] = {
+    ("habilitacao", "tipo_habilitacao"): {
+        "406": "Serviço de Especialidade em Saúde Bucal",
+        "638": "CENTRO DE CONVIVÊNCIA BÁSICO",
+        "639": "CENTRO DE CONVIVÊNCIA INTERMEDIÁRIO",
+        "640": "CENTRO DE CONVIVÊNCIA AMPLIADO",
+        "815": "Implante Percutâneo de Válvula Aórtica (TAVI)",
+        "1420": (
+            "Hospital de Referência à Gestação e ao Puerpério de Alto Risco "
+            "-HGPAR"
+        ),
+        "1515": "Incremento financeiro à Terapia Renal Substitutiva - TRS",
+        "1618": "Neurocirurgia Endovascular/Trombectomia Mecanica",
+        "1722": "Tratamentos Integrados Sincrônicos em Oncologia",
+        "2308": (
+            "Serviço de Referência em Tratamento da Pessoa com Falência "
+            "Intestinal"
+        ),
+        "2436": "Incremento Financeiro SNT TMO Nível A",
+        "2437": "Incremento Financeiro SNT TMO Nível B",
+        "2438": "Incremento Financeiro SNT TMO Nível C",
+        "2439": "Incremento Financeiro SNT TMO Nível D",
+        "2440": "Incremento Financeiro SNT TMO Nível E",
+        "2441": "Incremento Financeiro SNT Pâncreas Nível A",
+        "2442": "Incremento Financeiro SNT Pâncreas Nível B",
+        "2443": "Incremento Financeiro SNT Pâncreas Nível C",
+        "2446": "Incremento Financeiro SNT Rim Nível A",
+        "2447": "Incremento Financeiro SNT Rim Nível B",
+        "2448": "Incremento Financeiro SNT Rim Nível C",
+        "2449": "Incremento Financeiro SNT Rim Nível D",
+        "2450": "Incremento Financeiro SNT Rim Nível E",
+        "2451": "Incremento Financeiro SNT Fígado Nível A",
+        "2452": "Incremento Financeiro SNT Fígado Nível B",
+        "2453": "Incremento Financeiro SNT Fígado Nível C",
+        "2454": "Incremento Financeiro SNT Fígado Nível D",
+        "2455": "Incremento Financeiro SNT Fígado Nível E",
+        "2456": "Incremento Financeiro SNT Pulmão Nível A",
+        "2458": "Incremento Financeiro SNT Pulmão Nível C",
+        "2461": "Incremento Financeiro SNT Coração Nível A",
+        "2462": "Incremento Financeiro SNT Coração Nível B",
+        "2463": "Incremento Financeiro SNT Coração Nível C",
+        "2464": "Incremento Financeiro SNT Coração Nível D",
+        "2465": "Incremento Financeiro SNT Coração Nível E",
+        "2466": "Transplante de intestino delgado ou multivisceral",
+        "2467": "Transplante de Membrana Amniótica",
+        "2468": "Banco de Multitecidos",
+        "2469": "Transplante Pediátrico Tipo I",
+        "2470": "Transplante Pediátrico Tipo II",
+        "2471": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado com HLA haploidêntico"
+        ),
+        "2472": (
+            "Transplante de Células Progenitoras Hematopoéticas Autólogo "
+            "Pediátrico I"
+        ),
+        "2473": (
+            "Transplante de Células Progenitoras Hematopoéticas Autólogo "
+            "Pediátrico II"
+        ),
+        "2474": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Idêntico Pediátrico I"
+        ),
+        "2475": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Idêntico Ped II"
+        ),
+        "2476": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Haploidêntico - Ped I"
+        ),
+        "2477": (
+            "Transplante de Células Progenitoras Hematopoéticas Alogênico "
+            "Aparentado c/ HLA Haploidêntico Ped II"
+        ),
+        "2478": (
+            "Transplante de Células Progenitoras Hematopoéticas Não "
+            "Aparentado Pediátrico I"
+        ),
+        "2479": (
+            "Transplante de Células Progenitoras Hematopoéticas Não "
+            "Aparentado Pediátrico II"
+        ),
+        "2482": "Transplante de Rim - Pediátrico Tipo I",
+        "2483": "Transplante de Rim - Pediátrico Tipo II",
+        "2484": "Transplante de Fígado - Pediátrico Tipo I",
+        "2485": "Transplante de Fígado - Pediátrico Tipo II",
+        "2486": "Transplante de Pulmão - Pediátrico Tipo I",
+        "2487": "Transplante de Pulmão - Pediátrico Tipo II",
+        "2488": "Transplante de Coração - Pediátrico Tipo I",
+        "2489": "Transplante de Coração - Pediátrico Tipo II",
+        "2490": (
+            "Transplante de Intestino Delgado ou Multivisceral - Pediátrico "
+            "Tipo I"
+        ),
+        "2902": "Programa Mais Acesso a Especialistas - Componente Cirurgias",
+        "3516": "Terapia Génica",
+        "3801": "Programa Mais Acesso a Especialistas",
+        "3803": "Agora Tem Especialistas Modalidade 2 Equipes Volantes",
+        "3804": "Agora Tem Especialistas Modalidade 3 Unidades Móveis",
+        "3805": "Agora Tem Especialistas - Componente Créditos Financeiro",
+        "3806": "Agora Tem Especialistas - Componente Ressarcimento ao SUS",
+        "3807": (
+            "Componente Acesso à Radioterapia do Programa Agora Tem "
+            "Especialistas"
+        ),
+        "3808": "Agora Tem Especialistas - Teleatendimento em Saúde Mental",
+        "3811": "Agora tem Especialistas 3 Unidade Móvel Exame de Imagem",
+        "3812": "Agora tem Especialistas 3 Unidade Móvel Oftalmologia",
+        "3813": "Agora tem Especialistas 3 Unidade Móvel Saúde da Mulher",
+        "3814": "Agora tem Especialistas 3 Unidade Móvel Cardiologia",
+        "3815": "Agora tem Especialistas 3 Unidade Móvel Saúde Bucal",
+    },
+    ("servico_especializado", "tipo_servico_especializado"): {
+        "171": "Cuidados Paliativos",
+        "172": "Atenção ao Luto Materno e Parental",
+        "175": "Cirúrgia Robótica",
+    },
+    ("servico_especializado", "subtipo_servico_especializado"): {
+        "112007": (
+            "Ambulatório de Seguimento do RN e Criança Egresso de Unidade "
+            "Neonatal"
+        ),
+        "112008": "Ambulatório  de Gestação e Puerpério de Alto Risco",
+        "114008": "Odontopediatria",
+        "114009": "Disfunsão temporomandibular",
+        "114010": "Estomatologia",
+        "114011": "Implantodondia",
+        "114012": "Odontogeriatria",
+        "114013": "Ortodontia",
+        "114014": "Prótese Dentária",
+        "114015": "Radiologia Odontológica e Imaginologia",
+        "114016": "Acupuntura na Odontologia",
+        "114017": "Ortopedia funcional dos maxilares",
+        "114018": "Odontologia hospitalar",
+        "114019": "Patologia Oral e Máxilo Fácial",
+        "114020": "Prótese Buco Maxilo Facial",
+        "115010": (
+            "DESINST de Pessoas com Transtorno  Mental em Conflito com a Lei"
+        ),
+        "115011": "Promoção da Saúde Mental, Protagonismo e Cidadania",
+        "125010": "Manipulação, Reconstituição e Diluição de Medicamentos",
+        "141005": "Vigilância de Zoonoses",
+        "154003": "Banco de Multitecidos",
+        "160004": "TELEDIAGNOSTICO",
+        "160005": "TELE-EDUCACAO",
+        "160006": "TELECONSULTA",
+        "160007": "TELEMONITORAMENTO",
+        "160008": "TELEORIENTACAO",
+        "160009": "TELEINTERCONSULTA",
+        "160010": "TELETRIAGEM",
+        "160011": "TELERREGULACAO",
+        "164012": "Confecção de OPM Auxiliares de Locomoção e Ortopédicas",
+        "168003": "Terapia Génica",
+        "171001": "Abordagem Paliativa",
+        "171002": "Apoio Matricial em Cuidados Paliativos",
+        "171003": "Cuidados Paliativos Especializados",
+        "172001": "Assistência Multiprofissional ao luto materno e parental",
+        "175001": "Prostatectomia",
+    },
+    ("servico_especializado", "tipo_servico_especializado_unico"): {
+        "171": "Cuidados Paliativos",
+        "172": "Atenção ao Luto Materno e Parental",
+        "175": "Cirúrgia Robótica",
+    },
+}
+
+NO_MEANING_LABEL = (
+    "Código {}: sem significado nas fontes oficiais (nota da BD)"
+)
+
+CODES_WITHOUT_MEANING: dict[tuple[str, str], list[str]] = {
+    ("servico_especializado", "subtipo_servico_especializado"): ["170002"],
+}
+
 # Rótulos que substituem tapa-buracos já presentes no dicionário — as chaves
 # 77 a 81 foram registradas com o valor literal "Não encontrado nos dicionários
 # oficiais" só para o `custom_dictionary_coverage` passar. Procedência:
@@ -321,6 +523,28 @@ CODIGO_EQUIPAMENTO: dict[str, str] = {
 #
 # Os cinco códigos entram nos dados em 2025-11 (o 81 em 2025-12), ligados no
 # CNES na mesma leva apesar de portarias de anos diferentes.
+#
+# Os 38 incentivos abaixo entraram no staging de dev com o rótulo de
+# `NO_MEANING_LABEL`, antes de as portarias serem achadas. Os rótulos têm a
+# grafia do ato que criou cada código. Procedência:
+#
+#   8116, 8117           Portaria GM/MS nº 1.992, de 24/11/2023, Art. 1º
+#   8119                 Portaria SAES/MS nº 602, de 28/07/2023, Art. 1º
+#   8121 a 8124          Portaria SAES/MS nº 4.020, de 10/04/2026, Anexo II
+#   8125 a 8127          Portaria SAES/MS nº 4.288, de 22/06/2026, Anexo III
+#   8256 a 8260, 8263,
+#   8264, 8266 a 8270    Portaria SAS/MS nº 1.535, de 25/09/2017, Anexo
+#   8271 a 8280          Portaria SAES/MS nº 474, de 22/04/2021, Anexo I
+#   8285                 Portaria SAES/MS nº 216, de 01/07/2022, Anexo II;
+#                        excluído pela Portaria SAES/MS nº 2.902, de
+#                        26/06/2025, Art. 5º §2º
+#   8286 a 8288, 8290,
+#   8291                 Portaria SAES/MS nº 1.148, de 21/12/2023, Anexo IV
+#
+# Os números 81.16 a 81.39 já foram incentivos de equipes de saúde prisional
+# (Portaria SAS/MS nº 305/2014, Anexo II), desativados pelo Art. 10 da
+# Portaria SAES/MS nº 37, de 18/01/2021. Os rótulos acima são os dos números
+# reaproveitados a partir de 2023.
 REPLACE_ROWS: dict[tuple[str, str, str], str] = {
     ("equipe", "tipo_equipe", "77"): (
         "EMAP-R - Equipe Multiprofissional de Apoio para Reabilitação"
@@ -337,6 +561,120 @@ REPLACE_ROWS: dict[tuple[str, str, str], str] = {
     ),
     ("equipe", "tipo_equipe", "81"): (
         "EqAE - Equipe de Atenção Especializada"
+    ),
+    ("estabelecimento", "tipo_unidade", "16"): NO_MEANING_LABEL.format("16"),
+    ("incentivos", "tipo_habilitacao", "8116"): "DRC Categoria I",
+    ("incentivos", "tipo_habilitacao", "8117"): "DRC Categoria II",
+    ("incentivos", "tipo_habilitacao", "8119"): (
+        "Hospital Sem Fins Lucrativos 100% SUS"
+    ),
+    ("incentivos", "tipo_habilitacao", "8121"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8122"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8123"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT III"
+    ),
+    ("incentivos", "tipo_habilitacao", "8124"): (
+        "Qualificação em Doação e Transplantes - IFQ-DOT IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8125"): (
+        "Equipes de Apoio Assistencial em Cuidados Paliativos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8126"): (
+        "Equipes Macrorregionais de Cuidados Paliativos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8127"): (
+        "Equipes Macrorregionais de Cuidados Paliativos com Pediatra"
+    ),
+    ("incentivos", "tipo_habilitacao", "8256"): (
+        "UPA 24h Nova - Qualificada Opção I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8257"): (
+        "UPA 24h Nova - Qualificada Opção II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8258"): (
+        "UPA 24h Nova - Qualificada Opção IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8259"): (
+        "UPA 24h Nova - Qualificada Opção VI"
+    ),
+    ("incentivos", "tipo_habilitacao", "8260"): (
+        "UPA 24h Nova - Qualificada Opção VII"
+    ),
+    ("incentivos", "tipo_habilitacao", "8263"): (
+        "UPA 24h Ampliada - Habilitada/Qualificada Opção IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8264"): (
+        "UPA 24h Ampliada - Habilitada/Qualificada Opção VI"
+    ),
+    ("incentivos", "tipo_habilitacao", "8266"): (
+        "UPA 24h Nova - Habilitada Opção I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8267"): (
+        "UPA 24h Nova - Habilitada Opção II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8268"): (
+        "UPA 24h Nova - Habilitada Opção IV"
+    ),
+    ("incentivos", "tipo_habilitacao", "8269"): (
+        "UPA 24h Nova - Habilitada Opção VI"
+    ),
+    ("incentivos", "tipo_habilitacao", "8270"): (
+        "UPA 24h Nova - Habilitada Opção VII"
+    ),
+    ("incentivos", "tipo_habilitacao", "8271"): (
+        "Enfermaria Clínica de Retaguarda - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8272"): (
+        "Enfermaria Clínica de Retaguarda - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8273"): (
+        "UTI Adulto RUE Tipo II - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8274"): (
+        "UTI Adulto RUE Tipo II - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8275"): (
+        "UTI Pediátrico RUE Tipo II - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8276"): (
+        "UTI Pediátrico RUE Tipo II - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8277"): (
+        "UTI Adulto RUE Tipo III - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8278"): (
+        "UTI Adulto RUE Tipo III - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8279"): (
+        "UTI Pediátrico RUE Tipo III - Novos"
+    ),
+    ("incentivos", "tipo_habilitacao", "8280"): (
+        "UTI Pediátrico RUE Tipo III - Qualificados"
+    ),
+    ("incentivos", "tipo_habilitacao", "8285"): (
+        "Atenção especializada ao seguimento do recém-nascido e crianças "
+        "egressos de unidades neonatais (ANEO)"
+    ),
+    ("incentivos", "tipo_habilitacao", "8286"): (
+        "Transporte Sanitário Adaptado I"
+    ),
+    ("incentivos", "tipo_habilitacao", "8287"): (
+        "Transporte Sanitário Adaptado II"
+    ),
+    ("incentivos", "tipo_habilitacao", "8288"): (
+        "Transporte Sanitário Adaptado III"
+    ),
+    ("incentivos", "tipo_habilitacao", "8290"): (
+        "Núcleo de Atenção à Criança e Adolescente com Transtorno do "
+        "Espectro Autista"
+    ),
+    ("incentivos", "tipo_habilitacao", "8291"): (
+        "Incentivo de 20% no custeio do CER habilitado com a modalidade de "
+        "reabilitação intelectual"
     ),
 }
 
@@ -357,11 +695,13 @@ def load_staging_dictionary() -> pd.DataFrame:
 
 
 def candidate_rows() -> list[dict[str, str]]:
-    """Junta as linhas declaradas uma a uma com os rótulos de 4 dígitos.
+    """Junta as linhas declaradas uma a uma com as declaradas por coluna.
 
     `NEW_ROWS` traz `id_tabela` e `nome_coluna` por linha porque cobre tabelas
-    e colunas diferentes. `CODIGO_EQUIPAMENTO` é sempre a mesma coluna da mesma
-    tabela, então só declara chave e valor, e os dois campos entram aqui.
+    e colunas diferentes. `CODIGO_EQUIPAMENTO`, `SIGTAP_LABELS` e
+    `CODES_WITHOUT_MEANING` agrupam as chaves por coluna, e os dois campos
+    entram aqui. Os códigos de `CODES_WITHOUT_MEANING` recebem o rótulo de
+    `NO_MEANING_LABEL`.
 
     Returns:
         Linhas no formato de `NEW_ROWS`, ainda sem `cobertura_temporal`.
@@ -375,7 +715,27 @@ def candidate_rows() -> list[dict[str, str]]:
         }
         for chave, valor in CODIGO_EQUIPAMENTO.items()
     ]
-    return NEW_ROWS + codigo_equipamento
+    sigtap = [
+        {
+            "id_tabela": table_and_column[0],
+            "nome_coluna": table_and_column[1],
+            "chave": chave,
+            "valor": valor,
+        }
+        for table_and_column, labels in SIGTAP_LABELS.items()
+        for chave, valor in labels.items()
+    ]
+    without_meaning = [
+        {
+            "id_tabela": table_and_column[0],
+            "nome_coluna": table_and_column[1],
+            "chave": chave,
+            "valor": NO_MEANING_LABEL.format(chave),
+        }
+        for table_and_column, chaves in CODES_WITHOUT_MEANING.items()
+        for chave in chaves
+    ]
+    return NEW_ROWS + codigo_equipamento + sigtap + without_meaning
 
 
 def add_rows(atual: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:

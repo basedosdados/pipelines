@@ -244,13 +244,32 @@ class MetadataClient:
 
     # ------------------------------------------------------------------ leitura
     def get_table_status(self, dataset_id: str, table_id: str) -> str | None:
+        """Lê o slug do status da tabela no backend.
+
+        Returns:
+            O slug do status, ou `None` se a tabela não existe no backend.
+
+        Raises:
+            ValueError: se a tabela existe mas está sem status. Sem essa
+                checagem, o acesso a `status["slug"]` quebrava com um
+                `TypeError` que não diz qual é o problema.
+        """
         table_pk = self.get_table_id(dataset_id, table_id)
         query = """query($table_id: ID) {
             allTable(id: $table_id) { edges { node { status { slug } } } }
         }"""
         response = self._execute(query, {"table_id": table_pk})
         nodes = response["allTable"]["items"]
-        return nodes[0]["status"]["slug"] if nodes else None
+        if not nodes:
+            return None
+        status = nodes[0].get("status")
+        if status is None:
+            raise ValueError(
+                f"A tabela {dataset_id}.{table_id} está sem status no backend. "
+                "Defina o status da tabela (por exemplo, 'published' ou "
+                "'under_review') no admin do backend e rode de novo."
+            )
+        return status["slug"]
 
     def get_coverage_ids(self, dataset_id: str, table_id: str):
         """Lê os ids de Coverage free (is_closed=False) e pro (is_closed=True) e

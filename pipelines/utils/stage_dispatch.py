@@ -86,13 +86,11 @@ class ExtractAndLoad:
             dataset — não é parâmetro do construtor. `None` pra tabela
             sem partição (nenhuma pasta Hive achada em `data_path`).
         dump_mode: modo de escrita no BigQuery.
-        source_format: formato do arquivo em `data_path`.
     """
 
     data_path: str
     prefect_mode: str = "prod"
     dump_mode: str = "append"
-    source_format: str = "csv"
     partition_folders: list[str] | None = field(default=None, init=False)
 
 
@@ -383,7 +381,6 @@ def dispatch_build_and_promote(
         "promote_to_prod": not _dev_prefix(),
         "partition_folders": result.partition_folders,
         "dump_mode": result.dump_mode,
-        "source_format": result.source_format,
     }
     name = deployment_name(dataset_id, Etapa.BUILD_AND_PROMOTE)
     if _is_local():
@@ -405,7 +402,6 @@ def promote_primary_and_derived_tables(
     env: str = "prod",
     prefect_mode: str = "prod",
     dump_mode: str = "append",
-    source_format: str = "csv",
 ) -> None:
     """Materializa `table_id` e re-materializa tabelas derivadas junto, inline.
 
@@ -441,8 +437,6 @@ def promote_primary_and_derived_tables(
             (`MODE_PROJECT`) e é repassado a
             `register_table_materialization_task`.
         dump_mode: modo de escrita no BigQuery pro upload da mãe em prod.
-        source_format: formato do arquivo em staging (`"csv"`/`"parquet"`)
-            pro upload da mãe em prod.
     """
     bq_project = metadata_constants.MODE_PROJECT.value[prefect_mode]
     all_table_ids = [table_id, *derived_table_ids]
@@ -464,7 +458,6 @@ def promote_primary_and_derived_tables(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode=dump_mode,
-        source_format=source_format,
     )
 
     for t in all_table_ids:
@@ -684,7 +677,6 @@ class CheckThenExtractLoadPipeline:
             table_id=self.table_id,
             bucket_name="basedosdados-dev",
             dump_mode=download_result.dump_mode,
-            source_format=download_result.source_format,
         )
 
         dispatch_build_and_promote(
@@ -736,7 +728,6 @@ class CheckThenExtractLoadPipeline:
             table_id=self.table_id,
             bucket_name="basedosdados-dev",
             dump_mode=download_result.dump_mode,
-            source_format=download_result.source_format,
         )
 
         promote_primary_and_derived_tables(
@@ -747,5 +738,4 @@ class CheckThenExtractLoadPipeline:
             env=self.env,
             prefect_mode=download_result.prefect_mode,
             dump_mode=download_result.dump_mode,
-            source_format=download_result.source_format,
         )

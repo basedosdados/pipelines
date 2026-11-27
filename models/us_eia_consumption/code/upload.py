@@ -79,7 +79,6 @@ def upload(table: str) -> None:
         table_id=table,
         bucket_name=BUCKET,
         dump_mode="append",
-        source_format="parquet",
     )
     client = bigquery.Client(project=BILLING_PROJECT)
     ref = client.get_table(f"{BILLING_PROJECT}.{DATASET_ID}_staging.{table}")

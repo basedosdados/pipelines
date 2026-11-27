@@ -377,7 +377,6 @@ def br_sfb_sicar_flow(
                         table_id=table,
                         bucket_name=dev_bucket,
                         dump_mode="append",
-                        source_format="parquet",
                     )
                     fresh_dev = True
                 if materialize_to_prod and not prod_done:
@@ -387,7 +386,6 @@ def br_sfb_sicar_flow(
                         table_id=table,
                         bucket_name=prod_bucket,
                         dump_mode="append",
-                        source_format="parquet",
                     )
                     fresh_prod = True
                 shutil.rmtree(theme_root, ignore_errors=True)

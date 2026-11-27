@@ -112,7 +112,6 @@ def au_doe_higher_education_flow(
                 table_id=DIRECTORY_TABLE_ID,
                 bucket_name=bucket_name,
                 dump_mode="overwrite",
-                source_format="parquet",
             )
             run_dbt(
                 dataset_id=DIRECTORY_DATASET_ID,
@@ -129,7 +128,6 @@ def au_doe_higher_education_flow(
                     table_id=table,
                     bucket_name=bucket_name,
                     dump_mode="append",
-                    source_format="parquet",
                 )
                 run_dbt(
                     dataset_id=DATASET_ID,

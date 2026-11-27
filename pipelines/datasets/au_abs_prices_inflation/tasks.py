@@ -147,7 +147,6 @@ def make_cpi_extract_load_data(
 
         return ExtractAndLoad(
             data_path=str(output_dir / table_id),
-            source_format="parquet",
         )
 
     return extract_load_data
@@ -223,7 +222,6 @@ def make_release_extract_load_data(
 
         return ExtractAndLoad(
             data_path=str(output_dir / release),
-            source_format="parquet",
         )
 
     return extract_load_data

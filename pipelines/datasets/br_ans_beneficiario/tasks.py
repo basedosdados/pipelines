@@ -121,7 +121,6 @@ def crawler_ans(files):
             path="/tmp/data/br_ans_beneficiario/beneficiario/input/"
         )
 
-        # pyrefly: ignore [deprecated]
         os.system(
             'cd /tmp/data/br_ans_beneficiario/beneficiario/input; find . -type f -iname "*.csv" -delete'
         )
@@ -162,5 +161,4 @@ def br_ans_beneficiario_download(download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=output_filepath,
         # crawler_ans -> parquet_partition grava .parquet, não .csv (default).
-        source_format="parquet",
     )

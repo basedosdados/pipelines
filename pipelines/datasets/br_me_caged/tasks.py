@@ -23,12 +23,14 @@ from pipelines.datasets.br_me_caged.constants import (
 from pipelines.datasets.br_me_caged.utils import (
     count_competence_violations,
     count_data_rows,
+    count_rows_read_by_month,
     count_unknown_municipalities,
     download_file,
     month_partition_paths,
     verify_year_month,
     year_month_from_filename,
 )
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 from pipelines.utils.utils import log
@@ -377,49 +379,6 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
 
 
 @task
-def check_rows_written(
-    table_input_dir: str | Path, table_output_dir: str | Path
-) -> None:
-    """Confere se as linhas de cada `.txt` foram gravadas nas partições do mês.
-
-    Args:
-        table_input_dir: Pasta com os `.txt` baixados, um por mês.
-        table_output_dir: Pasta com as partições `ano=/mes=/sigla_uf=/data.csv`.
-
-    Raises:
-        ValueError: Se, em algum mês, as linhas gravadas diferirem das lidas.
-    """
-    files = Path(table_input_dir).glob("*txt")
-
-    months_list = []
-
-    for f in files:
-        file_date = year_month_from_filename(f)
-        partition_paths = month_partition_paths(table_output_dir, file_date)
-
-        rows_read = count_data_rows(f)
-
-        rows_written = 0
-
-        for path in partition_paths:
-            rows_written += count_data_rows(path)
-
-        log(f"{file_date}: {rows_read} linhas lidas, {rows_written} gravadas")
-
-        if rows_read != rows_written:
-            months_list.append(
-                f"Mês: {file_date}, "
-                f"com {rows_read} linhas lidas, "
-                f"mas com {rows_written} linhas escritas"
-            )
-
-    if months_list:
-        raise ValueError(
-            f"Contagem de linhas não bate nos seguintes meses: \n{months_list}"
-        )
-
-
-@task
 def check_competence_month(
     table_id: str,
     table_input_dir: str | Path,
@@ -624,7 +583,9 @@ def extract_load_data(table_id: str, download_params: dict) -> ExtractAndLoad:
 
     filepath = build_partitions(table_id=table_id, table_output_dir=output_dir)
 
-    check_rows_written(table_input_dir=input_dir, table_output_dir=output_dir)
+    check_rows_written(
+        rows_read=count_rows_read_by_month(input_dir), output_dir=output_dir
+    )
 
     check_competence_month(
         table_id=table_id,
@@ -647,7 +608,6 @@ def extract_load_data(table_id: str, download_params: dict) -> ExtractAndLoad:
     return ExtractAndLoad(
         data_path=filepath,
         dump_mode="append",
-        source_format="csv",
     )
 
 

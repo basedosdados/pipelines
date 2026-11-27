@@ -16,6 +16,7 @@ from prefect import task
 from pipelines.constants import constants as utils_constants
 from pipelines.datasets.br_me_rais.constants import constants as rais_constants
 from pipelines.datasets.br_me_rais.utils import download_rais_file
+from pipelines.utils.data_tests.rows import check_rows_written
 from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.tasks import (
@@ -181,11 +182,15 @@ def build_partitions(
     )
 
     if table_id == "microdados_estabelecimentos":
-        _build_estab_partitions(year, year_input_dir, output_dir, df_municipio)
-    else:
-        _build_vinculos_partitions(
+        rows_read = _build_estab_partitions(
             year, year_input_dir, output_dir, df_municipio
         )
+    else:
+        rows_read = _build_vinculos_partitions(
+            year, year_input_dir, output_dir, df_municipio
+        )
+
+    check_rows_written(rows_read=rows_read, output_dir=output_dir)
 
     return output_dir
 
@@ -238,7 +243,7 @@ def _build_estab_partitions(
     input_dir: Path,
     output_dir: Path,
     df_municipio: pd.DataFrame,
-) -> None:
+) -> int:
     df_uf = bd.read_sql(
         "SELECT id_uf, sigla FROM `basedosdados-dev.br_bd_diretorios_brasil.uf`",
         billing_project_id="basedosdados-dev",
@@ -277,6 +282,8 @@ def _build_estab_partitions(
         "indicador_rais_negativa",
         "indicador_atividade_ano",
     ]
+
+    rows_read = 0
 
     for df in pd.read_csv(
         csv_file,
@@ -350,6 +357,8 @@ def _build_estab_partitions(
             pd.to_numeric, errors="coerce"
         )
 
+        rows_read += len(df)
+
         to_partitions(
             data=df,
             partition_columns=["ano", "sigla_uf"],
@@ -361,13 +370,15 @@ def _build_estab_partitions(
         del df
         gc.collect()
 
+    return rows_read
+
 
 def _build_vinculos_partitions(
     year: int,
     input_dir: Path,
     output_dir: Path,
     df_municipio: pd.DataFrame,
-) -> None:
+) -> int:
     rename = rais_constants.VINCULOS_RENAME.value
     vars_list = rais_constants.VINCULOS_VARS.value
 
@@ -417,6 +428,8 @@ def _build_vinculos_partitions(
     )
     if not regional_files:
         raise FileNotFoundError(f"No data files found in {input_dir}")
+
+    rows_read = 0
 
     for csv_file in regional_files:
         log(f"Processing vinculos file: {csv_file}")
@@ -531,6 +544,8 @@ def _build_vinculos_partitions(
                     .astype(float)
                 )
 
+            rows_read += len(df)
+
             to_partitions(
                 data=df,
                 partition_columns=["ano", "sigla_uf"],
@@ -541,6 +556,8 @@ def _build_vinculos_partitions(
 
             del df
             gc.collect()
+
+    return rows_read
 
 
 def _run_rais(

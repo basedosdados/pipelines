@@ -10,6 +10,9 @@ class constants(Enum):
     ANO_ATUAL = (datetime.now()).year
     ANO_ANTERIOR = ANO_ATUAL - 1
 
+    # usado só para conferir se o arquivo de 1999 cobre o ano atual
+    LICITACAO_CONTRATO_ANO_ATUAL_URL = f"https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-{ANO_ATUAL}.csv"
+
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     }
@@ -44,7 +47,7 @@ class constants(Enum):
         "deputado_profissao": "/tmp/input/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"/tmp/input/licitacoes-{ANO_ATUAL}.csv",
-        "licitacao_contrato": f"/tmp/input/licitacoesContratos-{ANO_ATUAL}.csv",
+        "licitacao_contrato": "/tmp/input/licitacoesContratos-1999.csv",
         "licitacao_item": f"/tmp/input/licitacoesItens-{ANO_ATUAL}.csv",
         "licitacao_pedido": f"/tmp/input/licitacoesPedidos-{ANO_ATUAL}.csv",
         "licitacao_proposta": f"/tmp/input/licitacoesPropostas-{ANO_ATUAL}.csv",
@@ -82,7 +85,7 @@ class constants(Enum):
         "deputado_profissao": "/tmp/input/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"/tmp/input/licitacoes-{ANO_ANTERIOR}.csv",
-        "licitacao_contrato": f"/tmp/input/licitacoesContratos-{ANO_ANTERIOR}.csv",
+        "licitacao_contrato": "/tmp/input/licitacoesContratos-1999.csv",
         "licitacao_item": f"/tmp/input/licitacoesItens-{ANO_ANTERIOR}.csv",
         "licitacao_pedido": f"/tmp/input/licitacoesPedidos-{ANO_ANTERIOR}.csv",
         "licitacao_proposta": f"/tmp/input/licitacoesPropostas-{ANO_ANTERIOR}.csv",
@@ -120,7 +123,7 @@ class constants(Enum):
         "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"/tmp/output/licitacao/licitacoes_{ANO_ATUAL}.csv",
-        "licitacao_contrato": f"/tmp/output/licitacao_contrato/licitacoesContratos_{ANO_ATUAL}.csv",
+        "licitacao_contrato": "/tmp/output/licitacao_contrato/licitacoesContratos_1999.csv",
         "licitacao_item": f"/tmp/output/licitacao_item/licitacoesItens_{ANO_ATUAL}.csv",
         "licitacao_pedido": f"/tmp/output/licitacao_pedido/licitacoesPedidos_{ANO_ATUAL}.csv",
         "licitacao_proposta": f"/tmp/output/licitacao_proposta/licitacoesPropostas_{ANO_ATUAL}.csv",
@@ -158,7 +161,7 @@ class constants(Enum):
         "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"/tmp/output/licitacao/licitacoes_{ANO_ANTERIOR}.csv",
-        "licitacao_contrato": f"/tmp/output/licitacao_contrato/licitacoesContratos_{ANO_ANTERIOR}.csv",
+        "licitacao_contrato": "/tmp/output/licitacao_contrato/licitacoesContratos_1999.csv",
         "licitacao_item": f"/tmp/output/licitacao_item/licitacoesItens_{ANO_ANTERIOR}.csv",
         "licitacao_pedido": f"/tmp/output/licitacao_pedido/licitacoesPedidos_{ANO_ANTERIOR}.csv",
         "licitacao_proposta": f"/tmp/output/licitacao_proposta/licitacoesPropostas_{ANO_ANTERIOR}.csv",
@@ -196,7 +199,7 @@ class constants(Enum):
         "deputado_profissao": "https://dadosabertos.camara.leg.br/arquivos/deputadosProfissoes/csv/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"https://dadosabertos.camara.leg.br/arquivos/licitacoes/csv/licitacoes-{ANO_ATUAL}.csv",
-        "licitacao_contrato": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-{ANO_ATUAL}.csv",
+        "licitacao_contrato": "https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-1999.csv",
         "licitacao_item": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesItens/csv/licitacoesItens-{ANO_ATUAL}.csv",
         "licitacao_pedido": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPedidos/csv/licitacoesPedidos-{ANO_ATUAL}.csv",
         "licitacao_proposta": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPropostas/csv/licitacoesPropostas-{ANO_ATUAL}.csv",
@@ -234,7 +237,7 @@ class constants(Enum):
         "deputado_profissao": "https://dadosabertos.camara.leg.br/arquivos/deputadosProfissoes/csv/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"https://dadosabertos.camara.leg.br/arquivos/licitacoes/csv/licitacoes-{ANO_ANTERIOR}.csv",
-        "licitacao_contrato": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-{ANO_ANTERIOR}.csv",
+        "licitacao_contrato": "https://dadosabertos.camara.leg.br/arquivos/licitacoesContratos/csv/licitacoesContratos-1999.csv",
         "licitacao_item": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesItens/csv/licitacoesItens-{ANO_ANTERIOR}.csv",
         "licitacao_pedido": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPedidos/csv/licitacoesPedidos-{ANO_ANTERIOR}.csv",
         "licitacao_proposta": f"https://dadosabertos.camara.leg.br/arquivos/licitacoesPropostas/csv/licitacoesPropostas-{ANO_ANTERIOR}.csv",

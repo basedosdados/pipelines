@@ -118,7 +118,6 @@ def us_cms_hcris_flow(
                     table_id=table,
                     bucket_name=bucket,
                     dump_mode="append",
-                    source_format="parquet",
                 )
             # One selector for the whole dataset: dbt orders the models by
             # their refs, so hospital_financial and dicionario are built after

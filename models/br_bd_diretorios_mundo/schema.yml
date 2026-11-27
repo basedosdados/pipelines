@@ -60,7 +60,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_comercio_internacional__sistema_harmonizado')
               field: id_sh6
-              ignore_values: ['811261', '382739']
+              ignore_values: ['811261', '382739', '810939', '970531', '854921', '293337']
       - name: id_ppe
         description: Identificador da Pauta de Produtos Exportados (PPE) do id_ncm
       - name: id_ppi

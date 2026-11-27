@@ -135,7 +135,6 @@ def br_ibge_pnadc__dicionario(
         dataset_id=dataset_id,
         bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
     run_dbt(
@@ -154,7 +153,6 @@ def br_ibge_pnadc__dicionario(
         dataset_id=dataset_id,
         bucket_name="basedosdados",
         dump_mode="overwrite",
-        source_format="parquet",
     )
 
     run_dbt(

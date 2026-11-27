@@ -26,6 +26,7 @@ from pipelines.datasets.br_rf_cnpj.constants import (
     COLUNAS_SOCIOS,
     COMPONENTS_SPECS,
     DOWNLOAD_ZIP_MAX_ATTEMPTS,
+    EXPECTED_FILES_TOLERANCE,
     HEADERS,
     PROPFIND_MAX_ATTEMPTS,
     PROPFIND_TIMEOUT,
@@ -152,7 +153,7 @@ def get_table_files(table_name: str, url_base: str):
 # ! Cria o caminho do output
 def build_paths(
     table_id: str, build_input: bool = True, build_output: bool = True
-):
+) -> tuple[Path | None, Path | None]:
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -460,6 +461,32 @@ async def download_unzip_csv(
     )
 
 
+def validate_expected_file_count(
+    table_id: str,
+    found: int,
+    expected: int,
+    tolerance: int = EXPECTED_FILES_TOLERANCE,
+) -> None:
+    """Confere a quantidade de arquivos fragmentados da tabela na fonte.
+    Atualmente, as tabelas `empresas`, `estabelecimentos`, `socios` estão
+    fragmentadas em 10 arquivos.
+    Args:
+        table_id: tabela (`empresas`, `estabelecimentos`, `socios`).
+        found: arquivos achados na listagem da RF.
+        expected: quantidade esperada.
+        tolerance: diferença absoluta aceita.
+
+    Raises:
+        ValueError: se `found` diferir de `expected` além de `tolerance`.
+    """
+    if abs(found - expected) > tolerance:
+        raise ValueError(
+            f"{table_id}: a Receita Federal lista {found} arquivos, esperado "
+            f"{expected} (tolerância de {tolerance}). A divisão em fragmentos "
+            f"pode ter mudado; confira a fonte antes de carregar."
+        )
+
+
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
     input_path: Path,
@@ -468,7 +495,7 @@ def process_csv_estabelecimentos(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for establishments, organizing data into partitions by state.
 
@@ -479,7 +506,12 @@ def process_csv_estabelecimentos(
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
+    rows_in = 0
+    rows_out = 0
     ordem = COLUNAS_ESTABELECIMENTO_ORDEM
     colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
@@ -537,8 +569,10 @@ def process_csv_estabelecimentos(
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
                 chunk["data_modificacao"] = data_coleta
+                rows_in += len(chunk)
                 for uf in UFS:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
+                    rows_out += len(df_particao)
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = save_folder / f"sigla_uf={uf}"
                     particao_path.mkdir(exist_ok=True, parents=True)
@@ -556,6 +590,8 @@ def process_csv_estabelecimentos(
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(filepath)
 
+    return rows_in
+
 
 # ! Salva os dados CSV Empresas
 def process_csv_empresas(
@@ -565,7 +601,7 @@ def process_csv_empresas(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for companies.
 
@@ -576,11 +612,15 @@ def process_csv_empresas(
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
     colunas = COLUNAS_EMPRESAS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
+    rows_saved = 0
     for filepath in Path(input_path).iterdir():
         if filepath.as_posix().lower().endswith("csv"):
             log(f"Carregando o arquivo: {filepath}")
@@ -611,6 +651,7 @@ def process_csv_empresas(
                         .astype(float)
                     )
                     chunk["data_modificacao"] = data_coleta
+                    rows_saved += len(chunk)
                     chunk.to_csv(
                         fd,
                         index=False,
@@ -621,6 +662,8 @@ def process_csv_empresas(
             log(f"Arquivo empresas_{i} salvo")
             os.remove(filepath)
 
+    return rows_saved
+
 
 # ! Salva os dados CSV Socios
 def process_csv_socios(
@@ -630,7 +673,7 @@ def process_csv_socios(
     data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 1000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for socios (partners).
 
@@ -643,12 +686,13 @@ def process_csv_socios(
         chunk_size (int): Number of rows to process per chunk.
 
     Returns:
-        None
+        int: Number of rows passed to `to_csv`.
     """
     colunas = COLUNAS_SOCIOS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
+    rows_saved = 0
     for filepath in Path(input_path).iterdir():
         if filepath.as_posix().lower().endswith("csv"):
             log(f"Carregando o arquivo: {filepath}")
@@ -681,6 +725,7 @@ def process_csv_socios(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
                     chunk["data_modificacao"] = data_coleta
+                    rows_saved += len(chunk)
                     chunk.to_csv(
                         fd,
                         index=False,
@@ -691,6 +736,8 @@ def process_csv_socios(
             log(f"Arquivo socios_{i} salvo")
             os.remove(filepath)
 
+    return rows_saved
+
 
 # ! Salva os dados CSV Simples
 def process_csv_simples(
@@ -700,7 +747,7 @@ def process_csv_simples(
     data_coleta: str | datetime.date,
     sufixo: str,
     chunk_size: int = 1000,
-) -> None:
+) -> int:
     """
     Processes and saves CSV data for simples.
 
@@ -713,12 +760,13 @@ def process_csv_simples(
         chunk_size (int): Number of rows to process per chunk.
 
     Returns:
-        None
+        int: Number of rows passed to `to_csv`.
     """
     colunas = COLUNAS_SIMPLES
     save_folder = Path(output_path)
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"{sufixo}.csv"
+    rows_saved = 0
     for filepath in Path(input_path).iterdir():
         if "simples.csv" in filepath.as_posix().lower():
             log(f"Carregando o arquivo: {filepath}")
@@ -755,6 +803,7 @@ def process_csv_simples(
                         {"N": "0", "S": "1"}
                     )
                     chunk["data_modificacao"] = data_coleta
+                    rows_saved += len(chunk)
                     chunk.to_csv(
                         fd,
                         index=False,
@@ -764,6 +813,8 @@ def process_csv_simples(
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(filepath)
+
+    return rows_saved
 
 
 def get_table_unique_keys(table_id: str, column: str):
@@ -942,7 +993,7 @@ def process_csv_dicionario(
     input_path: Path,
     output_path: Path,
     table_name: str,
-) -> Path:
+) -> int:
     """
     Processes CSV dictionary files and transforms them into a standardized format.
 
@@ -954,10 +1005,14 @@ def process_csv_dicionario(
         input_path (Path): Directory containing the input CSV files.
         output_path (Path): Base directory for output.
         table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
+    rows_saved = 0
 
     log(f"Save path: {save_path}")
     table_configs: dict = COMPONENTS_SPECS[table_name]
@@ -1019,6 +1074,7 @@ def process_csv_dicionario(
                     subset=["id_tabela", "nome_coluna", "chave", "valor"]
                 )
 
+                rows_saved += len(chunk_save)
                 chunk_save[
                     [
                         "id_tabela",
@@ -1037,21 +1093,25 @@ def process_csv_dicionario(
 
     log(f"Arquivo {table_name} salvo")
     os.remove(filepath)
-    return save_path
+    return rows_saved
 
 
-def process_manual_dictionaries(output_path: Path, table_name: str):
+def process_manual_dictionaries(output_path: Path, table_name: str) -> int:
     """
     Processes dictionary keys and values, manually defined.
 
     Args:
         output_path (Path): Base directory for output.
         table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
+
+    Returns:
+        int: Number of rows passed to `to_csv`.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
     table_configs: dict = COMPONENTS_SPECS[table_name]
+    rows_saved = 0
 
     chunk = pd.DataFrame(table_configs["chaves_valores"])
     for relationship in table_configs["relationships"]:
@@ -1078,6 +1138,7 @@ def process_manual_dictionaries(output_path: Path, table_name: str):
             subset=["id_tabela", "nome_coluna", "chave", "valor"]
         )
 
+        rows_saved += len(chunk_save)
         chunk_save[
             [
                 "id_tabela",
@@ -1093,3 +1154,5 @@ def process_manual_dictionaries(output_path: Path, table_name: str):
             encoding="utf-8",
             header=not save_path.exists(),  # Write header only if file doesn't exist
         )
+
+    return rows_saved

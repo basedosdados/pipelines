@@ -148,7 +148,6 @@ def make_extract_load_data(
             # append substitui só o arquivo de cada ano carregado; overwrite
             # apagaria a tabela de staging inteira.
             dump_mode="append",
-            source_format="csv",
         )
 
     return extract_load_data
