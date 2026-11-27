@@ -1,0 +1,437 @@
+---
+version: 2
+models:
+  - name: br_bndes_fundos_garantidores__operacoes_fgi_tradicional
+    description: >
+      Operações de crédito com garantia do FGI Tradicional, uma linha por
+      operação, conforme publicadas pelo BNDES na Central de Downloads. A
+      fonte não traz identificador da operação e publica linhas idênticas,
+      mantidas como vieram; por isso não há teste de unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >
+          Ano da solicitação de outorga da garantia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_solicitacao_outorga
+        description: >
+          Data em que o agente financeiro solicitou a outorga da garantia do
+          FGI para a operação
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de 7 dígitos do município onde o investimento é
+          realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_sede_cliente
+        description: >
+          Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_sede_cliente
+        description: >
+          Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cpf_cnpj_cliente
+        description: >
+          CPF ou CNPJ do cliente, mascarado pela fonte
+      - name: nome_cliente
+        description: >
+          Nome do cliente da operação
+      - name: porte_cliente
+        description: >
+          Porte do cliente (Micro, Pequena, Média ou Grande)
+      - name: valor_operacao
+        description: >
+          Valor do crédito concedido na operação
+      - name: valor_garantido
+        description: >
+          Valor da operação coberto pela garantia do FGI
+      - name: valor_desembolsado
+        description: >
+          Valor já liberado ao cliente na operação
+      - name: nome_agente_financeiro
+        description: >
+          Nome do agente financeiro que contratou a operação e solicitou a
+          garantia
+  - name: br_bndes_fundos_garantidores__operacoes_fgi_peac_2022
+    description: >
+      Operações de crédito com garantia do FGI PEAC 2022, uma linha por
+      operação, conforme publicadas pelo BNDES na Central de Downloads. A
+      fonte não traz identificador da operação e publica linhas idênticas,
+      mantidas como vieram; por isso não há teste de unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >
+          Ano da solicitação de outorga da garantia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_solicitacao_outorga
+        description: >
+          Data em que o agente financeiro solicitou a outorga da garantia do
+          FGI PEAC para a operação
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de 7 dígitos do município onde o investimento é
+          realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_sede_cliente
+        description: >
+          Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_sede_cliente
+        description: >
+          Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          CNPJ do cliente, mascarado pela fonte
+      - name: nome_cliente
+        description: >
+          Nome do cliente da operação
+      - name: porte_cliente
+        description: >
+          Porte do cliente (Micro, Pequena, Média ou Grande)
+      - name: valor_operacao
+        description: >
+          Valor do crédito concedido na operação
+      - name: valor_garantido
+        description: >
+          Valor da operação coberto pela garantia do FGI PEAC
+      - name: valor_desembolsado
+        description: >
+          Valor já liberado ao cliente na operação
+      - name: nome_agente_financeiro
+        description: >
+          Nome do agente financeiro que contratou a operação e solicitou a
+          garantia
+  - name: br_bndes_fundos_garantidores__operacoes_fg_sebrae
+    description: >
+      Operações de crédito com garantia do Fundo Garantidor BNDES-Sebrae (FG
+      BNDES- Sebrae), uma linha por operação, conforme publicadas pelo BNDES
+      na Central de Downloads. A fonte não traz identificador da operação e
+      publica linhas idênticas, mantidas como vieram; por isso não há teste de
+      unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [porte_cliente]
+    columns:
+      - name: ano
+        description: >
+          Ano da solicitação de outorga da garantia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_solicitacao_outorga
+        description: >
+          Data em que o agente financeiro solicitou a outorga da garantia do
+          Fundo Garantidor BNDES-Sebrae para a operação
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de 7 dígitos do município onde o investimento é
+          realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_sede_cliente
+        description: >
+          Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_sede_cliente
+        description: >
+          Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          CNPJ do cliente, mascarado pela fonte
+      - name: nome_cliente
+        description: >
+          Nome do cliente da operação
+      - name: porte_cliente
+        description: >
+          Porte do cliente (Micro, Pequena, Média ou Grande)
+      - name: valor_operacao
+        description: >
+          Valor do crédito concedido na operação
+      - name: valor_garantido
+        description: >
+          Valor da operação coberto pela garantia do Fundo Garantidor BNDES-
+          Sebrae
+      - name: valor_desembolsado
+        description: >
+          Valor já liberado ao cliente na operação
+      - name: nome_agente_financeiro
+        description: >
+          Nome do agente financeiro que contratou a operação e solicitou a
+          garantia
+  - name: br_bndes_fundos_garantidores__operacoes_fgenergia
+    description: >
+      Operações de crédito com garantia do FGEnergia, uma linha por operação,
+      conforme publicadas pelo BNDES na Central de Downloads. A fonte não traz
+      identificador da operação; por isso não há teste de unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >
+          Ano da solicitação de outorga da garantia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_solicitacao_outorga
+        description: >
+          Data em que o agente financeiro solicitou a outorga da garantia do
+          FGEnergia para a operação
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de 7 dígitos do município onde o investimento é
+          realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_sede_cliente
+        description: >
+          Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_sede_cliente
+        description: >
+          Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          CNPJ do cliente, mascarado pela fonte
+      - name: nome_cliente
+        description: >
+          Nome do cliente da operação
+      - name: porte_cliente
+        description: >
+          Porte do cliente (Micro, Pequena, Média ou Grande)
+      - name: valor_operacao
+        description: >
+          Valor do crédito concedido na operação
+      - name: valor_garantido
+        description: >
+          Valor da operação coberto pela garantia do FGEnergia
+      - name: valor_desembolsado
+        description: >
+          Valor já liberado ao cliente na operação
+      - name: nome_agente_financeiro
+        description: >
+          Nome do agente financeiro que contratou a operação e solicitou a
+          garantia
+  - name: br_bndes_fundos_garantidores__operacoes_fgi_peac_2020
+    description: >
+      Operações de crédito com garantia do FGI PEAC 2020, uma linha por
+      operação, conforme publicadas pelo BNDES na Central de Downloads. A
+      fonte não traz identificador da operação e publica linhas idênticas,
+      mantidas como vieram; por isso não há teste de unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano
+        description: >
+          Ano da solicitação de outorga da garantia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_solicitacao_outorga
+        description: >
+          Data em que o agente financeiro solicitou a outorga da garantia do
+          FGI PEAC para a operação
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de 7 dígitos do município onde o investimento é
+          realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_sede_cliente
+        description: >
+          Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_sede_cliente
+        description: >
+          Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          CNPJ do cliente, mascarado pela fonte
+      - name: nome_cliente
+        description: >
+          Nome do cliente da operação
+      - name: porte_cliente
+        description: >
+          Porte do cliente (Micro, Pequena, Média ou Grande)
+      - name: valor_operacao
+        description: >
+          Valor do crédito concedido na operação
+      - name: valor_garantido
+        description: >
+          Valor da operação coberto pela garantia do FGI PEAC
+      - name: nome_agente_financeiro
+        description: >
+          Nome do agente financeiro que contratou a operação e solicitou a
+          garantia
+  - name: br_bndes_fundos_garantidores__operacoes_fgi_peac_cs_rs
+    description: >
+      Operações de crédito com garantia do FGI PEAC Crédito Solidário Rio
+      Grande do Sul, uma linha por operação, conforme publicadas pelo BNDES na
+      Central de Downloads. A fonte não traz identificador da operação e
+      publica linhas idênticas, mantidas como vieram; por isso não há teste de
+      unicidade.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [nome_cliente]
+    columns:
+      - name: ano
+        description: >
+          Ano da solicitação de outorga da garantia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_solicitacao_outorga
+        description: >
+          Data em que o agente financeiro solicitou a outorga da garantia do
+          FGI PEAC Crédito Solidário RS para a operação
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o investimento é realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE de 7 dígitos do município onde o investimento é
+          realizado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_sede_cliente
+        description: >
+          Sigla da unidade da federação da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio_sede_cliente
+        description: >
+          Código IBGE de 7 dígitos do município da sede do cliente
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          CNPJ do cliente, mascarado pela fonte
+      - name: nome_cliente
+        description: >
+          Nome do cliente da operação
+      - name: porte_cliente
+        description: >
+          Porte do cliente (Micro, Pequena, Média ou Grande)
+      - name: valor_operacao
+        description: >
+          Valor do crédito concedido na operação
+      - name: valor_garantido
+        description: >
+          Valor da operação coberto pela garantia do FGI PEAC Crédito
+          Solidário RS
+      - name: valor_desembolsado
+        description: >
+          Valor já liberado ao cliente na operação
+      - name: nome_agente_financeiro
+        description: >-
+          Nome do agente financeiro que contratou a operação e solicitou a
+          garantia
