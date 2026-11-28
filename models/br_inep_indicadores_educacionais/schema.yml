@@ -17,8 +17,14 @@ models:
               field: ano.ano
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -625,6 +631,7 @@ models:
           at_least: 0.05
           ignore_values:
             - dsu_ee
+            - dsu_ep
             - taxa_abandono_em_4_ano
             - atu_em_nao_seriado
             - had_em_nao_seriado
@@ -648,8 +655,14 @@ models:
         description: ID Escola - INEP
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -1087,7 +1100,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, localizacao, rede, id_municipio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.01
     columns:
       - name: ano
         description: Ano
@@ -1103,8 +1116,14 @@ models:
               field: id_municipio
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -1760,7 +1779,7 @@ models:
         description: Média de Alunos por Turma - Ensino Fundamental 9º ano
       - name: atu_ef_turmas_unif_multi_fluxo
         description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
-          Multi, Multietapa e Correção de fluxo)
+          Multi, Multietapa e Correção de fluxo
       - name: atu_em
         description: Média de Alunos por Turma - Ensino Médio
       - name: atu_em_1_ano
@@ -2353,8 +2372,14 @@ models:
               field: sigla
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -2828,8 +2853,14 @@ models:
               field: sigla
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: taxa_promocao_ef
         description: Taxa de Promoção - Ensino Fundamental
       - name: taxa_promocao_ef_anos_iniciais
@@ -3050,3 +3081,710 @@ models:
         description: Carga horária média semanal
       - name: rem_media_40_horas_semanais
         description: Remuneração média padronizada para 40h semanais em R$
+  - name: br_inep_indicadores_educacionais__fluxo_educacao_superior_brasil
+    description: >-
+      Indicadores de fluxo da educação superior (graduação) do Inep para o Brasil:
+      taxas de evasão, conclusão efetiva, retenção e permanência por sexo,
+      cor/raça, faixa de idade e deficiência, calculadas a partir do Censo da
+      Educação Superior em janelas longitudinais bienais (2010-2011 a 2023-2024).
+      As taxas de conclusão, retenção e permanência começam em 2016-2017; nas
+      janelas anteriores essas colunas são nulas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano_inicial]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_inicial
+        description: >-
+          Ano inicial da janela longitudinal bienal de acompanhamento do fluxo
+          (primeiro ano do intervalo Ano Fluxo)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_final
+        description: >-
+          Ano final da janela longitudinal bienal de acompanhamento do fluxo
+          (segundo ano do intervalo Ano Fluxo)
+        tests: [not_null]
+      - name: taxa_evasao_total
+        description: >-
+          Taxa de evasão do total de alunos
+      - name: taxa_evasao_feminino
+        description: >-
+          Taxa de evasão de alunos do sexo feminino
+      - name: taxa_evasao_masculino
+        description: >-
+          Taxa de evasão de alunos do sexo masculino
+      - name: taxa_evasao_amarela
+        description: >-
+          Taxa de evasão de alunos de cor/raça amarela
+      - name: taxa_evasao_branca
+        description: >-
+          Taxa de evasão de alunos de cor/raça branca
+      - name: taxa_evasao_indigena
+        description: >-
+          Taxa de evasão de alunos indígenas
+      - name: taxa_evasao_parda
+        description: >-
+          Taxa de evasão de alunos de cor/raça parda
+      - name: taxa_evasao_preta
+        description: >-
+          Taxa de evasão de alunos de cor/raça preta
+      - name: taxa_evasao_sem_declaracao
+        description: >-
+          Taxa de evasão de alunos sem declaração de cor/raça
+      - name: taxa_evasao_ate_19_anos
+        description: >-
+          Taxa de evasão de alunos com até 19 anos de idade
+      - name: taxa_evasao_20_22_anos
+        description: >-
+          Taxa de evasão de alunos de 20 a 22 anos de idade
+      - name: taxa_evasao_23_24_anos
+        description: >-
+          Taxa de evasão de alunos de 23 e 24 anos de idade
+      - name: taxa_evasao_25_29_anos
+        description: >-
+          Taxa de evasão de alunos de 25 a 29 anos de idade
+      - name: taxa_evasao_30_39_anos
+        description: >-
+          Taxa de evasão de alunos de 30 a 39 anos de idade
+      - name: taxa_evasao_40_49_anos
+        description: >-
+          Taxa de evasão de alunos de 40 a 49 anos de idade
+      - name: taxa_evasao_50_anos_ou_mais
+        description: >-
+          Taxa de evasão de alunos de 50 anos ou mais de idade
+      - name: taxa_evasao_deficiencia_sim
+        description: >-
+          Taxa de evasão de alunos com deficiência
+      - name: taxa_evasao_deficiencia_nao
+        description: >-
+          Taxa de evasão de alunos sem deficiência
+      - name: taxa_conclusao_total
+        description: >-
+          Taxa de conclusão do total de alunos
+      - name: taxa_conclusao_feminino
+        description: >-
+          Taxa de conclusão de alunos do sexo feminino
+      - name: taxa_conclusao_masculino
+        description: >-
+          Taxa de conclusão de alunos do sexo masculino
+      - name: taxa_conclusao_amarela
+        description: >-
+          Taxa de conclusão de alunos de cor/raça amarela
+      - name: taxa_conclusao_branca
+        description: >-
+          Taxa de conclusão de alunos de cor/raça branca
+      - name: taxa_conclusao_indigena
+        description: >-
+          Taxa de conclusão de alunos indígenas
+      - name: taxa_conclusao_parda
+        description: >-
+          Taxa de conclusão de alunos de cor/raça parda
+      - name: taxa_conclusao_preta
+        description: >-
+          Taxa de conclusão de alunos de cor/raça preta
+      - name: taxa_conclusao_sem_declaracao
+        description: >-
+          Taxa de conclusão de alunos sem declaração de cor/raça
+      - name: taxa_conclusao_ate_19_anos
+        description: >-
+          Taxa de conclusão de alunos com até 19 anos de idade
+      - name: taxa_conclusao_20_22_anos
+        description: >-
+          Taxa de conclusão de alunos de 20 a 22 anos de idade
+      - name: taxa_conclusao_23_24_anos
+        description: >-
+          Taxa de conclusão de alunos de 23 e 24 anos de idade
+      - name: taxa_conclusao_25_29_anos
+        description: >-
+          Taxa de conclusão de alunos de 25 a 29 anos de idade
+      - name: taxa_conclusao_30_39_anos
+        description: >-
+          Taxa de conclusão de alunos de 30 a 39 anos de idade
+      - name: taxa_conclusao_40_49_anos
+        description: >-
+          Taxa de conclusão de alunos de 40 a 49 anos de idade
+      - name: taxa_conclusao_50_anos_ou_mais
+        description: >-
+          Taxa de conclusão de alunos de 50 anos ou mais de idade
+      - name: taxa_conclusao_deficiencia_sim
+        description: >-
+          Taxa de conclusão de alunos com deficiência
+      - name: taxa_conclusao_deficiencia_nao
+        description: >-
+          Taxa de conclusão de alunos sem deficiência
+      - name: taxa_retencao_total
+        description: >-
+          Taxa de retenção do total de alunos
+      - name: taxa_retencao_feminino
+        description: >-
+          Taxa de retenção de alunos do sexo feminino
+      - name: taxa_retencao_masculino
+        description: >-
+          Taxa de retenção de alunos do sexo masculino
+      - name: taxa_retencao_amarela
+        description: >-
+          Taxa de retenção de alunos de cor/raça amarela
+      - name: taxa_retencao_branca
+        description: >-
+          Taxa de retenção de alunos de cor/raça branca
+      - name: taxa_retencao_indigena
+        description: >-
+          Taxa de retenção de alunos indígenas
+      - name: taxa_retencao_parda
+        description: >-
+          Taxa de retenção de alunos de cor/raça parda
+      - name: taxa_retencao_preta
+        description: >-
+          Taxa de retenção de alunos de cor/raça preta
+      - name: taxa_retencao_sem_declaracao
+        description: >-
+          Taxa de retenção de alunos sem declaração de cor/raça
+      - name: taxa_retencao_ate_19_anos
+        description: >-
+          Taxa de retenção de alunos com até 19 anos de idade
+      - name: taxa_retencao_20_22_anos
+        description: >-
+          Taxa de retenção de alunos de 20 a 22 anos de idade
+      - name: taxa_retencao_23_24_anos
+        description: >-
+          Taxa de retenção de alunos de 23 e 24 anos de idade
+      - name: taxa_retencao_25_29_anos
+        description: >-
+          Taxa de retenção de alunos de 25 a 29 anos de idade
+      - name: taxa_retencao_30_39_anos
+        description: >-
+          Taxa de retenção de alunos de 30 a 39 anos de idade
+      - name: taxa_retencao_40_49_anos
+        description: >-
+          Taxa de retenção de alunos de 40 a 49 anos de idade
+      - name: taxa_retencao_50_anos_ou_mais
+        description: >-
+          Taxa de retenção de alunos de 50 anos ou mais de idade
+      - name: taxa_retencao_deficiencia_sim
+        description: >-
+          Taxa de retenção de alunos com deficiência
+      - name: taxa_retencao_deficiencia_nao
+        description: >-
+          Taxa de retenção de alunos sem deficiência
+      - name: taxa_permanencia_total
+        description: >-
+          Taxa de permanência do total de alunos
+      - name: taxa_permanencia_feminino
+        description: >-
+          Taxa de permanência de alunos do sexo feminino
+      - name: taxa_permanencia_masculino
+        description: >-
+          Taxa de permanência de alunos do sexo masculino
+      - name: taxa_permanencia_amarela
+        description: >-
+          Taxa de permanência de alunos de cor/raça amarela
+      - name: taxa_permanencia_branca
+        description: >-
+          Taxa de permanência de alunos de cor/raça branca
+      - name: taxa_permanencia_indigena
+        description: >-
+          Taxa de permanência de alunos indígenas
+      - name: taxa_permanencia_parda
+        description: >-
+          Taxa de permanência de alunos de cor/raça parda
+      - name: taxa_permanencia_preta
+        description: >-
+          Taxa de permanência de alunos de cor/raça preta
+      - name: taxa_permanencia_sem_declaracao
+        description: >-
+          Taxa de permanência de alunos sem declaração de cor/raça
+      - name: taxa_permanencia_ate_19_anos
+        description: >-
+          Taxa de permanência de alunos com até 19 anos de idade
+      - name: taxa_permanencia_20_22_anos
+        description: >-
+          Taxa de permanência de alunos de 20 a 22 anos de idade
+      - name: taxa_permanencia_23_24_anos
+        description: >-
+          Taxa de permanência de alunos de 23 e 24 anos de idade
+      - name: taxa_permanencia_25_29_anos
+        description: >-
+          Taxa de permanência de alunos de 25 a 29 anos de idade
+      - name: taxa_permanencia_30_39_anos
+        description: >-
+          Taxa de permanência de alunos de 30 a 39 anos de idade
+      - name: taxa_permanencia_40_49_anos
+        description: >-
+          Taxa de permanência de alunos de 40 a 49 anos de idade
+      - name: taxa_permanencia_50_anos_ou_mais
+        description: >-
+          Taxa de permanência de alunos de 50 anos ou mais de idade
+      - name: taxa_permanencia_deficiencia_sim
+        description: >-
+          Taxa de permanência de alunos com deficiência
+      - name: taxa_permanencia_deficiencia_nao
+        description: >-
+          Taxa de permanência de alunos sem deficiência
+  - name: br_inep_indicadores_educacionais__fluxo_educacao_superior_regiao
+    description: >-
+      Indicadores de fluxo da educação superior (graduação) do Inep por região
+      geográfica: taxas de evasão, conclusão efetiva, retenção e permanência por
+      sexo, cor/raça, faixa de idade e deficiência, calculadas a partir do Censo
+      da Educação Superior em janelas longitudinais bienais (2010-2011 a
+      2023-2024). As taxas de conclusão, retenção e permanência começam em
+      2016-2017; nas janelas anteriores essas colunas são nulas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano_inicial, regiao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano_inicial
+        description: >-
+          Ano inicial da janela longitudinal bienal de acompanhamento do fluxo
+          (primeiro ano do intervalo Ano Fluxo)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_final
+        description: >-
+          Ano final da janela longitudinal bienal de acompanhamento do fluxo
+          (segundo ano do intervalo Ano Fluxo)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: regiao
+        description: >-
+          Nome da região geográfica do Brasil (Norte, Nordeste, Sudeste, Sul,
+          Centro-Oeste)
+        tests: [not_null]
+      - name: taxa_evasao_total
+        description: >-
+          Taxa de evasão do total de alunos
+      - name: taxa_evasao_feminino
+        description: >-
+          Taxa de evasão de alunos do sexo feminino
+      - name: taxa_evasao_masculino
+        description: >-
+          Taxa de evasão de alunos do sexo masculino
+      - name: taxa_evasao_amarela
+        description: >-
+          Taxa de evasão de alunos de cor/raça amarela
+      - name: taxa_evasao_branca
+        description: >-
+          Taxa de evasão de alunos de cor/raça branca
+      - name: taxa_evasao_indigena
+        description: >-
+          Taxa de evasão de alunos indígenas
+      - name: taxa_evasao_parda
+        description: >-
+          Taxa de evasão de alunos de cor/raça parda
+      - name: taxa_evasao_preta
+        description: >-
+          Taxa de evasão de alunos de cor/raça preta
+      - name: taxa_evasao_sem_declaracao
+        description: >-
+          Taxa de evasão de alunos sem declaração de cor/raça
+      - name: taxa_evasao_ate_19_anos
+        description: >-
+          Taxa de evasão de alunos com até 19 anos de idade
+      - name: taxa_evasao_20_22_anos
+        description: >-
+          Taxa de evasão de alunos de 20 a 22 anos de idade
+      - name: taxa_evasao_23_24_anos
+        description: >-
+          Taxa de evasão de alunos de 23 e 24 anos de idade
+      - name: taxa_evasao_25_29_anos
+        description: >-
+          Taxa de evasão de alunos de 25 a 29 anos de idade
+      - name: taxa_evasao_30_39_anos
+        description: >-
+          Taxa de evasão de alunos de 30 a 39 anos de idade
+      - name: taxa_evasao_40_49_anos
+        description: >-
+          Taxa de evasão de alunos de 40 a 49 anos de idade
+      - name: taxa_evasao_50_anos_ou_mais
+        description: >-
+          Taxa de evasão de alunos de 50 anos ou mais de idade
+      - name: taxa_evasao_deficiencia_sim
+        description: >-
+          Taxa de evasão de alunos com deficiência
+      - name: taxa_evasao_deficiencia_nao
+        description: >-
+          Taxa de evasão de alunos sem deficiência
+      - name: taxa_conclusao_total
+        description: >-
+          Taxa de conclusão do total de alunos
+      - name: taxa_conclusao_feminino
+        description: >-
+          Taxa de conclusão de alunos do sexo feminino
+      - name: taxa_conclusao_masculino
+        description: >-
+          Taxa de conclusão de alunos do sexo masculino
+      - name: taxa_conclusao_amarela
+        description: >-
+          Taxa de conclusão de alunos de cor/raça amarela
+      - name: taxa_conclusao_branca
+        description: >-
+          Taxa de conclusão de alunos de cor/raça branca
+      - name: taxa_conclusao_indigena
+        description: >-
+          Taxa de conclusão de alunos indígenas
+      - name: taxa_conclusao_parda
+        description: >-
+          Taxa de conclusão de alunos de cor/raça parda
+      - name: taxa_conclusao_preta
+        description: >-
+          Taxa de conclusão de alunos de cor/raça preta
+      - name: taxa_conclusao_sem_declaracao
+        description: >-
+          Taxa de conclusão de alunos sem declaração de cor/raça
+      - name: taxa_conclusao_ate_19_anos
+        description: >-
+          Taxa de conclusão de alunos com até 19 anos de idade
+      - name: taxa_conclusao_20_22_anos
+        description: >-
+          Taxa de conclusão de alunos de 20 a 22 anos de idade
+      - name: taxa_conclusao_23_24_anos
+        description: >-
+          Taxa de conclusão de alunos de 23 e 24 anos de idade
+      - name: taxa_conclusao_25_29_anos
+        description: >-
+          Taxa de conclusão de alunos de 25 a 29 anos de idade
+      - name: taxa_conclusao_30_39_anos
+        description: >-
+          Taxa de conclusão de alunos de 30 a 39 anos de idade
+      - name: taxa_conclusao_40_49_anos
+        description: >-
+          Taxa de conclusão de alunos de 40 a 49 anos de idade
+      - name: taxa_conclusao_50_anos_ou_mais
+        description: >-
+          Taxa de conclusão de alunos de 50 anos ou mais de idade
+      - name: taxa_conclusao_deficiencia_sim
+        description: >-
+          Taxa de conclusão de alunos com deficiência
+      - name: taxa_conclusao_deficiencia_nao
+        description: >-
+          Taxa de conclusão de alunos sem deficiência
+      - name: taxa_retencao_total
+        description: >-
+          Taxa de retenção do total de alunos
+      - name: taxa_retencao_feminino
+        description: >-
+          Taxa de retenção de alunos do sexo feminino
+      - name: taxa_retencao_masculino
+        description: >-
+          Taxa de retenção de alunos do sexo masculino
+      - name: taxa_retencao_amarela
+        description: >-
+          Taxa de retenção de alunos de cor/raça amarela
+      - name: taxa_retencao_branca
+        description: >-
+          Taxa de retenção de alunos de cor/raça branca
+      - name: taxa_retencao_indigena
+        description: >-
+          Taxa de retenção de alunos indígenas
+      - name: taxa_retencao_parda
+        description: >-
+          Taxa de retenção de alunos de cor/raça parda
+      - name: taxa_retencao_preta
+        description: >-
+          Taxa de retenção de alunos de cor/raça preta
+      - name: taxa_retencao_sem_declaracao
+        description: >-
+          Taxa de retenção de alunos sem declaração de cor/raça
+      - name: taxa_retencao_ate_19_anos
+        description: >-
+          Taxa de retenção de alunos com até 19 anos de idade
+      - name: taxa_retencao_20_22_anos
+        description: >-
+          Taxa de retenção de alunos de 20 a 22 anos de idade
+      - name: taxa_retencao_23_24_anos
+        description: >-
+          Taxa de retenção de alunos de 23 e 24 anos de idade
+      - name: taxa_retencao_25_29_anos
+        description: >-
+          Taxa de retenção de alunos de 25 a 29 anos de idade
+      - name: taxa_retencao_30_39_anos
+        description: >-
+          Taxa de retenção de alunos de 30 a 39 anos de idade
+      - name: taxa_retencao_40_49_anos
+        description: >-
+          Taxa de retenção de alunos de 40 a 49 anos de idade
+      - name: taxa_retencao_50_anos_ou_mais
+        description: >-
+          Taxa de retenção de alunos de 50 anos ou mais de idade
+      - name: taxa_retencao_deficiencia_sim
+        description: >-
+          Taxa de retenção de alunos com deficiência
+      - name: taxa_retencao_deficiencia_nao
+        description: >-
+          Taxa de retenção de alunos sem deficiência
+      - name: taxa_permanencia_total
+        description: >-
+          Taxa de permanência do total de alunos
+      - name: taxa_permanencia_feminino
+        description: >-
+          Taxa de permanência de alunos do sexo feminino
+      - name: taxa_permanencia_masculino
+        description: >-
+          Taxa de permanência de alunos do sexo masculino
+      - name: taxa_permanencia_amarela
+        description: >-
+          Taxa de permanência de alunos de cor/raça amarela
+      - name: taxa_permanencia_branca
+        description: >-
+          Taxa de permanência de alunos de cor/raça branca
+      - name: taxa_permanencia_indigena
+        description: >-
+          Taxa de permanência de alunos indígenas
+      - name: taxa_permanencia_parda
+        description: >-
+          Taxa de permanência de alunos de cor/raça parda
+      - name: taxa_permanencia_preta
+        description: >-
+          Taxa de permanência de alunos de cor/raça preta
+      - name: taxa_permanencia_sem_declaracao
+        description: >-
+          Taxa de permanência de alunos sem declaração de cor/raça
+      - name: taxa_permanencia_ate_19_anos
+        description: >-
+          Taxa de permanência de alunos com até 19 anos de idade
+      - name: taxa_permanencia_20_22_anos
+        description: >-
+          Taxa de permanência de alunos de 20 a 22 anos de idade
+      - name: taxa_permanencia_23_24_anos
+        description: >-
+          Taxa de permanência de alunos de 23 e 24 anos de idade
+      - name: taxa_permanencia_25_29_anos
+        description: >-
+          Taxa de permanência de alunos de 25 a 29 anos de idade
+      - name: taxa_permanencia_30_39_anos
+        description: >-
+          Taxa de permanência de alunos de 30 a 39 anos de idade
+      - name: taxa_permanencia_40_49_anos
+        description: >-
+          Taxa de permanência de alunos de 40 a 49 anos de idade
+      - name: taxa_permanencia_50_anos_ou_mais
+        description: >-
+          Taxa de permanência de alunos de 50 anos ou mais de idade
+      - name: taxa_permanencia_deficiencia_sim
+        description: >-
+          Taxa de permanência de alunos com deficiência
+      - name: taxa_permanencia_deficiencia_nao
+        description: >-
+          Taxa de permanência de alunos sem deficiência
+  - name: br_inep_indicadores_educacionais__fluxo_educacao_superior_uf
+    description: >-
+      Indicadores de fluxo da educação superior (graduação) do Inep por unidade da
+      federação: taxas de evasão, conclusão efetiva, retenção e permanência por
+      sexo, pretos/pardos/indígenas (PPI), faixa de idade e deficiência,
+      calculadas a partir do Censo da Educação Superior em janelas longitudinais
+      bienais (2010-2011 a 2023-2024). As taxas de conclusão, retenção e
+      permanência começam em 2016-2017; nas janelas anteriores essas colunas são
+      nulas. As colunas de evasão por deficiência são nulas porque o arquivo
+      publicado pelo Inep repete nelas os valores de PPI. O Inep não publica
+      retenção por deficiência para UFs.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano_inicial, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - taxa_evasao_deficiencia_sim
+            - taxa_evasao_deficiencia_nao
+    columns:
+      - name: ano_inicial
+        description: >-
+          Ano inicial da janela longitudinal bienal de acompanhamento do fluxo
+          (primeiro ano do intervalo Ano Fluxo)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ano_final
+        description: >-
+          Ano final da janela longitudinal bienal de acompanhamento do fluxo
+          (segundo ano do intervalo Ano Fluxo)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: taxa_evasao_total
+        description: >-
+          Taxa de evasão do total de alunos
+      - name: taxa_evasao_feminino
+        description: >-
+          Taxa de evasão de alunos do sexo feminino
+      - name: taxa_evasao_masculino
+        description: >-
+          Taxa de evasão de alunos do sexo masculino
+      - name: taxa_evasao_ppi_sim
+        description: >-
+          Taxa de evasão de alunos pretos, pardos ou indígenas (PPI)
+      - name: taxa_evasao_ppi_nao
+        description: >-
+          Taxa de evasão de alunos não pretos, pardos ou indígenas (não PPI)
+      - name: taxa_evasao_ate_19_anos
+        description: >-
+          Taxa de evasão de alunos com até 19 anos de idade
+      - name: taxa_evasao_20_22_anos
+        description: >-
+          Taxa de evasão de alunos de 20 a 22 anos de idade
+      - name: taxa_evasao_23_24_anos
+        description: >-
+          Taxa de evasão de alunos de 23 e 24 anos de idade
+      - name: taxa_evasao_25_29_anos
+        description: >-
+          Taxa de evasão de alunos de 25 a 29 anos de idade
+      - name: taxa_evasao_30_39_anos
+        description: >-
+          Taxa de evasão de alunos de 30 a 39 anos de idade
+      - name: taxa_evasao_40_49_anos
+        description: >-
+          Taxa de evasão de alunos de 40 a 49 anos de idade
+      - name: taxa_evasao_50_anos_ou_mais
+        description: >-
+          Taxa de evasão de alunos de 50 anos ou mais de idade
+      - name: taxa_evasao_deficiencia_sim
+        description: >-
+          Taxa de evasão de alunos com deficiência
+      - name: taxa_evasao_deficiencia_nao
+        description: >-
+          Taxa de evasão de alunos sem deficiência
+      - name: taxa_conclusao_total
+        description: >-
+          Taxa de conclusão do total de alunos
+      - name: taxa_conclusao_feminino
+        description: >-
+          Taxa de conclusão de alunos do sexo feminino
+      - name: taxa_conclusao_masculino
+        description: >-
+          Taxa de conclusão de alunos do sexo masculino
+      - name: taxa_conclusao_ppi_sim
+        description: >-
+          Taxa de conclusão de alunos pretos, pardos ou indígenas (PPI)
+      - name: taxa_conclusao_ppi_nao
+        description: >-
+          Taxa de conclusão de alunos não pretos, pardos ou indígenas (não
+          PPI)
+      - name: taxa_conclusao_ate_19_anos
+        description: >-
+          Taxa de conclusão de alunos com até 19 anos de idade
+      - name: taxa_conclusao_20_22_anos
+        description: >-
+          Taxa de conclusão de alunos de 20 a 22 anos de idade
+      - name: taxa_conclusao_23_24_anos
+        description: >-
+          Taxa de conclusão de alunos de 23 e 24 anos de idade
+      - name: taxa_conclusao_25_29_anos
+        description: >-
+          Taxa de conclusão de alunos de 25 a 29 anos de idade
+      - name: taxa_conclusao_30_39_anos
+        description: >-
+          Taxa de conclusão de alunos de 30 a 39 anos de idade
+      - name: taxa_conclusao_40_49_anos
+        description: >-
+          Taxa de conclusão de alunos de 40 a 49 anos de idade
+      - name: taxa_conclusao_50_anos_ou_mais
+        description: >-
+          Taxa de conclusão de alunos de 50 anos ou mais de idade
+      - name: taxa_conclusao_deficiencia_sim
+        description: >-
+          Taxa de conclusão de alunos com deficiência
+      - name: taxa_conclusao_deficiencia_nao
+        description: >-
+          Taxa de conclusão de alunos sem deficiência
+      - name: taxa_retencao_total
+        description: >-
+          Taxa de retenção do total de alunos
+      - name: taxa_retencao_feminino
+        description: >-
+          Taxa de retenção de alunos do sexo feminino
+      - name: taxa_retencao_masculino
+        description: >-
+          Taxa de retenção de alunos do sexo masculino
+      - name: taxa_retencao_ppi_sim
+        description: >-
+          Taxa de retenção de alunos pretos, pardos ou indígenas (PPI)
+      - name: taxa_retencao_ppi_nao
+        description: >-
+          Taxa de retenção de alunos não pretos, pardos ou indígenas (não PPI)
+      - name: taxa_retencao_ate_19_anos
+        description: >-
+          Taxa de retenção de alunos com até 19 anos de idade
+      - name: taxa_retencao_20_22_anos
+        description: >-
+          Taxa de retenção de alunos de 20 a 22 anos de idade
+      - name: taxa_retencao_23_24_anos
+        description: >-
+          Taxa de retenção de alunos de 23 e 24 anos de idade
+      - name: taxa_retencao_25_29_anos
+        description: >-
+          Taxa de retenção de alunos de 25 a 29 anos de idade
+      - name: taxa_retencao_30_39_anos
+        description: >-
+          Taxa de retenção de alunos de 30 a 39 anos de idade
+      - name: taxa_retencao_40_49_anos
+        description: >-
+          Taxa de retenção de alunos de 40 a 49 anos de idade
+      - name: taxa_retencao_50_anos_ou_mais
+        description: >-
+          Taxa de retenção de alunos de 50 anos ou mais de idade
+      - name: taxa_permanencia_total
+        description: >-
+          Taxa de permanência do total de alunos
+      - name: taxa_permanencia_feminino
+        description: >-
+          Taxa de permanência de alunos do sexo feminino
+      - name: taxa_permanencia_masculino
+        description: >-
+          Taxa de permanência de alunos do sexo masculino
+      - name: taxa_permanencia_ppi_sim
+        description: >-
+          Taxa de permanência de alunos pretos, pardos ou indígenas (PPI)
+      - name: taxa_permanencia_ppi_nao
+        description: >-
+          Taxa de permanência de alunos não pretos, pardos ou indígenas (não
+          PPI)
+      - name: taxa_permanencia_ate_19_anos
+        description: >-
+          Taxa de permanência de alunos com até 19 anos de idade
+      - name: taxa_permanencia_20_22_anos
+        description: >-
+          Taxa de permanência de alunos de 20 a 22 anos de idade
+      - name: taxa_permanencia_23_24_anos
+        description: >-
+          Taxa de permanência de alunos de 23 e 24 anos de idade
+      - name: taxa_permanencia_25_29_anos
+        description: >-
+          Taxa de permanência de alunos de 25 a 29 anos de idade
+      - name: taxa_permanencia_30_39_anos
+        description: >-
+          Taxa de permanência de alunos de 30 a 39 anos de idade
+      - name: taxa_permanencia_40_49_anos
+        description: >-
+          Taxa de permanência de alunos de 40 a 49 anos de idade
+      - name: taxa_permanencia_50_anos_ou_mais
+        description: >-
+          Taxa de permanência de alunos de 50 anos ou mais de idade
+      - name: taxa_permanencia_deficiencia_sim
+        description: >-
+          Taxa de permanência de alunos com deficiência
+      - name: taxa_permanencia_deficiencia_nao
+        description: >-
+          Taxa de permanência de alunos sem deficiência

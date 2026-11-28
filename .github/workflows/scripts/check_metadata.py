@@ -6,7 +6,7 @@ from typing import Any
 
 import basedosdados as bd
 import pandas as pd
-from databasers_utils import get_architecture_table_from_api
+import requests
 
 _TYPE_ALIASES: dict[str, str] = {
     "boolean": "bool",
@@ -14,6 +14,93 @@ _TYPE_ALIASES: dict[str, str] = {
     "int": "int64",
     "float": "float64",
 }
+
+API_URL = "https://backend.basedosdados.org/api/v1/graphql"
+
+# The backend caps every connection at 100 records and truncates silently when
+# `first` is omitted, so columns must be fetched in pages of at most 100.
+_PAGE_SIZE = 100
+
+
+def _graphql(query: str, variables: dict[str, Any]) -> dict[str, Any]:
+    response = requests.post(
+        API_URL,
+        json={"query": query, "variables": variables},
+        timeout=60,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    if "errors" in payload:
+        raise RuntimeError(f"GraphQL error: {payload['errors']}")
+    return payload["data"]
+
+
+def get_architecture_table_from_api(
+    dataset_id: str, table_id: str
+) -> pd.DataFrame:
+    """
+    Fetch every column of a table from the backend API.
+
+    Returns a DataFrame with `name`, `bigquery_type` and `description`, ordered
+    by the column order registered in the backend.
+    """
+    table_query = """
+    query($gcpDatasetId: String!, $gcpTableId: String!) {
+        allCloudtable(gcpDatasetId: $gcpDatasetId, gcpTableId: $gcpTableId) {
+            edges { node { table { _id } } }
+        }
+    }
+    """
+    edges = _graphql(
+        table_query, {"gcpDatasetId": dataset_id, "gcpTableId": table_id}
+    )["allCloudtable"]["edges"]
+    if not edges:
+        raise RuntimeError(
+            f"No cloud table {dataset_id}.{table_id} registered in {API_URL}. "
+            "Register the table metadata in the backend before merging."
+        )
+    backend_table_id = edges[0]["node"]["table"]["_id"]
+
+    columns_query = """
+    query($tableId: ID!, $first: Int!, $after: String) {
+        allColumn(table_Id: $tableId, first: $first, after: $after) {
+            pageInfo { hasNextPage endCursor }
+            edges { node { name order description bigqueryType { name } } }
+        }
+    }
+    """
+    rows: list[dict[str, Any]] = []
+    cursor: str | None = None
+    while True:
+        page = _graphql(
+            columns_query,
+            {
+                "tableId": backend_table_id,
+                "first": _PAGE_SIZE,
+                "after": cursor,
+            },
+        )["allColumn"]
+        for edge in page["edges"]:
+            node = edge["node"]
+            bigquery_type = node["bigqueryType"]
+            rows.append(
+                {
+                    "name": node["name"],
+                    "order": node["order"],
+                    "bigquery_type": bigquery_type["name"].lower()
+                    if bigquery_type
+                    else None,
+                    "description": node["description"],
+                }
+            )
+        if not page["pageInfo"]["hasNextPage"]:
+            break
+        cursor = page["pageInfo"]["endCursor"]
+
+    df = pd.DataFrame(
+        rows, columns=["name", "order", "bigquery_type", "description"]
+    )
+    return df.sort_values("order").drop(columns="order").reset_index(drop=True)
 
 
 def get_datasets_tables_from_modified_files(
