@@ -3111,292 +3111,220 @@ models:
         tests: [not_null]
       - name: taxa_evasao_total
         description: >-
-          Taxa de evasão do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de evasão do total de alunos
       - name: taxa_evasao_feminino
         description: >-
-          Taxa de evasão de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos do sexo feminino
       - name: taxa_evasao_masculino
         description: >-
-          Taxa de evasão de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos do sexo masculino
       - name: taxa_evasao_amarela
         description: >-
-          Taxa de evasão de alunos de cor/raça amarela no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos de cor/raça amarela
       - name: taxa_evasao_branca
         description: >-
-          Taxa de evasão de alunos de cor/raça branca no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos de cor/raça branca
       - name: taxa_evasao_indigena
         description: >-
-          Taxa de evasão de alunos indígenas no sistema de educação superior
-          (graduação)
+          Taxa de evasão de alunos indígenas
       - name: taxa_evasao_parda
         description: >-
-          Taxa de evasão de alunos de cor/raça parda no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos de cor/raça parda
       - name: taxa_evasao_preta
         description: >-
-          Taxa de evasão de alunos de cor/raça preta no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos de cor/raça preta
       - name: taxa_evasao_sem_declaracao
         description: >-
-          Taxa de evasão de alunos sem declaração de cor/raça no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos sem declaração de cor/raça
       - name: taxa_evasao_ate_19_anos
         description: >-
-          Taxa de evasão de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos com até 19 anos de idade
       - name: taxa_evasao_20_22_anos
         description: >-
-          Taxa de evasão de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 20 a 22 anos de idade
       - name: taxa_evasao_23_24_anos
         description: >-
-          Taxa de evasão de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 23 e 24 anos de idade
       - name: taxa_evasao_25_29_anos
         description: >-
-          Taxa de evasão de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 25 a 29 anos de idade
       - name: taxa_evasao_30_39_anos
         description: >-
-          Taxa de evasão de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 30 a 39 anos de idade
       - name: taxa_evasao_40_49_anos
         description: >-
-          Taxa de evasão de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 40 a 49 anos de idade
       - name: taxa_evasao_50_anos_ou_mais
         description: >-
-          Taxa de evasão de alunos de 50 anos ou mais de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 50 anos ou mais de idade
       - name: taxa_evasao_deficiencia_sim
         description: >-
-          Taxa de evasão de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos com deficiência
       - name: taxa_evasao_deficiencia_nao
         description: >-
-          Taxa de evasão de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos sem deficiência
       - name: taxa_conclusao_total
         description: >-
-          Taxa de conclusão do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de conclusão do total de alunos
       - name: taxa_conclusao_feminino
         description: >-
-          Taxa de conclusão de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos do sexo feminino
       - name: taxa_conclusao_masculino
         description: >-
-          Taxa de conclusão de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos do sexo masculino
       - name: taxa_conclusao_amarela
         description: >-
-          Taxa de conclusão de alunos de cor/raça amarela no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de cor/raça amarela
       - name: taxa_conclusao_branca
         description: >-
-          Taxa de conclusão de alunos de cor/raça branca no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de cor/raça branca
       - name: taxa_conclusao_indigena
         description: >-
-          Taxa de conclusão de alunos indígenas no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos indígenas
       - name: taxa_conclusao_parda
         description: >-
-          Taxa de conclusão de alunos de cor/raça parda no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos de cor/raça parda
       - name: taxa_conclusao_preta
         description: >-
-          Taxa de conclusão de alunos de cor/raça preta no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos de cor/raça preta
       - name: taxa_conclusao_sem_declaracao
         description: >-
-          Taxa de conclusão de alunos sem declaração de cor/raça no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos sem declaração de cor/raça
       - name: taxa_conclusao_ate_19_anos
         description: >-
-          Taxa de conclusão de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos com até 19 anos de idade
       - name: taxa_conclusao_20_22_anos
         description: >-
-          Taxa de conclusão de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 20 a 22 anos de idade
       - name: taxa_conclusao_23_24_anos
         description: >-
-          Taxa de conclusão de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 23 e 24 anos de idade
       - name: taxa_conclusao_25_29_anos
         description: >-
-          Taxa de conclusão de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 25 a 29 anos de idade
       - name: taxa_conclusao_30_39_anos
         description: >-
-          Taxa de conclusão de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 30 a 39 anos de idade
       - name: taxa_conclusao_40_49_anos
         description: >-
-          Taxa de conclusão de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 40 a 49 anos de idade
       - name: taxa_conclusao_50_anos_ou_mais
         description: >-
-          Taxa de conclusão de alunos de 50 anos ou mais de idade no sistema
-          de educação superior (graduação)
+          Taxa de conclusão de alunos de 50 anos ou mais de idade
       - name: taxa_conclusao_deficiencia_sim
         description: >-
-          Taxa de conclusão de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos com deficiência
       - name: taxa_conclusao_deficiencia_nao
         description: >-
-          Taxa de conclusão de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos sem deficiência
       - name: taxa_retencao_total
         description: >-
-          Taxa de retenção do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de retenção do total de alunos
       - name: taxa_retencao_feminino
         description: >-
-          Taxa de retenção de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos do sexo feminino
       - name: taxa_retencao_masculino
         description: >-
-          Taxa de retenção de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos do sexo masculino
       - name: taxa_retencao_amarela
         description: >-
-          Taxa de retenção de alunos de cor/raça amarela no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de cor/raça amarela
       - name: taxa_retencao_branca
         description: >-
-          Taxa de retenção de alunos de cor/raça branca no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos de cor/raça branca
       - name: taxa_retencao_indigena
         description: >-
-          Taxa de retenção de alunos indígenas no sistema de educação superior
-          (graduação)
+          Taxa de retenção de alunos indígenas
       - name: taxa_retencao_parda
         description: >-
-          Taxa de retenção de alunos de cor/raça parda no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos de cor/raça parda
       - name: taxa_retencao_preta
         description: >-
-          Taxa de retenção de alunos de cor/raça preta no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos de cor/raça preta
       - name: taxa_retencao_sem_declaracao
         description: >-
-          Taxa de retenção de alunos sem declaração de cor/raça no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos sem declaração de cor/raça
       - name: taxa_retencao_ate_19_anos
         description: >-
-          Taxa de retenção de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos com até 19 anos de idade
       - name: taxa_retencao_20_22_anos
         description: >-
-          Taxa de retenção de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 20 a 22 anos de idade
       - name: taxa_retencao_23_24_anos
         description: >-
-          Taxa de retenção de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 23 e 24 anos de idade
       - name: taxa_retencao_25_29_anos
         description: >-
-          Taxa de retenção de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 25 a 29 anos de idade
       - name: taxa_retencao_30_39_anos
         description: >-
-          Taxa de retenção de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 30 a 39 anos de idade
       - name: taxa_retencao_40_49_anos
         description: >-
-          Taxa de retenção de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 40 a 49 anos de idade
       - name: taxa_retencao_50_anos_ou_mais
         description: >-
-          Taxa de retenção de alunos de 50 anos ou mais de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 50 anos ou mais de idade
       - name: taxa_retencao_deficiencia_sim
         description: >-
-          Taxa de retenção de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos com deficiência
       - name: taxa_retencao_deficiencia_nao
         description: >-
-          Taxa de retenção de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos sem deficiência
       - name: taxa_permanencia_total
         description: >-
-          Taxa de permanência do total de alunos no sistema de educação
-          superior (graduação)
+          Taxa de permanência do total de alunos
       - name: taxa_permanencia_feminino
         description: >-
-          Taxa de permanência de alunos do sexo feminino no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos do sexo feminino
       - name: taxa_permanencia_masculino
         description: >-
-          Taxa de permanência de alunos do sexo masculino no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos do sexo masculino
       - name: taxa_permanencia_amarela
         description: >-
-          Taxa de permanência de alunos de cor/raça amarela no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça amarela
       - name: taxa_permanencia_branca
         description: >-
-          Taxa de permanência de alunos de cor/raça branca no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça branca
       - name: taxa_permanencia_indigena
         description: >-
-          Taxa de permanência de alunos indígenas no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos indígenas
       - name: taxa_permanencia_parda
         description: >-
-          Taxa de permanência de alunos de cor/raça parda no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça parda
       - name: taxa_permanencia_preta
         description: >-
-          Taxa de permanência de alunos de cor/raça preta no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça preta
       - name: taxa_permanencia_sem_declaracao
         description: >-
-          Taxa de permanência de alunos sem declaração de cor/raça no sistema
-          de educação superior (graduação)
+          Taxa de permanência de alunos sem declaração de cor/raça
       - name: taxa_permanencia_ate_19_anos
         description: >-
-          Taxa de permanência de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos com até 19 anos de idade
       - name: taxa_permanencia_20_22_anos
         description: >-
-          Taxa de permanência de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 20 a 22 anos de idade
       - name: taxa_permanencia_23_24_anos
         description: >-
-          Taxa de permanência de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 23 e 24 anos de idade
       - name: taxa_permanencia_25_29_anos
         description: >-
-          Taxa de permanência de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 25 a 29 anos de idade
       - name: taxa_permanencia_30_39_anos
         description: >-
-          Taxa de permanência de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 30 a 39 anos de idade
       - name: taxa_permanencia_40_49_anos
         description: >-
-          Taxa de permanência de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 40 a 49 anos de idade
       - name: taxa_permanencia_50_anos_ou_mais
         description: >-
-          Taxa de permanência de alunos de 50 anos ou mais de idade no sistema
-          de educação superior (graduação)
+          Taxa de permanência de alunos de 50 anos ou mais de idade
       - name: taxa_permanencia_deficiencia_sim
         description: >-
-          Taxa de permanência de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos com deficiência
       - name: taxa_permanencia_deficiencia_nao
         description: >-
-          Taxa de permanência de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos sem deficiência
   - name: br_inep_indicadores_educacionais__fluxo_educacao_superior_regiao
     description: >-
       Indicadores de fluxo da educação superior (graduação) do Inep por região
@@ -3451,272 +3379,205 @@ models:
           Taxa de evasão de alunos de cor/raça branca
       - name: taxa_evasao_indigena
         description: >-
-          Taxa de evasão de alunos indígenas no sistema de educação superior
-          (graduação)
+          Taxa de evasão de alunos indígenas
       - name: taxa_evasao_parda
         description: >-
-          Taxa de evasão de alunos de cor/raça parda no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos de cor/raça parda
       - name: taxa_evasao_preta
         description: >-
-          Taxa de evasão de alunos de cor/raça preta no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos de cor/raça preta
       - name: taxa_evasao_sem_declaracao
         description: >-
-          Taxa de evasão de alunos sem declaração de cor/raça no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos sem declaração de cor/raça
       - name: taxa_evasao_ate_19_anos
         description: >-
-          Taxa de evasão de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos com até 19 anos de idade
       - name: taxa_evasao_20_22_anos
         description: >-
-          Taxa de evasão de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 20 a 22 anos de idade
       - name: taxa_evasao_23_24_anos
         description: >-
-          Taxa de evasão de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 23 e 24 anos de idade
       - name: taxa_evasao_25_29_anos
         description: >-
-          Taxa de evasão de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 25 a 29 anos de idade
       - name: taxa_evasao_30_39_anos
         description: >-
-          Taxa de evasão de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 30 a 39 anos de idade
       - name: taxa_evasao_40_49_anos
         description: >-
-          Taxa de evasão de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 40 a 49 anos de idade
       - name: taxa_evasao_50_anos_ou_mais
         description: >-
-          Taxa de evasão de alunos de 50 anos ou mais de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 50 anos ou mais de idade
       - name: taxa_evasao_deficiencia_sim
         description: >-
-          Taxa de evasão de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos com deficiência
       - name: taxa_evasao_deficiencia_nao
         description: >-
-          Taxa de evasão de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos sem deficiência
       - name: taxa_conclusao_total
         description: >-
-          Taxa de conclusão do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de conclusão do total de alunos
       - name: taxa_conclusao_feminino
         description: >-
-          Taxa de conclusão de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos do sexo feminino
       - name: taxa_conclusao_masculino
         description: >-
-          Taxa de conclusão de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos do sexo masculino
       - name: taxa_conclusao_amarela
         description: >-
-          Taxa de conclusão de alunos de cor/raça amarela no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de cor/raça amarela
       - name: taxa_conclusao_branca
         description: >-
-          Taxa de conclusão de alunos de cor/raça branca no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de cor/raça branca
       - name: taxa_conclusao_indigena
         description: >-
-          Taxa de conclusão de alunos indígenas no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos indígenas
       - name: taxa_conclusao_parda
         description: >-
-          Taxa de conclusão de alunos de cor/raça parda no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos de cor/raça parda
       - name: taxa_conclusao_preta
         description: >-
-          Taxa de conclusão de alunos de cor/raça preta no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos de cor/raça preta
       - name: taxa_conclusao_sem_declaracao
         description: >-
-          Taxa de conclusão de alunos sem declaração de cor/raça no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos sem declaração de cor/raça
       - name: taxa_conclusao_ate_19_anos
         description: >-
-          Taxa de conclusão de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos com até 19 anos de idade
       - name: taxa_conclusao_20_22_anos
         description: >-
-          Taxa de conclusão de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 20 a 22 anos de idade
       - name: taxa_conclusao_23_24_anos
         description: >-
-          Taxa de conclusão de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 23 e 24 anos de idade
       - name: taxa_conclusao_25_29_anos
         description: >-
-          Taxa de conclusão de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 25 a 29 anos de idade
       - name: taxa_conclusao_30_39_anos
         description: >-
-          Taxa de conclusão de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 30 a 39 anos de idade
       - name: taxa_conclusao_40_49_anos
         description: >-
-          Taxa de conclusão de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 40 a 49 anos de idade
       - name: taxa_conclusao_50_anos_ou_mais
         description: >-
-          Taxa de conclusão de alunos de 50 anos ou mais de idade no sistema
-          de educação superior (graduação)
+          Taxa de conclusão de alunos de 50 anos ou mais de idade
       - name: taxa_conclusao_deficiencia_sim
         description: >-
-          Taxa de conclusão de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos com deficiência
       - name: taxa_conclusao_deficiencia_nao
         description: >-
-          Taxa de conclusão de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos sem deficiência
       - name: taxa_retencao_total
         description: >-
-          Taxa de retenção do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de retenção do total de alunos
       - name: taxa_retencao_feminino
         description: >-
-          Taxa de retenção de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos do sexo feminino
       - name: taxa_retencao_masculino
         description: >-
-          Taxa de retenção de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos do sexo masculino
       - name: taxa_retencao_amarela
         description: >-
-          Taxa de retenção de alunos de cor/raça amarela no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de cor/raça amarela
       - name: taxa_retencao_branca
         description: >-
-          Taxa de retenção de alunos de cor/raça branca no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos de cor/raça branca
       - name: taxa_retencao_indigena
         description: >-
-          Taxa de retenção de alunos indígenas no sistema de educação superior
-          (graduação)
+          Taxa de retenção de alunos indígenas
       - name: taxa_retencao_parda
         description: >-
-          Taxa de retenção de alunos de cor/raça parda no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos de cor/raça parda
       - name: taxa_retencao_preta
         description: >-
-          Taxa de retenção de alunos de cor/raça preta no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos de cor/raça preta
       - name: taxa_retencao_sem_declaracao
         description: >-
-          Taxa de retenção de alunos sem declaração de cor/raça no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos sem declaração de cor/raça
       - name: taxa_retencao_ate_19_anos
         description: >-
-          Taxa de retenção de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos com até 19 anos de idade
       - name: taxa_retencao_20_22_anos
         description: >-
-          Taxa de retenção de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 20 a 22 anos de idade
       - name: taxa_retencao_23_24_anos
         description: >-
-          Taxa de retenção de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 23 e 24 anos de idade
       - name: taxa_retencao_25_29_anos
         description: >-
-          Taxa de retenção de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 25 a 29 anos de idade
       - name: taxa_retencao_30_39_anos
         description: >-
-          Taxa de retenção de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 30 a 39 anos de idade
       - name: taxa_retencao_40_49_anos
         description: >-
-          Taxa de retenção de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 40 a 49 anos de idade
       - name: taxa_retencao_50_anos_ou_mais
         description: >-
-          Taxa de retenção de alunos de 50 anos ou mais de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 50 anos ou mais de idade
       - name: taxa_retencao_deficiencia_sim
         description: >-
-          Taxa de retenção de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos com deficiência
       - name: taxa_retencao_deficiencia_nao
         description: >-
-          Taxa de retenção de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos sem deficiência
       - name: taxa_permanencia_total
         description: >-
-          Taxa de permanência do total de alunos no sistema de educação
-          superior (graduação)
+          Taxa de permanência do total de alunos
       - name: taxa_permanencia_feminino
         description: >-
-          Taxa de permanência de alunos do sexo feminino no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos do sexo feminino
       - name: taxa_permanencia_masculino
         description: >-
-          Taxa de permanência de alunos do sexo masculino no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos do sexo masculino
       - name: taxa_permanencia_amarela
         description: >-
-          Taxa de permanência de alunos de cor/raça amarela no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça amarela
       - name: taxa_permanencia_branca
         description: >-
-          Taxa de permanência de alunos de cor/raça branca no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça branca
       - name: taxa_permanencia_indigena
         description: >-
-          Taxa de permanência de alunos indígenas no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos indígenas
       - name: taxa_permanencia_parda
         description: >-
-          Taxa de permanência de alunos de cor/raça parda no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça parda
       - name: taxa_permanencia_preta
         description: >-
-          Taxa de permanência de alunos de cor/raça preta no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de cor/raça preta
       - name: taxa_permanencia_sem_declaracao
         description: >-
-          Taxa de permanência de alunos sem declaração de cor/raça no sistema
-          de educação superior (graduação)
+          Taxa de permanência de alunos sem declaração de cor/raça
       - name: taxa_permanencia_ate_19_anos
         description: >-
-          Taxa de permanência de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos com até 19 anos de idade
       - name: taxa_permanencia_20_22_anos
         description: >-
-          Taxa de permanência de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 20 a 22 anos de idade
       - name: taxa_permanencia_23_24_anos
         description: >-
-          Taxa de permanência de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 23 e 24 anos de idade
       - name: taxa_permanencia_25_29_anos
         description: >-
-          Taxa de permanência de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 25 a 29 anos de idade
       - name: taxa_permanencia_30_39_anos
         description: >-
-          Taxa de permanência de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 30 a 39 anos de idade
       - name: taxa_permanencia_40_49_anos
         description: >-
-          Taxa de permanência de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 40 a 49 anos de idade
       - name: taxa_permanencia_50_anos_ou_mais
         description: >-
-          Taxa de permanência de alunos de 50 anos ou mais de idade no sistema
-          de educação superior (graduação)
+          Taxa de permanência de alunos de 50 anos ou mais de idade
       - name: taxa_permanencia_deficiencia_sim
         description: >-
-          Taxa de permanência de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos com deficiência
       - name: taxa_permanencia_deficiencia_nao
         description: >-
-          Taxa de permanência de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos sem deficiência
   - name: br_inep_indicadores_educacionais__fluxo_educacao_superior_uf
     description: >-
       Indicadores de fluxo da educação superior (graduação) do Inep por unidade da
@@ -3765,217 +3626,165 @@ models:
               field: sigla
       - name: taxa_evasao_total
         description: >-
-          Taxa de evasão do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de evasão do total de alunos
       - name: taxa_evasao_feminino
         description: >-
-          Taxa de evasão de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos do sexo feminino
       - name: taxa_evasao_masculino
         description: >-
-          Taxa de evasão de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos do sexo masculino
       - name: taxa_evasao_ppi_sim
         description: >-
-          Taxa de evasão de alunos pretos, pardos ou indígenas (PPI) no
-          sistema de educação superior (graduação)
+          Taxa de evasão de alunos pretos, pardos ou indígenas (PPI)
       - name: taxa_evasao_ppi_nao
         description: >-
           Taxa de evasão de alunos não pretos, pardos ou indígenas (não PPI)
-          no sistema de educação superior (graduação)
       - name: taxa_evasao_ate_19_anos
         description: >-
-          Taxa de evasão de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos com até 19 anos de idade
       - name: taxa_evasao_20_22_anos
         description: >-
-          Taxa de evasão de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 20 a 22 anos de idade
       - name: taxa_evasao_23_24_anos
         description: >-
-          Taxa de evasão de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 23 e 24 anos de idade
       - name: taxa_evasao_25_29_anos
         description: >-
-          Taxa de evasão de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 25 a 29 anos de idade
       - name: taxa_evasao_30_39_anos
         description: >-
-          Taxa de evasão de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 30 a 39 anos de idade
       - name: taxa_evasao_40_49_anos
         description: >-
-          Taxa de evasão de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 40 a 49 anos de idade
       - name: taxa_evasao_50_anos_ou_mais
         description: >-
-          Taxa de evasão de alunos de 50 anos ou mais de idade no sistema de
-          educação superior (graduação)
+          Taxa de evasão de alunos de 50 anos ou mais de idade
       - name: taxa_evasao_deficiencia_sim
         description: >-
-          Taxa de evasão de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos com deficiência
       - name: taxa_evasao_deficiencia_nao
         description: >-
-          Taxa de evasão de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de evasão de alunos sem deficiência
       - name: taxa_conclusao_total
         description: >-
-          Taxa de conclusão do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de conclusão do total de alunos
       - name: taxa_conclusao_feminino
         description: >-
-          Taxa de conclusão de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos do sexo feminino
       - name: taxa_conclusao_masculino
         description: >-
-          Taxa de conclusão de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos do sexo masculino
       - name: taxa_conclusao_ppi_sim
         description: >-
-          Taxa de conclusão de alunos pretos, pardos ou indígenas (PPI) no
-          sistema de educação superior (graduação)
+          Taxa de conclusão de alunos pretos, pardos ou indígenas (PPI)
       - name: taxa_conclusao_ppi_nao
         description: >-
           Taxa de conclusão de alunos não pretos, pardos ou indígenas (não
-          PPI) no sistema de educação superior (graduação)
+          PPI)
       - name: taxa_conclusao_ate_19_anos
         description: >-
-          Taxa de conclusão de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos com até 19 anos de idade
       - name: taxa_conclusao_20_22_anos
         description: >-
-          Taxa de conclusão de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 20 a 22 anos de idade
       - name: taxa_conclusao_23_24_anos
         description: >-
-          Taxa de conclusão de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 23 e 24 anos de idade
       - name: taxa_conclusao_25_29_anos
         description: >-
-          Taxa de conclusão de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 25 a 29 anos de idade
       - name: taxa_conclusao_30_39_anos
         description: >-
-          Taxa de conclusão de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 30 a 39 anos de idade
       - name: taxa_conclusao_40_49_anos
         description: >-
-          Taxa de conclusão de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de conclusão de alunos de 40 a 49 anos de idade
       - name: taxa_conclusao_50_anos_ou_mais
         description: >-
-          Taxa de conclusão de alunos de 50 anos ou mais de idade no sistema
-          de educação superior (graduação)
+          Taxa de conclusão de alunos de 50 anos ou mais de idade
       - name: taxa_conclusao_deficiencia_sim
         description: >-
-          Taxa de conclusão de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos com deficiência
       - name: taxa_conclusao_deficiencia_nao
         description: >-
-          Taxa de conclusão de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de conclusão de alunos sem deficiência
       - name: taxa_retencao_total
         description: >-
-          Taxa de retenção do total de alunos no sistema de educação superior
-          (graduação)
+          Taxa de retenção do total de alunos
       - name: taxa_retencao_feminino
         description: >-
-          Taxa de retenção de alunos do sexo feminino no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos do sexo feminino
       - name: taxa_retencao_masculino
         description: >-
-          Taxa de retenção de alunos do sexo masculino no sistema de educação
-          superior (graduação)
+          Taxa de retenção de alunos do sexo masculino
       - name: taxa_retencao_ppi_sim
         description: >-
-          Taxa de retenção de alunos pretos, pardos ou indígenas (PPI) no
-          sistema de educação superior (graduação)
+          Taxa de retenção de alunos pretos, pardos ou indígenas (PPI)
       - name: taxa_retencao_ppi_nao
         description: >-
           Taxa de retenção de alunos não pretos, pardos ou indígenas (não PPI)
-          no sistema de educação superior (graduação)
       - name: taxa_retencao_ate_19_anos
         description: >-
-          Taxa de retenção de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos com até 19 anos de idade
       - name: taxa_retencao_20_22_anos
         description: >-
-          Taxa de retenção de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 20 a 22 anos de idade
       - name: taxa_retencao_23_24_anos
         description: >-
-          Taxa de retenção de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 23 e 24 anos de idade
       - name: taxa_retencao_25_29_anos
         description: >-
-          Taxa de retenção de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 25 a 29 anos de idade
       - name: taxa_retencao_30_39_anos
         description: >-
-          Taxa de retenção de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 30 a 39 anos de idade
       - name: taxa_retencao_40_49_anos
         description: >-
-          Taxa de retenção de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 40 a 49 anos de idade
       - name: taxa_retencao_50_anos_ou_mais
         description: >-
-          Taxa de retenção de alunos de 50 anos ou mais de idade no sistema de
-          educação superior (graduação)
+          Taxa de retenção de alunos de 50 anos ou mais de idade
       - name: taxa_permanencia_total
         description: >-
-          Taxa de permanência do total de alunos no sistema de educação
-          superior (graduação)
+          Taxa de permanência do total de alunos
       - name: taxa_permanencia_feminino
         description: >-
-          Taxa de permanência de alunos do sexo feminino no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos do sexo feminino
       - name: taxa_permanencia_masculino
         description: >-
-          Taxa de permanência de alunos do sexo masculino no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos do sexo masculino
       - name: taxa_permanencia_ppi_sim
         description: >-
-          Taxa de permanência de alunos pretos, pardos ou indígenas (PPI) no
-          sistema de educação superior (graduação)
+          Taxa de permanência de alunos pretos, pardos ou indígenas (PPI)
       - name: taxa_permanencia_ppi_nao
         description: >-
           Taxa de permanência de alunos não pretos, pardos ou indígenas (não
-          PPI) no sistema de educação superior (graduação)
+          PPI)
       - name: taxa_permanencia_ate_19_anos
         description: >-
-          Taxa de permanência de alunos com até 19 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos com até 19 anos de idade
       - name: taxa_permanencia_20_22_anos
         description: >-
-          Taxa de permanência de alunos de 20 a 22 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 20 a 22 anos de idade
       - name: taxa_permanencia_23_24_anos
         description: >-
-          Taxa de permanência de alunos de 23 e 24 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 23 e 24 anos de idade
       - name: taxa_permanencia_25_29_anos
         description: >-
-          Taxa de permanência de alunos de 25 a 29 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 25 a 29 anos de idade
       - name: taxa_permanencia_30_39_anos
         description: >-
-          Taxa de permanência de alunos de 30 a 39 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 30 a 39 anos de idade
       - name: taxa_permanencia_40_49_anos
         description: >-
-          Taxa de permanência de alunos de 40 a 49 anos de idade no sistema de
-          educação superior (graduação)
+          Taxa de permanência de alunos de 40 a 49 anos de idade
       - name: taxa_permanencia_50_anos_ou_mais
         description: >-
-          Taxa de permanência de alunos de 50 anos ou mais de idade no sistema
-          de educação superior (graduação)
+          Taxa de permanência de alunos de 50 anos ou mais de idade
       - name: taxa_permanencia_deficiencia_sim
         description: >-
-          Taxa de permanência de alunos com deficiência no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos com deficiência
       - name: taxa_permanencia_deficiencia_nao
         description: >-
-          Taxa de permanência de alunos sem deficiência no sistema de educação
-          superior (graduação)
+          Taxa de permanência de alunos sem deficiência
